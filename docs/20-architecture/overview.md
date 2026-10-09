@@ -130,7 +130,7 @@ from every box are reported to `ops.events`
   projects since July 2026, with Radix still supported);
 - TanStack Router;
 - TanStack Query behind one data layer, keeping the option of PowerSync +
-  TanStack DB ([ADR-0042](adr/0042-data-layer.md), Proposed);
+  TanStack DB ([ADR-0042](adr/0042-data-layer.md));
 - Supabase, including Edge Functions, pg_cron and Vault;
 - Capacitor later.
 

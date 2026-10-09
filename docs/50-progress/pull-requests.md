@@ -36,14 +36,13 @@ Branch `claude/stage-1-foundation` · 2026-10-09
   done: v1 paused without a `pg_dump` (Joe's choice); ADR-0003, the runbook
   and backups updated.
 - Re-checked shadcn's default (Base UI, ADR-0034) and drafted the data
-  layer as ADR-0042 (Proposed); linked it from ADR-0009, the offline spec,
+  layer as ADR-0042, which Joe agreed; linked it from ADR-0009, the offline spec,
   the data model, contracts, overview and roadmap.
 
 **Left for later**
 - Joe published the Google sign-in app. Its home page and `/privacy` page
   go live with the first deploy (plan step 9a); brand verification is
   optional and waits until then.
-- Joe to agree the data layer (ADR-0042, Proposed).
 
 ## No PR — Docs structure for LifeOS v2 (Stage 0)
 

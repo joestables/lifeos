@@ -98,7 +98,7 @@ core.activity  item_id, verb, changed (jsonb), at, actor — written by triggers
   logged or linked ([ADR-0022](adr/0022-repeating-items.md)).
 - **Writes that span tables are database functions** called over RPC
   ([ADR-0009](adr/0009-cross-table-writes-are-database-functions.md));
-  [ADR-0042](adr/0042-data-layer.md) (Proposed) makes every write one.
+  [ADR-0042](adr/0042-data-layer.md) makes every write one.
 
 ### Time fields per Schedulable Type
 

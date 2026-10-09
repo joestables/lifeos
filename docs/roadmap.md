@@ -35,7 +35,6 @@ Each stage begins by writing its own specs.
 | Question | Settled in |
 |---|---|
 | Leaving the Household: does "created by" decide ownership, or does the leaver take a copy? ([ADR-0016](20-architecture/adr/0016-sharing-and-visibility.md)) | To confirm |
-| The data layer, including cross-table writes as database functions ([ADR-0009](20-architecture/adr/0009-cross-table-writes-are-database-functions.md)) | [ADR-0042](20-architecture/adr/0042-data-layer.md), Proposed: Joe to agree |
 | The inbound-email service for the capture address | Stage 2 |
 | On a repeating Shop, do unticked lines carry over to the next occurrence? | Lists spec (Stage 3) |
 | Unit conversion (100 g + 1 cup); whether a pantry is wanted | Recipes spec (Stage 4) |

@@ -58,8 +58,8 @@ without one, the core's default rendering is used
 - Writes that span tables are database functions called over RPC
   (`core.create_item`, `core.convert_item` …)
   ([ADR-0009](adr/0009-cross-table-writes-are-database-functions.md),
-  Provisionally agreed); [ADR-0042](adr/0042-data-layer.md) (Proposed)
-  makes every write one, and keeps all Supabase calls in one data layer.
+  Provisionally agreed); [ADR-0042](adr/0042-data-layer.md), Provisionally
+  agreed, makes every write one, and keeps all Supabase calls in one data layer.
 - The published layer is the surface for a later LifeOS MCP server, under the
   same visibility rules as the app
   ([ADR-0004](adr/0004-ai-across-the-whole-app.md), Provisionally agreed).

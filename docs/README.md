@@ -151,7 +151,7 @@ Consequences**, to a page.
 | [0039](20-architecture/adr/0039-accounts-contacts-households.md) | Accounts, Contacts and Households | Provisionally agreed |
 | [0040](20-architecture/adr/0040-migrations-applied-by-claude.md) | Migrations are applied by Claude through the Supabase MCP | Provisionally agreed |
 | [0041](20-architecture/adr/0041-visual-direction.md) | Visual direction: Stone, neutral, coloured by Module | Provisionally agreed |
-| [0042](20-architecture/adr/0042-data-layer.md) | The data layer | Proposed |
+| [0042](20-architecture/adr/0042-data-layer.md) | The data layer | Provisionally agreed |
 
 ## Sources
 
