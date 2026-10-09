@@ -5,13 +5,14 @@ Filled in as each piece is built.*
 
 ## Stage 1 cut-over from v1
 
-1. Take one `pg_dump` of v1.
-2. Pause the v1 project. It stops working at once, Recipes and Gym included.
-   A paused free project can, as far as is known, be restored from the
-   dashboard for about 90 days; after that only its backup can be
-   downloaded.
-3. Create the v2 project in London (eu-west-2).
-4. Delete v1 once it is clearly not needed.
+1. Pause the v1 project. It stops working at once, Recipes and Gym included.
+   Joe chose not to take a `pg_dump` first. A paused free project can, as
+   far as is known, be restored, or its backup downloaded, from the
+   dashboard for about 90 days.
+2. Create the v2 project in London (eu-west-2).
+3. Delete v1 once it is clearly not needed.
+
+Done 9 October 2026.
 
 ## Noticing problems
 

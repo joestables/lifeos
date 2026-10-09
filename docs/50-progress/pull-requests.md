@@ -32,10 +32,11 @@ Branch `claude/stage-1-foundation` · 2026-10-09
 - Merged Joe's `.claude/settings.json` change from `master` (whole Supabase,
   Vercel and GitHub servers allowed) and updated `environments.md`.
 - Set Vercel's deployment protection to previews only, so production is
-  public. Joe finished the Supabase sign-in settings.
+  public. Joe finished the Supabase and Google sign-in settings. Cut-over
+  done: v1 paused without a `pg_dump` (Joe's choice); ADR-0003, the runbook
+  and backups updated.
 
 **Left for later**
-- Joe: confirm v1 was backed up (plan step 4).
 - Joe published the Google sign-in app. Its home page and `/privacy` page
   go live with the first deploy (plan step 9a); brand verification is
   optional and waits until then.
