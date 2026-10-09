@@ -29,6 +29,8 @@ Branch `claude/stage-1-foundation` · 2026-10-09
 - Wrote the design system as a specification in `docs/30-design/` (README
   with the checklist and enforcement, tokens, components, patterns, a frozen
   reference page) and amended ADR-0038 with how it is kept consistent.
+- Merged Joe's `.claude/settings.json` change from `master` (whole Supabase,
+  Vercel and GitHub servers allowed) and updated `environments.md`.
 
 **Left for later**
 - Joe: confirm v1 was backed up; finish the Google, Supabase and Vercel

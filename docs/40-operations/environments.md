@@ -39,12 +39,12 @@ run anything in Supabase himself
   allowed in the environment's network settings.
 - **Permissions:** Joe wants no approval prompts for any Supabase action
   (Edge Function deploys included), nor for Vercel or GitHub.
-  [`.claude/settings.json`](../../.claude/settings.json) currently
-  pre-approves only the everyday Supabase tools, under both names the server
-  registers. To cover everything, its `allow` list should be the whole
-  servers: `mcp__Supabase`, `mcp__org-connector-mcp_supabase_com_88FE637B`,
-  `mcp__Vercel` and `mcp__github`. The session's safety check stops Claude
-  from editing its own permissions, so Joe makes that change.
+  [`.claude/settings.json`](../../.claude/settings.json) allows the whole
+  servers: `mcp__Supabase`, `mcp__org-connector-mcp_supabase_com_88FE637B`
+  (the same Supabase connector under its second name), `mcp__Vercel` and
+  `mcp__github`. Claude can't edit this file itself (the session's safety
+  check stops it changing its own permissions), so Joe makes such changes.
+  A change takes effect in the next session.
 - **The permission mode** is picked from the dropdown beside the prompt box;
   the allowlist only stops prompts for the tools it names.
 - **Which project:** writes go to `lifeos` (`nxydbufwuvsacayqoakh`) only.
