@@ -2,6 +2,20 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## Not yet opened — Stage 1: plan and first specs
+
+Branch `claude/stage-1-foundation` · 2026-10-09
+
+**What it did**
+- Wrote the [Stage 1 plan](plans/stage-1.md).
+- Drafted the Stage 1 requirements: sign-in and Spaces (ACC-001–003) and
+  offline writes (OFF-001–005), all *proposed*.
+- `CLAUDE.md` and the docs index now say Stage 1 is in progress.
+
+**Left for later**
+- Joe's review of the requirements; the Stage 1 decisions, look-and-feel
+  exercise and cut-over (plan steps 2–4).
+
 ## No PR — Docs structure for LifeOS v2 (Stage 0)
 
 Branch `claude/affectionate-lamport-cukhtr` · 2026-10-09 · pushed straight to

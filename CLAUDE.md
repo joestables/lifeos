@@ -1,7 +1,8 @@
 # LifeOS — instructions for Claude
 
-LifeOS v2 is being specified. Until the architecture is signed off, this
-repository holds only `docs/`. Start at [docs/README.md](docs/README.md): the
+LifeOS v2 is being built, stage by stage. Stage 0 settled the architecture
+(Provisionally agreed); code arrives with Stage 1. The current stage's plan is
+in [docs/50-progress/plans/](docs/50-progress/plans/). Start at [docs/README.md](docs/README.md): the
 index, the ADR statuses, which document wins, and how to change documents.
 
 ## Spec-driven development: the docs are the source of truth
