@@ -2,7 +2,7 @@
 
 **Status:** Provisionally agreed · 2026-10-09
 
-**Amended:** 2026-10-09 by [ADR-0039](0039-accounts-contacts-households.md) (joining).
+**Amended:** 2026-10-09 by [ADR-0039](0039-accounts-contacts-households.md) (joining); 2026-10-09 by the Stage 1 core schema (`can_read` moved to `core_private`).
 
 ## Context
 
@@ -12,9 +12,11 @@ and for AI.
 
 ## Decision
 
-- **One core function, `core.can_read(item_id)`**, holds the rule. Every
-  Module's row-level security policies, on detail tables and child rows
-  alike, call it. The links table is indexed for it.
+- **One core function, `core_private.can_read(item_id)`**, holds the rule.
+  Every Module's row-level security policies, on detail tables and child
+  rows alike, call it. It lives in `core_private`, a schema the API can't
+  reach, so it can't be called as an endpoint. The links table is indexed
+  for it.
 - It runs for every row Plan reads, so it is **benchmarked in Stage 1** on
   seeded data (a few thousand Items, a week of Plan); if too slow, a
   visibility table kept by triggers replaces the lookup.

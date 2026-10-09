@@ -93,7 +93,7 @@ core.activity  item_id, verb, changed (jsonb), at, actor — written by triggers
   use *done*.
 - **IDs are made on the device** (UUIDv7, so they sort by creation time).
   Postgres 17 has no built-in `uuidv7()`, so server-side inserts use a small
-  SQL function.
+  SQL function, `core_private.uuidv7()`.
 - **`do_on` is a date with an optional time.** A Task is something *you do*,
   by or on a date; an Event is something that *happens* at a time. "Sat 10:00
   Tesco" is a Shop with a do-on time; "Dishoom 19:30" is an Event.
@@ -256,7 +256,8 @@ rule and create no links.
 | `core.reminders` · `core.reminder_deliveries` | Reminders per person; what was sent, when |
 | `core.push_devices` | Web Push (later FCM) subscriptions per person |
 | `core.inbox_state` | Per-person dismiss / snooze of Inbox entries |
-| `core.activity` | The activity log, written by triggers |
+| `core.activity` | The activity log, written by triggers: `created`, `updated`, `converted`, `archived`, `restored`, `linked`, `unlinked`, with the changed fields |
+| `core.item_types` · `core.link_types` | The ontology's lookup tables, generated from `packages/ontology` ([ADR-0008](adr/0008-registries-declared-in-code.md)) |
 | `core.labels` · `core.item_labels` | Labels |
 | `core.stars` · `core.recent` | Per-person starred Items; recently opened Items |
 | `core.capture_tokens` | Each person's capture-address secrets (hashed), revocable |

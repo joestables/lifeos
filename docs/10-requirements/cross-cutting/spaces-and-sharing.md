@@ -17,7 +17,7 @@ are written then.*
   Household makes the shared Items you created Personal
   ([ADR-0016](../../20-architecture/adr/0016-sharing-and-visibility.md),
   Provisionally agreed).
-- **Enforcement** through `core.can_read`, benchmarked in Stage 1; goal
+- **Enforcement** through `core_private.can_read`, benchmarked in Stage 1; goal
   progress read through the goal; only an Item's owner can link it to a
   shared Item; child rows readable when their Item is
   ([ADR-0017](../../20-architecture/adr/0017-enforcing-visibility.md),

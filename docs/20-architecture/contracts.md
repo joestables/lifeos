@@ -52,7 +52,7 @@ without one, the core's default rendering is used
 
 - Inside the database, Modules read each other only through **published
   views and functions**; internal helpers sit in a schema the API can't
-  reach.
+  reach (`core_private` for the core: visibility, triggers, `uuidv7()`).
 - In the app's code the boundary is not enforced by the schemas; it needs a
   lint rule or one typed client per Module.
 - Writes that span tables are database functions called over RPC

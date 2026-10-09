@@ -21,8 +21,15 @@
   through `execute_sql` ([environments](environments.md#claude-cloud-sessions)).
 - **Fixed forward**, never edited after they've run.
 - **CI applies every migration from empty** to a local Supabase with the
-  Supabase CLI, then runs the database tests. A migration is applied to the
-  live project only after its pull request's CI has passed.
+  Supabase CLI, then runs the database tests (`supabase/tests`, pgTAP). A
+  migration is applied to the live project only after CI has passed on the
+  commit that adds it.
+- **In a cloud session**, `npm run db:test` does the same against the same
+  Postgres image as the live project, run in Docker (the CLI's other images
+  can't be fetched there).
+- **Files are written with a provisional version**, then renamed to the
+  version the project records once applied
+  ([ADR-0040](../20-architecture/adr/0040-migrations-applied-by-claude.md)).
 - **`get_advisors` runs after every migration.**
 - The migrations list is generated, not hand-written.
 

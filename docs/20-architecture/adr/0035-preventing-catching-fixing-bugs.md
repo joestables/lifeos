@@ -15,7 +15,7 @@ A layer at each stage a bug passes through:
 
 1. **Make bugs hard to write:** the database refuses bad data (required
    fields, `CHECK`s, foreign keys, a trigger refusing links the ontology
-   doesn't allow, RLS through `core.can_read`); TypeScript types generated
+   doesn't allow, RLS through `core_private.can_read`); TypeScript types generated
    from the database; zod checks on anything arriving from outside; one
    requirement or fix per pull request.
 2. **Catch them before they ship:** `main` is protected; CI runs typecheck

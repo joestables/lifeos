@@ -5,7 +5,7 @@ decisions known so far.*
 
 ## Performance
 
-- `core.can_read` runs for every row Plan reads, so it is benchmarked in
+- `core_private.can_read` runs for every row Plan reads, so it is benchmarked in
   Stage 1 on seeded data (a few thousand Items, a week of Plan)
   ([ADR-0017](../20-architecture/adr/0017-enforcing-visibility.md)).
 - Capture must be faster than Google Tasks or setting a phone alarm

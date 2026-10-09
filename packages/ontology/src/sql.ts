@@ -53,7 +53,7 @@ on conflict (key) do update set
   converts_to = excluded.converts_to;
 
 insert into core.link_types
-  (key, label, inverse_label, from_types, to_types, symmetric)
+  (key, label, inverse_label, from_types, to_types, is_symmetric)
 values
 ${links.map((r) => `  (${r})`).join(',\n')}
 on conflict (key) do update set
@@ -61,6 +61,6 @@ on conflict (key) do update set
   inverse_label = excluded.inverse_label,
   from_types = excluded.from_types,
   to_types = excluded.to_types,
-  symmetric = excluded.symmetric;
+  is_symmetric = excluded.is_symmetric;
 `
 }

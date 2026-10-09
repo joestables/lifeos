@@ -101,7 +101,7 @@ What the architecture does to make this possible, at no extra cost now:
 - **A published layer** (views and functions, not raw tables) — the natural
   surface for a **LifeOS MCP server**, so Claude can read *and act on* the
   life data with the same rules the app follows.
-- **Spaces and `core.can_read`** — the same visibility rules bound what an AI
+- **Spaces and `core_private.can_read`** — the same visibility rules bound what an AI
   may see for each person, so the Household boundary holds for AI too.
 - **Capture never depends on AI** — AI improves things; the basics work
   without it, offline.

@@ -47,6 +47,11 @@ Branch `claude/stage-1-foundation` · 2026-10-09
 - The ontology package (plan step 6): the core Types, their link types and
   in-place conversions, with the generated lookup-table migration and its
   staleness check.
+- The core schema (plan step 7): people, Spaces, Items, links and the
+  activity log, with row-level security, the visibility rule in
+  `core_private`, and the write functions of ADR-0042. 42 database tests;
+  `npm run db:test` runs them in a cloud session. A first CI workflow
+  (plan step 10) runs the checks, the build and the database tests.
 
 **Left for later**
 - An app icon: the design system has none yet, so the manifest has no icon

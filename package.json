@@ -20,7 +20,8 @@
     "test": "vitest run",
     "check": "npm run typecheck && npm run lint && npm run format:check && npm run test",
     "ontology:sql": "node packages/ontology/scripts/ontology-sql.ts",
-    "ontology:check": "node packages/ontology/scripts/ontology-sql.ts --check"
+    "ontology:check": "node packages/ontology/scripts/ontology-sql.ts --check",
+    "db:test": "scripts/db-test.sh"
   },
   "dependencies": {
     "@base-ui/react": "1.9.0",

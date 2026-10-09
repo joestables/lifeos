@@ -26,6 +26,7 @@ available but direct connections to the project are not.
 ## Consequences
 
 - One tool writes to the live schema, so it can't drift from the repository.
-- A migration is applied only after its pull request's CI has passed.
+- A migration is applied only after CI has passed on the commit that adds
+  it.
 - If the MCP connector is unavailable, migrations wait; they are never pasted
   into the dashboard.
