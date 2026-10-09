@@ -2,9 +2,10 @@
 
 Newest first. Each entry is added in its own pull request.
 
-## Not yet opened — Docs structure for LifeOS v2
+## No PR — Docs structure for LifeOS v2 (Stage 0)
 
-Branch `claude/affectionate-lamport-cukhtr` · 2026-10-09
+Branch `claude/affectionate-lamport-cukhtr` · 2026-10-09 · pushed straight to
+`master` to create it, since the repository had no `master` yet
 
 **What it did**
 - Created the `docs/` structure (foundation, requirements, architecture,
