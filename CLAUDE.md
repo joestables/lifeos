@@ -37,10 +37,22 @@ This matters more than anything else here.
 
 ## One design system
 
-Every screen is built from the same shared components and design tokens —
-no one-off styling, no raw colours or spacing, no copy-pasted variants. The
-design system will be tweaked as we go, and this is what makes that safe
-([ADR-0038](docs/20-architecture/adr/0038-one-design-system.md)).
+The [design system](docs/30-design/README.md) is a specification, and every
+screen follows it exactly ([ADR-0038](docs/20-architecture/adr/0038-one-design-system.md),
+[ADR-0041](docs/20-architecture/adr/0041-visual-direction.md)).
+
+- **Read `docs/30-design/` before building or changing any UI**, and work
+  through its checklist before opening the pull request.
+- **Use only its tokens and components.** No colour, size, radius, shadow or
+  font that isn't in [tokens](docs/30-design/tokens.md); no component or
+  variant that isn't in [components](docs/30-design/components.md); no
+  restyling a component on a screen.
+- **Something new goes into the spec first**, in the same pull request, then
+  into the shared components — never as a one-off.
+- **Colour means Module**, and nothing else; red and green keep their usual
+  meaning ([patterns](docs/30-design/patterns.md#module-colour)).
+- **Check dark mode first**, then light, at desktop and phone width, and
+  attach screenshots.
 
 ## Running SQL for Joe
 

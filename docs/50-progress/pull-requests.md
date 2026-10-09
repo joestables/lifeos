@@ -24,11 +24,15 @@ Branch `claude/stage-1-foundation` · 2026-10-09
   step 3). Joe chose Stone, to be made monotone and coloured by Module;
   published three variations of that and recorded the direction in the
   design language. Joe chose B1's neutrals; published two subtle
-  refinements of it (C2, C3) beside it (C1).
+  refinements of it (C2, C3) beside it (C1). Joe chose C1 with C2's hairline
+  edges: ADR-0041.
+- Wrote the design system as a specification in `docs/30-design/` (README
+  with the checklist and enforcement, tokens, components, patterns, a frozen
+  reference page) and amended ADR-0038 with how it is kept consistent.
 
 **Left for later**
-- Joe: choose C1, C2 or C3; confirm v1 was backed up; finish the
-  Google, Supabase and Vercel settings (plan step 4).
+- Joe: confirm v1 was backed up; finish the Google, Supabase and Vercel
+  settings (plan step 4).
 - The data-layer decision and the shadcn re-check (plan step 2).
 
 ## No PR — Docs structure for LifeOS v2 (Stage 0)

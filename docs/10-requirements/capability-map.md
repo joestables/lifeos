@@ -11,7 +11,7 @@ Owner: **core**, a **Module** (`lists`, `food`, `fitness`, `goals`,
 | Capability | Owner | Page / Screen | Stage | Spec |
 |---|---|---|---|---|
 | Sign up and sign in with Google; a Personal Space for everyone | core | — | 1 | [spaces-and-sharing](cross-cutting/spaces-and-sharing.md) |
-| Design system: tokens and shared components | core | — | 1 | [design language](../30-design/design-language.md) |
+| Design system: tokens and shared components | core | — | 1 | [design system](../30-design/README.md) |
 | Navigation drawer | core | — | 1 | [ADR-0026](../20-architecture/adr/0026-navigation-drawer.md) |
 | Quick capture (Thought by default, one-tap Task) | core | Capture Screen | 2 | [capture](cross-cutting/capture.md) |
 | Capture address | core | Settings (token) | 2 | [capture](cross-cutting/capture.md) |
