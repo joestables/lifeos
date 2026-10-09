@@ -37,14 +37,14 @@ run anything in Supabase himself
   project only through the connectors. That is enough for SQL, migrations,
   advisors and logs; smoke walks against production would need those hosts
   allowed in the environment's network settings.
-- **Permissions:** [`.claude/settings.json`](../../.claude/settings.json)
-  pre-approves the Supabase tools Claude needs day to day — running SQL,
-  applying migrations, listing, advisors, logs, type generation, docs — under
-  **both** names the server registers (`mcp__Supabase__…` and
-  `mcp__org-connector-mcp_supabase_com_88FE637B__…`). Project-level actions
-  (creating, pausing or restoring a project; branches; deploying Edge
-  Functions; secrets) still ask first. If the server registers a new tool or
-  name, add it under every name.
+- **Permissions:** Joe wants no approval prompts for any Supabase action
+  (Edge Function deploys included), nor for Vercel or GitHub.
+  [`.claude/settings.json`](../../.claude/settings.json) currently
+  pre-approves only the everyday Supabase tools, under both names the server
+  registers. To cover everything, its `allow` list should be the whole
+  servers: `mcp__Supabase`, `mcp__org-connector-mcp_supabase_com_88FE637B`,
+  `mcp__Vercel` and `mcp__github`. The session's safety check stops Claude
+  from editing its own permissions, so Joe makes that change.
 - **The permission mode** is picked from the dropdown beside the prompt box;
   the allowlist only stops prompts for the tools it names.
 - **Which project:** writes go to `lifeos` (`nxydbufwuvsacayqoakh`) only.

@@ -20,11 +20,13 @@ Branch `claude/stage-1-foundation` · 2026-10-09
   Recorded the new environment in `environments.md` and the Google sign-in
   settings in `integration-setup.md`.
 
+- Published three design directions for the look-and-feel exercise (plan
+  step 3).
+
 **Left for later**
-- Joe: confirm v1 was backed up; finish the Google, Supabase and Vercel
-  settings (plan step 4).
-- The data-layer decision, the shadcn re-check and the look-and-feel
-  exercise (plan steps 2–3).
+- Joe: choose a design direction; confirm v1 was backed up; finish the
+  Google, Supabase and Vercel settings (plan step 4).
+- The data-layer decision and the shadcn re-check (plan step 2).
 
 ## No PR — Docs structure for LifeOS v2 (Stage 0)
 

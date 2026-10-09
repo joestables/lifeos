@@ -35,4 +35,7 @@ agreed)*
   "Visible to Household"; a pointer to an Item the reader can't read shows as
   "private", with no title.
 - A mockup canvas was produced on 8 October; its visual design was not
-  liked, as expected at that stage. The look is still to be decided.
+  liked, as expected at that stage. The look is still to be decided: three
+  directions, all built from shadcn/ui and differing only in how it is
+  customised, are in [LifeOS Design Directions](https://claude.ai/artifact/3v8Z2dQu1BxYArJSwsmesd)
+  (private to Joe). Joe uses dark mode; both modes are designed.

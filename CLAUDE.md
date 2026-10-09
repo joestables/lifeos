@@ -57,9 +57,11 @@ can't do something, say exactly why and what Joe needs to do.
   every migration.
 - **Know the project** before any write. v1 (*JoeStables LifeOS*) is
   reference only: never write to it.
-- **Destroying data** (`DROP`, `TRUNCATE`, an `UPDATE`/`DELETE` without a
-  narrow `WHERE`) on a live project: say what will change and get Joe's
-  go-ahead first.
+- **Joe's standing permission covers every Supabase action** on the `lifeos`
+  project — queries, migrations, destructive SQL, Edge Function deploys,
+  secrets. Never ask him to approve one. Take care instead: check it's the
+  right project, and before destroying data say in your reply what will
+  change.
 - **Permissions** are in [.claude/settings.json](.claude/settings.json); see
   [environments](docs/40-operations/environments.md#claude-cloud-sessions).
   Browser walks run against a stand-in Supabase, never real data.
