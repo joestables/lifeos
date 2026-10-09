@@ -40,11 +40,13 @@
   --sidebar-accent: var(--accent);
   --sidebar-accent-foreground: var(--foreground);
   --overlay: oklch(0.2 0.0025 260 / 30%);
+  --switch-thumb: oklch(1 0 0);
 
   --destructive: oklch(0.57 0.19 27);
   --destructive-foreground: oklch(0.99 0 0);
   --success: oklch(0.6 0.12 155);
 
+  --m-core: var(--muted-foreground);
   --m-lists: oklch(0.66 0.13 72);
   --m-food: oklch(0.6 0.13 38);
   --m-fitness: oklch(0.56 0.13 255);
@@ -53,6 +55,9 @@
   --m-finance: oklch(0.57 0.13 160);
   --on-module: oklch(0.99 0 0);
   --tile-mix: 14%;
+  --selected: var(--accent);
+  --selected-foreground: var(--foreground);
+  --pressed-foreground: var(--foreground);
 
   --shadow-card:
     0 0 0 1px var(--hairline), 0 1px 2px oklch(0.2 0.01 260 / 5%),
@@ -60,6 +65,7 @@
   --shadow-pop: 0 2px 4px oklch(0.2 0.01 260 / 6%), 0 16px 40px -12px oklch(0.2 0.01 260 / 26%);
   --shadow-dialog: 0 30px 80px -24px oklch(0.2 0.01 260 / 38%);
   --shadow-button: 0 1px 2px oklch(0.2 0.01 260 / 20%);
+  --shadow-thumb: 0 1px 2px oklch(0 0 0 / 25%);
 
   --radius: 12px;
   --duration: 150ms;
@@ -88,6 +94,7 @@
   --ring-soft: color-mix(in oklch, var(--ring) 20%, transparent);
   --sidebar-foreground: oklch(0.8 0.0025 260);
   --overlay: oklch(0.06 0.0025 260 / 62%);
+  --switch-thumb: oklch(0.98 0 0);
 
   --m-lists: oklch(0.82 0.11 78);
   --m-food: oklch(0.76 0.11 40);
@@ -112,6 +119,9 @@
  * Module colour. ModuleScope sets data-module; children read --mc, and the
  * primary and focus colours become the Module's (patterns.md#module-colour).
  */
+[data-module='core'] {
+  --mc: var(--m-core);
+}
 [data-module='lists'] {
   --mc: var(--m-lists);
 }
@@ -134,6 +144,9 @@
   --primary: var(--mc);
   --primary-foreground: var(--on-module);
   --ring: var(--mc);
+  --selected: color-mix(in oklch, var(--mc) var(--tile-mix), transparent);
+  --selected-foreground: var(--mc);
+  --pressed-foreground: var(--mc);
 }
 
 /* Tokens as Tailwind utilities (bg-card, text-muted-foreground, rounded-lg …) */
@@ -165,10 +178,14 @@
   --color-sidebar-accent: var(--sidebar-accent);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-overlay: var(--overlay);
+  --color-switch-thumb: var(--switch-thumb);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-success: var(--success);
   --color-mc: var(--mc);
+  --color-selected: var(--selected);
+  --color-selected-foreground: var(--selected-foreground);
+  --color-pressed-foreground: var(--pressed-foreground);
   --color-on-module: var(--on-module);
 
   --font-sans: 'Plus Jakarta Sans Variable', ui-sans-serif, system-ui, sans-serif;
@@ -202,11 +219,13 @@
   --radius-lg: 18px;
   --radius-panel: 20px;
   --radius-xl: 24px;
+  --radius-full: 999px;
 
   --shadow-card: var(--shadow-card);
   --shadow-pop: var(--shadow-pop);
   --shadow-dialog: var(--shadow-dialog);
   --shadow-button: var(--shadow-button);
+  --shadow-thumb: var(--shadow-thumb);
 
   --default-transition-duration: var(--duration);
 }
@@ -217,6 +236,10 @@
   }
   html {
     @apply font-sans antialiased;
+  }
+  /* Lucide icons: 1.75 stroke (patterns.md#icons). */
+  .lucide {
+    stroke-width: 1.75;
   }
   body {
     @apply bg-background text-base text-foreground;

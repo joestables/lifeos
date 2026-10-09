@@ -60,6 +60,14 @@ Branch `claude/stage-1-foundation` · 2026-10-09
   generated database types with a CI check; 19 unit tests. OFF-001–003 and
   ACC-002 verified; OFF-004, OFF-005 and ACC-003 built. Set the public
   Supabase values on Vercel.
+- The design system in code (plan step 9): every shadcn component in
+  components.md restyled from shadcn's Base UI source, LifeOS's own
+  components, the `/design` page, the lint rules and the token check.
+  Added to the spec first: `--switch-thumb`, `--shadow-thumb`, `--m-core`,
+  `--selected`, `--selected-foreground`, `--pressed-foreground`, the "Not
+  saved" state, and the DropdownMenu label rule; `--radius-full` added to
+  the theme. Token tables are checked against the theme rather than
+  generated (ADR-0038 amended).
 
 **Left for later**
 - Joe: add `core` to the Data API's exposed schemas (integration setup).

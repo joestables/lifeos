@@ -1,10 +1,10 @@
 # Design tokens
 
 *[`src/styles/theme.css`](../../src/styles/theme.css) holds these values.
-Until the generator is built (Stage 1, step 9), these tables are kept in step
-with it by hand; after that they are generated from it and CI fails if they
-differ ([design system](README.md#enforcement)). Names follow shadcn/ui's
-theme variables, plus LifeOS's own (marked †).*
+Change both together: `npm run tokens:check` fails CI if they differ, or if
+the theme defines a variable this page doesn't list
+([design system](README.md#enforcement)). Names follow shadcn/ui's theme
+variables, plus LifeOS's own (marked †).*
 
 Colours are OKLCH. "fg" is short for foreground.
 
@@ -39,6 +39,7 @@ Colours are OKLCH. "fg" is short for foreground.
 | `--sidebar-accent` | = `--accent` | = `--accent` | Current page in the drawer (core pages) |
 | `--sidebar-accent-foreground` | = `--foreground` | = `--foreground` | |
 | `--overlay` † | `oklch(0.2 0.0025 260 / 30%)` | `oklch(0.06 0.0025 260 / 62%)` | Behind dialogs and sheets |
+| `--switch-thumb` † | `oklch(1 0 0)` | `oklch(0.98 0 0)` | The Switch's and Slider's thumb |
 
 ## Colour: meaning
 
@@ -62,11 +63,19 @@ One colour per Module. The core has none.
 | `--m-goals` | Goals | `oklch(0.55 0.13 298)` | `oklch(0.76 0.104 300)` | Goals · Goal |
 | `--m-wardrobe` | Wardrobe | `oklch(0.59 0.13 355)` | `oklch(0.77 0.104 355)` | Wardrobe · Garment, Outfit, Outfit worn |
 | `--m-finance` | Finance | `oklch(0.57 0.13 160)` | `oklch(0.78 0.104 160)` | Finance · Account |
+| `--m-core` † | Core | = `--muted-foreground` | = `--muted-foreground` | The core's Types (Thought, Note, Task, Event): grey icons on `--muted` tiles, never a colour |
 | `--on-module` † | | `oklch(0.99 0 0)` | `oklch(0.2 0.01 260)` | Text on a solid Module colour |
 | `--tile-mix` † | | `14%` | `16%` | Strength of a Module tint (tiles, badges, selected states) |
 
 Inside `ModuleScope`, `--mc` is the current Module's colour; components read
-`--mc`, never a Module token directly.
+`--mc`, never a Module token directly. `ModuleScope` also sets these, which
+components use for their selected and pressed states:
+
+| Token | Outside a Module (and on core pages) | Inside a Module's `ModuleScope` | Used for |
+|---|---|---|---|
+| `--selected` † | = `--accent` | `--mc` at `--tile-mix` | Selected tab, current drawer item |
+| `--selected-foreground` † | = `--foreground` | = `--mc` | Their text |
+| `--pressed-foreground` † | = `--foreground` | = `--mc` | A pressed Toggle's icon |
 
 ### Adding a Module colour
 
@@ -135,6 +144,7 @@ them (a toggle item: 12px − 3px = 9px).
 | `--shadow-pop` | `0 2px 4px oklch(0.2 0.01 260 / 6%), 0 16px 40px -12px oklch(0.2 0.01 260 / 26%)` | `inset 0 1px 0 oklch(1 0 0 / 4.5%), 0 20px 50px -16px oklch(0 0 0 / 70%)` | Menus, popovers, toasts |
 | `--shadow-dialog` | `0 30px 80px -24px oklch(0.2 0.01 260 / 38%)` | `inset 0 1px 0 oklch(1 0 0 / 5%), 0 40px 90px -24px oklch(0 0 0 / 80%)` | Dialogs, sheets |
 | `--shadow-button` | `0 1px 2px oklch(0.2 0.01 260 / 20%)` | none | Primary buttons |
+| `--shadow-thumb` † | `0 1px 2px oklch(0 0 0 / 25%)` | same | The Switch's and Slider's thumb |
 
 No borders on surfaces: edges come from `--shadow-card`'s hairline.
 

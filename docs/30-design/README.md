@@ -11,7 +11,7 @@ the screen then uses what was added.
 | [tokens.md](tokens.md) | Every design token, with its exact light and dark value: colour, Module colours, type, spacing, radius, shadow, size, motion |
 | [components.md](components.md) | Every component a screen may use — shadcn's and LifeOS's own — with its variants, sizes and rules |
 | [patterns.md](patterns.md) | How screens are put together: page anatomy, Module colour, lists, Plan, states, icons, copy, phone |
-| [reference.html](reference.html) | A frozen picture of the agreed look ([published copy](https://claude.ai/artifact/RKXtYq2tiCHrfM1XeMX4wK), private to Joe). If it and the written spec differ, the written spec wins. Replaced by the app's own design-system page in Stage 1. |
+| [reference.html](reference.html) | A frozen picture of the agreed look ([published copy](https://claude.ai/artifact/RKXtYq2tiCHrfM1XeMX4wK), private to Joe). If it and the written spec differ, the written spec wins. The app's own page, `/design`, now shows the real components; this file stays as the record of the look that was agreed. |
 
 The direction itself is [ADR-0041](../20-architecture/adr/0041-visual-direction.md);
 building everything from shared components is
@@ -64,8 +64,8 @@ fails CI instead of relying on memory.
 | Check | What it catches |
 |---|---|
 | **One theme file** (`src/styles/theme.css`) holds every token as a CSS variable, mapped to Tailwind with `@theme inline`. It is the only file allowed to contain a colour value, except the two places that must be hex: the web app manifest (`vite.config.ts`) and `theme-color` in `index.html`, which carry `--background` converted. | Colours defined anywhere else |
-| **Generated token tables:** the tables in [tokens.md](tokens.md) are generated from the theme file; CI fails if they differ. Until then they are written by hand, and say so. | Docs and code disagreeing |
-| **Lint:** no colour literals outside the theme file; no Tailwind arbitrary values (`bg-[…]`, `p-[13px]`, `rounded-[…]`, `shadow-[…]`); no inline `style` except computed sizes (a progress width); screens import UI only from `@/components/ui` and `@/components/lifeos`, never Base UI or Radix directly; no other font families. | One-off styling, bypassing the shared components |
-| **The design-system page** (`/design`, in development and preview builds only) renders every component and pattern from the real code, in both modes. | Components no one has looked at |
+| **Checked token tables:** `npm run tokens:check` compares every value in [tokens.md](tokens.md) with the theme file, and fails if the theme defines a variable the spec doesn't list. It runs in `npm run check` and CI. | Docs and code disagreeing |
+| **Lint** (`eslint.config.js`): no colour literals anywhere in `src/`. On screens — everything outside `src/components/` and `src/data/` — no Tailwind arbitrary values (`bg-[…]`, `p-[13px]`, `rounded-[…]`, `shadow-[…]`, which also rules out other fonts), no inline `style` except computed sizes (a progress width, with a comment), and UI imported only from `@/components/ui` and `@/components/lifeos`, never Base UI, Radix, Sonner or react-day-picker directly. Inside the shared components arbitrary values are allowed: that is where the look is defined, once. | One-off styling, bypassing the shared components |
+| **The design-system page** (`/design`, in development and preview builds only; `src/routes/design.tsx`) renders every component and pattern from the real code, with a dark/light switch. `scripts/screenshot.mjs` takes its dark and light, desktop and phone screenshots. | Components no one has looked at |
 | **Screenshot tests** of the design-system page in CI (Playwright). | Unintended visual change |
 | **This checklist** on every pull request that touches UI, with screenshots. | What the tools can't |

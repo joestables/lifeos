@@ -2,7 +2,7 @@
 
 **Status:** Provisionally agreed · 2026-10-09
 
-**Amended:** 2026-10-09 with how it is kept consistent, once the look was
+**Amended:** 2026-10-09 with how it is kept consistent, once the look was; 2026-10-09 by the Stage 1 design system in code (token tables checked against the theme, not generated)
 agreed ([ADR-0041](0041-visual-direction.md)).
 
 ## Context
@@ -29,7 +29,7 @@ as we go to improve it**.
   use, and the patterns screens follow. Anything new is added there first, in
   the same pull request, before a screen uses it.
 - **Drift fails CI** ([enforcement](../../30-design/README.md#enforcement)):
-  one theme file holds every value; the token tables are generated from it;
+  one theme file holds every value; the token tables are checked against it;
   lint forbids colour literals, arbitrary Tailwind values and direct imports
   of Base UI or Radix in screens; a design-system page in the app, generated
   from the real components, is screenshot-tested.

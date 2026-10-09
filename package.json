@@ -11,18 +11,20 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsr generate && tsc -b && vite build",
     "preview": "vite preview",
-    "typecheck": "tsc -b",
+    "typecheck": "tsr generate && tsc -b",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "vitest run",
-    "check": "npm run typecheck && npm run lint && npm run format:check && npm run test",
+    "check": "npm run typecheck && npm run lint && npm run format:check && npm run tokens:check && npm run test",
     "ontology:sql": "node packages/ontology/scripts/ontology-sql.ts",
     "ontology:check": "node packages/ontology/scripts/ontology-sql.ts --check",
     "db:test": "scripts/db-test.sh",
-    "db:types": "scripts/db-types.sh"
+    "db:types": "scripts/db-types.sh",
+    "routes": "tsr generate",
+    "tokens:check": "node scripts/check-tokens.ts"
   },
   "dependencies": {
     "@base-ui/react": "1.9.0",
@@ -38,7 +40,9 @@
     "idb-keyval": "6.3.0",
     "lucide-react": "1.54.0",
     "react": "19.3.0",
+    "react-day-picker": "10.0.2",
     "react-dom": "19.3.0",
+    "sonner": "2.0.8",
     "tailwind-merge": "3.7.0",
     "uuid": "14.0.2",
     "zod": "4.6.5"
@@ -47,6 +51,7 @@
     "@eslint/js": "10.0.1",
     "@playwright/test": "1.64.0",
     "@tailwindcss/vite": "4.3.3",
+    "@tanstack/router-cli": "1.167.40",
     "@tanstack/router-plugin": "1.168.42",
     "@testing-library/react": "16.3.3",
     "@types/node": "22.20.5",

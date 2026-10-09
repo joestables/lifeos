@@ -6,6 +6,10 @@ import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
+  define: {
+    // The design-system page ships in development and preview builds only.
+    __DESIGN_PAGE__: JSON.stringify(process.env.VERCEL_ENV !== 'production'),
+  },
   plugins: [
     // The router plugin must come before the React plugin.
     tanstackRouter({ target: 'react', autoCodeSplitting: true }),

@@ -84,6 +84,7 @@ The rule: **colour says which Module an Item belongs to, and nothing else.**
 | Disabled | 50% opacity, no hover |
 | Loading | Skeletons shaped like the content, after about 300ms |
 | Saved / waiting to send | SyncStatus in the drawer; an Item not yet sent shows "Not sent yet" with a cloud icon in its meta |
+| Not saved | An Item whose change the server refused shows "Not saved" in red with a `cloud-alert` icon in its meta, and SyncStatus counts it ([OFF-004](../10-requirements/cross-cutting/offline.md#off-004--a-write-that-cant-be-saved-is-not-lost-silently)) |
 | Offline | An Alert at the top of the content |
 | Error | Red text under the field, or a toast that says what went wrong and what to do |
 | Empty | Not designed yet: designed when the first empty page is built, and added here first |
