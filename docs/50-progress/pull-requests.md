@@ -68,6 +68,12 @@ Branch `claude/stage-1-foundation` · 2026-10-09
   saved" state, and the DropdownMenu label rule; `--radius-full` added to
   the theme. Token tables are checked against the theme rather than
   generated (ADR-0038 amended).
+- The app shell (plan step 9a): sign-in with Google only, the drawer, empty
+  pages, sign-out with the unsent-writes warning, the privacy page Google
+  asks for; email/password sign-up refused by a database trigger. Browser
+  tests against a stand-in Supabase, with screenshot tests of `/design`
+  (plan step 10); Playwright pinned to the Chromium in the cloud session.
+  ACC-001 and ACC-003 verified.
 
 **Left for later**
 - Joe: add `core` to the Data API's exposed schemas (integration setup).

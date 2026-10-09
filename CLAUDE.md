@@ -5,8 +5,10 @@ LifeOS v2 is being built, stage by stage. Stage 0 settled the architecture
 in [docs/50-progress/plans/](docs/50-progress/plans/). Start at [docs/README.md](docs/README.md): the
 index, the ADR statuses, which document wins, and how to change documents.
 
-**Before every commit:** `npm run check` (typecheck, lint, format, unit
-tests) and `npm run build` pass. Vite + React + TypeScript; the app is in
+**Before every commit:** `npm run check` (typecheck, lint, format, token
+check, unit tests) and `npm run build` pass; with UI changes also
+`npm run build:e2e && npm run e2e` (browser and screenshot tests); with
+migrations, `npm run db:test`. Vite + React + TypeScript; the app is in
 `src/`, shared packages in `packages/`.
 
 ## Spec-driven development: the docs are the source of truth

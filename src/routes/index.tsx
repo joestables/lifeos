@@ -1,13 +1,7 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, redirect } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/')({
-  component: Home,
+  beforeLoad: () => {
+    throw redirect({ to: '/inbox' })
+  },
 })
-
-function Home() {
-  return (
-    <main className="flex min-h-svh items-center justify-center">
-      <h1 className="text-2xl font-bold">LifeOS</h1>
-    </main>
-  )
-}

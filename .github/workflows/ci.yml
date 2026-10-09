@@ -39,3 +39,23 @@ jobs:
           supabase gen types typescript --local --schema core > /tmp/database.types.ts
           npx --yes prettier@3.9.9 --config .prettierrc.json --stdin-filepath src/data/database.types.ts < /tmp/database.types.ts > /tmp/formatted.ts
           diff -u src/data/database.types.ts /tmp/formatted.ts
+
+  e2e:
+    name: Browser tests (stand-in Supabase)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run build:e2e
+      - run: npx playwright test
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-results
+          path: test-results
+          retention-days: 7

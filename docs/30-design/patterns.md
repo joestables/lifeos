@@ -28,7 +28,30 @@ AppShell
   (Module pages), with text in `--foreground` at weight 650.
 - Counts are 12px, muted, tabular, on the right. "Later" pages sit at 50%
   opacity.
-- The Capture button is ink in the drawer on every page.
+- The Capture button is ink in the drawer on every page (from Stage 2, with
+  capture).
+- Each page's icon: Inbox `inbox`, Plan `calendar-days`, Tasks
+  `square-check-big`, Notes `sticky-note`, Recipes `chef-hat`, Gym
+  `dumbbell`, Goals `target`, Wardrobe `shirt`, Cardio `footprints`, Finance
+  `wallet`.
+- The header holds the brand (a 24px ink square with "L", then "LifeOS" at
+  16px weight 750) and, from Stage 2, Search; the foot holds SyncStatus and your row
+  (Avatar, name, Space). Your row opens a menu: Sign out, and Settings once
+  it exists.
+
+## Sign-in page
+
+- The brand above one Card, centred on `--background`, 360px wide.
+- One button, "Continue with Google": `outline`, full width, with Google's
+  own multicoloured "G" — the one colour that isn't a token, because
+  Google's branding rules require it.
+- No email or password fields ([ACC-001](../10-requirements/cross-cutting/spaces-and-sharing.md#acc-001--sign-up-and-sign-in-with-google)).
+- A small muted link to the privacy page below the Card.
+
+## Privacy page
+
+The one page with paragraphs: a legal page, reachable without signing in,
+720px wide, `text-h1` title and `text-h2` sections.
 
 ## Module colour
 

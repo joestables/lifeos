@@ -28,6 +28,7 @@ export const { createItem, updateItem, archiveItem, restoreItem, linkItems, unli
 
 export const { unsentWrites, signOut } = session(queue)
 
+export { authReady, signInWithGoogle, useAuth, type Me } from './auth'
 export { useItems, useOnline, useQueueEntries, useSyncCounts } from './hooks'
 export { newId } from './ids'
 export type { Item, ItemFields, SyncState } from './types'

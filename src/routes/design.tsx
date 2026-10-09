@@ -624,6 +624,7 @@ function DesignPage() {
             <Card className="w-fit">
               <Calendar
                 mode="single"
+                today={new Date(2026, 9, 9)}
                 defaultMonth={new Date(2026, 9, 1)}
                 selected={new Date(2026, 9, 12)}
               />

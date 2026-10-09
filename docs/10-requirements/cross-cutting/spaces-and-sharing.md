@@ -45,7 +45,7 @@ are written then.*
 
 **As** anyone, **I want** to start using LifeOS with my Google account,
 **so that** there is no new password to manage.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified (the real Google round trip is checked by hand on the first deploy)
 
 Acceptance criteria
 1. Given I have no account, when I choose to continue with Google and
@@ -71,7 +71,7 @@ Acceptance criteria
 
 **As** a person using a shared or borrowed device, **I want** to sign out,
 **so that** the next person can't see my data.
-Priority: Must · Status: built (the warning and the sign-in page come with the app shell)
+Priority: Must · Status: verified
 
 Acceptance criteria
 1. Given I am signed in, when I sign out, then I return to the sign-in page

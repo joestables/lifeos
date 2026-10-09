@@ -28,9 +28,12 @@ Google is how everyone signs up and signs in
 | Supabase → Authentication → Sign In / Providers → Google | Enabled | Done (Joe) |
 | Supabase → Authentication → URL Configuration | Site URL: the production URL. Redirect URLs: the production URL, `http://localhost:5173/**` and the Vercel previews (`https://lifeos-*-joestables1.vercel.app/**`) | Done (Joe) |
 
-Email/password sign-up is blocked as part of building ACC-001, not by a
-dashboard setting: Supabase's "allow new users to sign up" switch applies to
-Google too.
+Email/password sign-up is blocked in the database, not by a dashboard
+setting (Supabase's "allow new users to sign up" switch applies to Google
+too): a trigger on `auth.users` refuses any sign-up whose provider is
+`email`, unless its address is listed in `core_private.password_accounts`.
+Claude adds the smoke-walk test account's address there before it is
+created by hand.
 
 ## Web Push
 

@@ -7,7 +7,17 @@ import { supabase } from './supabase'
  * sent and warns before going on; then the queue and every cached Item are
  * removed from the device.
  */
-export function session(queue: WriteQueue, signOutOfSupabase = () => supabase().auth.signOut()) {
+/**
+ * Ends the session everywhere if the server can be reached; otherwise only
+ * on this device, which is what signing out must always do.
+ */
+async function signOutOfSupabaseNow(): Promise<unknown> {
+  const auth = supabase().auth
+  const { error } = await auth.signOut()
+  return error ? auth.signOut({ scope: 'local' }) : undefined
+}
+
+export function session(queue: WriteQueue, signOutOfSupabase = signOutOfSupabaseNow) {
   return {
     unsentWrites: () => queue.entries().length,
     async signOut(): Promise<void> {
