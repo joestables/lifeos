@@ -22,7 +22,7 @@ Steps marked **Joe** need Joe's go-ahead or action before Claude does them.
 | 7 | Core schema: people, Spaces, items, links, activity log (items and links), `uuidv7()`, `core.can_read`, RLS; revoke public `EXECUTE` on Supabase's `public.rls_auto_enable()` (advisor warning) | Not started | Migrations, database tests |
 | 8 | Data layer and write queue | Not started | Code, tests citing OFF-* |
 | 9 | Design system in code: `theme.css` from [tokens](../../30-design/tokens.md); the shadcn components and LifeOS components in [components](../../30-design/components.md); the `/design` page; generated token tables | Not started | Code |
-| 9a | App shell: sign-in, `AppShell` with the drawer (pages empty) | Not started | Code, tests citing ACC-* |
+| 9a | App shell: sign-in, `AppShell` with the drawer (pages empty); a short privacy page at `/privacy`, which Google requires before the sign-in app can be published | Not started | Code, tests citing ACC-* |
 | 10 | CI: typecheck and lint (with the design-system rules) → unit tests → database tests on a local Supabase → screenshot tests of `/design`; `master` protected; Vercel previews | Not started | GitHub Actions, [enforcement](../../30-design/README.md#enforcement) |
 | 11 | `can_read` benchmark on seeded data | Not started | Result recorded in [non-functional](../../10-requirements/non-functional.md) |
 | 12 | `ops.events` and the nightly health check | Not started | Migrations, `pg_cron` job |
