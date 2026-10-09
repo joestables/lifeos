@@ -10,7 +10,7 @@ Owner: **core**, a **Module** (`lists`, `food`, `fitness`, `goals`,
 
 | Capability | Owner | Page / Screen | Stage | Spec |
 |---|---|---|---|---|
-| Sign-in; Spaces; invitation creates the account | core | — | 1 (Household on in 4) | [spaces-and-sharing](cross-cutting/spaces-and-sharing.md) |
+| Sign up and sign in with Google; a Personal Space for everyone | core | — | 1 | [spaces-and-sharing](cross-cutting/spaces-and-sharing.md) |
 | Design system: tokens and shared components | core | — | 1 | [design language](../30-design/design-language.md) |
 | Navigation drawer | core | — | 1 | [ADR-0026](../20-architecture/adr/0026-navigation-drawer.md) |
 | Quick capture (Thought by default, one-tap Task) | core | Capture Screen | 2 | [capture](cross-cutting/capture.md) |
@@ -29,7 +29,7 @@ Owner: **core**, a **Module** (`lists`, `food`, `fitness`, `goals`,
 | Recipes, Variations, ideas, cook log | `food` | Recipes | 4 | — |
 | Meal planning; ingredients to shopping lists | `food`, `lists` | Plan | 4 | — |
 | Shared AI service; food preferences | core | — | 4 | — |
-| Household sharing on | core | — | 4 | [spaces-and-sharing](cross-cutting/spaces-and-sharing.md) |
+| Contacts and Households: connect by Google email, invite, accept; sharing on | core | — | 4 | [spaces-and-sharing](cross-cutting/spaces-and-sharing.md) |
 | Gym, with v1's recovery model and snapshots | `fitness` | Gym | 5 | — |
 | Goals and the measures registry | `goals` | Goals | 5 | — |
 | Wardrobe and outfits | `wardrobe` | Wardrobe | 6 | — |
@@ -39,4 +39,4 @@ Owner: **core**, a **Module** (`lists`, `food`, `fitness`, `goals`,
 | Finance | `finance` | Finance | 9 | — |
 | Export of everything you can see, as JSON | core | — | — | — |
 | LifeOS MCP server | core | — | Later | — |
-| Settings: Reminder defaults, default time, digest time, reference data, capture token | core | Settings Screen | — | — |
+| Settings: Reminder defaults, default time, digest time, reference data, capture token, recovering deleted Items | core | Settings Screen | — | — |

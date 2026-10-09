@@ -1,6 +1,6 @@
 # ADR-0001: Spec-driven documentation and ADRs
 
-**Status:** Proposed · 2026-10-09
+**Status:** Provisionally agreed · 2026-10-09
 
 ## Context
 

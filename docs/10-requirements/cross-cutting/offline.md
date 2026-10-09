@@ -8,10 +8,10 @@ on.*
 - **A write queue first, IDs made on the device**; PowerSync + TanStack DB
   only if the queue isn't enough
   ([ADR-0031](../../20-architecture/adr/0031-offline-and-concurrent-edits.md),
-  Proposed).
+  Provisionally agreed).
 - **The queue replays database-function calls**, not table writes
   ([ADR-0009](../../20-architecture/adr/0009-cross-table-writes-are-database-functions.md),
-  Proposed).
+  Provisionally agreed).
 - **Last write wins, field by field**, by the time the server receives it;
   the queue sends only the fields that changed.
 - **Capture works with no signal:** the parser is deterministic and never

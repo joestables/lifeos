@@ -16,7 +16,9 @@ environments are set up in Stage 1
 - The free tier allows two *active* projects (currently *JoeStables LifeOS*
   and *doorbell*); paused projects don't count. There is no staging
   database.
-- **Sign-ups are turned off**; accounts are made only by invitation.
+- **Anyone can sign up with Google**; email/password sign-up is off, so the
+  test account is created by hand
+  ([ADR-0039](../20-architecture/adr/0039-accounts-contacts-households.md)).
 - **Walking the app in a browser:** a background dev server and a
   session-start hook, because Claude Code crashed when it launched a dev
   server in previous sessions.

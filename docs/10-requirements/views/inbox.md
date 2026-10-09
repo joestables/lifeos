@@ -16,7 +16,7 @@ dashboard cards ([ADR-0026](../../20-architecture/adr/0026-navigation-drawer.md)
   Provisionally agreed).
 - **Due** drives "overdue" ([ADR-0021](../../20-architecture/adr/0021-time.md)).
 - A repeating Task shows its **next open occurrence only**
-  ([ADR-0022](../../20-architecture/adr/0022-repeating-items.md), Proposed).
+  ([ADR-0022](../../20-architecture/adr/0022-repeating-items.md), Provisionally agreed).
 - Modules contribute **Inbox entries**
   ([contracts](../../20-architecture/contracts.md#moduledefinition)).
 - Dismiss and snooze of Inbox entries are **per person**

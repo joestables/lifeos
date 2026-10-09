@@ -1,6 +1,6 @@
 # Runbook
 
-*Proposed ([ADR-0035](../20-architecture/adr/0035-preventing-catching-fixing-bugs.md)).
+*Provisionally agreed ([ADR-0035](../20-architecture/adr/0035-preventing-catching-fixing-bugs.md)).
 Filled in as each piece is built.*
 
 ## Stage 1 cut-over from v1
@@ -35,5 +35,6 @@ Filled in as each piece is built.*
 
 - **A bad deploy:** Vercel's instant rollback.
 - **A bad migration:** fix forward; never edit a migration that has run.
-- **Something deleted:** undo (deleted means archived).
+- **Something deleted:** undo, or recover it from Settings (deleted means
+  archived).
 - **Data loss:** restore the nightly backup ([backups](backups.md)).

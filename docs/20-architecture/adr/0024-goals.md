@@ -23,4 +23,4 @@ not entered by hand.
 ## Consequences
 
 How "on track" is judged: [ADR-0025](0025-goal-on-track-by-kind.md)
-(Proposed).
+(Provisionally agreed).

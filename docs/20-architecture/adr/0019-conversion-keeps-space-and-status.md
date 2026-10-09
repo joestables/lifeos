@@ -1,6 +1,6 @@
 # ADR-0019: A conversion keeps Space and status
 
-**Status:** Proposed · 2026-10-09
+**Status:** Provisionally agreed · 2026-10-09
 
 **Amended:** 2026-10-09 by [ADR-0037](0037-thoughts.md) (Thoughts).
 

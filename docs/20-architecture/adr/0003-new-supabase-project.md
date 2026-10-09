@@ -2,6 +2,8 @@
 
 **Status:** Provisionally agreed · 2026-10-09
 
+**Amended:** 2026-10-09 by [ADR-0039](0039-accounts-contacts-households.md) (open sign-up with Google).
+
 ## Context
 
 The free tier allows two *active* projects (currently *JoeStables LifeOS* and
@@ -30,7 +32,8 @@ mirror-vs-live migration drift from having two tools apply migrations.
   session-start hook; Playwright walks against a **stand-in Supabase**, never
   real data; occasional smoke walks against the real project use an
   email/password test account, created by hand, in its own Personal Space,
-  with **sign-ups turned off**.
+  with **email/password sign-up turned off** (people sign up with Google,
+  [ADR-0039](0039-accounts-contacts-households.md)).
 
 ## Consequences
 

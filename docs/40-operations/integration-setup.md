@@ -4,6 +4,8 @@
 
 ## Google sign-in
 
+Google is how everyone signs up and signs in
+([ADR-0039](../20-architecture/adr/0039-accounts-contacts-households.md)).
 The existing Google sign-in client is reused; its redirect URL changes to the
 v2 project's.
 

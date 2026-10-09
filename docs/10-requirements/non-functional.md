@@ -18,6 +18,9 @@ See [offline](cross-cutting/offline.md).
 
 ## Privacy
 
+- Anyone can sign up, but nobody sees another person's Items until they are
+  Contacts and have both joined a Household
+  ([ADR-0039](../20-architecture/adr/0039-accounts-contacts-households.md)).
 - Everything is personal data: backups go to private, encrypted storage
   ([backups](../40-operations/backups.md)).
 - `ops.events` records the screen and the last few actions, never the content

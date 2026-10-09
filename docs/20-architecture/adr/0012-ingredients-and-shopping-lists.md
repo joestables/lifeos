@@ -1,6 +1,6 @@
 # ADR-0012: Ingredients and shopping lists
 
-**Status:** Proposed · 2026-10-09
+**Status:** Provisionally agreed · 2026-10-09
 
 ## Context
 

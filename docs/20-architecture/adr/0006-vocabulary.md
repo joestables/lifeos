@@ -1,6 +1,6 @@
 # ADR-0006: Vocabulary
 
-**Status:** Proposed · 2026-10-09
+**Status:** Provisionally agreed · 2026-10-09
 
 **Amended:** 2026-10-09 by [ADR-0037](0037-thoughts.md) (Thoughts).
 

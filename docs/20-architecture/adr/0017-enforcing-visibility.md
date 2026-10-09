@@ -1,6 +1,8 @@
 # ADR-0017: Enforcing visibility
 
-**Status:** Proposed · 2026-10-09
+**Status:** Provisionally agreed · 2026-10-09
+
+**Amended:** 2026-10-09 by [ADR-0039](0039-accounts-contacts-households.md) (joining).
 
 ## Context
 
@@ -26,10 +28,9 @@ and for AI.
     the reader can't read shows as "private", with no title.
   - Snapshots copy values, not other Items: through one hop the Household
     sees "Olive knit · 3 garments", not the garments.
-- **Joining:** one Household, joined by invitation; members are equal.
-  Sign-ups stay off, so **accepting an invitation creates the account**: an
-  Edge Function sends Supabase's invite by email, and nobody can join
-  uninvited.
+- **Joining** a Household is set by
+  [ADR-0039](0039-accounts-contacts-households.md): Contacts first, then an
+  accepted invitation.
 
 ## Consequences
 

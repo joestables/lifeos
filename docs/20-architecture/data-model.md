@@ -1,8 +1,9 @@
 # Data model
 
 *Written by hand until the ontology package generates it
-([ADR-0036](adr/0036-changing-the-model-over-time.md)). Everything here is
-Proposed unless it cites a Provisionally agreed ADR. Types for later stages are listed so
+([ADR-0036](adr/0036-changing-the-model-over-time.md)). The shape is
+Provisionally agreed, through the ADRs it cites; column-level detail is a
+draft that each stage's spec confirms. Types for later stages are listed so
 the whole shape is visible; each is built only in its own stage.*
 
 ## Three mechanisms
@@ -51,7 +52,7 @@ one.
 
 ## Storage shape
 
-*([ADR-0007](adr/0007-storage-shape.md), Proposed)*
+*([ADR-0007](adr/0007-storage-shape.md), Provisionally agreed)*
 
 A shared core table plus per-type detail tables ("class table inheritance"),
 modelled in ordinary Postgres tables plus a links table:
@@ -129,7 +130,7 @@ the same one.
 
 ## Definition → occurrence
 
-*([ADR-0013](adr/0013-occurrences-snapshot-their-definition.md), Proposed)*
+*([ADR-0013](adr/0013-occurrences-snapshot-their-definition.md), Provisionally agreed)*
 
 | Definition | Occurrence | Link | Snapshot copied |
 |---|---|---|---|
@@ -149,7 +150,7 @@ S = Schedulable · C = Completable · Sh = Shareable · Cap = Capturable.
 | Module | Type | S | C | Sh | Cap | Default Space | Statuses used (labels) | Stage |
 |---|---|---|---|---|---|---|---|---|
 | core | **Thought** (raw, unsorted; waits in Inbox) | — | — | — | — | Personal | active | 2 |
-| core | **Note** (an organised thought) | — | — | ✓ | ✓ | Personal | idea · active | 2 |
+| core | **Note** | — | — | — | ✓ | Personal | idea · active | 2 |
 | core | **Task** | ✓ do-on / due | ✓ | ✓ | ✓ | Personal | idea "Someday" · active · done · cancelled (a missed repeat: "Skipped") | 2 |
 | core | **Event** | ✓ start / end | — | ✓ | ✓ | Personal ("with household" → Household) | active · cancelled | 3 |
 | lists | **List** (can be marked as a template) | — | — | ✓ | ✓ | Personal | active | 3 |
@@ -170,7 +171,7 @@ S = Schedulable · C = Completable · Sh = Shareable · Cap = Capturable.
 
 Shop and List: [ADR-0010](adr/0010-shop-is-its-own-type.md) (Provisionally agreed).
 Recipe and Variation: [ADR-0011](adr/0011-recipe-and-variation.md) (Provisionally agreed).
-Ingredient: [ADR-0012](adr/0012-ingredients-and-shopping-lists.md) (Proposed).
+Ingredient: [ADR-0012](adr/0012-ingredients-and-shopping-lists.md) (Provisionally agreed).
 
 **In-place conversions:** Thought → any Capturable Type (sorting the Inbox);
 Note → any other Capturable Type; Task ↔ Event; List ↔ Shop. Everything else is "create from" + *became*
@@ -243,7 +244,8 @@ rule and create no links.
 | Table | Holds |
 |---|---|
 | `core.people` | A person: name, home timezone, default Reminder time, Reminder defaults per Type, digest time, food preferences |
-| `core.spaces` · `core.space_members` · `core.space_invites` | Personal and Household Spaces, membership, invitations |
+| `core.contacts` | Contact requests between people, and whether they were accepted |
+| `core.spaces` · `core.space_members` · `core.space_invites` | Personal and Household Spaces, membership, invitations to a Household |
 | `core.items` | Every Item |
 | `core.series` | Repeat rules for generated occurrences |
 | `core.links` | Every link |

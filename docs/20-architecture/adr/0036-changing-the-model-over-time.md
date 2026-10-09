@@ -1,6 +1,6 @@
 # ADR-0036: Changing the model over time
 
-**Status:** Proposed · 2026-10-09
+**Status:** Provisionally agreed · 2026-10-09
 
 ## Context
 

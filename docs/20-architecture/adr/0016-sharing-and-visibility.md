@@ -37,4 +37,4 @@ and add events, while most of his life stays personal.
   cooked six times, cook log included — leaves with its creator. The
   alternative: the leaver takes a **copy** of the shared Items they created,
   and the originals stay.
-- How it is enforced: [ADR-0017](0017-enforcing-visibility.md) (Proposed).
+- How it is enforced: [ADR-0017](0017-enforcing-visibility.md) (Provisionally agreed).

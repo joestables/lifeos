@@ -1,6 +1,6 @@
 # ADR-0009: Writes that span tables are database functions
 
-**Status:** Proposed · 2026-10-09
+**Status:** Provisionally agreed · 2026-10-09
 
 ## Context
 

@@ -1,6 +1,6 @@
 # Principles
 
-*All Proposed ([ADR-0033](../20-architecture/adr/0033-architecture-principles.md))
+*All Provisionally agreed ([ADR-0033](../20-architecture/adr/0033-architecture-principles.md))
 unless marked.*
 
 ## Product

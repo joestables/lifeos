@@ -18,7 +18,7 @@ core nor other Modules ([principles](../00-foundation/principles.md)):
 
 Modules are packages in the repo, registered at build time. Registries are
 TypeScript constants ([ADR-0008](adr/0008-registries-declared-in-code.md),
-Proposed).
+Provisionally agreed).
 
 ## IntegrationAdapter
 
@@ -28,7 +28,7 @@ Every Integration follows one pattern: connect (OAuth) → fetch new data
 Supabase Vault (`core.connections`). Raw data is kept with the version of the
 mapping that converted it, so after a model change it can be re-mapped
 instead of re-fetched
-([ADR-0036](adr/0036-changing-the-model-over-time.md), Proposed).
+([ADR-0036](adr/0036-changing-the-model-over-time.md), Provisionally agreed).
 
 ## Measure
 
@@ -39,7 +39,7 @@ instead of re-fetched
 - Measures can't be called from the API. Goal progress is read through the
   goal: `goals.progress(goal_id)`, a security-definer function that checks
   `can_read` on the goal and returns only the figure
-  ([ADR-0017](adr/0017-enforcing-visibility.md), Proposed).
+  ([ADR-0017](adr/0017-enforcing-visibility.md), Provisionally agreed).
 
 ## Plan enrichment
 
@@ -58,10 +58,10 @@ without one, the core's default rendering is used
 - Writes that span tables are database functions called over RPC
   (`core.create_item`, `core.convert_item` …)
   ([ADR-0009](adr/0009-cross-table-writes-are-database-functions.md),
-  Proposed).
+  Provisionally agreed).
 - The published layer is the surface for a later LifeOS MCP server, under the
   same visibility rules as the app
   ([ADR-0004](adr/0004-ai-across-the-whole-app.md), Provisionally agreed).
 - Anything arriving from outside — capture, Integrations, the capture
   address, AI output — is checked against a schema (zod) at the door
-  ([ADR-0035](adr/0035-preventing-catching-fixing-bugs.md), Proposed).
+  ([ADR-0035](adr/0035-preventing-catching-fixing-bugs.md), Provisionally agreed).

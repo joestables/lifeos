@@ -12,7 +12,7 @@ decisions they build on.*
 - **A Thought whose text contains a date gets a Reminder** for that date
   ([ADR-0023](../../20-architecture/adr/0023-reminders.md), Provisionally agreed).
 - **A bare date fills do-on**; a deadline must be said ("due fri", "by fri")
-  ([ADR-0022](../../20-architecture/adr/0022-repeating-items.md), Proposed).
+  ([ADR-0022](../../20-architecture/adr/0022-repeating-items.md), Provisionally agreed).
 - **Sorting a Thought:** convert it in place into a Note, Task, List or other
   Capturable Type, or delete it (archive, with undo)
   ([ADR-0037](../../20-architecture/adr/0037-thoughts.md), Provisionally

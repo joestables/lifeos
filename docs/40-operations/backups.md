@@ -15,7 +15,7 @@
 
 ([ADR-0003](../20-architecture/adr/0003-new-supabase-project.md), Provisionally agreed;
 restore test: [ADR-0035](../20-architecture/adr/0035-preventing-catching-fixing-bugs.md),
-Proposed.)
+Provisionally agreed.)
 
 ## Sources
 

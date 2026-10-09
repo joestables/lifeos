@@ -1,6 +1,6 @@
 # ADR-0031: Offline writes and concurrent edits
 
-**Status:** Proposed · 2026-10-09
+**Status:** Provisionally agreed · 2026-10-09
 
 ## Context
 

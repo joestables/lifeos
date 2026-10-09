@@ -2,6 +2,8 @@
 
 **Status:** Provisionally agreed · 2026-10-09
 
+**Amended:** 2026-10-09 by [ADR-0032](0032-delete-means-archive.md) (recovery in Settings).
+
 ## Context
 
 The pages are Views over one graph, so the navigation lists Views. A mockup
@@ -25,7 +27,8 @@ A collapsible drawer (no bottom bar) with these pages, in this order:
 | **Cardio** | *Later.* |
 | **Finance** | *Later.* |
 
-- **No Trash page and no Timeline**, for now.
+- **No Trash page and no Timeline** in the drawer, for now. Deleted Items are
+  recovered from Settings ([ADR-0032](0032-delete-means-archive.md)).
 - **Search** and **Settings** are reached from the drawer header, not listed
   as pages.
 - **Deliberately not decided here:** what each page shows, its tabs,

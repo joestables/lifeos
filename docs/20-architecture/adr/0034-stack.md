@@ -1,6 +1,6 @@
 # ADR-0034: Stack
 
-**Status:** Proposed · 2026-10-09
+**Status:** Provisionally agreed · 2026-10-09
 
 ## Context
 

@@ -1,6 +1,6 @@
 # ADR-0035: Preventing, catching and fixing bugs
 
-**Status:** Proposed · 2026-10-09
+**Status:** Provisionally agreed · 2026-10-09
 
 ## Context
 
@@ -30,7 +30,7 @@ A layer at each stage a bug passes through:
    a third-party service; no in-app bug reporting; a nightly health check
    that notifies Joe only when something is wrong; a nightly smoke walk once
    Stage 2 is in daily use.
-4. **Recover quickly:** undo for deletes; Vercel's instant rollback;
+4. **Recover quickly:** undo for deletes, and recovery from Settings; Vercel's instant rollback;
    migrations fixed forward; backups restored once when first set up.
 
 Details: [runbook](../../40-operations/runbook.md),

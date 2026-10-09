@@ -1,6 +1,6 @@
 # Glossary
 
-*Proposed ([ADR-0006](../20-architecture/adr/0006-vocabulary.md)). The terms
+*Provisionally agreed ([ADR-0006](../20-architecture/adr/0006-vocabulary.md)). The terms
 matter mostly in documents and code.*
 
 Three ideas to hold in your head: **Items, Links, Views.** A Screen is how you
@@ -21,8 +21,9 @@ act on them.
 | **Module** | Code packaging only: a bundle of Types, Views, Screens, measures and link types (e.g. Fitness). Replaces "App" / "Domain". |
 | **Integration** | An outside source feeding Items in: Google Calendar, Oura, Health Connect, later banks. |
 | **Space** | Who can see an Item: **Personal** or **Household**. |
+| **Contact** | Someone you have connected with: you found them by their Google email and they accepted. Being Contacts shares nothing; it lets either of you invite the other into a Household. |
 | **Thought** | A Type: a raw, unsorted capture. What capture makes by default. It waits in Inbox until it is sorted — converted in place into a Note, Task, List or other Capturable Type — or deleted. |
-| **Note** | A Type: an organised thought, kept, labelled and shown in the Notes View. A sorted Thought often becomes one. |
+| **Note** | A Type: a note, kept, labelled and shown in the Notes View. A Thought can be turned into one, and a Note can be converted into other Types. Personal only. |
 | **Reminder** | A notification attached to an Item. Not a Type. |
 
 **The test for View or Screen.** If the page is "these Items, laid out like

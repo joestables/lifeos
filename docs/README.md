@@ -48,7 +48,7 @@ choice, while the design is young.
   written by hand.
 
 Where a document states something that rests on an ADR, it cites it, e.g.
-"(ADR-0007, Proposed)". Anything citing a Proposed ADR is not yet agreed.
+"(ADR-0030, Proposed)". Anything citing a Proposed ADR is not yet agreed.
 
 ## How to change documents
 
@@ -72,7 +72,7 @@ between two documents is a defect, fixed before anything else.
 7. **One short [CLAUDE.md](../CLAUDE.md)** pointing here and at the glossary,
    carrying v1's operational lessons.
 
-(ADR-0001, Proposed)
+(ADR-0001, Provisionally agreed)
 
 ### Requirements
 
@@ -109,44 +109,45 @@ Consequences**, to a page.
 
 | # | Decision | Status |
 |---|---|---|
-| [0001](20-architecture/adr/0001-spec-driven-docs-and-adrs.md) | Spec-driven documentation and ADRs | Proposed |
+| [0001](20-architecture/adr/0001-spec-driven-docs-and-adrs.md) | Spec-driven documentation and ADRs | Provisionally agreed |
 | [0002](20-architecture/adr/0002-start-afresh-port-selectively.md) | Start afresh, port selectively | Provisionally agreed |
 | [0003](20-architecture/adr/0003-new-supabase-project.md) | A new Supabase project | Provisionally agreed |
 | [0004](20-architecture/adr/0004-ai-across-the-whole-app.md) | AI across the whole app | Provisionally agreed |
 | [0005](20-architecture/adr/0005-traits-links-rules.md) | Traits, Links and Rules | Provisionally agreed |
-| [0006](20-architecture/adr/0006-vocabulary.md) | Vocabulary | Proposed |
-| [0007](20-architecture/adr/0007-storage-shape.md) | Storage shape | Proposed |
-| [0008](20-architecture/adr/0008-registries-declared-in-code.md) | Registries declared in code | Proposed |
-| [0009](20-architecture/adr/0009-cross-table-writes-are-database-functions.md) | Writes that span tables are database functions | Proposed |
+| [0006](20-architecture/adr/0006-vocabulary.md) | Vocabulary | Provisionally agreed |
+| [0007](20-architecture/adr/0007-storage-shape.md) | Storage shape | Provisionally agreed |
+| [0008](20-architecture/adr/0008-registries-declared-in-code.md) | Registries declared in code | Provisionally agreed |
+| [0009](20-architecture/adr/0009-cross-table-writes-are-database-functions.md) | Writes that span tables are database functions | Provisionally agreed |
 | [0010](20-architecture/adr/0010-shop-is-its-own-type.md) | Shop is its own Type | Provisionally agreed |
 | [0011](20-architecture/adr/0011-recipe-and-variation.md) | Recipe and Variation; cooking with or without a Meal | Provisionally agreed |
-| [0012](20-architecture/adr/0012-ingredients-and-shopping-lists.md) | Ingredients and shopping lists | Proposed |
-| [0013](20-architecture/adr/0013-occurrences-snapshot-their-definition.md) | Occurrences snapshot their definition | Proposed |
-| [0014](20-architecture/adr/0014-reference-data-and-labels.md) | Reference data and Labels | Proposed |
+| [0012](20-architecture/adr/0012-ingredients-and-shopping-lists.md) | Ingredients and shopping lists | Provisionally agreed |
+| [0013](20-architecture/adr/0013-occurrences-snapshot-their-definition.md) | Occurrences snapshot their definition | Provisionally agreed |
+| [0014](20-architecture/adr/0014-reference-data-and-labels.md) | Reference data and Labels | Provisionally agreed |
 | [0015](20-architecture/adr/0015-health-data-as-a-time-series.md) | Health data as a time series | Provisionally agreed |
 | [0016](20-architecture/adr/0016-sharing-and-visibility.md) | Sharing and visibility | Provisionally agreed |
-| [0017](20-architecture/adr/0017-enforcing-visibility.md) | Enforcing visibility | Proposed |
+| [0017](20-architecture/adr/0017-enforcing-visibility.md) | Enforcing visibility | Provisionally agreed |
 | [0018](20-architecture/adr/0018-changing-an-items-type.md) | Changing an Item's Type | Provisionally agreed |
-| [0019](20-architecture/adr/0019-conversion-keeps-space-and-status.md) | A conversion keeps Space and status | Proposed |
+| [0019](20-architecture/adr/0019-conversion-keeps-space-and-status.md) | A conversion keeps Space and status | Provisionally agreed |
 | [0020](20-architecture/adr/0020-task-event-reminder.md) | Task, Event and Reminder | Provisionally agreed |
 | [0021](20-architecture/adr/0021-time.md) | Time | Provisionally agreed |
-| [0022](20-architecture/adr/0022-repeating-items.md) | Repeating Items and do-on by default | Proposed |
+| [0022](20-architecture/adr/0022-repeating-items.md) | Repeating Items and do-on by default | Provisionally agreed |
 | [0023](20-architecture/adr/0023-reminders.md) | Reminders | Provisionally agreed |
 | [0024](20-architecture/adr/0024-goals.md) | Goals | Provisionally agreed |
-| [0025](20-architecture/adr/0025-goal-on-track-by-kind.md) | "On track" depends on the goal kind | Proposed |
+| [0025](20-architecture/adr/0025-goal-on-track-by-kind.md) | "On track" depends on the goal kind | Provisionally agreed |
 | [0026](20-architecture/adr/0026-navigation-drawer.md) | The navigation drawer | Provisionally agreed |
 | [0027](20-architecture/adr/0027-quick-capture.md) | Quick capture makes a Thought by default | Provisionally agreed |
 | [0028](20-architecture/adr/0028-capture-from-outside-the-app.md) | Capture from outside the app | Provisionally agreed |
 | [0029](20-architecture/adr/0029-plan-reads-core-items.md) | Plan reads `core.items` | Provisionally agreed |
 | [0030](20-architecture/adr/0030-activity-log-by-triggers.md) | An activity log written by triggers | Proposed |
-| [0031](20-architecture/adr/0031-offline-and-concurrent-edits.md) | Offline writes and concurrent edits | Proposed |
-| [0032](20-architecture/adr/0032-delete-means-archive.md) | Delete means archive | Proposed |
-| [0033](20-architecture/adr/0033-architecture-principles.md) | Architecture principles | Proposed |
-| [0034](20-architecture/adr/0034-stack.md) | Stack | Proposed |
-| [0035](20-architecture/adr/0035-preventing-catching-fixing-bugs.md) | Preventing, catching and fixing bugs | Proposed |
-| [0036](20-architecture/adr/0036-changing-the-model-over-time.md) | Changing the model over time | Proposed |
-| [0037](20-architecture/adr/0037-thoughts.md) | Capture makes a Thought; Notes are organised thoughts | Provisionally agreed |
+| [0031](20-architecture/adr/0031-offline-and-concurrent-edits.md) | Offline writes and concurrent edits | Provisionally agreed |
+| [0032](20-architecture/adr/0032-delete-means-archive.md) | Delete means archive | Provisionally agreed |
+| [0033](20-architecture/adr/0033-architecture-principles.md) | Architecture principles | Provisionally agreed |
+| [0034](20-architecture/adr/0034-stack.md) | Stack | Provisionally agreed |
+| [0035](20-architecture/adr/0035-preventing-catching-fixing-bugs.md) | Preventing, catching and fixing bugs | Provisionally agreed |
+| [0036](20-architecture/adr/0036-changing-the-model-over-time.md) | Changing the model over time | Provisionally agreed |
+| [0037](20-architecture/adr/0037-thoughts.md) | Capture makes a Thought, sorted from Inbox | Provisionally agreed |
 | [0038](20-architecture/adr/0038-one-design-system.md) | One design system, built from shared components | Provisionally agreed |
+| [0039](20-architecture/adr/0039-accounts-contacts-households.md) | Accounts, Contacts and Households | Provisionally agreed |
 
 ## Sources
 

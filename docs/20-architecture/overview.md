@@ -13,7 +13,7 @@
   exportable as a graph whenever wanted (visualisation, AI). RDF/SPARQL triple
   stores and graph databases (Neo4j) were rejected: too heavy for a personal
   app, not hosted by Supabase, and LifeOS's queries are mostly shallow and
-  time-based ([ADR-0007](adr/0007-storage-shape.md), Proposed).
+  time-based ([ADR-0007](adr/0007-storage-shape.md), Provisionally agreed).
 - **A small core plus Modules**, one Postgres schema per area, and one
   pattern for every Integration ([principles](../00-foundation/principles.md),
   [contracts](contracts.md)).
@@ -38,7 +38,7 @@
 
 ## Stack
 
-*([ADR-0034](adr/0034-stack.md), Proposed)*
+*([ADR-0034](adr/0034-stack.md), Provisionally agreed)*
 
 - React + TypeScript + Vite, as an installable PWA;
 - Tailwind v4 and **shadcn/ui on Base UI** (reported as the shadcn default for

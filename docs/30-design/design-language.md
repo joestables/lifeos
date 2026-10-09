@@ -24,7 +24,7 @@ agreed)*
   standard design system rather than a heavily customised MUI
   ([vision](../00-foundation/vision.md)).
 - **Components:** shadcn/ui on Base UI, with Tailwind v4
-  ([ADR-0034](../20-architecture/adr/0034-stack.md), Proposed). shadcn's
+  ([ADR-0034](../20-architecture/adr/0034-stack.md), Provisionally agreed). shadcn's
   components are documented upstream, so there is no Storybook; a component
   catalogue is added only if it can be generated.
 - **Navigation:** a collapsible drawer, no bottom bar

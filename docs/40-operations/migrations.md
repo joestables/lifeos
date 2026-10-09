@@ -21,4 +21,4 @@
 - **`get_advisors` runs after every migration.**
 - The migrations list is generated, not hand-written.
 
-(ADR-0035, Proposed, unless marked.)
+(ADR-0035, Provisionally agreed, unless marked.)
