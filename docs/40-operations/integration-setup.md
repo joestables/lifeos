@@ -12,9 +12,10 @@ Google is how everyone signs up and signs in
 |---|---|---|
 | Google Cloud project `lifeos` → OAuth client | Created; client ID and secret entered in Supabase | Done (Joe) |
 | … OAuth client → Authorized redirect URIs | `https://nxydbufwuvsacayqoakh.supabase.co/auth/v1/callback` | To check (Joe) |
-| … Google Auth Platform → Branding | App name `LifeOS`; support email Joe's; **no logo** (uploading one sends the app for verification); authorised domains `nxydbufwuvsacayqoakh.supabase.co` and `lifeos-bice-mu.vercel.app` | Name and email done (Joe); domains to do |
-| … Branding → App domain | Home page `https://lifeos-bice-mu.vercel.app`; privacy policy `https://lifeos-bice-mu.vercel.app/privacy`. Google requires both before the app can leave Testing | Waits for the app's first deploy, with its privacy page (plan step 9a) |
-| … Google Auth Platform → Audience | **In production**, so anyone can sign in. Scopes: `openid`, `email`, `profile` only, which need no verification. Until then it stays in **Testing**, where only the listed test users (Joe, for now) can sign in | Testing (Joe); publish after the row above |
+| … Google Auth Platform → Branding | App name `LifeOS`; support email Joe's; **no logo** (uploading one sends the app for verification); authorised domains `nxydbufwuvsacayqoakh.supabase.co` and `lifeos-bice-mu.vercel.app` | Name and email done (Joe); domains to confirm |
+| … Branding → App domain | Home page `https://lifeos-bice-mu.vercel.app`; privacy policy `https://lifeos-bice-mu.vercel.app/privacy`. Google requires both before the app can leave Testing | Entered (Joe; URLs to confirm); the pages go live with the app's first deploy (plan step 9a) |
+| … Google Auth Platform → Audience | **In production**, so anyone can sign in. Scopes: `openid`, `email`, `profile` only, which need no verification | Done (Joe) |
+| … Verification centre | Optional *brand* verification, so the consent screen says "LifeOS" rather than the Supabase address. Sign-in works without it. Submit only once the home page and privacy page are live | Later |
 | Supabase → Authentication → Sign In / Providers → Google | Enabled | Done (Joe) |
 | Supabase → Authentication → URL Configuration | Site URL: the production URL. Redirect URLs: the production URL, `http://localhost:5173/**` and the Vercel previews (`https://lifeos-*-joestables1.vercel.app/**`) | Done (Joe) |
 

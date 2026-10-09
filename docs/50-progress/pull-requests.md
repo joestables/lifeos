@@ -35,10 +35,10 @@ Branch `claude/stage-1-foundation` · 2026-10-09
   public. Joe finished the Supabase sign-in settings.
 
 **Left for later**
-- Joe: confirm v1 was backed up; finish the Google settings (plan step 4).
-  Google won't publish the sign-in app without a home page and privacy
-  policy URL, so it stays in Testing until the app's first deploy has a
-  `/privacy` page (plan step 9a).
+- Joe: confirm v1 was backed up (plan step 4).
+- Joe published the Google sign-in app. Its home page and `/privacy` page
+  go live with the first deploy (plan step 9a); brand verification is
+  optional and waits until then.
 - The data-layer decision and the shadcn re-check (plan step 2).
 
 ## No PR — Docs structure for LifeOS v2 (Stage 0)
