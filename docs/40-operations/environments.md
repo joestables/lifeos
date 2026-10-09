@@ -36,7 +36,10 @@ run anything in Supabase himself
   `*.supabase.co` and `*.vercel.app`, so a cloud session reaches the live
   project only through the connectors. That is enough for SQL, migrations,
   advisors and logs; smoke walks against production would need those hosts
-  allowed in the environment's network settings.
+  allowed in the environment's network settings. `ui.shadcn.com` is blocked
+  too, so the shadcn CLI can't fetch components; they are copied from
+  shadcn's source on GitHub (`apps/v4/registry/bases/base`), which is
+  reachable, as is npm.
 - **Permissions:** Joe wants no approval prompts for any Supabase action
   (Edge Function deploys included), nor for Vercel or GitHub.
   [`.claude/settings.json`](../../.claude/settings.json) allows the whole

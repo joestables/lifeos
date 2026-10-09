@@ -2,7 +2,7 @@
 
 Newest first. Each entry is added in its own pull request.
 
-## Not yet opened — Stage 1: plan and first specs
+## Not yet opened — Stage 1: plan, specs and scaffold
 
 Branch `claude/stage-1-foundation` · 2026-10-09
 
@@ -38,8 +38,16 @@ Branch `claude/stage-1-foundation` · 2026-10-09
 - Re-checked shadcn's default (Base UI, ADR-0034) and drafted the data
   layer as ADR-0042, which Joe agreed; linked it from ADR-0009, the offline spec,
   the data model, contracts, overview and roadmap.
+- Scaffolded the app (plan step 5): Vite, React, TypeScript, Tailwind,
+  TanStack Router and Query, the PWA plugin, ESLint (including the rule that
+  only `src/data/` imports Supabase), Prettier, Vitest and Playwright;
+  `npm run check` runs them. Wrote `src/styles/theme.css` from the tokens,
+  since the build needs them. shadcn's CLI can't reach its registry from the
+  cloud session, so `components.json` is written by hand.
 
 **Left for later**
+- An app icon: the design system has none yet, so the manifest has no icon
+  and the app can't be installed until one is designed.
 - Joe published the Google sign-in app. Its home page and `/privacy` page
   go live with the first deploy (plan step 9a); brand verification is
   optional and waits until then.

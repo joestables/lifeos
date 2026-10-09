@@ -63,7 +63,7 @@ fails CI instead of relying on memory.
 
 | Check | What it catches |
 |---|---|
-| **One theme file** (`src/styles/theme.css`) holds every token as a CSS variable, mapped to Tailwind with `@theme inline`. It is the only file allowed to contain a colour value. | Colours defined anywhere else |
+| **One theme file** (`src/styles/theme.css`) holds every token as a CSS variable, mapped to Tailwind with `@theme inline`. It is the only file allowed to contain a colour value, except the two places that must be hex: the web app manifest (`vite.config.ts`) and `theme-color` in `index.html`, which carry `--background` converted. | Colours defined anywhere else |
 | **Generated token tables:** the tables in [tokens.md](tokens.md) are generated from the theme file; CI fails if they differ. Until then they are written by hand, and say so. | Docs and code disagreeing |
 | **Lint:** no colour literals outside the theme file; no Tailwind arbitrary values (`bg-[…]`, `p-[13px]`, `rounded-[…]`, `shadow-[…]`); no inline `style` except computed sizes (a progress width); screens import UI only from `@/components/ui` and `@/components/lifeos`, never Base UI or Radix directly; no other font families. | One-off styling, bypassing the shared components |
 | **The design-system page** (`/design`, in development and preview builds only) renders every component and pattern from the real code, in both modes. | Components no one has looked at |

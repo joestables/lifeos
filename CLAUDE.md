@@ -1,9 +1,13 @@
 # LifeOS — instructions for Claude
 
 LifeOS v2 is being built, stage by stage. Stage 0 settled the architecture
-(Provisionally agreed); code arrives with Stage 1. The current stage's plan is
+(Provisionally agreed); Stage 1 is building the foundation. The current stage's plan is
 in [docs/50-progress/plans/](docs/50-progress/plans/). Start at [docs/README.md](docs/README.md): the
 index, the ADR statuses, which document wins, and how to change documents.
+
+**Before every commit:** `npm run check` (typecheck, lint, format, unit
+tests) and `npm run build` pass. Vite + React + TypeScript; the app is in
+`src/`, shared packages in `packages/`.
 
 ## Spec-driven development: the docs are the source of truth
 
@@ -67,7 +71,7 @@ can't do something, say exactly why and what Joe needs to do.
   project records ([ADR-0040](docs/20-architecture/adr/0040-migrations-applied-by-claude.md))
   — never ad-hoc DDL through `execute_sql` (that is how v1's schema drifted). Run `get_advisors` after
   every migration.
-- **Know the project** before any write. v1 (*JoeStables LifeOS*) is
+- **Know the project** before any write. v1 (_JoeStables LifeOS_) is
   reference only: never write to it.
 - **Joe's standing permission covers every Supabase action** on the `lifeos`
   project — queries, migrations, destructive SQL, Edge Function deploys,

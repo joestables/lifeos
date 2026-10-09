@@ -1,0 +1,233 @@
+/*
+ * The only home for design-token values. Every value here is specified in
+ * docs/30-design/tokens.md; change both together. No other file may contain
+ * a colour value (docs/30-design/README.md#enforcement).
+ */
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
+@import '@fontsource-variable/plus-jakarta-sans';
+@import '@fontsource-variable/geist-mono';
+
+@custom-variant dark (&:is(.dark *));
+
+/* Colour: light */
+:root {
+  --background: oklch(0.966 0.0025 260);
+  --foreground: oklch(0.235 0.0025 260);
+  --card: oklch(0.997 0.00125 260);
+  --card-foreground: var(--foreground);
+  --popover: var(--card);
+  --popover-foreground: var(--foreground);
+  --ink: oklch(0.24 0.0025 260);
+  --ink-foreground: oklch(0.985 0 0);
+  --primary: var(--ink);
+  --primary-foreground: var(--ink-foreground);
+  --secondary: oklch(0.928 0.0025 260);
+  --secondary-foreground: var(--foreground);
+  --muted: oklch(0.938 0.0025 260);
+  --muted-foreground: oklch(0.5 0.005 260);
+  --accent: oklch(0.922 0.0025 260);
+  --accent-foreground: var(--foreground);
+  --border: oklch(0.9 0.0025 260);
+  --hairline: oklch(0.235 0.0025 260 / 6.5%);
+  --input: oklch(0.928 0.0025 260);
+  --input-strong: oklch(0.79 0.0025 260);
+  --ring: var(--primary);
+  --ring-soft: color-mix(in oklch, var(--ring) 18%, transparent);
+  --sidebar: var(--card);
+  --sidebar-foreground: oklch(0.38 0.0025 260);
+  --sidebar-accent: var(--accent);
+  --sidebar-accent-foreground: var(--foreground);
+  --overlay: oklch(0.2 0.0025 260 / 30%);
+
+  --destructive: oklch(0.57 0.19 27);
+  --destructive-foreground: oklch(0.99 0 0);
+  --success: oklch(0.6 0.12 155);
+
+  --m-lists: oklch(0.66 0.13 72);
+  --m-food: oklch(0.6 0.13 38);
+  --m-fitness: oklch(0.56 0.13 255);
+  --m-goals: oklch(0.55 0.13 298);
+  --m-wardrobe: oklch(0.59 0.13 355);
+  --m-finance: oklch(0.57 0.13 160);
+  --on-module: oklch(0.99 0 0);
+  --tile-mix: 14%;
+
+  --shadow-card:
+    0 0 0 1px var(--hairline), 0 1px 2px oklch(0.2 0.01 260 / 5%),
+    0 6px 20px -8px oklch(0.2 0.01 260 / 13%);
+  --shadow-pop: 0 2px 4px oklch(0.2 0.01 260 / 6%), 0 16px 40px -12px oklch(0.2 0.01 260 / 26%);
+  --shadow-dialog: 0 30px 80px -24px oklch(0.2 0.01 260 / 38%);
+  --shadow-button: 0 1px 2px oklch(0.2 0.01 260 / 20%);
+
+  --radius: 12px;
+  --duration: 150ms;
+  --h: 40px;
+  --h-sm: 32px;
+
+  color-scheme: light;
+}
+
+/* Colour: dark */
+.dark {
+  --background: oklch(0.175 0.0025 260);
+  --foreground: oklch(0.945 0.0025 260);
+  --card: oklch(0.215 0.0025 260);
+  --popover: oklch(0.24 0.0025 260);
+  --ink: oklch(0.94 0.0025 260);
+  --ink-foreground: oklch(0.2 0.0025 260);
+  --secondary: oklch(0.265 0.0025 260);
+  --muted: oklch(0.245 0.0025 260);
+  --muted-foreground: oklch(0.7 0.005 260);
+  --accent: oklch(0.275 0.0025 260);
+  --border: oklch(1 0 0 / 6.5%);
+  --hairline: oklch(0.945 0.0025 260 / 6.5%);
+  --input: oklch(0.255 0.0025 260);
+  --input-strong: oklch(1 0 0 / 20%);
+  --ring-soft: color-mix(in oklch, var(--ring) 20%, transparent);
+  --sidebar-foreground: oklch(0.8 0.0025 260);
+  --overlay: oklch(0.06 0.0025 260 / 62%);
+
+  --m-lists: oklch(0.82 0.11 78);
+  --m-food: oklch(0.76 0.11 40);
+  --m-fitness: oklch(0.76 0.104 250);
+  --m-goals: oklch(0.76 0.104 300);
+  --m-wardrobe: oklch(0.77 0.104 355);
+  --m-finance: oklch(0.78 0.104 160);
+  --on-module: oklch(0.2 0.01 260);
+  --tile-mix: 16%;
+
+  --shadow-card:
+    0 0 0 1px var(--hairline), inset 0 1px 0 oklch(1 0 0 / 3.5%),
+    0 10px 30px -14px oklch(0 0 0 / 60%);
+  --shadow-pop: inset 0 1px 0 oklch(1 0 0 / 4.5%), 0 20px 50px -16px oklch(0 0 0 / 70%);
+  --shadow-dialog: inset 0 1px 0 oklch(1 0 0 / 5%), 0 40px 90px -24px oklch(0 0 0 / 80%);
+  --shadow-button: none;
+
+  color-scheme: dark;
+}
+
+/*
+ * Module colour. ModuleScope sets data-module; children read --mc, and the
+ * primary and focus colours become the Module's (patterns.md#module-colour).
+ */
+[data-module='lists'] {
+  --mc: var(--m-lists);
+}
+[data-module='food'] {
+  --mc: var(--m-food);
+}
+[data-module='fitness'] {
+  --mc: var(--m-fitness);
+}
+[data-module='goals'] {
+  --mc: var(--m-goals);
+}
+[data-module='wardrobe'] {
+  --mc: var(--m-wardrobe);
+}
+[data-module='finance'] {
+  --mc: var(--m-finance);
+}
+[data-module]:not([data-module='core']) {
+  --primary: var(--mc);
+  --primary-foreground: var(--on-module);
+  --ring: var(--mc);
+}
+
+/* Tokens as Tailwind utilities (bg-card, text-muted-foreground, rounded-lg …) */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-ink: var(--ink);
+  --color-ink-foreground: var(--ink-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
+  --color-hairline: var(--hairline);
+  --color-input: var(--input);
+  --color-input-strong: var(--input-strong);
+  --color-ring: var(--ring);
+  --color-ring-soft: var(--ring-soft);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-overlay: var(--overlay);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-mc: var(--mc);
+  --color-on-module: var(--on-module);
+
+  --font-sans: 'Plus Jakarta Sans Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'Geist Mono Variable', ui-monospace, monospace;
+
+  --text-xs: 12px;
+  --text-sm: 13px;
+  --text-base: 14px;
+  --text-base--line-height: 1.45;
+  --text-h2: 17px;
+  --text-h2--line-height: 1.3;
+  --text-h2--letter-spacing: -0.015em;
+  --text-h2--font-weight: 700;
+  --text-day: 20px;
+  --text-day--letter-spacing: -0.02em;
+  --text-day--font-weight: 750;
+  --text-h1: 24px;
+  --text-h1--line-height: 1.2;
+  --text-h1--letter-spacing: -0.025em;
+  --text-h1--font-weight: 750;
+  --text-kicker: 12px;
+  --text-kicker--letter-spacing: 0.07em;
+  --text-kicker--font-weight: 700;
+  --text-kbd: 10.5px;
+
+  --radius-xs: 6px;
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-control: var(--radius);
+  --radius-row: 14px;
+  --radius-lg: 18px;
+  --radius-panel: 20px;
+  --radius-xl: 24px;
+
+  --shadow-card: var(--shadow-card);
+  --shadow-pop: var(--shadow-pop);
+  --shadow-dialog: var(--shadow-dialog);
+  --shadow-button: var(--shadow-button);
+
+  --default-transition-duration: var(--duration);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    @apply font-sans antialiased;
+  }
+  body {
+    @apply bg-background text-base text-foreground;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    transition-duration: 0s !important;
+    animation-duration: 0s !important;
+  }
+}

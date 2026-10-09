@@ -1,9 +1,10 @@
 # Design tokens
 
-*Written by hand until Stage 1 creates `src/styles/theme.css`; from then on
-these tables are generated from that file and CI fails if they differ
-([design system](README.md#enforcement)). Names follow shadcn/ui's theme
-variables, plus LifeOS's own (marked †).*
+*[`src/styles/theme.css`](../../src/styles/theme.css) holds these values.
+Until the generator is built (Stage 1, step 9), these tables are kept in step
+with it by hand; after that they are generated from it and CI fails if they
+differ ([design system](README.md#enforcement)). Names follow shadcn/ui's
+theme variables, plus LifeOS's own (marked †).*
 
 Colours are OKLCH. "fg" is short for foreground.
 
@@ -118,6 +119,10 @@ Tailwind's 4px-based scale, using only these steps: **2, 4, 6, 8, 10, 12, 14,
 | `--radius-panel` | 20px | The drawer |
 | `--radius-xl` | 24px | Dialogs, sheets |
 | `--radius-full` | 999px | Badges, tabs, chips, switch, avatar, progress |
+
+As Tailwind classes: `rounded-xs`, `rounded-sm`, `rounded-md`,
+`rounded-control` (`--radius`), `rounded-row`, `rounded-lg`, `rounded-panel`,
+`rounded-xl`, `rounded-full`.
 
 A shape inside another is rounded to the outer radius minus the gap between
 them (a toggle item: 12px − 3px = 9px).
