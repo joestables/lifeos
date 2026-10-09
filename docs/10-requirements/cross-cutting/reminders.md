@@ -7,9 +7,9 @@ written; this page records the decisions they build on.*
 
 - **Reminders attach to any Item**, relative to one of its times or at a
   fixed time; defaults per Type; a Task's default follows its do-on date at
-  the person's default time (09:00 unless changed); per person; a Note with a
-  date gets one ([ADR-0023](../../20-architecture/adr/0023-reminders.md),
-  Accepted).
+  the person's default time (09:00 unless changed); per person; a Thought with
+  a date gets one ([ADR-0023](../../20-architecture/adr/0023-reminders.md),
+  Provisionally agreed).
 - **Anchors per Type** are tabled in the
   [data model](../../20-architecture/data-model.md#time-fields-per-schedulable-type).
 - **Delivery** records what was sent, when (`core.reminder_deliveries`), to

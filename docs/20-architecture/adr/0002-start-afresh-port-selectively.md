@@ -1,6 +1,6 @@
 # ADR-0002: Start afresh, port selectively
 
-**Status:** Accepted · 2026-10-09
+**Status:** Provisionally agreed · 2026-10-09
 
 ## Context
 
@@ -29,4 +29,4 @@ current code would survive an in-place evolution.
 
 - v1 stops when its Supabase project is paused in Stage 1
   ([ADR-0003](0003-new-supabase-project.md)). Between then and Stages 4–6,
-  Recipes, Gym and Wardrobe are unavailable. Accepted: v1 is being wiped.
+  Recipes, Gym and Wardrobe are unavailable. Agreed: v1 is being wiped.

@@ -38,7 +38,7 @@ a change process and impact analysis.
 - **Integrations keep their raw data** with the version of the mapping that
   converted it, so it can be re-mapped instead of re-fetched.
 - **Process for changing and removing changes:** change proposal → impact
-  report → ADR accepted by Joe → one pull request (ontology source,
+  report → ADR agreed by Joe → one pull request (ontology source,
   migration, code, tests, spec, glossary, generated docs) → CI passes, merge,
   baseline tagged.
 

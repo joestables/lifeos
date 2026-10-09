@@ -6,13 +6,14 @@ candidate requirements it builds on.*
 
 **In one line:** one feed of what needs you, drawn from everything — not
 dashboard cards ([ADR-0026](../../20-architecture/adr/0026-navigation-drawer.md),
-Accepted).
+  Provisionally agreed).
 
 ## Inputs so far
 
-- New captures land in **Inbox › Unsorted**; a Note leaves Unsorted when it
-  is converted, filed, marked as an idea or deleted
-  ([ADR-0027](../../20-architecture/adr/0027-quick-capture.md)).
+- **Thoughts wait here to be sorted.** Capture makes a Thought by default;
+  it leaves Inbox when it is converted into another Type (a Note, Task, List…)
+  or deleted ([ADR-0037](../../20-architecture/adr/0037-thoughts.md),
+  Provisionally agreed).
 - **Due** drives "overdue" ([ADR-0021](../../20-architecture/adr/0021-time.md)).
 - A repeating Task shows its **next open occurrence only**
   ([ADR-0022](../../20-architecture/adr/0022-repeating-items.md), Proposed).

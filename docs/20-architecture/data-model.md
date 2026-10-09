@@ -2,16 +2,16 @@
 
 *Written by hand until the ontology package generates it
 ([ADR-0036](adr/0036-changing-the-model-over-time.md)). Everything here is
-Proposed unless it cites an Accepted ADR. Types for later stages are listed so
+Proposed unless it cites a Provisionally agreed ADR. Types for later stages are listed so
 the whole shape is visible; each is built only in its own stage.*
 
 ## Three mechanisms
 
-*([ADR-0005](adr/0005-traits-links-rules.md), Accepted)*
+*([ADR-0005](adr/0005-traits-links-rules.md), Provisionally agreed)*
 
 1. **Traits — what an Item *is*.** Types have traits: *Schedulable* (has a
    time), *Completable* (can be ticked off), *Shareable* (can belong to the
-   Household Space), *Capturable* (a Note can become one in place).
+   Household Space), *Capturable* (a Thought can become one in place).
    **Views are queries over traits.** Plan = Schedulable Items in a date
    range; the Gym View = Items of workout Types. A new Schedulable Type
    appears on Plan with no extra work. ("Gym session *can be viewed on* Plan"
@@ -25,7 +25,7 @@ the whole shape is visible; each is built only in its own stage.*
    press); its contributing sessions are whatever the rule finds. Nobody links
    sessions to goals by hand.
 
-**The action creates the link.** Converting a Note keeps the same Item, so no
+**The action creates the link.** Converting a Thought keeps the same Item, so no
 link is needed; *became* is created only when a new Item is made from an old
 one.
 
@@ -86,7 +86,7 @@ core.activity  item_id, verb, changed (jsonb), at, actor — written by triggers
 - **Status is one small core set:** `idea | active | done | cancelled`. Each
   Type uses the subset that applies, with its own labels. Finer states, such
   as a workout in progress, live in the detail table. Only Completable Types
-  use *done*: a Note's Unsorted / Filed is a flag on its detail table.
+  use *done*.
 - **IDs are made on the device** (UUIDv7, so they sort by creation time).
   Postgres 17 has no built-in `uuidv7()`, so server-side inserts use a small
   SQL function.
@@ -148,7 +148,8 @@ S = Schedulable · C = Completable · Sh = Shareable · Cap = Capturable.
 
 | Module | Type | S | C | Sh | Cap | Default Space | Statuses used (labels) | Stage |
 |---|---|---|---|---|---|---|---|---|
-| core | **Note** | — | — | ✓ | — | Personal | idea · active ("Unsorted" or "Filed", a flag) | 2 |
+| core | **Thought** (raw, unsorted; waits in Inbox) | — | — | — | — | Personal | active | 2 |
+| core | **Note** (an organised thought) | — | — | ✓ | ✓ | Personal | idea · active | 2 |
 | core | **Task** | ✓ do-on / due | ✓ | ✓ | ✓ | Personal | idea "Someday" · active · done · cancelled (a missed repeat: "Skipped") | 2 |
 | core | **Event** | ✓ start / end | — | ✓ | ✓ | Personal ("with household" → Household) | active · cancelled | 3 |
 | lists | **List** (can be marked as a template) | — | — | ✓ | ✓ | Personal | active | 3 |
@@ -167,19 +168,20 @@ S = Schedulable · C = Completable · Sh = Shareable · Cap = Capturable.
 | wardrobe | **Outfit worn** | ✓ do-on | ✓ "worn" | — | — | Personal | active "Planned" · done · cancelled | 6 |
 | finance | **Account** | — | — | ✓ | — | Personal | active · cancelled "Closed" | 9 |
 
-Shop and List: [ADR-0010](adr/0010-shop-is-its-own-type.md) (Accepted).
-Recipe and Variation: [ADR-0011](adr/0011-recipe-and-variation.md) (Accepted).
+Shop and List: [ADR-0010](adr/0010-shop-is-its-own-type.md) (Provisionally agreed).
+Recipe and Variation: [ADR-0011](adr/0011-recipe-and-variation.md) (Provisionally agreed).
 Ingredient: [ADR-0012](adr/0012-ingredients-and-shopping-lists.md) (Proposed).
 
-**In-place conversions:** Note → any Capturable Type; Task ↔ Event; List ↔
-Shop. Everything else is "create from" + *became*
-([ADR-0018](adr/0018-changing-an-items-type.md), Accepted).
+**In-place conversions:** Thought → any Capturable Type (sorting the Inbox);
+Note → any other Capturable Type; Task ↔ Event; List ↔ Shop. Everything else is "create from" + *became*
+([ADR-0018](adr/0018-changing-an-items-type.md), Provisionally agreed).
+Thoughts and Notes: [ADR-0037](adr/0037-thoughts.md) (Provisionally agreed).
 
 **Not Items, deliberately:** people, Spaces, series, Reminders, Labels,
 reference data, list lines, ingredient lines, method steps, cook log entries,
 template exercises, workout sets, health metrics (Oura sleep and readiness,
 weight — a time series; [ADR-0015](adr/0015-health-data-as-a-time-series.md),
-Accepted), account balances and transactions (later).
+  Provisionally agreed), account balances and transactions (later).
 
 **Possible later Types:** Place (for location Reminders and "Tesco"), Trip,
 Body measurement if it ever needs linking, Project (if grouping Tasks needs
@@ -189,7 +191,7 @@ more than Labels).
 
 | Module | Detail tables (1:1 with an Item) | Child rows |
 |---|---|---|
-| core | — (Note, Task, Event use `core.items` only; a Note's colour, pin and filed flag are columns on a small `note` table) | `task_steps` (a checklist inside a Task) |
+| core | — (Thought, Note, Task, Event use `core.items` only; a Note's colour and pin are columns on a small `note` table) | `task_steps` (a checklist inside a Task) |
 | lists | `shop(place)` | `list_lines(text, ingredient_id?, qty, unit, section, checked, position, for_item_id?, generated, touched_at)` — used by List and Shop |
 | food | `recipe(photo, cuisine, category, protein, carbs)`, `variation(servings, prep_min, cook_min, source_url, notes, final)`, `meal(servings)`, `ingredient(section, default_unit, staple)` | `variation_ingredients(ingredient_id, qty, unit, prep_note, group, position)`, `variation_steps`, `cook_log(person, cooked_on, rating, notes, meal_id?)`; reference data: cuisines, categories, protein, carbs, units |
 | fitness | `exercise(muscle_groups, equipment, increment, target)`, `workout(actual_start, duration, readiness, stage)`, `cardio_activity(kind, distance_m, duration_s, avg_hr)` | `template_exercises(exercise_id, sets, reps, target)`, `workout_entries(exercise_id, snapshot)`, `workout_sets(entry_id, set_no, reps, weight, rpe)`; reference data: muscle groups, equipment, recovery settings per person |
@@ -211,7 +213,7 @@ more than Labels).
 | **contributes to** | Task / Event / Shop / Workout / Cardio activity → Goal | contributors | Hand (counted only by milestone goals) |
 | **sub-goal of** | Goal → Goal | sub-goals | Hand (one level) |
 | **became** | any → any | came from | "Create from" |
-| **variation of** | Variation → Recipe | variations | Creating a Recipe (its first Variation) or "Make a variation"; exactly one per Variation ([ADR-0011](adr/0011-recipe-and-variation.md), Accepted) |
+| **variation of** | Variation → Recipe | variations | Creating a Recipe (its first Variation) or "Make a variation"; exactly one per Variation ([ADR-0011](adr/0011-recipe-and-variation.md), Provisionally agreed) |
 | **from template** | List → List | made from it | "New list from template" |
 | **relates to** | any ↔ any | relates to | Hand — the catch-all |
 
@@ -268,7 +270,7 @@ maintained.
 
 **Line styles:** **solid** = a stored link, created by an action ·
 **dotted** = a pointer from a child row, or a Type conversion · **dashed
-(`rule`)** = a goal measure, calculated, nothing stored · **thick** = a Note
+(`rule`)** = a goal measure, calculated, nothing stored · **thick** = a Thought
 converting in place (same Item, so not a link).
 
 ### The metamodel: Types and the links allowed between them
@@ -276,6 +278,7 @@ converting in place (same Item, so not a link).
 ```mermaid
 flowchart LR
   subgraph CORE[Core]
+    Thought
     Note
     Task
     Event
@@ -305,9 +308,9 @@ flowchart LR
     Goal
   end
 
-  Note == converts in place ==> Task
-  Note == converts in place ==> Event
-  Note == converts in place ==> Recipe
+  Thought == converts in place ==> Note
+  Thought == converts in place ==> Task
+  Thought == converts in place ==> Recipe
   Task -. converts .- Event
   List -. converts .- Shop
 
@@ -333,8 +336,9 @@ flowchart LR
   Goal -. "rule: measured by" .-> Cardio
 ```
 
-Drawn selectively to stay readable: a Note also converts to List, Shop, Goal
-and Garment (every Capturable Type); *contributes to* also comes from Shops,
+Drawn selectively to stay readable: a Thought also converts to Event, List,
+Shop, Goal and Garment (every Capturable Type), and a Note to any other
+Capturable Type; *contributes to* also comes from Shops,
 Workouts and Cardio; Lists have lines too, and a line can point at an Event as
 well as a Meal; measures also exist for Meals and Tasks. Two link types
 connect any pair of Types and are not drawn: *became* and *relates to*.
@@ -349,7 +353,7 @@ flowchart LR
   RD["Katsu curry<br/>Recipe · H"]
   R1["Chicken katsu<br/>Variation · cooked 6× · H"]
   R2["Tofu katsu<br/>Variation · untried · H"]
-  R3["Miso salmon traybake<br/>Recipe · idea · H<br/>(captured as a Note)"]
+  R3["Miso salmon traybake<br/>Recipe · idea · H<br/>(captured as a Thought)"]
   M["Katsu curry<br/>Meal · Thu dinner · H"]
   S["Big shop<br/>Shop · Sat 10:00 · H"]
   L(["Panko 100 g<br/>list line"])
@@ -395,8 +399,8 @@ What it shows:
   lunch), but not the Outfit or jumper behind the Olive knit.
 - **Rules expose nothing:** the goal finds Push day by its measure, and no
   link is stored.
-- **A converted Note is the same Item:** Miso salmon was captured as a Note
-  and is now a Recipe in the *idea* status.
+- **A sorted Thought is the same Item:** Miso salmon was captured as a
+  Thought and is now a Recipe in the *idea* status.
 - **Recipe to shopping list:** the Chicken katsu Variation's "100 g panko"
   line and the Big shop's "Panko 100 g" line both point at one Ingredient,
   and the list line is *for* Thursday's Meal, which *uses* that Variation.

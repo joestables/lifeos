@@ -27,7 +27,7 @@ than one picture of a life.
    in future, not inside one corner of it. Every design choice that keeps the
    data connected, named and typed serves this goal
    ([ADR-0004](../20-architecture/adr/0004-ai-across-the-whole-app.md),
-   Accepted).
+  Provisionally agreed).
 
 **When goals pull apart, goal 2 wins over goal 4.** General machinery is built
 when a second real use needs it, not in anticipation
@@ -42,7 +42,7 @@ relationships* between them (edges), and a *schema* saying which kinds of
 thing and relationship are allowed (the **ontology**).
 
 - **Items** are the nodes — a task, an event, a recipe, a workout, a meal, an
-  outfit, a note.
+  outfit, a thought, a note.
 - **Links** are the named edges — *meal uses recipe*, *session follows
   template*, *outfit worn to event*.
 - **Types, Traits and link types** are the ontology
@@ -83,7 +83,8 @@ ontology, so an AI can be handed the whole picture:
   haven't cooked for a while."* — Recipes, Meals, Workouts and Shops together.
 - *"I've got Dishoom on Friday — suggest an outfit I haven't worn recently."*
   — Events, Outfits and wear history.
-- *"Turn these five notes into tasks and file the rest."* — triage of Inbox.
+- *"Turn these five thoughts into tasks and the rest into notes."* — sorting
+  the Inbox.
 - *"Why did my running drop off in September?"* — Cardio, Oura readiness,
   Events and Tasks across the same weeks.
 - A weekly review written from the activity log.

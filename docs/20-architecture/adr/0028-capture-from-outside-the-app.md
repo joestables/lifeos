@@ -1,6 +1,8 @@
 # ADR-0028: Capture from outside the app
 
-**Status:** Accepted · 2026-10-09
+**Status:** Provisionally agreed · 2026-10-09
+
+**Amended:** 2026-10-09 by [ADR-0037](0037-thoughts.md) (Thoughts).
 
 ## Context
 
@@ -12,7 +14,7 @@ Joe's girlfriend's iPhone has no share target.
 - **A personal capture address:** an Edge Function URL plus a secret token
   per person, which only creates Items in that person's Personal Space (it
   can read nothing).
-- **Same rules as in-app capture:** a Note by default; a leading "task" (or a
+- **Same rules as in-app capture:** a Thought by default; a leading "task" (or a
   Shortcut built for tasks) makes a Task; the same deterministic parser finds
   dates and offers the same Reminder.
 - **Safety:** the token can be revoked and regenerated in Settings; each

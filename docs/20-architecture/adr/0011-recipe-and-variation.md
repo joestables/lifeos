@@ -1,6 +1,6 @@
 # ADR-0011: Recipe and Variation; cooking with or without a Meal
 
-**Status:** Accepted · 2026-10-09
+**Status:** Provisionally agreed · 2026-10-09
 
 ## Context
 

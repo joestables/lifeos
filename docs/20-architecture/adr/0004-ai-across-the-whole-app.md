@@ -1,6 +1,6 @@
 # ADR-0004: AI across the whole app
 
-**Status:** Accepted · 2026-10-09
+**Status:** Provisionally agreed · 2026-10-09
 
 ## Context
 

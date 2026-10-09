@@ -10,6 +10,6 @@ build on.*
   ([principles](../../00-foundation/principles.md)).
 - Search is a **Screen**, reached from the drawer header
   ([ADR-0026](../../20-architecture/adr/0026-navigation-drawer.md),
-  Accepted).
+  Provisionally agreed).
 - Each Module declares its search contribution
   ([contracts](../../20-architecture/contracts.md#moduledefinition)).

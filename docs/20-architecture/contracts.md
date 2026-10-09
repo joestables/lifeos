@@ -35,7 +35,7 @@ instead of re-fetched
 - An SQL function, named in code, published by a Module
   ([data model](data-model.md#measures-examples)).
 - Goals pick from the published list; there is no free formula builder
-  ([ADR-0024](adr/0024-goals.md), Accepted).
+  ([ADR-0024](adr/0024-goals.md), Provisionally agreed).
 - Measures can't be called from the API. Goal progress is read through the
   goal: `goals.progress(goal_id)`, a security-definer function that checks
   `can_read` on the goal and returns only the figure
@@ -46,7 +46,7 @@ instead of re-fetched
 Plan reads `core.items`, which already has the title, times and Type. A
 Module may **optionally** publish a view that adds a subtitle or icon;
 without one, the core's default rendering is used
-([ADR-0029](adr/0029-plan-reads-core-items.md), Accepted).
+([ADR-0029](adr/0029-plan-reads-core-items.md), Provisionally agreed).
 
 ## Published-API rules
 
@@ -61,7 +61,7 @@ without one, the core's default rendering is used
   Proposed).
 - The published layer is the surface for a later LifeOS MCP server, under the
   same visibility rules as the app
-  ([ADR-0004](adr/0004-ai-across-the-whole-app.md), Accepted).
+  ([ADR-0004](adr/0004-ai-across-the-whole-app.md), Provisionally agreed).
 - Anything arriving from outside — capture, Integrations, the capture
   address, AI output — is checked against a schema (zod) at the door
   ([ADR-0035](adr/0035-preventing-catching-fixing-bugs.md), Proposed).

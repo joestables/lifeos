@@ -1,6 +1,6 @@
 # ADR-0016: Sharing and visibility
 
-**Status:** Accepted · 2026-10-09
+**Status:** Provisionally agreed · 2026-10-09
 
 ## Context
 

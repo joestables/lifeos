@@ -16,8 +16,12 @@ hard for one person to keep true.
   flows *spec → plan → tasks → code*, and code is checked against the spec.
 - **Architecture Decision Records** hold the "why". Specs describe the
   present; ADRs and git hold the past. No revision notes inside specs.
-- **ADR status binds Claude:** *Accepted* is binding; *Proposed* is context;
-  *Superseded* is history. ADRs stay to a page.
+- **ADR status binds Claude:** *Proposed* is context; *Provisionally agreed*
+  is followed, with better options raised rather than silently taken;
+  *Accepted* is binding; *Superseded* is history
+  ([docs/README.md](../../README.md#adr-statuses)). ADRs stay to a page.
+- **The documents must always agree with each other and with the code.** A
+  change updates every document it touches, in the same commit.
 - **Specs are written just in time** — a Module's spec at the start of its
   stage — and **only as detailed as the next build needs**.
 - Requirements have stable IDs, user stories, priorities and statuses, and

@@ -2,6 +2,8 @@
 
 **Status:** Proposed · 2026-10-09
 
+**Amended:** 2026-10-09 by [ADR-0037](0037-thoughts.md) (Thoughts).
+
 ## Context
 
 LifeOS must be enhanceable (goal 4) without building machinery nobody uses
@@ -18,7 +20,7 @@ second real use needs it; live updates where two people share a thing;
 Postgres full-text search, then pgvector; one AI service in the core; your
 data is exportable.
 
-The core is built from three real Types (Note, Task, Event); each Module's
+The core is built from four real Types (Thought, Note, Task, Event); each Module's
 Types are added in that Module's stage.
 
 ## Consequences

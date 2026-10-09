@@ -10,7 +10,7 @@ unless marked.*
 - **The action creates the link.** Planning a recipe for Thursday creates the
   Meal *and* its *uses* link; starting a session from a template creates
   *follows*. Linking by hand is a power feature, never a chore.
-  ([ADR-0005](../20-architecture/adr/0005-traits-links-rules.md), Accepted)
+  ([ADR-0005](../20-architecture/adr/0005-traits-links-rules.md), Provisionally agreed)
 - **Capture never depends on AI.** AI improves things; the basics work
   without it, offline.
 
@@ -38,7 +38,7 @@ unless marked.*
      one typed client per Module.
    - **Plan reads `core.items`**; a Module may only enrich how its Items look
      ([ADR-0029](../20-architecture/adr/0029-plan-reads-core-items.md),
-     Accepted).
+   Provisionally agreed).
 3. **Every Integration follows one pattern:** connect (OAuth) → fetch new data
    (schedule or webhook) → store the raw payload → map to Items, tagged with
    `external_id` so re-runs never duplicate. Tokens are stored server-side in
@@ -54,13 +54,13 @@ unless marked.*
    same visibility rules as the app. Until then, every design decision is
    checked for whether it keeps the graph whole, typed and readable by an AI
    ([ADR-0004](../20-architecture/adr/0004-ai-across-the-whole-app.md),
-   Accepted).
+   Provisionally agreed).
 8. **General only when a second real use needs it.**
    - Registries are TypeScript constants, not tables to administer.
    - No runtime plugins, no marketplace, no frameworks for strangers.
    - Modules are packages in the repo, registered at build time.
-   - The core is built from three real Types (Note, Task, Event), not from a
-     general ontology designed in advance.
+   - The core is built from four real Types (Thought, Note, Task, Event), not
+     from a general ontology designed in advance.
 9. **Live updates where two people share a thing.** Shared Lists and Shops
    use Supabase Realtime, so two people in Tesco see each other's ticks at
    once. Elsewhere, data refreshes on focus.

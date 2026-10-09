@@ -1,6 +1,8 @@
 # ADR-0023: Reminders
 
-**Status:** Accepted · 2026-10-09
+**Status:** Provisionally agreed · 2026-10-09
+
+**Amended:** 2026-10-09 by [ADR-0037](0037-thoughts.md) (Thoughts).
 
 ## Context
 
@@ -13,7 +15,7 @@ Capturing a reminder must be faster than setting a phone alarm (goal 2).
     Item's times — `starts_at`, `do_on` or `due_on` — so it needs the Item to
     have that time;
   - *fixed* ("Saturday 10:00"), which works on anything, even an undated
-    Note or recipe idea.
+    Thought, Note or recipe idea.
   - The delivery job reads a calculated `fires_at`.
 - **Defaults per Type**, set once in Settings (e.g. Events 1 h before, Gym 30
   min before, Tasks on the do-on date, Shops none).
@@ -24,8 +26,8 @@ Capturing a reminder must be faster than setting a phone alarm (goal 2).
   occurrence doesn't affect the others.
 - **Per person:** each member sets their own Reminders on a shared Item;
   snooze moves only yours; completing a Task clears its Reminders.
-- **A Note with a date gets a Reminder:** if capture finds a date in a line
-  saved as a Note, the Note gets a fixed Reminder for that date, at the time
+- **A Thought with a date gets a Reminder:** if capture finds a date in a
+  line saved as a Thought, the Thought gets a fixed Reminder for that date, at the time
   given or the person's default time.
 
 ## Consequences

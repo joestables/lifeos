@@ -11,7 +11,7 @@ act on them.
 | Term | Meaning |
 |---|---|
 | **Item** | Any record that can be linked, scheduled, shared or searched. |
-| **Type** | What kind of Item: Note, Task, Event, List, Shop, Recipe, Meal, Workout, Outfit… ([data model](../20-architecture/data-model.md#types)). |
+| **Type** | What kind of Item: Thought, Note, Task, Event, List, Shop, Recipe, Meal, Workout, Outfit… ([data model](../20-architecture/data-model.md#types)). |
 | **Trait** | A capability a Type has: Schedulable, Completable, Shareable, Capturable. |
 | **Status** | Where an Item is in its life: *idea*, *active*, *done* or *cancelled*. Each Type uses a subset and gives it its own labels (a Task's *idea* is "Someday"). Only Completable Types use *done*, so *done* always means finished. |
 | **Idea** | An Item in the *idea* status. Not a Type. |
@@ -21,7 +21,8 @@ act on them.
 | **Module** | Code packaging only: a bundle of Types, Views, Screens, measures and link types (e.g. Fitness). Replaces "App" / "Domain". |
 | **Integration** | An outside source feeding Items in: Google Calendar, Oura, Health Connect, later banks. |
 | **Space** | Who can see an Item: **Personal** or **Household**. |
-| **Note** | A Type: a free-text thought — the sticky note. What capture makes by default; it can later become another Type, be filed as a Note, or be kept as an idea. |
+| **Thought** | A Type: a raw, unsorted capture. What capture makes by default. It waits in Inbox until it is sorted — converted in place into a Note, Task, List or other Capturable Type — or deleted. |
+| **Note** | A Type: an organised thought, kept, labelled and shown in the Notes View. A sorted Thought often becomes one. |
 | **Reminder** | A notification attached to an Item. Not a Type. |
 
 **The test for View or Screen.** If the page is "these Items, laid out like
@@ -36,7 +37,7 @@ templates, and starting a session opens the session-logging Screen.
 | **Schedulable** | Has a time; appears on Plan. |
 | **Completable** | Can be ticked off. |
 | **Shareable** | Can belong to the Household Space. |
-| **Capturable** | A Note can become one in place. |
+| **Capturable** | A Thought can become one in place. |
 
 ## Other terms
 
@@ -56,7 +57,7 @@ templates, and starting a session opens the session-logging Screen.
 | ***became*** | The link from a new Item to the old one it was "created from". |
 | **Reference data** | A Module's small lookup lists (muscle groups, cuisines, brands…). Not Items. |
 | **Label** | A per-Space grouping on any Item: groups Tasks, heads Notes. Replaces "tags". |
-| **Unsorted / Filed** | A Note's state: not yet dealt with, or kept as a Note. A flag, not a status. |
+| **Sorting** | Dealing with a Thought in Inbox: converting it into another Type, or deleting it. |
 | **Starred** | Marked privately by one person. |
 | **Recent** | Items a person opened recently. |
 | **Capture address** | A personal URL and secret that creates Items in its owner's Personal Space. |

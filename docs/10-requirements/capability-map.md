@@ -11,12 +11,13 @@ Owner: **core**, a **Module** (`lists`, `food`, `fitness`, `goals`,
 | Capability | Owner | Page / Screen | Stage | Spec |
 |---|---|---|---|---|
 | Sign-in; Spaces; invitation creates the account | core | — | 1 (Household on in 4) | [spaces-and-sharing](cross-cutting/spaces-and-sharing.md) |
+| Design system: tokens and shared components | core | — | 1 | [design language](../30-design/design-language.md) |
 | Navigation drawer | core | — | 1 | [ADR-0026](../20-architecture/adr/0026-navigation-drawer.md) |
-| Quick capture (Note by default, one-tap Task) | core | Capture Screen | 2 | [capture](cross-cutting/capture.md) |
+| Quick capture (Thought by default, one-tap Task) | core | Capture Screen | 2 | [capture](cross-cutting/capture.md) |
 | Capture address | core | Settings (token) | 2 | [capture](cross-cutting/capture.md) |
 | Notes: Labels as headings, pin, colour, simple formatting (candidate) | core | Notes | 2 | — |
 | Tasks: Labels, do-on and due, steps checklist, repeating | core | Tasks | 2 | — |
-| Inbox | core | Inbox | 2 | [inbox](views/inbox.md) |
+| Inbox, including sorting Thoughts into other Types | core | Inbox | 2 | [inbox](views/inbox.md) |
 | Reminders by Web Push; Done/Snooze actions, overdue nudges, morning digest (candidate) | core | — | 2 | [reminders](cross-cutting/reminders.md) |
 | Starred and Recent (candidate) | core | — | 2 | — |
 | Search (full-text) | core | Search Screen | 2 | [search](cross-cutting/search.md) |

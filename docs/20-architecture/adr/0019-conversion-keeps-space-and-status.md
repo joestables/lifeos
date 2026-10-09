@@ -2,6 +2,8 @@
 
 **Status:** Proposed · 2026-10-09
 
+**Amended:** 2026-10-09 by [ADR-0037](0037-thoughts.md) (Thoughts).
+
 ## Context
 
 [ADR-0018](0018-changing-an-items-type.md) converts Items in place. Types have
@@ -15,5 +17,5 @@ applies only to new Items. A status the new Type doesn't use becomes
 
 ## Consequences
 
-A Personal Note converted to a Recipe stays Personal, although new Recipes
+A Personal Thought sorted into a Recipe stays Personal, although new Recipes
 default to the Household; it moves only if someone moves it.

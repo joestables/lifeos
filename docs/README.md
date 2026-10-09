@@ -16,19 +16,32 @@ The project is in **Stage 0: requirements and architecture**
 | [20-architecture](20-architecture/) | [Overview](20-architecture/overview.md) · [Data model](20-architecture/data-model.md) · [Contracts](20-architecture/contracts.md) · [ADRs](#architecture-decision-records) |
 | [30-design](30-design/) | [Design language](30-design/design-language.md) |
 | [40-operations](40-operations/) | [Environments](40-operations/environments.md) · [Migrations](40-operations/migrations.md) · [Backups](40-operations/backups.md) · [Runbook](40-operations/runbook.md) · [Integration setup](40-operations/integration-setup.md) |
-| [roadmap.md](roadmap.md) | Stages, what's next, open questions |
+| [roadmap.md](roadmap.md) | Stages, open questions |
+| [50-progress](50-progress/) | Plans for the work in hand, and a record of every pull request and what it did. Not specs. |
 | [history](history/) | Frozen records of how decisions were reached. Not specs; never edited. |
 
 Many documents are placeholders until their stage: specs are written just in
 time, and only as detailed as the next build needs.
 
+## ADR statuses
+
+| Status | Meaning | What Claude does |
+|---|---|---|
+| **Proposed** | A recommendation, not yet agreed. | Treats it as context. Doesn't build on it without asking. |
+| **Provisionally agreed** | Joe's chosen direction, but he is open to changing course if there is a better option. Nothing is boxed in yet. | Follows it. When a better option or a conflict appears, raises it — with the trade-off — rather than silently following or silently overriding it. |
+| **Accepted** | Settled, after building on it has proved it. Changing it needs a strong reason. | Follows it. A task that conflicts with it stops and raises it. |
+| **Superseded** | Replaced by a later ADR, which it names. | Treats it as history. |
+
+No ADR is Accepted yet: every agreed decision is Provisionally agreed, by
+choice, while the design is young.
+
 ## Which document wins
 
-- **An Accepted ADR is binding.** A task or spec that conflicts with one
-  stops and raises it rather than overriding it. A **Proposed** ADR is
-  context; a **Superseded** one is history.
+- **ADR status decides** (above). A spec or task never quietly contradicts a
+  Provisionally agreed or Accepted ADR: the conflict is raised and resolved,
+  and every affected document is updated in the same change.
 - **Specs describe the present.** ADRs and git hold the past. Nothing in
-  `history/` is a spec.
+  `history/` is a spec, and nothing in `50-progress/` overrides a spec.
 - **For the ontology, the code is the authority** once it exists
   ([ADR-0008](20-architecture/adr/0008-registries-declared-in-code.md)).
   Until Stage 1 builds it, [data-model.md](20-architecture/data-model.md) is
@@ -39,14 +52,24 @@ Where a document states something that rests on an ADR, it cites it, e.g.
 
 ## How to change documents
 
+This is spec-driven development: **the documents are the source of truth,
+so they must always agree with each other and with the code.** A conflict
+between two documents is a defect, fixed before anything else.
+
 1. **Specs describe the present; ADRs and git hold the past.** No revision
    notes inside specs.
 2. **ADR status binds Claude** (above). ADRs stay to a page.
-3. **Generate rather than hand-write** wherever possible: schema docs, types,
-   the lookup-table migration, the migrations list.
-4. **Docs change in the same commit as the code**, with CI checking what it
-   can (e.g. every requirement ID cited in code exists).
-5. **One short [CLAUDE.md](../CLAUDE.md)** pointing here and at the glossary,
+3. **One change, every document.** When a decision, term or behaviour
+   changes, search the whole of `docs/` (and `CLAUDE.md`) for every place it
+   appears — the glossary, the data model, ADRs, the capability map, specs,
+   the roadmap — and update them all in the same commit.
+4. **Docs change in the same commit as the code.** A pull request that
+   changes behaviour without changing its spec is not finished.
+5. **Generate rather than hand-write** wherever possible: schema docs, types,
+   the lookup-table migration, the migrations list. CI checks what it can
+   (e.g. every requirement ID cited in code exists; every link resolves).
+6. **Record progress** in [50-progress](50-progress/) with each pull request.
+7. **One short [CLAUDE.md](../CLAUDE.md)** pointing here and at the glossary,
    carrying v1's operational lessons.
 
 (ADR-0001, Proposed)
@@ -74,42 +97,47 @@ shows the format.
 ### ADRs
 
 `20-architecture/adr/NNNN-title.md`, with **Status · Context · Decision ·
-Consequences**, to a page. A changed decision gets a new ADR that supersedes
-the old one.
+Consequences**, to a page.
+
+- A decision **wholly replaced** gets a new ADR; the old one becomes
+  *Superseded* and names its replacement.
+- A **Proposed or Provisionally agreed** ADR whose detail is changed by a
+  later decision is **amended in place**, with an `Amended:` line naming the
+  date and the ADR that caused it. Git keeps the earlier wording.
 
 ## Architecture decision records
 
 | # | Decision | Status |
 |---|---|---|
 | [0001](20-architecture/adr/0001-spec-driven-docs-and-adrs.md) | Spec-driven documentation and ADRs | Proposed |
-| [0002](20-architecture/adr/0002-start-afresh-port-selectively.md) | Start afresh, port selectively | Accepted |
-| [0003](20-architecture/adr/0003-new-supabase-project.md) | A new Supabase project | Accepted |
-| [0004](20-architecture/adr/0004-ai-across-the-whole-app.md) | AI across the whole app | Accepted |
-| [0005](20-architecture/adr/0005-traits-links-rules.md) | Traits, Links and Rules | Accepted |
+| [0002](20-architecture/adr/0002-start-afresh-port-selectively.md) | Start afresh, port selectively | Provisionally agreed |
+| [0003](20-architecture/adr/0003-new-supabase-project.md) | A new Supabase project | Provisionally agreed |
+| [0004](20-architecture/adr/0004-ai-across-the-whole-app.md) | AI across the whole app | Provisionally agreed |
+| [0005](20-architecture/adr/0005-traits-links-rules.md) | Traits, Links and Rules | Provisionally agreed |
 | [0006](20-architecture/adr/0006-vocabulary.md) | Vocabulary | Proposed |
 | [0007](20-architecture/adr/0007-storage-shape.md) | Storage shape | Proposed |
 | [0008](20-architecture/adr/0008-registries-declared-in-code.md) | Registries declared in code | Proposed |
 | [0009](20-architecture/adr/0009-cross-table-writes-are-database-functions.md) | Writes that span tables are database functions | Proposed |
-| [0010](20-architecture/adr/0010-shop-is-its-own-type.md) | Shop is its own Type | Accepted |
-| [0011](20-architecture/adr/0011-recipe-and-variation.md) | Recipe and Variation; cooking with or without a Meal | Accepted |
+| [0010](20-architecture/adr/0010-shop-is-its-own-type.md) | Shop is its own Type | Provisionally agreed |
+| [0011](20-architecture/adr/0011-recipe-and-variation.md) | Recipe and Variation; cooking with or without a Meal | Provisionally agreed |
 | [0012](20-architecture/adr/0012-ingredients-and-shopping-lists.md) | Ingredients and shopping lists | Proposed |
 | [0013](20-architecture/adr/0013-occurrences-snapshot-their-definition.md) | Occurrences snapshot their definition | Proposed |
 | [0014](20-architecture/adr/0014-reference-data-and-labels.md) | Reference data and Labels | Proposed |
-| [0015](20-architecture/adr/0015-health-data-as-a-time-series.md) | Health data as a time series | Accepted |
-| [0016](20-architecture/adr/0016-sharing-and-visibility.md) | Sharing and visibility | Accepted |
+| [0015](20-architecture/adr/0015-health-data-as-a-time-series.md) | Health data as a time series | Provisionally agreed |
+| [0016](20-architecture/adr/0016-sharing-and-visibility.md) | Sharing and visibility | Provisionally agreed |
 | [0017](20-architecture/adr/0017-enforcing-visibility.md) | Enforcing visibility | Proposed |
-| [0018](20-architecture/adr/0018-changing-an-items-type.md) | Changing an Item's Type | Accepted |
+| [0018](20-architecture/adr/0018-changing-an-items-type.md) | Changing an Item's Type | Provisionally agreed |
 | [0019](20-architecture/adr/0019-conversion-keeps-space-and-status.md) | A conversion keeps Space and status | Proposed |
-| [0020](20-architecture/adr/0020-task-event-reminder.md) | Task, Event and Reminder | Accepted |
-| [0021](20-architecture/adr/0021-time.md) | Time | Accepted |
+| [0020](20-architecture/adr/0020-task-event-reminder.md) | Task, Event and Reminder | Provisionally agreed |
+| [0021](20-architecture/adr/0021-time.md) | Time | Provisionally agreed |
 | [0022](20-architecture/adr/0022-repeating-items.md) | Repeating Items and do-on by default | Proposed |
-| [0023](20-architecture/adr/0023-reminders.md) | Reminders | Accepted |
-| [0024](20-architecture/adr/0024-goals.md) | Goals | Accepted |
+| [0023](20-architecture/adr/0023-reminders.md) | Reminders | Provisionally agreed |
+| [0024](20-architecture/adr/0024-goals.md) | Goals | Provisionally agreed |
 | [0025](20-architecture/adr/0025-goal-on-track-by-kind.md) | "On track" depends on the goal kind | Proposed |
-| [0026](20-architecture/adr/0026-navigation-drawer.md) | The navigation drawer | Accepted |
-| [0027](20-architecture/adr/0027-quick-capture.md) | Quick capture makes a Note by default | Accepted |
-| [0028](20-architecture/adr/0028-capture-from-outside-the-app.md) | Capture from outside the app | Accepted |
-| [0029](20-architecture/adr/0029-plan-reads-core-items.md) | Plan reads `core.items` | Accepted |
+| [0026](20-architecture/adr/0026-navigation-drawer.md) | The navigation drawer | Provisionally agreed |
+| [0027](20-architecture/adr/0027-quick-capture.md) | Quick capture makes a Thought by default | Provisionally agreed |
+| [0028](20-architecture/adr/0028-capture-from-outside-the-app.md) | Capture from outside the app | Provisionally agreed |
+| [0029](20-architecture/adr/0029-plan-reads-core-items.md) | Plan reads `core.items` | Provisionally agreed |
 | [0030](20-architecture/adr/0030-activity-log-by-triggers.md) | An activity log written by triggers | Proposed |
 | [0031](20-architecture/adr/0031-offline-and-concurrent-edits.md) | Offline writes and concurrent edits | Proposed |
 | [0032](20-architecture/adr/0032-delete-means-archive.md) | Delete means archive | Proposed |
@@ -117,6 +145,8 @@ the old one.
 | [0034](20-architecture/adr/0034-stack.md) | Stack | Proposed |
 | [0035](20-architecture/adr/0035-preventing-catching-fixing-bugs.md) | Preventing, catching and fixing bugs | Proposed |
 | [0036](20-architecture/adr/0036-changing-the-model-over-time.md) | Changing the model over time | Proposed |
+| [0037](20-architecture/adr/0037-thoughts.md) | Capture makes a Thought; Notes are organised thoughts | Provisionally agreed |
+| [0038](20-architecture/adr/0038-one-design-system.md) | One design system, built from shared components | Provisionally agreed |
 
 ## Sources
 

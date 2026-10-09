@@ -1,6 +1,6 @@
 # ADR-0015: Health data as a time series
 
-**Status:** Accepted · 2026-10-09
+**Status:** Provisionally agreed · 2026-10-09
 
 ## Context
 

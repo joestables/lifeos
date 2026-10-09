@@ -2,6 +2,8 @@
 
 **Status:** Proposed · 2026-10-09
 
+**Amended:** 2026-10-09 by [ADR-0037](0037-thoughts.md) (Thoughts).
+
 ## Context
 
 Every View filters Items of many Types by the same few fields (Type, Space,
@@ -18,7 +20,7 @@ status, time), while each Type has its own details.
     if it needs to be linked, scheduled, shared or searched on its own.
 - **Status is one small core set** — `idea | active | done | cancelled` —
   each Type using a subset with its own labels. Only Completable Types use
-  *done*; a Note's Unsorted / Filed is a flag on its detail table. Finer
+  *done*. Finer
   states live in the detail table.
 - **IDs are UUIDv7, made on the device**; server-side inserts use a small SQL
   function (Postgres 17 has no built-in `uuidv7()`).

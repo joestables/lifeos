@@ -1,6 +1,6 @@
 # ADR-0010: Shop is its own Type
 
-**Status:** Accepted · 2026-10-09
+**Status:** Provisionally agreed · 2026-10-09
 
 ## Context
 

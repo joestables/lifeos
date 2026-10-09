@@ -1,6 +1,8 @@
 # ADR-0005: Traits, Links and Rules
 
-**Status:** Accepted · 2026-10-09
+**Status:** Provisionally agreed · 2026-10-09
+
+**Amended:** 2026-10-09 by [ADR-0037](0037-thoughts.md) (Thoughts).
 
 ## Context
 
@@ -13,7 +15,7 @@ should be a link.
 Three mechanisms, not one:
 
 1. **Traits — what an Item *is*:** Schedulable, Completable, Shareable,
-   Capturable. **Views are queries over traits**, so "gym session *can be
+   Capturable (a Thought can become one in place). **Views are queries over traits**, so "gym session *can be
    viewed on* Plan" is a query, not a link. There is no *Measurable* trait;
    the measures registry covers it.
 2. **Links — how two specific Items relate.** Named in both directions, with
@@ -23,7 +25,7 @@ Three mechanisms, not one:
 
 **The action creates the link.** Planning a recipe for Thursday creates the
 Meal *and* its *uses* link; starting a session from a template creates
-*follows*. Converting a Note keeps the same Item, so no link is needed;
+*follows*. Converting a Thought keeps the same Item, so no link is needed;
 *became* is created only when a new Item is made from an old one. Linking by
 hand is a power feature, never a chore.
 

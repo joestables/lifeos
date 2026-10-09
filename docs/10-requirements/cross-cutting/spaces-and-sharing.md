@@ -9,7 +9,7 @@ on. Household sharing is switched on in Stage 4.*
   read-only, shown in the interface, and rules expose nothing; leaving the
   Household makes the shared Items you created Personal
   ([ADR-0016](../../20-architecture/adr/0016-sharing-and-visibility.md),
-  Accepted).
+  Provisionally agreed).
 - **Enforcement** through `core.can_read`, benchmarked in Stage 1; goal
   progress read through the goal; only an Item's owner can link it to a
   shared Item; child rows readable when their Item is; joining by invitation,

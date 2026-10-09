@@ -1,6 +1,6 @@
 # ADR-0024: Goals
 
-**Status:** Accepted · 2026-10-09
+**Status:** Provisionally agreed · 2026-10-09
 
 ## Context
 

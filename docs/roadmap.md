@@ -7,8 +7,8 @@
 | # | Stage | Outcome |
 |---|---|---|
 | 0 | Requirements and architecture | An agreed spec for the core and Stage 2 |
-| 1 | Foundation: back up and pause v1; **new Supabase project** (London); repo; core schema and Spaces; auth; navigation drawer; shadcn; data layer and write queue; **the ontology package** (constants and the lookup migration); **CI with database tests**; the `can_read` benchmark; `ops.events` and the nightly health check; nightly backup | A solid base, built only as far as Stage 2 needs |
-| 2 | Capture (Note by default) and **the capture address**; Notes with Labels; Tasks with Labels and **repeating Tasks**; Inbox; Reminders by Web Push with Done/Snooze actions (Android and desktop), overdue nudges and the morning digest; Starred and Recent; Playwright walks in CI, then the nightly smoke walk. Until Stage 3, an event-shaped line is saved as a Note or a Task. | **Replaces Google Tasks — start using it daily** |
+| 1 | Foundation: back up and pause v1; **new Supabase project** (London); repo; core schema and Spaces; auth; navigation drawer; **the design system** (shadcn themed with LifeOS tokens, and the shared components the first screens need); data layer and write queue; **the ontology package** (constants and the lookup migration); **CI with database tests**; the `can_read` benchmark; `ops.events` and the nightly health check; nightly backup | A solid base, built only as far as Stage 2 needs |
+| 2 | Capture (Thought by default) and **the capture address**; sorting Thoughts in Inbox; Notes with Labels; Tasks with Labels and **repeating Tasks**; Inbox; Reminders by Web Push with Done/Snooze actions (Android and desktop), overdue nudges and the morning digest; Starred and Recent; Playwright walks in CI, then the nightly smoke walk. Until Stage 3, an event-shaped line is saved as a Thought or a Task. | **Replaces Google Tasks — start using it daily** |
 | 3 | Plan, Events (and repeating Events), Google Calendar; then Lists, Shops and list templates, with live updates | The one planning view |
 | 4 | Recipes, Variations and ideas, cook log, meal planning, ingredients to shopping lists; the shared AI service and food preferences; Household sharing on | Shared with girlfriend |
 | 5 | Gym (with v1's recovery model and snapshots), then Goals and the measures registry | The joined-up payoff |
@@ -18,30 +18,16 @@
 | 9 | Finance | |
 
 Between pausing v1 (Stage 1) and Stages 4–6, Recipes, Gym and Wardrobe are
-unavailable. Accepted: v1 is being wiped
+unavailable. Agreed: v1 is being wiped
 ([ADR-0002](20-architecture/adr/0002-start-afresh-port-selectively.md)).
 
-## Stage 0: order of writing
+## Where we are
 
-1. Vision and principles.
-2. Glossary.
-3. Conceptual data model: the core, plus Note, Task and Event.
-4. Capability map.
-5. Cross-cutting requirements: capture, Spaces, Reminders, offline.
-6. Requirements for Stage 2 only: capture, Notes, Tasks (with repeats),
-   Inbox.
-7. Architecture overview (with context and container diagrams) and the first
-   ADRs.
-8. Roadmap.
+Each stage's working plan, and a record of every pull request, live in
+[50-progress](50-progress/). The current plan:
+[Stage 0](50-progress/plans/stage-0.md).
 
-Each later stage begins by writing its own Module and View specs.
-
-## Next
-
-1. Review the documents, above all the Proposed ADRs.
-2. Accept or reject each Proposed ADR.
-3. Write the Stage 0 requirements (steps 5–6) as user stories with
-   acceptance criteria.
+Each stage from 3 on begins by writing its own Module and View specs.
 
 ## Open questions
 
@@ -55,6 +41,7 @@ Each later stage begins by writing its own Module and View specs.
 | Unit conversion (100 g + 1 cup); whether a pantry is wanted | Recipes spec (Stage 4) |
 | Which v1 AI features return (Explore, Labs, dish images, recipe import) | Stage 4 |
 | A Project Type, if grouping Tasks needs more than Labels | When needed |
+| Should a Thought be Shareable, so a Household member can capture into a shared Inbox? ([ADR-0037](20-architecture/adr/0037-thoughts.md)) | Before Stage 4 |
 
 ## Re-checks
 
