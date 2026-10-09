@@ -1,0 +1,69 @@
+# Glossary
+
+*Proposed ([ADR-0006](../20-architecture/adr/0006-vocabulary.md)). The terms
+matter mostly in documents and code.*
+
+Three ideas to hold in your head: **Items, Links, Views.** A Screen is how you
+act on them.
+
+## Core terms
+
+| Term | Meaning |
+|---|---|
+| **Item** | Any record that can be linked, scheduled, shared or searched. |
+| **Type** | What kind of Item: Note, Task, Event, List, Shop, Recipe, Meal, Workout, Outfit… ([data model](../20-architecture/data-model.md#types)). |
+| **Trait** | A capability a Type has: Schedulable, Completable, Shareable, Capturable. |
+| **Status** | Where an Item is in its life: *idea*, *active*, *done* or *cancelled*. Each Type uses a subset and gives it its own labels (a Task's *idea* is "Someday"). Only Completable Types use *done*, so *done* always means finished. |
+| **Idea** | An Item in the *idea* status. Not a Type. |
+| **Link** / **link type** | A named relationship between two Items, named in both directions ("uses" / "used in"). |
+| **View** | A query plus a layout (list, board, calendar, timeline, lanes), declared in code. Inbox, Plan, Tasks and Recipes are Views. |
+| **Screen** | A page for *doing* something rather than looking at a set of Items: an Item's own page, logging a workout, cooking a recipe, importing a recipe, capture, search, Settings. Declared in code by a Module or the core. Owns no data. |
+| **Module** | Code packaging only: a bundle of Types, Views, Screens, measures and link types (e.g. Fitness). Replaces "App" / "Domain". |
+| **Integration** | An outside source feeding Items in: Google Calendar, Oura, Health Connect, later banks. |
+| **Space** | Who can see an Item: **Personal** or **Household**. |
+| **Note** | A Type: a free-text thought — the sticky note. What capture makes by default; it can later become another Type, be filed as a Note, or be kept as an idea. |
+| **Reminder** | A notification attached to an Item. Not a Type. |
+
+**The test for View or Screen.** If the page is "these Items, laid out like
+this", it is a View. If it has a workflow — steps, a timer, a form, an
+import — it is a Screen. For example, the Gym View lists sessions and
+templates, and starting a session opens the session-logging Screen.
+
+## Traits
+
+| Trait | Meaning |
+|---|---|
+| **Schedulable** | Has a time; appears on Plan. |
+| **Completable** | Can be ticked off. |
+| **Shareable** | Can belong to the Household Space. |
+| **Capturable** | A Note can become one in place. |
+
+## Other terms
+
+| Term | Meaning |
+|---|---|
+| **Child row** | Part of one Item, not an Item itself (a workout set, a recipe ingredient line, a list line). May *point at* an Item. |
+| **Definition / occurrence** | A pattern and a dated instance of it: Variation → Meal, Workout template → Workout, Outfit → Outfit worn, List template → List, series → each occurrence. |
+| **Snapshot** | The values an occurrence copies from its definition when it starts or is created. |
+| **Series** | A repeat rule that generates occurrences. |
+| **Touched** | An occurrence that has been edited, ticked, logged or linked (`touched_at`). |
+| **Do-on** | When you intend to do a Task (a date, with an optional time). |
+| **Due** | A deadline (a date). Drives "overdue". |
+| **Slot** | A Meal's fixed time of day: breakfast, lunch, dinner, snack. |
+| **Rule** | A relationship that is calculated, not stored, e.g. a goal's measure. |
+| **Measure** | Something a goal can track; an SQL function named in code. |
+| **Conversion** | Changing an Item's Type in place; the Item keeps its id, links and history. |
+| ***became*** | The link from a new Item to the old one it was "created from". |
+| **Reference data** | A Module's small lookup lists (muscle groups, cuisines, brands…). Not Items. |
+| **Label** | A per-Space grouping on any Item: groups Tasks, heads Notes. Replaces "tags". |
+| **Unsorted / Filed** | A Note's state: not yet dealt with, or kept as a Note. A flag, not a status. |
+| **Starred** | Marked privately by one person. |
+| **Recent** | Items a person opened recently. |
+| **Capture address** | A personal URL and secret that creates Items in its owner's Personal Space. |
+| **Cook log** | The record of each time a Variation was cooked. |
+| **Ontology** | Types, Traits, statuses, link types, measures and reference data: the schema of the graph. |
+
+## Not used
+
+"Object" (Anytype; collides with code), "Entry", "Domain" (internal only),
+"Source" (renamed Integration), "App" (v1), "tags" (now Labels).

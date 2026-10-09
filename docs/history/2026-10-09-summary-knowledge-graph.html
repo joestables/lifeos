@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LifeOS Knowledge Graph</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one reading column; two wide figures that scroll sideways on phones */
+:root {
+  --bg: #f5f6f8; --surface: #ffffff; --fg: #14171c; --muted: #565e6b; --line: #d6dbe3;
+  --core: #2a56c9; --core-t: #e9effc;
+  --food: #b9450f; --food-t: #fcece3;
+  --lists: #8a5a00; --lists-t: #fbf1d8;
+  --fit: #b3123a; --fit-t: #fce8ed;
+  --wear: #6d3fd6; --wear-t: #f0eafd;
+  --goal: #0b7266; --goal-t: #e1f3f0;
+  --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f1216; --surface: #171b21; --fg: #e8ebf0; --muted: #9aa3b1; --line: #2b313b;
+  --core: #86a8ff; --core-t: #18213a;
+  --food: #fb9161; --food-t: #35201a;
+  --lists: #e3b54f; --lists-t: #2f2611;
+  --fit: #fb7c93; --fit-t: #361a21;
+  --wear: #b8a0ff; --wear-t: #241c3a;
+  --goal: #45ccb6; --goal-t: #112d29;
+  color-scheme: dark;
+} }
+:root[data-theme="dark"] {
+  --bg: #0f1216; --surface: #171b21; --fg: #e8ebf0; --muted: #9aa3b1; --line: #2b313b;
+  --core: #86a8ff; --core-t: #18213a;
+  --food: #fb9161; --food-t: #35201a;
+  --lists: #e3b54f; --lists-t: #2f2611;
+  --fit: #fb7c93; --fit-t: #361a21;
+  --wear: #b8a0ff; --wear-t: #241c3a;
+  --goal: #45ccb6; --goal-t: #112d29;
+  color-scheme: dark;
+}
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--sans); font-size: 16px; line-height: 1.55; }
+.wrap { max-width: 1240px; margin: 0 auto; padding-inline: 16px; padding-block: 40px 64px; display: flex; flex-direction: column; gap: 48px; }
+header { display: flex; flex-direction: column; gap: 8px; max-width: 70ch; }
+.eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0; }
+h1 { margin: 0; font-size: clamp(28px, 4vw, 40px); font-weight: 600; letter-spacing: -0.015em; text-wrap: balance; }
+h2 { margin: 0; font-size: 22px; font-weight: 600; text-wrap: balance; }
+p { margin: 0; }
+.lede { color: var(--muted); font-size: 17px; }
+section { display: flex; flex-direction: column; gap: 16px; }
+.sec-head { display: flex; flex-direction: column; gap: 6px; max-width: 75ch; }
+.sec-head p { color: var(--muted); }
+figure { margin: 0; display: flex; flex-direction: column; gap: 12px; }
+.frame { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow-x: auto; }
+.frame svg { display: block; width: 100%; min-width: 980px; height: auto; color: var(--fg); font-family: var(--sans); }
+figcaption { color: var(--muted); font-size: 14px; max-width: 80ch; }
+
+.lenses { display: flex; flex-wrap: wrap; gap: 6px; }
+.lens { font: inherit; font-size: 14px; font-weight: 500; padding: 7px 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); cursor: pointer; }
+.lens:hover { border-color: var(--muted); }
+.lens[aria-pressed="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+.lens:focus-visible { outline: 2px solid var(--core); outline-offset: 2px; }
+.query { font-family: var(--mono); font-size: 13.5px; color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px; min-height: 2.6em; }
+.query b { font-weight: 500; color: var(--core); }
+
+/* SVG parts — styled from page CSS so both themes work */
+.n rect.box { stroke-width: 1.5; }
+.n .t1 { font-size: 13px; font-weight: 600; fill: var(--fg); }
+.n .t2 { font-size: 11px; fill: var(--muted); font-family: var(--mono); }
+.n.core rect.box { fill: var(--core-t); stroke: var(--core); }
+.n.food rect.box { fill: var(--food-t); stroke: var(--food); }
+.n.lists rect.box { fill: var(--lists-t); stroke: var(--lists); }
+.n.fit rect.box { fill: var(--fit-t); stroke: var(--fit); }
+.n.wear rect.box { fill: var(--wear-t); stroke: var(--wear); }
+.n.goal rect.box { fill: var(--goal-t); stroke: var(--goal); }
+.n.child rect.box { fill: var(--surface); stroke: var(--lists); stroke-dasharray: 3 3; }
+.badge circle { fill: var(--surface); stroke: var(--muted); stroke-width: 1; }
+.badge.h circle { fill: var(--fg); stroke: var(--fg); }
+.badge text { font-family: var(--mono); font-size: 10px; font-weight: 500; fill: var(--muted); }
+.badge.h text { fill: var(--bg); }
+.e { fill: none; stroke-width: 1.6; }
+.e.link { stroke: var(--fg); }
+.e.rule { stroke: var(--goal); stroke-dasharray: 7 5; }
+.e.ptr { stroke: var(--muted); stroke-dasharray: 2 4; stroke-linecap: round; }
+.e.becomes { stroke: var(--core); stroke-dasharray: 10 4 2 4; }
+.lbl { font-family: var(--mono); font-size: 11.5px; fill: var(--fg); }
+.lbl.rule { fill: var(--goal); }
+.lbl.ptr { fill: var(--muted); }
+.lbl.becomes { fill: var(--core); }
+.lbl.note { fill: var(--muted); font-style: italic; font-family: var(--sans); font-size: 11.5px; }
+.mk-link { fill: var(--fg); }
+.mk-rule { fill: var(--goal); }
+.mk-ptr { fill: var(--muted); }
+.mk-becomes { fill: var(--core); }
+.region rect { fill: none; stroke: var(--line); stroke-width: 1.25; stroke-dasharray: 4 4; }
+.region text { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; }
+.region.core text { fill: var(--core); } .region.food text { fill: var(--food); }
+.region.lists text { fill: var(--lists); } .region.fit text { fill: var(--fit); }
+.region.wear text { fill: var(--wear); } .region.goal text { fill: var(--goal); }
+
+#g1 .n, #g1 .ed { transition: opacity .25s ease; }
+#g1 .dim { opacity: .14; }
+@media (prefers-reduced-motion: reduce) { #g1 .n, #g1 .ed { transition: none; } }
+
+.key { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px 24px; }
+.key div { display: flex; align-items: center; gap: 12px; font-size: 14px; min-width: 0; }
+.key svg { flex: none; width: 56px; height: 16px; color: var(--fg); }
+.key small { color: var(--muted); display: block; font-size: 13px; }
+
+.points { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+.points div { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 18px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.points h3 { margin: 0; font-size: 15px; font-weight: 600; }
+.points p { color: var(--muted); font-size: 14.5px; }
+</style>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">LifeOS v2 · data model · snapshot, 9 October 2026</p>
+    <h1>LifeOS Knowledge Graph</h1>
+    <p class="lede">One model, many views. Items are the nodes, named links are the edges, and every page in the app is a query over the same graph.</p>
+  </header>
+
+  <section aria-labelledby="h-model">
+    <div class="sec-head">
+      <h2 id="h-model">The model: Thursday 8 October, as a graph</h2>
+      <p>Real Items from one week. Pick a lens to see that a View is a query: it lights up a set of Items and owns none of them.</p>
+    </div>
+    <div class="lenses" role="group" aria-label="View lens">
+      <button class="lens" type="button" id="lens-all" data-lens="all" aria-pressed="true">Everything</button>
+      <button class="lens" type="button" id="lens-plan" data-lens="plan" aria-pressed="false">Plan</button>
+      <button class="lens" type="button" id="lens-recipes" data-lens="recipes" aria-pressed="false">Recipes</button>
+      <button class="lens" type="button" id="lens-gym" data-lens="gym" aria-pressed="false">Gym</button>
+      <button class="lens" type="button" id="lens-household" data-lens="household" aria-pressed="false">What the Household sees</button>
+      <button class="lens" type="button" id="lens-ai" data-lens="ai" aria-pressed="false">AI</button>
+    </div>
+    <p class="query" id="query" aria-live="polite"><b>Everything</b> · every Item and link in the graph.</p>
+    <figure>
+      <div class="frame">
+        <svg id="g1" viewBox="0 0 1180 600" role="img" aria-label="An example week as a knowledge graph: a meal uses a variation of a recipe, a recipe line and a shop line both point at one ingredient, the shop line is for that meal, an outfit worn is linked to a dinner event, a task is for a birthday lunch, a workout follows a template, and a goal is measured from the workout by a rule.">
+          <defs>
+            <marker id="a1-link" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mk-link" d="M0 0L10 5L0 10z"/></marker>
+            <marker id="a1-rule" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mk-rule" d="M0 0L10 5L0 10z"/></marker>
+            <marker id="a1-ptr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mk-ptr" d="M0 0L10 5L0 10z"/></marker>
+          </defs>
+
+          <!-- edges -->
+          <g class="ed" data-a="m1" data-b="r1"><path class="e link" d="M268 90 L192 90" marker-end="url(#a1-link)"/><text class="lbl" x="230" y="82" text-anchor="middle">uses</text></g>
+          <g class="ed" data-a="r1" data-b="rd"><path class="e link" d="M30 96 C 4 140, 4 296, 28 324" marker-end="url(#a1-link)"/><text class="lbl" x="14" y="229">variation of</text></g>
+          <g class="ed" data-a="r2" data-b="rd"><path class="e link" d="M110 284 L110 304" marker-end="url(#a1-link)"/><text class="lbl" x="120" y="298">variation of</text></g>
+          <g class="ed" data-a="rl" data-b="r1"><path class="e ptr" d="M110 143 L110 116"/></g>
+          <g class="ed" data-a="rl" data-b="ig"><path class="e ptr" d="M168 160 L240 160 L240 530 L266 530" marker-end="url(#a1-ptr)"/><text class="lbl ptr" x="248" y="470">ingredient</text></g>
+          <g class="ed" data-a="ln" data-b="ig"><path class="e ptr" d="M350 402 L350 504" marker-end="url(#a1-ptr)"/><text class="lbl ptr" x="360" y="458">ingredient</text></g>
+          <g class="ed" data-a="ln" data-b="m1"><path class="e ptr" d="M408 385 C 472 360, 472 140, 432 112" marker-end="url(#a1-ptr)"/><text class="lbl ptr" x="472" y="250">for</text></g>
+          <g class="ed" data-a="ln" data-b="s1"><path class="e ptr" d="M350 368 L350 316"/><text class="lbl ptr" x="360" y="346">line of</text></g>
+          <g class="ed" data-a="ow" data-b="e1"><path class="e link" d="M748 90 L672 90" marker-end="url(#a1-link)"/><text class="lbl" x="710" y="82" text-anchor="middle">worn to</text></g>
+          <g class="ed" data-a="ow" data-b="of"><path class="e link" d="M912 90 L988 90" marker-end="url(#a1-link)"/><text class="lbl" x="950" y="82" text-anchor="middle">wears</text></g>
+          <g class="ed" data-a="of" data-b="gm"><path class="e link" d="M1070 114 L1070 234" marker-end="url(#a1-link)"/><text class="lbl" x="1080" y="178">includes</text></g>
+          <g class="ed" data-a="t1" data-b="e2"><path class="e link" d="M590 446 L590 316" marker-end="url(#a1-link)"/><text class="lbl" x="600" y="386">for</text></g>
+          <g class="ed" data-a="wk" data-b="tp"><path class="e link" d="M912 400 L988 400" marker-end="url(#a1-link)"/><text class="lbl" x="950" y="392" text-anchor="middle">follows</text></g>
+          <g class="ed" data-a="tp" data-b="ex"><path class="e ptr" d="M1070 424 L1070 514" marker-end="url(#a1-ptr)"/><text class="lbl ptr" x="1080" y="473">exercise</text></g>
+          <g class="ed" data-a="gl" data-b="wk"><path class="e rule" d="M830 516 L830 426" marker-end="url(#a1-rule)"/><text class="lbl rule" x="840" y="475">e1rm(Bench press)</text></g>
+
+          <!-- nodes: food -->
+          <g class="n food" data-id="r1"><rect class="box" x="30" y="66" width="160" height="48" rx="8"/><text class="t1" x="110" y="86" text-anchor="middle">Chicken katsu</text><text class="t2" x="110" y="103" text-anchor="middle">Variation · cooked 6×</text>
+            <g class="badge h"><circle cx="176" cy="66" r="9"/><text x="176" y="69.5" text-anchor="middle">H</text></g></g>
+          <g class="n food" data-id="r2"><rect class="box" x="30" y="236" width="160" height="48" rx="8"/><text class="t1" x="110" y="256" text-anchor="middle">Tofu katsu</text><text class="t2" x="110" y="273" text-anchor="middle">Variation · untried</text>
+            <g class="badge h"><circle cx="176" cy="236" r="9"/><text x="176" y="239.5" text-anchor="middle">H</text></g></g>
+          <g class="n food" data-id="rd"><rect class="box" x="30" y="306" width="160" height="48" rx="8"/><text class="t1" x="110" y="326" text-anchor="middle">Katsu curry</text><text class="t2" x="110" y="343" text-anchor="middle">Recipe · the dish</text>
+            <g class="badge h"><circle cx="176" cy="306" r="9"/><text x="176" y="309.5" text-anchor="middle">H</text></g></g>
+          <g class="n food" data-id="r3"><rect class="box" x="30" y="376" width="160" height="48" rx="8"/><text class="t1" x="110" y="396" text-anchor="middle">Miso salmon traybake</text><text class="t2" x="110" y="413" text-anchor="middle">Recipe · idea</text>
+            <g class="badge h"><circle cx="176" cy="376" r="9"/><text x="176" y="379.5" text-anchor="middle">H</text></g>
+            <text class="lbl note" x="110" y="444" text-anchor="middle">captured as a Note, converted in place</text></g>
+          <g class="n food" data-id="m1"><rect class="box" x="270" y="66" width="160" height="48" rx="8"/><text class="t1" x="350" y="86" text-anchor="middle">Katsu curry</text><text class="t2" x="350" y="103" text-anchor="middle">Meal · Thu dinner</text>
+            <g class="badge h"><circle cx="416" cy="66" r="9"/><text x="416" y="69.5" text-anchor="middle">H</text></g></g>
+          <g class="n child" data-id="rl"><rect class="box" x="52" y="143" width="116" height="34" rx="17"/><text class="t1" x="110" y="159" text-anchor="middle" style="font-weight:500">100 g panko</text><text class="t2" x="110" y="172" text-anchor="middle">recipe line</text></g>
+          <g class="n food" data-id="ig"><rect class="box" x="270" y="506" width="160" height="48" rx="8"/><text class="t1" x="350" y="526" text-anchor="middle">Panko breadcrumbs</text><text class="t2" x="350" y="543" text-anchor="middle">Ingredient</text>
+            <g class="badge h"><circle cx="416" cy="506" r="9"/><text x="416" y="509.5" text-anchor="middle">H</text></g></g>
+          <!-- lists -->
+          <g class="n lists" data-id="s1"><rect class="box" x="270" y="268" width="160" height="48" rx="8"/><text class="t1" x="350" y="288" text-anchor="middle">Big shop</text><text class="t2" x="350" y="305" text-anchor="middle">Shop · Sat 10:00</text>
+            <g class="badge h"><circle cx="416" cy="268" r="9"/><text x="416" y="271.5" text-anchor="middle">H</text></g></g>
+          <g class="n child" data-id="ln"><rect class="box" x="292" y="368" width="116" height="34" rx="17"/><text class="t1" x="350" y="384" text-anchor="middle" style="font-weight:500">Panko 100 g</text><text class="t2" x="350" y="397" text-anchor="middle">list line</text></g>
+          <!-- core -->
+          <g class="n core" data-id="e1"><rect class="box" x="510" y="66" width="160" height="48" rx="8"/><text class="t1" x="590" y="86" text-anchor="middle">Dinner at Dishoom</text><text class="t2" x="590" y="103" text-anchor="middle">Event · Fri 19:30</text>
+            <g class="badge h"><circle cx="656" cy="66" r="9"/><text x="656" y="69.5" text-anchor="middle">H</text></g></g>
+          <g class="n core" data-id="e2"><rect class="box" x="510" y="268" width="160" height="48" rx="8"/><text class="t1" x="590" y="288" text-anchor="middle">Mum’s birthday lunch</text><text class="t2" x="590" y="305" text-anchor="middle">Event · Sun 13:00</text>
+            <g class="badge h"><circle cx="656" cy="268" r="9"/><text x="656" y="271.5" text-anchor="middle">H</text></g></g>
+          <g class="n core" data-id="t1"><rect class="box" x="510" y="446" width="160" height="48" rx="8"/><text class="t1" x="590" y="466" text-anchor="middle">Card for Mum</text><text class="t2" x="590" y="483" text-anchor="middle">Task · do Fri</text>
+            <g class="badge"><circle cx="656" cy="446" r="9"/><text x="656" y="449.5" text-anchor="middle">P</text></g></g>
+          <!-- wardrobe -->
+          <g class="n wear" data-id="ow"><rect class="box" x="750" y="66" width="160" height="48" rx="8"/><text class="t1" x="830" y="86" text-anchor="middle">Olive knit</text><text class="t2" x="830" y="103" text-anchor="middle">Outfit worn · Fri</text>
+            <g class="badge"><circle cx="896" cy="66" r="9"/><text x="896" y="69.5" text-anchor="middle">P</text></g></g>
+          <g class="n wear" data-id="of"><rect class="box" x="990" y="66" width="160" height="48" rx="8"/><text class="t1" x="1070" y="86" text-anchor="middle">Olive knit outfit</text><text class="t2" x="1070" y="103" text-anchor="middle">Outfit</text>
+            <g class="badge"><circle cx="1136" cy="66" r="9"/><text x="1136" y="69.5" text-anchor="middle">P</text></g></g>
+          <g class="n wear" data-id="gm"><rect class="box" x="990" y="236" width="160" height="48" rx="8"/><text class="t1" x="1070" y="256" text-anchor="middle">Olive jumper</text><text class="t2" x="1070" y="273" text-anchor="middle">Garment</text>
+            <g class="badge"><circle cx="1136" cy="236" r="9"/><text x="1136" y="239.5" text-anchor="middle">P</text></g></g>
+          <!-- fitness + goal -->
+          <g class="n fit" data-id="wk"><rect class="box" x="750" y="376" width="160" height="48" rx="8"/><text class="t1" x="830" y="396" text-anchor="middle">Push day</text><text class="t2" x="830" y="413" text-anchor="middle">Workout · Thu 18:30</text>
+            <g class="badge"><circle cx="896" cy="376" r="9"/><text x="896" y="379.5" text-anchor="middle">P</text></g></g>
+          <g class="n fit" data-id="tp"><rect class="box" x="990" y="376" width="160" height="48" rx="8"/><text class="t1" x="1070" y="396" text-anchor="middle">Push</text><text class="t2" x="1070" y="413" text-anchor="middle">Workout template</text>
+            <g class="badge"><circle cx="1136" cy="376" r="9"/><text x="1136" y="379.5" text-anchor="middle">P</text></g></g>
+          <g class="n fit" data-id="ex"><rect class="box" x="990" y="516" width="160" height="48" rx="8"/><text class="t1" x="1070" y="536" text-anchor="middle">Bench press</text><text class="t2" x="1070" y="553" text-anchor="middle">Exercise</text>
+            <g class="badge"><circle cx="1136" cy="516" r="9"/><text x="1136" y="519.5" text-anchor="middle">P</text></g></g>
+          <g class="n goal" data-id="gl"><rect class="box" x="750" y="516" width="160" height="48" rx="8"/><text class="t1" x="830" y="536" text-anchor="middle">Bench 60 kg</text><text class="t2" x="830" y="553" text-anchor="middle">Goal · 55.0 / 60</text>
+            <g class="badge"><circle cx="896" cy="516" r="9"/><text x="896" y="519.5" text-anchor="middle">P</text></g></g>
+        </svg>
+      </div>
+      <figcaption>Solid arrows are stored links, each created by an action (planning the meal created <i>uses</i>). The dashed line is a rule: the goal finds Push day by calculation, with no link stored. Dotted lines are pointers from child rows, which are parts of an Item rather than Items: the Chicken katsu Variation’s “100 g panko” line and the shop’s “Panko 100 g” line both point at one Ingredient, which is how a meal’s ingredients are collated onto a shopping list. H marks the Household Space, P Personal.</figcaption>
+    </figure>
+  </section>
+
+  <section aria-labelledby="h-meta">
+    <div class="sec-head">
+      <h2 id="h-meta">The metamodel: which Types exist and how they may link</h2>
+      <p>The ontology behind every graph like the one above. In MBSE terms this is the profile, and the graph above is the model built from it.</p>
+    </div>
+    <figure>
+      <div class="frame">
+        <svg viewBox="0 0 1180 790" role="img" aria-label="The ontology: Types grouped by Module and the link types allowed between them. Meal uses a Variation, which is a variation of a Recipe; ingredient lines and shop lines point at an Ingredient; Shop and Task are for Events; Outfit worn wears an Outfit, which includes Garments, and is worn to an Event; Workout follows a template; Tasks and Events contribute to Goals; Goals are measured from Workouts and Cardio by rules; a Note converts to another Type in place.">
+          <defs>
+            <marker id="a2-link" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mk-link" d="M0 0L10 5L0 10z"/></marker>
+            <marker id="a2-rule" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mk-rule" d="M0 0L10 5L0 10z"/></marker>
+            <marker id="a2-ptr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mk-ptr" d="M0 0L10 5L0 10z"/></marker>
+            <marker id="a2-becomes" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mk-becomes" d="M0 0L10 5L0 10z"/></marker>
+          </defs>
+
+          <!-- module regions -->
+          <g class="region food"><rect x="70" y="80" width="200" height="395" rx="12"/><text x="82" y="99">FOOD</text></g>
+          <g class="region lists"><rect x="70" y="490" width="380" height="170" rx="12"/><text x="82" y="509">LISTS</text></g>
+          <g class="region core"><rect x="380" y="50" width="410" height="320" rx="12"/><text x="392" y="69">CORE</text></g>
+          <g class="region wear"><rect x="800" y="50" width="355" height="190" rx="12"/><text x="812" y="69">WARDROBE</text></g>
+          <g class="region fit"><rect x="800" y="380" width="355" height="280" rx="12"/><text x="812" y="399">FITNESS</text></g>
+          <g class="region goal"><rect x="495" y="660" width="180" height="110" rx="12"/><text x="507" y="679">GOALS</text></g>
+
+          <!-- edges -->
+          <path class="e link" d="M160 310 L160 272" marker-end="url(#a2-link)"/><text class="lbl" x="170" y="295">uses</text>
+          <path class="e link" d="M160 230 L160 192" marker-end="url(#a2-link)"/><text class="lbl" x="170" y="215">variation of</text>
+          <path class="e ptr" d="M232 612 L298 557" marker-start="url(#a2-ptr)" marker-end="url(#a2-ptr)"/><text class="lbl ptr" x="272" y="606">converts</text>
+          <path class="e ptr" d="M318 520 L202 352" marker-end="url(#a2-ptr)"/><text class="lbl ptr" x="276" y="420">line for</text>
+          <path class="e ptr" d="M90 258 C 56 300, 56 400, 88 434" marker-end="url(#a2-ptr)"/><text class="lbl ptr" x="98" y="388">ingredient lines</text>
+          <path class="e ptr" d="M300 528 L234 456" marker-end="url(#a2-ptr)"/><text class="lbl ptr" x="244" y="503">line: ingredient</text>
+          <path class="e becomes" d="M560 110 L492 308" marker-end="url(#a2-becomes)"/>
+          <path class="e becomes" d="M610 110 L678 308" marker-end="url(#a2-becomes)"/>
+          <path class="e becomes" d="M515 96 L232 162" marker-end="url(#a2-becomes)"/><text class="lbl becomes" x="380" y="117" text-anchor="middle">converts · in place</text>
+          <path class="e link" d="M540 324 L628 324" marker-end="url(#a2-link)"/><text class="lbl" x="584" y="316" text-anchor="middle">for</text>
+          <path class="e ptr" d="M628 338 L542 338" marker-start="url(#a2-ptr)" marker-end="url(#a2-ptr)"/><text class="lbl ptr" x="584" y="356" text-anchor="middle">converts</text>
+          <path class="e link" d="M440 530 L668 352" marker-end="url(#a2-link)"/><text class="lbl" x="566" y="448">for</text>
+          <path class="e link" d="M840 220 L742 308" marker-end="url(#a2-link)"/><text class="lbl" x="800" y="278">worn to</text>
+          <path class="e link" d="M945 200 L998 200" marker-end="url(#a2-link)"/><text class="lbl" x="972" y="192" text-anchor="middle">wears</text>
+          <path class="e link" d="M1070 180 L1070 112" marker-end="url(#a2-link)"/><text class="lbl" x="1080" y="150">includes</text>
+          <path class="e link" d="M945 466 L998 434" marker-end="url(#a2-link)"/><text class="lbl" x="962" y="476">follows</text>
+          <path class="e ptr" d="M1070 440 L1070 558" marker-end="url(#a2-ptr)"/><text class="lbl ptr" x="1080" y="505">exercise</text>
+          <path class="e ptr" d="M945 495 L1004 558" marker-end="url(#a2-ptr)"/><text class="lbl ptr" x="938" y="542">sets</text>
+          <path class="e link" d="M490 350 L565 688" marker-end="url(#a2-link)"/>
+          <path class="e link" d="M680 350 L605 688" marker-end="url(#a2-link)"/><text class="lbl" x="585" y="565" text-anchor="middle">contributes to</text>
+          <path class="e rule" d="M655 702 L803 494" marker-end="url(#a2-rule)"/>
+          <path class="e rule" d="M655 714 L803 626" marker-end="url(#a2-rule)"/><text class="lbl rule" x="692" y="748">measured by · rule</text>
+          <path class="e link" d="M570 730 C 560 772, 610 772, 600 732" marker-end="url(#a2-link)"/><text class="lbl" x="612" y="768">sub-goal of</text>
+
+          <!-- type nodes -->
+          <g class="n core"><rect class="box" x="515" y="70" width="140" height="40" rx="8"/><text class="t1" x="585" y="95" text-anchor="middle">Note</text></g>
+          <g class="n core"><rect class="box" x="400" y="310" width="140" height="40" rx="8"/><text class="t1" x="470" y="335" text-anchor="middle">Task</text></g>
+          <g class="n core"><rect class="box" x="630" y="310" width="140" height="40" rx="8"/><text class="t1" x="700" y="335" text-anchor="middle">Event</text></g>
+          <g class="n food"><rect class="box" x="90" y="150" width="140" height="40" rx="8"/><text class="t1" x="160" y="175" text-anchor="middle">Recipe</text></g>
+          <g class="n food"><rect class="box" x="90" y="230" width="140" height="40" rx="8"/><text class="t1" x="160" y="255" text-anchor="middle">Variation</text></g>
+          <g class="n food"><rect class="box" x="90" y="310" width="140" height="40" rx="8"/><text class="t1" x="160" y="335" text-anchor="middle">Meal</text></g>
+          <g class="n food"><rect class="box" x="90" y="420" width="140" height="40" rx="8"/><text class="t1" x="160" y="445" text-anchor="middle">Ingredient</text></g>
+          <g class="n lists"><rect class="box" x="300" y="520" width="140" height="40" rx="8"/><text class="t1" x="370" y="545" text-anchor="middle">Shop</text></g>
+          <g class="n lists"><rect class="box" x="90" y="600" width="140" height="40" rx="8"/><text class="t1" x="160" y="625" text-anchor="middle">List</text></g>
+          <g class="n wear"><rect class="box" x="1000" y="70" width="140" height="40" rx="8"/><text class="t1" x="1070" y="95" text-anchor="middle">Garment</text></g>
+          <g class="n wear"><rect class="box" x="1000" y="180" width="140" height="40" rx="8"/><text class="t1" x="1070" y="205" text-anchor="middle">Outfit</text></g>
+          <g class="n wear"><rect class="box" x="805" y="180" width="140" height="40" rx="8"/><text class="t1" x="875" y="205" text-anchor="middle">Outfit worn</text></g>
+          <g class="n fit"><rect class="box" x="1000" y="400" width="140" height="40" rx="8"/><text class="t1" x="1070" y="425" text-anchor="middle">Workout template</text></g>
+          <g class="n fit"><rect class="box" x="805" y="460" width="140" height="40" rx="8"/><text class="t1" x="875" y="485" text-anchor="middle">Workout</text></g>
+          <g class="n fit"><rect class="box" x="1000" y="560" width="140" height="40" rx="8"/><text class="t1" x="1070" y="585" text-anchor="middle">Exercise</text></g>
+          <g class="n fit"><rect class="box" x="805" y="600" width="140" height="40" rx="8"/><text class="t1" x="875" y="625" text-anchor="middle">Cardio activity</text></g>
+          <g class="n goal"><rect class="box" x="515" y="690" width="140" height="40" rx="8"/><text class="t1" x="585" y="715" text-anchor="middle">Goal</text></g>
+        </svg>
+      </div>
+      <figcaption>Seventeen Types in six Modules (Finance’s Account comes later). A Note converts in place to any Capturable Type (Task, Event, List, Shop, Recipe, Goal, Garment; three are drawn); Task ↔ Event and List ↔ Shop convert the same way. Conversion keeps the same Item, so it is not a link. Drawn selectively to stay readable: <i>contributes to</i> also comes from Shops, Workouts and Cardio; Lists have lines too, and a line can point at an Event as well as a Meal; measures also exist for Meals and Tasks. Two link types connect any pair of Types and are not drawn: <i>became</i> (a new Item made from an old one) and <i>relates to</i> (the catch-all).</figcaption>
+    </figure>
+  </section>
+
+  <section aria-labelledby="h-key">
+    <h2 id="h-key">Key</h2>
+    <div class="key">
+      <div><svg viewBox="0 0 56 16" aria-hidden="true"><line class="e link" x1="2" y1="8" x2="46" y2="8"/><path class="mk-link" d="M46 3L54 8L46 13z"/></svg><span>Link<small>Stored, named, created by an action</small></span></div>
+      <div><svg viewBox="0 0 56 16" aria-hidden="true"><line class="e rule" x1="2" y1="8" x2="46" y2="8"/><path class="mk-rule" d="M46 3L54 8L46 13z"/></svg><span>Rule<small>Calculated each time, nothing stored</small></span></div>
+      <div><svg viewBox="0 0 56 16" aria-hidden="true"><line class="e ptr" x1="2" y1="8" x2="46" y2="8"/><path class="mk-ptr" d="M46 3L54 8L46 13z"/></svg><span>Pointer or conversion<small>From a child row, or a Type switch</small></span></div>
+      <div><svg viewBox="0 0 56 16" aria-hidden="true"><line class="e becomes" x1="2" y1="8" x2="46" y2="8"/><path class="mk-becomes" d="M46 3L54 8L46 13z"/></svg><span>Note converts<small>Same Item, new Type: not a link</small></span></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-read">
+    <h2 id="h-read">Reading it as an engineer</h2>
+    <div class="points">
+      <div><h3>Model and metamodel</h3><p>The second figure is the profile: which Types exist and which links are legal between them. The first is a model instance that obeys it. The database enforces the profile, as a DOORS link module would.</p></div>
+      <div><h3>Views are viewpoints</h3><p>Plan, Recipes and Gym hold no data. Each is a query over the one model, the way a SysML diagram is a view and not a copy. That is why a new Schedulable Type appears on Plan with no extra work.</p></div>
+      <div><h3>Built for AI across everything</h3><p>Because every Item, link and date sits in one typed graph, an AI can answer across Modules: plan dinners around gym days and Saturday’s shop, or suggest an outfit for Dishoom. It reads under the same visibility rules as the person asking.</p></div>
+    </div>
+  </section>
+</div>
+
+<script>
+(function () {
+  var lenses = {
+    all:       { ids: null, q: '<b>Everything</b> · every Item and link in the graph.' },
+    plan:      { ids: ['m1','s1','e1','e2','t1','ow','wk'], q: '<b>Plan</b> · Schedulable Items dated 5–11 Oct. A query over dates, so nothing is linked to Plan.' },
+    recipes:   { ids: ['rd','r1','r2','r3','rl'], q: '<b>Recipes</b> · type = Recipe, each with its Variations and their ingredient lines; ideas included.' },
+    gym:       { ids: ['wk','tp','ex'], q: '<b>Gym</b> · Workouts, templates and exercises.' },
+    household: { ids: ['rd','r1','r2','r3','rl','ig','m1','s1','ln','e1','e2','ow','t1'], q: '<b>Household</b> · shared Items, plus Personal Items one link away (the Olive knit for Dishoom, the card for Mum). Not the outfit or jumper behind it: two hops.' },
+    ai:        { ids: null, q: '<b>AI (via MCP)</b> · the whole graph, every Type, link and date, under the same visibility rules as the person asking.' }
+  };
+  var svg = document.getElementById('g1');
+  var nodes = svg.querySelectorAll('.n');
+  var edges = svg.querySelectorAll('.ed');
+  var query = document.getElementById('query');
+  var buttons = document.querySelectorAll('.lens');
+
+  function apply(name) {
+    var lens = lenses[name] || lenses.all;
+    var on = lens.ids ? new Set(lens.ids) : null;
+    nodes.forEach(function (n) {
+      n.classList.toggle('dim', !!on && !on.has(n.getAttribute('data-id')));
+    });
+    edges.forEach(function (e) {
+      var lit = !on || (on.has(e.getAttribute('data-a')) && on.has(e.getAttribute('data-b')));
+      e.classList.toggle('dim', !lit);
+    });
+    query.innerHTML = lens.q;
+    buttons.forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-lens') === name ? 'true' : 'false'); });
+    try { localStorage.setItem('kg-lens', name); } catch (e) {}
+  }
+  buttons.forEach(function (b) { b.addEventListener('click', function () { apply(b.getAttribute('data-lens')); }); });
+  var start = 'all';
+  try { start = localStorage.getItem('kg-lens') || 'all'; } catch (e) {}
+  apply(lenses[start] ? start : 'all');
+})();
+</script>
+</html>
