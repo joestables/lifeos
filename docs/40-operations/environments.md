@@ -7,7 +7,7 @@
 |---|---|
 | **v2 Supabase project** | `lifeos`, ref `nxydbufwuvsacayqoakh`, **London (eu-west-2)**, Postgres 17, created 9 October 2026. URL `https://nxydbufwuvsacayqoakh.supabase.co`. Free tier: pauses after a week idle; 1 GB file storage. |
 | **v1 Supabase project** | *JoeStables LifeOS*, ref `faduazybenrtpswhdlhc`, Stockholm. **Paused**, without a backup (Joe's choice); restorable from the dashboard for about 90 days. Reference only; deleted once clearly not needed. |
-| **Vercel** | Project `lifeos` in team `joestables1`, linked to the GitHub repository; a preview of every pull request. Vercel Authentication protects previews only; production is public. v1's project is retired with v1. |
+| **Vercel** | Project `lifeos` in team `joestables1`, linked to the GitHub repository; a preview of every pull request. Its environment holds the two public Supabase values, `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` (locally: `.env.local`, from `.env.example`). Vercel Authentication protects previews only; production is public. v1's project is retired with v1. |
 | **Google Cloud** | Project `lifeos`, with the OAuth client used for Google sign-in ([integration setup](integration-setup.md#google-sign-in)). |
 | **Local Supabase in CI** | Started inside GitHub Actions; every migration applied from empty, then the database tests. In a cloud session, `npm run db:test` does the same with the live project's Postgres image (`supabase/postgres`, from Docker Hub). |
 | **Stand-in Supabase** | What Playwright walks run against, as v1's `walk.mjs` does — never real data. |

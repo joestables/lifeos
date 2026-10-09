@@ -59,7 +59,7 @@ Acceptance criteria
 
 **As** a person using LifeOS, **I want** everything I create to be visible
 only to me, **so that** I can trust it with my life.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified
 
 Acceptance criteria
 1. Given two accounts, A and B, when A creates an Item, then B cannot read
@@ -71,7 +71,7 @@ Acceptance criteria
 
 **As** a person using a shared or borrowed device, **I want** to sign out,
 **so that** the next person can't see my data.
-Priority: Must · Status: agreed
+Priority: Must · Status: built (the warning and the sign-in page come with the app shell)
 
 Acceptance criteria
 1. Given I am signed in, when I sign out, then I return to the sign-in page

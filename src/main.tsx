@@ -1,6 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { createRouter, RouterProvider } from '@tanstack/react-router'
+import { DataProvider } from '@/data/DataProvider'
 import { routeTree } from './routeTree.gen'
 import '@/styles/theme.css'
 
@@ -17,6 +18,8 @@ if (!root) throw new Error('No #root element')
 
 createRoot(root).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <DataProvider>
+      <RouterProvider router={router} />
+    </DataProvider>
   </StrictMode>,
 )

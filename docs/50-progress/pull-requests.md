@@ -55,6 +55,11 @@ Branch `claude/stage-1-foundation` · 2026-10-09
   passed, applied the three migrations to `lifeos` and renamed the files to
   the versions it recorded; the security advisor is clean (the
   `rls_auto_enable` warnings are gone).
+- The data layer (plan step 8): `src/data/` with the write queue, unsent
+  changes laid over the cache, the cache kept on the device, and sign-out;
+  generated database types with a CI check; 19 unit tests. OFF-001–003 and
+  ACC-002 verified; OFF-004, OFF-005 and ACC-003 built. Set the public
+  Supabase values on Vercel.
 
 **Left for later**
 - Joe: add `core` to the Data API's exposed schemas (integration setup).

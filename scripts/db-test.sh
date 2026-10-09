@@ -12,7 +12,8 @@ ROOT=$(cd "$(dirname "$0")/.." && pwd)
 
 docker rm -f "$NAME" >/dev/null 2>&1 || true
 docker run -d --name "$NAME" -e POSTGRES_PASSWORD=postgres -p "$PORT:5432" "$IMAGE" >/dev/null
-trap 'docker rm -f "$NAME" >/dev/null 2>&1 || true' EXIT
+# KEEP_DB=1 leaves the database running (port 54329), e.g. for npm run db:types.
+if [ -z "${KEEP_DB:-}" ]; then trap 'docker rm -f "$NAME" >/dev/null 2>&1 || true' EXIT; fi
 
 export PGHOST=localhost PGPORT=$PORT PGPASSWORD=postgres PGDATABASE=postgres
 for _ in $(seq 1 60); do

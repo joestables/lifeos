@@ -27,6 +27,9 @@
 - **In a cloud session**, `npm run db:test` does the same against the same
   Postgres image as the live project, run in Docker (the CLI's other images
   can't be fetched there).
+- **TypeScript types are generated** from the migrations
+  (`npm run db:types`, into `src/data/database.types.ts`); CI fails if they
+  are out of date ([ADR-0042](../20-architecture/adr/0042-data-layer.md)).
 - **Files are written with a provisional version**, then renamed to the
   version the project records once applied
   ([ADR-0040](../20-architecture/adr/0040-migrations-applied-by-claude.md)).
