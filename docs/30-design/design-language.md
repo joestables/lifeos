@@ -34,8 +34,19 @@ agreed)*
 - **Visibility is shown:** a Personal Item linked to a shared one is marked
   "Visible to Household"; a pointer to an Item the reader can't read shows as
   "private", with no title.
-- A mockup canvas was produced on 8 October; its visual design was not
-  liked, as expected at that stage. The look is still to be decided: three
-  directions, all built from shadcn/ui and differing only in how it is
-  customised, are in [LifeOS Design Directions](https://claude.ai/artifact/3v8Z2dQu1BxYArJSwsmesd)
-  (private to Joe). Joe uses dark mode; both modes are designed.
+- **Direction: Stone** (chosen by Joe from three, 9 October): Plus Jakarta
+  Sans, roomy spacing, filled surfaces and soft shadows instead of borders,
+  12px controls and 18px cards, and its strong visual hierarchy.
+- **Monotone base, coloured by Module:** neutral greys with an ink primary.
+  Colour means one thing — which Module an Item belongs to: Food terracotta,
+  Fitness blue, Lists amber, Goals violet, Wardrobe rose, Finance green. The
+  core (Inbox, Plan, Tasks, Notes, and Thought, Note, Task, Event) stays
+  neutral. Red and green keep their usual meaning everywhere. Each Module adds
+  one colour variable to shadcn's theme; a Module's pages can set shadcn's
+  `--primary` and `--ring` to it.
+- **Still to choose** between three variations of this, which differ in
+  neutral temperature and how far the colour reaches:
+  [LifeOS Stone Variations](https://claude.ai/artifact/1aoCq4aQ1vvngN8e6D4S75)
+  (private to Joe). The first round is in
+  [LifeOS Design Directions](https://claude.ai/artifact/3v8Z2dQu1BxYArJSwsmesd).
+- Joe uses dark mode; both modes are designed.

@@ -21,10 +21,12 @@ Branch `claude/stage-1-foundation` · 2026-10-09
   settings in `integration-setup.md`.
 
 - Published three design directions for the look-and-feel exercise (plan
-  step 3).
+  step 3). Joe chose Stone, to be made monotone and coloured by Module;
+  published three variations of that and recorded the direction in the
+  design language.
 
 **Left for later**
-- Joe: choose a design direction; confirm v1 was backed up; finish the
+- Joe: choose a Stone variation; confirm v1 was backed up; finish the
   Google, Supabase and Vercel settings (plan step 4).
 - The data-layer decision and the shadcn re-check (plan step 2).
 
