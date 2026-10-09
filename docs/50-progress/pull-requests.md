@@ -31,10 +31,11 @@ Branch `claude/stage-1-foundation` · 2026-10-09
   reference page) and amended ADR-0038 with how it is kept consistent.
 - Merged Joe's `.claude/settings.json` change from `master` (whole Supabase,
   Vercel and GitHub servers allowed) and updated `environments.md`.
+- Set Vercel's deployment protection to previews only, so production is
+  public. Joe finished the Supabase sign-in settings.
 
 **Left for later**
-- Joe: confirm v1 was backed up; finish the Google, Supabase and Vercel
-  settings (plan step 4).
+- Joe: confirm v1 was backed up; finish the Google settings (plan step 4).
 - The data-layer decision and the shadcn re-check (plan step 2).
 
 ## No PR — Docs structure for LifeOS v2 (Stage 0)

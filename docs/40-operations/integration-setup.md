@@ -12,9 +12,10 @@ Google is how everyone signs up and signs in
 |---|---|---|
 | Google Cloud project `lifeos` → OAuth client | Created; client ID and secret entered in Supabase | Done (Joe) |
 | … OAuth client → Authorized redirect URIs | `https://nxydbufwuvsacayqoakh.supabase.co/auth/v1/callback` | To check (Joe) |
+| … Google Auth Platform → Branding | App name `LifeOS`; support email Joe's; **no logo** (uploading one sends the app for verification); authorised domain `nxydbufwuvsacayqoakh.supabase.co` | To check (Joe) |
 | … Google Auth Platform → Audience | **In production**, so anyone can sign in (Testing allows only listed test users). Scopes: `openid`, `email`, `profile` only, which need no verification | To check (Joe) |
 | Supabase → Authentication → Sign In / Providers → Google | Enabled | Done (Joe) |
-| Supabase → Authentication → URL Configuration | Site URL: the production URL. Redirect URLs: the production URL, `http://localhost:5173/**` and the Vercel previews (`https://lifeos-*-joestables1.vercel.app/**`) | To do (Joe) |
+| Supabase → Authentication → URL Configuration | Site URL: the production URL. Redirect URLs: the production URL, `http://localhost:5173/**` and the Vercel previews (`https://lifeos-*-joestables1.vercel.app/**`) | Done (Joe) |
 
 Email/password sign-up is blocked as part of building ACC-001, not by a
 dashboard setting: Supabase's "allow new users to sign up" switch applies to
