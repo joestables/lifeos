@@ -22,6 +22,7 @@ Owner: **core**, a **Module** (`lists`, `food`, `fitness`, `goals`,
 | Starred and Recent (candidate) | core | — | 2 | — |
 | Search (full-text) | core | Search Screen | 2 | [search](cross-cutting/search.md) |
 | Offline writes (data layer and write queue) | core | — | 1 | [offline](cross-cutting/offline.md) |
+| Activity log: changes to items and links | core | — | 1 | [ADR-0030](../20-architecture/adr/0030-activity-log-by-triggers.md) |
 | Plan | core | Plan | 3 | [plan](views/plan.md) |
 | Events, repeating Events | core | Plan | 3 | — |
 | Google Calendar | Integration | — | 3 | [integrations](cross-cutting/integrations.md) |

@@ -1,7 +1,92 @@
 # Architecture overview
 
-*Context and container diagrams are not drawn yet (Stage 0,
-[roadmap](../roadmap.md)). This page records what is known.*
+*Drawn from the ADRs. Dashed lines and "(later)" mark parts that arrive in a
+later stage; where a box first appears is in the [roadmap](../roadmap.md).*
+
+## Context: LifeOS and the world around it
+
+```mermaid
+flowchart LR
+  person["Person<br/>signs up with Google,<br/>uses LifeOS personally"]
+  member["Household member<br/>a Contact who accepted<br/>an invitation (Stage 4)"]
+  shortcuts["iOS Shortcuts, Siri,<br/>Android HTTP shortcuts"]
+  email["Inbound-email service<br/>(chosen in Stage 2)"]
+
+  lifeos[["LifeOS<br/>one knowledge graph:<br/>Items, Links, Views"]]
+
+  google["Google<br/>sign-in"]
+  push["Web Push services<br/>(later FCM)"]
+  gcal["Google Calendar<br/>(Stage 3)"]
+  oura["Oura<br/>(Stage 8)"]
+  hc["Health Connect<br/>on Android (Stage 7–8)"]
+  banks["Open Banking aggregator<br/>(Stage 9)"]
+  aimodel["AI model provider<br/>(Stage 4)"]
+  claude["Claude, through the<br/>LifeOS MCP server (later)"]
+
+  person -- "captures, plans, sorts" --> lifeos
+  member -. "shares a Household" .-> lifeos
+  shortcuts -- "capture address" --> lifeos
+  email -. "forwards each email" .-> lifeos
+  lifeos -- "signs people in" --> google
+  lifeos -- "sends Reminders" --> push
+  gcal -. "events" .-> lifeos
+  oura -. "sleep, readiness" .-> lifeos
+  hc -. "health data" .-> lifeos
+  banks -. "balances" .-> lifeos
+  lifeos -. "prompts, within budget" .-> aimodel
+  claude -. "reads and acts,<br/>same visibility rules" .-> lifeos
+```
+
+## Containers: what runs where
+
+```mermaid
+flowchart TB
+  vercel["Vercel<br/>hosts the PWA;<br/>a preview per pull request"]
+  pushsvc["Web Push services"]
+
+  subgraph device["Each person's device"]
+    pwa["PWA<br/>React, TypeScript, Vite,<br/>shadcn/ui, TanStack Router + Query;<br/>local cache, write queue,<br/>service worker"]
+    android["Android wrapper<br/>Capacitor (Stage 7):<br/>exact alarms, Health Connect"]
+  end
+
+  subgraph supabase["Supabase project · London"]
+    auth["Auth<br/>Google sign-in"]
+    storage["Storage<br/>photos (resized on the device)<br/>and attachments"]
+    realtime["Realtime<br/>shared Lists and Shops"]
+    db[("Postgres<br/>core + one schema per Module, ops;<br/>RLS through core.can_read;<br/>triggers write core.activity")]
+    edge["Edge Functions<br/>capture address, Integration<br/>connect and sync, nightly<br/>series extension"]
+    reminders["Reminder delivery<br/>reads fires_at"]
+    cron["pg_cron<br/>nightly health check"]
+    vault["Vault<br/>Integration tokens"]
+  end
+
+  outside["Integrations, capture<br/>clients, inbound email"]
+  mcp["LifeOS MCP server<br/>(later)"]
+  gha["GitHub Actions<br/>CI with database tests;<br/>nightly pg_dump"]
+  backup[("Private, encrypted<br/>backup storage")]
+
+  vercel -- "serves" --> pwa
+  android -. "wraps" .-> pwa
+  pushsvc -- "notifications" --> pwa
+  pwa --> auth
+  pwa --> storage
+  realtime -- "live ticks" --> pwa
+  pwa -- "published views and<br/>database functions (RPC)" --> db
+  edge --> db
+  edge --> vault
+  reminders --> db
+  reminders -- "sends" --> pushsvc
+  cron --> db
+  outside --> edge
+  mcp -. "published layer" .-> db
+  gha -- "pooler, session mode" --> db
+  gha --> backup
+```
+
+Each Module's tables sit in its own schema and are read by other Modules only
+through published views and functions ([contracts](contracts.md)). Errors
+from every box are reported to `ops.events`
+([runbook](../40-operations/runbook.md)).
 
 ## The shape
 

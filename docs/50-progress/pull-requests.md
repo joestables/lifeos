@@ -23,7 +23,8 @@ Branch `claude/affectionate-lamport-cukhtr` · 2026-10-09
 - Added **one design system, built from shared components** (ADR-0038), set
   up in Stage 1.
 - Joe's ADR review: every Proposed ADR moved to Provisionally agreed except
-  ADR-0030 (activity log), still to decide. Notes are Personal only.
+  ADR-0030 (activity log), agreed afterwards to start small: items and
+  links only in Stage 1. Notes are Personal only.
   Sign-up is open to anyone with Google; people connect as Contacts, then
   invite each other into a Household (ADR-0039, amending 0003 and 0017).
   Deleted Items can be recovered from Settings (ADR-0032, amending 0026).
@@ -33,6 +34,8 @@ Branch `claude/affectionate-lamport-cukhtr` · 2026-10-09
 - Added `.claude/settings.json`, pre-approving the Supabase MCP tools under
   both server names, and the rules for Claude running SQL.
 
+- Drew the context and container diagrams in the architecture overview;
+  Stage 0 is done ([plan](plans/stage-0.md)).
+
 **Left for later**
-- Deciding ADR-0030; context and container diagrams
-  ([Stage 0 plan](plans/stage-0.md)).
+- Stage 1's plan and specs (sign-in and Spaces, offline writes).

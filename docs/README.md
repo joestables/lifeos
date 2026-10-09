@@ -4,8 +4,8 @@ LifeOS v2 is a personal and household life app built as one knowledge graph:
 Items, the Links between them, and Views over both. These documents are the
 source of truth for what it does and why. Code is checked against them.
 
-The project is in **Stage 0: requirements and architecture**
-([roadmap](roadmap.md)).
+Stage 0 (requirements and architecture) is done; **Stage 1: foundation** is
+next ([roadmap](roadmap.md)).
 
 ## Index
 
@@ -48,7 +48,8 @@ choice, while the design is young.
   written by hand.
 
 Where a document states something that rests on an ADR, it cites it, e.g.
-"(ADR-0030, Proposed)". Anything citing a Proposed ADR is not yet agreed.
+"(ADR-0007, Provisionally agreed)". Anything citing a Proposed ADR is not yet
+agreed.
 
 ## How to change documents
 
@@ -138,7 +139,7 @@ Consequences**, to a page.
 | [0027](20-architecture/adr/0027-quick-capture.md) | Quick capture makes a Thought by default | Provisionally agreed |
 | [0028](20-architecture/adr/0028-capture-from-outside-the-app.md) | Capture from outside the app | Provisionally agreed |
 | [0029](20-architecture/adr/0029-plan-reads-core-items.md) | Plan reads `core.items` | Provisionally agreed |
-| [0030](20-architecture/adr/0030-activity-log-by-triggers.md) | An activity log written by triggers | Proposed |
+| [0030](20-architecture/adr/0030-activity-log-by-triggers.md) | An activity log written by triggers | Provisionally agreed |
 | [0031](20-architecture/adr/0031-offline-and-concurrent-edits.md) | Offline writes and concurrent edits | Provisionally agreed |
 | [0032](20-architecture/adr/0032-delete-means-archive.md) | Delete means archive | Provisionally agreed |
 | [0033](20-architecture/adr/0033-architecture-principles.md) | Architecture principles | Provisionally agreed |
