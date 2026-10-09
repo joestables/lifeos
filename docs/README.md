@@ -42,10 +42,11 @@ choice, while the design is young.
   and every affected document is updated in the same change.
 - **Specs describe the present.** ADRs and git hold the past. Nothing in
   `history/` is a spec, and nothing in `50-progress/` overrides a spec.
-- **For the ontology, the code is the authority** once it exists
-  ([ADR-0008](20-architecture/adr/0008-registries-declared-in-code.md)).
-  Until Stage 1 builds it, [data-model.md](20-architecture/data-model.md) is
-  written by hand.
+- **For the ontology, the code is the authority**
+  ([ADR-0008](20-architecture/adr/0008-registries-declared-in-code.md)):
+  `packages/ontology` declares the core Types, link types and conversions.
+  [data-model.md](20-architecture/data-model.md) is still written by hand
+  and must agree with it; it is generated from Stage 3.
 
 Where a document states something that rests on an ADR, it cites it, e.g.
 "(ADR-0007, Provisionally agreed)". Anything citing a Proposed ADR is not yet

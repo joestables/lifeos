@@ -44,6 +44,9 @@ Branch `claude/stage-1-foundation` · 2026-10-09
   `npm run check` runs them. Wrote `src/styles/theme.css` from the tokens,
   since the build needs them. shadcn's CLI can't reach its registry from the
   cloud session, so `components.json` is written by hand.
+- The ontology package (plan step 6): the core Types, their link types and
+  in-place conversions, with the generated lookup-table migration and its
+  staleness check.
 
 **Left for later**
 - An app icon: the design system has none yet, so the manifest has no icon

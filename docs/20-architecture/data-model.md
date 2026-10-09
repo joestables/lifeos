@@ -1,7 +1,10 @@
 # Data model
 
 *Written by hand until the ontology package generates it
-([ADR-0036](adr/0036-changing-the-model-over-time.md)). The shape is
+([ADR-0036](adr/0036-changing-the-model-over-time.md)). The core Types
+(Thought, Note, Task, Event), their link types and conversions are already
+declared in [`packages/ontology`](../../packages/ontology/src/), which is the
+authority for them; this document must agree with it. The shape is
 Provisionally agreed, through the ADRs it cites; column-level detail is a
 draft that each stage's spec confirms. Types for later stages are listed so
 the whole shape is visible; each is built only in its own stage.*
