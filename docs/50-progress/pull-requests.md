@@ -51,9 +51,13 @@ Branch `claude/stage-1-foundation` · 2026-10-09
   activity log, with row-level security, the visibility rule in
   `core_private`, and the write functions of ADR-0042. 42 database tests;
   `npm run db:test` runs them in a cloud session. A first CI workflow
-  (plan step 10) runs the checks, the build and the database tests.
+  (plan step 10) runs the checks, the build and the database tests. Once CI
+  passed, applied the three migrations to `lifeos` and renamed the files to
+  the versions it recorded; the security advisor is clean (the
+  `rls_auto_enable` warnings are gone).
 
 **Left for later**
+- Joe: add `core` to the Data API's exposed schemas (integration setup).
 - An app icon: the design system has none yet, so the manifest has no icon
   and the app can't be installed until one is designed.
 - Joe published the Google sign-in app. Its home page and `/privacy` page

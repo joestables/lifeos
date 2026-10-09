@@ -2,6 +2,14 @@
 
 *Each Integration's steps are written when it is built. Known so far:*
 
+## Supabase Data API
+
+| Where | Setting | State |
+|---|---|---|
+| Supabase → Project Settings → Data API → Exposed schemas | Add `core`, so the app can read its tables and call its write functions (`core_private` stays hidden) | To do (Joe), before the data layer (plan step 8) |
+
+The local and CI databases expose it through `supabase/config.toml`.
+
 ## Google sign-in
 
 Google is how everyone signs up and signs in
