@@ -126,12 +126,11 @@ from every box are reported to `ops.events`
 *([ADR-0034](adr/0034-stack.md), Provisionally agreed)*
 
 - React + TypeScript + Vite, as an installable PWA;
-- Tailwind v4 and **shadcn/ui on Base UI** (reported as the shadcn default for
-  new projects since July 2026, with Radix still supported; re-check before
-  starting);
+- Tailwind v4 and **shadcn/ui on Base UI** (the shadcn default for new
+  projects since July 2026, with Radix still supported);
 - TanStack Router;
 - TanStack Query behind one data layer, keeping the option of PowerSync +
-  TanStack DB;
+  TanStack DB ([ADR-0042](adr/0042-data-layer.md), Proposed);
 - Supabase, including Edge Functions, pg_cron and Vault;
 - Capacitor later.
 

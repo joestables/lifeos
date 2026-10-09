@@ -16,4 +16,4 @@ queue replays function calls, not table writes.
 
 ## Consequences
 
-To be settled in the data-layer ADR in Stage 1.
+[ADR-0042](0042-data-layer.md) (Proposed) extends this to every write.

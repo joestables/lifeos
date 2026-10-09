@@ -21,6 +21,9 @@ first.*
   open.
 - Writes the queue gives up on are reported to `ops.events`
   ([runbook](../../40-operations/runbook.md)).
+- **How it is built** — every write a database function, the queue an
+  outbox in IndexedDB, the read cache kept in IndexedDB:
+  [ADR-0042](../../20-architecture/adr/0042-data-layer.md) (Proposed).
 
 ## Requirements
 
