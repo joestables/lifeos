@@ -40,7 +40,8 @@ run anything in Supabase himself
   too, so the shadcn CLI can't fetch components; they are copied from
   shadcn's source on GitHub (`apps/v4/registry/bases/base`), which is
   reachable, as is npm. Docker runs (start `dockerd` first); images come
-  from Docker Hub, as `public.ecr.aws` is blocked.
+  from Docker Hub and `mcr.microsoft.com` (Playwright's image for the browser
+  tests), as `public.ecr.aws` is blocked.
 - **Permissions:** Joe wants no approval prompts for any Supabase action
   (Edge Function deploys included), nor for Vercel or GitHub.
   [`.claude/settings.json`](../../.claude/settings.json) allows the whole

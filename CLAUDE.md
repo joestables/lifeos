@@ -7,7 +7,8 @@ index, the ADR statuses, which document wins, and how to change documents.
 
 **Before every commit:** `npm run check` (typecheck, lint, format, token
 check, unit tests) and `npm run build` pass; with UI changes also
-`npm run build:e2e && npm run e2e` (browser and screenshot tests); with
+`npm run build:e2e && npm run e2e` (browser and screenshot tests, in
+Playwright's Docker image; start `dockerd` first in a cloud session); with
 migrations, `npm run db:test`. Vite + React + TypeScript; the app is in
 `src/`, shared packages in `packages/`.
 

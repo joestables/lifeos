@@ -43,6 +43,12 @@ jobs:
   e2e:
     name: Browser tests (stand-in Supabase)
     runs-on: ubuntu-latest
+    # Playwright's own image, as scripts/e2e-docker.sh uses, so screenshots match.
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+      options: --ipc=host
+    env:
+      HOME: /root
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -50,7 +56,6 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
-      - run: npx playwright install --with-deps chromium
       - run: npm run build:e2e
       - run: npx playwright test
       - uses: actions/upload-artifact@v4

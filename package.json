@@ -26,7 +26,8 @@
     "routes": "tsr generate",
     "tokens:check": "node scripts/check-tokens.ts",
     "build:e2e": "VITE_SUPABASE_URL=https://stand-in.supabase.co VITE_SUPABASE_PUBLISHABLE_KEY=stand-in npm run build",
-    "e2e": "playwright test"
+    "e2e": "scripts/e2e-docker.sh",
+    "e2e:local": "playwright test"
   },
   "dependencies": {
     "@base-ui/react": "1.9.0",
