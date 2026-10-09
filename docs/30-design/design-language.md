@@ -44,9 +44,12 @@ agreed)*
   neutral. Red and green keep their usual meaning everywhere. Each Module adds
   one colour variable to shadcn's theme; a Module's pages can set shadcn's
   `--primary` and `--ring` to it.
-- **Still to choose** between three variations of this, which differ in
-  neutral temperature and how far the colour reaches:
-  [LifeOS Stone Variations](https://claude.ai/artifact/1aoCq4aQ1vvngN8e6D4S75)
-  (private to Joe). The first round is in
+- **Neutrals: B1's true greys** (chosen by Joe from three, in
+  [LifeOS Stone Variations](https://claude.ai/artifact/1aoCq4aQ1vvngN8e6D4S75)).
+- **Still to choose** between C1 (B1 as it was), C2 (softer Module accents,
+  hairline edges) and C3 (crisper: tighter corners and spacing, a dot for the
+  current page):
+  [LifeOS Stone Refinements](https://claude.ai/artifact/MWirJxnk1cTN46EiViXmLQ)
+  (private to Joe). Round 1 is in
   [LifeOS Design Directions](https://claude.ai/artifact/3v8Z2dQu1BxYArJSwsmesd).
 - Joe uses dark mode; both modes are designed.

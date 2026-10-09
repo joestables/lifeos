@@ -23,10 +23,11 @@ Branch `claude/stage-1-foundation` · 2026-10-09
 - Published three design directions for the look-and-feel exercise (plan
   step 3). Joe chose Stone, to be made monotone and coloured by Module;
   published three variations of that and recorded the direction in the
-  design language.
+  design language. Joe chose B1's neutrals; published two subtle
+  refinements of it (C2, C3) beside it (C1).
 
 **Left for later**
-- Joe: choose a Stone variation; confirm v1 was backed up; finish the
+- Joe: choose C1, C2 or C3; confirm v1 was backed up; finish the
   Google, Supabase and Vercel settings (plan step 4).
 - The data-layer decision and the shadcn re-check (plan step 2).
 
