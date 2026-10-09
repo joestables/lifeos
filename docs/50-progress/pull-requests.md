@@ -11,10 +11,20 @@ Branch `claude/stage-1-foundation` · 2026-10-09
 - Drafted the Stage 1 requirements: sign-in and Spaces (ACC-001–003) and
   offline writes (OFF-001–005), all *proposed*.
 - `CLAUDE.md` and the docs index now say Stage 1 is in progress.
+- Joe agreed the eight requirements.
+- Checked access from the cloud session: Supabase (new `lifeos` project in
+  London, empty), GitHub and Vercel all reachable through their connectors;
+  direct HTTPS to `*.supabase.co` and `*.vercel.app` is blocked by the
+  environment's network policy.
+- ADR-0040: migrations are applied by Claude through the Supabase MCP.
+  Recorded the new environment in `environments.md` and the Google sign-in
+  settings in `integration-setup.md`.
 
 **Left for later**
-- Joe's review of the requirements; the Stage 1 decisions, look-and-feel
-  exercise and cut-over (plan steps 2–4).
+- Joe: confirm v1 was backed up; finish the Google, Supabase and Vercel
+  settings (plan step 4).
+- The data-layer decision, the shadcn re-check and the look-and-feel
+  exercise (plan steps 2–3).
 
 ## No PR — Docs structure for LifeOS v2 (Stage 0)
 

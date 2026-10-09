@@ -35,7 +35,6 @@ Each stage begins by writing its own specs.
 | Question | Settled in |
 |---|---|
 | Leaving the Household: does "created by" decide ownership, or does the leaver take a copy? ([ADR-0016](20-architecture/adr/0016-sharing-and-visibility.md)) | To confirm |
-| The migration tool | Stage 1 |
 | The data layer, including cross-table writes as database functions ([ADR-0009](20-architecture/adr/0009-cross-table-writes-are-database-functions.md)) | Stage 1 ADR |
 | The inbound-email service for the capture address | Stage 2 |
 | On a repeating Shop, do unticked lines carry over to the next occurrence? | Lists spec (Stage 3) |

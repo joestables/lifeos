@@ -32,7 +32,7 @@ when there are screens to create Items from.*
 
 **As** a person with no signal, **I want** what I create or change to be
 saved at once, **so that** a bad connection never loses a thought.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given I have no connection, when I create or edit an Item, then the
@@ -44,7 +44,7 @@ Acceptance criteria
 
 **As** a person on a flaky connection, **I want** a retried write to count
 once, **so that** I never see the same Item twice.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given a create is sent, and sent again after a timeout, then exactly one
@@ -55,7 +55,7 @@ Acceptance criteria
 **As** one of two people editing the same Item, **I want** each of our
 changes kept unless we changed the same field, **so that** a late offline
 edit doesn't undo someone else's work.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given device A changes an Item's title while offline and device B changes
@@ -67,7 +67,7 @@ Acceptance criteria
 
 **As** a person using LifeOS, **I want** to know when a change couldn't be
 saved, **so that** I can redo it.
-Priority: Should · Status: proposed
+Priority: Should · Status: agreed
 
 Acceptance criteria
 1. Given the server permanently rejects a queued write, then the Item shows
@@ -78,7 +78,7 @@ Acceptance criteria
 
 **As** a person with no signal, **I want** to see the Items I've already
 opened, **so that** I'm not locked out of my own data.
-Priority: Should · Status: proposed
+Priority: Should · Status: agreed
 
 Acceptance criteria
 1. Given I have loaded Items while online, when I lose the connection, then

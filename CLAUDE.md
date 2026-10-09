@@ -51,8 +51,9 @@ can't do something, say exactly why and what Joe needs to do.
 - **Queries and checks:** `execute_sql`, `list_tables`, `get_advisors`,
   `query_logs`.
 - **Schema changes:** write the migration file in the repository first, then
-  apply it with the project's one migration tool — never ad-hoc DDL through
-  `execute_sql` (that is how v1's schema drifted). Run `get_advisors` after
+  apply it with `apply_migration` and name the file with the version the
+  project records ([ADR-0040](docs/20-architecture/adr/0040-migrations-applied-by-claude.md))
+  — never ad-hoc DDL through `execute_sql` (that is how v1's schema drifted). Run `get_advisors` after
   every migration.
 - **Know the project** before any write. v1 (*JoeStables LifeOS*) is
   reference only: never write to it.

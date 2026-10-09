@@ -45,7 +45,7 @@ are written then.*
 
 **As** anyone, **I want** to start using LifeOS with my Google account,
 **so that** there is no new password to manage.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given I have no account, when I choose to continue with Google and
@@ -59,7 +59,7 @@ Acceptance criteria
 
 **As** a person using LifeOS, **I want** everything I create to be visible
 only to me, **so that** I can trust it with my life.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given two accounts, A and B, when A creates an Item, then B cannot read
@@ -71,7 +71,7 @@ Acceptance criteria
 
 **As** a person using a shared or borrowed device, **I want** to sign out,
 **so that** the next person can't see my data.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given I am signed in, when I sign out, then I return to the sign-in page

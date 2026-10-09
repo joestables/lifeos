@@ -22,8 +22,9 @@ mirror-vs-live migration drift from having two tools apply migrations.
      about 90 days; after that only its backup can be downloaded. Delete it
      once it is clearly not needed;
   3. create the v2 project in **London (eu-west-2)** — v1 is in Stockholm.
-- **One owner for migrations:** timestamped files applied by one tool,
-  chosen in Stage 1.
+- **One owner for migrations:** timestamped files applied by one tool
+  ([ADR-0040](0040-migrations-applied-by-claude.md): Claude, through the
+  Supabase MCP).
 - **v2 gets its own Vercel project**; v1's is retired with it.
 - **Design for the free tier:** a nightly `pg_dump` from GitHub Actions to
   private, encrypted storage; photos resized on the device (1 GB storage);
@@ -39,5 +40,5 @@ mirror-vs-live migration drift from having two tools apply migrations.
 
 - v2's migrations start clean.
 - A new project ref changes: the redirect URL on the Google sign-in client
-  (the client is reused), Supabase sign-in settings, Vercel env vars, new
+  (now a new Google Cloud project and client), Supabase sign-in settings, Vercel env vars, new
   VAPID keys for push, and signing in again.

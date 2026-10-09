@@ -149,6 +149,7 @@ Consequences**, to a page.
 | [0037](20-architecture/adr/0037-thoughts.md) | Capture makes a Thought, sorted from Inbox | Provisionally agreed |
 | [0038](20-architecture/adr/0038-one-design-system.md) | One design system, built from shared components | Provisionally agreed |
 | [0039](20-architecture/adr/0039-accounts-contacts-households.md) | Accounts, Contacts and Households | Provisionally agreed |
+| [0040](20-architecture/adr/0040-migrations-applied-by-claude.md) | Migrations are applied by Claude through the Supabase MCP | Provisionally agreed |
 
 ## Sources
 
