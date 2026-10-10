@@ -4,8 +4,9 @@ LifeOS v2 is a personal and household life app built as one knowledge graph:
 Items, the Links between them, and Views over both. These documents are the
 source of truth for what it does and why. Code is checked against them.
 
-Stage 0 (requirements and architecture) is done. **Stage 1: foundation** is in
-progress ([plan](50-progress/plans/stage-1.md), [roadmap](roadmap.md)).
+Stage 0 (requirements and architecture) and Stage 1 (foundation) are done.
+**Stage 2** is next: it starts by writing its plan and specs
+([roadmap](roadmap.md#where-we-are)).
 
 ## Index
 

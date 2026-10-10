@@ -46,7 +46,7 @@ are written then.*
 
 **As** anyone, **I want** to start using LifeOS with my Google account,
 **so that** there is no new password to manage.
-Priority: Must · Status: verified (the real Google round trip is checked by hand on the first deploy)
+Priority: Must · Status: verified (the real Google round trip checked by hand: Joe signed in, 10 October 2026)
 
 Acceptance criteria
 1. Given I have no account, when I choose to continue with Google and

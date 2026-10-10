@@ -6,7 +6,7 @@ navigation drawer, and every write is stored safely, logged and tested.
 No user-facing features beyond that. No backups for now (Joe, 10 October;
 [backups](../../40-operations/backups.md)).
 
-**State:** in progress.
+**State:** done, 10 October 2026 ([#1](https://github.com/joestables/lifeos/pull/1)). Next: [Stage 2](../../roadmap.md).
 
 ## Steps
 
@@ -36,3 +36,12 @@ Steps marked **Joe** need Joe's go-ahead or action before Claude does them.
 - CI runs on every pull request and `master` is protected.
 - The `can_read` benchmark is recorded.
 - No two documents conflict.
+
+## Carried into Stage 2
+
+- **An app icon.** The design system has none, so the manifest has no icon
+  and the app can't be installed yet. Design it into the spec first.
+- **OFF-005** (Should) is built; its "possibly out of date" mark shows once
+  there are screens with Items.
+- **Google brand verification** is optional; Joe may do it now production
+  is live.

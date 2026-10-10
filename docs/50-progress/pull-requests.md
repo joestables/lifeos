@@ -95,10 +95,11 @@ Branch `claude/stage-1-foundation` · 2026-10-09 to 2026-10-10
   of the notch, drawer items are 44px on a phone, phone page padding went
   from 14px to 20px, and each page's code starts loading when its link is
   touched. Spec first: tokens, components and patterns.
+- Closed Stage 1: ACC-001's Google round trip checked by Joe; the plan says
+  what carries into Stage 2; `CLAUDE.md`, the docs index and the roadmap
+  say Stage 2 is next and starts with its plan and specs.
 
 **Left for later**
-- Joe: sign in again once the Google client's redirect URI is fixed (the
-  first real sign-in was refused; no account exists yet).
 - An app icon: the design system has none yet, so the manifest has no icon
   and the app can't be installed until one is designed.
 - Joe published the Google sign-in app. Its home page and `/privacy` page
