@@ -74,6 +74,10 @@ Branch `claude/stage-1-foundation` · 2026-10-09
   tests against a stand-in Supabase, with screenshot tests of `/design`
   (plan step 10); Playwright pinned to the Chromium in the cloud session.
   ACC-001 and ACC-003 verified.
+- The `can_read` benchmark (plan step 11): reading every Item was slow
+  through per-row checks, so the policies now work visibility out as sets
+  once per query: 3–6 ms on 7,600 seeded Items. ADR-0017 amended; the result
+  is in non-functional.md.
 
 **Left for later**
 - Joe: add `core` to the Data API's exposed schemas (integration setup).

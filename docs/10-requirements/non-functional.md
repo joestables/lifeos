@@ -5,9 +5,14 @@ decisions known so far.*
 
 ## Performance
 
-- `core_private.can_read` runs for every row Plan reads, so it is benchmarked in
-  Stage 1 on seeded data (a few thousand Items, a week of Plan)
-  ([ADR-0017](../20-architecture/adr/0017-enforcing-visibility.md)).
+- **Visibility costs a few milliseconds.** Benchmarked on 10 October 2026
+  (`scripts/bench-can-read.sh`: 7,600 seeded Items, 600 links, two people in
+  a Household), median of 20 runs through row-level security: a week of Plan
+  3–4 ms; every live Item 5–6 ms (5,600 and 3,200 rows). Checking one hop
+  per row had cost 150–430 ms for every Item, so the policies work the rule
+  out as sets, once per query
+  ([ADR-0017](../20-architecture/adr/0017-enforcing-visibility.md)). Re-run
+  it when the rule or the data grows.
 - Capture must be faster than Google Tasks or setting a phone alarm
   ([vision](../00-foundation/vision.md)).
 - Shared Lists and Shops update live; elsewhere, data refreshes on focus.

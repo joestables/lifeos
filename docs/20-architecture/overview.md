@@ -53,7 +53,7 @@ flowchart TB
     auth["Auth<br/>Google sign-in"]
     storage["Storage<br/>photos (resized on the device)<br/>and attachments"]
     realtime["Realtime<br/>shared Lists and Shops"]
-    db[("Postgres<br/>core + one schema per Module, ops;<br/>RLS through core_private.can_read;<br/>triggers write core.activity")]
+    db[("Postgres<br/>core + one schema per Module, ops;<br/>RLS through one visibility rule (core_private);<br/>triggers write core.activity")]
     edge["Edge Functions<br/>capture address, Integration<br/>connect and sync, nightly<br/>series extension"]
     reminders["Reminder delivery<br/>reads fires_at"]
     cron["pg_cron<br/>nightly health check"]
