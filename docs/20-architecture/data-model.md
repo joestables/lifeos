@@ -265,7 +265,7 @@ rule and create no links.
 | `core.connections` | Integration connections; tokens in Vault |
 | `core.external_refs` | Integration ids and raw payloads per Item |
 | `core.item_types` · `core.link_types` | Lookup tables generated from the ontology package |
-| `ops.events` | Errors and failures from the app, Edge Functions, cron jobs and Integrations: what, where (screen), the last few actions, never Items' content. Kept 90 days |
+| `ops.events` | Errors and failures from the app, Edge Functions, cron jobs and Integrations: what, where (screen), the last few actions, never Items' content |
 | `ops.health_runs` · `ops.heartbeats` | The nightly health check's findings; when jobs outside the database (the backup) last ran |
 
 ## The knowledge graph, drawn

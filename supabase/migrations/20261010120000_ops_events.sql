@@ -71,8 +71,8 @@ create table ops.health_runs (
 );
 alter table ops.health_runs enable row level security;
 
--- Looks at the last day: events, failed jobs, the backup. Records what it
--- finds, and keeps three months of events.
+-- Looks at the last day: events, failed jobs, the backup, and records what
+-- it finds.
 create function ops.health_check() returns ops.health_runs
 language plpgsql security definer set search_path = '' as $$
 declare
@@ -104,9 +104,6 @@ begin
   if backup.name is not null and (not backup.ok or backup.at < now() - interval '26 hours') then
     problems := problems || jsonb_build_object('check', 'backup', 'found', to_jsonb(backup));
   end if;
-
-  delete from ops.events where at < now() - interval '90 days';
-  delete from ops.health_runs where at < now() - interval '90 days';
 
   insert into ops.health_runs (ok, problems)
   values (jsonb_array_length(problems) = 0, problems)

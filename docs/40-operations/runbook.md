@@ -17,7 +17,7 @@ Done 9 October 2026.
 ## Noticing problems
 
 - **`ops.events`** is the one errors table (schema `ops`, not exposed to the
-  API; kept 90 days):
+  API):
   - the app reports uncaught errors, screens that crash, and writes the
     server refused, through `core.report_event`, with the screen, the build
     and the last ten actions — pages visited and the kind of control

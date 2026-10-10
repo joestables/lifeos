@@ -36,7 +36,8 @@
 - **No `drop` where an `alter` will do.** The Supabase MCP's
   `apply_migration` waits for a confirmation it can't show when a statement
   looks destructive (`drop policy`, for one), and times out without running
-  anything. `alter policy … using (…)` changes a policy in place.
+  anything (`delete`, even inside a function body, does it too).
+  `alter policy … using (…)` changes a policy in place.
 - **`get_advisors` runs after every migration.**
 - The migrations list is generated, not hand-written.
 
