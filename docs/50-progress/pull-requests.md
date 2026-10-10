@@ -2,9 +2,9 @@
 
 Newest first. Each entry is added in its own pull request.
 
-## Not yet opened — Stage 1: plan, specs and scaffold
+## [#1](https://github.com/joestables/lifeos/pull/1) — Stage 1: the foundation
 
-Branch `claude/stage-1-foundation` · 2026-10-09
+Branch `claude/stage-1-foundation` · 2026-10-09 to 2026-10-10
 
 **What it did**
 - Wrote the [Stage 1 plan](plans/stage-1.md).
