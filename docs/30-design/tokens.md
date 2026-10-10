@@ -109,7 +109,7 @@ Tailwind's 4px-based scale, using only these steps: **2, 4, 6, 8, 10, 12, 14,
 |---|---|
 | Page padding (sides) | 36px desktop, 20px phone |
 | Page header | 30px top, 18px bottom; 12px top, 20px bottom on a phone |
-| Top bar (phone) | 56px high, below the notch; the menu button 8px from the edge |
+| Top bar (phone) | 64px high, below the notch; the menu button 48px square with a 22px icon, 8px from the edge (its icon lines up with the page padding), 8px before the brand |
 | Gap between sections | 20px |
 | Gap between list rows | 6px |
 | Card padding | 20px |

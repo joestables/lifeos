@@ -108,7 +108,7 @@ function Sidebar({ className, children, ...props }: React.ComponentProps<'div'>)
   )
 }
 
-/** The menu button in a phone's top bar. */
+/** The menu button in a phone's top bar: 48px, with a 22px icon. */
 function SidebarTrigger({ onClick, ...props }: React.ComponentProps<typeof Button>) {
   const { toggleSidebar } = useSidebar()
   return (
@@ -118,13 +118,14 @@ function SidebarTrigger({ onClick, ...props }: React.ComponentProps<typeof Butto
       variant="ghost"
       size="icon"
       aria-label="Menu"
+      className="size-12"
       onClick={(event) => {
         onClick?.(event)
         toggleSidebar()
       }}
       {...props}
     >
-      <MenuIcon />
+      <MenuIcon className="size-5.5" />
     </Button>
   )
 }

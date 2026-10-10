@@ -26,7 +26,7 @@ Google is how everyone signs up and signs in
 | … Google Auth Platform → Audience | **In production**, so anyone can sign in. Scopes: `openid`, `email`, `profile` only, which need no verification | Done (Joe) |
 | … Verification centre | Optional *brand* verification, so the consent screen says "LifeOS" rather than the Supabase address. Sign-in works without it. Submit only once the home page and privacy page are live | Later |
 | Supabase → Authentication → Sign In / Providers → Google | Enabled | Done (Joe) |
-| Supabase → Authentication → URL Configuration | Site URL `https://lifeos-bice-mu.vercel.app`. Redirect URLs: `https://lifeos-bice-mu.vercel.app/**`, `https://lifeos-*-joestables1.vercel.app/**` (previews) and `http://localhost:5173/**`. A sign-in whose return address isn't listed goes to the Site URL instead | 10 October: the Site URL was `http://joestables.uk` (v1's site) and production wasn't listed, so signing in on production landed on v1's site. To fix (Joe) |
+| Supabase → Authentication → URL Configuration | Site URL `https://lifeos-bice-mu.vercel.app`. Redirect URLs: `https://lifeos-bice-mu.vercel.app/**`, `https://lifeos-*-joestables1.vercel.app/**` (previews) and `http://localhost:5173/**`. A sign-in whose return address isn't listed goes to the Site URL instead | Done (Joe, 10 October). Before that, the Site URL was `http://joestables.uk` (v1's site) and production wasn't listed, so signing in on production landed there |
 
 Email/password sign-up is blocked in the database, not by a dashboard
 setting (Supabase's "allow new users to sign up" switch applies to Google

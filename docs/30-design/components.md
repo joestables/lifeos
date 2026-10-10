@@ -40,7 +40,7 @@ A component not listed here is added to this page before it is used.
 | **Dialog** | `--popover`, 24px radius, `--shadow-dialog`, over `--overlay`. | Capture, and focused tasks that need the whole attention. |
 | **AlertDialog** | As Dialog; actions stacked on a phone, destructive first. | Confirming something that loses work. |
 | **Sheet** | Attached to its edge, full height, `--card`, 24px radius on the open side only, `--shadow-dialog`, over `--overlay`. Slides the whole way in and out (`--duration-sheet`, `--ease-sheet`). Right for an Item's details (up to 448px); left for the drawer on a phone (288px). | Details beside a list without leaving it. |
-| **Sidebar** | shadcn's Sidebar: the drawer. On desktop a panel, `--sidebar`, 20px radius, inset 12px, `--shadow-card`; on a phone a left Sheet. Pages are `SidebarMenuButton`s (38px, 44px on a phone), counts `SidebarMenuBadge`, "Later" a `SidebarGroupLabel`. See [patterns](patterns.md#the-drawer). | Only in `AppShell`. |
+| **Sidebar** | shadcn's Sidebar: the drawer. On desktop a panel, `--sidebar`, 20px radius, inset 12px, `--shadow-card`; on a phone a left Sheet. `SidebarTrigger` is the phone's menu button: ghost, 48px, 22px icon. Pages are `SidebarMenuButton`s (38px, 44px on a phone), counts `SidebarMenuBadge`, "Later" a `SidebarGroupLabel`. See [patterns](patterns.md#the-drawer). | Only in `AppShell`. |
 | **Calendar** | 34px days, rounded; today `--accent`; selected `--primary`. Weeks start on Monday. | Picking a do-on or due date, inside a Popover. |
 | **Table** | 12px weight-600 muted headers; 6 × 8px cells; separators at foreground 6%. | Tabular data: workout sets, Recently deleted. |
 | **Pagination** | Ghost buttons; current page `--accent`. | Long tables only. |
