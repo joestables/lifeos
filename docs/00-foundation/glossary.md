@@ -57,6 +57,8 @@ templates, and starting a session opens the session-logging Screen.
 | **Conversion** | Changing an Item's Type in place; the Item keeps its id, links and history. |
 | ***became*** | The link from a new Item to the old one it was "created from". |
 | **Reference data** | A Module's small lookup lists (muscle groups, cuisines, brands…). Not Items. |
+| **Module colour** | The one colour that marks a Module's Items and pages ([design system](../30-design/tokens.md#colour-modules)). The core has none. |
+| **Design token** | A named design value — a colour, size, radius, shadow — defined once and used by every component ([tokens](../30-design/tokens.md)). |
 | **Label** | A per-Space grouping on any Item: groups Tasks, heads Notes. Replaces "tags". |
 | **Sorting** | Dealing with a Thought in Inbox: converting it into another Type, or deleting it. |
 | **Starred** | Marked privately by one person. |

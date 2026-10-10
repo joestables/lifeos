@@ -1,0 +1,60 @@
+# ADR-0042: The data layer
+
+**Status:** Provisionally agreed · 2026-10-09
+
+## Context
+
+[ADR-0031](0031-offline-and-concurrent-edits.md) asks for a write queue with
+IDs made on the device; [ADR-0009](0009-cross-table-writes-are-database-functions.md)
+says the queue replays database-function calls; [ADR-0034](0034-stack.md)
+puts TanStack Query behind one data layer. The
+[offline requirements](../../10-requirements/cross-cutting/offline.md#requirements)
+(OFF-001–005) and ACC-003 (sign-out) are what it must satisfy.
+
+TanStack Query can persist paused mutations, but resuming them after a reload
+needs a default function per mutation, and it offers no queue to show, give
+up on or clear. TanStack DB's offline outbox does all of that, but only for
+TanStack DB collections, whose core is still pre-1.0.
+
+## Decision
+
+- **One data layer.** `src/data/` is the only code that talks to Supabase;
+  screens use its hooks. A lint rule stops `@supabase/supabase-js` being
+  imported anywhere else.
+- **Reads:** TanStack Query, selecting from tables and views under RLS. The
+  cache is kept in IndexedDB, so Items already loaded show with no signal,
+  marked as possibly out of date (OFF-005). Data refreshes on focus and on
+  reconnecting.
+- **Every write is a database function**, not only writes that span tables:
+  one per action (`core.create_item`, `core.update_item`,
+  `core.archive_item`, `core.convert_item`, `core.link_items` …).
+  - Functions run as the caller (`security invoker`), so RLS stays the one
+    check on who may do what. The app never writes to tables directly
+    (the lint rule above).
+  - **Creates are idempotent:** the device makes the ID, and a repeat is
+    ignored (OFF-002).
+  - **Updates send only the fields that changed**, as a patch; the server
+    applies it when it arrives, so last write wins field by field (OFF-003).
+- **The write queue is our own outbox in IndexedDB**:
+  - Each entry is one function call. Entries are sent one at a time, in
+    order, by one tab (Web Locks).
+  - Entries waiting to be sent are laid over the query cache, so a change
+    shows at once, survives a reload and is marked as not yet sent (OFF-001).
+  - A network failure or server error retries with backoff. A rejection
+    marks the entry failed and keeps it: the Item and `SyncStatus` show it,
+    and `ops.events` records it without the Item's content (OFF-004).
+  - Once an entry is sent, the queries it touched are refreshed.
+- **Signing out** warns about unsent writes, then clears the queue and the
+  cache (ACC-003).
+- **TypeScript types for tables and functions are generated** from the
+  database after each migration.
+
+## Consequences
+
+- A few hundred lines of queue code that LifeOS owns, tested with unit tests
+  citing OFF-001–005.
+- Each new action needs a database function, in a migration.
+- No live updates in Stage 1; shared Lists add them in Stage 3.
+- If the queue proves not enough, TanStack DB with its offline outbox (or
+  PowerSync) replaces it behind the same hooks
+  ([ADR-0031](0031-offline-and-concurrent-edits.md)).

@@ -10,8 +10,8 @@ asks for a standard design system.
 ## Decision
 
 - React + TypeScript + Vite, as an installable PWA;
-- Tailwind v4 and **shadcn/ui on Base UI** (reported as the shadcn default for
-  new projects since July 2026, with Radix still supported);
+- Tailwind v4 and **shadcn/ui on Base UI** (the shadcn default for new
+  projects since July 2026, with Radix still supported);
 - TanStack Router;
 - TanStack Query behind one data layer, keeping the option of PowerSync +
   TanStack DB;
@@ -20,5 +20,6 @@ asks for a standard design system.
 
 ## Consequences
 
-- Re-check the shadcn default before starting.
+- Re-checked 9 October 2026: Base UI is shadcn's default for new projects
+  since July 2026 ([changelog](https://ui.shadcn.com/docs/changelog/2026-07-base-ui-default)).
 - No Storybook: shadcn's components are documented upstream.

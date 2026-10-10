@@ -5,29 +5,38 @@ Filled in as each piece is built.*
 
 ## Stage 1 cut-over from v1
 
-1. Take one `pg_dump` of v1.
-2. Pause the v1 project. It stops working at once, Recipes and Gym included.
-   A paused free project can, as far as is known, be restored from the
-   dashboard for about 90 days; after that only its backup can be
-   downloaded.
-3. Create the v2 project in London (eu-west-2).
-4. Delete v1 once it is clearly not needed.
+1. Pause the v1 project. It stops working at once, Recipes and Gym included.
+   Joe chose not to take a `pg_dump` first. A paused free project can, as
+   far as is known, be restored, or its backup downloaded, from the
+   dashboard for about 90 days.
+2. Create the v2 project in London (eu-west-2).
+3. Delete v1 once it is clearly not needed.
+
+Done 9 October 2026.
 
 ## Noticing problems
 
-- **`ops.events`** is the one errors table:
-  - the app reports uncaught errors, React error-boundary catches, and writes
-    the queue gave up on (with the screen and the last few actions, never
-    the content of your Items);
+- **`ops.events`** is the one errors table (schema `ops`, not exposed to the
+  API):
+  - the app reports uncaught errors, screens that crash, and writes the
+    server refused, through `core.report_event`, with the screen, the build
+    and the last ten actions — pages visited and the kind of control
+    clicked, never its text or the content of your Items
+    (`src/data/report.ts`). A report that can't be sent waits for the next
+    try;
   - Edge Functions, `pg_cron` jobs and Integration syncs report failures to
     the same table.
 - It is queryable by Claude through the Supabase MCP, so "what broke this
   week?" is one question.
 - **No in-app bug reporting.** Joe reports a problem by telling Claude, which
   reads `ops.events` to find it.
-- **A nightly health check** (a `pg_cron` job) looks at the last day's
-  events, failed jobs, the backup and Integration connections, and notifies
-  Joe only when something is wrong. A broken Integration also shows in Inbox.
+- **A nightly health check** (`pg_cron`, 03:00 UTC, `ops.health_check()`)
+  looks at the last day's events, failed jobs and the heartbeats of jobs
+  outside the database (none yet; Integration connections join when there
+  are some), and records what it finds in `ops.health_runs`. **Nobody is
+  notified** (Joe, 10 October): Joe checks, or asks Claude "any problems?",
+  and Claude reads `ops.health_runs` and `ops.events`. Notifications can be
+  added later. A broken Integration also shows in Inbox.
 - **A nightly smoke walk** of production with the test account confirms that
   sign-in, capture and Inbox still work — added once Stage 2 is in daily use.
 
@@ -37,4 +46,5 @@ Filled in as each piece is built.*
 - **A bad migration:** fix forward; never edit a migration that has run.
 - **Something deleted:** undo, or recover it from Settings (deleted means
   archived).
-- **Data loss:** restore the nightly backup ([backups](backups.md)).
+- **Data loss:** no backups are taken for now, so it can't be restored
+  ([backups](backups.md)).

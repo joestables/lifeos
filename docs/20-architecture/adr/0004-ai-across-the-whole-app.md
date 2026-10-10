@@ -21,7 +21,7 @@ app.
 
 - One graph with named Types, named links, a written ontology, an activity
   log and named measures — so any question can span every Module.
-- Spaces and `core.can_read` bound what an AI may see for each person.
+- Spaces and `core_private.can_read` bound what an AI may see for each person.
 - Capture never depends on AI; the basics work without it, offline.
 - Building AI features is not in the first stages; no decision may close the
   door on it.

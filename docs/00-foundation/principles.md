@@ -32,7 +32,7 @@ unless marked.*
    `goals`, `wardrobe`, later `health` and `finance`).
    - Inside the database, Modules read each other only through published
      views and functions, and internal helpers sit in a schema the API can't
-     reach, so the boundary is enforced there.
+     reach (`core_private` for the core), so the boundary is enforced there.
    - **In the app's code it is not enforced by the schemas**: any exposed
      schema can be queried from any Module's code. That needs a lint rule or
      one typed client per Module.

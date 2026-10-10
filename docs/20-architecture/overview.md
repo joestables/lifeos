@@ -53,7 +53,7 @@ flowchart TB
     auth["Auth<br/>Google sign-in"]
     storage["Storage<br/>photos (resized on the device)<br/>and attachments"]
     realtime["Realtime<br/>shared Lists and Shops"]
-    db[("Postgres<br/>core + one schema per Module, ops;<br/>RLS through core.can_read;<br/>triggers write core.activity")]
+    db[("Postgres<br/>core + one schema per Module, ops;<br/>RLS through one visibility rule (core_private);<br/>triggers write core.activity")]
     edge["Edge Functions<br/>capture address, Integration<br/>connect and sync, nightly<br/>series extension"]
     reminders["Reminder delivery<br/>reads fires_at"]
     cron["pg_cron<br/>nightly health check"]
@@ -62,8 +62,7 @@ flowchart TB
 
   outside["Integrations, capture<br/>clients, inbound email"]
   mcp["LifeOS MCP server<br/>(later)"]
-  gha["GitHub Actions<br/>CI with database tests;<br/>nightly pg_dump"]
-  backup[("Private, encrypted<br/>backup storage")]
+  gha["GitHub Actions<br/>CI with database tests"]
 
   vercel -- "serves" --> pwa
   android -. "wraps" .-> pwa
@@ -79,8 +78,6 @@ flowchart TB
   cron --> db
   outside --> edge
   mcp -. "published layer" .-> db
-  gha -- "pooler, session mode" --> db
-  gha --> backup
 ```
 
 Each Module's tables sit in its own schema and are read by other Modules only
@@ -116,7 +113,7 @@ from every box are reported to `ops.events`
 - **The app:** an installable PWA, deployed on its own Vercel project.
 - **Supabase:** Postgres, Edge Functions, `pg_cron`, Vault, Storage and
   Realtime.
-- **GitHub Actions:** CI and the nightly backup
+- **GitHub Actions:** CI. No backups for now
   ([backups](../40-operations/backups.md)).
 - **Later:** a LifeOS MCP server on the published layer; a Capacitor Android
   wrapper; an inbound-email service for the capture address.
@@ -126,12 +123,11 @@ from every box are reported to `ops.events`
 *([ADR-0034](adr/0034-stack.md), Provisionally agreed)*
 
 - React + TypeScript + Vite, as an installable PWA;
-- Tailwind v4 and **shadcn/ui on Base UI** (reported as the shadcn default for
-  new projects since July 2026, with Radix still supported; re-check before
-  starting);
+- Tailwind v4 and **shadcn/ui on Base UI** (the shadcn default for new
+  projects since July 2026, with Radix still supported);
 - TanStack Router;
 - TanStack Query behind one data layer, keeping the option of PowerSync +
-  TanStack DB;
+  TanStack DB ([ADR-0042](adr/0042-data-layer.md));
 - Supabase, including Edge Functions, pg_cron and Vault;
 - Capacitor later.
 

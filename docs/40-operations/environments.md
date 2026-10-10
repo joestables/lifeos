@@ -1,21 +1,21 @@
 # Environments
 
-*Nothing is created yet: no database is needed during requirements. The v2
-environments are set up in Stage 1
+*Set up in Stage 1
 ([ADR-0003](../20-architecture/adr/0003-new-supabase-project.md), Provisionally agreed).*
 
 | Environment | What it is |
 |---|---|
-| **v2 Supabase project** | New, in **London (eu-west-2)**. Created in Stage 1. Free tier: pauses after a week idle; 1 GB file storage. |
-| **v1 Supabase project** (*JoeStables LifeOS*, Stockholm) | Backed up and paused when Stage 1 starts; deleted once clearly not needed. |
-| **Vercel** | v2's own project; a preview of every pull request. v1's project is retired with v1. |
-| **Local Supabase in CI** | Started inside GitHub Actions; every migration applied from empty, then the database tests. |
-| **Stand-in Supabase** | What Playwright walks run against, as v1's `walk.mjs` does — never real data. |
-| **Test account** | Email/password, created by hand, in its own Personal Space, for occasional smoke walks against the real project (nightly once Stage 2 is in daily use). |
+| **v2 Supabase project** | `lifeos`, ref `nxydbufwuvsacayqoakh`, **London (eu-west-2)**, Postgres 17, created 9 October 2026. URL `https://nxydbufwuvsacayqoakh.supabase.co`. Session pooler: host `aws-0-eu-west-2.pooler.supabase.com`, port 5432, database `postgres`, user `postgres.nxydbufwuvsacayqoakh`. Free tier: pauses after a week idle; 1 GB file storage; no downloadable backups, and none taken ([backups](backups.md)). |
+| **v1 Supabase project** | *JoeStables LifeOS*, ref `faduazybenrtpswhdlhc`, Stockholm. **Paused**, without a backup (Joe's choice); restorable from the dashboard for about 90 days. Reference only; deleted once clearly not needed. |
+| **Vercel** | Project `lifeos` in team `joestables1`, linked to the GitHub repository; a preview of every pull request. Its environment holds the two public Supabase values, `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` (locally: `.env.local`, from `.env.example`). Vercel Authentication protects previews only; production is public. v1's project is retired with v1. |
+| **GitHub** | Repository `joestables/lifeos`. Actions secret `SUPABASE_DB_PASSWORD`, unused since the backup was dropped. `master` is protected: a pull request and the three CI checks before merging. |
+| **Google Cloud** | Project `lifeos`, with the OAuth client used for Google sign-in ([integration setup](integration-setup.md#google-sign-in)). |
+| **Local Supabase in CI** | Started inside GitHub Actions; every migration applied from empty, then the database tests. In a cloud session, `npm run db:test` does the same with the live project's Postgres image (`supabase/postgres`, from Docker Hub). |
+| **Stand-in Supabase** | What Playwright walks run against — never real data. The e2e build points at `https://stand-in.supabase.co`, and `tests/e2e/stand-in.ts` answers its calls in the browser and can start a page signed in as a made-up person. `scripts/screenshot.mjs` does the same for screenshots (`SIGNED_IN`). |
+| **Test account** | Email/password, created by hand (its address first listed in `core_private.password_accounts`), in its own Personal Space, for occasional smoke walks against the real project (nightly once Stage 2 is in daily use). |
 
-- The free tier allows two *active* projects (currently *JoeStables LifeOS*
-  and *doorbell*); paused projects don't count. There is no staging
-  database.
+- The free tier allows two *active* projects (now `lifeos` and *doorbell*);
+  paused projects don't count. There is no staging database.
 - **Anyone can sign up with Google**; email/password sign-up is off, so the
   test account is created by hand
   ([ADR-0039](../20-architecture/adr/0039-accounts-contacts-households.md)).
@@ -25,28 +25,41 @@ environments are set up in Stage 1
 
 ## Claude cloud sessions
 
-Most work happens in Claude Code cloud sessions, and **Claude runs SQL for
-Joe** through the Supabase MCP connector rather than handing SQL over to
-paste.
+Most work happens in Claude Code cloud sessions. **Claude runs SQL and
+applies migrations for Joe** through the Supabase MCP connector; Joe doesn't
+run anything in Supabase himself
+([ADR-0040](../20-architecture/adr/0040-migrations-applied-by-claude.md)).
 
-- **The connector** is connected to Joe's claude.ai account; the session's
-  proxy authenticates it. No Supabase keys live in the repository.
-- **Permissions:** [`.claude/settings.json`](../../.claude/settings.json)
-  pre-approves the Supabase tools Claude needs day to day — running SQL,
-  applying migrations, listing, advisors, logs, type generation, docs — under
-  **both** names the server registers (`mcp__Supabase__…` and
-  `mcp__org-connector-mcp_supabase_com_88FE637B__…`). Project-level actions
-  (creating, pausing or restoring a project; branches; deploying Edge
-  Functions; secrets) still ask first. If the server registers a new tool or
-  name, add it under every name.
+- **Connectors:** Supabase, GitHub and Vercel are connected to Joe's
+  claude.ai account; the session's proxy authenticates them. No keys live in
+  the repository.
+- **Network:** the environment's policy blocks direct connections to
+  `*.supabase.co` and `*.vercel.app`, so a cloud session reaches the live
+  project only through the connectors. That is enough for SQL, migrations,
+  advisors and logs; smoke walks against production would need those hosts
+  allowed in the environment's network settings. `ui.shadcn.com` is blocked
+  too, so the shadcn CLI can't fetch components; they are copied from
+  shadcn's source on GitHub (`apps/v4/registry/bases/base`), which is
+  reachable, as is npm. Docker runs (start `dockerd` first); images come
+  from Docker Hub and `mcr.microsoft.com` (Playwright's image for the browser
+  tests), as `public.ecr.aws` is blocked.
+- **Permissions:** Joe wants no approval prompts for any Supabase action
+  (Edge Function deploys included), nor for Vercel or GitHub.
+  [`.claude/settings.json`](../../.claude/settings.json) allows the whole
+  servers: `mcp__Supabase`, `mcp__org-connector-mcp_supabase_com_88FE637B`
+  (the same Supabase connector under its second name), `mcp__Vercel` and
+  `mcp__github`. Claude can't edit this file itself (the session's safety
+  check stops it changing its own permissions), so Joe makes such changes.
+  A change takes effect in the next session.
 - **The permission mode** is picked from the dropdown beside the prompt box;
   the allowlist only stops prompts for the tools it names.
-- **Which project:** until Stage 1 creates v2, the only live project is v1,
-  which is reference only — read it, never write to it.
+- **Which project:** writes go to `lifeos` (`nxydbufwuvsacayqoakh`) only.
+  The connector can also see v1 and *doorbell*: never write to either.
 
-## What changes with the new project ref
+## What changed with the new project
 
-- the redirect URL on the Google sign-in client (the client is reused);
+- A new Google Cloud project and OAuth client, whose redirect URI is the v2
+  project's;
 - Supabase sign-in settings;
 - Vercel env vars;
 - new VAPID keys for push;

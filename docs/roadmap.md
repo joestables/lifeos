@@ -8,7 +8,7 @@ starts by writing the specs it needs, and no earlier.*
 | # | Stage | Outcome |
 |---|---|---|
 | 0 | Requirements and architecture | Agreed decisions (ADRs), data model and architecture — enough to start Stage 1 |
-| 1 | **Starts with its specs:** sign-in and Spaces, offline writes. Then foundation: back up and pause v1; **new Supabase project** (London); repo; core schema and Spaces; auth; navigation drawer; **the design system** (shadcn themed with LifeOS tokens, and the shared components the first screens need); data layer and write queue; the activity log (items and links); **the ontology package** (constants and the lookup migration); **CI with database tests**; the `can_read` benchmark; `ops.events` and the nightly health check; nightly backup | A solid base, built only as far as Stage 2 needs |
+| 1 | **Starts with its specs:** sign-in and Spaces, offline writes. Then foundation: pause v1; **new Supabase project** (London); repo; core schema and Spaces; auth; navigation drawer; **the design system** (shadcn themed with LifeOS tokens, and the shared components the first screens need); data layer and write queue; the activity log (items and links); **the ontology package** (constants and the lookup migration); **CI with database tests**; the `can_read` benchmark; `ops.events` and the nightly health check | A solid base, built only as far as Stage 2 needs |
 | 2 | **Starts with its specs:** capture, Thoughts and Inbox, Notes, Tasks (with repeats), Reminders. Then: capture (Thought by default) and **the capture address**; sorting Thoughts in Inbox; Notes with Labels; Tasks with Labels and **repeating Tasks**; Inbox; Reminders by Web Push with Done/Snooze actions (Android and desktop), overdue nudges and the morning digest; Starred and Recent; Playwright walks in CI, then the nightly smoke walk. Until Stage 3, an event-shaped line is saved as a Thought or a Task. | **Replaces Google Tasks — start using it daily** |
 | 3 | Plan, Events (and repeating Events), Google Calendar; then Lists, Shops and list templates, with live updates | The one planning view |
 | 4 | Recipes, Variations and ideas, cook log, meal planning, ingredients to shopping lists; the shared AI service and food preferences; Contacts and Households, with sharing on | Shared with girlfriend |
@@ -25,18 +25,19 @@ unavailable. Agreed: v1 is being wiped
 ## Where we are
 
 Each stage's working plan, and a record of every pull request, live in
-[50-progress](50-progress/). The current plan:
-[Stage 0](50-progress/plans/stage-0.md).
+[50-progress](50-progress/). Stages 0 and 1 are done
+([Stage 1's plan](50-progress/plans/stage-1.md), with what it carries into
+Stage 2). **Stage 2 is next** and has no plan yet.
 
-Each stage begins by writing its own specs.
+Each stage begins by writing its own plan (`50-progress/plans/stage-N.md`,
+shaped like the last one) whose first step is the stage's specs, which Joe
+agrees before anything is built.
 
 ## Open questions
 
 | Question | Settled in |
 |---|---|
 | Leaving the Household: does "created by" decide ownership, or does the leaver take a copy? ([ADR-0016](20-architecture/adr/0016-sharing-and-visibility.md)) | To confirm |
-| The migration tool | Stage 1 |
-| The data layer, including cross-table writes as database functions ([ADR-0009](20-architecture/adr/0009-cross-table-writes-are-database-functions.md)) | Stage 1 ADR |
 | The inbound-email service for the capture address | Stage 2 |
 | On a repeating Shop, do unticked lines carry over to the next occurrence? | Lists spec (Stage 3) |
 | Unit conversion (100 g + 1 cup); whether a pantry is wanted | Recipes spec (Stage 4) |

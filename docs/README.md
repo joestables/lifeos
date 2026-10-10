@@ -4,8 +4,9 @@ LifeOS v2 is a personal and household life app built as one knowledge graph:
 Items, the Links between them, and Views over both. These documents are the
 source of truth for what it does and why. Code is checked against them.
 
-Stage 0 (requirements and architecture) is done; **Stage 1: foundation** is
-next ([roadmap](roadmap.md)).
+Stage 0 (requirements and architecture) and Stage 1 (foundation) are done.
+**Stage 2** is next: it starts by writing its plan and specs
+([roadmap](roadmap.md#where-we-are)).
 
 ## Index
 
@@ -14,7 +15,7 @@ next ([roadmap](roadmap.md)).
 | [00-foundation](00-foundation/) | [Vision](00-foundation/vision.md) · [Principles](00-foundation/principles.md) · [Glossary](00-foundation/glossary.md) |
 | [10-requirements](10-requirements/) | [Capability map](10-requirements/capability-map.md) · cross-cutting: [capture](10-requirements/cross-cutting/capture.md), [spaces and sharing](10-requirements/cross-cutting/spaces-and-sharing.md), [reminders](10-requirements/cross-cutting/reminders.md), [search](10-requirements/cross-cutting/search.md), [offline](10-requirements/cross-cutting/offline.md), [integrations](10-requirements/cross-cutting/integrations.md) · views: [Inbox](10-requirements/views/inbox.md), [Plan](10-requirements/views/plan.md) · [modules](10-requirements/modules/) · [non-functional](10-requirements/non-functional.md) |
 | [20-architecture](20-architecture/) | [Overview](20-architecture/overview.md) · [Data model](20-architecture/data-model.md) · [Contracts](20-architecture/contracts.md) · [ADRs](#architecture-decision-records) |
-| [30-design](30-design/) | [Design language](30-design/design-language.md) |
+| [30-design](30-design/) | [The design system](30-design/README.md): [design language](30-design/design-language.md) · [tokens](30-design/tokens.md) · [components](30-design/components.md) · [patterns](30-design/patterns.md) · [reference](30-design/reference.html) |
 | [40-operations](40-operations/) | [Environments](40-operations/environments.md) · [Migrations](40-operations/migrations.md) · [Backups](40-operations/backups.md) · [Runbook](40-operations/runbook.md) · [Integration setup](40-operations/integration-setup.md) |
 | [roadmap.md](roadmap.md) | Stages, open questions |
 | [50-progress](50-progress/) | Plans for the work in hand, and a record of every pull request and what it did. Not specs. |
@@ -42,10 +43,11 @@ choice, while the design is young.
   and every affected document is updated in the same change.
 - **Specs describe the present.** ADRs and git hold the past. Nothing in
   `history/` is a spec, and nothing in `50-progress/` overrides a spec.
-- **For the ontology, the code is the authority** once it exists
-  ([ADR-0008](20-architecture/adr/0008-registries-declared-in-code.md)).
-  Until Stage 1 builds it, [data-model.md](20-architecture/data-model.md) is
-  written by hand.
+- **For the ontology, the code is the authority**
+  ([ADR-0008](20-architecture/adr/0008-registries-declared-in-code.md)):
+  `packages/ontology` declares the core Types, link types and conversions.
+  [data-model.md](20-architecture/data-model.md) is still written by hand
+  and must agree with it; it is generated from Stage 3.
 
 Where a document states something that rests on an ADR, it cites it, e.g.
 "(ADR-0007, Provisionally agreed)". Anything citing a Proposed ADR is not yet
@@ -149,6 +151,9 @@ Consequences**, to a page.
 | [0037](20-architecture/adr/0037-thoughts.md) | Capture makes a Thought, sorted from Inbox | Provisionally agreed |
 | [0038](20-architecture/adr/0038-one-design-system.md) | One design system, built from shared components | Provisionally agreed |
 | [0039](20-architecture/adr/0039-accounts-contacts-households.md) | Accounts, Contacts and Households | Provisionally agreed |
+| [0040](20-architecture/adr/0040-migrations-applied-by-claude.md) | Migrations are applied by Claude through the Supabase MCP | Provisionally agreed |
+| [0041](20-architecture/adr/0041-visual-direction.md) | Visual direction: Stone, neutral, coloured by Module | Provisionally agreed |
+| [0042](20-architecture/adr/0042-data-layer.md) | The data layer | Provisionally agreed |
 
 ## Sources
 

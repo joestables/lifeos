@@ -1,7 +1,10 @@
 # Data model
 
 *Written by hand until the ontology package generates it
-([ADR-0036](adr/0036-changing-the-model-over-time.md)). The shape is
+([ADR-0036](adr/0036-changing-the-model-over-time.md)). The core Types
+(Thought, Note, Task, Event), their link types and conversions are already
+declared in [`packages/ontology`](../../packages/ontology/src/), which is the
+authority for them; this document must agree with it. The shape is
 Provisionally agreed, through the ADRs it cites; column-level detail is a
 draft that each stage's spec confirms. Types for later stages are listed so
 the whole shape is visible; each is built only in its own stage.*
@@ -90,14 +93,15 @@ core.activity  item_id, verb, changed (jsonb), at, actor — written by triggers
   use *done*.
 - **IDs are made on the device** (UUIDv7, so they sort by creation time).
   Postgres 17 has no built-in `uuidv7()`, so server-side inserts use a small
-  SQL function.
+  SQL function, `core_private.uuidv7()`.
 - **`do_on` is a date with an optional time.** A Task is something *you do*,
   by or on a date; an Event is something that *happens* at a time. "Sat 10:00
   Tesco" is a Shop with a do-on time; "Dishoom 19:30" is an Event.
 - **`touched_at`** is set the first time an occurrence is edited, ticked,
   logged or linked ([ADR-0022](adr/0022-repeating-items.md)).
 - **Writes that span tables are database functions** called over RPC
-  ([ADR-0009](adr/0009-cross-table-writes-are-database-functions.md)).
+  ([ADR-0009](adr/0009-cross-table-writes-are-database-functions.md));
+  [ADR-0042](adr/0042-data-layer.md) makes every write one.
 
 ### Time fields per Schedulable Type
 
@@ -252,7 +256,8 @@ rule and create no links.
 | `core.reminders` · `core.reminder_deliveries` | Reminders per person; what was sent, when |
 | `core.push_devices` | Web Push (later FCM) subscriptions per person |
 | `core.inbox_state` | Per-person dismiss / snooze of Inbox entries |
-| `core.activity` | The activity log, written by triggers |
+| `core.activity` | The activity log, written by triggers: `created`, `updated`, `converted`, `archived`, `restored`, `linked`, `unlinked`, with the changed fields |
+| `core.item_types` · `core.link_types` | The ontology's lookup tables, generated from `packages/ontology` ([ADR-0008](adr/0008-registries-declared-in-code.md)) |
 | `core.labels` · `core.item_labels` | Labels |
 | `core.stars` · `core.recent` | Per-person starred Items; recently opened Items |
 | `core.capture_tokens` | Each person's capture-address secrets (hashed), revocable |
@@ -260,7 +265,8 @@ rule and create no links.
 | `core.connections` | Integration connections; tokens in Vault |
 | `core.external_refs` | Integration ids and raw payloads per Item |
 | `core.item_types` · `core.link_types` | Lookup tables generated from the ontology package |
-| `ops.events` | Errors and failures from the app, Edge Functions, cron jobs and Integrations |
+| `ops.events` | Errors and failures from the app, Edge Functions, cron jobs and Integrations: what, where (screen), the last few actions, never Items' content |
+| `ops.health_runs` · `ops.heartbeats` | The nightly health check's findings; when jobs outside the database last ran (none yet) |
 
 ## The knowledge graph, drawn
 

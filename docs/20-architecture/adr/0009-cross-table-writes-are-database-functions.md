@@ -2,6 +2,8 @@
 
 **Status:** Provisionally agreed · 2026-10-09
 
+**Amended:** 2026-10-09 by [ADR-0042](0042-data-layer.md) (every write is a database function).
+
 ## Context
 
 Creating a Recipe writes `core.items`, `food.recipe`, its first Variation and
@@ -16,4 +18,4 @@ queue replays function calls, not table writes.
 
 ## Consequences
 
-To be settled in the data-layer ADR in Stage 1.
+[ADR-0042](0042-data-layer.md) extends this to every write.

@@ -1,8 +1,19 @@
 # LifeOS — instructions for Claude
 
-LifeOS v2 is being specified. Until the architecture is signed off, this
-repository holds only `docs/`. Start at [docs/README.md](docs/README.md): the
+LifeOS v2 is being built, stage by stage. Stage 0 settled the architecture
+(Provisionally agreed); Stage 1 built the foundation; Stage 2 is next. The
+current stage's plan is in [docs/50-progress/plans/](docs/50-progress/plans/);
+a stage without one starts by writing it, shaped like the last, with the
+stage's specs as its first step for Joe to agree
+([roadmap](docs/roadmap.md#where-we-are)). Start at [docs/README.md](docs/README.md): the
 index, the ADR statuses, which document wins, and how to change documents.
+
+**Before every commit:** `npm run check` (typecheck, lint, format, token
+check, unit tests) and `npm run build` pass; with UI changes also
+`npm run build:e2e && npm run e2e` (browser and screenshot tests, in
+Playwright's Docker image; start `dockerd` first in a cloud session); with
+migrations, `npm run db:test`. Vite + React + TypeScript; the app is in
+`src/`, shared packages in `packages/`.
 
 ## Spec-driven development: the docs are the source of truth
 
@@ -36,10 +47,22 @@ This matters more than anything else here.
 
 ## One design system
 
-Every screen is built from the same shared components and design tokens —
-no one-off styling, no raw colours or spacing, no copy-pasted variants. The
-design system will be tweaked as we go, and this is what makes that safe
-([ADR-0038](docs/20-architecture/adr/0038-one-design-system.md)).
+The [design system](docs/30-design/README.md) is a specification, and every
+screen follows it exactly ([ADR-0038](docs/20-architecture/adr/0038-one-design-system.md),
+[ADR-0041](docs/20-architecture/adr/0041-visual-direction.md)).
+
+- **Read `docs/30-design/` before building or changing any UI**, and work
+  through its checklist before opening the pull request.
+- **Use only its tokens and components.** No colour, size, radius, shadow or
+  font that isn't in [tokens](docs/30-design/tokens.md); no component or
+  variant that isn't in [components](docs/30-design/components.md); no
+  restyling a component on a screen.
+- **Something new goes into the spec first**, in the same pull request, then
+  into the shared components — never as a one-off.
+- **Colour means Module**, and nothing else; red and green keep their usual
+  meaning ([patterns](docs/30-design/patterns.md#module-colour)).
+- **Check dark mode first**, then light, at desktop and phone width, and
+  attach screenshots.
 
 ## Running SQL for Joe
 
@@ -50,14 +73,17 @@ can't do something, say exactly why and what Joe needs to do.
 - **Queries and checks:** `execute_sql`, `list_tables`, `get_advisors`,
   `query_logs`.
 - **Schema changes:** write the migration file in the repository first, then
-  apply it with the project's one migration tool — never ad-hoc DDL through
-  `execute_sql` (that is how v1's schema drifted). Run `get_advisors` after
+  apply it with `apply_migration` and name the file with the version the
+  project records ([ADR-0040](docs/20-architecture/adr/0040-migrations-applied-by-claude.md))
+  — never ad-hoc DDL through `execute_sql` (that is how v1's schema drifted). Run `get_advisors` after
   every migration.
-- **Know the project** before any write. v1 (*JoeStables LifeOS*) is
+- **Know the project** before any write. v1 (_JoeStables LifeOS_) is
   reference only: never write to it.
-- **Destroying data** (`DROP`, `TRUNCATE`, an `UPDATE`/`DELETE` without a
-  narrow `WHERE`) on a live project: say what will change and get Joe's
-  go-ahead first.
+- **Joe's standing permission covers every Supabase action** on the `lifeos`
+  project — queries, migrations, destructive SQL, Edge Function deploys,
+  secrets. Never ask him to approve one. Take care instead: check it's the
+  right project, and before destroying data say in your reply what will
+  change.
 - **Permissions** are in [.claude/settings.json](.claude/settings.json); see
   [environments](docs/40-operations/environments.md#claude-cloud-sessions).
   Browser walks run against a stand-in Supabase, never real data.

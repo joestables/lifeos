@@ -2,6 +2,8 @@
 
 **Status:** Provisionally agreed · 2026-10-09
 
+**Amended:** 2026-10-10 by Joe (no backups for now; the health check notifies nobody).
+
 ## Context
 
 v1's two audits (12 and 24 September) found 25 defects, mostly in the same
@@ -15,7 +17,7 @@ A layer at each stage a bug passes through:
 
 1. **Make bugs hard to write:** the database refuses bad data (required
    fields, `CHECK`s, foreign keys, a trigger refusing links the ontology
-   doesn't allow, RLS through `core.can_read`); TypeScript types generated
+   doesn't allow, RLS through `core_private.can_read`); TypeScript types generated
    from the database; zod checks on anything arriving from outside; one
    requirement or fix per pull request.
 2. **Catch them before they ship:** `main` is protected; CI runs typecheck
@@ -28,10 +30,12 @@ A layer at each stage a bug passes through:
    backwards-compatible (expand, then contract).
 3. **Notice them in production:** one errors table, `ops.events`, rather than
    a third-party service; no in-app bug reporting; a nightly health check
-   that notifies Joe only when something is wrong; a nightly smoke walk once
+   that records what it finds for Joe, or Claude, to look at (notifications
+   later, if wanted); a nightly smoke walk once
    Stage 2 is in daily use.
 4. **Recover quickly:** undo for deletes, and recovery from Settings; Vercel's instant rollback;
-   migrations fixed forward; backups restored once when first set up.
+   migrations fixed forward; no backups for now (if they return, restored
+   once when first set up).
 
 Details: [runbook](../../40-operations/runbook.md),
 [migrations](../../40-operations/migrations.md).

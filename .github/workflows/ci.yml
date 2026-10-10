@@ -1,0 +1,66 @@
+name: CI
+
+on:
+  push:
+    branches: [master, 'claude/**']
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Typecheck, lint, format, unit tests, build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run check
+      - run: npm run ontology:check
+      - run: npm run build
+
+  database:
+    name: Database tests (migrations from empty)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 2.120.0
+      - run: supabase db start
+      - run: supabase test db
+      - name: Generated database types are up to date
+        run: |
+          supabase gen types typescript --local --schema core > /tmp/database.types.ts
+          npx --yes prettier@3.9.9 --config .prettierrc.json --stdin-filepath src/data/database.types.ts < /tmp/database.types.ts > /tmp/formatted.ts
+          diff -u src/data/database.types.ts /tmp/formatted.ts
+
+  e2e:
+    name: Browser tests (stand-in Supabase)
+    runs-on: ubuntu-latest
+    # Playwright's own image, as scripts/e2e-docker.sh uses, so screenshots match.
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+      options: --ipc=host
+    env:
+      HOME: /root
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run build:e2e
+      - run: npx playwright test
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-results
+          path: test-results
+          retention-days: 7

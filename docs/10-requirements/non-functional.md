@@ -5,9 +5,14 @@ decisions known so far.*
 
 ## Performance
 
-- `core.can_read` runs for every row Plan reads, so it is benchmarked in
-  Stage 1 on seeded data (a few thousand Items, a week of Plan)
-  ([ADR-0017](../20-architecture/adr/0017-enforcing-visibility.md)).
+- **Visibility costs a few milliseconds.** Benchmarked on 10 October 2026
+  (`scripts/bench-can-read.sh`: 7,600 seeded Items, 600 links, two people in
+  a Household), median of 20 runs through row-level security: a week of Plan
+  3–4 ms; every live Item 5–6 ms (5,600 and 3,200 rows). Checking one hop
+  per row had cost 150–430 ms for every Item, so the policies work the rule
+  out as sets, once per query
+  ([ADR-0017](../20-architecture/adr/0017-enforcing-visibility.md)). Re-run
+  it when the rule or the data grows.
 - Capture must be faster than Google Tasks or setting a phone alarm
   ([vision](../00-foundation/vision.md)).
 - Shared Lists and Shops update live; elsewhere, data refreshes on focus.
@@ -21,8 +26,8 @@ See [offline](cross-cutting/offline.md).
 - Anyone can sign up, but nobody sees another person's Items until they are
   Contacts and have both joined a Household
   ([ADR-0039](../20-architecture/adr/0039-accounts-contacts-households.md)).
-- Everything is personal data: backups go to private, encrypted storage
-  ([backups](../40-operations/backups.md)).
+- Everything is personal data: if backups are taken, they go to private,
+  encrypted storage ([backups](../40-operations/backups.md)).
 - `ops.events` records the screen and the last few actions, never the content
   of your Items.
 - The capture address can only create Items in its owner's Personal Space and
@@ -45,6 +50,6 @@ Not yet written.
 
 ## Free-tier constraints
 
-- No downloadable backups: a nightly `pg_dump` instead.
+- No downloadable backups, and none taken for now (Joe's choice).
 - 1 GB of file storage: photos are resized on the device before upload.
 - The project pauses after a week idle.

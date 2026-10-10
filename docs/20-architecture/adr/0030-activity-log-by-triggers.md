@@ -26,5 +26,5 @@ log exists is lost.
 - Goals, Inbox, AI and automations read the log rather than calling each
   other; it records every conversion ([ADR-0018](0018-changing-an-items-type.md)).
 - Log rows are personal data: a row is readable only by people who can read
-  its Item (`core.can_read`).
+  its Item (`core_private.can_read`).
 - One small extra row per change, and slightly slower writes.

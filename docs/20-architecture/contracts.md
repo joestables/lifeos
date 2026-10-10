@@ -52,13 +52,14 @@ without one, the core's default rendering is used
 
 - Inside the database, Modules read each other only through **published
   views and functions**; internal helpers sit in a schema the API can't
-  reach.
+  reach (`core_private` for the core: visibility, triggers, `uuidv7()`).
 - In the app's code the boundary is not enforced by the schemas; it needs a
   lint rule or one typed client per Module.
 - Writes that span tables are database functions called over RPC
   (`core.create_item`, `core.convert_item` …)
   ([ADR-0009](adr/0009-cross-table-writes-are-database-functions.md),
-  Provisionally agreed).
+  Provisionally agreed); [ADR-0042](adr/0042-data-layer.md), Provisionally
+  agreed, makes every write one, and keeps all Supabase calls in one data layer.
 - The published layer is the surface for a later LifeOS MCP server, under the
   same visibility rules as the app
   ([ADR-0004](adr/0004-ai-across-the-whole-app.md), Provisionally agreed).
