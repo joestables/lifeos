@@ -42,6 +42,11 @@ Branch `claude/kind-dijkstra-1kv0xt` · 2026-10-10
     `core.stars` and `core.recent` became `core.marks`; `task_steps` became
     `subtasks`.
 
+- Designed every Stage 2 screen (plan step 3, first pass) on a design
+  canvas, desktop and phone, dark and light, from the design system's tokens
+  and components, with proposed values for the Type colours. Nothing in the
+  design spec or code changes until Joe has commented.
+
 **Left for later**
 - Joe agrees the specs; then the ADRs of plan step 2, the design step, and
   the build. The ontology package drops a Note's *idea* status and gains
