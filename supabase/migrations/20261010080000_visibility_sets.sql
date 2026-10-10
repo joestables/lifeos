@@ -28,23 +28,17 @@ $$;
 grant execute on function core_private.linked_item_ids() to authenticated;
 grant execute on function core_private.readable_item_ids() to authenticated;
 
-drop policy "I read what I can see" on core.items;
-create policy "I read what I can see" on core.items
-  for select to authenticated
+alter policy "I read what I can see" on core.items
   using (
     space_id in (select core_private.my_space_ids())
     or (archived_at is null and id in (select core_private.linked_item_ids()))
   );
 
-drop policy "I read links between Items I can see" on core.links;
-create policy "I read links between Items I can see" on core.links
-  for select to authenticated
+alter policy "I read links between Items I can see" on core.links
   using (
     from_item in (select core_private.readable_item_ids())
     and to_item in (select core_private.readable_item_ids())
   );
 
-drop policy "I read the history of what I can see" on core.activity;
-create policy "I read the history of what I can see" on core.activity
-  for select to authenticated
+alter policy "I read the history of what I can see" on core.activity
   using (item_id in (select core_private.readable_item_ids()));
