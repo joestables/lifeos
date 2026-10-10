@@ -39,8 +39,8 @@ A component not listed here is added to this page before it is used.
 | **Tooltip** | Ink fill, 12px weight 600, 8px radius. | Names an icon-only control, and its shortcut. |
 | **Dialog** | `--popover`, 24px radius, `--shadow-dialog`, over `--overlay`. | Capture, and focused tasks that need the whole attention. |
 | **AlertDialog** | As Dialog; actions stacked on a phone, destructive first. | Confirming something that loses work. |
-| **Sheet** | Inset 12px from the edge, `--card`, 24px radius. Right for an Item's details; left for the drawer on a phone. | Details beside a list without leaving it. |
-| **Sidebar** | The drawer: `--sidebar`, 20px radius, inset 12px, `--shadow-card`. See [patterns](patterns.md#the-drawer). Built as part of `AppShell`, not as shadcn's Sidebar. | Only in `AppShell`. |
+| **Sheet** | Attached to its edge, full height, `--card`, 24px radius on the open side only, `--shadow-dialog`, over `--overlay`. Slides the whole way in and out (`--duration-sheet`, `--ease-sheet`). Right for an Item's details (up to 448px); left for the drawer on a phone (288px). | Details beside a list without leaving it. |
+| **Sidebar** | shadcn's Sidebar: the drawer. On desktop a panel, `--sidebar`, 20px radius, inset 12px, `--shadow-card`; on a phone a left Sheet. Pages are `SidebarMenuButton`s (38px, 44px on a phone), counts `SidebarMenuBadge`, "Later" a `SidebarGroupLabel`. See [patterns](patterns.md#the-drawer). | Only in `AppShell`. |
 | **Calendar** | 34px days, rounded; today `--accent`; selected `--primary`. Weeks start on Monday. | Picking a do-on or due date, inside a Popover. |
 | **Table** | 12px weight-600 muted headers; 6 × 8px cells; separators at foreground 6%. | Tabular data: workout sets, Recently deleted. |
 | **Pagination** | Ghost buttons; current page `--accent`. | Long tables only. |
@@ -59,7 +59,7 @@ Built once from the components above, in `@/components/lifeos`.
 
 | Component | What it is | Rules |
 |---|---|---|
-| **AppShell** | The drawer and the page area: a 252px column and the rest. On a phone the drawer becomes a left Sheet. | Every page sits in one. |
+| **AppShell** | The drawer (Sidebar) and the page area: a 252px column and the rest; the page scrolls with the window. On a phone, a top bar with the menu button and the brand, and the drawer becomes a left Sheet. | Every page sits in one. |
 | **PageHeader** | Optional kicker (12px, uppercase, Module colour on a Module page, muted on a core page), the title (`text-h1`), and actions on the right (`sm` buttons). | One per page. At most one primary action. |
 | **ModuleScope** | Wraps a Module's page or part of one (`data-module`). Sets `--mc` to the Module colour, and `--primary`, `--ring`, `--selected` and `--pressed-foreground` to it ([tokens](tokens.md#colour-modules)). The drawer sits outside it, so stays ink. | Module pages only — never core pages. |
 | **ModuleTile** | 32px (or 24px) rounded square with the Type's icon: Module colour on its tint; core Types grey on `--muted`. | The first thing in a row that shows an Item. |

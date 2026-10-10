@@ -1,6 +1,6 @@
 import { Link } from '@tanstack/react-router'
-import { EllipsisIcon, LogOutIcon, MenuIcon, type LucideIcon } from 'lucide-react'
-import { useState, type ReactNode } from 'react'
+import { EllipsisIcon, LogOutIcon, type LucideIcon } from 'lucide-react'
+import type { ReactNode } from 'react'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
@@ -9,8 +9,22 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
-import { cn } from '@/lib/utils'
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarInset,
+  SidebarMenu,
+  SidebarMenuBadge,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+  SidebarTrigger,
+  useSidebar,
+} from '@/components/ui/sidebar'
 import type { ModuleKey } from './modules'
 import { SyncStatus } from './SyncStatus'
 
@@ -51,64 +65,47 @@ function Brand() {
   )
 }
 
-const pageClasses =
-  'flex h-[38px] items-center gap-3 rounded-control px-2.5 font-[550] text-sidebar-foreground outline-none [&>svg]:text-mc'
-
-function Drawer({
-  pages,
-  me,
-  sync,
-  onSignOut,
-  onNavigate,
-}: Omit<ShellProps, 'children'> & { onNavigate?: () => void }) {
+function Drawer({ pages, me, sync, onSignOut }: Omit<ShellProps, 'children'>) {
+  const { isMobile, setOpenMobile } = useSidebar()
   const now = pages.filter((p) => !p.later)
   const later = pages.filter((p) => p.later)
+  const close = () => isMobile && setOpenMobile(false)
   return (
-    <div className="flex h-full min-h-0 flex-col gap-3.5">
-      <div className="flex items-center justify-between pr-0.5 pl-1.5">
+    <>
+      <SidebarHeader>
         <Brand />
-      </div>
-      <nav aria-label="Pages" className="flex flex-col gap-0.5">
-        {now.map((page) => (
-          <Link
-            key={page.to}
-            to={page.to}
-            data-module={page.module}
-            onClick={onNavigate}
-            className={cn(
-              pageClasses,
-              'hover:bg-sidebar-accent focus-visible:ring-3 focus-visible:ring-ring-soft aria-[current=page]:bg-selected aria-[current=page]:font-[650] aria-[current=page]:text-foreground',
-            )}
-          >
-            <page.icon />
-            {page.label}
-            {page.count !== undefined && (
-              <span className="ml-auto text-xs font-semibold text-muted-foreground tabular-nums">
-                {page.count}
-              </span>
-            )}
-          </Link>
-        ))}
-        {later.length > 0 && (
-          <>
-            <div className="px-2.5 pt-2 pb-0.5 text-xs font-semibold text-muted-foreground">
-              Later
-            </div>
-            {later.map((page) => (
-              <span
-                key={page.to}
-                data-module={page.module}
-                aria-disabled
-                className={cn(pageClasses, 'opacity-50')}
-              >
-                <page.icon />
-                {page.label}
-              </span>
+      </SidebarHeader>
+      <SidebarContent>
+        <nav aria-label="Pages">
+          <SidebarMenu>
+            {now.map((page) => (
+              <SidebarMenuItem key={page.to} data-module={page.module}>
+                <SidebarMenuButton render={<Link to={page.to} onClick={close} />}>
+                  <page.icon />
+                  {page.label}
+                  {page.count !== undefined && <SidebarMenuBadge>{page.count}</SidebarMenuBadge>}
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             ))}
-          </>
-        )}
-      </nav>
-      <div className="mt-auto flex flex-col gap-2.5">
+          </SidebarMenu>
+          {later.length > 0 && (
+            <SidebarGroup>
+              <SidebarGroupLabel>Later</SidebarGroupLabel>
+              <SidebarMenu>
+                {later.map((page) => (
+                  <SidebarMenuItem key={page.to} data-module={page.module}>
+                    <SidebarMenuButton render={<span />} aria-disabled>
+                      <page.icon />
+                      {page.label}
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroup>
+          )}
+        </nav>
+      </SidebarContent>
+      <SidebarFooter>
         <SyncStatus pending={sync.pending} failed={sync.failed} />
         <div className="flex items-center gap-2.5 rounded-control p-2">
           <Avatar>
@@ -131,40 +128,29 @@ function Drawer({
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-      </div>
-    </div>
+      </SidebarFooter>
+    </>
   )
 }
 
 /**
- * Every page sits in one: the drawer and the page area. On a phone the
- * drawer becomes a left Sheet, opened from the menu button.
+ * Every page sits in one: the drawer (shadcn's Sidebar) and the page area,
+ * which scrolls with the window. On a phone, a top bar with the menu button,
+ * and the drawer is a left Sheet.
  */
 export function AppShell({ children, ...drawer }: ShellProps) {
-  const [open, setOpen] = useState(false)
   return (
-    <div className="flex h-svh bg-background md:grid md:grid-cols-[252px_minmax(0,1fr)]">
-      <aside
-        aria-label="Navigation"
-        className="m-3 mr-0 hidden min-h-0 flex-col rounded-panel bg-sidebar px-3 py-4 text-sidebar-foreground shadow-card md:flex"
-      >
+    <SidebarProvider>
+      <Sidebar>
         <Drawer {...drawer} />
-      </aside>
-      <div className="flex min-w-0 flex-1 flex-col overflow-y-auto">
-        <div className="flex items-center gap-1.5 px-3 pt-2 md:hidden">
-          <Sheet open={open} onOpenChange={setOpen}>
-            <SheetTrigger render={<Button variant="ghost" size="icon" aria-label="Menu" />}>
-              <MenuIcon />
-            </SheetTrigger>
-            <SheetContent side="left" showCloseButton={false} className="bg-sidebar px-3 py-4">
-              <SheetTitle className="sr-only">Navigation</SheetTitle>
-              <Drawer {...drawer} onNavigate={() => setOpen(false)} />
-            </SheetContent>
-          </Sheet>
+      </Sidebar>
+      <SidebarInset>
+        <div className="sticky top-0 z-10 box-content flex h-14 items-center gap-1 bg-background px-2 pt-[env(safe-area-inset-top)] md:hidden">
+          <SidebarTrigger />
           <Brand />
         </div>
-        <main className="flex min-w-0 flex-1 flex-col">{children}</main>
-      </div>
-    </div>
+        {children}
+      </SidebarInset>
+    </SidebarProvider>
   )
 }

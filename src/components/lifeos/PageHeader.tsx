@@ -14,7 +14,7 @@ export function PageHeader({
   actions?: ReactNode
 }) {
   return (
-    <header className="flex items-end gap-3 px-3.5 pt-6 pb-4 sm:px-9 sm:pt-[30px] sm:pb-[18px]">
+    <header className="flex items-end gap-3 px-5 pt-3 pb-5 sm:px-9 sm:pt-[30px] sm:pb-[18px]">
       <div className="min-w-0 flex-1">
         {kicker && (
           <div className="mb-1.5 flex items-center gap-2 text-kicker text-[var(--mc,var(--muted-foreground))] uppercase">

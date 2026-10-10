@@ -86,6 +86,15 @@ Branch `claude/stage-1-foundation` · 2026-10-09
   health check's findings stay in `ops.health_runs` for Joe or Claude to
   read. ADR-0035 amended; backups, runbook, environments, overview,
   non-functional, data model, roadmap and the plan updated.
+- Joe's first sign-in worked. On his phone the app felt slow, cramped, and
+  the drawer floated like a popup. The drawer is now shadcn's Sidebar; on a
+  phone it is a Sheet attached to the left edge (288px, full height), kept
+  in the page while closed so it opens without rendering, sliding in over
+  300ms (new tokens `--duration-sheet`, `--ease-sheet`). Every Sheet is now
+  attached to its edge. Pages scroll with the window, a top bar sits clear
+  of the notch, drawer items are 44px on a phone, phone page padding went
+  from 14px to 20px, and each page's code starts loading when its link is
+  touched. Spec first: tokens, components and patterns.
 
 **Left for later**
 - Joe: sign in again once the Google client's redirect URI is fixed (the

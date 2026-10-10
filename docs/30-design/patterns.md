@@ -133,8 +133,11 @@ Meal `utensils`, Recipe `chef-hat`, Workout `dumbbell`, Cardio activity
 
 ## Phone
 
-- The drawer becomes a left Sheet, 270px, opened from the menu button.
-- Page padding 14px; page title 22px; the main action can float bottom right
+- The drawer becomes a left Sheet, 288px, attached to the left edge and the
+  full height of the screen, opened from the menu button in the top bar;
+  choosing a page closes it.
+- The top bar and the drawer keep clear of the notch and the home bar.
+- Page padding 20px; page title 22px; the main action can float bottom right
   as a 48px primary button.
 - Dialogs sit inset 18px from the sides; AlertDialog actions stack, full
   width.

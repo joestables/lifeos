@@ -25,7 +25,7 @@ function SignIn() {
     }
   }
   return (
-    <div className="flex min-h-svh flex-col items-center justify-center gap-6 bg-background px-3.5">
+    <div className="flex min-h-svh flex-col items-center justify-center gap-6 bg-background px-5">
       <div className="flex items-center gap-2.5 text-h2">
         <span className="grid size-6 place-items-center rounded-sm bg-ink text-xs font-extrabold text-ink-foreground">
           L

@@ -200,7 +200,7 @@ function DesignPage() {
           </Button>
         }
       />
-      <main className="flex flex-col gap-8 px-3.5 pb-8 sm:px-9">
+      <main className="flex flex-col gap-8 px-5 pb-8 sm:px-9">
         <Section title="Neutral colours">
           <div className="grid grid-cols-[repeat(auto-fill,minmax(120px,1fr))] gap-3">
             {NEUTRALS.map((token) => (

@@ -7,7 +7,12 @@ import { DataProvider } from '@/data/DataProvider'
 import { routeTree } from './routeTree.gen'
 import '@/styles/theme.css'
 
-const router = createRouter({ routeTree, defaultErrorComponent: RouteError })
+const router = createRouter({
+  routeTree,
+  defaultErrorComponent: RouteError,
+  // Each page's code starts loading as a finger touches its link.
+  defaultPreload: 'intent',
+})
 
 startReporting()
 router.subscribe('onResolved', ({ toLocation }) => noteAction(`navigate ${toLocation.pathname}`))

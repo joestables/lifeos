@@ -69,6 +69,8 @@
 
   --radius: 12px;
   --duration: 150ms;
+  --duration-sheet: 300ms;
+  --ease-sheet: cubic-bezier(0.32, 0.72, 0, 1);
   --h: 40px;
   --h-sm: 32px;
 

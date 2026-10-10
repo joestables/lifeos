@@ -30,6 +30,9 @@ test('ACC-001: signed in, I land in the app with the navigation drawer', async (
     'Wardrobe',
   ])
   await expect(page.getByText(ANN.name).filter({ visible: true })).toBeVisible()
+  await pages.getByRole('link', { name: 'Tasks' }).click()
+  await expect(page.getByRole('heading', { name: 'Tasks' })).toBeVisible()
+  if (isMobile) await expect(pages).toBeHidden()
 })
 
 test('ACC-003: signing out returns to the sign-in page and clears the device', async ({

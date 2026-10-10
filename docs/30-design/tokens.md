@@ -107,8 +107,9 @@ Tailwind's 4px-based scale, using only these steps: **2, 4, 6, 8, 10, 12, 14,
 
 | Where | Value |
 |---|---|
-| Page padding (sides) | 36px desktop, 14px phone |
-| Page header | 30px top, 18px bottom |
+| Page padding (sides) | 36px desktop, 20px phone |
+| Page header | 30px top, 18px bottom; 12px top, 20px bottom on a phone |
+| Top bar (phone) | 56px high, below the notch; the menu button 8px from the edge |
 | Gap between sections | 20px |
 | Gap between list rows | 6px |
 | Card padding | 20px |
@@ -154,7 +155,7 @@ No borders on surfaces: edges come from `--shadow-card`'s hairline.
 |---|---|---|
 | `--h` | 40px | Buttons, inputs, selects |
 | `--h-sm` | 32px | Small buttons, tabs, chips, inputs in tables |
-| Drawer item | 38px | |
+| Drawer item | 38px; 44px on a phone | |
 | Menu item | 36px | |
 | List row | min 56px | |
 | Tile | 32px (icon 16px); small 24px (icon 14px) | |
@@ -162,7 +163,7 @@ No borders on surfaces: edges come from `--shadow-card`'s hairline.
 | Switch | 38 × 22px | |
 | Badge | 22px high | |
 | Avatar | 30px | |
-| Drawer | 252px wide (240px panel + 12px inset); 270px sheet on a phone | |
+| Drawer | 252px wide (240px panel + 12px inset); a 288px Sheet on a phone | |
 | Icon | 16px, stroke 1.75; 12px and 14px small; 22px large | |
 
 ## Motion
@@ -170,6 +171,8 @@ No borders on surfaces: edges come from `--shadow-card`'s hairline.
 | Token | Value | Used for |
 |---|---|---|
 | `--duration` | 150ms | Colour, shadow and transform changes |
+| `--duration-sheet` | 300ms | A Sheet sliding in and out, and its overlay |
+| `--ease-sheet` | `cubic-bezier(0.32, 0.72, 0, 1)` | A Sheet's slide: fast, then settling |
 | Skeleton pulse | 2s ease-in-out | Loading |
 
 With `prefers-reduced-motion`, transitions and the pulse are off.

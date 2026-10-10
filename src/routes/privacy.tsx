@@ -20,7 +20,7 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
 
 function Privacy() {
   return (
-    <div className="min-h-svh bg-background px-3.5 py-10">
+    <div className="min-h-svh bg-background px-5 py-10">
       <article className="mx-auto flex max-w-180 flex-col gap-6 text-base">
         <header className="flex flex-col gap-1">
           <h1 className="text-h1">Privacy</h1>

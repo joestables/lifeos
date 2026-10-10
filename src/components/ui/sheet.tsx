@@ -3,9 +3,11 @@ import { XIcon } from 'lucide-react'
 import type * as React from 'react'
 import { cn } from '@/lib/utils'
 import { Button } from './button'
-import { overlayClasses } from './dialog'
 
-/** Right: an Item's details beside a list. Left: the drawer on a phone. */
+/**
+ * Attached to its edge and the full height of the screen. Right: an Item's
+ * details beside a list. Left: the drawer on a phone (components.md).
+ */
 function Sheet(props: SheetPrimitive.Root.Props) {
   return <SheetPrimitive.Root data-slot="sheet" {...props} />
 }
@@ -18,21 +20,38 @@ function SheetClose(props: SheetPrimitive.Close.Props) {
   return <SheetPrimitive.Close data-slot="sheet-close" {...props} />
 }
 
+const slide = 'duration-(--duration-sheet) ease-(--ease-sheet)'
+
 function SheetContent({
   className,
   children,
   side = 'right',
   showCloseButton = true,
+  keepMounted = false,
   ...props
-}: SheetPrimitive.Popup.Props & { side?: 'left' | 'right'; showCloseButton?: boolean }) {
+}: SheetPrimitive.Popup.Props & {
+  side?: 'left' | 'right'
+  showCloseButton?: boolean
+  /** Stays in the page while closed, so it opens without rendering anything. */
+  keepMounted?: boolean
+}) {
   return (
-    <SheetPrimitive.Portal>
-      <SheetPrimitive.Backdrop className={overlayClasses} />
+    <SheetPrimitive.Portal keepMounted={keepMounted}>
+      <SheetPrimitive.Backdrop
+        data-slot="sheet-overlay"
+        className={cn(
+          'fixed inset-0 z-50 bg-overlay transition-opacity data-ending-style:opacity-0 data-starting-style:opacity-0',
+          slide,
+        )}
+      />
       <SheetPrimitive.Popup
         data-slot="sheet-content"
         data-side={side}
         className={cn(
-          'fixed inset-y-3 z-50 flex flex-col gap-5 overflow-y-auto rounded-xl bg-card p-6 text-card-foreground shadow-dialog outline-none data-open:animate-in data-closed:animate-out data-[side=left]:left-3 data-[side=left]:w-[270px] data-[side=left]:data-closed:slide-out-to-left data-[side=left]:data-open:slide-in-from-left data-[side=right]:right-3 data-[side=right]:w-[calc(100%-24px)] data-[side=right]:max-w-md data-[side=right]:data-closed:slide-out-to-right data-[side=right]:data-open:slide-in-from-right',
+          'fixed inset-y-0 z-50 flex flex-col gap-5 overflow-y-auto overscroll-contain bg-card p-6 text-card-foreground shadow-dialog outline-none transition-transform',
+          slide,
+          'data-[side=left]:left-0 data-[side=left]:w-72 data-[side=left]:max-w-[calc(100%-48px)] data-[side=left]:rounded-r-xl data-[side=left]:data-ending-style:-translate-x-full data-[side=left]:data-starting-style:-translate-x-full',
+          'data-[side=right]:right-0 data-[side=right]:w-[calc(100%-48px)] data-[side=right]:max-w-md data-[side=right]:rounded-l-xl data-[side=right]:data-ending-style:translate-x-full data-[side=right]:data-starting-style:translate-x-full',
           className,
         )}
         {...props}
