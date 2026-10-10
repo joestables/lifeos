@@ -46,12 +46,13 @@ AppShell
   own multicoloured "G" — the one colour that isn't a token, because
   Google's branding rules require it.
 - No email or password fields ([ACC-001](../10-requirements/cross-cutting/spaces-and-sharing.md#acc-001--sign-up-and-sign-in-with-google)).
-- A small muted link to the privacy page below the Card.
 
 ## Privacy page
 
-The one page with paragraphs: a legal page, reachable without signing in,
-720px wide, `text-h1` title and `text-h2` sections.
+The one page with paragraphs: a legal page that exists only because Google
+asks for one. It lives at `/privacy`, reachable without signing in, and
+nothing in the app links to it. 720px wide, `text-h1` title and `text-h2`
+sections.
 
 ## Module colour
 

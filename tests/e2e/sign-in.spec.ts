@@ -7,7 +7,6 @@ test('ACC-001: the sign-in page offers Google and no email sign-up', async ({ pa
   await expect(page).toHaveURL(/\/sign-in$/)
   await expect(page.getByRole('button', { name: 'Continue with Google' })).toBeVisible()
   await expect(page.locator('input')).toHaveCount(0)
-  await expect(page.getByRole('link', { name: 'Privacy' })).toBeVisible()
 })
 
 test('ACC-001: signed in, I land in the app with the navigation drawer', async ({

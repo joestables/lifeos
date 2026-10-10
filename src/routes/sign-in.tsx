@@ -1,4 +1,4 @@
-import { createFileRoute, Link, redirect } from '@tanstack/react-router'
+import { createFileRoute, redirect } from '@tanstack/react-router'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -39,9 +39,6 @@ function SignIn() {
           Continue with Google
         </Button>
       </Card>
-      <Link to="/privacy" className="text-xs text-muted-foreground hover:text-foreground">
-        Privacy
-      </Link>
     </div>
   )
 }

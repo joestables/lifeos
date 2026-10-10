@@ -1,7 +1,10 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
 import type { ReactNode } from 'react'
 
-/** The privacy policy Google asks for: the app's one page of paragraphs (patterns.md#privacy-page). */
+/**
+ * The privacy policy Google asks for, at /privacy only: nothing in the app
+ * links to it (patterns.md#privacy-page).
+ */
 export const Route = createFileRoute('/privacy')({
   component: Privacy,
 })
@@ -52,13 +55,9 @@ function Privacy() {
         </Section>
         <Section title="Deleting your data">
           <p>
-            Ask, and your account and everything in it will be deleted. Contact the support email
-            shown on Google's sign-in screen for LifeOS.
+            Ask, and your account and everything in it will be deleted: joestables2002@gmail.com.
           </p>
         </Section>
-        <Link to="/sign-in" className="text-sm text-muted-foreground hover:text-foreground">
-          Back to sign in
-        </Link>
       </article>
     </div>
   )

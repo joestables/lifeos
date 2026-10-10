@@ -6,7 +6,7 @@
 
 | Where | Setting | State |
 |---|---|---|
-| Supabase → Project Settings → Data API → Exposed schemas | Add `core`, so the app can read its tables and call its write functions (`core_private` stays hidden) | To do (Joe), before the data layer (plan step 8) |
+| Supabase → Project Settings → Data API → Exposed schemas | Add `core`, so the app can read its tables and call its write functions (`core_private` stays hidden) | Done (Joe), 10 October |
 
 The local and CI databases expose it through `supabase/config.toml`.
 
@@ -19,7 +19,7 @@ Google is how everyone signs up and signs in
 | Where | Setting | State |
 |---|---|---|
 | Google Cloud project `lifeos` → OAuth client | Created; client ID and secret entered in Supabase | Done (Joe) |
-| … OAuth client → Authorized redirect URIs | `https://nxydbufwuvsacayqoakh.supabase.co/auth/v1/callback` | To check: proved by the first sign-in |
+| … OAuth client → Authorized redirect URIs | `https://nxydbufwuvsacayqoakh.supabase.co/auth/v1/callback`, exactly | The first sign-in (10 October) reached Google and was refused ("this app's request is invalid"), the usual sign of a missing or mistyped redirect URI: to check (Joe) |
 | … Google Auth Platform → Branding | App name `LifeOS`; support email Joe's; **no logo** (uploading one sends the app for verification); authorised domains `nxydbufwuvsacayqoakh.supabase.co` and `lifeos-bice-mu.vercel.app` | Done (Joe) |
 | … Branding → App domain | Home page `https://lifeos-bice-mu.vercel.app`; privacy policy `https://lifeos-bice-mu.vercel.app/privacy`. Google requires both before the app can leave Testing | Done (Joe); the pages go live with the app's first deploy (plan step 9a) |
 | … Google Auth Platform → Data Access | `openid`, `.../auth/userinfo.email`, `.../auth/userinfo.profile`; nothing else | Done (Joe) |

@@ -80,7 +80,8 @@ Branch `claude/stage-1-foundation` · 2026-10-09
   is in non-functional.md.
 
 **Left for later**
-- Joe: add `core` to the Data API's exposed schemas (integration setup).
+- Joe: check the Google client's redirect URI (the first real sign-in was
+  refused); protect `master`.
 - An app icon: the design system has none yet, so the manifest has no icon
   and the app can't be installed until one is designed.
 - Joe published the Google sign-in app. Its home page and `/privacy` page
