@@ -2,6 +2,17 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#2](https://github.com/joestables/lifeos/pull/2) — Phone menu button; Supabase URL settings
+
+Branch `claude/stage-1-foundation` · 2026-10-10
+
+**What it did**
+- Signing in on production landed on `joestables.uk`: Supabase's Site URL
+  was v1's site and production wasn't an allowed return address. Joe fixed
+  the settings; integration-setup.md now records them exactly.
+- Joe found the phone's menu button cramped: it is now 48px with a 22px
+  icon, in a 64px top bar (tokens and components first).
+
 ## [#1](https://github.com/joestables/lifeos/pull/1) — Stage 1: the foundation
 
 Branch `claude/stage-1-foundation` · 2026-10-09 to 2026-10-10

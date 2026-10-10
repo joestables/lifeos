@@ -145,7 +145,7 @@ export function AppShell({ children, ...drawer }: ShellProps) {
         <Drawer {...drawer} />
       </Sidebar>
       <SidebarInset>
-        <div className="sticky top-0 z-10 box-content flex h-14 items-center gap-1 bg-background px-2 pt-[env(safe-area-inset-top)] md:hidden">
+        <div className="sticky top-0 z-10 box-content flex h-16 items-center gap-2 bg-background px-2 pt-[env(safe-area-inset-top)] md:hidden">
           <SidebarTrigger />
           <Brand />
         </div>
