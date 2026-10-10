@@ -9,6 +9,8 @@ export default defineConfig({
   define: {
     // The design-system page ships in development and preview builds only.
     __DESIGN_PAGE__: JSON.stringify(process.env.VERCEL_ENV !== 'production'),
+    // Which build an ops.events report came from.
+    __APP_VERSION__: JSON.stringify((process.env.VERCEL_GIT_COMMIT_SHA ?? 'local').slice(0, 7)),
   },
   plugins: [
     // The router plugin must come before the React plugin.

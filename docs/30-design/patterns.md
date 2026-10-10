@@ -111,6 +111,7 @@ The rule: **colour says which Module an Item belongs to, and nothing else.**
 | Not saved | An Item whose change the server refused shows "Not saved" in red with a `cloud-alert` icon in its meta, and SyncStatus counts it ([OFF-004](../10-requirements/cross-cutting/offline.md#off-004--a-write-that-cant-be-saved-is-not-lost-silently)) |
 | Offline | An Alert at the top of the content |
 | Error | Red text under the field, or a toast that says what went wrong and what to do |
+| A screen that crashes | Its PageHeader title says "Something went wrong", with one primary button, "Reload". The crash is recorded in `ops.events` ([runbook](../40-operations/runbook.md#noticing-problems)) |
 | Empty | Not designed yet: designed when the first empty page is built, and added here first |
 
 ## Icons

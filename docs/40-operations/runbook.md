@@ -16,19 +16,26 @@ Done 9 October 2026.
 
 ## Noticing problems
 
-- **`ops.events`** is the one errors table:
-  - the app reports uncaught errors, React error-boundary catches, and writes
-    the queue gave up on (with the screen and the last few actions, never
-    the content of your Items);
+- **`ops.events`** is the one errors table (schema `ops`, not exposed to the
+  API; kept 90 days):
+  - the app reports uncaught errors, screens that crash, and writes the
+    server refused, through `core.report_event`, with the screen, the build
+    and the last ten actions — pages visited and the kind of control
+    clicked, never its text or the content of your Items
+    (`src/data/report.ts`). A report that can't be sent waits for the next
+    try;
   - Edge Functions, `pg_cron` jobs and Integration syncs report failures to
     the same table.
 - It is queryable by Claude through the Supabase MCP, so "what broke this
   week?" is one question.
 - **No in-app bug reporting.** Joe reports a problem by telling Claude, which
   reads `ops.events` to find it.
-- **A nightly health check** (a `pg_cron` job) looks at the last day's
-  events, failed jobs, the backup and Integration connections, and notifies
-  Joe only when something is wrong. A broken Integration also shows in Inbox.
+- **A nightly health check** (`pg_cron`, 03:00 UTC, `ops.health_check()`)
+  looks at the last day's events, failed jobs and the backup's heartbeat
+  (Integration connections join when there are some), and records what it
+  finds in `ops.health_runs`. Telling Joe when something is wrong comes with
+  the nightly backup (plan step 13). A broken Integration also shows in
+  Inbox.
 - **A nightly smoke walk** of production with the test account confirms that
   sign-in, capture and Inbox still work — added once Stage 2 is in daily use.
 

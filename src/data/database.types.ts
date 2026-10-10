@@ -417,6 +417,17 @@ export type Database = {
         Args: { p_from: string; p_id: string; p_link_type: string; p_to: string }
         Returns: undefined
       }
+      report_event: {
+        Args: {
+          p_actions?: Json
+          p_app_version?: string
+          p_details?: Json
+          p_kind: string
+          p_message: string
+          p_screen?: string
+        }
+        Returns: undefined
+      }
       restore_item: {
         Args: { p_id: string }
         Returns: {

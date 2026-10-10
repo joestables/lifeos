@@ -70,7 +70,7 @@ Acceptance criteria
 
 **As** a person using LifeOS, **I want** to know when a change couldn't be
 saved, **so that** I can redo it.
-Priority: Should · Status: built (the record in `ops.events` comes with plan step 12)
+Priority: Should · Status: verified
 
 Acceptance criteria
 1. Given the server permanently rejects a queued write, then the Item shows

@@ -78,6 +78,10 @@ Branch `claude/stage-1-foundation` · 2026-10-09
   through per-row checks, so the policies now work visibility out as sets
   once per query: 3–6 ms on 7,600 seeded Items. ADR-0017 amended; the result
   is in non-functional.md.
+- `ops.events` and the nightly health check (plan step 12): the app reports
+  crashes, uncaught errors and refused writes without any Item content; a
+  `pg_cron` job records the day's findings. OFF-004 verified. The crash
+  screen went into patterns.md first.
 
 **Left for later**
 - Joe: check the Google client's redirect URI (the first real sign-in was

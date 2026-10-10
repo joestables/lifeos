@@ -11,8 +11,9 @@
   encrypted storage**, because it is all personal data.
 - **Restored once** into a scratch project when first set up, so restoring is
   known to work before it's needed.
-- The nightly health check looks at the backup
-  ([runbook](runbook.md)).
+- The nightly health check looks at the backup: the backup job records each
+  run in `ops.heartbeats`, and a run that failed or is more than 26 hours old
+  is reported ([runbook](runbook.md#noticing-problems)).
 
 ([ADR-0003](../20-architecture/adr/0003-new-supabase-project.md), Provisionally agreed;
 restore test: [ADR-0035](../20-architecture/adr/0035-preventing-catching-fixing-bugs.md),

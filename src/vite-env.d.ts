@@ -7,3 +7,6 @@ interface ImportMetaEnv {
 
 /** Whether this build includes the /design page (vite.config.ts). */
 declare const __DESIGN_PAGE__: boolean
+
+/** The commit this build came from, for ops.events (vite.config.ts). */
+declare const __APP_VERSION__: string
