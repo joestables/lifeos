@@ -8,7 +8,7 @@ the screen then uses what was added.
 | Document | Holds |
 |---|---|
 | [design-language.md](design-language.md) | The principles and the decisions behind the look |
-| [tokens.md](tokens.md) | Every design token, with its exact light and dark value: colour, Module colours, type, spacing, radius, shadow, size, motion |
+| [tokens.md](tokens.md) | Every design token, with its exact light and dark value: colour, Module colours (becoming Type colours, [ADR-0043](../20-architecture/adr/0043-colour-by-type.md)), type, spacing, radius, shadow, size, motion |
 | [components.md](components.md) | Every component a screen may use — shadcn's and LifeOS's own — with its variants, sizes and rules |
 | [patterns.md](patterns.md) | How screens are put together: page anatomy, Module colour, lists, Plan, states, icons, copy, phone |
 | [reference.html](reference.html) | A frozen picture of the agreed look ([published copy](https://claude.ai/artifact/RKXtYq2tiCHrfM1XeMX4wK), private to Joe). If it and the written spec differ, the written spec wins. The app's own page, `/design`, now shows the real components; this file stays as the record of the look that was agreed. |
@@ -28,7 +28,11 @@ request.
    on the screen.
 2. **Module pages** are wrapped in `ModuleScope` with their Module; core pages
    (Inbox, Plan, Tasks, Notes) are not ([patterns](patterns.md#module-colour)).
-3. **Every Item shows its Module** — a `ModuleTile`, `ModuleBadge` or dot —
+   Changing to colour by Type
+   ([ADR-0043](../20-architecture/adr/0043-colour-by-type.md)) in Stage 2:
+   then every page about one family of Types takes its colour, and only
+   Inbox, Plan, Search and Settings stay neutral.
+3. **Every Item shows its colour** — a `ModuleTile`, `ModuleBadge` or dot —
    wherever it appears.
 4. **Only tokens.** No colour, size, radius, shadow or font that isn't in
    [tokens.md](tokens.md).

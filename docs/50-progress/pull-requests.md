@@ -8,7 +8,7 @@ Branch `claude/kind-dijkstra-1kv0xt` · 2026-10-10
 
 **What it did**
 - Wrote the [Stage 2 plan](plans/stage-2.md), shaped like Stage 1's, with
-  five questions for Joe.
+  five questions for Joe, since answered.
 - Drafted the Stage 2 requirements, all *proposed*: capture (CAP-001–008),
   Inbox (INB-001–005), Notes (NTE-001–005), Tasks with repeats
   (TSK-001–011), Reminders (REM-001–009), working with Items (ITM-001–007)
@@ -21,9 +21,31 @@ Branch `claude/kind-dijkstra-1kv0xt` · 2026-10-10
   progress; the data model marks a Note's colour as an open question
   (colour means Module).
 
+- Joe's answers (10 October), and every document they touch:
+  - Capture from outside the app (CAP-005–008, an Android widget) deferred
+    to a new Stage 10, after every other stage: ADR-0027 and 0028 amended;
+    roadmap, capability map, overview, integration setup, data model and
+    non-functional updated.
+  - Capture opens over any page and leaves you where you were; on a phone,
+    from a button in the top bar (patterns and components).
+  - Specs rewritten without implementation detail. Items open on their own
+    page or in a popup; one Recently deleted page; no Recent; marks per Type
+    (Notes pinned, Tasks starred, Recipes favourited); Labels on Notes and
+    Tasks only, filtering Notes rather than heading them (ADR-0014
+    amended); Notes have no *idea* status (ADR-0037 amended); steps became
+    sub-tasks; Reminders go to every registered device.
+  - Colour by Type, with no Module name above page titles: ADR-0043, and
+    ADR-0041 amended. The design-language, glossary, data model and
+    `CLAUDE.md` state the new rule; tokens, components and patterns carry a
+    note until the colours are designed (plan step 3).
+  - The data model's Types table gains each Type's colour, Labels and mark;
+    `core.stars` and `core.recent` became `core.marks`; `task_steps` became
+    `subtasks`.
+
 **Left for later**
-- Joe agrees the specs and answers the plan's questions; then the ADRs of
-  plan step 2, and the build.
+- Joe agrees the specs; then the ADRs of plan step 2, the design step, and
+  the build. The ontology package drops a Note's *idea* status and gains
+  colours, Labels and marks with the Stage 2 schema (plan step 4).
 
 ## [#2](https://github.com/joestables/lifeos/pull/2) — Phone menu button; Supabase URL settings
 

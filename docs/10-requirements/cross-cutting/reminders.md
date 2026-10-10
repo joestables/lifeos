@@ -14,6 +14,9 @@ first; the requirements, drafted at the start of Stage 2, are at the end.*
   [data model](../../20-architecture/data-model.md#time-fields-per-schedulable-type).
 - **Delivery** records what was sent, when (`core.reminder_deliveries`), to
   each person's push devices (`core.push_devices`: Web Push, later FCM).
+- **Every Reminder goes to all of a person's devices** that have
+  notifications on. There is no choosing a device per Reminder (Joe: it is
+  always his phone, the installed app).
 - **iOS shows no notification buttons.** Web Push works on iOS 16.4+ only
   from the Home Screen app, and its notifications have no actions
   (re-checked 10 October 2026), so on the iPhone a notification opens the
@@ -24,10 +27,8 @@ first; the requirements, drafted at the start of Stage 2, are at the end.*
 
 ## Requirements
 
-*Stage 2. Statuses: proposed → agreed → built → verified. Delivery is proved
-by database tests (`fires_at`, what is due, what was sent) and by tests of
-the delivery function against a stand-in push service; a real notification
-on each platform is checked by hand.*
+*Stage 2. Statuses: proposed → agreed → built → verified. A real
+notification on each platform is checked by hand.*
 
 ### REM-001 — Turn on notifications for a device
 
@@ -36,14 +37,14 @@ I use, **so that** Reminders reach me wherever I am.
 Priority: Must · Status: proposed
 
 Acceptance criteria
-1. Given none of my devices has notifications on, then Inbox shows an Alert
-   offering to turn them on.
+1. Given none of my devices has notifications on, then Inbox offers to turn
+   them on.
 2. Given Settings, when I turn notifications on for this device and allow
-   them, then this device is added to my push devices; turning them off
-   removes it.
-3. Given an iPhone browser that isn't the Home Screen app, then Settings
-   says to add LifeOS to the Home Screen first, instead of offering the
-   switch.
+   them, then this device receives my Reminders from then on; turning them
+   off stops it. Settings lists my devices, and I can remove one.
+3. Given an iPhone browser that isn't the installed app, then I'm told to
+   add LifeOS to the Home Screen first, as iOS allows notifications only
+   there.
 
 ### REM-002 — A Task reminds me on its do-on date
 
@@ -84,13 +85,13 @@ Acceptance criteria
 1. Given a Reminder at 09:00, then a notification with the Item's title (and
    its do-on time or due date) reaches each of my devices with
    notifications on within a minute of 09:00.
-2. Given the job runs twice, or is retried, then each device gets the
-   notification once, and the delivery is recorded once (database test).
-3. Given the job couldn't run at 09:00, then the Reminder is sent when it
-   next runs, up to 12 hours late; after that it is recorded as missed and
-   not sent.
-4. Given a device's push subscription has expired, then it is removed from
-   my push devices and the failure is reported to `ops.events`.
+2. Given anything is retried on the way, then each device gets the
+   notification once.
+3. Given LifeOS couldn't send it at 09:00, then it is sent as soon as it can
+   be, up to 12 hours late; after that it is recorded as missed and not
+   sent.
+4. Given a device can no longer receive notifications, then it stops being
+   sent them, and the failure is recorded where Claude can find it.
 5. Given the Task is done, or the Item archived, before 09:00, then nothing
    is sent.
 
@@ -116,7 +117,7 @@ Priority: Must · Status: proposed
 
 Acceptance criteria
 1. Given a notification, when I tap it, then LifeOS opens on that Item's
-   details, signed in, on any platform.
+   own page or popup (ITM-001), signed in, on any platform.
 
 ### REM-007 — Reminder defaults in Settings
 
@@ -158,7 +159,7 @@ Acceptance criteria
    instead, and no separate nudge is sent.
 3. Given a Task stays overdue, then it is nudged only once.
 
-Non-goals (Stage 2): alarm-grade and location Reminders (Stage 7 and later);
-notification buttons on iOS, which it doesn't offer; email or SMS
-reminders; Reminders on shared Items for other people (Stage 4); quiet
-hours.
+Non-goals (Stage 2): choosing which device a Reminder goes to;
+alarm-grade and location Reminders (Stage 7 and later); notification
+buttons on iOS, which it doesn't offer; email or SMS reminders; Reminders on
+shared Items for other people (Stage 4); quiet hours.

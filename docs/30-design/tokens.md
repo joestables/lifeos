@@ -53,6 +53,12 @@ Never replaced by a Module colour.
 
 ## Colour: Modules
 
+> **Changing:** colour moves from one per Module to one per Type
+> ([ADR-0043](../20-architecture/adr/0043-colour-by-type.md)), and the page
+> kicker goes. The colours are designed with Joe in Stage 2
+> ([plan](../50-progress/plans/stage-2.md), step 3); then this table and the
+> code change together. Until then it describes the code as it is.
+
 One colour per Module. The core has none.
 
 | Token | Module | Light | Dark | Pages and Types |
@@ -97,7 +103,7 @@ keyboard shortcuts and code. Numbers that line up use tabular figures.
 | `text-base` | 14px / 1.45 | 400; 600 for titles | 0 | Body, row titles, buttons |
 | `text-sm` | 13px | 400–700 | 0 | Meta, small buttons, section labels (700) |
 | `text-xs` | 12px | 400–700 | 0 | Badges, counts, help text, captions |
-| `text-kicker` | 12px | 700 | 0.07em, uppercase | The line above a page title |
+| `text-kicker` | 12px | 700 | 0.07em, uppercase | The line above a page title (going: [ADR-0043](../20-architecture/adr/0043-colour-by-type.md)) |
 | `text-kbd` | 10.5px Geist Mono | 500 | 0 | Keyboard shortcuts |
 
 ## Spacing

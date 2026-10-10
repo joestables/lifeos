@@ -13,14 +13,13 @@ Owner: **core**, a **Module** (`lists`, `food`, `fitness`, `goals`,
 | Sign up and sign in with Google; a Personal Space for everyone | core | — | 1 | [spaces-and-sharing](cross-cutting/spaces-and-sharing.md) |
 | Design system: tokens and shared components | core | — | 1 | [design system](../30-design/README.md) |
 | Navigation drawer | core | — | 1 | [ADR-0026](../20-architecture/adr/0026-navigation-drawer.md) |
-| Quick capture (Thought by default, one-tap Task) | core | Capture Screen | 2 | [capture](cross-cutting/capture.md) |
-| Capture address; Siri, email, Android share | core | Settings (token) | 2 | [capture](cross-cutting/capture.md) |
-| Notes: Labels as headings, pin, simple formatting | core | Notes | 2 | [notes](views/notes.md) |
-| Tasks: Labels, do-on and due, steps checklist, Someday, repeating | core | Tasks | 2 | [tasks](views/tasks.md) |
+| Quick capture in the app (Thought by default, one-tap Task) | core | Capture Screen | 2 | [capture](cross-cutting/capture.md) |
+| Notes: Labels to filter, pin, simple formatting | core | Notes | 2 | [notes](views/notes.md) |
+| Tasks: Labels, do-on and due, star, sub-tasks, Someday, repeating | core | Tasks | 2 | [tasks](views/tasks.md) |
 | Inbox, including sorting Thoughts into other Types | core | Inbox | 2 | [inbox](views/inbox.md) |
 | Reminders by Web Push; Done/Snooze actions, overdue nudges, morning digest | core | — | 2 | [reminders](cross-cutting/reminders.md) |
-| An Item's details; delete and recover; convert; Labels | core | Item Sheet, Settings | 2 | [items](cross-cutting/items.md) |
-| Starred and Recent | core | Search Screen, Tasks | 2 | [items](cross-cutting/items.md) |
+| Opening an Item; delete and recover; convert; Labels on Notes and Tasks | core | Each page; Settings | 2 | [items](cross-cutting/items.md) |
+| Colour by Type; the app icon | core | — | 2 | [ADR-0043](../20-architecture/adr/0043-colour-by-type.md), [design system](../30-design/README.md) |
 | Search (full-text) | core | Search Screen | 2 | [search](cross-cutting/search.md) |
 | Offline writes (data layer and write queue) | core | — | 1 | [offline](cross-cutting/offline.md) |
 | Activity log: changes to items and links | core | — | 1 | [ADR-0030](../20-architecture/adr/0030-activity-log-by-triggers.md) |
@@ -39,6 +38,7 @@ Owner: **core**, a **Module** (`lists`, `food`, `fitness`, `goals`,
 | Health Connect | Integration | — | 7–8 | [integrations](cross-cutting/integrations.md) |
 | Cardio, with Oura and Health Connect | `fitness`, Integration | Cardio | 8 | — |
 | Finance | `finance` | Finance | 9 | — |
+| Capture from outside the app: capture address, Siri, email, Android shortcut, share and widget | core | Settings (address) | 10 | [capture](cross-cutting/capture.md#deferred-to-stage-10) |
 | Export of everything you can see, as JSON | core | — | — | — |
 | LifeOS MCP server | core | — | Later | — |
-| Settings: notifications, Reminder defaults, default time, digest time, capture address, Labels, recovering deleted Items (Stage 2); reference data (with its Module) | core | Settings Screen | 2 | [reminders](cross-cutting/reminders.md), [capture](cross-cutting/capture.md), [items](cross-cutting/items.md) |
+| Settings: notifications and devices, Reminder defaults, default time, digest time, Labels, Recently deleted (Stage 2); reference data (with its Module); the capture address (Stage 10) | core | Settings Screen | 2 | [reminders](cross-cutting/reminders.md), [items](cross-cutting/items.md) |

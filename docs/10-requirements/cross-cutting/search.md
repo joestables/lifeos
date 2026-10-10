@@ -13,8 +13,9 @@ Stage 2, are at the end.*
   Provisionally agreed).
 - Each Module declares its search contribution
   ([contracts](../../20-architecture/contracts.md#moduledefinition)).
-- The Screen is built on shadcn's **Command**, designed into
-  [components](../../30-design/components.md) first.
+- Search is **neutral**: it mixes Types, so each result shows its Type's
+  colour ([ADR-0043](../../20-architecture/adr/0043-colour-by-type.md),
+  Provisionally agreed).
 
 ## Requirements
 
@@ -27,34 +28,24 @@ never hunt through pages.
 Priority: Must · Status: proposed
 
 Acceptance criteria
-1. Given the search button in the drawer header, or `/` on a computer, then
-   the Search Screen opens with the cursor in the box.
-2. Given I type "insur", then Items I can read whose title, body or Labels
-   contain words starting "insur" are listed as I type, best match first,
-   each with its Type.
+1. Given any page, then Search opens from the navigation, or with one key
+   on a computer, ready to type.
+2. Given I type "insur", then the Items I can read whose title, body or
+   Labels have a word starting "insur" are listed as I type, best match
+   first, each showing its Type.
 3. Given a deleted Item, then it isn't found.
-4. Given I choose a result, then the Item opens (ITM-001).
+4. Given I choose a result, then the Item opens
+   ([ITM-001](items.md#itm-001--open-an-item)).
 
-### SRC-002 — Starred and Recent before I type
-
-**As** Joe, **I want** the Search Screen to show my starred and recent Items
-before I type, **so that** the common jumps need no typing.
-Priority: Should · Status: proposed
-
-Acceptance criteria
-1. Given the Search Screen is open and empty, then it shows Starred, then
-   Recent ([ITM-006, ITM-007](items.md#requirements)).
-
-### SRC-003 — Search what's on the device when offline
+### SRC-002 — Search what's on the device when offline
 
 **As** Joe with no signal, **I want** to find Items I've already loaded,
 **so that** search still helps offline.
 Priority: Could · Status: proposed
 
 Acceptance criteria
-1. Given I have no connection, when I search, then titles of the Items held
-   on the device are searched, and the Screen says the results may be
-   incomplete.
+1. Given I have no connection, when I search, then the Items held on the
+   device are searched, and I'm told the results may be incomplete.
 
-Non-goals (Stage 2): "find things like this" (pgvector, later); searching
-inside attachments; filters by Type or date.
+Non-goals (Stage 2): "find things like this" (pgvector, later); Recent
+Items; searching inside attachments; filters by Type or date.

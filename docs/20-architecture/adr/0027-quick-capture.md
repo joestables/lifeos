@@ -2,7 +2,7 @@
 
 **Status:** Provisionally agreed · 2026-10-09
 
-**Amended:** 2026-10-09 by [ADR-0037](0037-thoughts.md) (Thoughts).
+**Amended:** 2026-10-09 by [ADR-0037](0037-thoughts.md) (Thoughts); 2026-10-10 by Joe, writing the Stage 2 specs (capture opens over any screen; Android's shortcut and share move to [ADR-0028](0028-capture-from-outside-the-app.md)).
 
 ## Context
 
@@ -11,8 +11,11 @@ setting a phone alarm (goal 2).
 
 ## Decision
 
-Quick capture is a Screen, available everywhere: a shortcut, a button, a
-home-screen shortcut and share-to-LifeOS (both Android only).
+Quick capture is a Screen that opens over whatever you are doing, from any
+page, with one tap or one key; saving it leaves you exactly where you were.
+On a phone its button is in the top bar. Android's home-screen shortcut and
+share-to-LifeOS come with capture from outside the app
+([ADR-0028](0028-capture-from-outside-the-app.md)), built last.
 
 - **Capture makes a Thought by default**, which lands in Inbox — capture
   quickly, sort later.

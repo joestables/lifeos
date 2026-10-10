@@ -9,7 +9,7 @@ starts by writing the specs it needs, and no earlier.*
 |---|---|---|
 | 0 | Requirements and architecture | Agreed decisions (ADRs), data model and architecture — enough to start Stage 1 |
 | 1 | **Starts with its specs:** sign-in and Spaces, offline writes. Then foundation: pause v1; **new Supabase project** (London); repo; core schema and Spaces; auth; navigation drawer; **the design system** (shadcn themed with LifeOS tokens, and the shared components the first screens need); data layer and write queue; the activity log (items and links); **the ontology package** (constants and the lookup migration); **CI with database tests**; the `can_read` benchmark; `ops.events` and the nightly health check | A solid base, built only as far as Stage 2 needs |
-| 2 | **Starts with its specs:** capture, Thoughts and Inbox, Notes, Tasks (with repeats), Reminders. Then: capture (Thought by default) and **the capture address**; sorting Thoughts in Inbox; Notes with Labels; Tasks with Labels and **repeating Tasks**; Inbox; Reminders by Web Push with Done/Snooze actions (Android and desktop), overdue nudges and the morning digest; Starred and Recent; Playwright walks in CI, then the nightly smoke walk. Until Stage 3, an event-shaped line is saved as a Thought or a Task. | **Replaces Google Tasks — start using it daily** |
+| 2 | **Starts with its specs:** capture, Thoughts and Inbox, Notes, Tasks (with repeats), Reminders. Then: the colours by Type and the app icon, designed with Joe; capture in the app (Thought by default); sorting Thoughts in Inbox; Notes with Labels and pins; Tasks with Labels, stars, sub-tasks and **repeating Tasks**; Inbox; Reminders by Web Push with Done/Snooze actions (Android and desktop), overdue nudges and the morning digest; Search; Playwright walks in CI, then the nightly smoke walk. Until Stage 3, an event-shaped line is saved as a Thought or a Task. | **Replaces Google Tasks — start using it daily** |
 | 3 | Plan, Events (and repeating Events), Google Calendar; then Lists, Shops and list templates, with live updates | The one planning view |
 | 4 | Recipes, Variations and ideas, cook log, meal planning, ingredients to shopping lists; the shared AI service and food preferences; Contacts and Households, with sharing on | Shared with girlfriend |
 | 5 | Gym (with v1's recovery model and snapshots), then Goals and the measures registry | The joined-up payoff |
@@ -17,6 +17,7 @@ starts by writing the specs it needs, and no earlier.*
 | 7 | Android wrapper: exact-alarm Reminders, then Health Connect | Phone alarms can go |
 | 8 | Cardio with Oura and Health Connect | |
 | 9 | Finance | |
+| 10 | Capture from outside the app: the capture address, iOS Shortcuts and Siri, email, Android's home-screen shortcut and share target, an Android widget for typing a Thought ([ADR-0028](20-architecture/adr/0028-capture-from-outside-the-app.md)) | Capture without opening LifeOS |
 
 Between pausing v1 (Stage 1) and Stages 4–6, Recipes, Gym and Wardrobe are
 unavailable. Agreed: v1 is being wiped
@@ -40,7 +41,7 @@ agrees before anything is built.
 | Question | Settled in |
 |---|---|
 | Leaving the Household: does "created by" decide ownership, or does the leaver take a copy? ([ADR-0016](20-architecture/adr/0016-sharing-and-visibility.md)) | To confirm |
-| The inbound-email service for the capture address: Cloudflare Email Routing or Postmark ([Stage 2 plan](50-progress/plans/stage-2.md#questions-for-joe-step-1)) | Stage 2 |
+| The inbound-email service for the capture address: Cloudflare Email Routing or Postmark ([integration setup](40-operations/integration-setup.md#capture-address-email-after-stage-9)) | Stage 10 |
 | On a repeating Shop, do unticked lines carry over to the next occurrence? | Lists spec (Stage 3) |
 | Unit conversion (100 g + 1 cup); whether a pantry is wanted | Recipes spec (Stage 4) |
 | Which v1 AI features return (Explore, Labs, dish images, recipe import) | Stage 4 |
@@ -53,7 +54,7 @@ agrees before anything is built.
 |---|---|
 | shadcn's default (Base UI or Radix) for new projects | Before starting |
 | iOS Web Push notification buttons | Done 10 October 2026: still none ([reminders](10-requirements/cross-cutting/reminders.md#decisions)) |
-| Whether Gemini offers a route to the capture address | Done 10 October 2026: none ([capture](10-requirements/cross-cutting/capture.md#where-capture-comes-from)) |
+| Whether Gemini offers a route to the capture address | Done 10 October 2026: none ([capture](10-requirements/cross-cutting/capture.md#where-capture-comes-from)); again before Stage 10 |
 | Oura API access | Before Stage 8 |
 | Open Banking aggregators' personal-use availability | Before Stage 9 |
 

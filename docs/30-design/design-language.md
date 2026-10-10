@@ -31,15 +31,23 @@ agreed)*
   near-white in dark.
 - **A faint hairline edge** on cards, list rows and the drawer, so surfaces
   stay crisp in dark mode.
-- **Colour means one thing: which Module an Item belongs to.** Food
-  terracotta, Fitness blue, Lists amber, Goals violet, Wardrobe rose, Finance
-  green. The core — Inbox, Plan, Tasks, Notes, and Thought, Note, Task,
-  Event — stays neutral and is told apart by icons.
-- **On a Module's own pages its colour leads:** it becomes shadcn's primary
-  and ring there, so the main button, selected tab, checkboxes, progress and
-  focus take it. Elsewhere the primary is ink.
+- **Colour means one thing: what Type an Item is**
+  ([ADR-0043](../20-architecture/adr/0043-colour-by-type.md), Provisionally
+  agreed). Related Types share a colour: Tasks and Events blue; Thoughts,
+  Notes, Lists and Shops yellow; Gym and Cardio coral; Recipes green;
+  Wardrobe orange; Goals purple.
+- **A page takes the colour of the Types it is about:** it becomes shadcn's
+  primary and ring there, so the main button, selected tab, checkboxes,
+  progress and focus take it. Pages that mix Types — Inbox, Plan, Search,
+  Settings — are neutral, with an ink primary, and each Item on them shows
+  its own colour.
+- **No Module name above the page title:** the title and the colour say
+  where you are.
 - **Red and green keep their usual meaning** — overdue, delete, error; saved,
-  done — whichever Module you're in.
+  done — on every page, and never by colour alone: a state always has a word
+  or an icon too.
+- The exact colours are designed in Stage 2; until then the
+  [tokens](tokens.md) still give one colour per Module, with the core grey.
 
 ## Other decisions
 

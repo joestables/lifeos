@@ -26,7 +26,7 @@ are written then.*
 - **Default Space per Type** ([data model](../../20-architecture/data-model.md#types)).
   Gym sessions, Thoughts and Notes are always Personal. A Variation always
   has its Recipe's Space.
-- **Per person on shared Items:** Reminders, snooze, stars, recent, Inbox
+- **Per person on shared Items:** Reminders, snooze, marks (a starred Task, a favourited Recipe), Inbox
   dismiss / snooze.
 
 ## Open

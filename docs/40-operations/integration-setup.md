@@ -48,10 +48,13 @@ New VAPID keys for v2.
 - Connecting Calendar is a separate OAuth flow run by an Edge Function;
   tokens are kept server-side in Vault.
 
-## Capture address email (Stage 2)
+## Capture address email (after Stage 9)
 
-An inbound-email service in front of the capture address (Cloudflare Email
-Routing, Postmark or Mailgun inbound), chosen in Stage 2.
+An inbound-email service in front of the capture address, chosen when
+capture from outside the app is built
+([ADR-0028](../20-architecture/adr/0028-capture-from-outside-the-app.md)):
+Cloudflare Email Routing with an Email Worker (free; needs the domain's DNS
+on Cloudflare) or Postmark's inbound webhook.
 
 ## Oura (Stage 8)
 

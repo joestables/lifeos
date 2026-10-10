@@ -5,29 +5,33 @@ Stage 2, are at the end. Lists join this page in Stage 3.*
 
 **In one line:** Notes, **Lists and Ideas** together
 ([ADR-0026](../../20-architecture/adr/0026-navigation-drawer.md),
-Provisionally agreed).
+Provisionally agreed) — in Stage 2, Notes, like Google Keep.
 
 ## Decisions
 
-- **A Note is a note:** kept, labelled and shown here. Thoughts wait in
-  Inbox, not here ([ADR-0037](../../20-architecture/adr/0037-thoughts.md),
-  Provisionally agreed).
+- **A Note is just a note**, like one in Google Keep: a title and a body,
+  kept here. It has no *idea* status. Thoughts wait in Inbox, not here
+  ([ADR-0037](../../20-architecture/adr/0037-thoughts.md), Provisionally
+  agreed).
 - **Notes are Personal only**; something to share becomes a Shareable Type,
   such as a List.
-- **Labels are the headings**, like Google Keep: a Note appears under each
-  of its Labels, unlabelled ones under "Other"
+- **Labels filter the page**, as in Google Keep; a Note's own title is its
+  heading. Notes and Tasks share one set of Labels
   ([ADR-0014](../../20-architecture/adr/0014-reference-data-and-labels.md),
   Provisionally agreed).
-- **A Note can be an idea** (its *idea* status) and can be converted into any
-  other Capturable Type.
+- **Notes are pinned**, not starred: pinning is the Note's mark, kept at the
+  top of the page.
+- **Notes are yellow**, with Thoughts, Lists and Shops; the page takes that
+  colour, and a Note has no colour of its own
+  ([ADR-0043](../../20-architecture/adr/0043-colour-by-type.md),
+  Provisionally agreed).
+- A Note can be converted into any other Capturable Type.
 
 ## What the page shows (Stage 2)
 
-"New note" is the page's primary action. Below it: **Pinned** first, then one
-group per Label that has Notes (alphabetical), then **Other**. Each Note is a
-Card with its title and its first few lines; a grid on a computer, one column
-on a phone. A pinned Note shows only under Pinned. Tabs: **All** and
-**Ideas** (Notes in the *idea* status; NTE-005).
+My Notes, pinned ones first, then the rest with the most recently changed
+first; each shows its title and the start of its body. "New note" is the
+page's main action. I can narrow the page to one Label.
 
 ## Requirements
 
@@ -40,24 +44,26 @@ I want to keep has a home.
 Priority: Must · Status: proposed
 
 Acceptance criteria
-1. Given the Notes View, when I choose "New note" and type a title and a
-   body, then the Note is saved as I type, with no Save button, offline too.
+1. Given the Notes View, when I start a new Note and type a title and a body,
+   then it is kept as I type, with nothing to save, offline too.
 2. Given a Note, when I open it again, then I see what I wrote and can
    change it.
 3. Given a Note with no title, then its first line stands in for one.
+4. Given I change a Note, then it moves to the top of the unpinned Notes.
 
-### NTE-002 — Labels as headings
+### NTE-002 — Labels on Notes
 
-**As** Joe, **I want** Notes grouped under their Labels, **so that** I can
-browse them like Google Keep.
+**As** Joe, **I want** to label Notes and see one Label's Notes at a time,
+**so that** I can find a Note among many.
 Priority: Must · Status: proposed
 
 Acceptance criteria
-1. Given Notes labelled Home and Recipes and one with no Label, then the
-   page shows "Home", "Recipes" and "Other", each with its Notes.
-2. Given a Note labelled both Home and Recipes, then it appears under both.
-3. Given a Note, when I add a Label that doesn't exist yet, then it is
-   created and the Note appears under it.
+1. Given a Note, when I give it a Label, then I can pick one I already have
+   or make a new one; a Note can have several.
+2. Given Notes labelled Home and Recipes, when I choose Home, then only Notes
+   labelled Home show, until I clear it.
+3. Given the Labels I use on Tasks, then the same Labels are offered on
+   Notes ([ITM-005](../cross-cutting/items.md#itm-005--labels-on-notes-and-tasks)).
 
 ### NTE-003 — Pin a Note
 
@@ -66,32 +72,23 @@ the top.
 Priority: Should · Status: proposed
 
 Acceptance criteria
-1. Given I pin a Note, then it moves to Pinned, above every Label, and only
-   there; unpinning puts it back under its Labels.
+1. Given I pin a Note, then it shows above every unpinned Note, also when
+   the page is narrowed to a Label it has; unpinning puts it back among the
+   rest.
 
 ### NTE-004 — Simple formatting
 
-**As** Joe, **I want** lists, checklists and emphasis in a Note, **so that**
-a note can be more than a paragraph.
+**As** Joe, **I want** lists, checklists, bold, italic and links in a Note,
+**so that** a note can be more than a paragraph.
 Priority: Should · Status: proposed
 
 Acceptance criteria
-1. Given I type `- ` or `1. ` at the start of a line, `[ ] `, `**bold**`,
-   `*italic*` or a web address, then the Note shows a list, a checklist, bold,
-   italic or a link when I'm not editing it.
-2. Given a checklist in a Note I'm reading, when I tick a line, then the
-   Note is saved with it ticked.
+1. Given I am writing a Note, then I can make a bulleted or numbered list,
+   a checklist, bold or italic text and a link without leaving the keyboard,
+   and the Note shows them formatted.
+2. Given a checklist in a Note, when I tick a line, then the Note keeps it
+   ticked.
 
-### NTE-005 — Notes as ideas
-
-**As** Joe, **I want** to keep a Note as an idea, **so that** ideas are
-together and apart from settled notes.
-Priority: Could · Status: proposed
-
-Acceptance criteria
-1. Given a Note marked as an idea, then it appears on the Ideas tab as well
-   as under its Labels.
-
-Non-goals (Stage 2): Note colour (colour means Module —
-[question 2](../../50-progress/plans/stage-2.md#questions-for-joe-step-1));
-images and attachments; a formatting toolbar; sharing a Note; Lists (Stage 3).
+Non-goals (Stage 2): a colour per Note; an *idea* state; images and
+attachments; sharing a Note; Lists (Stage 3); other Types' ideas on this
+page, decided when those Types arrive.

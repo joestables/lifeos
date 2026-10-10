@@ -55,11 +55,17 @@ A component not listed here is added to this page before it is used.
 
 ## LifeOS components
 
+> **Changing:** colour moves from one per Module to one per Type
+> ([ADR-0043](../20-architecture/adr/0043-colour-by-type.md)), and the page
+> kicker goes. The colours are designed with Joe in Stage 2
+> ([plan](../50-progress/plans/stage-2.md), step 3); then this table and the
+> code change together. Until then it describes the code as it is.
+
 Built once from the components above, in `@/components/lifeos`.
 
 | Component | What it is | Rules |
 |---|---|---|
-| **AppShell** | The drawer (Sidebar) and the page area: a 252px column and the rest; the page scrolls with the window. On a phone, a top bar with the menu button and the brand, and the drawer becomes a left Sheet. | Every page sits in one. |
+| **AppShell** | The drawer (Sidebar) and the page area: a 252px column and the rest; the page scrolls with the window. On a phone, a top bar with the menu button and the brand (and, from Stage 2, a Capture button on the right), and the drawer becomes a left Sheet. | Every page sits in one. |
 | **PageHeader** | Optional kicker (12px, uppercase, Module colour on a Module page, muted on a core page), the title (`text-h1`), and actions on the right (`sm` buttons). | One per page. At most one primary action. |
 | **ModuleScope** | Wraps a Module's page or part of one (`data-module`). Sets `--mc` to the Module colour, and `--primary`, `--ring`, `--selected` and `--pressed-foreground` to it ([tokens](tokens.md#colour-modules)). The drawer sits outside it, so stays ink. | Module pages only — never core pages. |
 | **ModuleTile** | 32px (or 24px) rounded square with the Type's icon: Module colour on its tint; core Types grey on `--muted`. | The first thing in a row that shows an Item. |

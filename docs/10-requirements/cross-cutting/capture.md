@@ -1,13 +1,15 @@
 # Capture
 
-*Stage 2. The decisions come first; the requirements, drafted at the start of
-Stage 2, are at the end.*
+*Stage 2: capture in the app. Capture from outside the app comes after every
+other stage (Stage 10). The decisions come first; the requirements, drafted
+at the start of Stage 2, are at the end.*
 
 ## Decisions
 
-- **Quick capture** is a Screen available everywhere; it makes a Thought, which
-  lands in Inbox, with a one-tap switch to Task (and Event from Stage 3); a
-  deterministic parser offers, never forces, a Task when it spots a date
+- **Quick capture** opens over whatever you are doing, from any page; it
+  makes a Thought, which lands in Inbox, with a one-tap switch to Task (and
+  Event from Stage 3); a deterministic parser offers, never forces, a Task
+  when it spots a date
   ([ADR-0027](../../20-architecture/adr/0027-quick-capture.md), Provisionally agreed).
 - **A Thought whose text contains a date gets a Reminder** for that date
   ([ADR-0023](../../20-architecture/adr/0023-reminders.md), Provisionally agreed).
@@ -17,33 +19,31 @@ Stage 2, are at the end.*
   Capturable Type, or delete it (archive, with undo)
   ([ADR-0037](../../20-architecture/adr/0037-thoughts.md), Provisionally
   agreed).
-- **Capture from outside the app** through a personal capture address
+- **Capture from outside the app** through a personal capture address, built
+  last, after every other stage
   ([ADR-0028](../../20-architecture/adr/0028-capture-from-outside-the-app.md),
   Provisionally agreed).
 - Until Stage 3, an event-shaped line is saved as a Thought or a Task.
 
 ## Where capture comes from
 
-- **In the app:** a shortcut, a button; a home-screen shortcut and
-  share-to-LifeOS (both Android only).
-- **The capture address:**
-  - **iOS Shortcuts and Siri** — "Hey Siri, LifeOS: buy oat milk". This also
-    covers the iPhone, which has no share target.
-  - **Android:** an HTTP-shortcut app or the PWA's own home-screen shortcut;
-    a widget later with the wrapper. Google Assistant can't post to a custom
-    address since Conversational Actions closed in 2023, and Gemini offers
-    no route either (re-checked 10 October 2026: the Gemini app is separate
-    from the Gemini API and can't call a web address).
+- **In the app (Stage 2):** a button on every page (on a phone, in the top
+  bar) and a key on a computer.
+- **From outside the app (Stage 10)** — see [deferred](#deferred-to-stage-10):
+  - **The capture address**, which anything that can make a web request can
+    post to: **iOS Shortcuts and Siri** ("Hey Siri, LifeOS: buy oat milk"),
+    which also covers the iPhone's lack of a share target; **Android**
+    HTTP-shortcut apps. Google Assistant can't post to a custom address since
+    Conversational Actions closed in 2023, and Gemini offers no route either
+    (re-checked 10 October 2026: the Gemini app is separate from the Gemini
+    API and can't call a web address).
   - **Email** — a forwarding address, so an email or booking confirmation
-    becomes a Thought with the email attached. An Edge Function can't receive
-    mail, so this needs an **inbound-email service** in front, chosen in
-    Stage 2 ([plan](../../50-progress/plans/stage-2.md#questions-for-joe-step-1)):
-    Cloudflare Email Routing with an Email Worker (free; needs the domain's
-    DNS on Cloudflare) or Postmark's inbound webhook.
-  - Anything else that can make a web request (a browser bookmarklet for
-    "save this page as a recipe idea").
+    becomes a Thought. This needs an inbound-email service in front, chosen
+    then ([integration setup](../../40-operations/integration-setup.md#capture-address-email-after-stage-9)).
+  - **Android:** the installed app's home-screen shortcut and share target,
+    and a widget for typing a Thought once the Android wrapper exists
+    (Stage 7).
 - Capture's "buy oat milk" matches an Ingredient if one exists (Stage 4).
-
 
 ## Requirements
 
@@ -68,20 +68,22 @@ Acceptance criteria
 4. Given I have no signal, when I save, then the Item appears immediately and
    is sent when the connection returns.
 
-### CAP-002 — Capture is one key or one tap away
+### CAP-002 — Capture from any page without losing my place
 
-**As** Joe, **I want** capture within reach on every page, **so that**
-nothing is quicker than opening LifeOS and typing.
+**As** Joe, **I want** capture one tap or one key away on every page, and to
+come back to exactly what I was doing, **so that** capturing never
+interrupts me.
 Priority: Must · Status: proposed
 
 Acceptance criteria
-1. Given I am on any page on a computer, when I press `N`, then capture opens
-   with the cursor in the box; `Enter` saves and closes, `Esc` closes without
-   saving.
-2. Given I am on any page on a phone, then a capture button is in reach of
-   my thumb, and tapping it opens capture with the keyboard up.
-3. Given I save, then a toast says what was made ("Thought saved", "Task
-   saved · Fri") with Undo, and Undo archives it.
+1. Given I am on any page, on a phone or a computer, then capture opens with
+   one tap (or one key on a computer), ready to type.
+2. Given I was part-way through something (scrolled down a list, an Item
+   open), when I save or close capture, then I am back exactly where I was,
+   with nothing on the page changed except for the new Item where it
+   belongs.
+3. Given I save, then I'm told what was made ("Thought saved", "Task saved ·
+   Fri") and can undo it.
 
 ### CAP-003 — Dates and times are understood, the same way everywhere
 
@@ -89,10 +91,9 @@ Acceptance criteria
 open a date picker for the common cases.
 Priority: Must · Status: proposed
 
-The parser is deterministic and runs on the device (no signal, no LLM);
-the capture address and the Tasks View use the same one.
+Capture and adding a Task understand dates the same way, with no signal.
 
-Acceptance criteria (unit tests)
+Acceptance criteria
 1. Given "renew insurance fri", then do-on is the coming Friday (today, if it
    is Friday). "today", "tomorrow", "tmrw", weekday names, "next week" (next
    Monday), "in 3 days", "12 oct" and "12/10" (day first) are understood.
@@ -115,67 +116,30 @@ Acceptance criteria (unit tests)
 Priority: Should · Status: proposed
 
 Acceptance criteria
-1. Given I save "dentist tue 3pm?" as a Thought, then it has a fixed Reminder
-   for Tuesday at 15:00; with a date but no time, at my default time.
+1. Given I save "dentist tue 3pm?" as a Thought, then it has a Reminder for
+   Tuesday at 15:00; with a date but no time, at my default time.
 2. Given I then convert it into a Task, then the Reminder stays
    ([ADR-0037](../../20-architecture/adr/0037-thoughts.md)).
 
-### CAP-005 — The capture address
+Non-goals (Stage 2): repeats typed in words ("every monday"); an LLM in
+capture; matching Ingredients (Stage 4); Events (Stage 3); everything in
+[deferred](#deferred-to-stage-10).
 
-**As** Joe, **I want** a private web address that captures a line, **so
-that** Siri, shortcuts and other apps can capture without opening LifeOS.
-Priority: Must · Status: proposed
+## Deferred to Stage 10
 
-Acceptance criteria
-1. Given Settings, when I create my capture address, then I see it once, can
-   copy it, and LifeOS keeps only a hash of its secret.
-2. Given the address, when anything posts "buy oat milk" to it, then a
-   Thought is created in my Personal Space; "task renew insurance fri" makes
-   a Task with the same parsing and Reminder as in the app.
-3. Given I revoke the address in Settings, then posts to it are refused and
-   create nothing; I can make a new one.
-4. Given more than 30 posts in a minute, then the rest are refused; every
-   post is logged without its text.
-5. Given any post, then nothing in it is run or followed, it can read
-   nothing back, and it can't write outside my Personal Space (database
-   test).
+Joe's decision (10 October 2026): capture from outside the app is built after
+every other stage. These are kept as candidate requirements, not agreed, and
+are written in full then:
 
-### CAP-006 — Capture by voice on the iPhone
-
-**As** Joe, **I want** to say "Hey Siri, LifeOS" and dictate a line, **so
-that** capture is hands-free.
-Priority: Should · Status: proposed
-
-Acceptance criteria
-1. Given a Shortcut set up as [integration setup](../../40-operations/integration-setup.md)
-   describes, when I say "Hey Siri, LifeOS" and then "buy oat milk", then a
-   Thought "buy oat milk" is in Inbox (checked by hand).
-
-### CAP-007 — Capture by email
-
-**As** Joe, **I want** to forward an email to LifeOS, **so that** a booking
-or a request becomes a Thought without retyping it.
-Priority: Should · Status: proposed
-
-Acceptance criteria
-1. Given my capture email address, when I forward an email to it, then a
-   Thought is created whose title is the subject and whose body is the
-   email's text.
-2. Given the address is revoked, then mail to it creates nothing.
-
-### CAP-008 — Capture from Android's home screen and share sheet
-
-**As** Joe on Android, **I want** a home-screen shortcut to capture and
-LifeOS in the share sheet, **so that** a link or a line from another app
-lands in Inbox.
-Priority: Should · Status: proposed
-
-Acceptance criteria
-1. Given LifeOS is installed, when I long-press its icon and choose Capture,
-   then capture opens.
-2. Given I share a page from another app to LifeOS, then capture opens with
-   its title and link filled in.
-
-Non-goals (Stage 2): natural-language repeats ("every monday") in capture;
-an LLM in the capture path; matching Ingredients (Stage 4); Events (Stage 3);
-attachments from email; a share target on iOS, which has none.
+- **CAP-005 — The capture address:** a private web address, made and
+  revoked in Settings, that creates a Thought (or, with "task", a Task) in
+  its owner's Personal Space, parsed as in the app; rate-limited, logged
+  without its text, and able to read nothing.
+- **CAP-006 — Capture by voice on the iPhone:** "Hey Siri, LifeOS", through
+  a Shortcut that posts to the capture address.
+- **CAP-007 — Capture by email:** forwarding an email makes a Thought from
+  its subject and text.
+- **CAP-008 — Capture from Android's home screen and share sheet:** a
+  shortcut on the app's icon, and LifeOS in the share sheet.
+- **An Android widget** for typing a Thought straight from the home screen,
+  with the Android wrapper.

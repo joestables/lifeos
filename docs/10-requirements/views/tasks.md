@@ -16,10 +16,15 @@ Provisionally agreed). It replaces Google Tasks.
 - **Do-on and due:** do-on (a date, with an optional time) is when you mean to
   do it; due is a deadline, and only due makes a Task overdue
   ([ADR-0021](../../20-architecture/adr/0021-time.md), Provisionally agreed).
-- **Labels group Tasks**, like Google Tasks' lists (Home, Work, Car)
+- **Labels group Tasks**, like Google Tasks' lists (Home, Work, Car). Notes
+  and Tasks share one set of Labels
   ([ADR-0014](../../20-architecture/adr/0014-reference-data-and-labels.md),
-  Provisionally agreed). One set of Labels serves Notes and Tasks.
-- **Steps** are a checklist inside a Task (`task_steps`, child rows).
+  Provisionally agreed).
+- **Tasks are starred**, as in Google Tasks: starring is the Task's mark,
+  private to the person who stars it.
+- **Sub-tasks** are lines ticked inside a Task — a title and a tick, nothing
+  more. They are not Tasks of their own, so they never appear in Inbox or on
+  Plan.
 - **Someday** is a Task's *idea* status.
 - **Repeating Tasks** are generated occurrences: one engine, generated in
   local time, touched occurrences kept, "this and all following" starts a new
@@ -28,22 +33,26 @@ Provisionally agreed). It replaces Google Tasks.
   *skipped* when a newer one comes due
   ([ADR-0022](../../20-architecture/adr/0022-repeating-items.md),
   Provisionally agreed).
+- **Tasks are blue**, with Events; the page takes that colour
+  ([ADR-0043](../../20-architecture/adr/0043-colour-by-type.md),
+  Provisionally agreed).
 - **No Google Tasks import** ([ADR-0028](../../20-architecture/adr/0028-capture-from-outside-the-app.md)).
 
 ## What the page shows (Stage 2)
 
-"Add a task" is the page's primary action. Tabs:
+"Add a task" is the page's main action. The page can show:
 
-| Tab | What it shows |
+| View of the page | What it shows |
 |---|---|
-| **By date** | Open Tasks under Overdue, Today, Tomorrow, each remaining day of this week, Later, and No date |
-| **By label** | One group per Label that has open Tasks (an Accordion), then No label |
+| **By date** (first) | Open Tasks under Overdue, Today, Tomorrow, each remaining day of this week, Later, and No date |
+| **By label** | Open Tasks under each Label that has any, then No label — the nearest thing to Google Tasks' lists |
 | **Starred** | Open Tasks I have starred |
 | **Someday** | Tasks in the *idea* status |
 | **Done** | Done Tasks, the most recently done first |
 
-Each Task is an `ItemRow`: a checkbox, the title, and its meta — do-on (and
-time), due (red once overdue), Labels, steps done ("2/5"), a repeat icon.
+Each Task shows its title and, where it has them: do-on (and time), due
+(marked once overdue), Labels, sub-tasks done ("2/5"), whether it repeats and
+whether it is starred.
 
 ## Requirements
 
@@ -56,11 +65,12 @@ that** it's as quick as Google Tasks.
 Priority: Must · Status: proposed
 
 Acceptance criteria
-1. Given the Tasks View, when I choose "Add a task" and type "renew
-   insurance fri", then a Task "Renew insurance" to do on Friday is created,
-   parsed as capture parses it
+1. Given the Tasks View, when I add "renew insurance fri", then a Task
+   "Renew insurance" to do on Friday is created, its date understood as
+   capture understands it
    ([CAP-003](../cross-cutting/capture.md#cap-003--dates-and-times-are-understood-the-same-way-everywhere)).
-2. Given I add a Task inside a Label's group, then it has that Label.
+2. Given I add a Task while looking at one Label's Tasks, then it has that
+   Label.
 3. Given I have no signal, then the Task appears at once and is sent later.
 
 ### TSK-002 — A Task's details
@@ -71,10 +81,10 @@ Priority: Must · Status: proposed
 
 Acceptance criteria
 1. Given a Task, when I open it, then I can change its title, notes, do-on
-   date and time, due date, Labels, steps, repeat and Reminders, and each
-   change is saved as I make it.
-2. Given I set a time without a date, then it is refused, as a do-on time
-   needs a do-on date.
+   date and time, due date, Labels, sub-tasks, repeat, Reminders and star,
+   and each change is kept as I make it.
+2. Given I set a time without a date, then I'm asked for the date, as a
+   do-on time needs a do-on date.
 
 ### TSK-003 — Tick a Task done
 
@@ -84,7 +94,8 @@ Priority: Must · Status: proposed
 
 Acceptance criteria
 1. Given an open Task, when I tick it, then it is done, leaves the open
-   tabs with Undo, appears on the Done tab, and its Reminders are cleared.
+   Tasks (I can undo that), appears under Done, and its Reminders are
+   cleared.
 2. Given a done Task, when I untick it, then it is open again, and its
    Reminders still in the future come back.
 
@@ -95,35 +106,50 @@ Acceptance criteria
 Priority: Must · Status: proposed
 
 Acceptance criteria
-1. Given open Tasks to do today, tomorrow, next month, and none, then "By
-   date" shows them under Today, Tomorrow, Later and No date.
+1. Given open Tasks to do today, tomorrow, next month, and with no date,
+   then "By date" shows them under Today, Tomorrow, Later and No date.
 2. Given Tasks labelled Home and Car and one with none, then "By label"
    shows Home, Car and No label, each with its Tasks; a Task with two Labels
    is under both.
+3. Given a Task, when I give it a Label, then I can pick one I already have
+   or make a new one, from the same set as Notes
+   ([ITM-005](../cross-cutting/items.md#itm-005--labels-on-notes-and-tasks)).
 
-### TSK-005 — Steps
+### TSK-005 — Star a Task
 
-**As** Joe, **I want** a checklist inside a Task, **so that** a job with
-parts stays one Task.
+**As** Joe, **I want** to star the Tasks that matter most, **so that** I can
+see them together, as in Google Tasks.
 Priority: Should · Status: proposed
 
 Acceptance criteria
-1. Given a Task, when I add steps and tick two of five, then the row's meta
-   shows "2/5".
-2. Given I tick the Task done, then its steps are left as they were.
+1. Given a Task, when I star it, then it shows as starred wherever it
+   appears, and under Starred; unstarring removes it from there.
+2. Given a Task shared with the Household (from Stage 4), then my star is
+   mine alone.
 
-### TSK-006 — Someday
+### TSK-006 — Sub-tasks
+
+**As** Joe, **I want** to tick off parts of a Task inside it, **so that** a
+job with parts stays one Task.
+Priority: Could · Status: proposed
+
+Acceptance criteria
+1. Given a Task, when I add five sub-tasks and tick two, then the Task shows
+   "2/5" wherever it appears.
+2. Given I tick the Task done, then its sub-tasks are left as they were.
+
+### TSK-007 — Someday
 
 **As** Joe, **I want** to park a Task for someday, **so that** it's kept but
 not in my way.
 Priority: Should · Status: proposed
 
 Acceptance criteria
-1. Given a Task, when I move it to Someday, then it leaves the dated tabs,
-   loses its do-on date, and appears on the Someday tab; giving it a date
+1. Given a Task, when I move it to Someday, then it loses its do-on date,
+   leaves the dated views and shows under Someday; giving it a do-on date
    makes it active again.
 
-### TSK-007 — Repeat on a schedule
+### TSK-008 — Repeat on a schedule
 
 **As** Joe, **I want** a Task to repeat on a schedule, **so that** "take
 the bins out" comes back every Monday.
@@ -136,12 +162,11 @@ Acceptance criteria
 2. Given a repeating Task, then the Tasks View and Inbox show only its next
    open occurrence; when I tick it, the one after appears.
 3. Given a Task repeating every Monday at 18:30, then each occurrence is at
-   18:30 London time, either side of the clocks changing (unit test).
-4. Given the series has occurrences made for the weeks ahead, then the
-   nightly job keeps about ten weeks made, and a repeat created offline has
-   its first weeks made on the device.
+   18:30 London time, either side of the clocks changing.
+4. Given a repeating Task, then its occurrences are always there for the
+   next two months or so, including when the repeat was set up offline.
 
-### TSK-008 — Repeat after completion
+### TSK-009 — Repeat after completion
 
 **As** Joe, **I want** some Tasks to come back a while after I last did
 them, **so that** "descale the kettle" is three months after the last time,
@@ -152,7 +177,7 @@ Acceptance criteria
 1. Given a Task repeating three months after completion, when I tick it
    on 10 October, then the next occurrence is to do on 10 January.
 
-### TSK-009 — A missed repeat doesn't pile up
+### TSK-010 — A missed repeat doesn't pile up
 
 **As** Joe, **I want** a missed daily Task to be skipped rather than stack
 up, **so that** missing vitamins on Monday doesn't leave seven overdue
@@ -161,12 +186,11 @@ Priority: Must · Status: proposed
 
 Acceptance criteria
 1. Given a daily Task not done on Monday, when Tuesday's occurrence comes
-   due, then Monday's is closed as *skipped* (cancelled) if untouched, and
-   only Tuesday's shows.
-2. Given I had edited Monday's occurrence, then it stays open (it was
-   touched).
+   due, then Monday's is closed as *skipped* if I hadn't changed it, and only
+   Tuesday's shows.
+2. Given I had changed Monday's occurrence, then it stays open.
 
-### TSK-010 — Change or stop a repeat
+### TSK-011 — Change or stop a repeat
 
 **As** Joe, **I want** to change a repeat from a given date, or stop it,
 **so that** past occurrences and my edits are kept.
@@ -174,24 +198,25 @@ Priority: Must · Status: proposed
 
 Acceptance criteria
 1. Given a weekly Task, when I change one occurrence's title, then only
-   that occurrence changes, and it is marked touched.
+   that occurrence changes.
 2. Given a weekly Task, when I change the repeat "for this and all
-   following", then the old series ends there and a new one starts; untouched
-   future occurrences follow the new rule, and touched ones stay.
-3. Given I stop the repeat, then untouched future occurrences are archived,
-   and done, past or touched ones are kept.
+   following", then occurrences from there follow the new repeat, except
+   ones I had changed, which stay as they are; earlier ones are unchanged.
+3. Given I stop the repeat, then future occurrences I hadn't changed go,
+   and done, past or changed ones are kept.
 
-### TSK-011 — Reorder by hand
+### TSK-012 — Reorder by hand
 
-**As** Joe, **I want** to drag Tasks into my own order within a group,
-**so that** the list reads in the order I'll do things.
+**As** Joe, **I want** to put Tasks in my own order within a group, **so
+that** the list reads in the order I'll do things.
 Priority: Could · Status: proposed
 
 Acceptance criteria
-1. Given two Tasks under Today, when I drag the second above the first, then
+1. Given two Tasks under Today, when I move the second above the first, then
    that order is kept on every device.
 
 Non-goals (Stage 2): Events and the Task ↔ Event switch (Stage 3); sharing
-Tasks with the Household (Stage 4); Tasks *for* an Event (Stage 3); a Project
-Type ([ADR-0014](../../20-architecture/adr/0014-reference-data-and-labels.md));
+Tasks with the Household (Stage 4); Tasks *for* an Event (Stage 3); sub-tasks
+with their own dates or Reminders; a Project Type
+([ADR-0014](../../20-architecture/adr/0014-reference-data-and-labels.md));
 importing from Google Tasks.

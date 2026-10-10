@@ -44,7 +44,8 @@ one.
 | Link / link type | A named edge between two Items | `core.links` + code constant |
 | Child row | Part of one Item, not an Item | Module tables |
 | Reference data | A Module's lookup list (muscle groups, cuisines, brands…) | Module lookup tables |
-| Label | A per-Space grouping on any Item: Task groups, Note headings | `core.labels`, `core.item_labels` |
+| Label | A per-Space grouping on the Types that use one: Task groups, Note filters | `core.labels`, `core.item_labels` |
+| Mark | A per-person flag under the Type's own name: pinned, starred, favourited | `core.marks` |
 | Series | A repeat rule that generates occurrences | `core.series` |
 | Reminder | A per-person notification on an Item | `core.reminders` |
 | Space | Personal or Household | `core.spaces`, `core.space_members` |
@@ -150,28 +151,34 @@ from the copy, never from the definition's current values.
 ## Types
 
 S = Schedulable · C = Completable · Sh = Shareable · Cap = Capturable.
+Colour: the Type's colour ([ADR-0043](adr/0043-colour-by-type.md),
+Provisionally agreed). Labels: whether the Type uses Labels. Mark: the
+per-person mark the Type has, under its own name. Colour, Labels and Mark
+join the ontology package with the Stage 2 schema
+([plan](../50-progress/plans/stage-2.md), step 4), when the package also
+drops a Note's *idea* status, which it still allows until then.
 
-| Module | Type | S | C | Sh | Cap | Default Space | Statuses used (labels) | Stage |
-|---|---|---|---|---|---|---|---|---|
-| core | **Thought** (raw, unsorted; waits in Inbox) | — | — | — | — | Personal | active | 2 |
-| core | **Note** | — | — | — | ✓ | Personal | idea · active | 2 |
-| core | **Task** | ✓ do-on / due | ✓ | ✓ | ✓ | Personal | idea "Someday" · active · done · cancelled (a missed repeat: "Skipped") | 2 |
-| core | **Event** | ✓ start / end | — | ✓ | ✓ | Personal ("with household" → Household) | active · cancelled | 3 |
-| lists | **List** (can be marked as a template) | — | — | ✓ | ✓ | Personal | active | 3 |
-| lists | **Shop** | ✓ do-on, place | ✓ | ✓ | ✓ | Household | active · done · cancelled | 3 |
-| food | **Recipe** (the dish) | — | — | ✓ | ✓ | Household | idea "Backlog" · active | 4 |
-| food | **Variation** (a way of making it) | — | — | ✓ | — | Its Recipe's, always | active; *untried · attempted · final* calculated from the cook log | 4 |
-| food | **Meal** | ✓ do-on + slot | ✓ "eaten" | ✓ | — | Household | active "Planned" · done · cancelled | 4 |
-| food | **Ingredient** | — | — | ✓ | — | Household | active | 4 |
-| fitness | **Exercise** | — | — | — | — | Personal | active | 5 |
-| fitness | **Workout template** | — | — | — | — | Personal | active | 5 |
-| fitness | **Workout** | ✓ start | ✓ | — | — | Personal | active "Planned" · done · cancelled "Skipped" | 5 |
-| fitness | **Cardio activity** | ✓ start | ✓ | — | — | Personal | active "Planned" · done · cancelled "Skipped" | 8 (manual entry earlier if wanted) |
-| goals | **Goal** | — (deadline in `goal`; not on Plan) | ✓ | ✓ | ✓ | Personal | idea · active · done "Achieved" · cancelled "Abandoned" | 5 |
-| wardrobe | **Garment** | — | — | — | ✓ | Personal | idea "Wishlist" · active "Owned" · cancelled "Retired" | 6 |
-| wardrobe | **Outfit** | — | — | — | — | Personal | idea · active | 6 |
-| wardrobe | **Outfit worn** | ✓ do-on | ✓ "worn" | — | — | Personal | active "Planned" · done · cancelled | 6 |
-| finance | **Account** | — | — | ✓ | — | Personal | active · cancelled "Closed" | 9 |
+| Module | Type | S | C | Sh | Cap | Default Space | Statuses used (labels) | Colour | Labels | Mark | Stage |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| core | **Thought** (raw, unsorted; waits in Inbox) | — | — | — | — | Personal | active | yellow | — | — | 2 |
+| core | **Note** | — | — | — | ✓ | Personal | active | yellow | ✓ | pinned | 2 |
+| core | **Task** | ✓ do-on / due | ✓ | ✓ | ✓ | Personal | idea "Someday" · active · done · cancelled (a missed repeat: "Skipped") | blue | ✓ | starred | 2 |
+| core | **Event** | ✓ start / end | — | ✓ | ✓ | Personal ("with household" → Household) | active · cancelled | blue | — | — | 3 |
+| lists | **List** (can be marked as a template) | — | — | ✓ | ✓ | Personal | active | yellow | — | — | 3 |
+| lists | **Shop** | ✓ do-on, place | ✓ | ✓ | ✓ | Household | active · done · cancelled | yellow | — | — | 3 |
+| food | **Recipe** (the dish) | — | — | ✓ | ✓ | Household | idea "Backlog" · active | green | — | favourited | 4 |
+| food | **Variation** (a way of making it) | — | — | ✓ | — | Its Recipe's, always | active; *untried · attempted · final* calculated from the cook log | green | — | — | 4 |
+| food | **Meal** | ✓ do-on + slot | ✓ "eaten" | ✓ | — | Household | active "Planned" · done · cancelled | green | — | — | 4 |
+| food | **Ingredient** | — | — | ✓ | — | Household | active | green | — | — | 4 |
+| fitness | **Exercise** | — | — | — | — | Personal | active | coral | — | — | 5 |
+| fitness | **Workout template** | — | — | — | — | Personal | active | coral | — | — | 5 |
+| fitness | **Workout** | ✓ start | ✓ | — | — | Personal | active "Planned" · done · cancelled "Skipped" | coral | — | — | 5 |
+| fitness | **Cardio activity** | ✓ start | ✓ | — | — | Personal | active "Planned" · done · cancelled "Skipped" | coral | — | — | 8 (manual entry earlier if wanted) |
+| goals | **Goal** | — (deadline in `goal`; not on Plan) | ✓ | ✓ | ✓ | Personal | idea · active · done "Achieved" · cancelled "Abandoned" | purple | — | — | 5 |
+| wardrobe | **Garment** | — | — | — | ✓ | Personal | idea "Wishlist" · active "Owned" · cancelled "Retired" | orange | — | — | 6 |
+| wardrobe | **Outfit** | — | — | — | — | Personal | idea · active | orange | — | — | 6 |
+| wardrobe | **Outfit worn** | ✓ do-on | ✓ "worn" | — | — | Personal | active "Planned" · done · cancelled | orange | — | — | 6 |
+| finance | **Account** | — | — | ✓ | — | Personal | active · cancelled "Closed" | Stage 9 | — | — | 9 |
 
 Shop and List: [ADR-0010](adr/0010-shop-is-its-own-type.md) (Provisionally agreed).
 Recipe and Variation: [ADR-0011](adr/0011-recipe-and-variation.md) (Provisionally agreed).
@@ -183,6 +190,7 @@ Note → any other Capturable Type; Task ↔ Event; List ↔ Shop. Everything el
 Thoughts and Notes: [ADR-0037](adr/0037-thoughts.md) (Provisionally agreed).
 
 **Not Items, deliberately:** people, Spaces, series, Reminders, Labels,
+marks, sub-tasks,
 reference data, list lines, ingredient lines, method steps, cook log entries,
 template exercises, workout sets, health metrics (Oura sleep and readiness,
 weight — a time series; [ADR-0015](adr/0015-health-data-as-a-time-series.md),
@@ -196,7 +204,7 @@ more than Labels).
 
 | Module | Detail tables (1:1 with an Item) | Child rows |
 |---|---|---|
-| core | — (Thought, Note, Task, Event use `core.items` only; a Note's pin, and perhaps its colour, are columns on a small `note` table; whether a Note has a colour is [a question for Joe](../50-progress/plans/stage-2.md#questions-for-joe-step-1)) | `task_steps` (a checklist inside a Task) |
+| core | — (Thought, Note, Task, Event use `core.items` only) | `subtasks(item_id, title, done, position)` — a Task's sub-tasks |
 | lists | `shop(place)` | `list_lines(text, ingredient_id?, qty, unit, section, checked, position, for_item_id?, generated, touched_at)` — used by List and Shop |
 | food | `recipe(photo, cuisine, category, protein, carbs)`, `variation(servings, prep_min, cook_min, source_url, notes, final)`, `meal(servings)`, `ingredient(section, default_unit, staple)` | `variation_ingredients(ingredient_id, qty, unit, prep_note, group, position)`, `variation_steps`, `cook_log(person, cooked_on, rating, notes, meal_id?)`; reference data: cuisines, categories, protein, carbs, units |
 | fitness | `exercise(muscle_groups, equipment, increment, target)`, `workout(actual_start, duration, readiness, stage)`, `cardio_activity(kind, distance_m, duration_s, avg_hr)` | `template_exercises(exercise_id, sets, reps, target)`, `workout_entries(exercise_id, snapshot)`, `workout_sets(entry_id, set_no, reps, weight, rpe)`; reference data: muscle groups, equipment, recovery settings per person |
@@ -259,8 +267,8 @@ rule and create no links.
 | `core.activity` | The activity log, written by triggers: `created`, `updated`, `converted`, `archived`, `restored`, `linked`, `unlinked`, with the changed fields |
 | `core.item_types` · `core.link_types` | The ontology's lookup tables, generated from `packages/ontology` ([ADR-0008](adr/0008-registries-declared-in-code.md)) |
 | `core.labels` · `core.item_labels` | Labels |
-| `core.stars` · `core.recent` | Per-person starred Items; recently opened Items |
-| `core.capture_tokens` | Each person's capture-address secrets (hashed), revocable |
+| `core.marks` | Per-person marks: pinned Notes, starred Tasks, favourited Recipes |
+| `core.capture_tokens` | Each person's capture-address secrets (hashed), revocable (Stage 10) |
 | `core.attachments` | Photos and files on Items (Supabase Storage) |
 | `core.connections` | Integration connections; tokens in Vault |
 | `core.external_refs` | Integration ids and raw payloads per Item |

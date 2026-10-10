@@ -56,6 +56,12 @@ sections.
 
 ## Module colour
 
+> **Changing:** colour moves from one per Module to one per Type
+> ([ADR-0043](../20-architecture/adr/0043-colour-by-type.md)), and the page
+> kicker goes. The colours are designed with Joe in Stage 2
+> ([plan](../50-progress/plans/stage-2.md), step 3); then this section and the
+> code change together. Until then it describes the code as it is.
+
 The rule: **colour says which Module an Item belongs to, and nothing else.**
 
 | Where | Core page (Inbox, Plan, Tasks, Notes) | Module page (Recipes, Gym, Goals, Wardrobe…) |
@@ -139,6 +145,10 @@ Meal `utensils`, Recipe `chef-hat`, Workout `dumbbell`, Cardio activity
 - The top bar and the drawer keep clear of the notch and the home bar.
 - Page padding 20px; page title 22px; the main action can float bottom right
   as a 48px primary button.
+- From Stage 2, the top bar also holds a Capture button on the right, so
+  capture is one tap from any page; on Inbox, the floating main action opens
+  the same capture ([CAP-002](../10-requirements/cross-cutting/capture.md#cap-002--capture-from-any-page-without-losing-my-place)).
+  Designed in detail with the Stage 2 screens.
 - Dialogs sit inset 18px from the sides; AlertDialog actions stack, full
   width.
 

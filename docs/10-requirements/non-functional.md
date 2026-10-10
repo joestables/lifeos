@@ -30,7 +30,7 @@ See [offline](cross-cutting/offline.md).
   encrypted storage ([backups](../40-operations/backups.md)).
 - `ops.events` records the screen and the last few actions, never the content
   of your Items.
-- The capture address can only create Items in its owner's Personal Space and
+- The capture address (Stage 10) can only create Items in its owner's Personal Space and
   can read nothing.
 - AI sees only what the person asking may see.
 - Your data is exportable: everything you can see, as JSON, on demand.

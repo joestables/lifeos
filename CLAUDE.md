@@ -60,8 +60,12 @@ screen follows it exactly ([ADR-0038](docs/20-architecture/adr/0038-one-design-s
   restyling a component on a screen.
 - **Something new goes into the spec first**, in the same pull request, then
   into the shared components — never as a one-off.
-- **Colour means Module**, and nothing else; red and green keep their usual
-  meaning ([patterns](docs/30-design/patterns.md#module-colour)).
+- **Colour means Type**, and nothing else: related Types share a colour, a
+  page takes its Types' colour, and Inbox and Plan are neutral; red and
+  green keep their usual meaning, never by colour alone
+  ([ADR-0043](docs/20-architecture/adr/0043-colour-by-type.md)). Until the
+  colours are designed in Stage 2, the tokens still give one per Module
+  ([patterns](docs/30-design/patterns.md#module-colour)).
 - **Check dark mode first**, then light, at desktop and phone width, and
   attach screenshots.
 
