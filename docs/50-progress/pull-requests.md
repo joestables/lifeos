@@ -2,7 +2,7 @@
 
 Newest first. Each entry is added in its own pull request.
 
-## Not yet opened — Phone menu button; Supabase URL settings
+## [#2](https://github.com/joestables/lifeos/pull/2) — Phone menu button; Supabase URL settings
 
 Branch `claude/stage-1-foundation` · 2026-10-10
 
