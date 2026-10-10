@@ -31,11 +31,12 @@ Done 9 October 2026.
 - **No in-app bug reporting.** Joe reports a problem by telling Claude, which
   reads `ops.events` to find it.
 - **A nightly health check** (`pg_cron`, 03:00 UTC, `ops.health_check()`)
-  looks at the last day's events, failed jobs and the backup's heartbeat
-  (Integration connections join when there are some), and records what it
-  finds in `ops.health_runs`. Telling Joe when something is wrong comes with
-  the nightly backup (plan step 13). A broken Integration also shows in
-  Inbox.
+  looks at the last day's events, failed jobs and the heartbeats of jobs
+  outside the database (none yet; Integration connections join when there
+  are some), and records what it finds in `ops.health_runs`. **Nobody is
+  notified** (Joe, 10 October): Joe checks, or asks Claude "any problems?",
+  and Claude reads `ops.health_runs` and `ops.events`. Notifications can be
+  added later. A broken Integration also shows in Inbox.
 - **A nightly smoke walk** of production with the test account confirms that
   sign-in, capture and Inbox still work — added once Stage 2 is in daily use.
 
@@ -45,4 +46,5 @@ Done 9 October 2026.
 - **A bad migration:** fix forward; never edit a migration that has run.
 - **Something deleted:** undo, or recover it from Settings (deleted means
   archived).
-- **Data loss:** restore the nightly backup ([backups](backups.md)).
+- **Data loss:** no backups are taken for now, so it can't be restored
+  ([backups](backups.md)).

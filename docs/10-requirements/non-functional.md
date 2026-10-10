@@ -26,8 +26,8 @@ See [offline](cross-cutting/offline.md).
 - Anyone can sign up, but nobody sees another person's Items until they are
   Contacts and have both joined a Household
   ([ADR-0039](../20-architecture/adr/0039-accounts-contacts-households.md)).
-- Everything is personal data: backups go to private, encrypted storage
-  ([backups](../40-operations/backups.md)).
+- Everything is personal data: if backups are taken, they go to private,
+  encrypted storage ([backups](../40-operations/backups.md)).
 - `ops.events` records the screen and the last few actions, never the content
   of your Items.
 - The capture address can only create Items in its owner's Personal Space and
@@ -50,6 +50,6 @@ Not yet written.
 
 ## Free-tier constraints
 
-- No downloadable backups: a nightly `pg_dump` instead.
+- No downloadable backups, and none taken for now (Joe's choice).
 - 1 GB of file storage: photos are resized on the device before upload.
 - The project pauses after a week idle.

@@ -82,10 +82,14 @@ Branch `claude/stage-1-foundation` · 2026-10-09
   crashes, uncaught errors and refused writes without any Item content; a
   `pg_cron` job records the day's findings. OFF-004 verified. The crash
   screen went into patterns.md first.
+- Joe dropped plan step 13: no backups for now, and no notifications; the
+  health check's findings stay in `ops.health_runs` for Joe or Claude to
+  read. ADR-0035 amended; backups, runbook, environments, overview,
+  non-functional, data model, roadmap and the plan updated.
 
 **Left for later**
-- Joe: check the Google client's redirect URI (the first real sign-in was
-  refused); protect `master`.
+- Joe: sign in again once the Google client's redirect URI is fixed (the
+  first real sign-in was refused; no account exists yet).
 - An app icon: the design system has none yet, so the manifest has no icon
   and the app can't be installed until one is designed.
 - Joe published the Google sign-in app. Its home page and `/privacy` page

@@ -62,8 +62,7 @@ flowchart TB
 
   outside["Integrations, capture<br/>clients, inbound email"]
   mcp["LifeOS MCP server<br/>(later)"]
-  gha["GitHub Actions<br/>CI with database tests;<br/>nightly pg_dump"]
-  backup[("Private, encrypted<br/>backup storage")]
+  gha["GitHub Actions<br/>CI with database tests"]
 
   vercel -- "serves" --> pwa
   android -. "wraps" .-> pwa
@@ -79,8 +78,6 @@ flowchart TB
   cron --> db
   outside --> edge
   mcp -. "published layer" .-> db
-  gha -- "pooler, session mode" --> db
-  gha --> backup
 ```
 
 Each Module's tables sit in its own schema and are read by other Modules only
@@ -116,7 +113,7 @@ from every box are reported to `ops.events`
 - **The app:** an installable PWA, deployed on its own Vercel project.
 - **Supabase:** Postgres, Edge Functions, `pg_cron`, Vault, Storage and
   Realtime.
-- **GitHub Actions:** CI and the nightly backup
+- **GitHub Actions:** CI. No backups for now
   ([backups](../40-operations/backups.md)).
 - **Later:** a LifeOS MCP server on the published layer; a Capacitor Android
   wrapper; an inbound-email service for the capture address.
