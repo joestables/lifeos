@@ -196,7 +196,7 @@ more than Labels).
 
 | Module | Detail tables (1:1 with an Item) | Child rows |
 |---|---|---|
-| core | — (Thought, Note, Task, Event use `core.items` only; a Note's colour and pin are columns on a small `note` table) | `task_steps` (a checklist inside a Task) |
+| core | — (Thought, Note, Task, Event use `core.items` only; a Note's pin, and perhaps its colour, are columns on a small `note` table; whether a Note has a colour is [a question for Joe](../50-progress/plans/stage-2.md#questions-for-joe-step-1)) | `task_steps` (a checklist inside a Task) |
 | lists | `shop(place)` | `list_lines(text, ingredient_id?, qty, unit, section, checked, position, for_item_id?, generated, touched_at)` — used by List and Shop |
 | food | `recipe(photo, cuisine, category, protein, carbs)`, `variation(servings, prep_min, cook_min, source_url, notes, final)`, `meal(servings)`, `ingredient(section, default_unit, staple)` | `variation_ingredients(ingredient_id, qty, unit, prep_note, group, position)`, `variation_steps`, `cook_log(person, cooked_on, rating, notes, meal_id?)`; reference data: cuisines, categories, protein, carbs, units |
 | fitness | `exercise(muscle_groups, equipment, increment, target)`, `workout(actual_start, duration, readiness, stage)`, `cardio_activity(kind, distance_m, duration_s, avg_hr)` | `template_exercises(exercise_id, sets, reps, target)`, `workout_entries(exercise_id, snapshot)`, `workout_sets(entry_id, set_no, reps, weight, rpe)`; reference data: muscle groups, equipment, recovery settings per person |

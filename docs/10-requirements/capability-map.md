@@ -14,12 +14,13 @@ Owner: **core**, a **Module** (`lists`, `food`, `fitness`, `goals`,
 | Design system: tokens and shared components | core | — | 1 | [design system](../30-design/README.md) |
 | Navigation drawer | core | — | 1 | [ADR-0026](../20-architecture/adr/0026-navigation-drawer.md) |
 | Quick capture (Thought by default, one-tap Task) | core | Capture Screen | 2 | [capture](cross-cutting/capture.md) |
-| Capture address | core | Settings (token) | 2 | [capture](cross-cutting/capture.md) |
-| Notes: Labels as headings, pin, colour, simple formatting (candidate) | core | Notes | 2 | — |
-| Tasks: Labels, do-on and due, steps checklist, repeating | core | Tasks | 2 | — |
+| Capture address; Siri, email, Android share | core | Settings (token) | 2 | [capture](cross-cutting/capture.md) |
+| Notes: Labels as headings, pin, simple formatting | core | Notes | 2 | [notes](views/notes.md) |
+| Tasks: Labels, do-on and due, steps checklist, Someday, repeating | core | Tasks | 2 | [tasks](views/tasks.md) |
 | Inbox, including sorting Thoughts into other Types | core | Inbox | 2 | [inbox](views/inbox.md) |
-| Reminders by Web Push; Done/Snooze actions, overdue nudges, morning digest (candidate) | core | — | 2 | [reminders](cross-cutting/reminders.md) |
-| Starred and Recent (candidate) | core | — | 2 | — |
+| Reminders by Web Push; Done/Snooze actions, overdue nudges, morning digest | core | — | 2 | [reminders](cross-cutting/reminders.md) |
+| An Item's details; delete and recover; convert; Labels | core | Item Sheet, Settings | 2 | [items](cross-cutting/items.md) |
+| Starred and Recent | core | Search Screen, Tasks | 2 | [items](cross-cutting/items.md) |
 | Search (full-text) | core | Search Screen | 2 | [search](cross-cutting/search.md) |
 | Offline writes (data layer and write queue) | core | — | 1 | [offline](cross-cutting/offline.md) |
 | Activity log: changes to items and links | core | — | 1 | [ADR-0030](../20-architecture/adr/0030-activity-log-by-triggers.md) |
@@ -40,4 +41,4 @@ Owner: **core**, a **Module** (`lists`, `food`, `fitness`, `goals`,
 | Finance | `finance` | Finance | 9 | — |
 | Export of everything you can see, as JSON | core | — | — | — |
 | LifeOS MCP server | core | — | Later | — |
-| Settings: Reminder defaults, default time, digest time, reference data, capture token, recovering deleted Items | core | Settings Screen | — | — |
+| Settings: notifications, Reminder defaults, default time, digest time, capture address, Labels, recovering deleted Items (Stage 2); reference data (with its Module) | core | Settings Screen | 2 | [reminders](cross-cutting/reminders.md), [capture](cross-cutting/capture.md), [items](cross-cutting/items.md) |

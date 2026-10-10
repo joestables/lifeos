@@ -2,6 +2,29 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## Not yet opened — Stage 2: plan and specs
+
+Branch `claude/kind-dijkstra-1kv0xt` · 2026-10-10
+
+**What it did**
+- Wrote the [Stage 2 plan](plans/stage-2.md), shaped like Stage 1's, with
+  five questions for Joe.
+- Drafted the Stage 2 requirements, all *proposed*: capture (CAP-001–008),
+  Inbox (INB-001–005), Notes (NTE-001–005), Tasks with repeats
+  (TSK-001–011), Reminders (REM-001–009), working with Items (ITM-001–007)
+  and Search (SRC-001–003). New specs: `views/notes.md`, `views/tasks.md`,
+  `cross-cutting/items.md`.
+- Re-checked before Stage 2: iOS Web Push still shows no notification
+  buttons; Gemini can't post to a custom address. Recorded in the reminders
+  and capture specs and the roadmap.
+- The capability map, roadmap, docs index and `CLAUDE.md` say Stage 2 is in
+  progress; the data model marks a Note's colour as an open question
+  (colour means Module).
+
+**Left for later**
+- Joe agrees the specs and answers the plan's questions; then the ADRs of
+  plan step 2, and the build.
+
 ## [#2](https://github.com/joestables/lifeos/pull/2) — Phone menu button; Supabase URL settings
 
 Branch `claude/stage-1-foundation` · 2026-10-10

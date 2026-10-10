@@ -27,7 +27,9 @@ unavailable. Agreed: v1 is being wiped
 Each stage's working plan, and a record of every pull request, live in
 [50-progress](50-progress/). Stages 0 and 1 are done
 ([Stage 1's plan](50-progress/plans/stage-1.md), with what it carries into
-Stage 2). **Stage 2 is next** and has no plan yet.
+Stage 2). **Stage 2 is in progress**
+([plan](50-progress/plans/stage-2.md)): its specs are drafted and wait for
+Joe.
 
 Each stage begins by writing its own plan (`50-progress/plans/stage-N.md`,
 shaped like the last one) whose first step is the stage's specs, which Joe
@@ -38,7 +40,7 @@ agrees before anything is built.
 | Question | Settled in |
 |---|---|
 | Leaving the Household: does "created by" decide ownership, or does the leaver take a copy? ([ADR-0016](20-architecture/adr/0016-sharing-and-visibility.md)) | To confirm |
-| The inbound-email service for the capture address | Stage 2 |
+| The inbound-email service for the capture address: Cloudflare Email Routing or Postmark ([Stage 2 plan](50-progress/plans/stage-2.md#questions-for-joe-step-1)) | Stage 2 |
 | On a repeating Shop, do unticked lines carry over to the next occurrence? | Lists spec (Stage 3) |
 | Unit conversion (100 g + 1 cup); whether a pantry is wanted | Recipes spec (Stage 4) |
 | Which v1 AI features return (Explore, Labs, dish images, recipe import) | Stage 4 |
@@ -50,8 +52,8 @@ agrees before anything is built.
 | What | When |
 |---|---|
 | shadcn's default (Base UI or Radix) for new projects | Before starting |
-| iOS Web Push notification buttons | Before Stage 2 |
-| Whether Gemini offers a route to the capture address | Before Stage 2 |
+| iOS Web Push notification buttons | Done 10 October 2026: still none ([reminders](10-requirements/cross-cutting/reminders.md#decisions)) |
+| Whether Gemini offers a route to the capture address | Done 10 October 2026: none ([capture](10-requirements/cross-cutting/capture.md#where-capture-comes-from)) |
 | Oura API access | Before Stage 8 |
 | Open Banking aggregators' personal-use availability | Before Stage 9 |
 
