@@ -72,4 +72,5 @@ Built once from the components above, in `@/components/lifeos`.
 | **PlanCard** | A small card in a Plan day: type line with icon in the Type colour, title (13px weight 650), time. Past Items at 50% opacity, no shadow. | Plan only. |
 | **DayColumn** | A Plan day: uppercase day name, day number (`text-day`; today in an ink pill), and a lightly filled column. | Plan only. |
 | **FilterChip** | 32px pill with a TypeDot; on is card-filled with the shadow, off is outlined with a hollow dot. | The key that also filters (Plan). |
+| **BrandMark** | The app icon at 24px ([patterns](patterns.md#the-app-icon)). | Beside "LifeOS": the drawer, the phone's top bar, sign-in. |
 | **SyncStatus** | "All changes saved" with a green tick, or what's waiting to send. | In the drawer footer. |

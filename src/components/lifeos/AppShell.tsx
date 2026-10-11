@@ -27,6 +27,7 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar'
 import type { TypeColour } from './colours'
+import { BrandMark } from './BrandMark'
 import { SyncStatus } from './SyncStatus'
 
 export interface DrawerPage {
@@ -61,9 +62,7 @@ const initials = (name: string) =>
 function Brand() {
   return (
     <div className="flex items-center gap-2.5 text-[16px] font-[750] tracking-[-0.02em] text-foreground">
-      <span className="grid size-6 place-items-center rounded-sm bg-ink text-xs font-extrabold text-ink-foreground">
-        L
-      </span>
+      <BrandMark />
       LifeOS
     </div>
   )

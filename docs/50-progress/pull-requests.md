@@ -81,9 +81,14 @@ Branch `claude/kind-dijkstra-1kv0xt` · 2026-10-10
   Android's round crop, on dark and light home screens, in a browser tab and
   as the drawer's mark.
 
+- Joe chose option C, the graph. It is in the design spec (patterns, "The
+  app icon"; `BrandMark` in components), as `public/icon.svg` and
+  `public/favicon.svg` with the PNGs drawn from them, in the manifest
+  (`any` and `maskable`), as the favicon and Apple touch icon, and as the
+  brand mark in the drawer, the phone's top bar and sign-in.
+
 **Left for later**
-- Joe chooses the app icon; then it goes into the design spec, the
-  manifest, the favicon and the drawer; the build (plan steps 4–14). The ontology package drops a Note's *idea* status and gains
+- The build (plan steps 4–14), starting with the schema. The ontology package drops a Note's *idea* status and gains
   colours, Labels and marks with the Stage 2 schema (plan step 4).
 
 ## [#2](https://github.com/joestables/lifeos/pull/2) — Phone menu button; Supabase URL settings

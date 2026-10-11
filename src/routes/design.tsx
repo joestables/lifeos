@@ -21,6 +21,7 @@ import {
 } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
 import {
+  BrandMark,
   DayColumn,
   FilterChip,
   ItemRow,
@@ -244,6 +245,12 @@ function DesignPage() {
                 <div data-colour={colour} className="h-9 rounded-md bg-tc" />
               </div>
             ))}
+            <div className="flex flex-col gap-2.5 rounded-lg bg-card p-3.5 shadow-card">
+              <div className="flex items-center gap-2 font-bold">
+                <BrandMark /> LifeOS
+              </div>
+              <div className="text-xs text-muted-foreground">The app icon, as the brand mark</div>
+            </div>
             <div className="flex flex-col gap-2.5 rounded-lg bg-card p-3.5 shadow-card">
               <div className="flex items-center gap-2 font-bold">
                 <TypeDot colour="none" /> Neutral

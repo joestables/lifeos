@@ -38,10 +38,29 @@ AppShell
   `square-check-big`, Notes `sticky-note`, Recipes `chef-hat`, Gym
   `dumbbell`, Goals `target`, Wardrobe `shirt`, Cardio `footprints`, Finance
   `wallet`.
-- The header holds the brand (a 24px ink square with "L", then "LifeOS" at
-  16px weight 750) and, from Stage 2, Search; the foot holds SyncStatus and your row
+- The header holds the brand (the app icon at 24px, then "LifeOS" at 16px
+  weight 750) and, from Stage 2, Search; the foot holds SyncStatus and your row
   (Avatar, name, Space). Your row opens Settings, where Sign out is (until
   Settings exists, it opens a menu with Sign out).
+
+## The app icon
+
+Agreed with Joe on 11 October 2026 (option C on the
+[Stage 2 design canvas](https://claude.ai/artifact/N5ZmkZnYg51kcHySQ8c6F6)):
+**a graph** — a node in each Type colour, on a hexagon, linked to a white
+centre and to each other, on the dark `--background`.
+
+- The same icon in light and dark: the dark theme's colours, as hex, since
+  icons can't read the theme.
+- `public/icon.svg` is full bleed (the Apple touch icon and Android's
+  maskable icon, cropped by the system; everything sits inside the central
+  80%); `public/favicon.svg` has 112/512 rounded corners (the browser tab,
+  the installed app's "any" icon, and the brand mark).
+- The brand mark is `BrandMark`: the icon at 24px, beside "LifeOS" in the
+  drawer, the phone's top bar and the sign-in page.
+- The PNGs (`icon-192`, `icon-512`, `icon-maskable-512`,
+  `apple-touch-icon`) are drawn from the SVGs; change the SVGs and draw them
+  again, never the PNGs alone.
 
 ## Sign-in page
 
