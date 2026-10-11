@@ -75,9 +75,15 @@ Branch `claude/kind-dijkstra-1kv0xt` · 2026-10-10
   design-page screenshots were refreshed and looked at, and the shell walked
   in dark and light, desktop and phone.
 
+- Joe agreed ADR-0044 and ADR-0045 (11 October): both are now
+  *Provisionally agreed*, and every document citing them says so.
+- Six app icon options on the design canvas, each shown as the icon,
+  Android's round crop, on dark and light home screens, in a browser tab and
+  as the drawer's mark.
+
 **Left for later**
-- Joe agrees ADR-0044 and ADR-0045; the app icon; the build (plan steps
-  4–14). The ontology package drops a Note's *idea* status and gains
+- Joe chooses the app icon; then it goes into the design spec, the
+  manifest, the favicon and the drawer; the build (plan steps 4–14). The ontology package drops a Note's *idea* status and gains
   colours, Labels and marks with the Stage 2 schema (plan step 4).
 
 ## [#2](https://github.com/joestables/lifeos/pull/2) — Phone menu button; Supabase URL settings

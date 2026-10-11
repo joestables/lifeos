@@ -156,8 +156,8 @@ Consequences**, to a page.
 | [0041](20-architecture/adr/0041-visual-direction.md) | Visual direction: Stone, neutral, coloured by Type | Provisionally agreed |
 | [0042](20-architecture/adr/0042-data-layer.md) | The data layer | Provisionally agreed |
 | [0043](20-architecture/adr/0043-colour-by-type.md) | Colour by Type | Provisionally agreed |
-| [0044](20-architecture/adr/0044-reminder-delivery.md) | How Reminders are delivered | Proposed |
-| [0045](20-architecture/adr/0045-extending-series.md) | Where repeating Items are made | Proposed |
+| [0044](20-architecture/adr/0044-reminder-delivery.md) | How Reminders are delivered | Provisionally agreed |
+| [0045](20-architecture/adr/0045-extending-series.md) | Where repeating Items are made | Provisionally agreed |
 
 ## Sources
 

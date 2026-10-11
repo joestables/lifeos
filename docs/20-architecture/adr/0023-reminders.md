@@ -33,4 +33,5 @@ Capturing a reminder must be faster than setting a phone alarm (goal 2).
 ## Consequences
 
 Location Reminders ("near Tesco") wait for the native wrapper. How
-Reminders are delivered: [ADR-0044](0044-reminder-delivery.md) (Proposed).
+Reminders are delivered: [ADR-0044](0044-reminder-delivery.md)
+(Provisionally agreed).

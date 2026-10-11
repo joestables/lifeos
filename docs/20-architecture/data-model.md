@@ -261,7 +261,7 @@ rule and create no links.
 | `core.items` | Every Item |
 | `core.series` | Repeat rules for generated occurrences |
 | `core.links` | Every link |
-| `core.reminders` · `core.reminder_deliveries` | Reminders per person; one row per notification and device — a Reminder, the morning digest or an overdue nudge — with when it was sent, or why not ([ADR-0044](adr/0044-reminder-delivery.md), Proposed) |
+| `core.reminders` · `core.reminder_deliveries` | Reminders per person; one row per notification and device — a Reminder, the morning digest or an overdue nudge — with when it was sent, or why not ([ADR-0044](adr/0044-reminder-delivery.md), Provisionally agreed) |
 | `core.push_devices` | Web Push (later FCM) subscriptions per person; a device the push service says is gone is no longer sent to |
 | `core.inbox_state` | Per-person dismiss / snooze of Inbox entries |
 | `core.activity` | The activity log, written by triggers: `created`, `updated`, `converted`, `archived`, `restored`, `linked`, `unlinked`, with the changed fields |

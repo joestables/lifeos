@@ -48,7 +48,8 @@ Not yet written.
   ([overview](../20-architecture/overview.md#platforms)).
 - Deliveries are logged (`core.reminder_deliveries`), sent within a minute,
   once per device, and missed after 12 hours
-  ([ADR-0044](../20-architecture/adr/0044-reminder-delivery.md), Proposed).
+  ([ADR-0044](../20-architecture/adr/0044-reminder-delivery.md),
+  Provisionally agreed).
 
 ## Free-tier constraints
 

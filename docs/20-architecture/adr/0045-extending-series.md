@@ -1,6 +1,6 @@
 # ADR-0045: Where repeating Items are made
 
-**Status:** Proposed · 2026-10-11
+**Status:** Provisionally agreed · 2026-10-11
 
 ## Context
 

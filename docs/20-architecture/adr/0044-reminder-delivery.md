@@ -1,6 +1,6 @@
 # ADR-0044: How Reminders are delivered
 
-**Status:** Proposed · 2026-10-11
+**Status:** Provisionally agreed · 2026-10-11
 
 ## Context
 

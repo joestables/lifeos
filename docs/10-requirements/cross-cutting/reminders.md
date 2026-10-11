@@ -16,7 +16,7 @@ first; the requirements, drafted at the start of Stage 2, are at the end.*
   it by Web Push to each of the person's devices, recording each delivery
   (`core.reminder_deliveries`, `core.push_devices`)
   ([ADR-0044](../../20-architecture/adr/0044-reminder-delivery.md),
-  Proposed).
+  Provisionally agreed).
 - **Every Reminder goes to all of a person's devices** that have
   notifications on. There is no choosing a device per Reminder (Joe: it is
   always his phone, the installed app).
