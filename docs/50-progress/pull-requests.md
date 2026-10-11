@@ -2,9 +2,9 @@
 
 Newest first. Each entry is added in its own pull request.
 
-## Not yet opened — Stage 2: plan and specs
+## [#3](https://github.com/joestables/lifeos/pull/3) — Stage 2, steps 1–5: specs, design, schema, working with Items
 
-Branch `claude/kind-dijkstra-1kv0xt` · 2026-10-10
+Branch `claude/kind-dijkstra-1kv0xt` · 2026-10-10 to 2026-10-11
 
 **What it did**
 - Wrote the [Stage 2 plan](plans/stage-2.md), shaped like Stage 1's, with
@@ -131,9 +131,10 @@ Branch `claude/kind-dijkstra-1kv0xt` · 2026-10-10
   phone) added; the stand-in Supabase now keeps the writes it is sent.
 
 **Left for later**
-- The build (plan steps 6–14): series' occurrence functions come with step
-  10, the notification job with step 11. The ontology package drops a Note's *idea* status and gains
-  colours, Labels and marks with the Stage 2 schema (plan step 4).
+- Merged mid-stage, at Joe's request, so production shows the work so far.
+- The build (plan steps 6–14): capture in the app, the Inbox, Notes and
+  Tasks lists, series' occurrence functions (step 10) and the notification
+  job (step 11).
 
 ## [#2](https://github.com/joestables/lifeos/pull/2) — Phone menu button; Supabase URL settings
 
