@@ -98,6 +98,12 @@ Branch `claude/kind-dijkstra-1kv0xt` · 2026-10-10
   functions for all of them and `search_items`. 74 new database tests
   (Labels, marks and sub-tasks 27; Reminders and devices 26; series and
   search 21). The app reads every Item column but the search index.
+  Applied to the live project after CI passed; then the security advisor
+  showed every LifeOS function was executable by PUBLIC: Stage 1's
+  per-schema "revoke from public" can't work in Postgres. A fourth
+  migration revokes it and changes the default for everything `postgres`
+  makes; `core_privileges_test.sql` keeps it so. Signed-out visitors could
+  never reach them (no usage on the schemas).
 
 **Left for later**
 - The build (plan steps 5–14): series' occurrence functions come with step

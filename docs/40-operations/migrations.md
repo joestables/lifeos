@@ -38,6 +38,11 @@
   looks destructive (`drop policy`, for one), and times out without running
   anything (`delete`, even inside a function body, does it too).
   `alter policy … using (…)` changes a policy in place.
+- **Every function is granted to the roles that call it, and to no one
+  else.** Nothing is executable by PUBLIC (functions made by `postgres` start
+  with no grant), so a migration that adds a function grants it to
+  `authenticated` or `service_role` itself; `core_privileges_test.sql`
+  fails if any LifeOS function is open to PUBLIC or to people signed out.
 - **`get_advisors` runs after every migration.**
 - The migrations list is generated, not hand-written.
 
