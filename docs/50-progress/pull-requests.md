@@ -2,7 +2,7 @@
 
 Newest first. Each entry is added in its own pull request.
 
-## Not yet opened — Stage 2, step 7: Inbox
+## [#5](https://github.com/joestables/lifeos/pull/5) — Stage 2, step 7: Inbox
 
 Branch `claude/kind-dijkstra-1kv0xt` · 2026-10-11
 
