@@ -5,12 +5,14 @@ import * as React from 'react'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { cn } from '@/lib/utils'
 import { Button } from './button'
+import { ScrollArea } from './scroll-area'
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from './sheet'
 
 /**
- * shadcn's Sidebar, as the drawer (components.md): a panel inset 12px on
- * desktop, a left Sheet on a phone. LifeOS's drawer can't be hidden on
- * desktop, so shadcn's collapsing (rail, icon mode, cookie, ⌘B) is left out.
+ * shadcn's Sidebar in its standard form, as the drawer (components.md): full
+ * height and attached to the left edge on desktop, a left Sheet on a phone.
+ * LifeOS's drawer can't be hidden on desktop, so shadcn's collapsing (rail,
+ * icon mode, cookie, ⌘B) is left out.
  */
 type SidebarContextProps = {
   isMobile: boolean
@@ -42,7 +44,7 @@ function SidebarProvider({ className, children, ...props }: React.ComponentProps
       <div
         data-slot="sidebar-wrapper"
         className={cn(
-          'group/sidebar-wrapper flex min-h-svh w-full bg-background [--sidebar-width:252px]',
+          'group/sidebar-wrapper flex h-svh w-full overflow-hidden bg-background [--sidebar-width:256px]',
           className,
         )}
         {...props}
@@ -72,7 +74,7 @@ function Sidebar({ className, children, ...props }: React.ComponentProps<'div'>)
           <SheetDescription className="sr-only">The pages of LifeOS</SheetDescription>
           <div
             className={cn(
-              'flex size-full flex-col gap-3.5 px-3 pt-[calc(16px+env(safe-area-inset-top))] pb-[calc(16px+env(safe-area-inset-bottom))]',
+              'flex size-full min-h-0 flex-col pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]',
               className,
             )}
             {...props}
@@ -89,16 +91,13 @@ function Sidebar({ className, children, ...props }: React.ComponentProps<'div'>)
       <div data-slot="sidebar-gap" className="w-(--sidebar-width)" />
       <div
         data-slot="sidebar-container"
-        className="fixed inset-y-0 left-0 z-10 flex h-svh w-(--sidebar-width) py-3 pl-3"
+        className="fixed inset-y-0 left-0 z-10 flex h-svh w-(--sidebar-width) bg-sidebar shadow-[inset_-1px_0_0_var(--hairline)]"
       >
         <aside
           aria-label="Navigation"
           data-sidebar="sidebar"
           data-slot="sidebar-inner"
-          className={cn(
-            'flex size-full min-h-0 flex-col gap-3.5 rounded-panel bg-sidebar px-3 py-4 shadow-card',
-            className,
-          )}
+          className={cn('flex size-full min-h-0 flex-col', className)}
           {...props}
         >
           {children}
@@ -130,12 +129,12 @@ function SidebarTrigger({ onClick, ...props }: React.ComponentProps<typeof Butto
   )
 }
 
-/** The page area beside the drawer; the page scrolls with the window. */
+/** The page area beside the drawer, as tall as the screen; the page scrolls inside it. */
 function SidebarInset({ className, ...props }: React.ComponentProps<'main'>) {
   return (
     <main
       data-slot="sidebar-inset"
-      className={cn('relative flex w-full min-w-0 flex-1 flex-col', className)}
+      className={cn('relative flex h-svh w-full min-w-0 flex-1 flex-col', className)}
       {...props}
     />
   )
@@ -146,20 +145,23 @@ function SidebarHeader({ className, ...props }: React.ComponentProps<'div'>) {
     <div
       data-slot="sidebar-header"
       data-sidebar="header"
-      className={cn('flex items-center justify-between pr-0.5 pl-1.5', className)}
+      className={cn('flex flex-col gap-3 px-3 pt-4 pb-2', className)}
       {...props}
     />
   )
 }
 
+/** The pages, in a ScrollArea when they don't fit. */
 function SidebarContent({ className, ...props }: React.ComponentProps<'div'>) {
   return (
-    <div
-      data-slot="sidebar-content"
-      data-sidebar="content"
-      className={cn('flex min-h-0 flex-1 flex-col overflow-auto', className)}
-      {...props}
-    />
+    <ScrollArea className="flex-1">
+      <div
+        data-slot="sidebar-content"
+        data-sidebar="content"
+        className={cn('flex flex-col gap-2 px-3 py-2', className)}
+        {...props}
+      />
+    </ScrollArea>
   )
 }
 
@@ -168,7 +170,7 @@ function SidebarFooter({ className, ...props }: React.ComponentProps<'div'>) {
     <div
       data-slot="sidebar-footer"
       data-sidebar="footer"
-      className={cn('flex flex-col gap-2.5', className)}
+      className={cn('flex flex-col gap-1.5 px-3 pt-2 pb-3.5', className)}
       {...props}
     />
   )
@@ -237,9 +239,9 @@ function SidebarMenuItem({ className, ...props }: React.ComponentProps<'li'>) {
 }
 
 /**
- * A page in the drawer: 38px, 44px on a phone; the icon in its Module's
- * colour; the current page (`isActive`, or a router link's
- * `aria-current="page"`) filled with `--selected` (patterns.md#the-drawer).
+ * A page in the drawer: 38px, 44px on a phone; the icon in its Type colour;
+ * the current page (`isActive`, or a router link's `aria-current="page"`)
+ * filled with `--sidebar-accent` (patterns.md#the-drawer).
  */
 function SidebarMenuButton({
   render,
@@ -252,7 +254,7 @@ function SidebarMenuButton({
     props: mergeProps<'button'>(
       {
         className: cn(
-          'flex h-[38px] w-full items-center gap-3 rounded-control px-2.5 text-left font-[550] text-sidebar-foreground outline-none select-none in-data-[mobile=true]:h-11 hover:bg-sidebar-accent focus-visible:ring-3 focus-visible:ring-ring-soft aria-disabled:pointer-events-none aria-disabled:opacity-50 aria-[current=page]:bg-selected aria-[current=page]:font-[650] aria-[current=page]:text-foreground data-active:bg-selected data-active:font-[650] data-active:text-foreground [&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:text-mc',
+          'flex h-[38px] w-full items-center gap-3 rounded-control px-2.5 text-left font-[550] text-sidebar-foreground outline-none select-none in-data-[mobile=true]:h-11 hover:bg-sidebar-accent focus-visible:ring-3 focus-visible:ring-ring-soft aria-disabled:pointer-events-none aria-disabled:opacity-50 aria-[current=page]:bg-sidebar-accent aria-[current=page]:font-[650] aria-[current=page]:text-foreground data-active:bg-sidebar-accent data-active:font-[650] data-active:text-foreground [&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:text-tc-text',
           className,
         ),
       },

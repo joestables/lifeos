@@ -1,7 +1,7 @@
 import { Toggle as TogglePrimitive } from '@base-ui/react/toggle'
 import { cn } from '@/lib/utils'
 
-/** Icon only, 32px; pressed fills the icon (Module colour inside ModuleScope). Star, pin. */
+/** Icon only, 32px; pressed fills the icon (the Type colour inside TypeScope). Star, pin. */
 function Toggle({ className, ...props }: TogglePrimitive.Props) {
   return (
     <TogglePrimitive

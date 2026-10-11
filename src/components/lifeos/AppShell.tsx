@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import { EllipsisIcon, LogOutIcon, type LucideIcon } from 'lucide-react'
+import { EllipsisIcon, LogOutIcon, PlusIcon, type LucideIcon } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
@@ -9,6 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import {
   Sidebar,
   SidebarContent,
@@ -25,13 +26,14 @@ import {
   SidebarTrigger,
   useSidebar,
 } from '@/components/ui/sidebar'
-import type { ModuleKey } from './modules'
+import type { TypeColour } from './colours'
 import { SyncStatus } from './SyncStatus'
 
 export interface DrawerPage {
   to: string
   label: string
-  module: ModuleKey
+  /** The colour of the Types the page is about; 'none' for Inbox and Plan. */
+  colour: TypeColour
   icon: LucideIcon
   /** Not built yet: shown at half opacity under "Later". */
   later?: boolean
@@ -43,6 +45,8 @@ interface ShellProps {
   me: { name: string; space: string }
   sync: { pending: number; failed: number }
   onSignOut: () => void
+  /** Opens capture: the top bar's button on a phone (CAP-002). Shown once capture exists. */
+  onCapture?: () => void
   children: ReactNode
 }
 
@@ -65,7 +69,7 @@ function Brand() {
   )
 }
 
-function Drawer({ pages, me, sync, onSignOut }: Omit<ShellProps, 'children'>) {
+function Drawer({ pages, me, sync, onSignOut }: Omit<ShellProps, 'children' | 'onCapture'>) {
   const { isMobile, setOpenMobile } = useSidebar()
   const now = pages.filter((p) => !p.later)
   const later = pages.filter((p) => p.later)
@@ -73,13 +77,15 @@ function Drawer({ pages, me, sync, onSignOut }: Omit<ShellProps, 'children'>) {
   return (
     <>
       <SidebarHeader>
-        <Brand />
+        <div className="flex h-8 items-center pl-1.5">
+          <Brand />
+        </div>
       </SidebarHeader>
       <SidebarContent>
         <nav aria-label="Pages">
           <SidebarMenu>
             {now.map((page) => (
-              <SidebarMenuItem key={page.to} data-module={page.module}>
+              <SidebarMenuItem key={page.to} data-colour={page.colour}>
                 <SidebarMenuButton render={<Link to={page.to} onClick={close} />}>
                   <page.icon />
                   {page.label}
@@ -93,7 +99,7 @@ function Drawer({ pages, me, sync, onSignOut }: Omit<ShellProps, 'children'>) {
               <SidebarGroupLabel>Later</SidebarGroupLabel>
               <SidebarMenu>
                 {later.map((page) => (
-                  <SidebarMenuItem key={page.to} data-module={page.module}>
+                  <SidebarMenuItem key={page.to} data-colour={page.colour}>
                     <SidebarMenuButton render={<span />} aria-disabled>
                       <page.icon />
                       {page.label}
@@ -135,21 +141,34 @@ function Drawer({ pages, me, sync, onSignOut }: Omit<ShellProps, 'children'>) {
 
 /**
  * Every page sits in one: the drawer (shadcn's Sidebar) and the page area,
- * which scrolls with the window. On a phone, a top bar with the menu button,
- * and the drawer is a left Sheet.
+ * which scrolls in a ScrollArea. On a phone, a top bar that stays at the top
+ * (the menu button, the brand, Capture), and the drawer is a left Sheet.
  */
-export function AppShell({ children, ...drawer }: ShellProps) {
+export function AppShell({ children, onCapture, ...drawer }: ShellProps) {
   return (
     <SidebarProvider>
       <Sidebar>
         <Drawer {...drawer} />
       </Sidebar>
       <SidebarInset>
-        <div className="sticky top-0 z-10 box-content flex h-16 items-center gap-2 bg-background px-2 pt-[env(safe-area-inset-top)] md:hidden">
+        <div className="box-content flex h-16 shrink-0 items-center gap-2 bg-background px-2 pt-[env(safe-area-inset-top)] md:hidden">
           <SidebarTrigger />
           <Brand />
+          {onCapture && (
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="Capture"
+              className="ml-auto size-12 [&_svg]:size-5.5"
+              onClick={onCapture}
+            >
+              <PlusIcon />
+            </Button>
+          )}
         </div>
-        {children}
+        <ScrollArea className="flex-1" viewportClassName="pb-[env(safe-area-inset-bottom)]">
+          {children}
+        </ScrollArea>
       </SidebarInset>
     </SidebarProvider>
   )

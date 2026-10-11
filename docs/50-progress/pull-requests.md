@@ -64,9 +64,20 @@ Branch `claude/kind-dijkstra-1kv0xt` · 2026-10-10
   repeating Items are made), both *Proposed*; the data model, overview,
   reminders spec, non-functional, runbook and integration setup cite them.
 
+- Plan step 3: the agreed designs went into the design system — Type colour
+  tokens with text and foreground values that reach 4.5:1, `TypeScope`,
+  `TypeTile`, `TypeBadge`, `TypeDot` and a coloured Checkbox in place of the
+  Module components; shadcn's standard Sidebar (256px, full height);
+  ScrollArea for the page and the drawer, with a thin themed scrollbar for
+  anything else; the phone's Fab; PageHeader's main action; no kicker; and
+  in the spec, how Items open, RadioGroup `cards`, Command, the empty state
+  and no hint text. ADR-0026 amended: Settings opens from your row. The
+  design-page screenshots were refreshed and looked at, and the shell walked
+  in dark and light, desktop and phone.
+
 **Left for later**
-- Joe agrees ADR-0044 and ADR-0045; the design step (spec, theme, shared
-  components, app icon); the build. The ontology package drops a Note's *idea* status and gains
+- Joe agrees ADR-0044 and ADR-0045; the app icon; the build (plan steps
+  4–14). The ontology package drops a Note's *idea* status and gains
   colours, Labels and marks with the Stage 2 schema (plan step 4).
 
 ## [#2](https://github.com/joestables/lifeos/pull/2) — Phone menu button; Supabase URL settings

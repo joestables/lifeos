@@ -11,9 +11,11 @@ export function RouteError({ error }: ErrorComponentProps) {
     void reportEvent('crash', e.message, { name: e.name })
   }, [error])
   return (
-    <PageHeader
-      title="Something went wrong"
-      actions={<Button onClick={() => window.location.reload()}>Reload</Button>}
-    />
+    <>
+      <PageHeader title="Something went wrong" />
+      <div className="px-5 sm:px-9">
+        <Button onClick={() => window.location.reload()}>Reload</Button>
+      </div>
+    </>
   )
 }

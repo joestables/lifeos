@@ -27,16 +27,16 @@ import { authReady, queue, signOut, unsentWrites, useAuth, useSyncCounts } from 
 
 /** The drawer's pages, in ADR-0026's order. */
 const PAGES: DrawerPage[] = [
-  { to: '/inbox', label: 'Inbox', module: 'core', icon: InboxIcon },
-  { to: '/plan', label: 'Plan', module: 'core', icon: CalendarDaysIcon },
-  { to: '/tasks', label: 'Tasks', module: 'core', icon: SquareCheckBigIcon },
-  { to: '/notes', label: 'Notes', module: 'core', icon: StickyNoteIcon },
-  { to: '/recipes', label: 'Recipes', module: 'food', icon: ChefHatIcon },
-  { to: '/gym', label: 'Gym', module: 'fitness', icon: DumbbellIcon },
-  { to: '/goals', label: 'Goals', module: 'goals', icon: TargetIcon },
-  { to: '/wardrobe', label: 'Wardrobe', module: 'wardrobe', icon: ShirtIcon },
-  { to: '/cardio', label: 'Cardio', module: 'fitness', icon: FootprintsIcon, later: true },
-  { to: '/finance', label: 'Finance', module: 'finance', icon: WalletIcon, later: true },
+  { to: '/inbox', label: 'Inbox', colour: 'none', icon: InboxIcon },
+  { to: '/plan', label: 'Plan', colour: 'none', icon: CalendarDaysIcon },
+  { to: '/tasks', label: 'Tasks', colour: 'blue', icon: SquareCheckBigIcon },
+  { to: '/notes', label: 'Notes', colour: 'yellow', icon: StickyNoteIcon },
+  { to: '/recipes', label: 'Recipes', colour: 'green', icon: ChefHatIcon },
+  { to: '/gym', label: 'Gym', colour: 'coral', icon: DumbbellIcon },
+  { to: '/goals', label: 'Goals', colour: 'purple', icon: TargetIcon },
+  { to: '/wardrobe', label: 'Wardrobe', colour: 'orange', icon: ShirtIcon },
+  { to: '/cardio', label: 'Cardio', colour: 'coral', icon: FootprintsIcon, later: true },
+  { to: '/finance', label: 'Finance', colour: 'none', icon: WalletIcon, later: true },
 ]
 
 /** Every signed-in page: the AppShell, and sign-out (ACC-003). */

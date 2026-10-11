@@ -29,6 +29,6 @@ options on 9 October 2026, all built from shadcn/ui
 ## Consequences
 
 - A new family of Types needs a colour, chosen by the rule in
-  [tokens](../../30-design/tokens.md#adding-a-module-colour).
+  [tokens](../../30-design/tokens.md#adding-a-colour).
 - Changing what colour means, the typeface or the overall feel needs an ADR
   that amends or supersedes this one; refining a value doesn't.

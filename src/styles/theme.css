@@ -41,19 +41,30 @@
   --sidebar-accent-foreground: var(--foreground);
   --overlay: oklch(0.2 0.0025 260 / 30%);
   --switch-thumb: oklch(1 0 0);
+  --scroll-thumb: oklch(0.235 0.0025 260 / 18%);
 
   --destructive: oklch(0.57 0.19 27);
   --destructive-foreground: oklch(0.99 0 0);
   --success: oklch(0.6 0.12 155);
 
-  --m-core: var(--muted-foreground);
-  --m-lists: oklch(0.66 0.13 72);
-  --m-food: oklch(0.6 0.13 38);
-  --m-fitness: oklch(0.56 0.13 255);
-  --m-goals: oklch(0.55 0.13 298);
-  --m-wardrobe: oklch(0.59 0.13 355);
-  --m-finance: oklch(0.57 0.13 160);
-  --on-module: oklch(0.99 0 0);
+  --t-blue: oklch(0.55 0.14 255);
+  --t-blue-text: oklch(0.52 0.14 255);
+  --t-blue-foreground: oklch(0.99 0 0);
+  --t-yellow: oklch(0.8 0.15 88);
+  --t-yellow-text: oklch(0.5 0.11 75);
+  --t-yellow-foreground: oklch(0.2 0.0025 260);
+  --t-coral: oklch(0.66 0.15 35);
+  --t-coral-text: oklch(0.55 0.15 35);
+  --t-coral-foreground: oklch(0.2 0.0025 260);
+  --t-green: oklch(0.6 0.14 150);
+  --t-green-text: oklch(0.5 0.12 150);
+  --t-green-foreground: oklch(0.2 0.0025 260);
+  --t-orange: oklch(0.7 0.15 60);
+  --t-orange-text: oklch(0.52 0.12 60);
+  --t-orange-foreground: oklch(0.2 0.0025 260);
+  --t-purple: oklch(0.55 0.15 298);
+  --t-purple-text: oklch(0.55 0.15 298);
+  --t-purple-foreground: oklch(0.99 0 0);
   --tile-mix: 14%;
   --selected: var(--accent);
   --selected-foreground: var(--foreground);
@@ -97,14 +108,22 @@
   --sidebar-foreground: oklch(0.8 0.0025 260);
   --overlay: oklch(0.06 0.0025 260 / 62%);
   --switch-thumb: oklch(0.98 0 0);
+  --scroll-thumb: oklch(0.945 0.0025 260 / 16%);
 
-  --m-lists: oklch(0.82 0.11 78);
-  --m-food: oklch(0.76 0.11 40);
-  --m-fitness: oklch(0.76 0.104 250);
-  --m-goals: oklch(0.76 0.104 300);
-  --m-wardrobe: oklch(0.77 0.104 355);
-  --m-finance: oklch(0.78 0.104 160);
-  --on-module: oklch(0.2 0.01 260);
+  --t-blue: oklch(0.72 0.12 250);
+  --t-blue-text: oklch(0.72 0.12 250);
+  --t-blue-foreground: oklch(0.2 0.0025 260);
+  --t-yellow: oklch(0.86 0.13 90);
+  --t-yellow-text: oklch(0.86 0.13 90);
+  --t-coral: oklch(0.74 0.12 35);
+  --t-coral-text: oklch(0.74 0.12 35);
+  --t-green: oklch(0.76 0.12 150);
+  --t-green-text: oklch(0.76 0.12 150);
+  --t-orange: oklch(0.8 0.12 62);
+  --t-orange-text: oklch(0.8 0.12 62);
+  --t-purple: oklch(0.74 0.12 300);
+  --t-purple-text: oklch(0.74 0.12 300);
+  --t-purple-foreground: oklch(0.2 0.0025 260);
   --tile-mix: 16%;
 
   --shadow-card:
@@ -118,37 +137,52 @@
 }
 
 /*
- * Module colour. ModuleScope sets data-module; children read --mc, and the
- * primary and focus colours become the Module's (patterns.md#module-colour).
+ * Type colour. data-colour (TypeScope, TypeTile, a coloured Checkbox …) sets
+ * --tc, the Type's colour; --tc-text, as text on the page; and
+ * --tc-foreground, text on it. Inside it the primary, focus, selected and
+ * pressed colours become the Type's (patterns.md#colour-by-type).
  */
-[data-module='core'] {
-  --mc: var(--m-core);
+[data-colour='blue'] {
+  --tc: var(--t-blue);
+  --tc-text: var(--t-blue-text);
+  --tc-foreground: var(--t-blue-foreground);
 }
-[data-module='lists'] {
-  --mc: var(--m-lists);
+[data-colour='yellow'] {
+  --tc: var(--t-yellow);
+  --tc-text: var(--t-yellow-text);
+  --tc-foreground: var(--t-yellow-foreground);
 }
-[data-module='food'] {
-  --mc: var(--m-food);
+[data-colour='coral'] {
+  --tc: var(--t-coral);
+  --tc-text: var(--t-coral-text);
+  --tc-foreground: var(--t-coral-foreground);
 }
-[data-module='fitness'] {
-  --mc: var(--m-fitness);
+[data-colour='green'] {
+  --tc: var(--t-green);
+  --tc-text: var(--t-green-text);
+  --tc-foreground: var(--t-green-foreground);
 }
-[data-module='goals'] {
-  --mc: var(--m-goals);
+[data-colour='orange'] {
+  --tc: var(--t-orange);
+  --tc-text: var(--t-orange-text);
+  --tc-foreground: var(--t-orange-foreground);
 }
-[data-module='wardrobe'] {
-  --mc: var(--m-wardrobe);
+[data-colour='purple'] {
+  --tc: var(--t-purple);
+  --tc-text: var(--t-purple-text);
+  --tc-foreground: var(--t-purple-foreground);
 }
-[data-module='finance'] {
-  --mc: var(--m-finance);
+[data-colour='none'] {
+  --tc: var(--muted-foreground);
+  --tc-text: var(--muted-foreground);
 }
-[data-module]:not([data-module='core']) {
-  --primary: var(--mc);
-  --primary-foreground: var(--on-module);
-  --ring: var(--mc);
-  --selected: color-mix(in oklch, var(--mc) var(--tile-mix), transparent);
-  --selected-foreground: var(--mc);
-  --pressed-foreground: var(--mc);
+[data-colour]:not([data-colour='none']) {
+  --primary: var(--tc);
+  --primary-foreground: var(--tc-foreground);
+  --ring: var(--tc);
+  --selected: color-mix(in oklch, var(--tc) var(--tile-mix), transparent);
+  --selected-foreground: var(--tc-text);
+  --pressed-foreground: var(--tc-text);
 }
 
 /* Tokens as Tailwind utilities (bg-card, text-muted-foreground, rounded-lg …) */
@@ -184,11 +218,13 @@
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-success: var(--success);
-  --color-mc: var(--mc);
+  --color-tc: var(--tc);
+  --color-tc-text: var(--tc-text);
+  --color-tc-foreground: var(--tc-foreground);
+  --color-scroll-thumb: var(--scroll-thumb);
   --color-selected: var(--selected);
   --color-selected-foreground: var(--selected-foreground);
   --color-pressed-foreground: var(--pressed-foreground);
-  --color-on-module: var(--on-module);
 
   --font-sans: 'Plus Jakarta Sans Variable', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'Geist Mono Variable', ui-monospace, monospace;
@@ -208,9 +244,6 @@
   --text-h1--line-height: 1.2;
   --text-h1--letter-spacing: -0.025em;
   --text-h1--font-weight: 750;
-  --text-kicker: 12px;
-  --text-kicker--letter-spacing: 0.07em;
-  --text-kicker--font-weight: 700;
   --text-kbd: 10.5px;
 
   --radius-xs: 6px;
@@ -219,7 +252,6 @@
   --radius-control: var(--radius);
   --radius-row: 14px;
   --radius-lg: 18px;
-  --radius-panel: 20px;
   --radius-xl: 24px;
   --radius-full: 999px;
 
@@ -238,6 +270,10 @@
   }
   html {
     @apply font-sans antialiased;
+    /* Anything that still scrolls natively (a long text field): never the
+       browser's default scrollbar (components.md, ScrollArea). */
+    scrollbar-width: thin;
+    scrollbar-color: var(--scroll-thumb) transparent;
   }
   /* Lucide icons: 1.75 stroke (patterns.md#icons). */
   .lucide {

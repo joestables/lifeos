@@ -3,6 +3,8 @@ import {
   ChefHatIcon,
   DumbbellIcon,
   EllipsisIcon,
+  FootprintsIcon,
+  InboxIcon,
   MoonIcon,
   PinIcon,
   PlusIcon,
@@ -15,22 +17,24 @@ import {
   Trash2Icon,
   UtensilsIcon,
   WifiOffIcon,
+  type LucideIcon,
 } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
 import {
   DayColumn,
   FilterChip,
   ItemRow,
-  ModuleBadge,
-  ModuleDot,
-  ModuleScope,
-  ModuleTile,
+  Fab,
   PageHeader,
   PlanCard,
   SectionLabel,
   SyncStatus,
   TYPE_ICONS,
-  type ModuleKey,
+  TypeBadge,
+  TypeDot,
+  TypeScope,
+  TypeTile,
+  type TypeColour,
 } from '@/components/lifeos'
 import {
   Accordion,
@@ -103,15 +107,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Separator } from '@/components/ui/separator'
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from '@/components/ui/sheet'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Slider } from '@/components/ui/slider'
 import { toast } from '@/components/ui/sonner'
@@ -155,13 +151,28 @@ const NEUTRALS = [
   'foreground',
 ] as const
 
-const MODULE_SWATCHES: { module: Exclude<ModuleKey, 'core'>; name: string; pages: string }[] = [
-  { module: 'lists', name: 'Lists', pages: 'Lists and Shops' },
-  { module: 'food', name: 'Food', pages: 'Recipes' },
-  { module: 'fitness', name: 'Fitness', pages: 'Gym, Cardio' },
-  { module: 'goals', name: 'Goals', pages: 'Goals' },
-  { module: 'wardrobe', name: 'Wardrobe', pages: 'Wardrobe' },
-  { module: 'finance', name: 'Finance', pages: 'Finance' },
+const TYPE_SWATCHES: {
+  colour: Exclude<TypeColour, 'none'>
+  name: string
+  types: string
+  icons: LucideIcon[]
+}[] = [
+  {
+    colour: 'blue',
+    name: 'Blue',
+    types: 'Tasks, Events',
+    icons: [TYPE_ICONS.task!, TYPE_ICONS.event!],
+  },
+  {
+    colour: 'yellow',
+    name: 'Yellow',
+    types: 'Thoughts, Notes, Lists, Shops',
+    icons: [TYPE_ICONS.thought!, TYPE_ICONS.note!, ShoppingCartIcon],
+  },
+  { colour: 'coral', name: 'Coral', types: 'Gym, Cardio', icons: [DumbbellIcon, FootprintsIcon] },
+  { colour: 'green', name: 'Green', types: 'Recipes, Meals', icons: [ChefHatIcon, UtensilsIcon] },
+  { colour: 'orange', name: 'Orange', types: 'Wardrobe', icons: [ShirtIcon] },
+  { colour: 'purple', name: 'Purple', types: 'Goals', icons: [TargetIcon] },
 ]
 
 const TaskIcon = TYPE_ICONS.task!
@@ -190,16 +201,15 @@ function DesignPage() {
 
   return (
     <div className="min-h-svh bg-background">
-      <PageHeader
-        kicker="Stage 1"
-        title="Design system"
-        actions={
-          <Button variant="outline" size="sm" onClick={toggleMode}>
-            {dark ? <SunIcon /> : <MoonIcon />}
-            {dark ? 'Light' : 'Dark'}
-          </Button>
-        }
-      />
+      <div className="flex items-center gap-3 pr-5 sm:pr-9">
+        <div className="flex-1">
+          <PageHeader title="Design system" />
+        </div>
+        <Button variant="outline" size="sm" onClick={toggleMode}>
+          {dark ? <SunIcon /> : <MoonIcon />}
+          {dark ? 'Light' : 'Dark'}
+        </Button>
+      </div>
       <main className="flex flex-col gap-8 px-5 pb-8 sm:px-9">
         <Section title="Neutral colours">
           <div className="grid grid-cols-[repeat(auto-fill,minmax(120px,1fr))] gap-3">
@@ -215,37 +225,39 @@ function DesignPage() {
           </div>
         </Section>
 
-        <Section title="Module colours">
+        <Section title="Type colours">
           <div className="grid grid-cols-[repeat(auto-fill,minmax(150px,1fr))] gap-3">
-            <div className="flex flex-col gap-2.5 rounded-lg bg-card p-3.5 shadow-card">
-              <div className="flex items-center gap-2 font-bold">
-                <ModuleDot module="core" /> Core
-              </div>
-              <div className="text-xs text-muted-foreground">Inbox, Plan, Tasks, Notes</div>
-              <div className="flex gap-2">
-                {(['thought', 'note', 'task', 'event'] as const).map((t) => (
-                  <ModuleTile key={t} module="core" icon={TYPE_ICONS[t]!} />
-                ))}
-              </div>
-            </div>
-            {MODULE_SWATCHES.map(({ module, name, pages }) => (
+            {TYPE_SWATCHES.map(({ colour, name, types, icons }) => (
               <div
-                key={module}
+                key={colour}
                 className="flex flex-col gap-2.5 rounded-lg bg-card p-3.5 shadow-card"
               >
                 <div className="flex items-center gap-2 font-bold">
-                  <ModuleDot module={module} /> {name}
+                  <TypeDot colour={colour} /> {name}
                 </div>
-                <div className="text-xs text-muted-foreground">{pages}</div>
-                <div data-module={module} className="h-9 rounded-md bg-mc" />
+                <div className="text-xs text-muted-foreground">{types}</div>
+                <div className="flex gap-2">
+                  {icons.map((icon, i) => (
+                    <TypeTile key={i} colour={colour} icon={icon} />
+                  ))}
+                </div>
+                <div data-colour={colour} className="h-9 rounded-md bg-tc" />
               </div>
             ))}
+            <div className="flex flex-col gap-2.5 rounded-lg bg-card p-3.5 shadow-card">
+              <div className="flex items-center gap-2 font-bold">
+                <TypeDot colour="none" /> Neutral
+              </div>
+              <div className="text-xs text-muted-foreground">Inbox, Plan, Search, Settings</div>
+              <div className="flex gap-2">
+                <TypeTile colour="none" icon={InboxIcon} />
+              </div>
+            </div>
           </div>
         </Section>
 
         <Section title="Type">
           <div className="flex flex-col gap-2 rounded-lg bg-card p-5 shadow-card">
-            <div className="text-kicker text-muted-foreground uppercase">Kicker · 12</div>
             <div className="text-h1">Page title · 24</div>
             <div className="text-h2">Section title · 17</div>
             <div className="text-day tabular-nums">20 · day number</div>
@@ -295,9 +307,9 @@ function DesignPage() {
             <Badge>Errands</Badge>
             <Badge variant="outline">Someday</Badge>
             <Badge variant="destructive">Overdue</Badge>
-            <ModuleBadge module="food">Last cooked Mon</ModuleBadge>
-            <ModuleBadge module="fitness">Push</ModuleBadge>
-            <ModuleBadge module="goals">On track</ModuleBadge>
+            <TypeBadge colour="green">Last cooked Mon</TypeBadge>
+            <TypeBadge colour="coral">Push</TypeBadge>
+            <TypeBadge colour="purple">On track</TypeBadge>
           </Row>
         </Section>
 
@@ -330,7 +342,6 @@ function DesignPage() {
             <div className="grid gap-1.5 sm:col-span-2">
               <Label htmlFor="d-notes">Notes</Label>
               <Textarea id="d-notes" placeholder="Anything to remember" />
-              <p className="text-xs text-muted-foreground">Help text sits below the field.</p>
             </div>
             <div className="flex items-center gap-2.5">
               <Checkbox id="d-check" defaultChecked />
@@ -364,8 +375,8 @@ function DesignPage() {
               <TabsTrigger value="all">
                 All <TabsCount>12</TabsCount>
               </TabsTrigger>
-              <TabsTrigger value="starred">Starred</TabsTrigger>
-              <TabsTrigger value="ideas">Ideas</TabsTrigger>
+              <TabsTrigger value="home">Home</TabsTrigger>
+              <TabsTrigger value="travel">Travel</TabsTrigger>
             </TabsList>
           </Tabs>
           <Row>
@@ -383,36 +394,59 @@ function DesignPage() {
           </Row>
         </Section>
 
-        <Section title="A Module's page (ModuleScope)">
-          <ModuleScope
-            module="food"
-            className="flex flex-col gap-3 rounded-lg bg-card p-5 shadow-card"
-          >
-            <div className="text-kicker text-mc uppercase">Food</div>
-            <Tabs defaultValue="all">
-              <TabsList>
-                <TabsTrigger value="all">All</TabsTrigger>
-                <TabsTrigger value="ideas">Ideas</TabsTrigger>
-              </TabsList>
-            </Tabs>
-            <Row>
-              <Button>
-                <PlusIcon /> New recipe
-              </Button>
-              <Checkbox defaultChecked aria-label="Cooked" />
-              <Switch defaultChecked aria-label="Staple" />
-              <Toggle aria-label="Star" defaultPressed>
-                <StarIcon />
-              </Toggle>
-              <Progress value={60} className="w-40" />
-            </Row>
-          </ModuleScope>
+        <Section title="A page about one Type family (TypeScope)">
+          <div className="grid max-w-3xl gap-4 sm:grid-cols-2">
+            <TypeScope
+              colour="blue"
+              className="flex flex-col gap-3 rounded-lg bg-card p-5 shadow-card"
+            >
+              <Tabs defaultValue="all">
+                <TabsList>
+                  <TabsTrigger value="all">All tasks</TabsTrigger>
+                  <TabsTrigger value="label">By label</TabsTrigger>
+                  <TabsTrigger value="done">Completed</TabsTrigger>
+                </TabsList>
+              </Tabs>
+              <Row>
+                <Button size="sm">
+                  <PlusIcon /> New task
+                </Button>
+                <Checkbox defaultChecked aria-label="Done" />
+                <Toggle aria-label="Star" defaultPressed>
+                  <StarIcon />
+                </Toggle>
+                <Progress value={60} className="w-24" />
+              </Row>
+            </TypeScope>
+            <TypeScope
+              colour="yellow"
+              className="flex flex-col gap-3 rounded-lg bg-card p-5 shadow-card"
+            >
+              <Tabs defaultValue="all">
+                <TabsList>
+                  <TabsTrigger value="all">All</TabsTrigger>
+                  <TabsTrigger value="home">Home</TabsTrigger>
+                  <TabsTrigger value="travel">Travel</TabsTrigger>
+                </TabsList>
+              </Tabs>
+              <Row>
+                <Button size="sm">
+                  <PlusIcon /> New note
+                </Button>
+                <Switch defaultChecked aria-label="Pinned first" />
+                <Toggle aria-label="Pin" defaultPressed>
+                  <PinIcon />
+                </Toggle>
+                <Fab label="New note" className="static md:grid" />
+              </Row>
+            </TypeScope>
+          </div>
         </Section>
 
         <Section title="Lists of Items">
           <div className="flex max-w-2xl flex-col gap-1.5">
             <ItemRow
-              leading={<Checkbox aria-label="Done" />}
+              leading={<Checkbox colour="blue" aria-label="Done" />}
               title="Book the dentist"
               meta={['Errands', 'Fri 9 Oct', <span className="text-destructive">Due today</span>]}
               actions={
@@ -422,35 +456,35 @@ function DesignPage() {
               }
             />
             <ItemRow
-              leading={<Checkbox aria-label="Done" defaultChecked />}
+              leading={<Checkbox colour="blue" aria-label="Done" defaultChecked />}
               title="Renew passport"
               meta={['Done Tue']}
               done
             />
             <ItemRow
-              leading={<ModuleTile module="core" icon={TYPE_ICONS.thought!} />}
+              leading={<TypeTile colour="yellow" icon={TYPE_ICONS.thought!} />}
               title="Milk, eggs, panko"
               meta={['Thought', 'Just now']}
               sync="pending"
             />
             <ItemRow
-              leading={<ModuleTile module="core" icon={TYPE_ICONS.note!} />}
+              leading={<TypeTile colour="yellow" icon={TYPE_ICONS.note!} />}
               title="Japan ideas"
               meta={['Note']}
               sync="failed"
             />
             <ItemRow
-              leading={<ModuleTile module="food" icon={ChefHatIcon} />}
+              leading={<TypeTile colour="green" icon={ChefHatIcon} />}
               title="Chicken katsu"
-              meta={[<ModuleBadge module="food">Last cooked Mon</ModuleBadge>, '4 variations']}
+              meta={[<TypeBadge colour="green">Last cooked Mon</TypeBadge>, '4 variations']}
             />
             <ItemRow
-              leading={<ModuleTile module="fitness" icon={DumbbellIcon} />}
+              leading={<TypeTile colour="coral" icon={DumbbellIcon} />}
               title="Push day"
               meta={['Thu 18:30', '6 exercises']}
             />
             <ItemRow
-              leading={<ModuleTile module="goals" icon={TargetIcon} />}
+              leading={<TypeTile colour="purple" icon={TargetIcon} />}
               title="Bench 60 kg"
               meta={['52.5 kg', 'On track']}
             />
@@ -460,21 +494,21 @@ function DesignPage() {
         <Section title="Plan">
           <Row>
             <FilterChip
-              module="core"
+              colour="blue"
               pressed={chips.core}
               onPressedChange={(core) => setChips({ ...chips, core })}
             >
               Tasks and events
             </FilterChip>
             <FilterChip
-              module="food"
+              colour="green"
               pressed={chips.food}
               onPressedChange={(food) => setChips({ ...chips, food })}
             >
               Meals
             </FilterChip>
             <FilterChip
-              module="fitness"
+              colour="coral"
               pressed={chips.fitness}
               onPressedChange={(fitness) => setChips({ ...chips, fitness })}
             >
@@ -484,14 +518,14 @@ function DesignPage() {
           <div className="grid max-w-3xl grid-cols-3 gap-2.5">
             <DayColumn name="Thu" number={8}>
               <PlanCard
-                module="core"
+                colour="blue"
                 icon={TYPE_ICONS.task!}
                 type="Task"
                 title="Renew passport"
                 past
               />
               <PlanCard
-                module="fitness"
+                colour="coral"
                 icon={DumbbellIcon}
                 type="Workout"
                 title="Push day"
@@ -501,14 +535,14 @@ function DesignPage() {
             </DayColumn>
             <DayColumn name="Fri" number={9} today>
               <PlanCard
-                module="core"
+                colour="blue"
                 icon={TYPE_ICONS.event!}
                 type="Event"
                 title="Dishoom"
                 time="19:30"
               />
               <PlanCard
-                module="lists"
+                colour="yellow"
                 icon={ShoppingCartIcon}
                 type="Shop"
                 title="Tesco"
@@ -516,8 +550,8 @@ function DesignPage() {
               />
             </DayColumn>
             <DayColumn name="Sat" number={10}>
-              <PlanCard module="food" icon={UtensilsIcon} type="Dinner" title="Chicken katsu" />
-              <PlanCard module="wardrobe" icon={ShirtIcon} type="Outfit" title="Olive knit" />
+              <PlanCard colour="green" icon={UtensilsIcon} type="Dinner" title="Chicken katsu" />
+              <PlanCard colour="orange" icon={ShirtIcon} type="Outfit" title="Olive knit" />
             </DayColumn>
           </div>
         </Section>
@@ -606,18 +640,24 @@ function DesignPage() {
             <Accordion defaultValue={['errands']}>
               <AccordionItem value="errands">
                 <AccordionTrigger>
-                  <ModuleTile module="core" icon={TYPE_ICONS.task!} size="sm" /> Errands
+                  <TypeTile colour="blue" icon={TYPE_ICONS.task!} size="sm" /> Errands
                 </AccordionTrigger>
                 <AccordionContent>
-                  <ItemRow leading={<Checkbox aria-label="Done" />} title="Post the parcel" />
+                  <ItemRow
+                    leading={<Checkbox colour="blue" aria-label="Done" />}
+                    title="Post the parcel"
+                  />
                 </AccordionContent>
               </AccordionItem>
               <AccordionItem value="home">
                 <AccordionTrigger>
-                  <ModuleTile module="core" icon={TYPE_ICONS.task!} size="sm" /> Home
+                  <TypeTile colour="blue" icon={TYPE_ICONS.task!} size="sm" /> Home
                 </AccordionTrigger>
                 <AccordionContent>
-                  <ItemRow leading={<Checkbox aria-label="Done" />} title="Fix the shelf" />
+                  <ItemRow
+                    leading={<Checkbox colour="blue" aria-label="Done" />}
+                    title="Fix the shelf"
+                  />
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
@@ -630,6 +670,22 @@ function DesignPage() {
               />
             </Card>
           </div>
+        </Section>
+
+        <Section title="ScrollArea">
+          <ScrollArea className="h-40 max-w-sm rounded-lg bg-card shadow-card">
+            <div className="flex flex-col gap-1.5 p-3">
+              {['Bins', 'Dentist', 'Passport', 'Parcel', 'Shelf', 'Plants', 'MOT', 'Boiler'].map(
+                (title) => (
+                  <ItemRow
+                    key={title}
+                    leading={<Checkbox colour="blue" aria-label="Done" />}
+                    title={title}
+                  />
+                ),
+              )}
+            </div>
+          </ScrollArea>
         </Section>
 
         <Section title="Overlays">
@@ -697,16 +753,6 @@ function DesignPage() {
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
-            <Sheet>
-              <SheetTrigger render={<Button variant="outline" />}>Sheet</SheetTrigger>
-              <SheetContent>
-                <SheetHeader>
-                  <SheetTitle>Book the dentist</SheetTitle>
-                  <SheetDescription>Task · Errands</SheetDescription>
-                </SheetHeader>
-                <Separator />
-              </SheetContent>
-            </Sheet>
             <Button
               variant="outline"
               onClick={() =>

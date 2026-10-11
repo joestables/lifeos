@@ -3,8 +3,8 @@ import { Tabs as TabsPrimitive } from '@base-ui/react/tabs'
 import { cn } from '@/lib/utils'
 
 /**
- * Pills with no track: selected is --accent; inside ModuleScope, a Module
- * tint with Module-coloured text (components.md).
+ * Pills with no track: selected is --accent; inside TypeScope, the Type's
+ * tint with its text colour (components.md).
  */
 function Tabs({ className, ...props }: TabsPrimitive.Root.Props) {
   return (
@@ -20,7 +20,10 @@ function TabsList({ className, ...props }: TabsPrimitive.List.Props) {
   return (
     <TabsPrimitive.List
       data-slot="tabs-list"
-      className={cn('inline-flex items-center gap-1.5 self-start', className)}
+      className={cn(
+        'inline-flex max-w-full items-center gap-1.5 self-start overflow-x-auto [scrollbar-width:none]',
+        className,
+      )}
       {...props}
     />
   )

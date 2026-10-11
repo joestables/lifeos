@@ -29,8 +29,8 @@ agreed)*
   hierarchy of weight and size.
 - **True neutral greys** with an ink primary — near-black in light mode,
   near-white in dark.
-- **A faint hairline edge** on cards, list rows and the drawer, so surfaces
-  stay crisp in dark mode.
+- **A faint hairline edge** on cards and list rows, and between the drawer
+  and the page, so surfaces stay crisp in dark mode.
 - **Colour means one thing: what Type an Item is**
   ([ADR-0043](../20-architecture/adr/0043-colour-by-type.md), Provisionally
   agreed). Related Types share a colour: Tasks and Events blue; Thoughts,
@@ -46,8 +46,12 @@ agreed)*
 - **Red and green keep their usual meaning** — overdue, delete, error; saved,
   done — on every page, and never by colour alone: a state always has a word
   or an icon too.
-- The exact colours are designed in Stage 2; until then the
-  [tokens](tokens.md) still give one colour per Module, with the core grey.
+- The colours were designed with Joe on the Stage 2 screens (11 October
+  2026); their values are in the [tokens](tokens.md#colour-types).
+- **No hint text:** no keyboard hints in footers, no explanatory lines under
+  controls. A control's label says what it does.
+- **The drawer is shadcn's standard Sidebar**, attached to the edge, and
+  nothing scrolls with a browser scrollbar: ScrollArea everywhere.
 
 ## Other decisions
 
@@ -71,3 +75,9 @@ chosen), [Stone made neutral and coloured by Module](https://claude.ai/artifact/
 (B1's true greys chosen), and [three refinements](https://claude.ai/artifact/MWirJxnk1cTN46EiViXmLQ)
 (C1, with C2's hairline edges). The result is
 [reference.html](reference.html). All private to Joe.
+
+Then, with the Stage 2 screens, two passes on 10 and 11 October 2026 on the
+[Stage 2 design canvas](https://claude.ai/artifact/N5ZmkZnYg51kcHySQ8c6F6)
+(private to Joe): colour by Type with its values, the standard Sidebar,
+Items opening in a centred Dialog, one place for each page's main action,
+the phone's "+" floating buttons, ScrollArea, and no hint text.
