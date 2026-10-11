@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test'
+import { expect, test, type Page } from '@playwright/test'
 import { itemRow, standIn, type Rows } from './stand-in'
 
 const TASK = '01990000-0000-7000-8000-000000000001'
@@ -6,6 +6,16 @@ const NOTE = '01990000-0000-7000-8000-000000000002'
 const THOUGHT = '01990000-0000-7000-8000-000000000003'
 const GONE = '01990000-0000-7000-8000-000000000004'
 const OLDER_GONE = '01990000-0000-7000-8000-000000000005'
+
+/**
+ * Goes to a page inside the app, as a link would, without reloading: a write
+ * made a moment ago may not be stored on the device yet.
+ */
+const openInApp = (page: Page, path: string) =>
+  page.evaluate((to) => {
+    history.pushState({}, '', to)
+    dispatchEvent(new PopStateEvent('popstate'))
+  }, path)
 
 const rows = (): Rows => ({
   items: [
@@ -93,12 +103,12 @@ test('ITM-002, ITM-003: deleting is undoable at once, and recoverable later from
   const toast = page.getByText('Deleted "Renew car insurance"')
   await expect(toast).toBeVisible()
   await page.getByRole('button', { name: 'Undo' }).click()
-  await page.goto(`/item/${TASK}`)
+  await openInApp(page, `/tasks?item=${TASK}`)
   await expect(page.getByRole('dialog', { name: 'Renew car insurance' })).toBeVisible()
 
   await page.getByRole('button', { name: 'More' }).click()
   await page.getByRole('menuitem', { name: 'Delete' }).click()
-  await page.goto('/settings/deleted')
+  await openInApp(page, '/settings/deleted')
   const rowsShown = page.locator('[data-slot="item-row"]')
   await expect(rowsShown).toHaveCount(3)
   await expect(rowsShown.first()).toContainText('Renew car insurance')
@@ -110,7 +120,7 @@ test('ITM-002, ITM-003: deleting is undoable at once, and recoverable later from
   await rowsShown.first().getByRole('button', { name: 'Restore' }).click()
   await expect(page.getByText('Restored "Renew car insurance"')).toBeVisible()
   await expect(rowsShown).toHaveCount(2)
-  await page.goto(`/item/${TASK}`)
+  await openInApp(page, `/tasks?item=${TASK}`)
   await expect(page.getByRole('dialog', { name: 'Renew car insurance' })).toBeVisible()
 })
 
@@ -201,9 +211,6 @@ test('OFF-005: offline, what was loaded still shows, marked as possibly out of d
     'These may be out of date',
   )
   // Open it again from inside the app, as a link in a list would.
-  await page.evaluate((id) => {
-    history.pushState({}, '', `/tasks?item=${id}`)
-    dispatchEvent(new PopStateEvent('popstate'))
-  }, TASK)
+  await openInApp(page, `/tasks?item=${TASK}`)
   await expect(page.getByRole('dialog', { name: 'Renew car insurance' })).toBeVisible()
 })
