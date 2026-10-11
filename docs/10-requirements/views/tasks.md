@@ -40,19 +40,20 @@ Provisionally agreed). It replaces Google Tasks.
 
 ## What the page shows (Stage 2)
 
-"Add a task" is the page's main action. The page can show:
+"New Task" is the page's main action. The page has four views (Joe, 11
+October):
 
 | View of the page | What it shows |
 |---|---|
-| **By date** (first) | Open Tasks under Overdue, Today, Tomorrow, each remaining day of this week, Later, and No date |
-| **By label** | Open Tasks under each Label that has any, then No label — the nearest thing to Google Tasks' lists |
-| **Starred** | Open Tasks I have starred |
-| **Someday** | Tasks in the *idea* status |
-| **Done** | Done Tasks, the most recently done first |
+| **All Tasks** (first) | Open Tasks under Overdue, Today, Tomorrow, each remaining day of this week, Later, No date, and Someday last |
+| **By Label** | Open Tasks under each Label that has any, then No label — the nearest thing to Google Tasks' lists |
+| **Recurring** | Each repeating Task once, with its repeat and its next date: those on a schedule, then those after you finish |
+| **Completed** | Done Tasks, the most recently done first |
 
 Each Task shows its title and, where it has them: do-on (and time), due
 (marked once overdue), Labels, sub-tasks done ("2/5"), whether it repeats and
-whether it is starred.
+whether it is starred. A Task opens as a popup over the page, on a computer
+and on a phone ([ITM-001](../cross-cutting/items.md#itm-001--open-an-item)).
 
 ## Requirements
 
@@ -94,7 +95,7 @@ Priority: Must · Status: proposed
 
 Acceptance criteria
 1. Given an open Task, when I tick it, then it is done, leaves the open
-   Tasks (I can undo that), appears under Done, and its Reminders are
+   Tasks (I can undo that), appears under Completed, and its Reminders are
    cleared.
 2. Given a done Task, when I untick it, then it is open again, and its
    Reminders still in the future come back.
@@ -107,8 +108,8 @@ Priority: Must · Status: proposed
 
 Acceptance criteria
 1. Given open Tasks to do today, tomorrow, next month, and with no date,
-   then "By date" shows them under Today, Tomorrow, Later and No date.
-2. Given Tasks labelled Home and Car and one with none, then "By label"
+   then "All Tasks" shows them under Today, Tomorrow, Later and No date.
+2. Given Tasks labelled Home and Car and one with none, then "By Label"
    shows Home, Car and No label, each with its Tasks; a Task with two Labels
    is under both.
 3. Given a Task, when I give it a Label, then I can pick one I already have
@@ -117,13 +118,13 @@ Acceptance criteria
 
 ### TSK-005 — Star a Task
 
-**As** Joe, **I want** to star the Tasks that matter most, **so that** I can
-see them together, as in Google Tasks.
+**As** Joe, **I want** to star the Tasks that matter most, as in Google
+Tasks, **so that** they stand out wherever they appear.
 Priority: Should · Status: proposed
 
 Acceptance criteria
 1. Given a Task, when I star it, then it shows as starred wherever it
-   appears, and under Starred; unstarring removes it from there.
+   appears; unstarring it removes the star.
 2. Given a Task shared with the Household (from Stage 4), then my star is
    mine alone.
 
@@ -146,7 +147,7 @@ Priority: Should · Status: proposed
 
 Acceptance criteria
 1. Given a Task, when I move it to Someday, then it loses its do-on date,
-   leaves the dated views and shows under Someday; giving it a do-on date
+   leaves the dated groups and shows under Someday, last in All Tasks; giving it a do-on date
    makes it active again.
 
 ### TSK-008 — Repeat on a schedule

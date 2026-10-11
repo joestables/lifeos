@@ -47,6 +47,14 @@ Branch `claude/kind-dijkstra-1kv0xt` · 2026-10-10
   and components, with proposed values for the Type colours. Nothing in the
   design spec or code changes until Joe has commented.
 
+- Second design pass after Joe's comments (plan step 3): the standard
+  shadcn Sidebar, one place and style for each page's main action, no hint
+  text, Tasks opening as a centred popup, the Tasks views All Tasks, By
+  Label, Recurring and Completed, ScrollArea instead of browser scrollbars,
+  and a fixed stylesheet bug that made primary buttons unreadable. The Tasks
+  and Notes specs say how their Items open and which views the Tasks page
+  has.
+
 **Left for later**
 - Joe agrees the specs; then the ADRs of plan step 2, the design step, and
   the build. The ontology package drops a Note's *idea* status and gains

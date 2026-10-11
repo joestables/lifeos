@@ -30,8 +30,10 @@ Provisionally agreed) — in Stage 2, Notes, like Google Keep.
 ## What the page shows (Stage 2)
 
 My Notes, pinned ones first, then the rest with the most recently changed
-first; each shows its title and the start of its body. "New note" is the
-page's main action. I can narrow the page to one Label.
+first; each shows its title and the start of its body. "New Note" is the
+page's main action. I can narrow the page to one Label. A Note opens as a
+popup over the page on a computer, and on a page of its own on a phone
+([ITM-001](../cross-cutting/items.md#itm-001--open-an-item)).
 
 ## Requirements
 

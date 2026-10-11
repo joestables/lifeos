@@ -23,7 +23,7 @@ verifies.
 |---|---|---|---|
 | 1 | **Joe** — specs: capture in the app, Inbox, Notes, Tasks (with repeats), Reminders, working with Items, Search | Drafted 10 October; redrafted with Joe's answers (below), without implementation detail; all *proposed*, waiting for Joe | [capture](../../10-requirements/cross-cutting/capture.md#requirements), [Inbox](../../10-requirements/views/inbox.md#requirements), [Notes](../../10-requirements/views/notes.md#requirements), [Tasks](../../10-requirements/views/tasks.md#requirements), [reminders](../../10-requirements/cross-cutting/reminders.md#requirements), [items](../../10-requirements/cross-cutting/items.md#requirements), [search](../../10-requirements/cross-cutting/search.md#requirements) |
 | 2 | Decisions: how Reminders are delivered (Web Push from an Edge Function, run each minute by `pg_cron`); where the repeat engine's nightly run lives; re-check iOS notification buttons and a Gemini route | Re-checks done 10 October: iOS Web Push still shows no buttons; Gemini can't call a custom address (recorded in the specs). Colour by Type agreed as [ADR-0043](../../20-architecture/adr/0043-colour-by-type.md). Delivery and the nightly run not yet written | ADRs |
-| 3 | **Joe** — design, with Claude design: the colours by Type ([ADR-0043](../../20-architecture/adr/0043-colour-by-type.md), Gym coral), no page kicker, the app icon (carried from Stage 1), then the Stage 2 screens — capture (with the phone's top-bar button), Inbox, Notes, Tasks, how each opens its Items, Settings, Search. Into the design spec first, then the theme and shared components, with the screenshot tests refreshed | First pass 10 October: every Stage 2 screen, desktop and phone, dark and light, on a [design canvas](https://claude.ai/artifact/N5ZmkZnYg51kcHySQ8c6F6) (private to Joe), with the proposed Type colours; waiting for Joe's comments. App icon not started | [design system](../../30-design/README.md), theme, components, manifest icon |
+| 3 | **Joe** — design, with Claude design: the colours by Type ([ADR-0043](../../20-architecture/adr/0043-colour-by-type.md), Gym coral), no page kicker, the app icon (carried from Stage 1), then the Stage 2 screens — capture (with the phone's top-bar button), Inbox, Notes, Tasks, how each opens its Items, Settings, Search. Into the design spec first, then the theme and shared components, with the screenshot tests refreshed | First pass 10 October on a [design canvas](https://claude.ai/artifact/N5ZmkZnYg51kcHySQ8c6F6) (private to Joe). Second pass 11 October after Joe's comments (below), every screen checked rendered in dark and light. App icon not started | [design system](../../30-design/README.md), theme, components, manifest icon |
 | 4 | Schema: Labels, marks, sub-tasks, series, Reminders and deliveries, push devices, the person's settings, the search index; the ontology package gains each Type's colour, Labels and mark, and a Note loses its *idea* status; database tests | Not started | Migrations, database tests |
 | 5 | Working with Items: opening (own page or popup, back to the same place, a link of its own), delete with undo, Settings with Recently deleted and Labels, convert; OFF-005's "possibly out of date" mark | Not started | Code, tests citing ITM-*, OFF-005 |
 | 6 | Capture in the app: from every page, the deterministic parser (chrono-node plus rules), the Thought / Task switch and the offer | Not started | Code, tests citing CAP-* |
@@ -69,6 +69,28 @@ Each step's code goes into the specs' status as it lands (*built*, then
   titles ([ADR-0043](../../20-architecture/adr/0043-colour-by-type.md)).
 - **Specs say what, not how**; the screens are designed with Claude design
   once the specs are agreed (step 3).
+
+## Joe's comments on the first design pass (11 October)
+
+Taken into the second pass; the design spec and the shared components change
+to match when the designs are agreed (step 3):
+
+- **The drawer is shadcn's Sidebar in its standard form**, full height and
+  attached to the left edge, not a floating card.
+- **Each page's main action is in the same place and style**: "New Task",
+  "New Note" at the top right on a computer, a floating button on a phone.
+- **No hint text in the app**: no keyboard-hint footers, no explanatory lines
+  under controls.
+- **Tasks open as a popup** in the middle of the screen, on a computer and a
+  phone; Notes as a popup on a computer and a page of their own on a phone.
+- **The Tasks page's views** are All Tasks, By Label, Recurring and Completed.
+- **Choosing between options** (changing a repeat): the chosen option has an
+  outline, and Save confirms.
+- **On a phone the menu button is always in the top bar.**
+- **No browser scrollbars**: shadcn's ScrollArea, everywhere.
+- **Colour, used the same way on every screen**: a Type's colour on its
+  tiles and checkboxes; a page's colour on its main action, selected tab and
+  ticks; everything else neutral.
 
 ## Done when
 
