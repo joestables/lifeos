@@ -29,9 +29,11 @@ Task repeated *after completion*.
     is done and has none open, if nothing made it then;
   - closes untouched occurrences older than a series' newest due one as
     *skipped*.
-- **Running twice does no harm.** An occurrence is unique by series and
-  date, and the window is recorded in `generated_until`, so a re-run or a
-  device and the function making the same occurrence still leave one.
+- **Running twice does no harm.** An occurrence is unique by its series and
+  the date the series made it for (`occurrence_on`, which stays put when the
+  occurrence is moved), and the window is recorded in `generated_until`, so
+  a re-run or a device and the function making the same occurrence still
+  leave one.
 - **The function writes through database functions**
   ([ADR-0009](0009-cross-table-writes-are-database-functions.md)), records a
   heartbeat in `ops.heartbeats`, and reports failures to `ops.events`.

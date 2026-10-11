@@ -25,3 +25,11 @@ export type TimeField = (typeof TIME_FIELDS)[number]
 /** Code packaging (glossary: Module). Only the core exists so far. */
 export const MODULES = ['core'] as const
 export type ModuleKey = (typeof MODULES)[number]
+
+/** Each Type's colour; related Types share one (ADR-0043, tokens.md#colour-types). */
+export const COLOURS = ['blue', 'yellow', 'coral', 'green', 'orange', 'purple'] as const
+export type Colour = (typeof COLOURS)[number]
+
+/** The per-person flag a Type may have, under its own name (glossary: Mark). */
+export const MARKS = ['pinned', 'starred', 'favourited'] as const
+export type Mark = (typeof MARKS)[number]

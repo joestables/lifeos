@@ -39,46 +39,95 @@ export type Database = {
           },
         ]
       }
+      item_labels: {
+        Row: {
+          created_at: string
+          item_id: string
+          label_id: string
+        }
+        ComputedFields: never
+        Insert: {
+          created_at?: string
+          item_id: string
+          label_id: string
+        }
+        Update: {
+          created_at?: string
+          item_id?: string
+          label_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'item_labels_item_id_fkey'
+            columns: ['item_id']
+            isOneToOne: false
+            referencedRelation: 'items'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'item_labels_label_id_fkey'
+            columns: ['label_id']
+            isOneToOne: false
+            referencedRelation: 'labels'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       item_types: {
         Row: {
           capturable: boolean
+          colour: string
           completable: boolean
           converts_to: string[]
+          default_reminder: string | null
           default_space: string
+          has_subtasks: boolean
           key: string
           label: string
+          mark: string | null
           module: string
           schedulable: boolean
           shareable: boolean
           statuses: string[]
           time_fields: string[]
+          uses_labels: boolean
         }
         ComputedFields: never
         Insert: {
           capturable: boolean
+          colour?: string
           completable: boolean
           converts_to: string[]
+          default_reminder?: string | null
           default_space: string
+          has_subtasks?: boolean
           key: string
           label: string
+          mark?: string | null
           module: string
           schedulable: boolean
           shareable: boolean
           statuses: string[]
           time_fields: string[]
+          uses_labels?: boolean
         }
         Update: {
           capturable?: boolean
+          colour?: string
           completable?: boolean
           converts_to?: string[]
+          default_reminder?: string | null
           default_space?: string
+          has_subtasks?: boolean
           key?: string
           label?: string
+          mark?: string | null
           module?: string
           schedulable?: boolean
           shareable?: boolean
           statuses?: string[]
           time_fields?: string[]
+          uses_labels?: boolean
         }
         Relationships: []
       }
@@ -93,7 +142,10 @@ export type Database = {
           due_on: string | null
           ends_at: string | null
           id: string
+          occurrence_on: string | null
           owner_id: string
+          position: string | null
+          search: unknown
           series_id: string | null
           slot: string | null
           space_id: string
@@ -115,7 +167,10 @@ export type Database = {
           due_on?: string | null
           ends_at?: string | null
           id?: string
+          occurrence_on?: string | null
           owner_id?: string
+          position?: string | null
+          search?: unknown
           series_id?: string | null
           slot?: string | null
           space_id: string
@@ -136,7 +191,10 @@ export type Database = {
           due_on?: string | null
           ends_at?: string | null
           id?: string
+          occurrence_on?: string | null
           owner_id?: string
+          position?: string | null
+          search?: unknown
           series_id?: string | null
           slot?: string | null
           space_id?: string
@@ -156,6 +214,13 @@ export type Database = {
             referencedColumns: ['id']
           },
           {
+            foreignKeyName: 'items_series_id_fkey'
+            columns: ['series_id']
+            isOneToOne: false
+            referencedRelation: 'series'
+            referencedColumns: ['id']
+          },
+          {
             foreignKeyName: 'items_space_id_fkey'
             columns: ['space_id']
             isOneToOne: false
@@ -168,6 +233,46 @@ export type Database = {
             isOneToOne: false
             referencedRelation: 'item_types'
             referencedColumns: ['key']
+          },
+        ]
+      }
+      labels: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          name: string
+          space_id: string
+        }
+        ComputedFields: never
+        Insert: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          name: string
+          space_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          name?: string
+          space_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'labels_created_by_fkey'
+            columns: ['created_by']
+            isOneToOne: false
+            referencedRelation: 'people'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'labels_space_id_fkey'
+            columns: ['space_id']
+            isOneToOne: false
+            referencedRelation: 'spaces'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -259,27 +364,343 @@ export type Database = {
           },
         ]
       }
+      marks: {
+        Row: {
+          created_at: string
+          item_id: string
+          person_id: string
+        }
+        ComputedFields: never
+        Insert: {
+          created_at?: string
+          item_id: string
+          person_id?: string
+        }
+        Update: {
+          created_at?: string
+          item_id?: string
+          person_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'marks_item_id_fkey'
+            columns: ['item_id']
+            isOneToOne: false
+            referencedRelation: 'items'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'marks_person_id_fkey'
+            columns: ['person_id']
+            isOneToOne: false
+            referencedRelation: 'people'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       people: {
         Row: {
           created_at: string
+          default_reminder_time: string
+          digest_on: boolean
+          digest_time: string
           id: string
           name: string
+          reminder_defaults: NonNullable<Json>
           timezone: string
         }
         ComputedFields: never
         Insert: {
           created_at?: string
+          default_reminder_time?: string
+          digest_on?: boolean
+          digest_time?: string
           id: string
           name?: string
+          reminder_defaults?: NonNullable<Json>
           timezone?: string
         }
         Update: {
           created_at?: string
+          default_reminder_time?: string
+          digest_on?: boolean
+          digest_time?: string
           id?: string
           name?: string
+          reminder_defaults?: NonNullable<Json>
           timezone?: string
         }
         Relationships: []
+      }
+      push_devices: {
+        Row: {
+          auth: string | null
+          created_at: string
+          enabled: boolean
+          endpoint: string
+          gone_at: string | null
+          id: string
+          kind: string
+          label: string
+          last_sent_at: string | null
+          p256dh: string | null
+          person_id: string
+        }
+        ComputedFields: never
+        Insert: {
+          auth?: string | null
+          created_at?: string
+          enabled?: boolean
+          endpoint: string
+          gone_at?: string | null
+          id?: string
+          kind?: string
+          label?: string
+          last_sent_at?: string | null
+          p256dh?: string | null
+          person_id?: string
+        }
+        Update: {
+          auth?: string | null
+          created_at?: string
+          enabled?: boolean
+          endpoint?: string
+          gone_at?: string | null
+          id?: string
+          kind?: string
+          label?: string
+          last_sent_at?: string | null
+          p256dh?: string | null
+          person_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'push_devices_person_id_fkey'
+            columns: ['person_id']
+            isOneToOne: false
+            referencedRelation: 'people'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      reminder_deliveries: {
+        Row: {
+          attempts: number
+          claimed_at: string | null
+          created_at: string
+          device_id: string
+          error: string | null
+          fire_at: string
+          id: number
+          item_id: string | null
+          key: string
+          kind: string
+          person_id: string
+          reminder_id: string | null
+          sent_at: string | null
+          status: string
+        }
+        ComputedFields: never
+        Insert: {
+          attempts?: number
+          claimed_at?: string | null
+          created_at?: string
+          device_id: string
+          error?: string | null
+          fire_at: string
+          id?: never
+          item_id?: string | null
+          key: string
+          kind: string
+          person_id: string
+          reminder_id?: string | null
+          sent_at?: string | null
+          status?: string
+        }
+        Update: {
+          attempts?: number
+          claimed_at?: string | null
+          created_at?: string
+          device_id?: string
+          error?: string | null
+          fire_at?: string
+          id?: never
+          item_id?: string | null
+          key?: string
+          kind?: string
+          person_id?: string
+          reminder_id?: string | null
+          sent_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'reminder_deliveries_device_id_fkey'
+            columns: ['device_id']
+            isOneToOne: false
+            referencedRelation: 'push_devices'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'reminder_deliveries_item_id_fkey'
+            columns: ['item_id']
+            isOneToOne: false
+            referencedRelation: 'items'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'reminder_deliveries_person_id_fkey'
+            columns: ['person_id']
+            isOneToOne: false
+            referencedRelation: 'people'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'reminder_deliveries_reminder_id_fkey'
+            columns: ['reminder_id']
+            isOneToOne: false
+            referencedRelation: 'reminders'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      reminders: {
+        Row: {
+          anchor: string | null
+          at_time: string | null
+          created_at: string
+          default_time: string | null
+          fires_at: string | null
+          fixed_at: string | null
+          id: string
+          is_default: boolean
+          item_id: string
+          offset_days: number
+          offset_minutes: number
+          person_id: string
+          snoozed_until: string | null
+          updated_at: string
+        }
+        ComputedFields: never
+        Insert: {
+          anchor?: string | null
+          at_time?: string | null
+          created_at?: string
+          default_time?: string | null
+          fires_at?: string | null
+          fixed_at?: string | null
+          id?: string
+          is_default?: boolean
+          item_id: string
+          offset_days?: number
+          offset_minutes?: number
+          person_id?: string
+          snoozed_until?: string | null
+          updated_at?: string
+        }
+        Update: {
+          anchor?: string | null
+          at_time?: string | null
+          created_at?: string
+          default_time?: string | null
+          fires_at?: string | null
+          fixed_at?: string | null
+          id?: string
+          is_default?: boolean
+          item_id?: string
+          offset_days?: number
+          offset_minutes?: number
+          person_id?: string
+          snoozed_until?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'reminders_item_id_fkey'
+            columns: ['item_id']
+            isOneToOne: false
+            referencedRelation: 'items'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'reminders_person_id_fkey'
+            columns: ['person_id']
+            isOneToOne: false
+            referencedRelation: 'people'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      series: {
+        Row: {
+          created_at: string
+          ended_on: string | null
+          generated_until: string | null
+          id: string
+          mode: string
+          owner_id: string
+          rule: string
+          space_id: string
+          starts_on: string
+          template: NonNullable<Json>
+          timezone: string
+          type: string
+          updated_at: string
+        }
+        ComputedFields: never
+        Insert: {
+          created_at?: string
+          ended_on?: string | null
+          generated_until?: string | null
+          id?: string
+          mode: string
+          owner_id?: string
+          rule: string
+          space_id: string
+          starts_on: string
+          template?: NonNullable<Json>
+          timezone: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          ended_on?: string | null
+          generated_until?: string | null
+          id?: string
+          mode?: string
+          owner_id?: string
+          rule?: string
+          space_id?: string
+          starts_on?: string
+          template?: NonNullable<Json>
+          timezone?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'series_owner_id_fkey'
+            columns: ['owner_id']
+            isOneToOne: false
+            referencedRelation: 'people'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'series_space_id_fkey'
+            columns: ['space_id']
+            isOneToOne: false
+            referencedRelation: 'spaces'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'series_type_fkey'
+            columns: ['type']
+            isOneToOne: false
+            referencedRelation: 'item_types'
+            referencedColumns: ['key']
+          },
+        ]
       }
       space_members: {
         Row: {
@@ -348,11 +769,94 @@ export type Database = {
           },
         ]
       }
+      subtasks: {
+        Row: {
+          created_at: string
+          done: boolean
+          id: string
+          item_id: string
+          position: string
+          title: string
+          updated_at: string
+        }
+        ComputedFields: never
+        Insert: {
+          created_at?: string
+          done?: boolean
+          id?: string
+          item_id: string
+          position: string
+          title?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          done?: boolean
+          id?: string
+          item_id?: string
+          position?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'subtasks_item_id_fkey'
+            columns: ['item_id']
+            isOneToOne: false
+            referencedRelation: 'items'
+            referencedColumns: ['id']
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      add_label: { Args: { p_item: string; p_label: string }; Returns: undefined }
+      add_reminder: {
+        Args: { p_fields: Json; p_id: string; p_item: string }
+        Returns: {
+          anchor: string | null
+          at_time: string | null
+          created_at: string
+          default_time: string | null
+          fires_at: string | null
+          fixed_at: string | null
+          id: string
+          is_default: boolean
+          item_id: string
+          offset_days: number
+          offset_minutes: number
+          person_id: string
+          snoozed_until: string | null
+          updated_at: string
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'reminders'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      add_subtask: {
+        Args: { p_id: string; p_item: string; p_position: string; p_title: string }
+        Returns: {
+          created_at: string
+          done: boolean
+          id: string
+          item_id: string
+          position: string
+          title: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'subtasks'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       archive_item: {
         Args: { p_id: string }
         Returns: {
@@ -365,7 +869,10 @@ export type Database = {
           due_on: string | null
           ends_at: string | null
           id: string
+          occurrence_on: string | null
           owner_id: string
+          position: string | null
+          search: unknown
           series_id: string | null
           slot: string | null
           space_id: string
@@ -395,7 +902,10 @@ export type Database = {
           due_on: string | null
           ends_at: string | null
           id: string
+          occurrence_on: string | null
           owner_id: string
+          position: string | null
+          search: unknown
           series_id: string | null
           slot: string | null
           space_id: string
@@ -413,9 +923,74 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      create_label: {
+        Args: { p_id: string; p_name: string; p_space_id?: string }
+        Returns: {
+          created_at: string
+          created_by: string
+          id: string
+          name: string
+          space_id: string
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'labels'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      delete_label: { Args: { p_id: string }; Returns: undefined }
       link_items: {
         Args: { p_from: string; p_id: string; p_link_type: string; p_to: string }
         Returns: undefined
+      }
+      register_device: {
+        Args: {
+          p_auth: string
+          p_endpoint: string
+          p_id: string
+          p_label: string
+          p_p256dh: string
+        }
+        Returns: {
+          auth: string | null
+          created_at: string
+          enabled: boolean
+          endpoint: string
+          gone_at: string | null
+          id: string
+          kind: string
+          label: string
+          last_sent_at: string | null
+          p256dh: string | null
+          person_id: string
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'push_devices'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      remove_device: { Args: { p_id: string }; Returns: undefined }
+      remove_label: { Args: { p_item: string; p_label: string }; Returns: undefined }
+      remove_reminder: { Args: { p_id: string }; Returns: undefined }
+      remove_subtask: { Args: { p_id: string }; Returns: undefined }
+      rename_label: {
+        Args: { p_id: string; p_name: string }
+        Returns: {
+          created_at: string
+          created_by: string
+          id: string
+          name: string
+          space_id: string
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'labels'
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       report_event: {
         Args: {
@@ -440,7 +1015,10 @@ export type Database = {
           due_on: string | null
           ends_at: string | null
           id: string
+          occurrence_on: string | null
           owner_id: string
+          position: string | null
+          search: unknown
           series_id: string | null
           slot: string | null
           space_id: string
@@ -454,6 +1032,87 @@ export type Database = {
         SetofOptions: {
           from: '*'
           to: 'items'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      search_items: {
+        Args: { p_limit?: number; p_query: string }
+        Returns: {
+          all_day: boolean | null
+          archived_at: string | null
+          body: string | null
+          created_at: string
+          do_at: string | null
+          do_on: string | null
+          due_on: string | null
+          ends_at: string | null
+          id: string
+          occurrence_on: string | null
+          owner_id: string
+          position: string | null
+          search: unknown
+          series_id: string | null
+          slot: string | null
+          space_id: string
+          starts_at: string | null
+          status: string
+          title: string
+          touched_at: string | null
+          type: string
+          updated_at: string
+        }[]
+        SetofOptions: {
+          from: '*'
+          to: 'items'
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      set_device: {
+        Args: { p_enabled: boolean; p_id: string }
+        Returns: {
+          auth: string | null
+          created_at: string
+          enabled: boolean
+          endpoint: string
+          gone_at: string | null
+          id: string
+          kind: string
+          label: string
+          last_sent_at: string | null
+          p256dh: string | null
+          person_id: string
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'push_devices'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      set_mark: { Args: { p_item: string; p_on: boolean }; Returns: undefined }
+      snooze_reminder: {
+        Args: { p_id: string; p_until: string }
+        Returns: {
+          anchor: string | null
+          at_time: string | null
+          created_at: string
+          default_time: string | null
+          fires_at: string | null
+          fixed_at: string | null
+          id: string
+          is_default: boolean
+          item_id: string
+          offset_days: number
+          offset_minutes: number
+          person_id: string
+          snoozed_until: string | null
+          updated_at: string
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'reminders'
           isOneToOne: true
           isSetofReturn: false
         }
@@ -474,7 +1133,10 @@ export type Database = {
           due_on: string | null
           ends_at: string | null
           id: string
+          occurrence_on: string | null
           owner_id: string
+          position: string | null
+          search: unknown
           series_id: string | null
           slot: string | null
           space_id: string
@@ -488,6 +1150,68 @@ export type Database = {
         SetofOptions: {
           from: '*'
           to: 'items'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      update_reminder: {
+        Args: { p_id: string; p_patch: Json }
+        Returns: {
+          anchor: string | null
+          at_time: string | null
+          created_at: string
+          default_time: string | null
+          fires_at: string | null
+          fixed_at: string | null
+          id: string
+          is_default: boolean
+          item_id: string
+          offset_days: number
+          offset_minutes: number
+          person_id: string
+          snoozed_until: string | null
+          updated_at: string
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'reminders'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      update_settings: {
+        Args: { p_patch: Json }
+        Returns: {
+          created_at: string
+          default_reminder_time: string
+          digest_on: boolean
+          digest_time: string
+          id: string
+          name: string
+          reminder_defaults: NonNullable<Json>
+          timezone: string
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'people'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      update_subtask: {
+        Args: { p_id: string; p_patch: Json }
+        Returns: {
+          created_at: string
+          done: boolean
+          id: string
+          item_id: string
+          position: string
+          title: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'subtasks'
           isOneToOne: true
           isSetofReturn: false
         }

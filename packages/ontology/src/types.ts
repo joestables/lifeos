@@ -1,4 +1,4 @@
-import type { ModuleKey, SpaceKind, Status, TimeField, Trait } from './traits.ts'
+import type { Colour, Mark, ModuleKey, SpaceKind, Status, TimeField, Trait } from './traits.ts'
 
 export interface TypeDefinition {
   /** Stored in core.items.type. Never renamed without an ADR (ADR-0036). */
@@ -13,6 +13,15 @@ export interface TypeDefinition {
   defaultSpace: SpaceKind
   /** The time fields this Type may set; the database refuses the others. */
   timeFields: readonly TimeField[]
+  colour: Colour
+  /** Whether the Type uses Labels (ADR-0014): Notes and Tasks only. */
+  labels: boolean
+  /** Its per-person mark, if it has one. */
+  mark?: Mark
+  /** Whether it holds sub-tasks: lines you tick inside it. */
+  subtasks: boolean
+  /** The time field its default Reminder follows (ADR-0023), if it has one. */
+  defaultReminder?: TimeField
 }
 
 /** The core's Types (data-model.md#types). Later Types arrive with their stage. */
@@ -25,15 +34,22 @@ export const TYPES = [
     statuses: ['active'],
     defaultSpace: 'personal',
     timeFields: [],
+    colour: 'yellow',
+    labels: false,
+    subtasks: false,
   },
   {
     key: 'note',
     module: 'core',
     label: 'Note',
     traits: ['capturable'],
-    statuses: ['idea', 'active'],
+    statuses: ['active'],
     defaultSpace: 'personal',
     timeFields: [],
+    colour: 'yellow',
+    labels: true,
+    mark: 'pinned',
+    subtasks: false,
   },
   {
     key: 'task',
@@ -44,6 +60,11 @@ export const TYPES = [
     statusLabels: { idea: 'Someday' },
     defaultSpace: 'personal',
     timeFields: ['do_on', 'do_at', 'due_on'],
+    colour: 'blue',
+    labels: true,
+    mark: 'starred',
+    subtasks: true,
+    defaultReminder: 'do_on',
   },
   {
     key: 'event',
@@ -53,6 +74,9 @@ export const TYPES = [
     statuses: ['active', 'cancelled'],
     defaultSpace: 'personal',
     timeFields: ['starts_at', 'ends_at', 'all_day'],
+    colour: 'blue',
+    labels: false,
+    subtasks: false,
   },
 ] as const satisfies readonly TypeDefinition[]
 

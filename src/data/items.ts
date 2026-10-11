@@ -5,11 +5,15 @@ import type { Item, ItemRow } from './types'
 
 export const itemsKey = ['items'] as const
 
+/** The columns the app reads: every one but the search index. */
+const ITEM_COLUMNS =
+  'id, type, title, body, space_id, owner_id, status, starts_at, ends_at, all_day, due_on, do_on, do_at, slot, series_id, occurrence_on, position, touched_at, created_at, updated_at, archived_at'
+
 /** Every live Item I can see; Views filter these (Stage 2 adds their own queries). */
 export async function fetchItems(): Promise<ItemRow[]> {
   const { data, error } = await supabase()
     .from('items')
-    .select('*')
+    .select(ITEM_COLUMNS)
     .is('archived_at', null)
     .order('created_at')
   if (error) throw error

@@ -17,6 +17,8 @@ const blankItem = (id: string, type: string, at: string): ItemRow => ({
   do_at: null,
   slot: null,
   series_id: null,
+  occurrence_on: null,
+  position: null,
   touched_at: null,
   created_at: at,
   updated_at: at,

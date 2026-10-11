@@ -87,8 +87,21 @@ Branch `claude/kind-dijkstra-1kv0xt` · 2026-10-10
   (`any` and `maskable`), as the favicon and Apple touch icon, and as the
   brand mark in the drawer, the phone's top bar and sign-in.
 
+- Plan step 4, the Stage 2 schema. The ontology package gains each Type's
+  colour, Labels, mark, sub-tasks and default Reminder, and a Note loses
+  its *idea* status. Three migrations: Labels (one set per Space, "home" is
+  "Home"), marks, sub-tasks, series with one occurrence per date made,
+  Reminders whose `fires_at` follows the Item in the person's timezone (a
+  dated Task's default Reminder made and removed by a trigger), push
+  devices, deliveries kept from the app, each person's settings, a hand-made
+  order, `touched_at` kept by triggers, and full-text search; then the write
+  functions for all of them and `search_items`. 74 new database tests
+  (Labels, marks and sub-tasks 27; Reminders and devices 26; series and
+  search 21). The app reads every Item column but the search index.
+
 **Left for later**
-- The build (plan steps 4–14), starting with the schema. The ontology package drops a Note's *idea* status and gains
+- The build (plan steps 5–14): series' occurrence functions come with step
+  10, the notification job with step 11. The ontology package drops a Note's *idea* status and gains
   colours, Labels and marks with the Stage 2 schema (plan step 4).
 
 ## [#2](https://github.com/joestables/lifeos/pull/2) — Phone menu button; Supabase URL settings
