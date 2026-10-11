@@ -19,6 +19,7 @@ import { CaptureProvider } from '@/app/capture'
 import { useOpenCapture } from '@/app/open-capture'
 import { ItemPopup } from '@/app/items'
 import { authReady, queue, useAuth, useItems, useOnline, useSyncCounts } from '@/data'
+import { inboxCount, inboxGroups } from '@/lib/inbox'
 
 /** The drawer's pages, in ADR-0026's order. */
 const PAGES: DrawerPage[] = [
@@ -51,7 +52,8 @@ function SignedIn() {
   const auth = useAuth()
   const navigate = useNavigate()
   const { item } = Route.useSearch()
-  const { outOfDate } = useItems(queue)
+  const { items, outOfDate } = useItems(queue)
+  const waiting = inboxCount(inboxGroups(items))
   const online = useOnline()
 
   useEffect(() => {
@@ -61,7 +63,13 @@ function SignedIn() {
 
   return (
     <CaptureProvider>
-      <Shell name={auth.me.name} item={item} outOfDate={outOfDate} online={online} />
+      <Shell
+        name={auth.me.name}
+        item={item}
+        outOfDate={outOfDate}
+        online={online}
+        waiting={waiting}
+      />
     </CaptureProvider>
   )
 }
@@ -71,18 +79,21 @@ function Shell({
   item,
   outOfDate,
   online,
+  waiting,
 }: {
   name: string
   item?: string
   outOfDate: boolean
   online: boolean
+  /** What waits in Inbox, beside it in the drawer (INB-005). */
+  waiting: number
 }) {
   const sync = useSyncCounts(queue)
   const openCapture = useOpenCapture()
   return (
     <AppShell
       onCapture={openCapture}
-      pages={PAGES}
+      pages={PAGES.map((p) => (p.to === '/inbox' && waiting > 0 ? { ...p, count: waiting } : p))}
       me={{ name, space: 'Personal' }}
       sync={sync}
       notice={

@@ -19,17 +19,18 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Toggle } from '@/components/ui/toggle'
-import { convertItem, queue, setMark, useItem, useMarks, type Item } from '@/data'
+import { queue, setMark, useItem, useMarks, type Item } from '@/data'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { convertTargets, itemTitle, MARK_LABEL, opensAsPage, typeLook } from '@/lib/item-types'
+import { useConvert } from './convert'
 import { deleteItem, useCloseItem } from './item-navigation'
-import { toast } from '@/components/ui/sonner'
 
 /** An Item's mark (star, pin) and its "…" menu: Convert to, Delete. */
 export function ItemActions({ item, onDelete }: { item: Item; onDelete: () => void }) {
   const marks = useMarks(queue)
   const look = typeLook(item.type)
   const targets = convertTargets(item.type)
+  const convert = useConvert()
   const MarkIcon = look.mark === 'pinned' ? PinIcon : StarIcon
   return (
     <>
@@ -52,13 +53,7 @@ export function ItemActions({ item, onDelete }: { item: Item; onDelete: () => vo
               <DropdownMenuGroup>
                 <DropdownMenuLabel>Convert to</DropdownMenuLabel>
                 {targets.map((t) => (
-                  <DropdownMenuItem
-                    key={t.key}
-                    onClick={() => {
-                      convertItem(item.id, t.key)
-                      toast(`Converted into a ${t.label}`)
-                    }}
-                  >
+                  <DropdownMenuItem key={t.key} onClick={() => convert(item, t.key)}>
                     <t.icon /> {t.label}
                   </DropdownMenuItem>
                 ))}

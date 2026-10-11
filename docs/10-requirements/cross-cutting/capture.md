@@ -53,7 +53,7 @@ at the start of Stage 2, are at the end.*
 
 **As** Joe, **I want** to jot a thought down in one line from anywhere,
 **so that** it's out of my head in seconds and I can sort it later.
-Priority: Must · Status: built (the Thought appearing in Inbox is verified with Inbox, step 7)
+Priority: Must · Status: verified
 
 Acceptance criteria
 1. Given I am on any page, when I open capture, type "ceramics class for the

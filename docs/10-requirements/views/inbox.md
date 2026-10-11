@@ -49,7 +49,7 @@ With nothing in any group, the page says "Nothing needs you".
 
 **As** Joe, **I want** everything I captured and haven't sorted in one
 place, **so that** nothing captured is lost.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified
 
 Acceptance criteria
 1. Given I have captured three Thoughts, when I open Inbox, then they are
@@ -61,12 +61,13 @@ Acceptance criteria
 
 **As** Joe, **I want** to turn a Thought into a Note or a Task in one action,
 **so that** sorting Inbox takes seconds per line.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified
 
 Acceptance criteria
 1. Given a Thought, when I make it a Task (one action, on a phone or a
    computer), then it becomes a Task in place, keeping its text, Reminders
-   and history, with any date in it understood
+   (one at the same moment as the Task's own isn't kept twice) and
+   history, with any date in it understood as it was meant when captured
    ([CAP-003](../cross-cutting/capture.md#cap-003--dates-and-times-are-understood-the-same-way-everywhere)),
    and it leaves Inbox for the Tasks View.
 2. Given a Thought, when I make it a Note (one action), then it becomes a
@@ -81,7 +82,7 @@ Acceptance criteria
 
 **As** Joe, **I want** Inbox to show the Tasks that need me today, **so
 that** I start the day from one page.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified
 
 Acceptance criteria
 1. Given a Task to do yesterday that isn't done, then it is under "Today",
@@ -96,7 +97,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to push today's Task to tomorrow from Inbox, **so
 that** Today holds only what I'll really do.
-Priority: Should · Status: agreed
+Priority: Should · Status: verified
 
 Acceptance criteria
 1. Given a Task under "Today", when I choose Tomorrow, then its do-on date
@@ -107,7 +108,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to see how much is waiting, **so that** I know when
 Inbox needs me.
-Priority: Should · Status: agreed
+Priority: Should · Status: verified
 
 Acceptance criteria
 1. Given two overdue Tasks, three for today and four Thoughts, then the

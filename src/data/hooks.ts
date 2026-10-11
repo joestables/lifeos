@@ -16,6 +16,7 @@ import {
 import { applyPending } from './overlay'
 import type { WriteQueue } from './queue/queue'
 import type { QueueEntry } from './queue/store'
+import { applyPendingReminders, fetchReminders, remindersKey, type Reminder } from './reminders'
 import { DEFAULT_SETTINGS, fetchSettings, settingsKey, type Settings } from './settings'
 import type { Item } from './types'
 
@@ -140,4 +141,11 @@ export function useMarks(queue: WriteQueue): ReadonlySet<string> {
 export function useSettings(): Settings {
   const query = useQuery({ queryKey: settingsKey, queryFn: fetchSettings })
   return query.data ?? DEFAULT_SETTINGS
+}
+
+/** My Reminders, with unsent ones laid over them. */
+export function useReminders(queue: WriteQueue): readonly Reminder[] {
+  const entries = useQueueEntries(queue)
+  const query = useQuery({ queryKey: remindersKey, queryFn: fetchReminders })
+  return useMemo(() => applyPendingReminders(query.data ?? [], entries), [query.data, entries])
 }

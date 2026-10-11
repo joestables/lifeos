@@ -122,7 +122,7 @@ test('CAP-001, CAP-004: a dated line is offered as a Task, and kept as a Thought
     .toMatchObject({ type: 'task', do_on: '2026-10-13', do_at: '15:00' })
 })
 
-test('CAP-001: with no signal, what I capture is kept and sent when the connection returns', async ({
+test('CAP-001: with no signal, what I capture shows in Inbox at once and is sent when the connection returns', async ({
   page,
   context,
 }) => {
@@ -135,6 +135,10 @@ test('CAP-001: with no signal, what I capture is kept and sent when the connecti
   await capture.getByRole('textbox').fill('buy oat milk')
   await capture.getByRole('button', { name: 'Save' }).click()
   await expect(page.getByText('Thought saved')).toBeVisible()
+  // It is in Inbox at once, waiting to be sorted.
+  await expect(
+    page.locator('section').filter({ hasText: 'To sort' }).getByText('buy oat milk'),
+  ).toBeVisible()
   expect(db.items.some((i) => i.title === 'buy oat milk')).toBe(false)
   await page.unroute('**/rest/v1/rpc/**', noSignal)
   await context.setOffline(false)

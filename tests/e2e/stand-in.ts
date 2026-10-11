@@ -17,6 +17,7 @@ export interface Rows {
   item_labels?: { item_id: string; label_id: string }[]
   marks?: { item_id: string }[]
   people?: { timezone: string; default_reminder_time: string }[]
+  reminders?: { id: string; item_id: string; fires_at: string; is_default: boolean }[]
 }
 
 /** An Item row with everything but what a test names. */
@@ -64,7 +65,7 @@ export async function standIn(
     item_labels: [...(rows.item_labels ?? [])],
     marks: [...(rows.marks ?? [])],
     people: [...(rows.people ?? [])],
-    reminders: [] as Record<string, unknown>[],
+    reminders: [...(rows.reminders ?? [])] as Record<string, unknown>[],
   }
   const item = (id: unknown) => db.items.find((i) => i.id === id)
   const write: Record<string, (a: Record<string, unknown>) => void> = {
@@ -81,8 +82,14 @@ export async function standIn(
         }),
       )
     },
-    add_reminder: (a) =>
-      db.reminders.push({ id: a.p_id, item_id: a.p_item, ...(a.p_fields as object) }),
+    add_reminder: (a) => {
+      const fields = a.p_fields as { fixed_at?: string }
+      db.reminders.push({ id: a.p_id, item_id: a.p_item, fires_at: fields.fixed_at, ...fields })
+    },
+    update_item: (a) => Object.assign(item(a.p_id) ?? {}, a.p_patch as object),
+    remove_reminder: (a) => {
+      db.reminders = db.reminders.filter((r) => r.id !== a.p_id)
+    },
     archive_item: (a) =>
       Object.assign(item(a.p_id) ?? {}, { archived_at: new Date().toISOString() }),
     restore_item: (a) => Object.assign(item(a.p_id) ?? {}, { archived_at: null }),
