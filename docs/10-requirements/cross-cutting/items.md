@@ -37,7 +37,7 @@ Stage 2, are at the end.*
 
 **As** Joe, **I want** to open any Item from wherever I see it and get back
 easily, **so that** looking at something never loses my place.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given a list of Items, when I open one, then it opens on a page of its own
@@ -54,7 +54,7 @@ Acceptance criteria
 
 **As** Joe, **I want** deleting to be quick and undoable, **so that** a
 slip costs nothing.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given an Item, when I delete it, then it leaves every page at once, and I
@@ -65,7 +65,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to get back something I deleted days ago, **so
 that** nothing is lost for good by accident.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given Settings, then one Recently deleted page lists my deleted Items of
@@ -78,7 +78,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to change what kind of thing an Item is, **so that**
 a Note that turned out to be a job becomes a Task.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given an Item, then I'm offered only the Types it can be converted into,
@@ -90,7 +90,7 @@ Acceptance criteria
 
 **As** Joe, **I want** one set of Labels for my Notes and Tasks that I can
 tidy, **so that** "Home" means the same thing everywhere.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given a Note or a Task, when I type a Label's name, then I can pick an

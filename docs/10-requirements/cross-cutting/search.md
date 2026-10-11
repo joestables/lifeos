@@ -25,7 +25,7 @@ Stage 2, are at the end.*
 
 **As** Joe, **I want** to type a few words and find the Item, **so that** I
 never hunt through pages.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given any page, then Search opens from the navigation, or with one key
@@ -41,7 +41,7 @@ Acceptance criteria
 
 **As** Joe with no signal, **I want** to find Items I've already loaded,
 **so that** search still helps offline.
-Priority: Could · Status: proposed
+Priority: Could · Status: agreed
 
 Acceptance criteria
 1. Given I have no connection, when I search, then the Items held on the

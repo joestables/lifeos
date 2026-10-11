@@ -46,7 +46,9 @@ Not yet written.
   buttons).
 - Alarm-grade Reminders need the Android wrapper (Stage 7)
   ([overview](../20-architecture/overview.md#platforms)).
-- Deliveries are logged (`core.reminder_deliveries`).
+- Deliveries are logged (`core.reminder_deliveries`), sent within a minute,
+  once per device, and missed after 12 hours
+  ([ADR-0044](../20-architecture/adr/0044-reminder-delivery.md), Proposed).
 
 ## Free-tier constraints
 

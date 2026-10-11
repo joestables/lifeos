@@ -12,8 +12,11 @@ first; the requirements, drafted at the start of Stage 2, are at the end.*
   Provisionally agreed).
 - **Anchors per Type** are tabled in the
   [data model](../../20-architecture/data-model.md#time-fields-per-schedulable-type).
-- **Delivery** records what was sent, when (`core.reminder_deliveries`), to
-  each person's push devices (`core.push_devices`: Web Push, later FCM).
+- **Delivery:** a minute job finds what is due and an Edge Function sends
+  it by Web Push to each of the person's devices, recording each delivery
+  (`core.reminder_deliveries`, `core.push_devices`)
+  ([ADR-0044](../../20-architecture/adr/0044-reminder-delivery.md),
+  Proposed).
 - **Every Reminder goes to all of a person's devices** that have
   notifications on. There is no choosing a device per Reminder (Joe: it is
   always his phone, the installed app).
@@ -34,7 +37,7 @@ notification on each platform is checked by hand.*
 
 **As** Joe, **I want** to turn notifications on for each phone and computer
 I use, **so that** Reminders reach me wherever I am.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given none of my devices has notifications on, then Inbox offers to turn
@@ -50,7 +53,7 @@ Acceptance criteria
 
 **As** Joe, **I want** a dated Task to remind me without my asking, **so
 that** setting a date is enough.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given I give a Task a do-on date with no time, then it has a Reminder at
@@ -65,7 +68,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to add, change and remove Reminders on any Item,
 **so that** I'm reminded when it suits me.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given an Item, then I can add a Reminder at a fixed date and time, or,
@@ -79,7 +82,7 @@ Acceptance criteria
 
 **As** Joe, **I want** each Reminder to arrive on time and only once, **so
 that** I can trust it instead of an alarm.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given a Reminder at 09:00, then a notification with the Item's title (and
@@ -99,7 +102,7 @@ Acceptance criteria
 
 **As** Joe on Android or a computer, **I want** to tick a Task or snooze it
 from the notification, **so that** I needn't open the app.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given a Task's notification, when I choose Done, then the Task is done,
@@ -113,7 +116,7 @@ Acceptance criteria
 
 **As** Joe, **I want** tapping a notification to open what it's about,
 **so that** I can act on it at once — on the iPhone above all.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given a notification, when I tap it, then LifeOS opens on that Item's
@@ -123,7 +126,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to set my default time and which Reminders I get
 by default, **so that** the defaults suit my day.
-Priority: Should · Status: proposed
+Priority: Should · Status: agreed
 
 Acceptance criteria
 1. Given Settings, when I change my default time to 08:00, then new
@@ -136,7 +139,7 @@ Acceptance criteria
 
 **As** Joe, **I want** one notification each morning saying what needs me,
 **so that** I know the shape of the day before opening anything.
-Priority: Should · Status: proposed
+Priority: Should · Status: agreed
 
 Acceptance criteria
 1. Given the digest is on (it is by default, at 07:00), then each morning
@@ -149,7 +152,7 @@ Acceptance criteria
 
 **As** Joe, **I want** a nudge when a Task goes past its due date, **so
 that** a deadline doesn't slip by quietly.
-Priority: Should · Status: proposed
+Priority: Should · Status: agreed
 
 Acceptance criteria
 1. Given a Task due yesterday that isn't done, then I get one notification

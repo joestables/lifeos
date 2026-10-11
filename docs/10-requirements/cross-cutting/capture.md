@@ -53,7 +53,7 @@ at the start of Stage 2, are at the end.*
 
 **As** Joe, **I want** to jot a thought down in one line from anywhere,
 **so that** it's out of my head in seconds and I can sort it later.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given I am on any page, when I open capture, type "ceramics class for the
@@ -73,7 +73,7 @@ Acceptance criteria
 **As** Joe, **I want** capture one tap or one key away on every page, and to
 come back to exactly what I was doing, **so that** capturing never
 interrupts me.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given I am on any page, on a phone or a computer, then capture opens with
@@ -89,7 +89,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to type dates the way I say them, **so that** I never
 open a date picker for the common cases.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Capture and adding a Task understand dates the same way, with no signal.
 
@@ -113,7 +113,7 @@ Acceptance criteria
 
 **As** Joe, **I want** a dated Thought to remind me even before I sort it,
 **so that** a jotted "dentist tue 3pm?" isn't forgotten in Inbox.
-Priority: Should · Status: proposed
+Priority: Should · Status: agreed
 
 Acceptance criteria
 1. Given I save "dentist tue 3pm?" as a Thought, then it has a Reminder for

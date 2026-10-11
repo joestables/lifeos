@@ -40,13 +40,13 @@ Provisionally agreed). It replaces Google Tasks.
 
 ## What the page shows (Stage 2)
 
-"New Task" is the page's main action. The page has four views (Joe, 11
+"New task" is the page's main action. The page has four views (Joe, 11
 October):
 
 | View of the page | What it shows |
 |---|---|
-| **All Tasks** (first) | Open Tasks under Overdue, Today, Tomorrow, each remaining day of this week, Later, No date, and Someday last |
-| **By Label** | Open Tasks under each Label that has any, then No label — the nearest thing to Google Tasks' lists |
+| **All tasks** (first) | Open Tasks under Overdue, Today, Tomorrow, each remaining day of this week, Later, No date, and Someday last |
+| **By label** | Open Tasks under each Label that has any, then No label — the nearest thing to Google Tasks' lists |
 | **Recurring** | Each repeating Task once, with its repeat and its next date: those on a schedule, then those after you finish |
 | **Completed** | Done Tasks, the most recently done first |
 
@@ -63,7 +63,7 @@ and on a phone ([ITM-001](../cross-cutting/items.md#itm-001--open-an-item)).
 
 **As** Joe, **I want** to add a Task from the Tasks View in one line, **so
 that** it's as quick as Google Tasks.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given the Tasks View, when I add "renew insurance fri", then a Task
@@ -78,7 +78,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to set everything about a Task in one place, **so
 that** a Task can hold what I need to do it.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given a Task, when I open it, then I can change its title, notes, do-on
@@ -91,7 +91,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to tick a Task off and see it go, **so that** the
 list shows only what's left.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given an open Task, when I tick it, then it is done, leaves the open
@@ -104,12 +104,12 @@ Acceptance criteria
 
 **As** Joe, **I want** to see my Tasks by when and by what they're for,
 **so that** I can plan the day and find the Car jobs.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given open Tasks to do today, tomorrow, next month, and with no date,
-   then "All Tasks" shows them under Today, Tomorrow, Later and No date.
-2. Given Tasks labelled Home and Car and one with none, then "By Label"
+   then "All tasks" shows them under Today, Tomorrow, Later and No date.
+2. Given Tasks labelled Home and Car and one with none, then "By label"
    shows Home, Car and No label, each with its Tasks; a Task with two Labels
    is under both.
 3. Given a Task, when I give it a Label, then I can pick one I already have
@@ -120,7 +120,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to star the Tasks that matter most, as in Google
 Tasks, **so that** they stand out wherever they appear.
-Priority: Should · Status: proposed
+Priority: Should · Status: agreed
 
 Acceptance criteria
 1. Given a Task, when I star it, then it shows as starred wherever it
@@ -132,7 +132,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to tick off parts of a Task inside it, **so that** a
 job with parts stays one Task.
-Priority: Could · Status: proposed
+Priority: Could · Status: agreed
 
 Acceptance criteria
 1. Given a Task, when I add five sub-tasks and tick two, then the Task shows
@@ -143,18 +143,18 @@ Acceptance criteria
 
 **As** Joe, **I want** to park a Task for someday, **so that** it's kept but
 not in my way.
-Priority: Should · Status: proposed
+Priority: Should · Status: agreed
 
 Acceptance criteria
 1. Given a Task, when I move it to Someday, then it loses its do-on date,
-   leaves the dated groups and shows under Someday, last in All Tasks; giving it a do-on date
+   leaves the dated groups and shows under Someday, last in All tasks; giving it a do-on date
    makes it active again.
 
 ### TSK-008 — Repeat on a schedule
 
 **As** Joe, **I want** a Task to repeat on a schedule, **so that** "take
 the bins out" comes back every Monday.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given a Task, then I can make it repeat daily, every weekday, weekly on
@@ -172,7 +172,7 @@ Acceptance criteria
 **As** Joe, **I want** some Tasks to come back a while after I last did
 them, **so that** "descale the kettle" is three months after the last time,
 not on a fixed date.
-Priority: Should · Status: proposed
+Priority: Should · Status: agreed
 
 Acceptance criteria
 1. Given a Task repeating three months after completion, when I tick it
@@ -183,7 +183,7 @@ Acceptance criteria
 **As** Joe, **I want** a missed daily Task to be skipped rather than stack
 up, **so that** missing vitamins on Monday doesn't leave seven overdue
 Tasks by Sunday.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given a daily Task not done on Monday, when Tuesday's occurrence comes
@@ -195,7 +195,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to change a repeat from a given date, or stop it,
 **so that** past occurrences and my edits are kept.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given a weekly Task, when I change one occurrence's title, then only
@@ -210,7 +210,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to put Tasks in my own order within a group, **so
 that** the list reads in the order I'll do things.
-Priority: Could · Status: proposed
+Priority: Could · Status: agreed
 
 Acceptance criteria
 1. Given two Tasks under Today, when I move the second above the first, then

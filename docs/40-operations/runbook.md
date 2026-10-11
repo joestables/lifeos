@@ -32,8 +32,8 @@ Done 9 October 2026.
   reads `ops.events` to find it.
 - **A nightly health check** (`pg_cron`, 03:00 UTC, `ops.health_check()`)
   looks at the last day's events, failed jobs and the heartbeats of jobs
-  outside the database (none yet; Integration connections join when there
-  are some), and records what it finds in `ops.health_runs`. **Nobody is
+  outside the database (from Stage 2, Reminder sending and the nightly
+  series run; Integration connections join when there are some), and records what it finds in `ops.health_runs`. **Nobody is
   notified** (Joe, 10 October): Joe checks, or asks Claude "any problems?",
   and Claude reads `ops.health_runs` and `ops.events`. Notifications can be
   added later. A broken Integration also shows in Inbox.

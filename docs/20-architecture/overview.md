@@ -54,9 +54,9 @@ flowchart TB
     storage["Storage<br/>photos (resized on the device)<br/>and attachments"]
     realtime["Realtime<br/>shared Lists and Shops"]
     db[("Postgres<br/>core + one schema per Module, ops;<br/>RLS through one visibility rule (core_private);<br/>triggers write core.activity")]
-    edge["Edge Functions<br/>Integration connect and sync,<br/>nightly series extension,<br/>capture address (later)"]
-    reminders["Reminder delivery<br/>reads fires_at"]
-    cron["pg_cron<br/>nightly health check"]
+    edge["Edge Functions<br/>nightly series extension,<br/>notification actions,<br/>Integration connect and sync,<br/>capture address (later)"]
+    reminders["Reminder sending<br/>(Edge Function, VAPID)"]
+    cron["pg_cron<br/>each minute: what is due;<br/>nightly: series, health check"]
     vault["Vault<br/>Integration tokens"]
   end
 
@@ -76,6 +76,8 @@ flowchart TB
   reminders --> db
   reminders -- "sends" --> pushsvc
   cron --> db
+  cron -- "pg_net" --> reminders
+  cron -- "pg_net" --> edge
   outside --> edge
   mcp -. "published layer" .-> db
 ```

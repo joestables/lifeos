@@ -37,7 +37,11 @@ created by hand.
 
 ## Web Push
 
-New VAPID keys for v2.
+New VAPID keys for v2, made by Claude when Reminders are built
+([ADR-0044](../20-architecture/adr/0044-reminder-delivery.md), Proposed):
+the private key is an Edge Function secret; the public key is a Vercel env
+var the app is built with. The secret the `pg_cron` jobs send to the Edge
+Functions is kept in Vault and as an Edge Function secret.
 
 ## Google Calendar (Stage 3)
 

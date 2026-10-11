@@ -29,8 +29,8 @@ Each stage's working plan, and a record of every pull request, live in
 [50-progress](50-progress/). Stages 0 and 1 are done
 ([Stage 1's plan](50-progress/plans/stage-1.md), with what it carries into
 Stage 2). **Stage 2 is in progress**
-([plan](50-progress/plans/stage-2.md)): its specs are drafted and wait for
-Joe.
+([plan](50-progress/plans/stage-2.md)): its specs are agreed, and its
+design is being brought into the design system.
 
 Each stage begins by writing its own plan (`50-progress/plans/stage-N.md`,
 shaped like the last one) whose first step is the stage's specs, which Joe

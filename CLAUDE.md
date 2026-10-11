@@ -2,7 +2,7 @@
 
 LifeOS v2 is being built, stage by stage. Stage 0 settled the architecture
 (Provisionally agreed); Stage 1 built the foundation; Stage 2 is in progress,
-its specs waiting for Joe. The current stage's plan is in
+its specs agreed. The current stage's plan is in
 [docs/50-progress/plans/](docs/50-progress/plans/);
 a stage without one starts by writing it, shaped like the last, with the
 stage's specs as its first step for Joe to agree

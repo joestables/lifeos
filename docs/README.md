@@ -6,7 +6,7 @@ source of truth for what it does and why. Code is checked against them.
 
 Stage 0 (requirements and architecture) and Stage 1 (foundation) are done.
 **Stage 2** is in progress: its [plan](50-progress/plans/stage-2.md) is
-written and its specs are drafted for Joe to agree
+written and its specs are agreed
 ([roadmap](roadmap.md#where-we-are)).
 
 ## Index
@@ -156,6 +156,8 @@ Consequences**, to a page.
 | [0041](20-architecture/adr/0041-visual-direction.md) | Visual direction: Stone, neutral, coloured by Type | Provisionally agreed |
 | [0042](20-architecture/adr/0042-data-layer.md) | The data layer | Provisionally agreed |
 | [0043](20-architecture/adr/0043-colour-by-type.md) | Colour by Type | Provisionally agreed |
+| [0044](20-architecture/adr/0044-reminder-delivery.md) | How Reminders are delivered | Proposed |
+| [0045](20-architecture/adr/0045-extending-series.md) | Where repeating Items are made | Proposed |
 
 ## Sources
 

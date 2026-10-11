@@ -261,8 +261,8 @@ rule and create no links.
 | `core.items` | Every Item |
 | `core.series` | Repeat rules for generated occurrences |
 | `core.links` | Every link |
-| `core.reminders` · `core.reminder_deliveries` | Reminders per person; what was sent, when |
-| `core.push_devices` | Web Push (later FCM) subscriptions per person |
+| `core.reminders` · `core.reminder_deliveries` | Reminders per person; one row per notification and device — a Reminder, the morning digest or an overdue nudge — with when it was sent, or why not ([ADR-0044](adr/0044-reminder-delivery.md), Proposed) |
+| `core.push_devices` | Web Push (later FCM) subscriptions per person; a device the push service says is gone is no longer sent to |
 | `core.inbox_state` | Per-person dismiss / snooze of Inbox entries |
 | `core.activity` | The activity log, written by triggers: `created`, `updated`, `converted`, `archived`, `restored`, `linked`, `unlinked`, with the changed fields |
 | `core.item_types` · `core.link_types` | The ontology's lookup tables, generated from `packages/ontology` ([ADR-0008](adr/0008-registries-declared-in-code.md)) |
@@ -274,7 +274,7 @@ rule and create no links.
 | `core.external_refs` | Integration ids and raw payloads per Item |
 | `core.item_types` · `core.link_types` | Lookup tables generated from the ontology package |
 | `ops.events` | Errors and failures from the app, Edge Functions, cron jobs and Integrations: what, where (screen), the last few actions, never Items' content |
-| `ops.health_runs` · `ops.heartbeats` | The nightly health check's findings; when jobs outside the database last ran (none yet) |
+| `ops.health_runs` · `ops.heartbeats` | The nightly health check's findings; when jobs outside the database last ran: Reminder sending and the nightly series run ([ADR-0044](adr/0044-reminder-delivery.md), [ADR-0045](adr/0045-extending-series.md)) |
 
 ## The knowledge graph, drawn
 

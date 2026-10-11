@@ -55,9 +55,18 @@ Branch `claude/kind-dijkstra-1kv0xt` · 2026-10-10
   and Notes specs say how their Items open and which views the Tasks page
   has.
 
+- Joe agreed the specs and the second pass (11 October), with sentence case
+  for the Tasks views and main actions and a "+" only on a phone's floating
+  buttons; every Stage 2 requirement is now *agreed*.
+- Plan step 2: [ADR-0044](../20-architecture/adr/0044-reminder-delivery.md)
+  (how Reminders are delivered) and
+  [ADR-0045](../20-architecture/adr/0045-extending-series.md) (where
+  repeating Items are made), both *Proposed*; the data model, overview,
+  reminders spec, non-functional, runbook and integration setup cite them.
+
 **Left for later**
-- Joe agrees the specs; then the ADRs of plan step 2, the design step, and
-  the build. The ontology package drops a Note's *idea* status and gains
+- Joe agrees ADR-0044 and ADR-0045; the design step (spec, theme, shared
+  components, app icon); the build. The ontology package drops a Note's *idea* status and gains
   colours, Labels and marks with the Stage 2 schema (plan step 4).
 
 ## [#2](https://github.com/joestables/lifeos/pull/2) — Phone menu button; Supabase URL settings
