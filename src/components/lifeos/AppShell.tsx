@@ -3,6 +3,7 @@ import { PlusIcon, type LucideIcon } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
+import { Kbd } from '@/components/ui/kbd'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import {
   Sidebar,
@@ -41,7 +42,7 @@ interface ShellProps {
   sync: { pending: number; failed: number }
   /** Shown at the top of every page: the offline notice (OFF-005). */
   notice?: ReactNode
-  /** Opens capture: the top bar's button on a phone (CAP-002). Shown once capture exists. */
+  /** Opens capture (CAP-002): the drawer's button on a computer, the top bar's on a phone. */
   onCapture?: () => void
   children: ReactNode
 }
@@ -63,7 +64,7 @@ function Brand() {
   )
 }
 
-function Drawer({ pages, me, sync }: Omit<ShellProps, 'children' | 'onCapture' | 'notice'>) {
+function Drawer({ pages, me, sync, onCapture }: Omit<ShellProps, 'children' | 'notice'>) {
   const { isMobile, setOpenMobile } = useSidebar()
   const now = pages.filter((p) => !p.later)
   const later = pages.filter((p) => p.later)
@@ -74,6 +75,11 @@ function Drawer({ pages, me, sync }: Omit<ShellProps, 'children' | 'onCapture' |
         <div className="flex h-8 items-center pl-1.5">
           <Brand />
         </div>
+        {onCapture && !isMobile && (
+          <Button className="mt-2 w-full" onClick={onCapture}>
+            <PlusIcon /> Capture <Kbd className="ml-auto">N</Kbd>
+          </Button>
+        )}
       </SidebarHeader>
       <SidebarContent>
         <nav aria-label="Pages">
@@ -135,7 +141,7 @@ export function AppShell({ children, onCapture, notice, ...drawer }: ShellProps)
   return (
     <SidebarProvider>
       <Sidebar>
-        <Drawer {...drawer} />
+        <Drawer {...drawer} onCapture={onCapture} />
       </Sidebar>
       <SidebarInset>
         <div className="box-content flex h-16 shrink-0 items-center gap-2 bg-background px-2 pt-[env(safe-area-inset-top)] md:hidden">

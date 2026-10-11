@@ -1,0 +1,12 @@
+{
+  "name": "@lifeos/capture",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "chrono-node": "2.10.1"
+  }
+}

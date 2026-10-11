@@ -15,6 +15,8 @@ import {
 import { useEffect } from 'react'
 import { AppShell, type DrawerPage } from '@/components/lifeos'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { CaptureProvider } from '@/app/capture'
+import { useOpenCapture } from '@/app/open-capture'
 import { ItemPopup } from '@/app/items'
 import { authReady, queue, useAuth, useItems, useOnline, useSyncCounts } from '@/data'
 
@@ -47,7 +49,6 @@ export const Route = createFileRoute('/_app')({
 
 function SignedIn() {
   const auth = useAuth()
-  const sync = useSyncCounts(queue)
   const navigate = useNavigate()
   const { item } = Route.useSearch()
   const { outOfDate } = useItems(queue)
@@ -59,9 +60,30 @@ function SignedIn() {
   if (auth.status !== 'signed-in') return null
 
   return (
+    <CaptureProvider>
+      <Shell name={auth.me.name} item={item} outOfDate={outOfDate} online={online} />
+    </CaptureProvider>
+  )
+}
+
+function Shell({
+  name,
+  item,
+  outOfDate,
+  online,
+}: {
+  name: string
+  item?: string
+  outOfDate: boolean
+  online: boolean
+}) {
+  const sync = useSyncCounts(queue)
+  const openCapture = useOpenCapture()
+  return (
     <AppShell
+      onCapture={openCapture}
       pages={PAGES}
-      me={{ name: auth.me.name, space: 'Personal' }}
+      me={{ name, space: 'Personal' }}
       sync={sync}
       notice={
         outOfDate && (

@@ -87,6 +87,7 @@ export const {
   addLabel,
   removeLabel,
   setMark,
+  addFixedReminder,
 } = writes(queue, labelsNow)
 
 export const { unsentWrites, signOut } = session(queue)
@@ -100,9 +101,11 @@ export {
   useMarks,
   useOnline,
   useQueueEntries,
+  useSettings,
   useSyncCounts,
 } from './hooks'
 export { newId } from './ids'
 export type { Label } from './labels'
 export { noteAction, reportEvent, startReporting } from './report'
+export type { Settings } from './settings'
 export type { Item, ItemFields, SyncState } from './types'

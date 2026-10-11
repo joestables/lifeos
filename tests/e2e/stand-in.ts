@@ -16,6 +16,7 @@ export interface Rows {
   labels?: { id: string; name: string }[]
   item_labels?: { item_id: string; label_id: string }[]
   marks?: { item_id: string }[]
+  people?: { timezone: string; default_reminder_time: string }[]
 }
 
 /** An Item row with everything but what a test names. */
@@ -46,7 +47,7 @@ export const itemRow = (fields: Record<string, unknown> & { id: string; type: st
  * Answers the app's Supabase calls without a server: the given rows, and the
  * writes the app sends change them as the database would, so a refresh shows
  * what was done. Sign-out succeeds. With signedIn, the page starts with
- * Ann's session.
+ * Ann's session. Returns the rows as they are now, for a test to check.
  */
 export async function standIn(
   page: Page,
@@ -62,9 +63,26 @@ export async function standIn(
     })),
     item_labels: [...(rows.item_labels ?? [])],
     marks: [...(rows.marks ?? [])],
+    people: [...(rows.people ?? [])],
+    reminders: [] as Record<string, unknown>[],
   }
   const item = (id: unknown) => db.items.find((i) => i.id === id)
   const write: Record<string, (a: Record<string, unknown>) => void> = {
+    create_item: (a) => {
+      if (item(a.p_id)) return
+      const at = new Date().toISOString()
+      db.items.push(
+        itemRow({
+          id: String(a.p_id),
+          type: String(a.p_type),
+          created_at: at,
+          updated_at: at,
+          ...(a.p_fields as object),
+        }),
+      )
+    },
+    add_reminder: (a) =>
+      db.reminders.push({ id: a.p_id, item_id: a.p_item, ...(a.p_fields as object) }),
     archive_item: (a) =>
       Object.assign(item(a.p_id) ?? {}, { archived_at: new Date().toISOString() }),
     restore_item: (a) => Object.assign(item(a.p_id) ?? {}, { archived_at: null }),
@@ -124,6 +142,7 @@ export async function standIn(
       [SESSION_KEY, JSON.stringify(session)],
     )
   }
+  return db
 }
 
 /** Puts writes in the queue before the app loads, as if made offline earlier. */

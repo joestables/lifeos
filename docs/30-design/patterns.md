@@ -33,7 +33,7 @@ AppShell
 - Counts are 12px, muted, tabular, on the right. "Later" pages sit at 50%
   opacity.
 - The Capture button sits under the brand, full width, ink on every page,
-  with its shortcut (N) in a Kbd (from Stage 2, with capture).
+  with its shortcut (N) in a Kbd, on a computer; a phone's is in the top bar.
 - Each page's icon: Inbox `inbox`, Plan `calendar-days`, Tasks
   `square-check-big`, Notes `sticky-note`, Recipes `chef-hat`, Gym
   `dumbbell`, Goals `target`, Wardrobe `shirt`, Cardio `footprints`, Finance
@@ -125,6 +125,26 @@ used the same way on every screen.
   has yet; a toast says what it became ("Converted into a Task").
 - **Delete** closes the Item and says so in a toast with Undo ("Deleted
   "Renew insurance""); the Item waits in Recently deleted.
+
+## Capture
+
+[CAP-001–004](../10-requirements/cross-cutting/capture.md#requirements);
+the CaptureDialog in [components](components.md).
+
+- Opens over the page with one tap or N (not while typing in a field), the
+  line ready to type; Enter saves. Saving or closing changes nothing on the
+  page but the new Item.
+- It makes a Thought unless switched to Task, and starts as a Thought every
+  time.
+- Under the line, for a Thought with a date: the offer, "Task, Fri 18:00?",
+  which switches to Task when tapped and is never taken on its own. For a
+  Task: what it will be saved with, as Badges ("Fri 16 Oct 18:00", "Due
+  Fri 16 Oct", and the Reminder's time with a bell). Nothing shows when the
+  line has no date.
+- Dates as capture says them: "Today", "Tomorrow", "Fri" within the week,
+  else "Fri 23 Oct".
+- A toast says what was made, with Undo: "Thought saved", "Task saved · Fri
+  18:00".
 
 ## Settings
 

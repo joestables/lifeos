@@ -22,7 +22,7 @@ A component not listed here is added to this page before it is used.
 |---|---|---|
 | **Button** | `primary` (ink, or the Type colour inside `TypeScope`), `secondary`, `outline` (card fill with the hairline edge, no border), `ghost`, `destructive`. Sizes: default 40px, `sm` 32px, `icon` and `icon-sm` (square). Radius 12px, weight 600. | One `primary` per view, for the main action. Icon left of the label, 16px. Icon-only buttons need an accessible label and a tooltip. |
 | **Badge** | `secondary`, `outline` (muted fill, muted text), `destructive` (tinted), plus `TypeBadge`. 22px pill, 12px, weight 600. | Short labels only: a Label, a state, a count. Not a button. |
-| **Input**, **Textarea** | Filled with `--input`, no border; on focus the card fill with the 3px halo. Default 40px; `sm` 32px in tables and toolbars. | Every input has a visible label, except search, which has a search icon. |
+| **Input**, **Textarea** | Filled with `--input`, no border; on focus the card fill with the 3px halo. Default 40px; `sm` 32px in tables and toolbars; `lg` 52px with 16px text, capture's line. | Every input has a visible label, except search, which has a search icon. |
 | **Select** | As Input, with a chevron. | Options open in a menu styled as DropdownMenu. |
 | **Label** | 13px, weight 600. | Above the field, 6px gap. |
 | **Checkbox** | 18px, 6px radius, 1.5px `--input-strong` edge; checked fills with `--primary`. With a `colour`, the edge and the fill are that Type's colour. | Ticking a Task, a sub-task, a set. A Task's checkbox is blue wherever it appears, Inbox included. |
@@ -46,7 +46,7 @@ A component not listed here is added to this page before it is used.
 | **Pagination** | Ghost buttons; current page `--accent`. | Long tables only. |
 | **Progress** | 8px pill, `--muted` track, `--primary` fill. | A share of something done: sets, a goal. |
 | **Skeleton** | `--muted`, 8px radius, 2s pulse. Shaped like what's loading. | Loading for longer than about 300ms. |
-| **Sonner** (toast) | `--popover`, 18px radius, `--shadow-pop`, bottom right (bottom on a phone). | Confirming what just happened, with Undo where possible. |
+| **Sonner** (toast) | `--popover`, 18px radius, `--shadow-pop`, bottom right (bottom on a phone, above where the Fab sits). | Confirming what just happened, with Undo where possible. |
 | **Accordion** | Bold trigger with a tile and a chevron; no lines. | Groups that can collapse (Tasks by Label, exercises). |
 | **Avatar** | 30px circle, `--secondary`, initials 11px weight 700. | People. |
 | **Kbd** | Geist Mono 10.5px, 18px high, 6px radius, `--muted`. | Shortcuts in buttons, menus and tooltips. |
@@ -69,6 +69,7 @@ Built once from the components above, in `@/components/lifeos`.
 | **TypeDot** | 8px dot in the Type colour; hollow when switched off. | Keys and filters. |
 | **ItemRow** | A card-filled row: tile or checkbox, title (weight 600) and meta (13px muted, separated by "·"), then actions that appear on hover, then a control that always shows (Restore). 14px radius, min 56px high, `--shadow-card`, 6px apart. A starred Task shows a filled star in the Type colour at the end. | Any list of Items. |
 | **ItemDialog** | An Item in a Dialog, 580px: a header with the Type's small tile and name, the Item's actions and Close; then its title (`text-day`, after a Task's checkbox) and what it holds, in a ScrollArea. Inside, the Type's colour (`TypeScope`). | Opening an Item as a popup ([patterns](patterns.md#opening-an-item)). |
+| **CaptureDialog** | A Dialog near the top (76px down on a phone, 12% of the screen on a computer), 600px: the title "Capture" and a ToggleGroup of the Types it makes (Thought, Task), each with its icon in the Type's text colour; an `lg` Input; then the offer (an `outline` `sm` button with the Type's icon) or what was understood (`secondary` Badges with icons); Cancel and Save (no Close button), side by side and full width on a phone. | Capture ([patterns](patterns.md#capture)). |
 | **ItemPage** | An Item on a page of its own: a BackLink to where you came from with the Item's actions on the right, then the title (`text-h1`) and what it holds. | A Note on a phone. |
 | **BackLink** | 13px weight 600, muted, a chevron and the page's name ("Settings"); the foreground on hover. | Above the title of a page reached from another. |
 | **CardRow** | A row in a Card: optional icon (16px, muted), a label (weight 600), an optional muted value, a control. 44px; as a link, 48px with a chevron, filled `--accent` on hover. | Settings. |
