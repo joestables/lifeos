@@ -34,6 +34,9 @@ import {
   DayColumn,
   FilterChip,
   ItemRow,
+  LabelPicker,
+  NoteCard,
+  NoteGrid,
   Fab,
   PageHeader,
   PlanCard,
@@ -529,6 +532,49 @@ function DesignPage() {
               meta={['52.5 kg', 'On track']}
             />
           </div>
+        </Section>
+
+        <Section title="Notes">
+          <TypeScope colour="yellow" className="flex max-w-3xl flex-col gap-3.5">
+            <NoteGrid>
+              <NoteCard
+                title="Japan packing list"
+                body={'- [x] Passport\n- [ ] Plug adapters ×2\n- [ ] JR Pass voucher'}
+                labels={['Travel']}
+                onOpen={() => {}}
+              />
+              <NoteCard
+                title="House details"
+                body={
+                  '**Boiler**: Worcester Greenstar 30i, serviced *March*.\n\nStopcock under the kitchen sink.'
+                }
+                labels={['Home']}
+                onOpen={() => {}}
+              />
+              <NoteCard
+                title="Books to read"
+                body={'1. The Wager\n2. Slow Productivity'}
+                onOpen={() => {}}
+              />
+            </NoteGrid>
+            <Row>
+              <LabelPicker
+                trigger={
+                  <Button variant="ghost" size="sm" className="text-muted-foreground">
+                    <TagIcon /> Label
+                  </Button>
+                }
+                labels={[
+                  { id: 'h', name: 'Home' },
+                  { id: 'r', name: 'Recipes' },
+                  { id: 't', name: 'Travel' },
+                ]}
+                chosen={new Set(['t'])}
+                onToggle={() => {}}
+                onCreate={() => {}}
+              />
+            </Row>
+          </TypeScope>
         </Section>
 
         <Section title="Plan">

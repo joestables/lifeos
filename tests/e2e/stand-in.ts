@@ -86,7 +86,10 @@ export async function standIn(
       const fields = a.p_fields as { fixed_at?: string }
       db.reminders.push({ id: a.p_id, item_id: a.p_item, fires_at: fields.fixed_at, ...fields })
     },
-    update_item: (a) => Object.assign(item(a.p_id) ?? {}, a.p_patch as object),
+    update_item: (a) =>
+      Object.assign(item(a.p_id) ?? {}, a.p_patch as object, {
+        updated_at: new Date().toISOString(),
+      }),
     remove_reminder: (a) => {
       db.reminders = db.reminders.filter((r) => r.id !== a.p_id)
     },
@@ -107,6 +110,15 @@ export async function standIn(
     delete_label: (a) => {
       db.labels = db.labels.filter((l) => l.id !== a.p_id)
       db.item_labels = db.item_labels.filter((r) => r.label_id !== a.p_id)
+    },
+    add_label: (a) => {
+      if (!db.item_labels.some((r) => r.item_id === a.p_item && r.label_id === a.p_label))
+        db.item_labels.push({ item_id: String(a.p_item), label_id: String(a.p_label) })
+    },
+    remove_label: (a) => {
+      db.item_labels = db.item_labels.filter(
+        (r) => !(r.item_id === a.p_item && r.label_id === a.p_label),
+      )
     },
     set_mark: (a) => {
       db.marks = db.marks.filter((m) => m.item_id !== a.p_item)

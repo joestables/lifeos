@@ -2,7 +2,8 @@ import { createFileRoute, useNavigate, useRouter } from '@tanstack/react-router'
 import { useEffect } from 'react'
 import { ItemPage, PageHeader } from '@/components/lifeos'
 import { Button } from '@/components/ui/button'
-import { deleteItem } from '@/app/item-navigation'
+import { deleteItem, draftNote } from '@/app/item-navigation'
+import { NoteBody } from '@/app/note-body'
 import { ItemActions, ItemContent } from '@/app/items'
 import { queue, useItem } from '@/data'
 import { useIsMobile } from '@/hooks/use-mobile'
@@ -21,15 +22,23 @@ function ItemRoute() {
   const isMobile = useIsMobile()
   const navigate = useNavigate()
   const router = useRouter()
-  const { item, status } = useItem(queue, id)
+  const { new: isNew } = Route.useSearch()
+  const { item: found, status } = useItem(queue, id)
+  // A new Note, opened before it is kept (patterns.md#notes).
+  const draft = isNew === 'note' && !found
+  const item = found ?? (draft ? draftNote(id) : undefined)
   const asPage = item !== undefined && opensAsPage(item.type, isMobile)
 
   useEffect(() => {
     if (item && !asPage)
-      void navigate({ to: typeLook(item.type).home, search: { item: item.id }, replace: true })
-  }, [item, asPage, navigate])
+      void navigate({
+        to: typeLook(item.type).home,
+        search: { item: item.id, ...(draft ? { new: 'note' as const } : {}) },
+        replace: true,
+      })
+  }, [item, asPage, draft, navigate])
 
-  if (status === 'loading') return null
+  if (status === 'loading' && !draft) return null
   if (!item) {
     return (
       <>
@@ -50,17 +59,20 @@ function ItemRoute() {
       colour={look.colour}
       back={{ label: look.homeLabel, onClick: back }}
       title={itemTitle(item)}
+      titleField={item.type === 'note' && <NoteBody key={item.id} item={item} draft={draft} />}
       actions={
-        <ItemActions
-          item={item}
-          onDelete={() => {
-            back()
-            deleteItem(item)
-          }}
-        />
+        !draft && (
+          <ItemActions
+            item={item}
+            onDelete={() => {
+              back()
+              deleteItem(item)
+            }}
+          />
+        )
       }
     >
-      <ItemContent item={item} />
+      {item.type !== 'note' && <ItemContent item={item} />}
     </ItemPage>
   )
 }

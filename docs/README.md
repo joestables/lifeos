@@ -158,6 +158,7 @@ Consequences**, to a page.
 | [0043](20-architecture/adr/0043-colour-by-type.md) | Colour by Type | Provisionally agreed |
 | [0044](20-architecture/adr/0044-reminder-delivery.md) | How Reminders are delivered | Provisionally agreed |
 | [0045](20-architecture/adr/0045-extending-series.md) | Where repeating Items are made | Provisionally agreed |
+| [0046](20-architecture/adr/0046-note-bodies.md) | A Note's body is Markdown, edited in place | Provisionally agreed |
 
 ## Sources
 

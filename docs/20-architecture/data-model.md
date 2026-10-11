@@ -87,6 +87,8 @@ core.reminders item_id, person, anchor (starts_at|do_on|due_on) + offset and
 core.activity  item_id, verb, changed (jsonb), at, actor — written by triggers
 ```
 
+- **An Item's body is Markdown** (a Note's lists, checklists and emphasis,
+  [ADR-0046](adr/0046-note-bodies.md)).
 - **Types, link types and measures are declared in code**; a generated
   migration copies Types and link types into lookup tables so the database
   can enforce which Types a link may connect

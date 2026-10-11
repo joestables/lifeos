@@ -2,6 +2,36 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## Not yet opened — Stage 2, step 8: Notes
+
+Branch `claude/kind-dijkstra-1kv0xt` · 2026-10-11
+
+**What it did**
+- [ADR-0046](../20-architecture/adr/0046-note-bodies.md), chosen by Joe: a
+  Note's body is Markdown, edited in place with TipTap (lists, checklists,
+  bold, italic, links; no headings, quotes or code), loaded only when a
+  Note opens (about 145 KB compressed). A round-trip test keeps the editor
+  from changing what it is given. The data model says an Item's body is
+  Markdown.
+- Plan step 8, the Notes page: Tabs of the Labels my Notes have; Pinned,
+  then Others, most recently changed first, as NoteCards in a grid (the
+  start of the body as it reads, cut after 8 lines; Labels at the foot);
+  "No notes yet". "New note" opens an empty Note with its title ready to
+  type, kept only once something is typed. A Note opens in a 640px popup
+  on a computer and on its own page on a phone, its title and body edited
+  in place and kept as they are typed (a short pause, then the write
+  queue; on closing or leaving at once). Its Labels are given from the
+  LabelPicker, where a new one can be made. An untitled Note's first line
+  stands in without its Markdown marks.
+- New in the design spec first: NoteCard and NoteGrid, NoteEditor,
+  LabelPicker, ItemDialog's 640px and editable title, ItemPage's editable
+  title, and a Notes section in patterns.
+- Found on the way: TipTap's focus command waits a frame, so what was typed
+  straight after Enter in the title could land in the wrong place; the
+  body is now focused at once. Ticking a checklist line no longer moves
+  the keyboard focus. 11 unit tests (the reader, the round trip) and 6
+  browser tests (each on desktop and phone).
+
 ## [#5](https://github.com/joestables/lifeos/pull/5) — Stage 2, step 7: Inbox
 
 Branch `claude/kind-dijkstra-1kv0xt` · 2026-10-11

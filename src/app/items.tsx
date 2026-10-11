@@ -23,7 +23,8 @@ import { queue, setMark, useItem, useMarks, type Item } from '@/data'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { convertTargets, itemTitle, MARK_LABEL, opensAsPage, typeLook } from '@/lib/item-types'
 import { useConvert } from './convert'
-import { deleteItem, useCloseItem } from './item-navigation'
+import { deleteItem, draftNote, useCloseItem } from './item-navigation'
+import { NoteBody } from './note-body'
 
 /** An Item's mark (star, pin) and its "…" menu: Convert to, Delete. */
 export function ItemActions({ item, onDelete }: { item: Item; onDelete: () => void }) {
@@ -76,12 +77,14 @@ export function ItemContent({ item }: { item: Item }) {
   return <p className="whitespace-pre-wrap text-muted-foreground">{item.body}</p>
 }
 
-/** The popup for the Item named in the page's ?item= (ITM-001). */
-export function ItemPopup({ id }: { id: string | undefined }) {
+/** The popup for the Item named in the page's ?item= (ITM-001); a new Note with ?new=note. */
+export function ItemPopup({ id, isNew = false }: { id: string | undefined; isNew?: boolean }) {
   const close = useCloseItem()
   const isMobile = useIsMobile()
-  const { item, status } = useItem(queue, id ?? '')
-  if (!id || status === 'loading') return null
+  const { item: found, status } = useItem(queue, id ?? '')
+  const draft = isNew && !found
+  const item = found ?? (draft && id ? draftNote(id) : undefined)
+  if (!id || (status === 'loading' && !draft)) return null
   const onOpenChange = (open: boolean) => !open && close()
 
   if (!item) {
@@ -110,17 +113,21 @@ export function ItemPopup({ id }: { id: string | undefined }) {
       icon={look.icon}
       typeLabel={look.label}
       title={itemTitle(item)}
+      wide={item.type === 'note'}
+      titleField={item.type === 'note' && <NoteBody key={item.id} item={item} draft={draft} />}
       actions={
-        <ItemActions
-          item={item}
-          onDelete={() => {
-            close()
-            deleteItem(item)
-          }}
-        />
+        !draft && (
+          <ItemActions
+            item={item}
+            onDelete={() => {
+              close()
+              deleteItem(item)
+            }}
+          />
+        )
       }
     >
-      <ItemContent item={item} />
+      {item.type !== 'note' && <ItemContent item={item} />}
     </ItemDialog>
   )
 }

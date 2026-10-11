@@ -146,6 +146,20 @@ the CaptureDialog in [components](components.md).
 - A toast says what was made, with Undo: "Thought saved", "Task saved · Fri
   18:00".
 
+## Notes
+
+[NTE-001–004](../10-requirements/views/notes.md#requirements); NoteCard,
+NoteEditor and LabelPicker in [components](components.md).
+
+- Under the title, Tabs: "All", then each Label a Note has, A–Z; choosing
+  one narrows the page to it until All is chosen again.
+- "Pinned", then "Others", each a grid of NoteCards, most recently changed
+  first; without pinned Notes the grid has no heading.
+- "New note" opens an empty Note with its title ready to type; nothing is
+  kept until something is typed, so closing it untouched leaves nothing
+  behind.
+- No Notes: an empty state, "No notes yet".
+
 ## Settings
 
 - One column of Cards, `max-w-3xl`; from Stage 2, step 11, Notifications and

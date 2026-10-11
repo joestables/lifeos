@@ -1,6 +1,6 @@
 import { useLocation, useNavigate, useRouter } from '@tanstack/react-router'
 import { toast } from '@/components/ui/sonner'
-import { archiveItem, restoreItem, type Item } from '@/data'
+import { archiveItem, newId, restoreItem, type Item } from '@/data'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { itemTitle, opensAsPage } from '@/lib/item-types'
 
@@ -32,6 +32,27 @@ export function useOpenItem() {
   }
 }
 
+/**
+ * Opens a new, empty Note where Notes open (patterns.md#notes); nothing is
+ * kept until something is typed.
+ */
+export function useNewNote() {
+  const navigate = useNavigate()
+  const isMobile = useIsMobile()
+  return () => {
+    const id = newId()
+    if (opensAsPage('note', isMobile)) {
+      void navigate({ to: '/item/$id', params: { id }, search: { new: 'note' } })
+    } else {
+      void navigate({
+        to: '.',
+        search: (prev) => ({ ...prev, item: id, new: 'note' }),
+        state: { itemOpened: true },
+      })
+    }
+  }
+}
+
 /** Closes the Item popup, back to the page as it was. */
 export function useCloseItem() {
   const navigate = useNavigate()
@@ -39,7 +60,12 @@ export function useCloseItem() {
   const location = useLocation()
   return () => {
     if (location.state.itemOpened) router.history.back()
-    else void navigate({ to: '.', search: (prev) => ({ ...prev, item: undefined }), replace: true })
+    else
+      void navigate({
+        to: '.',
+        search: (prev) => ({ ...prev, item: undefined, new: undefined }),
+        replace: true,
+      })
   }
 }
 
@@ -49,4 +75,32 @@ export function deleteItem(item: Item) {
   toast(`Deleted "${itemTitle(item)}"`, {
     action: { label: 'Undo', onClick: () => restoreItem(item.id) },
   })
+}
+
+/** A Note opened before it is kept: "New note" (patterns.md#notes). */
+export function draftNote(id: string): Item {
+  const at = new Date().toISOString()
+  return {
+    id,
+    type: 'note',
+    title: '',
+    body: '',
+    space_id: '',
+    owner_id: '',
+    status: 'active',
+    starts_at: null,
+    ends_at: null,
+    all_day: null,
+    due_on: null,
+    do_on: null,
+    do_at: null,
+    slot: null,
+    series_id: null,
+    occurrence_on: null,
+    position: null,
+    touched_at: null,
+    created_at: at,
+    updated_at: at,
+    archived_at: null,
+  }
 }
