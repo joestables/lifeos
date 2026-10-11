@@ -4,7 +4,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = extensions, public;
-select plan(27);
+select plan(29);
 
 insert into auth.users (id, email) values
   ('00000000-0000-4000-8000-00000000000a', 'ann@example.com'),
@@ -132,7 +132,19 @@ select is(
 );
 
 -- ITM-004: a Note converted into a Task keeps its Labels; its pin becomes a star.
-update core.items set type = 'task' where id = '00000000-0000-7000-8000-000000000001';
+select core.convert_item('00000000-0000-7000-8000-000000000001', 'task');
+select core.convert_item('00000000-0000-7000-8000-000000000001', 'task');
+select is(
+  (select count(*)::int from core.activity
+   where item_id = '00000000-0000-7000-8000-000000000001' and verb = 'converted'),
+  1,
+  'ITM-004: converting is recorded in its history, once however often it is sent'
+);
+select throws_ok(
+  $$select core.convert_item('00000000-0000-7000-8000-000000000002', 'note')$$,
+  '23514', null,
+  'ITM-004: a Task can''t be converted into a Note'
+);
 select is(
   (select count(*)::int from core.item_labels where item_id = '00000000-0000-7000-8000-000000000001'),
   1,
@@ -144,7 +156,7 @@ select is(
   'ITM-004: its pin is kept, as the Task''s star'
 );
 -- Into a Type with neither: both go.
-update core.items set type = 'event' where id = '00000000-0000-7000-8000-000000000001';
+select core.convert_item('00000000-0000-7000-8000-000000000001', 'event');
 select is(
   (select count(*)::int from core.item_labels where item_id = '00000000-0000-7000-8000-000000000001')
     + (select count(*)::int from core.marks where item_id = '00000000-0000-7000-8000-000000000001'),

@@ -111,8 +111,27 @@ Branch `claude/kind-dijkstra-1kv0xt` · 2026-10-10
   only the jobs read them; leaked-password protection is off, as only the
   test account can use a password.
 
+- Plan step 5, working with Items. Every Item has a link of its own,
+  `/item/<id>`; a Thought or Task opens in a Dialog over the page
+  (`?item=<id>`, so Back closes it), a Note too on a computer and on a page
+  of its own on a phone; an unknown link says "This can't be found". The
+  Dialog and page carry the Type's tile and name, the star or pin, and a
+  "…" menu with Convert to (only Types the app has, from the ontology's new
+  `stage`) and Delete, which says so with Undo. Settings, reached from your
+  row in the drawer: Labels (a Card on a computer, its own page on a phone:
+  new, rename, delete with a count), Recently deleted (newest first, Restore
+  with Undo) and Sign out. An offline notice tops every page. New shared
+  components, specified first: ItemDialog, ItemPage, BackLink, CardRow,
+  EmptyState, a large TypeTile, ItemRow's always-shown control, PageHeader's
+  back link. The data layer reads deleted Items too, and Labels, Label
+  links and marks, each laid over by unsent writes; a new database function
+  `convert_item`. Found on the way: reopening the app within 30 seconds of
+  a change showed the device's copy without asking the server — it now
+  always refreshes on start. 12 unit tests and 8 browser tests (each on desktop and
+  phone) added; the stand-in Supabase now keeps the writes it is sent.
+
 **Left for later**
-- The build (plan steps 5–14): series' occurrence functions come with step
+- The build (plan steps 6–14): series' occurrence functions come with step
   10, the notification job with step 11. The ontology package drops a Note's *idea* status and gains
   colours, Labels and marks with the Stage 2 schema (plan step 4).
 

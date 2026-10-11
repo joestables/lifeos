@@ -1,14 +1,8 @@
 import { Link } from '@tanstack/react-router'
-import { EllipsisIcon, LogOutIcon, PlusIcon, type LucideIcon } from 'lucide-react'
+import { PlusIcon, type LucideIcon } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import {
   Sidebar,
@@ -45,7 +39,8 @@ interface ShellProps {
   pages: DrawerPage[]
   me: { name: string; space: string }
   sync: { pending: number; failed: number }
-  onSignOut: () => void
+  /** Shown at the top of every page: the offline notice (OFF-005). */
+  notice?: ReactNode
   /** Opens capture: the top bar's button on a phone (CAP-002). Shown once capture exists. */
   onCapture?: () => void
   children: ReactNode
@@ -68,7 +63,7 @@ function Brand() {
   )
 }
 
-function Drawer({ pages, me, sync, onSignOut }: Omit<ShellProps, 'children' | 'onCapture'>) {
+function Drawer({ pages, me, sync }: Omit<ShellProps, 'children' | 'onCapture' | 'notice'>) {
   const { isMobile, setOpenMobile } = useSidebar()
   const now = pages.filter((p) => !p.later)
   const later = pages.filter((p) => p.later)
@@ -112,7 +107,12 @@ function Drawer({ pages, me, sync, onSignOut }: Omit<ShellProps, 'children' | 'o
       </SidebarContent>
       <SidebarFooter>
         <SyncStatus pending={sync.pending} failed={sync.failed} />
-        <div className="flex items-center gap-2.5 rounded-control p-2">
+        <Link
+          to="/settings"
+          onClick={close}
+          aria-label={`${me.name}, Settings`}
+          className="flex items-center gap-2.5 rounded-control p-2 outline-none hover:bg-sidebar-accent focus-visible:ring-3 focus-visible:ring-ring-soft aria-[current=page]:bg-sidebar-accent"
+        >
           <Avatar>
             <AvatarFallback>{initials(me.name)}</AvatarFallback>
           </Avatar>
@@ -120,19 +120,7 @@ function Drawer({ pages, me, sync, onSignOut }: Omit<ShellProps, 'children' | 'o
             <div className="truncate text-sm font-[650] text-foreground">{me.name}</div>
             <div className="text-xs text-muted-foreground">{me.space}</div>
           </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              render={<Button variant="ghost" size="icon-sm" aria-label="Account" />}
-            >
-              <EllipsisIcon />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent side="top" align="end">
-              <DropdownMenuItem onClick={onSignOut}>
-                <LogOutIcon /> Sign out
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+        </Link>
       </SidebarFooter>
     </>
   )
@@ -143,7 +131,7 @@ function Drawer({ pages, me, sync, onSignOut }: Omit<ShellProps, 'children' | 'o
  * which scrolls in a ScrollArea. On a phone, a top bar that stays at the top
  * (the menu button, the brand, Capture), and the drawer is a left Sheet.
  */
-export function AppShell({ children, onCapture, ...drawer }: ShellProps) {
+export function AppShell({ children, onCapture, notice, ...drawer }: ShellProps) {
   return (
     <SidebarProvider>
       <Sidebar>
@@ -165,7 +153,12 @@ export function AppShell({ children, onCapture, ...drawer }: ShellProps) {
             </Button>
           )}
         </div>
-        <ScrollArea className="flex-1" viewportClassName="pb-[env(safe-area-inset-bottom)]">
+        <ScrollArea
+          className="flex-1"
+          viewportClassName="pb-[env(safe-area-inset-bottom)]"
+          restorationId="page"
+        >
+          {notice && <div className="px-5 pt-3 sm:px-9 sm:pt-6">{notice}</div>}
           {children}
         </ScrollArea>
       </SidebarInset>

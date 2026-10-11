@@ -12,6 +12,9 @@ const router = createRouter({
   defaultErrorComponent: RouteError,
   // Each page's code starts loading as a finger touches its link.
   defaultPreload: 'intent',
+  // Back returns to the same place on the page (ITM-001); the page scrolls in
+  // AppShell's ScrollArea, marked data-scroll-restoration-id="page".
+  scrollRestoration: true,
 })
 
 startReporting()

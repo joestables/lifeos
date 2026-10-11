@@ -890,6 +890,39 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      convert_item: {
+        Args: { p_id: string; p_type: string }
+        Returns: {
+          all_day: boolean | null
+          archived_at: string | null
+          body: string | null
+          created_at: string
+          do_at: string | null
+          do_on: string | null
+          due_on: string | null
+          ends_at: string | null
+          id: string
+          occurrence_on: string | null
+          owner_id: string
+          position: string | null
+          search: unknown
+          series_id: string | null
+          slot: string | null
+          space_id: string
+          starts_at: string | null
+          status: string
+          title: string
+          touched_at: string | null
+          type: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'items'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       create_item: {
         Args: { p_fields?: Json; p_id: string; p_type: string }
         Returns: {

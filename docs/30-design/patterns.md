@@ -40,8 +40,7 @@ AppShell
   `wallet`.
 - The header holds the brand (the app icon at 24px, then "LifeOS" at 16px
   weight 750) and, from Stage 2, Search; the foot holds SyncStatus and your row
-  (Avatar, name, Space). Your row opens Settings, where Sign out is (until
-  Settings exists, it opens a menu with Sign out).
+  (Avatar, name, Space). Your row opens Settings, where Sign out is.
 
 ## The app icon
 
@@ -105,15 +104,44 @@ used the same way on every screen.
 
 | Type | On a computer | On a phone |
 |---|---|---|
+| Thought | A Dialog over the page | A Dialog over the page |
 | Task | A Dialog over the page | A Dialog over the page |
 | Note | A Dialog over the page | Its own page, with a back link to where you were |
 
-- A Dialog keeps the page beneath where it was; closing it returns there.
+- **Every Item has a link of its own**, `/item/<id>`: its own page where its
+  Type opens as one, otherwise its home page (Inbox for a Thought, Tasks,
+  Notes) with it open in a Dialog. A Dialog is `?item=<id>` on the page
+  beneath, so Back closes it; a link to an Item that can't be seen says
+  "This can't be found" (ITM-001).
+- A Dialog keeps the page beneath where it was; closing it returns there,
+  and Back from an Item's own page returns to the same place on the list.
 - An Item's own page keeps the top bar (menu, brand, Capture), with a back
   link above the title.
 - Changes are kept as they are made; there is no Save in an Item's Dialog.
-- The Dialog's header holds the Item's mark (star, pin), its "…" menu
-  (Convert to, Delete) and Close.
+- The Dialog's header holds the Type's tile and name, the Item's mark
+  (star, pin), its "…" menu (Convert to, Delete) and Close; it opens with
+  the Dialog itself focused, not its first control.
+- **Convert to** lists only the Types this Type converts into that the app
+  has yet; a toast says what it became ("Converted into a Task").
+- **Delete** closes the Item and says so in a toast with Undo ("Deleted
+  "Renew insurance""); the Item waits in Recently deleted.
+
+## Settings
+
+- One column of Cards, `max-w-3xl`; from Stage 2, step 11, Notifications and
+  Reminders join it, in two columns on a computer.
+- **Labels** is a Card on a computer — its title, "New label" (outline) on
+  the right, then a CardRow per Label: its name, how many Items have it, and
+  a "…" menu (Rename, Delete). On a phone, Settings links to a Labels page,
+  where the Card has no title and "New label" is the page's main action.
+- Renaming or making a Label is a small Dialog with one field and Save;
+  deleting one asks first (AlertDialog), saying how many Items it comes off.
+- A Card of CardRows leads on: Recently deleted (with its count), then Sign
+  out, which acts at once and so has no chevron.
+- **Recently deleted** has a back link to Settings above its title, and an
+  ItemRow per deleted Item, newest first: its TypeTile, title, Type and
+  "Deleted 10 min ago", and an outline Restore, which says so in a toast
+  with Undo.
 
 ## Lists of Items
 
@@ -158,10 +186,10 @@ used the same way on every screen.
 | Loading | Skeletons shaped like the content, after about 300ms |
 | Saved / waiting to send | SyncStatus in the drawer; an Item not yet sent shows "Not sent yet" with a cloud icon in its meta |
 | Not saved | An Item whose change the server refused shows "Not saved" in red with a `cloud-alert` icon in its meta, and SyncStatus counts it ([OFF-004](../10-requirements/cross-cutting/offline.md#off-004--a-write-that-cant-be-saved-is-not-lost-silently)) |
-| Offline | An Alert at the top of the content |
+| Offline | An Alert at the top of every page, with `cloud-off`: "Offline" (or "Can't refresh" when the server can't be reached) and "These may be out of date". What was loaded still shows (OFF-005) |
 | Error | Red text under the field, or a toast that says what went wrong and what to do |
 | A screen that crashes | Its PageHeader title says "Something went wrong", with one primary button, "Reload", under it. The crash is recorded in `ops.events` ([runbook](../40-operations/runbook.md#noticing-problems)) |
-| Empty | Centred in the content, about a third of the way down: a 48px muted tile with the page's icon and an `text-h2` line saying so ("Nothing needs you"). No paragraph, no button unless there's one obvious thing to do |
+| Empty | `EmptyState`: centred in the content, about a third of the way down, a 48px muted tile with the page's icon and a `text-h2` line saying so ("Nothing needs you", "Nothing deleted"). No paragraph, no button unless there's one obvious thing to do |
 
 ## Icons
 

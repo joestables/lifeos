@@ -64,6 +64,15 @@ describe('ontology', () => {
     expect(look('event')).toEqual(['blue', false, undefined, false, undefined])
   })
 
+  it('builds each Type in its roadmap stage (data-model.md#types)', () => {
+    expect(TYPES.map((t) => [t.key, t.stage])).toEqual([
+      ['thought', 2],
+      ['note', 2],
+      ['task', 2],
+      ['event', 3],
+    ])
+  })
+
   it('has no idea status on Notes (ADR-0037)', () => {
     expect(typeByKey('note')!.statuses).toEqual(['active'])
   })

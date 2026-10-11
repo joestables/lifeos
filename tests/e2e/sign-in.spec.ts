@@ -43,8 +43,8 @@ test('ACC-003: signing out returns to the sign-in page and clears the device', a
   await page.goto('/inbox')
   if (isMobile) await page.getByRole('button', { name: 'Menu' }).click()
   await page.evaluate(() => sessionStorage.setItem('stand-in-signed-out', '1'))
-  await page.getByRole('button', { name: 'Account' }).click()
-  await page.getByRole('menuitem', { name: 'Sign out' }).click()
+  await page.getByRole('link', { name: `${ANN.name}, Settings` }).click()
+  await page.getByRole('button', { name: 'Sign out' }).click()
   await expect(page).toHaveURL(/\/sign-in$/)
   expect(
     await page.evaluate(() => Object.keys(localStorage).filter((k) => k.startsWith('sb-'))),
@@ -57,8 +57,8 @@ test('ACC-003: signing out with writes not yet sent warns first', async ({ page,
   await page.goto('/inbox')
   if (isMobile) await page.getByRole('button', { name: 'Menu' }).click()
   await page.evaluate(() => sessionStorage.setItem('stand-in-signed-out', '1'))
-  await page.getByRole('button', { name: 'Account' }).click()
-  await page.getByRole('menuitem', { name: 'Sign out' }).click()
+  await page.getByRole('link', { name: `${ANN.name}, Settings` }).click()
+  await page.getByRole('button', { name: 'Sign out' }).click()
   const warning = page.getByRole('alertdialog')
   await expect(warning).toContainText("2 changes haven't been sent yet and will be lost")
   await warning.getByRole('button', { name: 'Sign out' }).click()

@@ -11,6 +11,7 @@ export function ItemRow({
   title,
   meta = [],
   actions,
+  trailing,
   done = false,
   sync,
   className,
@@ -20,6 +21,8 @@ export function ItemRow({
   /** Parts of the meta line, joined with "·". */
   meta?: ReactNode[]
   actions?: ReactNode
+  /** A control that always shows, at the end (Restore). */
+  trailing?: ReactNode
   done?: boolean
   /** Whether the Item's latest change has reached the server (patterns.md#states). */
   sync?: 'pending' | 'failed'
@@ -67,6 +70,7 @@ export function ItemRow({
           {actions}
         </div>
       )}
+      {trailing}
     </div>
   )
 }

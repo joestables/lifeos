@@ -129,7 +129,7 @@ keyboard shortcuts and code. Numbers that line up use tabular figures.
 |---|---|---|---|---|
 | `text-h1` | 24px / 1.2 | 750 | −0.025em | Page title (22px on a phone) |
 | `text-h2` | 17px / 1.3 | 700 | −0.015em | Card and section titles, dialog titles |
-| `text-day` | 20px | 750 | −0.02em | Day numbers on Plan |
+| `text-day` | 20px | 750 | −0.02em | Day numbers on Plan; an Item's title in its Dialog |
 | `text-base` | 14px / 1.45 | 400; 600 for titles | 0 | Body, row titles, buttons |
 | `text-sm` | 13px | 400–700 | 0 | Meta, small buttons, section labels (700) |
 | `text-xs` | 12px | 400–700 | 0 | Badges, counts, help text, captions |
@@ -159,7 +159,7 @@ Tailwind's 4px-based scale, using only these steps: **2, 4, 6, 8, 10, 12, 14,
 | `--radius-sm` | 8px | Small tile (24px), menu item, tooltip, skeleton |
 | `--radius-md` | 10px | Tile (32px) |
 | `--radius` | 12px | Buttons, inputs, selects, toggle group, drawer items, Plan cards |
-| `--radius-row` | 14px | List rows |
+| `--radius-row` | 14px | List rows, the large tile |
 | `--radius-lg` | 18px | Cards, popovers, menus, Plan day columns, the phone's floating button |
 | `--radius-xl` | 24px | Dialogs, sheets |
 | `--radius-full` | 999px | Badges, tabs, chips, switch, avatar, progress |
@@ -192,7 +192,7 @@ No borders on surfaces: edges come from `--shadow-card`'s hairline.
 | Drawer item | 38px; 44px on a phone | |
 | Menu item | 36px | |
 | List row | min 56px | |
-| Tile | 32px (icon 16px); small 24px (icon 14px) | |
+| Tile | 32px (icon 16px); small 24px (icon 14px); large 48px (icon 22px, `--radius-row`), for an empty page | |
 | Checkbox | 18px | |
 | Switch | 38 × 22px | |
 | Badge | 22px high | |

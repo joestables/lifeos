@@ -11,7 +11,7 @@ export function TypeTile({
 }: {
   colour: TypeColour
   icon: LucideIcon
-  size?: 'default' | 'sm'
+  size?: 'default' | 'sm' | 'lg'
   className?: string
 }) {
   return (
@@ -23,7 +23,9 @@ export function TypeTile({
         colour === 'none'
           ? 'bg-muted'
           : 'bg-[color-mix(in_oklch,var(--tc)_var(--tile-mix),transparent)]',
-        size === 'sm' ? 'size-6 rounded-sm [&_svg]:size-3.5' : 'size-8 rounded-md [&_svg]:size-4',
+        size === 'sm' && 'size-6 rounded-sm [&_svg]:size-3.5',
+        size === 'default' && 'size-8 rounded-md [&_svg]:size-4',
+        size === 'lg' && 'size-12 rounded-row [&_svg]:size-5.5',
         className,
       )}
     >

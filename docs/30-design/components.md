@@ -60,14 +60,19 @@ Built once from the components above, in `@/components/lifeos`.
 
 | Component | What it is | Rules |
 |---|---|---|
-| **AppShell** | The drawer (Sidebar) and the page area: a 256px column and the rest; the page scrolls in a ScrollArea. On a phone, a top bar that stays at the top of every page: the menu button, the brand and, on the right, Capture; the drawer becomes a left Sheet. | Every page sits in one. |
-| **PageHeader** | The title (`text-h1`), and the page's main action on the right: a primary `sm` button with a "+" ("New task"). On a phone the main action becomes a Fab instead. No line above the title. | One per page, at most one main action. |
+| **AppShell** | The drawer (Sidebar) and the page area: a 256px column and the rest; the page scrolls in a ScrollArea, put back where it was on going back. Your row at the drawer's foot opens Settings. A notice (the offline Alert) sits at the top of every page. On a phone, a top bar that stays at the top of every page: the menu button, the brand and, on the right, Capture; the drawer becomes a left Sheet. | Every page sits in one. |
+| **PageHeader** | Optionally a BackLink above the title, the title (`text-h1`), and the page's main action on the right: a primary `sm` button with a "+" ("New task"). On a phone the main action becomes a Fab instead. No line above the title. | One per page, at most one main action. |
 | **Fab** | The phone's floating button: 56px, `--radius-lg`, primary, `--shadow-pop`, a 22px "+" and no words, named for screen readers ("New task", "Capture"). Bottom right, clear of the home bar. | Phones only; a page's main action, from PageHeader, or Inbox's Capture. |
 | **TypeScope** | Wraps a page about one family of Types, or part of one (`data-colour`). Sets `--tc` and makes `--primary`, `--ring`, `--selected` and `--pressed-foreground` the Type's ([tokens](tokens.md#colour-types)). The drawer sits outside it. | Pages about one family of Types (Tasks, Notes, Recipes, Gym…); never Inbox, Plan, Search or Settings. |
-| **TypeTile** | 32px (or 24px) rounded square with the Type's icon in its text colour on its tint. | The first thing in a row that shows an Item, unless it has a checkbox. |
+| **TypeTile** | 32px (24px small, 48px large for an empty page) rounded square with the Type's icon in its text colour on its tint. | The first thing in a row that shows an Item, unless it has a checkbox. |
 | **TypeBadge** | A Badge in the Type's text colour on its tint. | A Type-specific state ("Last cooked Mon"). |
 | **TypeDot** | 8px dot in the Type colour; hollow when switched off. | Keys and filters. |
-| **ItemRow** | A card-filled row: tile or checkbox, title (weight 600) and meta (13px muted, separated by "·"), then actions that appear on hover. 14px radius, min 56px high, `--shadow-card`, 6px apart. A starred Task shows a filled star in the Type colour at the end. | Any list of Items. |
+| **ItemRow** | A card-filled row: tile or checkbox, title (weight 600) and meta (13px muted, separated by "·"), then actions that appear on hover, then a control that always shows (Restore). 14px radius, min 56px high, `--shadow-card`, 6px apart. A starred Task shows a filled star in the Type colour at the end. | Any list of Items. |
+| **ItemDialog** | An Item in a Dialog, 580px: a header with the Type's small tile and name, the Item's actions and Close; then its title (`text-day`, after a Task's checkbox) and what it holds, in a ScrollArea. Inside, the Type's colour (`TypeScope`). | Opening an Item as a popup ([patterns](patterns.md#opening-an-item)). |
+| **ItemPage** | An Item on a page of its own: a BackLink to where you came from with the Item's actions on the right, then the title (`text-h1`) and what it holds. | A Note on a phone. |
+| **BackLink** | 13px weight 600, muted, a chevron and the page's name ("Settings"); the foreground on hover. | Above the title of a page reached from another. |
+| **CardRow** | A row in a Card: optional icon (16px, muted), a label (weight 600), an optional muted value, a control. 44px; as a link, 48px with a chevron, filled `--accent` on hover. | Settings. |
+| **EmptyState** | A large muted TypeTile and one `text-h2` line, centred about a third of the way down. | A page with nothing to show. |
 | **SectionLabel** | 13px weight-700 heading, optional count Badge; red for Overdue. | Above a group of rows. |
 | **PlanCard** | A small card in a Plan day: type line with icon in the Type colour, title (13px weight 650), time. Past Items at 50% opacity, no shadow. | Plan only. |
 | **DayColumn** | A Plan day: uppercase day name, day number (`text-day`; today in an ink pill), and a lightly filled column. | Plan only. |

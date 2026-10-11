@@ -22,6 +22,8 @@ export interface TypeDefinition {
   subtasks: boolean
   /** The time field its default Reminder follows (ADR-0023), if it has one. */
   defaultReminder?: TimeField
+  /** The roadmap stage that builds it: the app offers a Type only from then. */
+  stage: number
 }
 
 /** The core's Types (data-model.md#types). Later Types arrive with their stage. */
@@ -37,6 +39,7 @@ export const TYPES = [
     colour: 'yellow',
     labels: false,
     subtasks: false,
+    stage: 2,
   },
   {
     key: 'note',
@@ -50,6 +53,7 @@ export const TYPES = [
     labels: true,
     mark: 'pinned',
     subtasks: false,
+    stage: 2,
   },
   {
     key: 'task',
@@ -65,6 +69,7 @@ export const TYPES = [
     mark: 'starred',
     subtasks: true,
     defaultReminder: 'do_on',
+    stage: 2,
   },
   {
     key: 'event',
@@ -77,6 +82,7 @@ export const TYPES = [
     colour: 'blue',
     labels: false,
     subtasks: false,
+    stage: 3,
   },
 ] as const satisfies readonly TypeDefinition[]
 

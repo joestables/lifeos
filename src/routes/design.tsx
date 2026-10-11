@@ -15,13 +15,19 @@ import {
   SunIcon,
   TargetIcon,
   Trash2Icon,
+  LogOutIcon,
+  TagIcon,
   UtensilsIcon,
   WifiOffIcon,
   type LucideIcon,
 } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
 import {
+  BackLink,
   BrandMark,
+  CardRow,
+  EmptyState,
+  ItemDialog,
   DayColumn,
   FilterChip,
   ItemRow,
@@ -194,6 +200,7 @@ function Row({ children }: { children: ReactNode }) {
 
 function DesignPage() {
   const [dark, setDark] = useState(() => document.documentElement.classList.contains('dark'))
+  const [itemOpen, setItemOpen] = useState(false)
   const [chips, setChips] = useState({ core: true, food: true, fitness: false })
   const toggleMode = () => {
     document.documentElement.classList.toggle('dark', !dark)
@@ -627,9 +634,7 @@ function DesignPage() {
           <Alert className="max-w-xl">
             <WifiOffIcon />
             <AlertTitle>Offline</AlertTitle>
-            <AlertDescription>
-              Changes are saved here and sent when you're back online
-            </AlertDescription>
+            <AlertDescription>These may be out of date</AlertDescription>
           </Alert>
           <div className="flex max-w-xl flex-col gap-1.5">
             <Skeleton className="h-14 rounded-row" />
@@ -675,6 +680,37 @@ function DesignPage() {
                 defaultMonth={new Date(2026, 9, 1)}
                 selected={new Date(2026, 9, 12)}
               />
+            </Card>
+          </div>
+        </Section>
+
+        <Section title="Settings, a page reached from another, nothing to show">
+          <div className="grid max-w-3xl gap-4 sm:grid-cols-2">
+            <div className="flex flex-col gap-3">
+              <BackLink label="Settings" />
+              <Card className="gap-0 px-2 py-1.5">
+                <CardRow
+                  icon={<TagIcon />}
+                  label="Labels"
+                  value={5}
+                  render={<a href="#labels" />}
+                />
+                <CardRow
+                  icon={<Trash2Icon />}
+                  label="Recently deleted"
+                  value={3}
+                  render={<a href="#deleted" />}
+                />
+                <CardRow
+                  icon={<LogOutIcon />}
+                  label="Sign out"
+                  render={<button type="button" />}
+                  chevron={false}
+                />
+              </Card>
+            </div>
+            <Card>
+              <EmptyState icon={Trash2Icon} title="Nothing deleted" />
             </Card>
           </div>
         </Section>
@@ -729,6 +765,25 @@ function DesignPage() {
                 </PopoverFooter>
               </PopoverContent>
             </Popover>
+            <Button variant="outline" onClick={() => setItemOpen(true)}>
+              Item dialog
+            </Button>
+            <ItemDialog
+              open={itemOpen}
+              onOpenChange={setItemOpen}
+              colour="blue"
+              icon={TaskIcon}
+              typeLabel="Task"
+              title="Renew car insurance"
+              leading={<Checkbox colour="blue" aria-label="Done" />}
+              actions={
+                <Toggle aria-label="Star" defaultPressed>
+                  <StarIcon />
+                </Toggle>
+              }
+            >
+              <p className="text-muted-foreground">Admiral quoted £412</p>
+            </ItemDialog>
             <Dialog>
               <DialogTrigger render={<Button variant="outline" />}>Dialog</DialogTrigger>
               <DialogContent>

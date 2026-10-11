@@ -11,10 +11,13 @@ function ScrollArea({
   children,
   orientation = 'vertical',
   viewportClassName,
+  restorationId,
   ...props
 }: ScrollAreaPrimitive.Root.Props & {
   orientation?: 'vertical' | 'horizontal' | 'both'
   viewportClassName?: string
+  /** The router puts this box back where it was on going back (ITM-001). */
+  restorationId?: string
 }) {
   return (
     <ScrollAreaPrimitive.Root
@@ -24,6 +27,7 @@ function ScrollArea({
     >
       <ScrollAreaPrimitive.Viewport
         data-slot="scroll-area-viewport"
+        data-scroll-restoration-id={restorationId}
         className={cn(
           'size-full overscroll-contain rounded-[inherit] outline-none focus-visible:ring-3 focus-visible:ring-ring-soft',
           viewportClassName,

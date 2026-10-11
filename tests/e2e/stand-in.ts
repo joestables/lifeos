@@ -10,15 +10,94 @@ export const ANN = {
   name: 'Ann Example',
 }
 
+/** Rows the stand-in starts with (core tables, as PostgREST returns them). */
+export interface Rows {
+  items?: Record<string, unknown>[]
+  labels?: { id: string; name: string }[]
+  item_labels?: { item_id: string; label_id: string }[]
+  marks?: { item_id: string }[]
+}
+
+/** An Item row with everything but what a test names. */
+export const itemRow = (fields: Record<string, unknown> & { id: string; type: string }) => ({
+  title: '',
+  body: null,
+  space_id: 's',
+  owner_id: ANN.id,
+  status: 'active',
+  starts_at: null,
+  ends_at: null,
+  all_day: null,
+  due_on: null,
+  do_on: null,
+  do_at: null,
+  slot: null,
+  series_id: null,
+  occurrence_on: null,
+  position: null,
+  touched_at: null,
+  created_at: '2026-10-01T09:00:00Z',
+  updated_at: '2026-10-01T09:00:00Z',
+  archived_at: null,
+  ...fields,
+})
+
 /**
- * Answers the app's Supabase calls without a server: no rows, and sign-out
- * succeeds. With signedIn, the page starts with Ann's session.
+ * Answers the app's Supabase calls without a server: the given rows, and the
+ * writes the app sends change them as the database would, so a refresh shows
+ * what was done. Sign-out succeeds. With signedIn, the page starts with
+ * Ann's session.
  */
-export async function standIn(page: Page, { signedIn = false } = {}) {
+export async function standIn(
+  page: Page,
+  { signedIn = false, rows = {} }: { signedIn?: boolean; rows?: Rows } = {},
+) {
+  const db = {
+    items: [...(rows.items ?? [])],
+    labels: (rows.labels ?? []).map((l) => ({
+      space_id: 's',
+      created_by: ANN.id,
+      created_at: '',
+      ...l,
+    })),
+    item_labels: [...(rows.item_labels ?? [])],
+    marks: [...(rows.marks ?? [])],
+  }
+  const item = (id: unknown) => db.items.find((i) => i.id === id)
+  const write: Record<string, (a: Record<string, unknown>) => void> = {
+    archive_item: (a) =>
+      Object.assign(item(a.p_id) ?? {}, { archived_at: new Date().toISOString() }),
+    restore_item: (a) => Object.assign(item(a.p_id) ?? {}, { archived_at: null }),
+    convert_item: (a) => Object.assign(item(a.p_id) ?? {}, { type: a.p_type }),
+    create_label: (a) =>
+      db.labels.push({
+        id: String(a.p_id),
+        name: String(a.p_name),
+        space_id: 's',
+        created_by: ANN.id,
+        created_at: '',
+      }),
+    rename_label: (a) =>
+      db.labels.filter((l) => l.id === a.p_id).forEach((l) => (l.name = String(a.p_name))),
+    delete_label: (a) => {
+      db.labels = db.labels.filter((l) => l.id !== a.p_id)
+      db.item_labels = db.item_labels.filter((r) => r.label_id !== a.p_id)
+    },
+    set_mark: (a) => {
+      db.marks = db.marks.filter((m) => m.item_id !== a.p_item)
+      if (a.p_on) db.marks.push({ item_id: String(a.p_item) })
+    },
+  }
   await page.route(`${STAND_IN_URL}/**`, (route) => {
-    const url = route.request().url()
-    if (url.includes('/auth/v1/logout')) return route.fulfill({ status: 204 })
-    if (url.includes('/rest/v1/')) return route.fulfill({ json: [] })
+    const url = new URL(route.request().url())
+    if (url.pathname.includes('/auth/v1/logout')) return route.fulfill({ status: 204 })
+    const rpc = url.pathname.match(/\/rest\/v1\/rpc\/(\w+)$/)
+    if (rpc) {
+      write[rpc[1]!]?.(route.request().postDataJSON() ?? {})
+      return route.fulfill({ json: null })
+    }
+    const table = url.pathname.match(/\/rest\/v1\/(\w+)$/)?.[1]
+    if (table) return route.fulfill({ json: db[table as keyof typeof db] ?? [] })
     return route.fulfill({ status: 404, json: {} })
   })
   if (signedIn) {
