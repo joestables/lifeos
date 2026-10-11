@@ -40,8 +40,11 @@ const PAGES: DrawerPage[] = [
  * ?item=<id> (ITM-001), and the offline notice (OFF-005).
  */
 export const Route = createFileRoute('/_app')({
-  validateSearch: (search: Record<string, unknown>): { item?: string } =>
-    typeof search.item === 'string' ? { item: search.item } : {},
+  validateSearch: (search: Record<string, unknown>): { item?: string; new?: 'note' } => ({
+    ...(typeof search.item === 'string' ? { item: search.item } : {}),
+    // A new Note, opened before it is kept (patterns.md#notes).
+    ...(search.new === 'note' ? { new: 'note' as const } : {}),
+  }),
   beforeLoad: async () => {
     if ((await authReady()).status !== 'signed-in') throw redirect({ to: '/sign-in' })
   },
@@ -51,7 +54,7 @@ export const Route = createFileRoute('/_app')({
 function SignedIn() {
   const auth = useAuth()
   const navigate = useNavigate()
-  const { item } = Route.useSearch()
+  const { item, new: isNew } = Route.useSearch()
   const { items, outOfDate } = useItems(queue)
   const waiting = inboxCount(inboxGroups(items))
   const online = useOnline()
@@ -66,6 +69,7 @@ function SignedIn() {
       <Shell
         name={auth.me.name}
         item={item}
+        isNew={isNew === 'note'}
         outOfDate={outOfDate}
         online={online}
         waiting={waiting}
@@ -77,12 +81,15 @@ function SignedIn() {
 function Shell({
   name,
   item,
+  isNew,
   outOfDate,
   online,
   waiting,
 }: {
   name: string
   item?: string
+  /** A new Note, not kept yet. */
+  isNew: boolean
   outOfDate: boolean
   online: boolean
   /** What waits in Inbox, beside it in the drawer (INB-005). */
@@ -107,7 +114,7 @@ function Shell({
       }
     >
       <Outlet />
-      <ItemPopup id={item} />
+      <ItemPopup id={item} isNew={isNew} />
     </AppShell>
   )
 }

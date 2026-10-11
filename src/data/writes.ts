@@ -10,9 +10,11 @@ import type { ItemFields } from './types'
  */
 export function writes(queue: WriteQueue, labelsNow: () => readonly Label[] = () => []) {
   return {
-    /** Creates an Item with an ID made here, returned straight away. */
-    createItem(type: string, fields: ItemFields = {}): string {
-      const id = newId()
+    /**
+     * Creates an Item with an ID made here, returned straight away; or with
+     * one made earlier, for an Item opened before it is kept (a new Note).
+     */
+    createItem(type: string, fields: ItemFields = {}, id: string = newId()): string {
       queue.enqueue('create_item', { p_id: id, p_type: type, p_fields: fields }, [id])
       return id
     },

@@ -1,3 +1,4 @@
+import { cn } from '@/lib/utils'
 import type { LucideIcon } from 'lucide-react'
 import { XIcon } from 'lucide-react'
 import { useRef } from 'react'
@@ -23,6 +24,8 @@ export function ItemDialog({
   title,
   leading,
   actions,
+  titleField,
+  wide = false,
   children,
 }: {
   open: boolean
@@ -35,6 +38,10 @@ export function ItemDialog({
   leading?: React.ReactNode
   /** The Item's mark and "…" menu. */
   actions?: React.ReactNode
+  /** The title, editable in place (a Note's); `title` stays the Dialog's name. */
+  titleField?: React.ReactNode
+  /** 640px, for a Note. */
+  wide?: boolean
   children?: React.ReactNode
 }) {
   const popup = useRef<HTMLDivElement>(null)
@@ -46,7 +53,10 @@ export function ItemDialog({
         // as it opens; Tab goes on from there.
         initialFocus={popup}
         ref={popup}
-        className="max-h-[calc(100svh-36px)] max-w-[580px] gap-0 overflow-hidden p-0"
+        className={cn(
+          'max-h-[calc(100svh-36px)] gap-0 overflow-hidden p-0',
+          wide ? 'max-w-[640px]' : 'max-w-[580px]',
+        )}
       >
         <TypeScope colour={colour} className="flex min-h-0 flex-col">
           <div className="flex items-center gap-1 pt-3.5 pr-3.5 pl-5">
@@ -61,10 +71,15 @@ export function ItemDialog({
           </div>
           <ScrollArea className="min-h-0">
             <div className="flex flex-col gap-4 px-5 pt-2.5 pb-5">
-              <div className="flex items-center gap-3 pt-1">
-                {leading}
-                <DialogTitle className="text-day">{title}</DialogTitle>
-              </div>
+              {titleField ? (
+                <DialogTitle className="sr-only">{title}</DialogTitle>
+              ) : (
+                <div className="flex items-center gap-3 pt-1">
+                  {leading}
+                  <DialogTitle className="text-day">{title}</DialogTitle>
+                </div>
+              )}
+              {titleField}
               {children}
             </div>
           </ScrollArea>

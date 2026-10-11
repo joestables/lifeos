@@ -12,12 +12,15 @@ export function ItemPage({
   back,
   actions,
   title,
+  titleField,
   children,
 }: {
   colour: Exclude<TypeColour, 'none'>
   back: { label: string; onClick: () => void }
   actions?: React.ReactNode
   title: React.ReactNode
+  /** The title, editable in place (a Note's); `title` stays the page's heading. */
+  titleField?: React.ReactNode
   children?: React.ReactNode
 }) {
   return (
@@ -27,9 +30,16 @@ export function ItemPage({
         <div className="flex-1" />
         {actions}
       </div>
-      <h1 className="text-[22px] leading-[1.2] font-[750] tracking-[-0.025em] sm:text-h1">
+      <h1
+        className={
+          titleField
+            ? 'sr-only'
+            : 'text-[22px] leading-[1.2] font-[750] tracking-[-0.025em] sm:text-h1'
+        }
+      >
         {title}
       </h1>
+      {titleField}
       {children}
     </TypeScope>
   )

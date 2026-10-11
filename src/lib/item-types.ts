@@ -1,3 +1,4 @@
+import { plainLine } from './markdown-preview'
 import { convertsTo, typeByKey, type Colour, type Mark } from '@lifeos/ontology'
 import type { LucideIcon } from 'lucide-react'
 import { FileIcon } from 'lucide-react'
@@ -55,7 +56,7 @@ export function opensAsPage(type: string, isMobile: boolean): boolean {
 /** An Item's name: its title, else its first line (NTE-001), else "Untitled". */
 export function itemTitle(item: { title: string; body: string | null }): string {
   const first = item.body?.split('\n').find((line) => line.trim() !== '')
-  return item.title.trim() || first?.trim() || 'Untitled'
+  return item.title.trim() || (first && plainLine(first).trim()) || 'Untitled'
 }
 
 /** The mark's name, as its Toggle is called. */

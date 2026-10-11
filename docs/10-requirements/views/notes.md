@@ -43,7 +43,7 @@ popup over the page on a computer, and on a page of its own on a phone
 
 **As** Joe, **I want** to write a note and find it again, **so that** what
 I want to keep has a home.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified
 
 Acceptance criteria
 1. Given the Notes View, when I start a new Note and type a title and a body,
@@ -57,7 +57,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to label Notes and see one Label's Notes at a time,
 **so that** I can find a Note among many.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified
 
 Acceptance criteria
 1. Given a Note, when I give it a Label, then I can pick one I already have
@@ -71,7 +71,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to pin the Notes I use most, **so that** they are at
 the top.
-Priority: Should · Status: agreed
+Priority: Should · Status: verified
 
 Acceptance criteria
 1. Given I pin a Note, then it shows above every unpinned Note, also when
@@ -82,7 +82,7 @@ Acceptance criteria
 
 **As** Joe, **I want** lists, checklists, bold, italic and links in a Note,
 **so that** a note can be more than a paragraph.
-Priority: Should · Status: agreed
+Priority: Should · Status: verified
 
 Acceptance criteria
 1. Given I am writing a Note, then I can make a bulleted or numbered list,
