@@ -38,6 +38,7 @@ import {
   PageHeader,
   PlanCard,
   SectionLabel,
+  SwipeAction,
   SyncStatus,
   TYPE_ICONS,
   TypeBadge,
@@ -467,16 +468,33 @@ function DesignPage() {
 
         <Section title="Lists of Items">
           <div className="flex max-w-2xl flex-col gap-1.5">
+            <SectionLabel danger count={1}>
+              Overdue
+            </SectionLabel>
             <ItemRow
               leading={<Checkbox colour="blue" aria-label="Done" />}
               title="Book the dentist"
-              meta={['Errands', 'Fri 9 Oct', <span className="text-destructive">Due today</span>]}
+              meta={[<span className="text-destructive">Due yesterday</span>, 'Errands']}
+              onOpen={() => {}}
               actions={
+                <Button size="sm" variant="ghost">
+                  Tomorrow
+                </Button>
+              }
+              menu={
                 <Button size="icon-sm" variant="ghost" aria-label="More">
                   <EllipsisIcon />
                 </Button>
               }
             />
+            <SwipeAction label="Task" icon={TaskIcon} colour="blue" onAction={() => {}}>
+              <ItemRow
+                leading={<TypeTile colour="yellow" icon={TYPE_ICONS.thought!} size="sm" />}
+                title="Ceramics class for the anniversary?"
+                meta={['08:12']}
+                onOpen={() => {}}
+              />
+            </SwipeAction>
             <ItemRow
               leading={<Checkbox colour="blue" aria-label="Done" defaultChecked />}
               title="Renew passport"

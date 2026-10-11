@@ -4,14 +4,17 @@ import { cn } from '@/lib/utils'
 
 /**
  * Any list of Items: tile or checkbox, title and meta, then actions that
- * appear on hover and focus (always on a phone).
+ * appear on hover and focus and the "…" menu (only the menu on a phone,
+ * always showing). With onOpen, tapping the row opens the Item.
  */
 export function ItemRow({
   leading,
   title,
   meta = [],
   actions,
+  menu,
   trailing,
+  onOpen,
   done = false,
   sync,
   className,
@@ -20,9 +23,14 @@ export function ItemRow({
   title: ReactNode
   /** Parts of the meta line, joined with "·". */
   meta?: ReactNode[]
+  /** On hover and focus, on a computer only (Task, Note, Tomorrow). */
   actions?: ReactNode
+  /** The "…" menu: with the actions on a computer, always on a phone. */
+  menu?: ReactNode
   /** A control that always shows, at the end (Restore). */
   trailing?: ReactNode
+  /** Opens the Item: the whole row, but for its controls. */
+  onOpen?: () => void
   done?: boolean
   /** Whether the Item's latest change has reached the server (patterns.md#states). */
   sync?: 'pending' | 'failed'
@@ -49,10 +57,20 @@ export function ItemRow({
         className,
       )}
     >
-      {leading}
+      <div className="relative z-10 flex">{leading}</div>
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
         <div className={cn('truncate font-semibold', done && 'text-muted-foreground line-through')}>
-          {title}
+          {onOpen ? (
+            <button
+              type="button"
+              onClick={onOpen}
+              className="rounded-[2px] text-left outline-none after:absolute after:inset-0 after:rounded-row focus-visible:after:ring-3 focus-visible:after:ring-ring-soft"
+            >
+              {title}
+            </button>
+          ) : (
+            title
+          )}
         </div>
         {parts.length > 0 && (
           <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground tabular-nums">
@@ -65,12 +83,13 @@ export function ItemRow({
           </div>
         )}
       </div>
-      {actions && (
-        <div className="flex items-center gap-1 opacity-100 transition-opacity sm:opacity-0 sm:group-focus-within/row:opacity-100 sm:group-hover/row:opacity-100">
-          {actions}
+      {(actions || menu) && (
+        <div className="relative z-10 flex items-center gap-1 opacity-100 transition-opacity sm:opacity-0 sm:group-focus-within/row:opacity-100 sm:group-hover/row:opacity-100 sm:has-[[data-popup-open]]:opacity-100">
+          {actions && <div className="hidden items-center gap-1 sm:flex">{actions}</div>}
+          {menu}
         </div>
       )}
-      {trailing}
+      {trailing && <div className="relative z-10 flex">{trailing}</div>}
     </div>
   )
 }

@@ -2,6 +2,29 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#5](https://github.com/joestables/lifeos/pull/5) — Stage 2, step 7: Inbox
+
+Branch `claude/kind-dijkstra-1kv0xt` · 2026-10-11
+
+**What it did**
+- Plan step 7, the Inbox: Overdue (only a due date makes a Task overdue),
+  Today (timed first) and To sort (Thoughts, newest first, with when they
+  were captured and any Reminder), each hidden when empty, and "Nothing
+  needs you". A repeating Task shows only its next open occurrence. Tick a
+  Task done or move it to tomorrow, with Undo. A Thought becomes a Task or
+  a Note in one action (buttons on hover; on a phone the "…" menu, or a
+  swipe right to make it a Task), or is deleted with Undo. Made a Task,
+  its dates are read as they were meant when it was captured, its title
+  loses them, and a Reminder at the same moment as the Task's own is
+  removed rather than kept twice (added to INB-002); the "…" menu's
+  Convert to does the same. Inbox's count is in the drawer. Tapping a row
+  opens its Item.
+- The app now reads my Reminders. New in the design spec first: ItemRow's
+  hover actions, "…" menu and tap to open; SwipeAction; SectionLabel's red
+  Overdue. 6 unit tests (groups, dates) and 6 browser tests (each on
+  desktop and phone); a captured Thought is now checked to show in Inbox at
+  once, so CAP-001 is verified.
+
 ## [#4](https://github.com/joestables/lifeos/pull/4) — Stage 2, step 6: capture in the app
 
 Branch `claude/kind-dijkstra-1kv0xt` · 2026-10-11

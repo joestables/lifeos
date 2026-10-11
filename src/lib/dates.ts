@@ -67,3 +67,43 @@ export function zonedInstant(day: string, at: string, timeZone: string): string 
   const first = wall - offset(wall)
   return new Date(wall - offset(first)).toISOString()
 }
+
+const daysFrom = (now: Date, day: string) =>
+  Math.round((fromIsoDay(day).getTime() - startOfDay(now).getTime()) / DAY)
+
+/** When a Thought was captured: "08:12" today, "Yesterday", "Thu" this week, else "Fri 9 Oct" (INB-001). */
+export function capturedWhen(iso: string, now: Date = new Date()): string {
+  const then = new Date(iso)
+  const days = Math.round((startOfDay(now).getTime() - startOfDay(then).getTime()) / DAY)
+  if (days <= 0) return time.format(then)
+  if (days === 1) return 'Yesterday'
+  if (days < 7) return weekday.format(then)
+  return shortDate(then)
+}
+
+/** A due date: "Due today", "Due yesterday", "Due tomorrow", else "Due Thu 8 Oct". */
+export function dueWhen(day: string, now: Date = new Date()): string {
+  const days = daysFrom(now, day)
+  if (days === 0) return 'Due today'
+  if (days === -1) return 'Due yesterday'
+  if (days === 1) return 'Due tomorrow'
+  return `Due ${shortDate(fromIsoDay(day))}`
+}
+
+/** A do-on date already past, as Inbox's Today shows it: "Since yesterday", "Since Thu", "Since Fri 2 Oct". */
+export function sinceWhen(day: string, now: Date = new Date()): string {
+  const days = daysFrom(now, day)
+  if (days === -1) return 'Since yesterday'
+  if (days > -7) return `Since ${weekday.format(fromIsoDay(day))}`
+  return `Since ${shortDate(fromIsoDay(day))}`
+}
+
+/** A moment in the future, as a Reminder says it: "Today 15:00", "Tue 15:00", "Fri 23 Oct 09:00". */
+export function reminderWhen(iso: string, now: Date = new Date()): string {
+  const at = new Date(iso)
+  return `${dayName(isoDayOf(at), now)} ${time.format(at)}`
+}
+
+/** A local Date as "2026-10-16". */
+export const isoDayOf = (d: Date) =>
+  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`

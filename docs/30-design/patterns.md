@@ -173,8 +173,11 @@ the CaptureDialog in [components](components.md).
   does it. Other Items start with their TypeTile.
 - A done Task: title struck through in `--muted-foreground`.
 - A starred Task shows a filled star at the end of its row.
-- Row actions (Note, Task, the "…" menu) appear on hover and focus; on a
-  phone, the "…" menu is always visible.
+- Row actions (Task, Note, Tomorrow, then the "…" menu) appear on hover and
+  focus; on a phone only the "…" menu shows, always, holding the same
+  actions. Tapping a row anywhere else opens its Item.
+- Overdue's heading and count are red; a due date that has passed is red in
+  the row's meta.
 
 ## Plan
 

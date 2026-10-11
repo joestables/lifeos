@@ -72,6 +72,10 @@ export function writes(queue: WriteQueue, labelsNow: () => readonly Label[] = ()
       return id
     },
 
+    removeReminder(itemId: string, id: string): void {
+      queue.enqueue('remove_reminder', { p_id: id }, [itemId])
+    },
+
     /** Pins a Note or stars a Task, for me alone. */
     setMark(itemId: string, on: boolean): void {
       queue.enqueue('set_mark', { p_item: itemId, p_on: on }, [itemId])
