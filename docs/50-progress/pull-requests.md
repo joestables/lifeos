@@ -104,6 +104,12 @@ Branch `claude/kind-dijkstra-1kv0xt` · 2026-10-10
   migration revokes it and changes the default for everything `postgres`
   makes; `core_privileges_test.sql` keeps it so. Signed-out visitors could
   never reach them (no usage on the schemas).
+- After applying: the advisors show no function open to people signed out.
+  Left as they are: `register_device` runs as its owner, by design (a
+  browser's push endpoint moves to whoever registers it); deliveries,
+  heartbeats and health runs have row-level security and no policies, so
+  only the jobs read them; leaked-password protection is off, as only the
+  test account can use a password.
 
 **Left for later**
 - The build (plan steps 5–14): series' occurrence functions come with step
