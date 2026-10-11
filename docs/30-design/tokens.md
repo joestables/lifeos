@@ -20,7 +20,7 @@ Colours are OKLCH. "fg" is short for foreground.
 | `--popover-foreground` | = `--foreground` | = `--foreground` | |
 | `--ink` † | `oklch(0.24 0.0025 260)` | `oklch(0.94 0.0025 260)` | The neutral primary |
 | `--ink-foreground` † | `oklch(0.985 0 0)` | `oklch(0.2 0.0025 260)` | Text on ink |
-| `--primary` | = `--ink` | = `--ink` | Main action, checked, selected; becomes the Module colour on a Module's pages |
+| `--primary` | = `--ink` | = `--ink` | Main action, checked, selected; becomes the page's Type colour on a page about one Type family |
 | `--primary-foreground` | = `--ink-foreground` | = `--ink-foreground` | |
 | `--secondary` | `oklch(0.928 0.0025 260)` | `oklch(0.265 0.0025 260)` | Secondary buttons and badges |
 | `--secondary-foreground` | = `--foreground` | = `--foreground` | |
@@ -29,21 +29,22 @@ Colours are OKLCH. "fg" is short for foreground.
 | `--accent` | `oklch(0.922 0.0025 260)` | `oklch(0.275 0.0025 260)` | Hover, highlighted menu item, selected tab |
 | `--accent-foreground` | = `--foreground` | = `--foreground` | |
 | `--border` | `oklch(0.9 0.0025 260)` | `oklch(1 0 0 / 6.5%)` | Rare dividers; off-state chips |
-| `--hairline` † | `oklch(0.235 0.0025 260 / 6.5%)` | `oklch(0.945 0.0025 260 / 6.5%)` | The 1px edge on cards, rows, the drawer, outline buttons |
+| `--hairline` † | `oklch(0.235 0.0025 260 / 6.5%)` | `oklch(0.945 0.0025 260 / 6.5%)` | The 1px edge on cards, rows, outline buttons; the line between the drawer and the page |
 | `--input` | `oklch(0.928 0.0025 260)` | `oklch(0.255 0.0025 260)` | Filled input background |
 | `--input-strong` † | `oklch(0.79 0.0025 260)` | `oklch(1 0 0 / 20%)` | Unchecked checkbox edge, switch off |
 | `--ring` | = `--primary` | = `--primary` | Focus |
 | `--ring-soft` † | `--ring` at 18% | `--ring` at 20% | The 3px focus halo |
 | `--sidebar` | = `--card` | = `--card` | The drawer |
 | `--sidebar-foreground` | `oklch(0.38 0.0025 260)` | `oklch(0.8 0.0025 260)` | Drawer text |
-| `--sidebar-accent` | = `--accent` | = `--accent` | Current page in the drawer (core pages) |
+| `--sidebar-accent` | = `--accent` | = `--accent` | Current page in the drawer |
 | `--sidebar-accent-foreground` | = `--foreground` | = `--foreground` | |
 | `--overlay` † | `oklch(0.2 0.0025 260 / 30%)` | `oklch(0.06 0.0025 260 / 62%)` | Behind dialogs and sheets |
 | `--switch-thumb` † | `oklch(1 0 0)` | `oklch(0.98 0 0)` | The Switch's and Slider's thumb |
+| `--scroll-thumb` † | `oklch(0.235 0.0025 260 / 18%)` | `oklch(0.945 0.0025 260 / 16%)` | The ScrollArea's thumb |
 
 ## Colour: meaning
 
-Never replaced by a Module colour.
+Never replaced by a Type colour.
 
 | Token | Light | Dark | Used for |
 |---|---|---|---|
@@ -51,38 +52,73 @@ Never replaced by a Module colour.
 | `--destructive-foreground` | `oklch(0.99 0 0)` | same | |
 | `--success` † | `oklch(0.6 0.12 155)` | same | Saved, synced |
 
-## Colour: Modules
+## Colour: Types
 
-One colour per Module. The core has none.
+*([ADR-0043](../20-architecture/adr/0043-colour-by-type.md), Provisionally
+agreed; the colours agreed with Joe on 11 October 2026.)* Related Types share
+a colour; Account's (Finance) is chosen in Stage 9, and until then Finance is
+neutral. Inbox, Plan, Search and Settings are neutral.
 
-| Token | Module | Light | Dark | Pages and Types |
-|---|---|---|---|---|
-| `--m-lists` | Lists | `oklch(0.66 0.13 72)` | `oklch(0.82 0.11 78)` | Lists and Shops (in Notes) |
-| `--m-food` | Food | `oklch(0.6 0.13 38)` | `oklch(0.76 0.11 40)` | Recipes · Recipe, Variation, Meal, Ingredient |
-| `--m-fitness` | Fitness | `oklch(0.56 0.13 255)` | `oklch(0.76 0.104 250)` | Gym, Cardio · Exercise, Workout template, Workout, Cardio activity |
-| `--m-goals` | Goals | `oklch(0.55 0.13 298)` | `oklch(0.76 0.104 300)` | Goals · Goal |
-| `--m-wardrobe` | Wardrobe | `oklch(0.59 0.13 355)` | `oklch(0.77 0.104 355)` | Wardrobe · Garment, Outfit, Outfit worn |
-| `--m-finance` | Finance | `oklch(0.57 0.13 160)` | `oklch(0.78 0.104 160)` | Finance · Account |
-| `--m-core` † | Core | = `--muted-foreground` | = `--muted-foreground` | The core's Types (Thought, Note, Task, Event): grey icons on `--muted` tiles, never a colour |
-| `--on-module` † | | `oklch(0.99 0 0)` | `oklch(0.2 0.01 260)` | Text on a solid Module colour |
-| `--tile-mix` † | | `14%` | `16%` | Strength of a Module tint (tiles, badges, selected states) |
-
-Inside `ModuleScope`, `--mc` is the current Module's colour; components read
-`--mc`, never a Module token directly. `ModuleScope` also sets these, which
-components use for their selected and pressed states:
-
-| Token | Outside a Module (and on core pages) | Inside a Module's `ModuleScope` | Used for |
+| Token | Light | Dark | Types · pages |
 |---|---|---|---|
-| `--selected` † | = `--accent` | `--mc` at `--tile-mix` | Selected tab, current drawer item |
-| `--selected-foreground` † | = `--foreground` | = `--mc` | Their text |
-| `--pressed-foreground` † | = `--foreground` | = `--mc` | A pressed Toggle's icon |
+| `--t-blue` † | `oklch(0.55 0.14 255)` | `oklch(0.72 0.12 250)` | Task, Event · Tasks |
+| `--t-yellow` † | `oklch(0.8 0.15 88)` | `oklch(0.86 0.13 90)` | Thought, Note, List, Shop · Notes |
+| `--t-coral` † | `oklch(0.66 0.15 35)` | `oklch(0.74 0.12 35)` | Exercise, Workout template, Workout, Cardio activity · Gym, Cardio |
+| `--t-green` † | `oklch(0.6 0.14 150)` | `oklch(0.76 0.12 150)` | Recipe, Variation, Meal, Ingredient · Recipes |
+| `--t-orange` † | `oklch(0.7 0.15 60)` | `oklch(0.8 0.12 62)` | Garment, Outfit, Outfit worn · Wardrobe |
+| `--t-purple` † | `oklch(0.55 0.15 298)` | `oklch(0.74 0.12 300)` | Goal · Goals |
 
-### Adding a Module colour
+Each colour also has a **text** value — the colour as text or an icon on the
+page, darker in light mode where the colour itself wouldn't reach 4.5:1 — and
+a **foreground**, for text on the colour (a primary button, a ticked
+checkbox): white or near-black, whichever reads.
 
-A new Module (Health, for example) gets one hue, at least 30° from every
-existing one, at the same lightness and chroma as the others (light
-L 0.55–0.66, C 0.13; dark L 0.76–0.82, C 0.104–0.11). Check it against
-both backgrounds, add it to this table, and record it in the Module's spec.
+| Token | Light | Dark |
+|---|---|---|
+| `--t-blue-text` † | `oklch(0.52 0.14 255)` | `oklch(0.72 0.12 250)` |
+| `--t-yellow-text` † | `oklch(0.5 0.11 75)` | `oklch(0.86 0.13 90)` |
+| `--t-coral-text` † | `oklch(0.55 0.15 35)` | `oklch(0.74 0.12 35)` |
+| `--t-green-text` † | `oklch(0.5 0.12 150)` | `oklch(0.76 0.12 150)` |
+| `--t-orange-text` † | `oklch(0.52 0.12 60)` | `oklch(0.8 0.12 62)` |
+| `--t-purple-text` † | `oklch(0.55 0.15 298)` | `oklch(0.74 0.12 300)` |
+| `--t-blue-foreground` † | `oklch(0.99 0 0)` | `oklch(0.2 0.0025 260)` |
+| `--t-yellow-foreground` † | `oklch(0.2 0.0025 260)` | same |
+| `--t-coral-foreground` † | `oklch(0.2 0.0025 260)` | same |
+| `--t-green-foreground` † | `oklch(0.2 0.0025 260)` | same |
+| `--t-orange-foreground` † | `oklch(0.2 0.0025 260)` | same |
+| `--t-purple-foreground` † | `oklch(0.99 0 0)` | `oklch(0.2 0.0025 260)` |
+| `--tile-mix` † | `14%` | `16%` |
+
+`--tile-mix` is the strength of a Type's tint: tiles, badges, the selected tab.
+
+Anything marked with `data-colour` — a `TypeScope`, a `TypeTile`, a coloured
+Checkbox — sets three variables that components read, never a `--t-*` token
+directly:
+
+| Variable | Is | Used for |
+|---|---|---|
+| `--tc` † | the Type's colour | Tile tints, dots, primary fills |
+| `--tc-text` † | its text value | Icons in tiles and the drawer, selected tab text, pressed Toggles |
+| `--tc-foreground` † | its foreground | Text on a primary fill |
+
+and, inside it, these, which components use for their selected and pressed
+states:
+
+| Token | Neutral (no `data-colour`) | Inside a colour | Used for |
+|---|---|---|---|
+| `--selected` † | = `--accent` | `--tc` at `--tile-mix` | Selected tab |
+| `--selected-foreground` † | = `--foreground` | = `--tc-text` | Its text |
+| `--pressed-foreground` † | = `--foreground` | = `--tc-text` | A pressed Toggle's icon |
+
+`--primary`, `--primary-foreground` and `--ring` become `--tc`,
+`--tc-foreground` and `--tc` there too.
+
+### Adding a colour
+
+A new family of Types gets a colour only if it belongs with none of these
+([ADR-0043](../20-architecture/adr/0043-colour-by-type.md)): one hue at least
+30° from the others, checked against both backgrounds, with its text and
+foreground values worked out the same way, then added here.
 
 ## Type
 
@@ -93,11 +129,10 @@ keyboard shortcuts and code. Numbers that line up use tabular figures.
 |---|---|---|---|---|
 | `text-h1` | 24px / 1.2 | 750 | −0.025em | Page title (22px on a phone) |
 | `text-h2` | 17px / 1.3 | 700 | −0.015em | Card and section titles, dialog titles |
-| `text-day` | 20px | 750 | −0.02em | Day numbers on Plan |
+| `text-day` | 20px | 750 | −0.02em | Day numbers on Plan; an Item's title in its Dialog |
 | `text-base` | 14px / 1.45 | 400; 600 for titles | 0 | Body, row titles, buttons |
 | `text-sm` | 13px | 400–700 | 0 | Meta, small buttons, section labels (700) |
 | `text-xs` | 12px | 400–700 | 0 | Badges, counts, help text, captions |
-| `text-kicker` | 12px | 700 | 0.07em, uppercase | The line above a page title |
 | `text-kbd` | 10.5px Geist Mono | 500 | 0 | Keyboard shortcuts |
 
 ## Spacing
@@ -109,7 +144,7 @@ Tailwind's 4px-based scale, using only these steps: **2, 4, 6, 8, 10, 12, 14,
 |---|---|
 | Page padding (sides) | 36px desktop, 20px phone |
 | Page header | 30px top, 18px bottom; 12px top, 20px bottom on a phone |
-| Top bar (phone) | 64px high, below the notch; the menu button 48px square with a 22px icon, 8px from the edge (its icon lines up with the page padding), 8px before the brand |
+| Top bar (phone) | 64px high, below the notch; the menu button 48px square with a 22px icon, 8px from the edge (its icon lines up with the page padding), 8px before the brand; the Capture button 48px square, 8px from the right edge |
 | Gap between sections | 20px |
 | Gap between list rows | 6px |
 | Card padding | 20px |
@@ -124,15 +159,14 @@ Tailwind's 4px-based scale, using only these steps: **2, 4, 6, 8, 10, 12, 14,
 | `--radius-sm` | 8px | Small tile (24px), menu item, tooltip, skeleton |
 | `--radius-md` | 10px | Tile (32px) |
 | `--radius` | 12px | Buttons, inputs, selects, toggle group, drawer items, Plan cards |
-| `--radius-row` | 14px | List rows |
-| `--radius-lg` | 18px | Cards, popovers, menus, Plan day columns |
-| `--radius-panel` | 20px | The drawer |
+| `--radius-row` | 14px | List rows, the large tile |
+| `--radius-lg` | 18px | Cards, popovers, menus, Plan day columns, the phone's floating button |
 | `--radius-xl` | 24px | Dialogs, sheets |
 | `--radius-full` | 999px | Badges, tabs, chips, switch, avatar, progress |
 
 As Tailwind classes: `rounded-xs`, `rounded-sm`, `rounded-md`,
-`rounded-control` (`--radius`), `rounded-row`, `rounded-lg`, `rounded-panel`,
-`rounded-xl`, `rounded-full`.
+`rounded-control` (`--radius`), `rounded-row`, `rounded-lg`, `rounded-xl`,
+`rounded-full`.
 
 A shape inside another is rounded to the outer radius minus the gap between
 them (a toggle item: 12px − 3px = 9px).
@@ -141,8 +175,8 @@ them (a toggle item: 12px − 3px = 9px).
 
 | Token | Light | Dark | Used for |
 |---|---|---|---|
-| `--shadow-card` | `0 0 0 1px var(--hairline), 0 1px 2px oklch(0.2 0.01 260 / 5%), 0 6px 20px -8px oklch(0.2 0.01 260 / 13%)` | `0 0 0 1px var(--hairline), inset 0 1px 0 oklch(1 0 0 / 3.5%), 0 10px 30px -14px oklch(0 0 0 / 60%)` | Cards, rows, the drawer, outline buttons, chips, Plan cards |
-| `--shadow-pop` | `0 2px 4px oklch(0.2 0.01 260 / 6%), 0 16px 40px -12px oklch(0.2 0.01 260 / 26%)` | `inset 0 1px 0 oklch(1 0 0 / 4.5%), 0 20px 50px -16px oklch(0 0 0 / 70%)` | Menus, popovers, toasts |
+| `--shadow-card` | `0 0 0 1px var(--hairline), 0 1px 2px oklch(0.2 0.01 260 / 5%), 0 6px 20px -8px oklch(0.2 0.01 260 / 13%)` | `0 0 0 1px var(--hairline), inset 0 1px 0 oklch(1 0 0 / 3.5%), 0 10px 30px -14px oklch(0 0 0 / 60%)` | Cards, rows, outline buttons, chips, Plan cards |
+| `--shadow-pop` | `0 2px 4px oklch(0.2 0.01 260 / 6%), 0 16px 40px -12px oklch(0.2 0.01 260 / 26%)` | `inset 0 1px 0 oklch(1 0 0 / 4.5%), 0 20px 50px -16px oklch(0 0 0 / 70%)` | Menus, popovers, toasts, the phone's floating button |
 | `--shadow-dialog` | `0 30px 80px -24px oklch(0.2 0.01 260 / 38%)` | `inset 0 1px 0 oklch(1 0 0 / 5%), 0 40px 90px -24px oklch(0 0 0 / 80%)` | Dialogs, sheets |
 | `--shadow-button` | `0 1px 2px oklch(0.2 0.01 260 / 20%)` | none | Primary buttons |
 | `--shadow-thumb` † | `0 1px 2px oklch(0 0 0 / 25%)` | same | The Switch's and Slider's thumb |
@@ -158,12 +192,14 @@ No borders on surfaces: edges come from `--shadow-card`'s hairline.
 | Drawer item | 38px; 44px on a phone | |
 | Menu item | 36px | |
 | List row | min 56px | |
-| Tile | 32px (icon 16px); small 24px (icon 14px) | |
+| Tile | 32px (icon 16px); small 24px (icon 14px); large 48px (icon 22px, `--radius-row`), for an empty page | |
 | Checkbox | 18px | |
 | Switch | 38 × 22px | |
 | Badge | 22px high | |
 | Avatar | 30px | |
-| Drawer | 252px wide (240px panel + 12px inset); a 288px Sheet on a phone | |
+| Drawer | 256px wide, full height; a 288px Sheet on a phone | |
+| Floating button (phone) | 56px square, `--radius-lg`, 22px icon; 20px from the right, 28px from the bottom | |
+| ScrollArea thumb | 6px wide, 2px from the edge | |
 | Icon | 16px, stroke 1.75; 12px and 14px small; 22px large | |
 
 ## Motion

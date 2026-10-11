@@ -2,6 +2,140 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#3](https://github.com/joestables/lifeos/pull/3) — Stage 2, steps 1–5: specs, design, schema, working with Items
+
+Branch `claude/kind-dijkstra-1kv0xt` · 2026-10-10 to 2026-10-11
+
+**What it did**
+- Wrote the [Stage 2 plan](plans/stage-2.md), shaped like Stage 1's, with
+  five questions for Joe, since answered.
+- Drafted the Stage 2 requirements, all *proposed*: capture (CAP-001–008),
+  Inbox (INB-001–005), Notes (NTE-001–005), Tasks with repeats
+  (TSK-001–011), Reminders (REM-001–009), working with Items (ITM-001–007)
+  and Search (SRC-001–003). New specs: `views/notes.md`, `views/tasks.md`,
+  `cross-cutting/items.md`.
+- Re-checked before Stage 2: iOS Web Push still shows no notification
+  buttons; Gemini can't post to a custom address. Recorded in the reminders
+  and capture specs and the roadmap.
+- The capability map, roadmap, docs index and `CLAUDE.md` say Stage 2 is in
+  progress; the data model marks a Note's colour as an open question
+  (colour means Module).
+
+- Joe's answers (10 October), and every document they touch:
+  - Capture from outside the app (CAP-005–008, an Android widget) deferred
+    to a new Stage 10, after every other stage: ADR-0027 and 0028 amended;
+    roadmap, capability map, overview, integration setup, data model and
+    non-functional updated.
+  - Capture opens over any page and leaves you where you were; on a phone,
+    from a button in the top bar (patterns and components).
+  - Specs rewritten without implementation detail. Items open on their own
+    page or in a popup; one Recently deleted page; no Recent; marks per Type
+    (Notes pinned, Tasks starred, Recipes favourited); Labels on Notes and
+    Tasks only, filtering Notes rather than heading them (ADR-0014
+    amended); Notes have no *idea* status (ADR-0037 amended); steps became
+    sub-tasks; Reminders go to every registered device.
+  - Colour by Type, with no Module name above page titles: ADR-0043, and
+    ADR-0041 amended. The design-language, glossary, data model and
+    `CLAUDE.md` state the new rule; tokens, components and patterns carry a
+    note until the colours are designed (plan step 3).
+  - The data model's Types table gains each Type's colour, Labels and mark;
+    `core.stars` and `core.recent` became `core.marks`; `task_steps` became
+    `subtasks`.
+
+- Designed every Stage 2 screen (plan step 3, first pass) on a design
+  canvas, desktop and phone, dark and light, from the design system's tokens
+  and components, with proposed values for the Type colours. Nothing in the
+  design spec or code changes until Joe has commented.
+
+- Second design pass after Joe's comments (plan step 3): the standard
+  shadcn Sidebar, one place and style for each page's main action, no hint
+  text, Tasks opening as a centred popup, the Tasks views All Tasks, By
+  Label, Recurring and Completed, ScrollArea instead of browser scrollbars,
+  and a fixed stylesheet bug that made primary buttons unreadable. The Tasks
+  and Notes specs say how their Items open and which views the Tasks page
+  has.
+
+- Joe agreed the specs and the second pass (11 October), with sentence case
+  for the Tasks views and main actions and a "+" only on a phone's floating
+  buttons; every Stage 2 requirement is now *agreed*.
+- Plan step 2: [ADR-0044](../20-architecture/adr/0044-reminder-delivery.md)
+  (how Reminders are delivered) and
+  [ADR-0045](../20-architecture/adr/0045-extending-series.md) (where
+  repeating Items are made), both *Proposed*; the data model, overview,
+  reminders spec, non-functional, runbook and integration setup cite them.
+
+- Plan step 3: the agreed designs went into the design system — Type colour
+  tokens with text and foreground values that reach 4.5:1, `TypeScope`,
+  `TypeTile`, `TypeBadge`, `TypeDot` and a coloured Checkbox in place of the
+  Module components; shadcn's standard Sidebar (256px, full height);
+  ScrollArea for the page and the drawer, with a thin themed scrollbar for
+  anything else; the phone's Fab; PageHeader's main action; no kicker; and
+  in the spec, how Items open, RadioGroup `cards`, Command, the empty state
+  and no hint text. ADR-0026 amended: Settings opens from your row. The
+  design-page screenshots were refreshed and looked at, and the shell walked
+  in dark and light, desktop and phone.
+
+- Joe agreed ADR-0044 and ADR-0045 (11 October): both are now
+  *Provisionally agreed*, and every document citing them says so.
+- Six app icon options on the design canvas, each shown as the icon,
+  Android's round crop, on dark and light home screens, in a browser tab and
+  as the drawer's mark.
+
+- Joe chose option C, the graph. It is in the design spec (patterns, "The
+  app icon"; `BrandMark` in components), as `public/icon.svg` and
+  `public/favicon.svg` with the PNGs drawn from them, in the manifest
+  (`any` and `maskable`), as the favicon and Apple touch icon, and as the
+  brand mark in the drawer, the phone's top bar and sign-in.
+
+- Plan step 4, the Stage 2 schema. The ontology package gains each Type's
+  colour, Labels, mark, sub-tasks and default Reminder, and a Note loses
+  its *idea* status. Three migrations: Labels (one set per Space, "home" is
+  "Home"), marks, sub-tasks, series with one occurrence per date made,
+  Reminders whose `fires_at` follows the Item in the person's timezone (a
+  dated Task's default Reminder made and removed by a trigger), push
+  devices, deliveries kept from the app, each person's settings, a hand-made
+  order, `touched_at` kept by triggers, and full-text search; then the write
+  functions for all of them and `search_items`. 74 new database tests
+  (Labels, marks and sub-tasks 27; Reminders and devices 26; series and
+  search 21). The app reads every Item column but the search index.
+  Applied to the live project after CI passed; then the security advisor
+  showed every LifeOS function was executable by PUBLIC: Stage 1's
+  per-schema "revoke from public" can't work in Postgres. A fourth
+  migration revokes it and changes the default for everything `postgres`
+  makes; `core_privileges_test.sql` keeps it so. Signed-out visitors could
+  never reach them (no usage on the schemas).
+- After applying: the advisors show no function open to people signed out.
+  Left as they are: `register_device` runs as its owner, by design (a
+  browser's push endpoint moves to whoever registers it); deliveries,
+  heartbeats and health runs have row-level security and no policies, so
+  only the jobs read them; leaked-password protection is off, as only the
+  test account can use a password.
+
+- Plan step 5, working with Items. Every Item has a link of its own,
+  `/item/<id>`; a Thought or Task opens in a Dialog over the page
+  (`?item=<id>`, so Back closes it), a Note too on a computer and on a page
+  of its own on a phone; an unknown link says "This can't be found". The
+  Dialog and page carry the Type's tile and name, the star or pin, and a
+  "…" menu with Convert to (only Types the app has, from the ontology's new
+  `stage`) and Delete, which says so with Undo. Settings, reached from your
+  row in the drawer: Labels (a Card on a computer, its own page on a phone:
+  new, rename, delete with a count), Recently deleted (newest first, Restore
+  with Undo) and Sign out. An offline notice tops every page. New shared
+  components, specified first: ItemDialog, ItemPage, BackLink, CardRow,
+  EmptyState, a large TypeTile, ItemRow's always-shown control, PageHeader's
+  back link. The data layer reads deleted Items too, and Labels, Label
+  links and marks, each laid over by unsent writes; a new database function
+  `convert_item`. Found on the way: reopening the app within 30 seconds of
+  a change showed the device's copy without asking the server — it now
+  always refreshes on start. 12 unit tests and 8 browser tests (each on desktop and
+  phone) added; the stand-in Supabase now keeps the writes it is sent.
+
+**Left for later**
+- Merged mid-stage, at Joe's request, so production shows the work so far.
+- The build (plan steps 6–14): capture in the app, the Inbox, Notes and
+  Tasks lists, series' occurrence functions (step 10) and the notification
+  job (step 11).
+
 ## [#2](https://github.com/joestables/lifeos/pull/2) — Phone menu button; Supabase URL settings
 
 Branch `claude/stage-1-foundation` · 2026-10-10

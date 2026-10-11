@@ -1,8 +1,9 @@
 # LifeOS — instructions for Claude
 
 LifeOS v2 is being built, stage by stage. Stage 0 settled the architecture
-(Provisionally agreed); Stage 1 built the foundation; Stage 2 is next. The
-current stage's plan is in [docs/50-progress/plans/](docs/50-progress/plans/);
+(Provisionally agreed); Stage 1 built the foundation; Stage 2 is in progress,
+its specs agreed. The current stage's plan is in
+[docs/50-progress/plans/](docs/50-progress/plans/);
 a stage without one starts by writing it, shaped like the last, with the
 stage's specs as its first step for Joe to agree
 ([roadmap](docs/roadmap.md#where-we-are)). Start at [docs/README.md](docs/README.md): the
@@ -59,8 +60,11 @@ screen follows it exactly ([ADR-0038](docs/20-architecture/adr/0038-one-design-s
   restyling a component on a screen.
 - **Something new goes into the spec first**, in the same pull request, then
   into the shared components — never as a one-off.
-- **Colour means Module**, and nothing else; red and green keep their usual
-  meaning ([patterns](docs/30-design/patterns.md#module-colour)).
+- **Colour means Type**, and nothing else: related Types share a colour, a
+  page takes its Types' colour, and Inbox and Plan are neutral; red and
+  green keep their usual meaning, never by colour alone
+  ([ADR-0043](docs/20-architecture/adr/0043-colour-by-type.md),
+  [patterns](docs/30-design/patterns.md#colour-by-type)).
 - **Check dark mode first**, then light, at desktop and phone width, and
   attach screenshots.
 

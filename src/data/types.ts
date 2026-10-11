@@ -1,7 +1,10 @@
 import type { Database } from './database.types'
 
-/** An Item as stored (core.items). */
-export type ItemRow = Database['core']['Tables']['items']['Row']
+/**
+ * An Item as stored (core.items), without its search index, which stays on
+ * the server.
+ */
+export type ItemRow = Omit<Database['core']['Tables']['items']['Row'], 'search'>
 
 /** Whether the server has an Item's latest change yet (OFF-001, OFF-004). */
 export type SyncState = 'pending' | 'failed'
@@ -24,6 +27,7 @@ export type ItemFields = Partial<
     | 'do_on'
     | 'do_at'
     | 'slot'
+    | 'position'
   >
 >
 

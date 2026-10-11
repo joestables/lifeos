@@ -30,7 +30,7 @@ See [offline](cross-cutting/offline.md).
   encrypted storage ([backups](../40-operations/backups.md)).
 - `ops.events` records the screen and the last few actions, never the content
   of your Items.
-- The capture address can only create Items in its owner's Personal Space and
+- The capture address (Stage 10) can only create Items in its owner's Personal Space and
   can read nothing.
 - AI sees only what the person asking may see.
 - Your data is exportable: everything you can see, as JSON, on demand.
@@ -46,7 +46,10 @@ Not yet written.
   buttons).
 - Alarm-grade Reminders need the Android wrapper (Stage 7)
   ([overview](../20-architecture/overview.md#platforms)).
-- Deliveries are logged (`core.reminder_deliveries`).
+- Deliveries are logged (`core.reminder_deliveries`), sent within a minute,
+  once per device, and missed after 12 hours
+  ([ADR-0044](../20-architecture/adr/0044-reminder-delivery.md),
+  Provisionally agreed).
 
 ## Free-tier constraints
 

@@ -37,4 +37,7 @@ which LifeOS replaces in Stage 2, has repeating tasks.
 
 ## Consequences
 
-A missed week of "take vitamins" doesn't pile up as overdue.
+A missed week of "take vitamins" doesn't pile up as overdue. Where the
+engine lives and what runs it each night:
+[ADR-0045](0045-extending-series.md) (Provisionally
+agreed).

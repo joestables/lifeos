@@ -1,31 +1,39 @@
+import { PlusIcon } from 'lucide-react'
 import type { ReactNode } from 'react'
+import { Button } from '@/components/ui/button'
+import { BackLink } from './BackLink'
+import { Fab } from './Fab'
 
 /**
- * One per page: an optional kicker (the Module colour on a Module page,
- * muted on a core page), the title, and actions on the right.
+ * One per page: the title, and the page's main action ("New task") on the
+ * right — a primary button on a computer, a Fab on a phone (components.md).
  */
 export function PageHeader({
-  kicker,
   title,
-  actions,
+  action,
+  back,
 }: {
-  kicker?: ReactNode
   title: ReactNode
-  actions?: ReactNode
+  action?: { label: string; onClick: () => void }
+  /** A page reached from another (Recently deleted, from Settings): back to it. */
+  back?: { label: string; onClick: () => void }
 }) {
   return (
     <header className="flex items-end gap-3 px-5 pt-3 pb-5 sm:px-9 sm:pt-[30px] sm:pb-[18px]">
-      <div className="min-w-0 flex-1">
-        {kicker && (
-          <div className="mb-1.5 flex items-center gap-2 text-kicker text-[var(--mc,var(--muted-foreground))] uppercase">
-            {kicker}
-          </div>
-        )}
+      <div className="flex min-w-0 flex-1 flex-col gap-1">
+        {back && <BackLink label={back.label} onClick={back.onClick} />}
         <h1 className="truncate text-[22px] leading-[1.2] font-[750] tracking-[-0.025em] sm:text-h1">
           {title}
         </h1>
       </div>
-      {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
+      {action && (
+        <>
+          <Button size="sm" className="hidden md:inline-flex" onClick={action.onClick}>
+            <PlusIcon /> {action.label}
+          </Button>
+          <Fab label={action.label} onClick={action.onClick} />
+        </>
+      )}
     </header>
   )
 }

@@ -2,7 +2,8 @@
 
 **Status:** Provisionally agreed · 2026-10-09
 
-**Amended:** 2026-10-09 by [ADR-0032](0032-delete-means-archive.md) (recovery in Settings).
+**Amended:** 2026-10-09 by [ADR-0032](0032-delete-means-archive.md) (recovery in Settings);
+2026-10-11 by the Stage 2 design agreed with Joe (Settings from your row).
 
 ## Context
 
@@ -29,8 +30,8 @@ A collapsible drawer (no bottom bar) with these pages, in this order:
 
 - **No Trash page and no Timeline** in the drawer, for now. Deleted Items are
   recovered from Settings ([ADR-0032](0032-delete-means-archive.md)).
-- **Search** and **Settings** are reached from the drawer header, not listed
-  as pages.
+- **Search** is reached from the drawer header and **Settings** from your
+  row at its foot, not listed as pages.
 - **Deliberately not decided here:** what each page shows, its tabs,
   layouts, filters and Screens. Those are written in the page's spec at the
   start of its stage.

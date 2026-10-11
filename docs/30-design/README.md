@@ -8,10 +8,10 @@ the screen then uses what was added.
 | Document | Holds |
 |---|---|
 | [design-language.md](design-language.md) | The principles and the decisions behind the look |
-| [tokens.md](tokens.md) | Every design token, with its exact light and dark value: colour, Module colours, type, spacing, radius, shadow, size, motion |
+| [tokens.md](tokens.md) | Every design token, with its exact light and dark value: colour, Type colours ([ADR-0043](../20-architecture/adr/0043-colour-by-type.md)), type, spacing, radius, shadow, size, motion |
 | [components.md](components.md) | Every component a screen may use — shadcn's and LifeOS's own — with its variants, sizes and rules |
-| [patterns.md](patterns.md) | How screens are put together: page anatomy, Module colour, lists, Plan, states, icons, copy, phone |
-| [reference.html](reference.html) | A frozen picture of the agreed look ([published copy](https://claude.ai/artifact/RKXtYq2tiCHrfM1XeMX4wK), private to Joe). If it and the written spec differ, the written spec wins. The app's own page, `/design`, now shows the real components; this file stays as the record of the look that was agreed. |
+| [patterns.md](patterns.md) | How screens are put together: page anatomy, the drawer, colour by Type, opening an Item, lists, Plan, forms, states, icons, copy, phone |
+| [reference.html](reference.html) | A frozen picture of the look agreed in Stage 1 ([published copy](https://claude.ai/artifact/RKXtYq2tiCHrfM1XeMX4wK), private to Joe), from before colour by Type and the standard Sidebar. The Stage 2 screens agreed on 11 October 2026 are on the [Stage 2 design canvas](https://claude.ai/artifact/N5ZmkZnYg51kcHySQ8c6F6) (private to Joe). Where either differs from the written spec, the written spec wins; the app's own page, `/design`, shows the real components. |
 
 The direction itself is [ADR-0041](../20-architecture/adr/0041-visual-direction.md);
 building everything from shared components is
@@ -26,10 +26,11 @@ request.
    and build the content only from [components.md](components.md). Layout
    (flex, grid, gap, padding) uses the spacing scale; nothing else is styled
    on the screen.
-2. **Module pages** are wrapped in `ModuleScope` with their Module; core pages
-   (Inbox, Plan, Tasks, Notes) are not ([patterns](patterns.md#module-colour)).
-3. **Every Item shows its Module** — a `ModuleTile`, `ModuleBadge` or dot —
-   wherever it appears.
+2. **A page about one family of Types** (Tasks, Notes, Recipes, Gym…) is
+   wrapped in `TypeScope` with their colour; Inbox, Plan, Search and
+   Settings are not ([patterns](patterns.md#colour-by-type)).
+3. **Every Item shows its colour** — a `TypeTile`, a coloured checkbox, a
+   `TypeBadge` or a dot — wherever it appears.
 4. **Only tokens.** No colour, size, radius, shadow or font that isn't in
    [tokens.md](tokens.md).
 5. **Both modes, dark first**, and phone width as well as desktop.
@@ -53,8 +54,9 @@ The look will be refined as we go; this is how, without drift.
   components. Never as a one-off on a screen.
 - **The direction** (what colour means, the fonts, the overall feel): an ADR
   that amends or supersedes [ADR-0041](../20-architecture/adr/0041-visual-direction.md).
-- **A new Module** gets its colour as set out in
-  [tokens.md](tokens.md#adding-a-module-colour).
+- **A new Type** joins the colour of the Types it belongs with; only a new
+  family gets a new colour, as set out in
+  [tokens.md](tokens.md#adding-a-colour).
 
 ## Enforcement
 
@@ -63,7 +65,7 @@ fails CI instead of relying on memory.
 
 | Check | What it catches |
 |---|---|
-| **One theme file** (`src/styles/theme.css`) holds every token as a CSS variable, mapped to Tailwind with `@theme inline`. It is the only file allowed to contain a colour value, except the two places that must be hex: the web app manifest (`vite.config.ts`) and `theme-color` in `index.html`, which carry `--background` converted; and Google's "G" (`public/google-g.svg`), whose colours Google sets. | Colours defined anywhere else |
+| **One theme file** (`src/styles/theme.css`) holds every token as a CSS variable, mapped to Tailwind with `@theme inline`. It is the only file allowed to contain a colour value, except the places that must be hex: the web app manifest (`vite.config.ts`) and `theme-color` in `index.html`, which carry `--background` converted; the app icon (`public/icon.svg`, `public/favicon.svg` and the PNGs drawn from them), which carries the dark theme's `--background`, `--foreground` and Type colours converted ([patterns](patterns.md#the-app-icon)); and Google's "G" (`public/google-g.svg`), whose colours Google sets. | Colours defined anywhere else |
 | **Checked token tables:** `npm run tokens:check` compares every value in [tokens.md](tokens.md) with the theme file, and fails if the theme defines a variable the spec doesn't list. It runs in `npm run check` and CI. | Docs and code disagreeing |
 | **Lint** (`eslint.config.js`): no colour literals anywhere in `src/`. On screens — everything outside `src/components/` and `src/data/` — no Tailwind arbitrary values (`bg-[…]`, `p-[13px]`, `rounded-[…]`, `shadow-[…]`, which also rules out other fonts), no inline `style` except computed sizes (a progress width, with a comment), and UI imported only from `@/components/ui` and `@/components/lifeos`, never Base UI, Radix, Sonner or react-day-picker directly. Inside the shared components arbitrary values are allowed: that is where the look is defined, once. | One-off styling, bypassing the shared components |
 | **The design-system page** (`/design`, in development and preview builds only; `src/routes/design.tsx`) renders every component and pattern from the real code, with a dark/light switch. `scripts/screenshot.mjs` takes its dark and light, desktop and phone screenshots. | Components no one has looked at |

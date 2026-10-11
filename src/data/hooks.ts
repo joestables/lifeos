@@ -1,6 +1,18 @@
 import { useQuery } from '@tanstack/react-query'
 import { useMemo, useSyncExternalStore } from 'react'
 import { fetchItems, itemsKey } from './items'
+import {
+  applyPendingItemLabels,
+  applyPendingLabels,
+  applyPendingMarks,
+  fetchItemLabels,
+  fetchLabels,
+  fetchMarks,
+  itemLabelsKey,
+  labelsKey,
+  marksKey,
+  type Label,
+} from './labels'
 import { applyPending } from './overlay'
 import type { WriteQueue } from './queue/queue'
 import type { QueueEntry } from './queue/store'
@@ -40,6 +52,15 @@ export function useSyncCounts(queue: WriteQueue): { pending: number; failed: num
   )
 }
 
+/** Every Item, deleted ones included, with unsent changes laid over them. */
+function useAllItems(queue: WriteQueue) {
+  const query = useQuery({ queryKey: itemsKey, queryFn: fetchItems })
+  const entries = useQueueEntries(queue)
+  const online = useOnline()
+  const all = useMemo(() => applyPending(query.data ?? [], entries), [query.data, entries])
+  return { all, isLoading: query.isLoading, outOfDate: !online || query.isError }
+}
+
 /**
  * Live Items, with unsent changes laid over them. `outOfDate` is true when
  * what shows may be behind the server: offline, or the last refresh failed
@@ -50,12 +71,66 @@ export function useItems(queue: WriteQueue): {
   isLoading: boolean
   outOfDate: boolean
 } {
-  const query = useQuery({ queryKey: itemsKey, queryFn: fetchItems })
-  const entries = useQueueEntries(queue)
-  const online = useOnline()
+  const { all, isLoading, outOfDate } = useAllItems(queue)
+  const items = useMemo(() => all.filter((i) => i.archived_at === null), [all])
+  return { items, isLoading, outOfDate }
+}
+
+/** Deleted Items, the most recently deleted first (ITM-003). */
+export function useDeletedItems(queue: WriteQueue): { items: Item[]; isLoading: boolean } {
+  const { all, isLoading } = useAllItems(queue)
   const items = useMemo(
-    () => applyPending(query.data ?? [], entries).filter((i) => i.archived_at === null),
+    () =>
+      all
+        .filter((i) => i.archived_at !== null)
+        .sort((a, b) => (a.archived_at! < b.archived_at! ? 1 : -1)),
+    [all],
+  )
+  return { items, isLoading }
+}
+
+/**
+ * One Item by its id, live or deleted: `missing` once it is known not to be
+ * among what I can see (ITM-001).
+ */
+export function useItem(
+  queue: WriteQueue,
+  id: string,
+): { item: Item | undefined; status: 'loading' | 'found' | 'missing' } {
+  const { all, isLoading } = useAllItems(queue)
+  const item = all.find((i) => i.id === id && i.archived_at === null)
+  return { item, status: item ? 'found' : isLoading ? 'loading' : 'missing' }
+}
+
+/** My Labels, by name, each with how many live Items have it (ITM-005). */
+export function useLabels(queue: WriteQueue): {
+  labels: (Label & { count: number })[]
+  itemLabels: { item_id: string; label_id: string }[]
+  isLoading: boolean
+} {
+  const entries = useQueueEntries(queue)
+  const labelsQuery = useQuery({ queryKey: labelsKey, queryFn: fetchLabels })
+  const itemLabelsQuery = useQuery({ queryKey: itemLabelsKey, queryFn: fetchItemLabels })
+  const { items } = useItems(queue)
+  return useMemo(() => {
+    const live = new Set(items.map((i) => i.id))
+    const itemLabels = applyPendingItemLabels(itemLabelsQuery.data ?? [], entries).filter((r) =>
+      live.has(r.item_id),
+    )
+    const labels = applyPendingLabels(labelsQuery.data ?? [], entries).map((l) => ({
+      ...l,
+      count: itemLabels.filter((r) => r.label_id === l.id).length,
+    }))
+    return { labels, itemLabels, isLoading: labelsQuery.isLoading }
+  }, [labelsQuery.data, labelsQuery.isLoading, itemLabelsQuery.data, items, entries])
+}
+
+/** The Items I have pinned or starred. */
+export function useMarks(queue: WriteQueue): ReadonlySet<string> {
+  const entries = useQueueEntries(queue)
+  const query = useQuery({ queryKey: marksKey, queryFn: fetchMarks })
+  return useMemo(
+    () => new Set(applyPendingMarks(query.data ?? [], entries).map((m) => m.item_id)),
     [query.data, entries],
   )
-  return { items, isLoading: query.isLoading, outOfDate: !online || query.isError }
 }

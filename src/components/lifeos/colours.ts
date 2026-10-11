@@ -7,11 +7,11 @@ import {
 } from 'lucide-react'
 
 /**
- * The Modules that have a colour (tokens.md#colour-modules). The core has
- * none: its Types are grey.
+ * The Type colours (tokens.md#colour-types). Related Types share one; 'none'
+ * is neutral (Inbox, Plan, and Finance until Stage 9).
  */
-export const MODULES = ['core', 'lists', 'food', 'fitness', 'goals', 'wardrobe', 'finance'] as const
-export type ModuleKey = (typeof MODULES)[number]
+export const COLOURS = ['blue', 'yellow', 'coral', 'green', 'orange', 'purple', 'none'] as const
+export type TypeColour = (typeof COLOURS)[number]
 
 /** Each Type always uses the same icon (patterns.md#icons). Later Types join with their stage. */
 export const TYPE_ICONS: Record<string, LucideIcon> = {

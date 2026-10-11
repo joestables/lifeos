@@ -5,8 +5,8 @@ import { extendTailwindMerge } from 'tailwind-merge'
 const twMerge = extendTailwindMerge({
   extend: {
     theme: {
-      text: ['h1', 'h2', 'day', 'kicker', 'kbd'],
-      radius: ['control', 'row', 'panel'],
+      text: ['h1', 'h2', 'day', 'kbd'],
+      radius: ['control', 'row'],
       shadow: ['card', 'pop', 'dialog', 'button', 'thumb'],
     },
   },

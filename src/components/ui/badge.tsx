@@ -11,7 +11,7 @@ const badgeVariants = cva(
         secondary: 'bg-secondary text-secondary-foreground',
         outline: 'bg-muted text-muted-foreground',
         destructive: 'bg-[color-mix(in_oklch,var(--destructive)_13%,transparent)] text-destructive',
-        module: 'bg-[color-mix(in_oklch,var(--mc)_var(--tile-mix),transparent)] text-mc',
+        type: 'bg-[color-mix(in_oklch,var(--tc)_var(--tile-mix),transparent)] text-tc-text',
       },
     },
     defaultVariants: { variant: 'secondary' },

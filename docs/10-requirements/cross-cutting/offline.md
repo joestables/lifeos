@@ -81,7 +81,7 @@ Acceptance criteria
 
 **As** a person with no signal, **I want** to see the Items I've already
 opened, **so that** I'm not locked out of my own data.
-Priority: Should · Status: built (the "possibly out of date" mark shows once there are screens)
+Priority: Should · Status: verified
 
 Acceptance criteria
 1. Given I have loaded Items while online, when I lose the connection, then

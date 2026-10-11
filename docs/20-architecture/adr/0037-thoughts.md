@@ -2,6 +2,8 @@
 
 **Status:** Provisionally agreed · 2026-10-09
 
+**Amended:** 2026-10-10 by Joe, writing the Stage 2 specs (a Note has no *idea* status).
+
 ## Context
 
 Capture made a Note by default, so the Note Type mixed two things: raw,
@@ -23,8 +25,8 @@ later.
 - **Thoughts and Notes are Personal only**: neither is Shareable. Something
   to share is converted into a Shareable Type, such as a List.
 - **An idea** is still a status, not a Type: a Thought can be sorted into a
-  Type in its *idea* status (a Recipe idea, a "Someday" Task, a Note kept as
-  an idea).
+  Type in its *idea* status (a Recipe idea, a "Someday" Task). A Note is
+  just a note, with no *idea* status.
 - **A Thought whose text contains a date gets a Reminder** for that date, as
   a Note did before ([ADR-0023](0023-reminders.md)).
 

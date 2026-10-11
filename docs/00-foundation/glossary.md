@@ -57,12 +57,12 @@ templates, and starting a session opens the session-logging Screen.
 | **Conversion** | Changing an Item's Type in place; the Item keeps its id, links and history. |
 | ***became*** | The link from a new Item to the old one it was "created from". |
 | **Reference data** | A Module's small lookup lists (muscle groups, cuisines, brands…). Not Items. |
-| **Module colour** | The one colour that marks a Module's Items and pages ([design system](../30-design/tokens.md#colour-modules)). The core has none. |
+| **Type colour** | The colour that marks a Type's Items, and the pages about them; related Types share one (Tasks and Events blue). Inbox and Plan are neutral ([ADR-0043](../20-architecture/adr/0043-colour-by-type.md)). |
 | **Design token** | A named design value — a colour, size, radius, shadow — defined once and used by every component ([tokens](../30-design/tokens.md)). |
-| **Label** | A per-Space grouping on any Item: groups Tasks, heads Notes. Replaces "tags". |
+| **Label** | A per-Space grouping on the Types that use one (Notes and Tasks): groups Tasks, filters Notes. Replaces "tags". |
 | **Sorting** | Dealing with a Thought in Inbox: converting it into another Type, or deleting it. |
-| **Starred** | Marked privately by one person. |
-| **Recent** | Items a person opened recently. |
+| **Mark** | A per-person flag a Type may have, under its own name: a Note is **pinned**, a Task **starred**, a Recipe **favourited**. Types without one have none. |
+| **Sub-task** | A line ticked inside a Task: a title and a tick, not a Task of its own. |
 | **Capture address** | A personal URL and secret that creates Items in its owner's Personal Space. |
 | **Cook log** | The record of each time a Variation was cooked. |
 | **Ontology** | Types, Traits, statuses, link types, measures and reference data: the schema of the graph. |

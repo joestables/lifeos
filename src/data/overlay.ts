@@ -17,6 +17,8 @@ const blankItem = (id: string, type: string, at: string): ItemRow => ({
   do_at: null,
   slot: null,
   series_id: null,
+  occurrence_on: null,
+  position: null,
   touched_at: null,
   created_at: at,
   updated_at: at,
@@ -68,6 +70,11 @@ export function applyPending(items: readonly ItemRow[], entries: readonly QueueE
       case 'restore_item':
         mark((entry.args as { p_id: string }).p_id, { archived_at: null })
         break
+      case 'convert_item': {
+        const { p_id, p_type } = entry.args as { p_id: string; p_type: string }
+        mark(p_id, { type: p_type })
+        break
+      }
       default:
         // Links don't change how an Item looks.
         break

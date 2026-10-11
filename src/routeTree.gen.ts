@@ -22,6 +22,10 @@ import { Route as AppPlanRouteImport } from './routes/_app/plan'
 import { Route as AppRecipesRouteImport } from './routes/_app/recipes'
 import { Route as AppTasksRouteImport } from './routes/_app/tasks'
 import { Route as AppWardrobeRouteImport } from './routes/_app/wardrobe'
+import { Route as AppItemIdRouteImport } from './routes/_app/item.$id'
+import { Route as AppSettingsIndexRouteImport } from './routes/_app/settings.index'
+import { Route as AppSettingsDeletedRouteImport } from './routes/_app/settings.deleted'
+import { Route as AppSettingsLabelsRouteImport } from './routes/_app/settings.labels'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -87,6 +91,26 @@ const AppWardrobeRoute = AppWardrobeRouteImport.update({
   path: '/wardrobe',
   getParentRoute: () => AppRoute,
 } as any)
+const AppItemIdRoute = AppItemIdRouteImport.update({
+  id: '/item/$id',
+  path: '/item/$id',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSettingsIndexRoute = AppSettingsIndexRouteImport.update({
+  id: '/settings/',
+  path: '/settings/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSettingsDeletedRoute = AppSettingsDeletedRouteImport.update({
+  id: '/settings/deleted',
+  path: '/settings/deleted',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSettingsLabelsRoute = AppSettingsLabelsRouteImport.update({
+  id: '/settings/labels',
+  path: '/settings/labels',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -101,6 +125,10 @@ export interface FileRoutesByFullPath {
   '/recipes': typeof AppRecipesRoute
   '/tasks': typeof AppTasksRoute
   '/wardrobe': typeof AppWardrobeRoute
+  '/item/$id': typeof AppItemIdRoute
+  '/settings/deleted': typeof AppSettingsDeletedRoute
+  '/settings/labels': typeof AppSettingsLabelsRoute
+  '/settings/': typeof AppSettingsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -115,6 +143,10 @@ export interface FileRoutesByTo {
   '/recipes': typeof AppRecipesRoute
   '/tasks': typeof AppTasksRoute
   '/wardrobe': typeof AppWardrobeRoute
+  '/item/$id': typeof AppItemIdRoute
+  '/settings/deleted': typeof AppSettingsDeletedRoute
+  '/settings/labels': typeof AppSettingsLabelsRoute
+  '/settings': typeof AppSettingsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -131,6 +163,10 @@ export interface FileRoutesById {
   '/_app/recipes': typeof AppRecipesRoute
   '/_app/tasks': typeof AppTasksRoute
   '/_app/wardrobe': typeof AppWardrobeRoute
+  '/_app/item/$id': typeof AppItemIdRoute
+  '/_app/settings/deleted': typeof AppSettingsDeletedRoute
+  '/_app/settings/labels': typeof AppSettingsLabelsRoute
+  '/_app/settings/': typeof AppSettingsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -147,6 +183,10 @@ export interface FileRouteTypes {
     | '/recipes'
     | '/tasks'
     | '/wardrobe'
+    | '/item/$id'
+    | '/settings/deleted'
+    | '/settings/labels'
+    | '/settings/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -161,6 +201,10 @@ export interface FileRouteTypes {
     | '/recipes'
     | '/tasks'
     | '/wardrobe'
+    | '/item/$id'
+    | '/settings/deleted'
+    | '/settings/labels'
+    | '/settings'
   id:
     | '__root__'
     | '/'
@@ -176,6 +220,10 @@ export interface FileRouteTypes {
     | '/_app/recipes'
     | '/_app/tasks'
     | '/_app/wardrobe'
+    | '/_app/item/$id'
+    | '/_app/settings/deleted'
+    | '/_app/settings/labels'
+    | '/_app/settings/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -279,6 +327,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppWardrobeRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/item/$id': {
+      id: '/_app/item/$id'
+      path: '/item/$id'
+      fullPath: '/item/$id'
+      preLoaderRoute: typeof AppItemIdRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/settings/': {
+      id: '/_app/settings/'
+      path: '/settings'
+      fullPath: '/settings/'
+      preLoaderRoute: typeof AppSettingsIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/settings/deleted': {
+      id: '/_app/settings/deleted'
+      path: '/settings/deleted'
+      fullPath: '/settings/deleted'
+      preLoaderRoute: typeof AppSettingsDeletedRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/settings/labels': {
+      id: '/_app/settings/labels'
+      path: '/settings/labels'
+      fullPath: '/settings/labels'
+      preLoaderRoute: typeof AppSettingsLabelsRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
@@ -291,6 +367,10 @@ interface AppRouteChildren {
   AppRecipesRoute: typeof AppRecipesRoute
   AppTasksRoute: typeof AppTasksRoute
   AppWardrobeRoute: typeof AppWardrobeRoute
+  AppItemIdRoute: typeof AppItemIdRoute
+  AppSettingsDeletedRoute: typeof AppSettingsDeletedRoute
+  AppSettingsLabelsRoute: typeof AppSettingsLabelsRoute
+  AppSettingsIndexRoute: typeof AppSettingsIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
@@ -302,6 +382,10 @@ const AppRouteChildren: AppRouteChildren = {
   AppRecipesRoute: AppRecipesRoute,
   AppTasksRoute: AppTasksRoute,
   AppWardrobeRoute: AppWardrobeRoute,
+  AppItemIdRoute: AppItemIdRoute,
+  AppSettingsDeletedRoute: AppSettingsDeletedRoute,
+  AppSettingsLabelsRoute: AppSettingsLabelsRoute,
+  AppSettingsIndexRoute: AppSettingsIndexRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)

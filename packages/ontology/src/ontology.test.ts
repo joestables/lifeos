@@ -7,6 +7,7 @@ import {
   STATUSES,
   TYPES,
   typeByKey,
+  type TypeDefinition,
 } from './index.ts'
 
 describe('ontology', () => {
@@ -50,6 +51,35 @@ describe('ontology', () => {
     expect(convertsTo(typeByKey('note')!)).toEqual(['event', 'task'])
     expect(convertsTo(typeByKey('task')!)).toEqual(['event'])
     expect(convertsTo(typeByKey('event')!)).toEqual(['task'])
+  })
+
+  it('gives Labels, marks and sub-tasks as the data model says (ADR-0014, ADR-0043)', () => {
+    const look = (key: string) => {
+      const t = typeByKey(key)!
+      return [t.colour, t.labels, t.mark, t.subtasks, t.defaultReminder]
+    }
+    expect(look('thought')).toEqual(['yellow', false, undefined, false, undefined])
+    expect(look('note')).toEqual(['yellow', true, 'pinned', false, undefined])
+    expect(look('task')).toEqual(['blue', true, 'starred', true, 'do_on'])
+    expect(look('event')).toEqual(['blue', false, undefined, false, undefined])
+  })
+
+  it('builds each Type in its roadmap stage (data-model.md#types)', () => {
+    expect(TYPES.map((t) => [t.key, t.stage])).toEqual([
+      ['thought', 2],
+      ['note', 2],
+      ['task', 2],
+      ['event', 3],
+    ])
+  })
+
+  it('has no idea status on Notes (ADR-0037)', () => {
+    expect(typeByKey('note')!.statuses).toEqual(['active'])
+  })
+
+  it('anchors a default Reminder only on a time field the Type has', () => {
+    for (const t of TYPES as readonly TypeDefinition[])
+      if (t.defaultReminder) expect(t.timeFields).toContain(t.defaultReminder)
   })
 
   it('generates the lookup migration with every Type and link type', () => {

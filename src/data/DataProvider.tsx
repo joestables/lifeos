@@ -17,7 +17,13 @@ export function DataProvider({ children }: { children: ReactNode }) {
     }
   }, [])
   return (
-    <PersistQueryClientProvider client={queryClient} persistOptions={persistOptions}>
+    <PersistQueryClientProvider
+      client={queryClient}
+      persistOptions={persistOptions}
+      // What was kept on the device shows at once; then it is refreshed, however
+      // recently it was saved (a write may have reached the server since).
+      onSuccess={() => void queryClient.invalidateQueries()}
+    >
       {children}
     </PersistQueryClientProvider>
   )

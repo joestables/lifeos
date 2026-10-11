@@ -2,7 +2,7 @@
 
 **Status:** Provisionally agreed · 2026-10-09
 
-**Amended:** 2026-10-09 by [ADR-0037](0037-thoughts.md) (Thoughts).
+**Amended:** 2026-10-09 by [ADR-0037](0037-thoughts.md) (Thoughts); 2026-10-10 by Joe, writing the Stage 2 specs (built after every other stage, not in Stage 2).
 
 ## Context
 
@@ -21,12 +21,15 @@ Joe's girlfriend's iPhone has no share target.
   capture is rate-limited and logged; nothing it sends is executed, only
   stored as text.
 - **No Google Tasks import.**
-- Built in **Stage 2**, with in-app capture.
+- **Built last**, after every other stage on the [roadmap](../../roadmap.md):
+  Joe wants the other Modules first. An Android widget for typing a Thought
+  belongs with it, once the Android wrapper exists.
 
 ## Consequences
 
 - iOS Shortcuts and Siri, Android HTTP-shortcut apps, email and anything that
   can make a web request can post to it
   ([capture](../../10-requirements/cross-cutting/capture.md)).
-- Email needs an inbound-email service in front, a new dependency chosen in
-  Stage 2.
+- Email needs an inbound-email service in front, a new dependency chosen
+  when this is built.
+- Until then, capture is in the app only.

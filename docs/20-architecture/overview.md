@@ -9,8 +9,8 @@ later stage; where a box first appears is in the [roadmap](../roadmap.md).*
 flowchart LR
   person["Person<br/>signs up with Google,<br/>uses LifeOS personally"]
   member["Household member<br/>a Contact who accepted<br/>an invitation (Stage 4)"]
-  shortcuts["iOS Shortcuts, Siri,<br/>Android HTTP shortcuts"]
-  email["Inbound-email service<br/>(chosen in Stage 2)"]
+  shortcuts["iOS Shortcuts, Siri,<br/>Android HTTP shortcuts<br/>(after Stage 9)"]
+  email["Inbound-email service<br/>(after Stage 9)"]
 
   lifeos[["LifeOS<br/>one knowledge graph:<br/>Items, Links, Views"]]
 
@@ -25,7 +25,7 @@ flowchart LR
 
   person -- "captures, plans, sorts" --> lifeos
   member -. "shares a Household" .-> lifeos
-  shortcuts -- "capture address" --> lifeos
+  shortcuts -. "capture address" .-> lifeos
   email -. "forwards each email" .-> lifeos
   lifeos -- "signs people in" --> google
   lifeos -- "sends Reminders" --> push
@@ -54,13 +54,13 @@ flowchart TB
     storage["Storage<br/>photos (resized on the device)<br/>and attachments"]
     realtime["Realtime<br/>shared Lists and Shops"]
     db[("Postgres<br/>core + one schema per Module, ops;<br/>RLS through one visibility rule (core_private);<br/>triggers write core.activity")]
-    edge["Edge Functions<br/>capture address, Integration<br/>connect and sync, nightly<br/>series extension"]
-    reminders["Reminder delivery<br/>reads fires_at"]
-    cron["pg_cron<br/>nightly health check"]
+    edge["Edge Functions<br/>nightly series extension,<br/>notification actions,<br/>Integration connect and sync,<br/>capture address (later)"]
+    reminders["Reminder sending<br/>(Edge Function, VAPID)"]
+    cron["pg_cron<br/>each minute: what is due;<br/>nightly: series, health check"]
     vault["Vault<br/>Integration tokens"]
   end
 
-  outside["Integrations, capture<br/>clients, inbound email"]
+  outside["Integrations; later, capture<br/>clients and inbound email"]
   mcp["LifeOS MCP server<br/>(later)"]
   gha["GitHub Actions<br/>CI with database tests"]
 
@@ -76,6 +76,8 @@ flowchart TB
   reminders --> db
   reminders -- "sends" --> pushsvc
   cron --> db
+  cron -- "pg_net" --> reminders
+  cron -- "pg_net" --> edge
   outside --> edge
   mcp -. "published layer" .-> db
 ```
@@ -116,7 +118,8 @@ from every box are reported to `ops.events`
 - **GitHub Actions:** CI. No backups for now
   ([backups](../40-operations/backups.md)).
 - **Later:** a LifeOS MCP server on the published layer; a Capacitor Android
-  wrapper; an inbound-email service for the capture address.
+  wrapper; after Stage 9, an inbound-email service for the capture address
+  ([ADR-0028](adr/0028-capture-from-outside-the-app.md)).
 
 ## Stack
 
