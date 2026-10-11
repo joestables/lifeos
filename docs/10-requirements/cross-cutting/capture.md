@@ -53,7 +53,7 @@ at the start of Stage 2, are at the end.*
 
 **As** Joe, **I want** to jot a thought down in one line from anywhere,
 **so that** it's out of my head in seconds and I can sort it later.
-Priority: Must · Status: agreed
+Priority: Must · Status: built (the Thought appearing in Inbox is verified with Inbox, step 7)
 
 Acceptance criteria
 1. Given I am on any page, when I open capture, type "ceramics class for the
@@ -73,7 +73,7 @@ Acceptance criteria
 **As** Joe, **I want** capture one tap or one key away on every page, and to
 come back to exactly what I was doing, **so that** capturing never
 interrupts me.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified
 
 Acceptance criteria
 1. Given I am on any page, on a phone or a computer, then capture opens with
@@ -89,7 +89,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to type dates the way I say them, **so that** I never
 open a date picker for the common cases.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified
 
 Capture and adding a Task understand dates the same way, with no signal.
 
@@ -99,7 +99,8 @@ Acceptance criteria
    Monday), "in 3 days", "12 oct" and "12/10" (day first) are understood.
 2. Given "call mum fri 6pm", then do-on is Friday and do-at 18:00; "18:00",
    "6.30pm" and "6:30pm" are understood. A time with no date is today, or
-   tomorrow if the time has passed.
+   tomorrow if the time has passed. An hour from 1 to 7 with no "am" or
+   "pm" is the evening ("at 6" is 18:00); "07:30" is the morning.
 3. Given "renew insurance due fri" or "by fri", then Friday is the due date,
    not the do-on date.
 4. Given a word that is also an ordinary word ("may", "sun", "march",
@@ -113,7 +114,7 @@ Acceptance criteria
 
 **As** Joe, **I want** a dated Thought to remind me even before I sort it,
 **so that** a jotted "dentist tue 3pm?" isn't forgotten in Inbox.
-Priority: Should · Status: agreed
+Priority: Should · Status: built (the Reminder firing is verified with step 11)
 
 Acceptance criteria
 1. Given I save "dentist tue 3pm?" as a Thought, then it has a Reminder for

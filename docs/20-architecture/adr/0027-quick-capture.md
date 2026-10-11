@@ -24,9 +24,10 @@ share-to-LifeOS come with capture from outside the app
 - **When the parser spots a date** ("call mum fri 6pm") it *offers* "Task,
   Fri 18:00?"; it never switches on its own. If the line stays a Thought, it
   still gets a Reminder for that date ([ADR-0023](0023-reminders.md)).
-- **The parser is deterministic** (chrono-node plus rules), so capture works
-  with no signal. An LLM may improve guesses later, but capture never depends
-  on one.
+- **The parser is deterministic** (chrono-node plus rules, in
+  `packages/capture`, so the capture address can use it too), so capture
+  works with no signal. An LLM may improve guesses later, but capture never
+  depends on one.
 - **Sorting a Thought:** convert it in place into a Note, Task, List or any
   other Capturable Type (one swipe for the common ones), or delete it
   (archived, with undo) ([ADR-0037](0037-thoughts.md)).

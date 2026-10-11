@@ -1,5 +1,7 @@
 import { createFileRoute, notFound } from '@tanstack/react-router'
 import {
+  BellIcon,
+  CalendarIcon,
   ChefHatIcon,
   DumbbellIcon,
   EllipsisIcon,
@@ -25,6 +27,7 @@ import { useState, type ReactNode } from 'react'
 import {
   BackLink,
   BrandMark,
+  CaptureDialog,
   CardRow,
   EmptyState,
   ItemDialog,
@@ -184,6 +187,10 @@ const TYPE_SWATCHES: {
 
 const TaskIcon = TYPE_ICONS.task!
 const NoteIcon = TYPE_ICONS.note!
+const CAPTURE_TYPES = [
+  { key: 'thought', label: 'Thought', colour: 'yellow' as const, icon: TYPE_ICONS.thought! },
+  { key: 'task', label: 'Task', colour: 'blue' as const, icon: TaskIcon },
+]
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
@@ -201,6 +208,7 @@ function Row({ children }: { children: ReactNode }) {
 function DesignPage() {
   const [dark, setDark] = useState(() => document.documentElement.classList.contains('dark'))
   const [itemOpen, setItemOpen] = useState(false)
+  const [capture, setCapture] = useState({ open: false, type: 'thought', text: 'call mum fri 6pm' })
   const [chips, setChips] = useState({ core: true, food: true, fitness: false })
   const toggleMode = () => {
     document.documentElement.classList.toggle('dark', !dark)
@@ -768,6 +776,36 @@ function DesignPage() {
             <Button variant="outline" onClick={() => setItemOpen(true)}>
               Item dialog
             </Button>
+            <Button variant="outline" onClick={() => setCapture((c) => ({ ...c, open: true }))}>
+              Capture
+            </Button>
+            <CaptureDialog
+              open={capture.open}
+              onOpenChange={(open) => setCapture((c) => ({ ...c, open }))}
+              types={CAPTURE_TYPES}
+              type={capture.type}
+              onTypeChange={(type) => setCapture((c) => ({ ...c, type }))}
+              text={capture.text}
+              onTextChange={(text) => setCapture((c) => ({ ...c, text }))}
+              offer={
+                capture.type === 'thought'
+                  ? {
+                      type: 'task',
+                      label: 'Task, Fri 18:00?',
+                      onTake: () => setCapture((c) => ({ ...c, type: 'task' })),
+                    }
+                  : undefined
+              }
+              understood={
+                capture.type === 'task'
+                  ? [
+                      { icon: CalendarIcon, label: 'Fri 16 Oct 18:00' },
+                      { icon: BellIcon, label: '18:00' },
+                    ]
+                  : []
+              }
+              onSave={() => setCapture((c) => ({ ...c, open: false }))}
+            />
             <ItemDialog
               open={itemOpen}
               onOpenChange={setItemOpen}
@@ -788,10 +826,10 @@ function DesignPage() {
               <DialogTrigger render={<Button variant="outline" />}>Dialog</DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Capture</DialogTitle>
-                  <DialogDescription>Saved to Inbox as a Thought</DialogDescription>
+                  <DialogTitle>New label</DialogTitle>
+                  <DialogDescription>For Notes and Tasks</DialogDescription>
                 </DialogHeader>
-                <Input placeholder="What's on your mind?" aria-label="Thought" />
+                <Input aria-label="Name" defaultValue="Travel" />
                 <DialogFooter>
                   <DialogClose render={<Button variant="outline" />}>Cancel</DialogClose>
                   <Button>Save</Button>

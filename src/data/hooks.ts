@@ -16,6 +16,7 @@ import {
 import { applyPending } from './overlay'
 import type { WriteQueue } from './queue/queue'
 import type { QueueEntry } from './queue/store'
+import { DEFAULT_SETTINGS, fetchSettings, settingsKey, type Settings } from './settings'
 import type { Item } from './types'
 
 const subscribeOnline = (onChange: () => void) => {
@@ -133,4 +134,10 @@ export function useMarks(queue: WriteQueue): ReadonlySet<string> {
     () => new Set(applyPendingMarks(query.data ?? [], entries).map((m) => m.item_id)),
     [query.data, entries],
   )
+}
+
+/** My settings, or the defaults until they have loaded. */
+export function useSettings(): Settings {
+  const query = useQuery({ queryKey: settingsKey, queryFn: fetchSettings })
+  return query.data ?? DEFAULT_SETTINGS
 }

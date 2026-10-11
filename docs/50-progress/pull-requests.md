@@ -2,6 +2,28 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#4](https://github.com/joestables/lifeos/pull/4) — Stage 2, step 6: capture in the app
+
+Branch `claude/kind-dijkstra-1kv0xt` · 2026-10-11
+
+**What it did**
+- Plan step 6, capture in the app. Capture opens over any page from the
+  drawer's button or N on a computer, the top bar or Inbox's Fab on a
+  phone, and leaves the page as it was. It makes a Thought unless switched
+  to Task. A new package, `packages/capture`, reads dates with chrono-node
+  and the spec's rules (the coming weekday, today included; "next week" is
+  Monday; "may", "sun", "march" only next to a number or after "on"; "due"
+  and "by" for deadlines; date words out of a Task's title), so the capture
+  address can share it later. A dated Thought is offered as a Task ("Task,
+  Fri 18:00?") and, kept as a Thought, gets a Reminder at that time or my
+  default time, in my timezone; a Task shows the dates it will be saved
+  with. A toast says what was made, with Undo. The app now reads my
+  settings (timezone, default Reminder time). New in the design spec,
+  first: the CaptureDialog, Input `lg`, a Capture section in patterns, and
+  toasts above the Fab on a phone (found on the walk: a toast covered it).
+  One rule added to CAP-003: "at 6" with no am or pm is 18:00. 33 parser
+  tests, 2 date tests and 6 browser tests (each on desktop and phone).
+
 ## [#3](https://github.com/joestables/lifeos/pull/3) — Stage 2, steps 1–5: specs, design, schema, working with Items
 
 Branch `claude/kind-dijkstra-1kv0xt` · 2026-10-10 to 2026-10-11
@@ -129,6 +151,9 @@ Branch `claude/kind-dijkstra-1kv0xt` · 2026-10-10 to 2026-10-11
   a change showed the device's copy without asking the server — it now
   always refreshes on start. 12 unit tests and 8 browser tests (each on desktop and
   phone) added; the stand-in Supabase now keeps the writes it is sent.
+- Before merging: the items browser test moves between pages inside the
+  app after a write, as a reload a moment after Undo could come before the
+  write was stored (it failed CI once on a slow runner).
 
 **Left for later**
 - Merged mid-stage, at Joe's request, so production shows the work so far.
