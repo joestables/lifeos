@@ -148,7 +148,6 @@ test('NTE-004: lists, checklists and bold, from the keyboard; a ticked line stay
   await page.keyboard.press('Enter')
   await expect(page.getByRole('textbox', { name: 'Note' })).toBeFocused()
   await page.keyboard.type('[ ] Service the boiler')
-  await page.getByRole('checkbox', { name: 'Done: Service the boiler' }).click()
   await page.keyboard.press('Enter')
   await page.keyboard.press('Enter')
   await page.keyboard.press('ControlOrMeta+b')
@@ -157,6 +156,7 @@ test('NTE-004: lists, checklists and bold, from the keyboard; a ticked line stay
   await page.keyboard.type(': Monday')
   await page.keyboard.press('Enter')
   await page.keyboard.type('1. Gutters')
+  await page.getByRole('checkbox', { name: 'Done: Service the boiler' }).click()
   await expect
     .poll(() => db.items.find((i) => i.title === 'House jobs')?.body)
     .toBe('- [x] Service the boiler\n\n**Bin day**: Monday\n\n1. Gutters')
