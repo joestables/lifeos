@@ -148,13 +148,22 @@ test('NTE-004: lists, checklists and bold, from the keyboard; a ticked line stay
   await page.keyboard.press('Enter')
   await expect(page.getByRole('textbox', { name: 'Note' })).toBeFocused()
   await page.keyboard.type('[ ] Service the boiler')
+  // Each key waits for the last to show, as a person's would: on a phone the
+  // editor handles Enter a moment after it is pressed.
+  const lines = page.getByRole('checkbox', { name: /^Done/ })
+  await expect(lines).toHaveCount(1)
   await page.keyboard.press('Enter')
+  await expect(lines).toHaveCount(2)
   await page.keyboard.press('Enter')
+  await expect(lines).toHaveCount(1)
   await page.keyboard.press('ControlOrMeta+b')
   await page.keyboard.type('Bin day')
   await page.keyboard.press('ControlOrMeta+b')
   await page.keyboard.type(': Monday')
+  const paragraphs = page.getByRole('textbox', { name: 'Note' }).locator('p')
+  const before = await paragraphs.count()
   await page.keyboard.press('Enter')
+  await expect(paragraphs).toHaveCount(before + 1)
   await page.keyboard.type('1. Gutters')
   await page.getByRole('checkbox', { name: 'Done: Service the boiler' }).click()
   await expect

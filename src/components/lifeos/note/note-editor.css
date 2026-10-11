@@ -1,0 +1,107 @@
+/*
+ * A Note's body as it is written (components.md, NoteEditor): lists,
+ * checklists, emphasis and links. Tokens only. Checklist lines keep TipTap's
+ * own markup, so typing on Android goes through the editor's tested path;
+ * their box is drawn like the Checkbox component.
+ */
+.note-doc {
+  font-size: 15px;
+  line-height: 1.55;
+  outline: none;
+}
+.note-doc > * + * {
+  margin-top: 8px;
+}
+.note-doc p {
+  min-height: 1.55em;
+}
+.note-doc ul:not([data-type='taskList']) {
+  list-style: disc;
+  padding-left: 20px;
+}
+.note-doc ol {
+  list-style: decimal;
+  padding-left: 20px;
+}
+.note-doc strong {
+  font-weight: 700;
+}
+.note-doc em {
+  font-style: italic;
+}
+.note-doc a {
+  color: var(--tc-text);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.note-doc .is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+  color: var(--muted-foreground);
+}
+
+/* Checklists */
+.note-doc ul[data-type='taskList'] {
+  list-style: none;
+  padding: 0;
+}
+.note-doc ul[data-type='taskList'] ul[data-type='taskList'] {
+  padding-left: 30px;
+}
+.note-doc li[data-checked] {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  min-height: 30px;
+}
+.note-doc li[data-checked] > label {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 30px;
+  flex-shrink: 0;
+}
+.note-doc li[data-checked] > label > input {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  border: 1.5px solid var(--input-strong);
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  outline: none;
+  transition:
+    background-color 150ms,
+    border-color 150ms;
+}
+.note-doc li[data-checked] > label > input:focus-visible {
+  box-shadow: 0 0 0 3px var(--ring-soft);
+}
+.note-doc li[data-checked] > label > input:checked {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+/* The tick: lucide's check, in the colour that reads on the fill. */
+.note-doc li[data-checked='true'] > label::after {
+  content: '';
+  position: absolute;
+  left: 3px;
+  top: 9px;
+  width: 12px;
+  height: 12px;
+  pointer-events: none;
+  background: var(--primary-foreground);
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+}
+.note-doc li[data-checked] > div {
+  flex: 1;
+  min-width: 0;
+  padding: 3px 0;
+}
+.note-doc li[data-checked='true'] > div {
+  color: var(--muted-foreground);
+  text-decoration: line-through;
+}

@@ -1,59 +1,10 @@
-import { TaskItem } from '@tiptap/extension-list'
 import { Placeholder } from '@tiptap/extensions'
-import {
-  EditorContent,
-  NodeViewContent,
-  NodeViewWrapper,
-  ReactNodeViewRenderer,
-  useEditor,
-  type ReactNodeViewProps,
-} from '@tiptap/react'
+import { EditorContent, useEditor } from '@tiptap/react'
 import { useEffect, useRef, type ReactNode } from 'react'
-import { Checkbox } from '@/components/ui/checkbox'
 import { noteExtensions } from './extensions'
+import './note-editor.css'
 
-/** A checklist line, ticked with the design system's Checkbox. */
-function CheckLine({ node, updateAttributes, editor }: ReactNodeViewProps) {
-  return (
-    <NodeViewWrapper as="li" className="flex min-h-[30px] items-start gap-3">
-      <span
-        contentEditable={false}
-        className="flex h-[30px] items-center"
-        // Ticking a line leaves the caret where it was, so typing goes on.
-        onMouseDown={(e) => e.preventDefault()}
-      >
-        <Checkbox
-          aria-label={node.textContent ? `Done: ${node.textContent}` : 'Done'}
-          checked={node.attrs.checked as boolean}
-          disabled={!editor.isEditable}
-          onCheckedChange={(checked) => updateAttributes({ checked })}
-        />
-      </span>
-      <NodeViewContent
-        className={
-          node.attrs.checked
-            ? 'min-w-0 flex-1 py-[3px] text-muted-foreground line-through'
-            : 'min-w-0 flex-1 py-[3px]'
-        }
-      />
-    </NodeViewWrapper>
-  )
-}
-
-const extensions = [
-  ...noteExtensions.map((e) =>
-    e.name === 'taskItem'
-      ? TaskItem.extend({ addNodeView: () => ReactNodeViewRenderer(CheckLine) }).configure({
-          nested: true,
-        })
-      : e,
-  ),
-  Placeholder.configure({ placeholder: 'Note' }),
-]
-
-/** Body styles: lists, checklists, emphasis and links (components.md, NoteEditor). */
-const doc =
-  'text-[15px] leading-[1.55] outline-none [&_p]:min-h-[1.55em] [&>*+*]:mt-2 [&_ul:not([data-type=taskList])]:list-disc [&_ol]:list-decimal [&_ul:not([data-type=taskList])]:pl-5 [&_ol]:pl-5 [&_li>p]:my-0 [&_strong]:font-bold [&_em]:italic [&_a]:text-tc-text [&_a]:underline [&_a]:underline-offset-2 [&_.is-editor-empty:first-child::before]:pointer-events-none [&_.is-editor-empty:first-child::before]:float-left [&_.is-editor-empty:first-child::before]:h-0 [&_.is-editor-empty:first-child::before]:text-muted-foreground [&_.is-editor-empty:first-child::before]:content-[attr(data-placeholder)] [&_ul[data-type=taskList]_ul]:pl-7'
+const extensions = [...noteExtensions, Placeholder.configure({ placeholder: 'Note' })]
 
 /**
  * A Note being written (components.md): its title, then its body formatted
@@ -85,7 +36,12 @@ export default function NoteEditor({
     content: body,
     contentType: 'markdown',
     editorProps: {
-      attributes: { class: doc, 'aria-label': 'Note', role: 'textbox', 'aria-multiline': 'true' },
+      attributes: {
+        class: 'note-doc',
+        'aria-label': 'Note',
+        role: 'textbox',
+        'aria-multiline': 'true',
+      },
     },
     // Without the blank lines a list leaves at the end.
     onUpdate: ({ editor }) => onBody.current(editor.getMarkdown().trimEnd()),

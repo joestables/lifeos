@@ -28,6 +28,9 @@ edits it.
   lists and emphasis drawn by the app's own small reader of the same
   Markdown, not by TipTap.
 - A round-trip test keeps the editor from changing what it was given.
+- Checklist lines keep TipTap's own markup, styled like the Checkbox: on
+  Chrome for Android the editor reads Enter from what the page becomes, and
+  a custom line component broke leaving a checklist there.
 
 ## Consequences
 

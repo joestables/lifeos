@@ -18,6 +18,9 @@ export const noteExtensions = [
     link: { openOnClick: false, autolink: true, defaultProtocol: 'https' },
   }),
   TaskList,
-  TaskItem.configure({ nested: true }),
+  TaskItem.configure({
+    nested: true,
+    a11y: { checkboxLabel: (node) => (node.textContent ? `Done: ${node.textContent}` : 'Done') },
+  }),
   Markdown,
 ]

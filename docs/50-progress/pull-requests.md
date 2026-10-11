@@ -29,7 +29,10 @@ Branch `claude/kind-dijkstra-1kv0xt` · 2026-10-11
 - Found on the way: TipTap's focus command waits a frame, so what was typed
   straight after Enter in the title could land in the wrong place; the
   body is now focused at once. Ticking a checklist line no longer moves
-  the keyboard focus. 11 unit tests (the reader, the round trip) and 6
+  the keyboard focus. Checklist lines use the editor's own markup, styled
+  like the Checkbox: CI's phone runs showed Enter on an empty checklist line
+  not leaving the list with a custom line component, because on Chrome for
+  Android the editor reads Enter from the page's change. 11 unit tests (the reader, the round trip) and 6
   browser tests (each on desktop and phone).
 
 ## [#5](https://github.com/joestables/lifeos/pull/5) — Stage 2, step 7: Inbox
