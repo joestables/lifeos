@@ -60,6 +60,12 @@ Repeating Tasks are made ahead by the `extend-series` Edge Function
   `select * from cron.job_run_details where jobid = (select jobid from cron.job where jobname = 'nightly-series') order by start_time desc limit 5`.
 - **Running it by hand:** the same `net.http_post` as the job; running it
   twice does no harm.
+- **`pg_net` sits in the `public` schema**, which the security advisor
+  warns about. Moving it means dropping and re-creating the extension, and
+  on the live project the drop hangs (it waits on `pg_net`'s own background
+  worker) until the Supabase MCP gives up and it rolls back (tried twice, 12
+  October). Its functions are in the `net` schema, which the API doesn't
+  expose, so the warning is left standing.
 - **Deploying it:** Claude deploys `supabase/functions/extend-series`
   through the Supabase MCP with `packages/recurrence`'s files, without JWT
   checks (it checks its own secret). Changing the secret is one Vault

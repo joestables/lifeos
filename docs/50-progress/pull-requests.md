@@ -34,8 +34,15 @@ Branch `claude/kind-dijkstra-1kv0xt` · 2026-10-12
   check now watches ([runbook](../40-operations/runbook.md#the-nightly-series-run)).
 - ADR-0045 now says each window includes the first occurrence beyond it,
   so ticking a yearly Task still shows the next, and that the engine works
-  in days. 38 engine tests, 26 database tests, 5 tests of the nightly run,
+  in days. 38 engine tests, 27 database tests, 5 tests of the nightly run,
   11 more unit tests and 5 browser tests (each on desktop and phone).
+- Live: the migration is applied as `20261012024305`; `extend-series` is
+  deployed; Vault holds `project_url` and `series_secret` (made in the
+  database, never copied out); a run by hand made the heartbeat, and a call
+  with the wrong secret was refused. The secret is checked against Vault by
+  the database, so nobody types a copy into the dashboard. `pg_net` was left
+  in `public`: moving it hangs on the live project
+  ([runbook](../40-operations/runbook.md#the-nightly-series-run)).
 
 ## [#7](https://github.com/joestables/lifeos/pull/7) — Stage 2, step 9: Tasks
 
