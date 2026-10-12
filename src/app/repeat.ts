@@ -43,7 +43,16 @@ export function repeatStart(item: Item, today: string): string {
 export function repeatTask(
   item: Item,
   repeat: Repeat,
-  { labelIds, timezone }: { labelIds: string[]; timezone: string },
+  {
+    labelIds,
+    timezone,
+    reminders = [],
+  }: {
+    labelIds: string[]
+    timezone: string
+    /** Its own Reminders on its dates, for each occurrence (REM-002 4). */
+    reminders?: { anchor: string; offset_days: number; at_time: string | null }[]
+  },
 ): boolean {
   const today = todayIn(timezone)
   const schedule = repeat.mode === 'schedule'
@@ -67,6 +76,7 @@ export function repeatTask(
       do_at: item.do_at,
       due_offset_days: item.due_on ? daysBetween(anchor, item.due_on) : null,
       label_ids: labelIds,
+      reminders,
     },
     p_occurrences: window.days.map((on, i) => ({ id: i === 0 ? item.id : newId(), on })),
     p_until: window.until,

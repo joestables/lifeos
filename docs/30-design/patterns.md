@@ -188,6 +188,9 @@ DateField, TimeField, RepeatField, SubtaskList and AddRow in
 - "New task" opens capture as a Task.
 - Setting a time with no do-on date opens the do-on Calendar to ask for the
   day.
+- **Reminders** sit under the dates: a ReminderList, each line opening the
+  Reminder Dialog to change it. A Thought's popup has Reminders too, at a
+  set time only.
 - **Repeat** sits with Do on, Time and Due. It opens a Dialog, "Repeat": a
   RadioGroup of `cards` ("On a schedule", "After it's done"), then Every
   (a number and a Select of Days, Weeks, Months, Years); on a schedule, also
@@ -198,8 +201,17 @@ DateField, TimeField, RepeatField, SubtaskList and AddRow in
 
 ## Settings
 
-- One column of Cards, `max-w-3xl`; from Stage 2, step 11, Notifications and
-  Reminders join it, in two columns on a computer.
+- One column of Cards, `max-w-3xl`; first Notifications and Reminders, side
+  by side on a computer.
+- **Notifications** (REM-001): a titled Card. "This device" with an
+  outline "Turn on", until this device has notifications; where it can't,
+  a muted few words instead ("Add LifeOS to your Home Screen first", "Not
+  available in this browser", "Blocked in this browser's settings"). Then
+  a CardRow per device: its name ("Android · Chrome"), "This device" or
+  "Can't be reached" muted, a Switch, and a "…" menu with Remove.
+- **Reminders** (REM-007, REM-008): a titled Card of CardRows: Default time
+  (a TimeField), Dated tasks and Dated thoughts (Switches), Morning digest
+  (a Switch) and, while it is on, Digest time.
 - **Labels** is a Card on a computer — its title, "New label" (outline) on
   the right, then a CardRow per Label: its name, how many Items have it, and
   a "…" menu (Rename, Delete). On a phone, Settings links to a Labels page,
@@ -258,6 +270,7 @@ DateField, TimeField, RepeatField, SubtaskList and AddRow in
 | Loading | Skeletons shaped like the content, after about 300ms |
 | Saved / waiting to send | SyncStatus in the drawer; an Item not yet sent shows "Not sent yet" with a cloud icon in its meta |
 | Not saved | An Item whose change the server refused shows "Not saved" in red with a `cloud-alert` icon in its meta, and SyncStatus counts it ([OFF-004](../10-requirements/cross-cutting/offline.md#off-004--a-write-that-cant-be-saved-is-not-lost-silently)) |
+| Notifications off | On Inbox, while none of my devices has notifications: an Alert with `bell`, "Notifications are off", "Reminders can't reach you" (or "Add LifeOS to your Home Screen first" in an iPhone's browser), and "Not now" (ghost) and "Turn on" (outline) on the right, under the text on a phone. "Not now" puts it away on this device ([REM-001](../10-requirements/cross-cutting/reminders.md#rem-001--turn-on-notifications-for-a-device)) |
 | Offline | An Alert at the top of every page, with `cloud-off`: "Offline" (or "Can't refresh" when the server can't be reached) and "These may be out of date". What was loaded still shows (OFF-005) |
 | Error | Red text under the field, or a toast that says what went wrong and what to do |
 | A screen that crashes | Its PageHeader title says "Something went wrong", with one primary button, "Reload", under it. The crash is recorded in `ops.events` ([runbook](../40-operations/runbook.md#noticing-problems)) |

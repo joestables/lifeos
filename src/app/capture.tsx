@@ -3,7 +3,14 @@ import { BellIcon, CalendarIcon, FlagIcon } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { toast } from '@/components/ui/sonner'
 import { CaptureDialog, type CaptureType } from '@/components/lifeos/CaptureDialog'
-import { addFixedReminder, archiveItem, createItem, useSettings, type Settings } from '@/data'
+import {
+  addFixedReminder,
+  archiveItem,
+  createItem,
+  queue,
+  useSettings,
+  type Settings,
+} from '@/data'
 import { dayName, fromIsoDay, shortDate, zonedInstant } from '@/lib/dates'
 import { typeLook } from '@/lib/item-types'
 import { OpenCapture } from './open-capture'
@@ -27,8 +34,9 @@ function save(type: string, line: string, dates: CaptureDates, settings: Setting
   if (type === 'task') return createTaskFrom(line, dates)
   const id = createItem('thought', { title: line.trim() })
   const day = dates.doOn ?? dates.dueOn
-  if (day) {
-    // A dated Thought reminds me, at my default time without one (CAP-004).
+  if (day && settings.thoughtReminders) {
+    // A dated Thought reminds me, at my default time without one (CAP-004),
+    // unless I turned that off (REM-007).
     const at = dates.doAt ?? settings.defaultReminderTime
     addFixedReminder(id, zonedInstant(day, at, settings.timezone))
   }
@@ -41,7 +49,7 @@ function save(type: string, line: string, dates: CaptureDates, settings: Setting
  * was, says what was made, and offers Undo.
  */
 export function CaptureProvider({ children }: { children: ReactNode }) {
-  const settings = useSettings()
+  const settings = useSettings(queue)
   const [open, setOpen] = useState(false)
   // Read by the N key without re-adding its listener.
   const isOpen = useRef(false)

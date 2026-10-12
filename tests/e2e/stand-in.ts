@@ -17,8 +17,9 @@ export interface Rows {
   labels?: { id: string; name: string }[]
   item_labels?: { item_id: string; label_id: string }[]
   marks?: { item_id: string }[]
-  people?: { timezone: string; default_reminder_time: string }[]
-  reminders?: { id: string; item_id: string; fires_at: string; is_default: boolean }[]
+  people?: Record<string, unknown>[]
+  reminders?: Record<string, unknown>[]
+  push_devices?: Record<string, unknown>[]
   subtasks?: { id: string; item_id: string; title: string; done: boolean; position: string }[]
   series?: Record<string, unknown>[]
 }
@@ -67,8 +68,32 @@ export async function standIn(
     })),
     item_labels: [...(rows.item_labels ?? [])],
     marks: [...(rows.marks ?? [])],
-    people: [...(rows.people ?? [])],
-    reminders: [...(rows.reminders ?? [])] as Record<string, unknown>[],
+    // My row, with the defaults the database gives.
+    people: (rows.people ?? [{}]).map((p): Record<string, unknown> => ({
+      timezone: 'Europe/London',
+      default_reminder_time: '09:00:00',
+      reminder_defaults: {},
+      digest_on: true,
+      digest_time: '07:00:00',
+      ...p,
+    })),
+    reminders: (rows.reminders ?? []).map((r): Record<string, unknown> => ({
+      is_default: false,
+      anchor: null,
+      offset_days: 0,
+      at_time: null,
+      fixed_at: null,
+      snoozed_until: null,
+      ...r,
+    })),
+    push_devices: (rows.push_devices ?? []).map((d): Record<string, unknown> => ({
+      label: '',
+      enabled: true,
+      gone_at: null,
+      created_at: '2026-10-01T09:00:00Z',
+      last_sent_at: null,
+      ...d,
+    })),
     subtasks: [...(rows.subtasks ?? [])],
     series: [...(rows.series ?? [])],
   }
@@ -114,7 +139,43 @@ export async function standIn(
     )
     for (const label of t.label_ids ?? []) db.item_labels.push({ item_id: id, label_id: label })
   }
-  const write: Record<string, (a: Record<string, unknown>) => void> = {
+  const write: Record<string, (a: Record<string, unknown>) => unknown> = {
+    // The sender's public key (a made-up one: nothing is really sent).
+    vapid_public_key: () =>
+      'BEl62iUYgUivxIkv69yViEuiBIa-Ib9-SkvMeAtA3LFgDzkrxZJjSgSnfckjBJuBkr3qBUYIHBQFLXYp5Nksh8U',
+    register_device: (a) => {
+      const existing = db.push_devices.find((d) => d.endpoint === a.p_endpoint)
+      if (existing) return Object.assign(existing, { enabled: true, gone_at: null })
+      db.push_devices.push({
+        id: a.p_id,
+        endpoint: a.p_endpoint,
+        label: a.p_label,
+        enabled: true,
+        gone_at: null,
+        created_at: now(),
+        last_sent_at: null,
+      })
+    },
+    set_device: (a) =>
+      db.push_devices.filter((d) => d.id === a.p_id).forEach((d) => (d.enabled = a.p_enabled)),
+    remove_device: (a) => {
+      db.push_devices = db.push_devices.filter((d) => d.id !== a.p_id)
+    },
+    update_settings: (a) => {
+      const patch = a.p_patch as Record<string, unknown>
+      const me = db.people[0]!
+      const { reminder_defaults, ...rest } = patch
+      Object.assign(me, rest)
+      if (reminder_defaults)
+        me.reminder_defaults = {
+          ...(me.reminder_defaults as object),
+          ...(reminder_defaults as object),
+        }
+    },
+    update_reminder: (a) =>
+      db.reminders
+        .filter((r) => r.id === a.p_id)
+        .forEach((r) => Object.assign(r, a.p_patch, { is_default: false, snoozed_until: null })),
     create_item: (a) => {
       if (item(a.p_id)) return
       const at = new Date().toISOString()
@@ -130,7 +191,18 @@ export async function standIn(
     },
     add_reminder: (a) => {
       const fields = a.p_fields as { fixed_at?: string }
-      db.reminders.push({ id: a.p_id, item_id: a.p_item, fires_at: fields.fixed_at, ...fields })
+      db.reminders.push({
+        id: a.p_id,
+        item_id: a.p_item,
+        is_default: false,
+        anchor: null,
+        offset_days: 0,
+        at_time: null,
+        fixed_at: null,
+        snoozed_until: null,
+        fires_at: fields.fixed_at ?? null,
+        ...fields,
+      })
     },
     update_item: (a) => {
       const i = item(a.p_id)
@@ -232,8 +304,8 @@ export async function standIn(
     if (url.pathname.includes('/auth/v1/logout')) return route.fulfill({ status: 204 })
     const rpc = url.pathname.match(/\/rest\/v1\/rpc\/(\w+)$/)
     if (rpc) {
-      write[rpc[1]!]?.(route.request().postDataJSON() ?? {})
-      return route.fulfill({ json: null })
+      const result = write[rpc[1]!]?.(route.request().postDataJSON() ?? {})
+      return route.fulfill({ json: typeof result === 'string' ? result : null })
     }
     const table = url.pathname.match(/\/rest\/v1\/(\w+)$/)?.[1]
     if (table) return route.fulfill({ json: db[table as keyof typeof db] ?? [] })
@@ -292,4 +364,28 @@ export async function queuedWrites(page: Page, count: number) {
       }
     }
   }, count)
+}
+
+/**
+ * Stands in for the browser's push service: notifications allowed, and a
+ * subscription made on asking, as if LifeOS were installed on an Android
+ * phone (REM-001). Nothing is really sent.
+ */
+export async function pushAllowed(page: Page, endpoint = 'https://push.example/this-device') {
+  await page.addInitScript((endpoint) => {
+    const sub = {
+      endpoint,
+      toJSON: () => ({ endpoint, keys: { p256dh: 'p256dh-key', auth: 'auth-key' } }),
+    }
+    let subscribed = false
+    let permission: NotificationPermission = 'default'
+    Object.defineProperty(Notification, 'permission', { get: () => permission })
+    Notification.requestPermission = async () => (permission = 'granted')
+    PushManager.prototype.getSubscription = async () =>
+      (subscribed ? sub : null) as unknown as PushSubscription
+    PushManager.prototype.subscribe = async () => {
+      subscribed = true
+      return sub as unknown as PushSubscription
+    }
+  }, endpoint)
 }

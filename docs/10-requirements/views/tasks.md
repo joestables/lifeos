@@ -87,7 +87,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to set everything about a Task in one place, **so
 that** a Task can hold what I need to do it.
-Priority: Must · Status: built (its Reminders come with step 11)
+Priority: Must · Status: verified
 
 Acceptance criteria
 1. Given a Task, when I open it, then I can change its title, notes, do-on
@@ -100,7 +100,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to tick a Task off and see it go, **so that** the
 list shows only what's left.
-Priority: Must · Status: built (its Reminders being cleared is verified with step 11)
+Priority: Must · Status: verified
 
 Acceptance criteria
 1. Given an open Task, when I tick it, then it is done, leaves the open

@@ -17,12 +17,14 @@ import {
   updateItem,
   updateSubtask,
   useLabels,
+  useReminders,
   useSettings,
   useSubtasks,
   type Item,
   type ItemFields,
 } from '@/data'
 import { isoDayOf } from '@/lib/dates'
+import { ItemReminders } from './item-reminders'
 import { repeatOf, repeatStart, repeatTask, useSeriesById, useTickDone } from './repeat'
 
 /** How long typing pauses before it is kept. */
@@ -81,7 +83,7 @@ export function TaskTitle({ item }: { item: Item }) {
   )
 }
 
-function Field({
+export function Field({
   label,
   htmlFor,
   children,
@@ -100,9 +102,9 @@ function Field({
 
 /**
  * Everything about a Task (TSK-002), each change kept as it is made: notes,
- * do-on date and time, due date, repeat, Labels, sub-tasks. Its Reminders
- * join them with Reminders (plan step 11). A change to one occurrence of a
- * repeat is to that one alone; a new repeat applies from it on (TSK-011).
+ * do-on date and time, due date, repeat, Reminders, Labels, sub-tasks. A
+ * change to one occurrence of a repeat is to that one alone; a new repeat
+ * applies from it on (TSK-011).
  */
 export function TaskDetails({ item }: { item: Item }) {
   const ids = useId()
@@ -112,7 +114,8 @@ export function TaskDetails({ item }: { item: Item }) {
   const pendingTime = useRef<string | null>(null)
   const { labels, itemLabels } = useLabels(queue)
   const subtasks = useSubtasks(queue).filter((s) => s.item_id === item.id)
-  const settings = useSettings()
+  const settings = useSettings(queue)
+  const reminders = useReminders(queue)
   const series = useSeriesById()
   const today = isoDayOf(new Date())
   const repeat = repeatOf(item, series)
@@ -140,7 +143,13 @@ export function TaskDetails({ item }: { item: Item }) {
   const chosen = new Set(itemLabels.filter((r) => r.item_id === item.id).map((r) => r.label_id))
   const setRepeatTo = (next: typeof repeat) => {
     if (!next) return stopRepeat(item.id)
-    repeatTask(item, next, { labelIds: [...chosen], timezone: settings.timezone })
+    repeatTask(item, next, {
+      labelIds: [...chosen],
+      timezone: settings.timezone,
+      reminders: reminders
+        .filter((r) => r.item_id === item.id && r.anchor && !r.is_default)
+        .map((r) => ({ anchor: r.anchor!, offset_days: r.offset_days, at_time: r.at_time })),
+    })
   }
   const byName = [...labels].sort((a, b) => a.name.localeCompare(b.name))
 
@@ -192,6 +201,9 @@ export function TaskDetails({ item }: { item: Item }) {
           />
         </Field>
       </div>
+      <Field label="Reminders">
+        <ItemReminders item={item} />
+      </Field>
       <Field label="Labels">
         <div className="flex flex-wrap items-center gap-1.5">
           {byName

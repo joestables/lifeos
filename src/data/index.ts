@@ -16,6 +16,8 @@ import {
 import { queryClient } from './queryClient'
 import { applyPendingReminders, remindersKey, type Reminder } from './reminders'
 import { applyPendingSeries, seriesKey, type Series } from './series'
+import { applyPendingSettings, settingsKey, type Settings } from './settings'
+import { applyPendingDevices, devicesKey, type Device } from './devices'
 import { applyPendingSubtasks, subtasksKey, type Subtask } from './subtasks'
 import { indexedDbQueueStore, WriteQueue } from './queue'
 import type { QueueEntry } from './queue/store'
@@ -78,7 +80,9 @@ const collections: {
     // A Task's default Reminder is made and moved by the server with its dates.
     fns: [
       'add_reminder',
+      'update_reminder',
       'remove_reminder',
+      'update_settings',
       'create_item',
       'update_item',
       'convert_item',
@@ -92,6 +96,16 @@ const collections: {
     key: subtasksKey,
     fns: ['add_subtask', 'update_subtask', 'remove_subtask'],
     fold: (rows: Subtask[], e: QueueEntry) => applyPendingSubtasks(rows, [e]),
+  },
+  {
+    key: settingsKey,
+    fns: ['update_settings'],
+    fold: (settings: Settings, e: QueueEntry) => applyPendingSettings(settings, [e]),
+  },
+  {
+    key: devicesKey,
+    fns: ['register_device', 'set_device', 'remove_device'],
+    fold: (rows: Device[], e: QueueEntry) => applyPendingDevices(rows, [e]),
   },
   {
     key: marksKey,
@@ -134,7 +148,13 @@ export const {
   removeLabel,
   setMark,
   addFixedReminder,
+  addReminder,
+  updateReminder,
   removeReminder,
+  updateSettings,
+  registerDevice,
+  setDevice,
+  removeDevice,
   addSubtask,
   updateSubtask,
   removeSubtask,
@@ -148,6 +168,7 @@ export const { unsentWrites, signOut } = session(queue)
 export { authReady, signInWithGoogle, useAuth, type Me } from './auth'
 export {
   useDeletedItems,
+  useDevices,
   useItem,
   useItems,
   useLabels,
@@ -163,8 +184,10 @@ export {
 export { newId } from './ids'
 export type { Label } from './labels'
 export { noteAction, reportEvent, startReporting } from './report'
-export type { Reminder } from './reminders'
+export type { Reminder, ReminderFields } from './reminders'
+export type { Device } from './devices'
+export { fetchVapidPublicKey } from './devices'
 export type { RepeatArgs, RepeatMode, Series, SeriesTemplate } from './series'
-export type { Settings } from './settings'
+export type { Settings, SettingsPatch } from './settings'
 export type { Subtask } from './subtasks'
 export type { Item, ItemFields, SyncState } from './types'

@@ -43,6 +43,7 @@ import {
   PageHeader,
   PlanCard,
   SectionLabel,
+  ReminderList,
   RepeatField,
   SubtaskList,
   SwipeAction,
@@ -61,7 +62,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Alert, AlertAction, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -624,6 +625,15 @@ function DesignPage() {
                 description="A while after you tick it"
               />
             </RadioGroup>
+            <ReminderList
+              reminders={[
+                { id: 'a', when: 'Fri 09:00', says: 'On the day' },
+                { id: 'b', when: 'Thu 18:00', says: '1 day before' },
+              ]}
+              onOpen={() => {}}
+              onRemove={() => {}}
+              onAdd={() => {}}
+            />
             <SubtaskList
               subtasks={[
                 { id: 'a', title: 'Get a quote from Admiral', done: true },
@@ -768,6 +778,19 @@ function DesignPage() {
             <WifiOffIcon />
             <AlertTitle>Offline</AlertTitle>
             <AlertDescription>These may be out of date</AlertDescription>
+          </Alert>
+          <Alert className="max-w-xl">
+            <BellIcon />
+            <AlertTitle>Notifications are off</AlertTitle>
+            <AlertDescription>Reminders can’t reach you</AlertDescription>
+            <AlertAction>
+              <Button variant="ghost" size="sm">
+                Not now
+              </Button>
+              <Button variant="outline" size="sm">
+                Turn on
+              </Button>
+            </AlertAction>
           </Alert>
           <div className="flex max-w-xl flex-col gap-1.5">
             <Skeleton className="h-14 rounded-row" />

@@ -27,3 +27,9 @@ export { DateField } from './DateField'
 export { SubtaskList } from './SubtaskList'
 export { TimeField } from './TimeField'
 export { RepeatField, type Repeat } from './RepeatField'
+export {
+  ReminderDialog,
+  ReminderList,
+  type ReminderChoice,
+  type ReminderLine,
+} from './ReminderList'

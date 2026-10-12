@@ -499,6 +499,7 @@ export type Database = {
           reminder_id: string | null
           sent_at: string | null
           status: string
+          token: string
         }
         ComputedFields: never
         Insert: {
@@ -516,6 +517,7 @@ export type Database = {
           reminder_id?: string | null
           sent_at?: string | null
           status?: string
+          token?: string
         }
         Update: {
           attempts?: number
@@ -532,6 +534,7 @@ export type Database = {
           reminder_id?: string | null
           sent_at?: string | null
           status?: string
+          token?: string
         }
         Relationships: [
           {
@@ -813,6 +816,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      act_on_delivery: {
+        Args: {
+          p_action: string
+          p_delivery: number
+          p_next?: string
+          p_next_on?: string
+          p_token: string
+        }
+        Returns: boolean
+      }
       add_label: { Args: { p_item: string; p_label: string }; Returns: undefined }
       add_reminder: {
         Args: { p_fields: Json; p_id: string; p_item: string }
@@ -889,6 +902,17 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      claim_deliveries: {
+        Args: { p_limit?: number }
+        Returns: {
+          auth: string
+          endpoint: string
+          id: number
+          p256dh: string
+          payload: Json
+          ttl: number
+        }[]
       }
       complete_occurrence: {
         Args: { p_id: string; p_next: string; p_next_on: string }
@@ -1006,6 +1030,16 @@ export type Database = {
         }
       }
       delete_label: { Args: { p_id: string }; Returns: undefined }
+      delivery_for_action: {
+        Args: { p_delivery: number; p_token: string }
+        Returns: {
+          item_id: string
+          kind: string
+          mode: string
+          rule: string
+          timezone: string
+        }[]
+      }
       extend_series: {
         Args: { p_days: string[]; p_series: string; p_until: string }
         Returns: undefined
@@ -1015,6 +1049,15 @@ export type Database = {
         Args: { p_from: string; p_id: string; p_link_type: string; p_to: string }
         Returns: undefined
       }
+      push_keys: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          private_key: string
+          public_key: string
+        }[]
+      }
+      push_secret_ok: { Args: { p_secret: string }; Returns: boolean }
+      record_deliveries: { Args: { p_results: Json }; Returns: undefined }
       register_device: {
         Args: {
           p_auth: string
@@ -1177,6 +1220,13 @@ export type Database = {
         }
       }
       set_mark: { Args: { p_item: string; p_on: boolean }; Returns: undefined }
+      set_push_keys: {
+        Args: { p_private: string; p_public: string }
+        Returns: {
+          private_key: string
+          public_key: string
+        }[]
+      }
       set_repeat: {
         Args: {
           p_item: string
@@ -1377,6 +1427,7 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      vapid_public_key: { Args: Record<PropertyKey, never>; Returns: string }
     }
     Enums: {
       [_ in never]: never

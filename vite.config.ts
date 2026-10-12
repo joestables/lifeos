@@ -19,6 +19,10 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
+      // LifeOS's own worker: offline files and notifications (ADR-0044).
+      strategies: 'injectManifest',
+      srcDir: 'src',
+      filename: 'sw.ts',
       manifest: {
         name: 'LifeOS',
         short_name: 'LifeOS',
@@ -40,8 +44,7 @@ export default defineConfig({
           },
         ],
       },
-      workbox: {
-        navigateFallback: '/index.html',
+      injectManifest: {
         globPatterns: ['**/*.{js,css,html,svg,woff2}'],
         // Only the Latin fonts are kept offline; other scripts load when needed.
         globIgnores: ['**/*-{cyrillic,cyrillic-ext,greek,vietnamese,symbols2}-*.woff2'],

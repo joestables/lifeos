@@ -37,12 +37,16 @@ created by hand.
 
 ## Web Push
 
-New VAPID keys for v2, made by Claude when Reminders are built
+New VAPID keys for v2
 ([ADR-0044](../20-architecture/adr/0044-reminder-delivery.md), Provisionally
-agreed):
-the private key is an Edge Function secret; the public key is a Vercel env
-var the app is built with. The secret the `pg_cron` jobs send to the Edge
-Functions is kept in Vault and as an Edge Function secret.
+agreed), made by `send-notifications` the first time it runs and kept in
+Vault (`vapid_public_key`, `vapid_private_key`), so the private key is never
+copied anywhere. The app reads the public key from the database
+(`core.vapid_public_key`) when a device turns notifications on, so it needs
+no build setting. The secret the minute job sends to the function is kept
+only in Vault (`push_secret`), and the function asks the database whether a
+call carries it. Nothing is typed into a dashboard. Changing the keys means
+every device turns notifications on again.
 
 ## Google Calendar (Stage 3)
 

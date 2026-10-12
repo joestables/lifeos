@@ -17,6 +17,8 @@ export type SeriesTemplate = {
   do_at?: string | null
   due_offset_days?: number | null
   label_ids?: string[]
+  /** The Task's own Reminders on its dates, made for each occurrence (REM-002 4). */
+  reminders?: { anchor: string; offset_days: number; at_time: string | null }[]
 }
 
 /** The arguments of core.set_repeat, worked out on the device (ADR-0045). */

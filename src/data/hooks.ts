@@ -19,7 +19,14 @@ import type { QueueEntry } from './queue/store'
 import { applyPendingReminders, fetchReminders, remindersKey, type Reminder } from './reminders'
 import { applyPendingSeries, fetchSeries, seriesKey, type Series } from './series'
 import { applyPendingSubtasks, fetchSubtasks, subtasksKey, type Subtask } from './subtasks'
-import { DEFAULT_SETTINGS, fetchSettings, settingsKey, type Settings } from './settings'
+import {
+  applyPendingSettings,
+  DEFAULT_SETTINGS,
+  fetchSettings,
+  settingsKey,
+  type Settings,
+} from './settings'
+import { applyPendingDevices, devicesKey, fetchDevices, type Device } from './devices'
 import type { Item } from './types'
 
 const subscribeOnline = (onChange: () => void) => {
@@ -143,10 +150,25 @@ export function useMarks(queue: WriteQueue): ReadonlySet<string> {
   )
 }
 
-/** My settings, or the defaults until they have loaded. */
-export function useSettings(): Settings {
+/** My settings, with unsent changes laid over them, or the defaults until they have loaded. */
+export function useSettings(queue: WriteQueue): Settings {
   const query = useQuery({ queryKey: settingsKey, queryFn: fetchSettings })
-  return query.data ?? DEFAULT_SETTINGS
+  const entries = useQueueEntries(queue)
+  return useMemo(
+    () => applyPendingSettings(query.data ?? DEFAULT_SETTINGS, entries),
+    [query.data, entries],
+  )
+}
+
+/** My devices with notifications (REM-001), with unsent changes laid over them. */
+export function useDevices(queue: WriteQueue): { devices: readonly Device[]; isLoading: boolean } {
+  const entries = useQueueEntries(queue)
+  const query = useQuery({ queryKey: devicesKey, queryFn: fetchDevices })
+  const devices = useMemo(
+    () => applyPendingDevices(query.data ?? [], entries),
+    [query.data, entries],
+  )
+  return { devices, isLoading: query.isLoading }
 }
 
 /** My Reminders, with unsent ones laid over them. */

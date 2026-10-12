@@ -2,6 +2,8 @@ import { newId } from './ids'
 import { sameName, type Label } from './labels'
 import { nextPosition } from './subtasks'
 import type { WriteQueue } from './queue/queue'
+import type { ReminderFields } from './reminders'
+import type { SettingsPatch } from './settings'
 import type { RepeatArgs } from './series'
 import type { ItemFields } from './types'
 
@@ -76,6 +78,16 @@ export function writes(queue: WriteQueue, labelsNow: () => readonly Label[] = ()
       return id
     },
 
+    /** At a fixed time, or relative to one of the Item's dates (REM-003). */
+    addReminder(itemId: string, fields: ReminderFields): string {
+      const id = newId()
+      queue.enqueue('add_reminder', { p_id: id, p_item: itemId, p_fields: { ...fields } }, [itemId])
+      return id
+    },
+    /** Changed, it is mine: it no longer follows the Type's default. */
+    updateReminder(itemId: string, id: string, patch: ReminderFields): void {
+      queue.enqueue('update_reminder', { p_id: id, p_patch: { ...patch } }, [itemId])
+    },
     removeReminder(itemId: string, id: string): void {
       queue.enqueue('remove_reminder', { p_id: id }, [itemId])
     },
@@ -116,6 +128,39 @@ export function writes(queue: WriteQueue, labelsNow: () => readonly Label[] = ()
         id,
       ])
       return id
+    },
+
+    /** My Reminder defaults and morning digest (REM-007, REM-008). */
+    updateSettings(patch: SettingsPatch): void {
+      queue.enqueue('update_settings', { p_patch: { ...patch } }, [])
+    },
+
+    /** This device's push subscription, for me (REM-001). */
+    registerDevice(subscription: {
+      endpoint: string
+      p256dh: string
+      auth: string
+      label: string
+    }): string {
+      const id = newId()
+      queue.enqueue(
+        'register_device',
+        {
+          p_id: id,
+          p_endpoint: subscription.endpoint,
+          p_p256dh: subscription.p256dh,
+          p_auth: subscription.auth,
+          p_label: subscription.label,
+        },
+        [],
+      )
+      return id
+    },
+    setDevice(id: string, enabled: boolean): void {
+      queue.enqueue('set_device', { p_id: id, p_enabled: enabled }, [])
+    },
+    removeDevice(id: string): void {
+      queue.enqueue('remove_device', { p_id: id }, [])
     },
 
     /** Pins a Note or stars a Task, for me alone. */
