@@ -82,6 +82,10 @@ Acceptance criteria
 2. Given I add a Task while looking at one Label's Tasks, then it has that
    Label.
 3. Given I have no signal, then the Task appears at once and is sent later.
+4. Given "New task", then a new Task opens with all its fields — title,
+   notes, do-on date and time, due date, repeat, Reminders, Labels and
+   sub-tasks — and is kept only when I save it; cancelled, nothing is left
+   behind (Joe, 12 October).
 
 ### TSK-002 — A Task's details
 

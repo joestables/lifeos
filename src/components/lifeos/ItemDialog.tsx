@@ -26,6 +26,8 @@ export function ItemDialog({
   actions,
   titleField,
   wide = false,
+  footer,
+  keepOnOutsideClick = false,
   children,
 }: {
   open: boolean
@@ -42,11 +44,15 @@ export function ItemDialog({
   titleField?: React.ReactNode
   /** 640px, for a Note. */
   wide?: boolean
+  /** Under the scrolling body: Cancel and Save, for a new Item kept only on Save. */
+  footer?: React.ReactNode
+  /** Clicking outside doesn't close it: something typed would be lost. */
+  keepOnOutsideClick?: boolean
   children?: React.ReactNode
 }) {
   const popup = useRef<HTMLDivElement>(null)
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange} disablePointerDismissal={keepOnOutsideClick}>
       <DialogContent
         showCloseButton={false}
         // Focus the popup itself, not its first control: no ring on the star
@@ -83,6 +89,11 @@ export function ItemDialog({
               {children}
             </div>
           </ScrollArea>
+          {footer && (
+            <div className="flex justify-end gap-2 px-5 pt-1 pb-5 [&>*]:max-sm:flex-1">
+              {footer}
+            </div>
+          )}
         </TypeScope>
       </DialogContent>
     </Dialog>

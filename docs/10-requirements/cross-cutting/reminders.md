@@ -65,7 +65,9 @@ Priority: Must · Status: verified
 Acceptance criteria
 1. Given I give a Task a do-on date with no time, then it has a Reminder at
    my default time (09:00) on that date; with a time, at that time.
-2. Given I move the do-on date or time, then the Reminder moves with it.
+2. Given I move the do-on date or time, then the Reminder moves with it;
+   if I removed or changed it, moving the date doesn't bring it back or add
+   a second.
 3. Given I clear the do-on date, then that Reminder goes; a Reminder I set
    myself at a fixed time stays.
 4. Given a repeating Task, then each occurrence has the series' Reminders,
@@ -104,6 +106,9 @@ Acceptance criteria
    sent them, and the failure is recorded where Claude can find it.
 5. Given the Task is done, or the Item archived, before 09:00, then nothing
    is sent.
+6. Given a Reminder whose time had already passed when it was set (a Task
+   captured at 15:00 for today, its default at 09:00), then nothing is
+   sent.
 
 ### REM-005 — Done and Snooze from the notification
 

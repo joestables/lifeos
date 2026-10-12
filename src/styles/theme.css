@@ -282,6 +282,24 @@
   body {
     @apply bg-background text-base text-foreground;
   }
+  /* Whatever can be pressed shows the pointing hand (patterns.md#states). */
+  :is(
+    button,
+    a[href],
+    label:has(input),
+    [role='button'],
+    [role='checkbox'],
+    [role='switch'],
+    [role='radio'],
+    [role='tab'],
+    [role='option'],
+    [role='menuitem'],
+    [role='menuitemcheckbox'],
+    [role='menuitemradio'],
+    [role='combobox']:not(input)
+  ):not(:disabled, [aria-disabled='true'], [data-disabled]) {
+    cursor: pointer;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -146,18 +146,32 @@ test('INB-002: a Thought becomes a Task in one action, its date understood, and 
   await expect.poll(() => db.reminders.length).toBe(0)
 })
 
-test('INB-002: a Thought becomes a Note, or is deleted with Undo', async ({ page, isMobile }) => {
+test('INB-002: a Thought becomes a Note, with Undo, or is deleted with Undo', async ({
+  page,
+  isMobile,
+}) => {
   const db = await start(page)
   const desk = rowOf(page, 'Look into a standing desk')
   await rowAction(page, desk, 'Note', isMobile)
   await expect(desk).toBeHidden()
   await expect.poll(() => db.items.find((i) => i.id === id(8))?.type).toBe('note')
+  await page
+    .locator('[data-sonner-toast]')
+    .filter({ hasText: 'Converted into a Note' })
+    .getByRole('button', { name: 'Undo' })
+    .click()
+  await expect(desk).toBeVisible()
+  await expect.poll(() => db.items.find((i) => i.id === id(8))?.type).toBe('thought')
 
   const ceramics = rowOf(page, 'Ceramics class')
   await ceramics.getByRole('button', { name: 'More' }).click()
   await page.getByRole('menuitem', { name: 'Delete' }).click()
   await expect(ceramics).toBeHidden()
-  await page.getByRole('button', { name: 'Undo' }).click()
+  await page
+    .locator('[data-sonner-toast]')
+    .filter({ hasText: 'Deleted' })
+    .getByRole('button', { name: 'Undo' })
+    .click()
   await expect(ceramics).toBeVisible()
 })
 

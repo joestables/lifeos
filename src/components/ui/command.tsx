@@ -1,6 +1,5 @@
 import { SearchIcon } from 'lucide-react'
 import { useId, useState, type ReactNode, type RefObject } from 'react'
-import { cn } from '@/lib/utils'
 import { Dialog, DialogContent, DialogTitle } from './dialog'
 import { menuLabelClasses } from './menu-classes'
 import { ScrollArea } from './scroll-area'
@@ -26,8 +25,8 @@ export interface CommandGroup {
 /**
  * Command (components.md): a 48px input with a search icon, then results
  * grouped under 12px muted labels, each a 52px item; the highlighted one
- * `--accent`, moved with the arrow keys and chosen with Enter. In a Dialog
- * (`dialog`) the input sits bare over a line; on a page (`page`) it is filled.
+ * `--accent`, moved with the arrow keys and chosen with Enter. The input
+ * sits bare over a line; it lives in a CommandDialog.
  */
 export function Command({
   label,
@@ -36,7 +35,6 @@ export function Command({
   groups,
   onChoose,
   status,
-  variant = 'dialog',
   inputRef,
 }: {
   /** What it searches: the input's and the list's name. */
@@ -47,7 +45,6 @@ export function Command({
   onChoose: (id: string) => void
   /** A muted line over the results: "Nothing found", offline. */
   status?: ReactNode
-  variant?: 'dialog' | 'page'
   inputRef?: RefObject<HTMLInputElement | null>
 }) {
   const ids = useId()
@@ -90,22 +87,12 @@ export function Command({
           onChoose(current)
         }
       }}
-      className={cn(
-        'h-12 w-full min-w-0 text-[16px] text-foreground outline-none placeholder:text-muted-foreground [&::-webkit-search-cancel-button]:hidden',
-        variant === 'dialog'
-          ? 'bg-transparent pr-4 pl-12'
-          : 'rounded-control bg-input pr-3.5 pl-11 transition-[background-color,box-shadow] focus-visible:bg-card focus-visible:ring-3 focus-visible:ring-ring-soft',
-      )}
+      className="h-12 w-full min-w-0 bg-transparent pr-4 pl-12 text-[16px] text-foreground outline-none placeholder:text-muted-foreground [&::-webkit-search-cancel-button]:hidden"
     />
   )
 
   const list = (
-    <div
-      id={`${ids}-list`}
-      role="listbox"
-      aria-label={label}
-      className={cn('flex flex-col', variant === 'dialog' ? 'p-1.5' : 'gap-1')}
-    >
+    <div id={`${ids}-list`} role="listbox" aria-label={label} className="flex flex-col p-1.5">
       {groups.map((g, n) => (
         <div
           key={g.label}
@@ -156,24 +143,9 @@ export function Command({
   const icon = (
     <SearchIcon
       aria-hidden
-      className={cn(
-        'pointer-events-none absolute top-1/2 size-4.5 -translate-y-1/2 text-muted-foreground',
-        variant === 'dialog' ? 'left-4' : 'left-3.5',
-      )}
+      className="pointer-events-none absolute top-1/2 left-4 size-4.5 -translate-y-1/2 text-muted-foreground"
     />
   )
-
-  if (variant === 'page')
-    return (
-      <div data-slot="command" className="flex flex-col gap-3">
-        <div className="relative">
-          {icon}
-          {input}
-        </div>
-        {statusLine}
-        {list}
-      </div>
-    )
 
   return (
     <div data-slot="command" className="flex min-h-0 flex-col">
@@ -188,7 +160,7 @@ export function Command({
   )
 }
 
-/** Command in a Dialog near the top (components.md): Search on a computer. */
+/** Command in a Dialog near the top (components.md): Search. */
 export function CommandDialog({
   open,
   onOpenChange,

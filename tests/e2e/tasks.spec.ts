@@ -103,20 +103,52 @@ test("TSK-001: a Task added in a Label's group has that Label, its date understo
     .toEqual(['2026-10-17', true])
 })
 
-test('TSK-001: "New task" opens capture as a Task', async ({ page }) => {
+test('TSK-001: "New task" opens a new Task with all its fields, kept on Save', async ({ page }) => {
   const db = await start(page)
   await page.getByRole('button', { name: 'New task' }).click()
-  const capture = page.getByRole('dialog', { name: 'Capture' })
-  await expect(capture.getByRole('button', { name: 'Task', exact: true })).toHaveAttribute(
-    'aria-pressed',
-    'true',
-  )
-  await capture.getByRole('textbox').fill('renew insurance fri')
-  await capture.getByRole('textbox').press('Enter')
+  const dialog = page.getByRole('dialog', { name: 'New task' })
+  await expect(dialog.getByRole('textbox', { name: 'Title' })).toBeFocused()
+  await expect(dialog.getByRole('button', { name: 'Save' })).toBeDisabled()
+  await dialog.getByRole('textbox', { name: 'Title' }).fill('Renew insurance')
+  await dialog.getByRole('textbox', { name: 'Notes' }).fill('Policy 123')
+  await dialog.getByRole('button', { name: 'Add', exact: true }).click()
+  await page.getByRole('checkbox', { name: 'Car' }).click()
+  await page.keyboard.press('Escape')
+  await dialog.getByPlaceholder('Add a sub-task').fill('Get quotes')
+  await dialog.getByPlaceholder('Add a sub-task').press('Enter')
+  // Nothing is kept yet.
+  expect(db.items.some((i) => i.title === 'Renew insurance')).toBe(false)
+
+  await dialog.getByRole('button', { name: 'Save' }).click()
+  await expect(dialog).toBeHidden()
+  await expect(page.getByText('Task saved')).toBeVisible()
   await expect(rowOf(page, 'Renew insurance')).toBeVisible()
   await expect
-    .poll(() => db.items.find((i) => i.title === 'Renew insurance')?.do_on)
-    .toBe('2026-10-16')
+    .poll(() => {
+      const t = db.items.find((i) => i.title === 'Renew insurance')
+      return (
+        t && [
+          t.body,
+          db.item_labels.some((r) => r.item_id === t.id && r.label_id === 'l-car'),
+          db.subtasks.filter((x) => x.item_id === t.id).map((x) => x.title),
+        ]
+      )
+    })
+    .toEqual(['Policy 123', true, ['Get quotes']])
+})
+
+test('TSK-001: a new Task cancelled leaves nothing behind, and a click outside keeps it open once typed in', async ({
+  page,
+}) => {
+  const db = await start(page)
+  await page.getByRole('button', { name: 'New task' }).click()
+  const dialog = page.getByRole('dialog', { name: 'New task' })
+  await dialog.getByRole('textbox', { name: 'Title' }).fill('Paint the shed')
+  await page.mouse.click(5, 5)
+  await expect(dialog).toBeVisible()
+  await dialog.getByRole('button', { name: 'Cancel' }).click()
+  await expect(dialog).toBeHidden()
+  expect(db.items.some((i) => i.title === 'Paint the shed')).toBe(false)
 })
 
 test('TSK-003: ticked done, it leaves; Undo brings it back; Completed lists it', async ({

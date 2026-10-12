@@ -3,7 +3,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = extensions, public;
-select plan(27);
+select plan(28);
 
 insert into auth.users (id, email) values
   ('00000000-0000-4000-8000-00000000000a', 'ann@example.com'),
@@ -213,6 +213,14 @@ select ok(
           where id = '00000000-0000-7000-8000-0000000002f1' and last_done_on is null),
   'ADR-0045: an after-completion series with one open needs nothing'
 );
+-- TSK-009: the open one deleted, nothing comes back overnight.
+update core.items set archived_at = now() where id = '00000000-0000-7000-8000-000000000202';
+select ok(
+  exists (select 1 from core.series_to_extend()
+          where id = '00000000-0000-7000-8000-0000000002f1' and last_done_on is null),
+  'TSK-009: an after-completion series whose open one I deleted makes no more'
+);
+update core.items set archived_at = null where id = '00000000-0000-7000-8000-000000000202';
 select core.extend_series('00000000-0000-7000-8000-0000000003f1', array[current_date, current_date + 1], current_date + 1);
 select core.extend_series('00000000-0000-7000-8000-0000000003f1', array[current_date, current_date + 1], current_date + 1);
 select is(

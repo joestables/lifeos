@@ -76,6 +76,8 @@ Acceptance criteria
 1. Given the server permanently rejects a queued write, then the Item shows
    that the change wasn't saved, and `ops.events` records the failure with
    the screen and last few actions — never the Item's content.
+2. Given I've seen that a change wasn't saved, then I can clear it, and the
+   Item shows what was saved.
 
 ### OFF-005 — Read what I've already loaded
 

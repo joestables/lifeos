@@ -4,7 +4,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = extensions, public;
-select plan(29);
+select plan(33);
 
 insert into auth.users (id, email) values
   ('00000000-0000-4000-8000-00000000000a', 'ann@example.com'),
@@ -207,6 +207,42 @@ select throws_ok(
   $$select core.rename_label('00000000-0000-7000-8000-0000000000a1', 'Ben''s now')$$,
   'P0002', null,
   'ACC-002: Ben can''t rename Ann''s Label'
+);
+-- ITM-004: a conversion can be undone, back to the Type it came from, even
+-- where the ontology has no such conversion; nothing else goes back.
+reset role;
+select set_config('request.jwt.claims', '{"sub": "00000000-0000-4000-8000-00000000000a", "role": "authenticated"}', true),
+  set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-00000000000a', true);
+set local role authenticated;
+select core.create_item('00000000-0000-7000-8000-000000000021', 'thought', '{"title": "Bins"}');
+select core.convert_item('00000000-0000-7000-8000-000000000021', 'task');
+select core.convert_item('00000000-0000-7000-8000-000000000021', 'thought');
+select is(
+  (select type from core.items where id = '00000000-0000-7000-8000-000000000021'),
+  'thought',
+  'ITM-004: Undo takes a Task back to the Thought it was'
+);
+select throws_ok(
+  $$select core.convert_item('00000000-0000-7000-8000-000000000002', 'thought')$$,
+  '23514', null,
+  'ITM-004: a Task that was never a Thought can''t become one'
+);
+
+-- ITM-005: a Label made on a device that didn't know the name was taken is
+-- that Label, under the device's id too.
+select core.create_label('00000000-0000-7000-8000-0000000000c1', 'Garden');
+select core.create_label('00000000-0000-7000-8000-0000000000c2', 'garden');
+select core.add_label('00000000-0000-7000-8000-000000000002', '00000000-0000-7000-8000-0000000000c2');
+select is(
+  (select array_agg(label_id::text) from core.item_labels where item_id = '00000000-0000-7000-8000-000000000002' and label_id in ('00000000-0000-7000-8000-0000000000c1', '00000000-0000-7000-8000-0000000000c2')),
+  array['00000000-0000-7000-8000-0000000000c1'],
+  'ITM-005: a Label made twice under two ids is one Label, given by either'
+);
+select core.remove_label('00000000-0000-7000-8000-000000000002', '00000000-0000-7000-8000-0000000000c2');
+select is(
+  (select count(*)::int from core.item_labels where item_id = '00000000-0000-7000-8000-000000000002' and label_id = '00000000-0000-7000-8000-0000000000c1'),
+  0,
+  'ITM-005: and taken off by either'
 );
 select * from finish();
 rollback;

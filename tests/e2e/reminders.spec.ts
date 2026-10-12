@@ -102,10 +102,12 @@ test('REM-007, REM-008: my default time, the defaults by Type and the morning di
   const db = await start(page, '/settings')
   const reminders = card(page, 'Reminders')
   await reminders.getByLabel('Default time').fill('08:00')
+  await reminders.getByLabel('Default time').press('Enter')
   await expect.poll(() => db.people[0]!.default_reminder_time).toBe('08:00')
   await reminders.getByRole('switch', { name: 'Remind me of dated tasks' }).click()
   await expect.poll(() => db.people[0]!.reminder_defaults).toEqual({ task: false })
   await reminders.getByLabel('Digest time').fill('06:30')
+  await reminders.getByLabel('Digest time').press('Enter')
   await expect.poll(() => db.people[0]!.digest_time).toBe('06:30')
   await reminders.getByRole('switch', { name: 'Morning digest' }).click()
   await expect.poll(() => db.people[0]!.digest_on).toBe(false)
@@ -160,7 +162,7 @@ test('REM-007 2: with the Thought default off, a dated Thought gets no Reminder'
 }) => {
   const db = await start(page, '/inbox', { people: [{ reminder_defaults: { thought: false } }] })
   await expect(page.getByRole('heading', { name: 'Inbox', level: 1 })).toBeVisible()
-  await page.getByRole('button', { name: 'Capture' }).first().click()
+  await page.getByRole('button', { name: 'New', exact: true }).first().click()
   const capture = page.getByRole('dialog', { name: 'Capture' })
   await capture.getByRole('textbox').fill('book the dentist fri')
   await capture.getByRole('textbox').press('Enter')
@@ -182,4 +184,23 @@ test("REM-006: a tapped notification opens its Item in the window that's open", 
     `/item/${id(1)}`,
   )
   await expect(page.getByRole('dialog', { name: 'Renew insurance' })).toBeVisible()
+})
+
+test('ACC-003 3: signing out stops notifications on this device', async ({ page }) => {
+  await page.clock.setFixedTime(NOW)
+  await pushAllowed(page, 'https://push.example/this-device', { subscribed: true })
+  const db = await standIn(page, {
+    signedIn: true,
+    rows: rows({
+      push_devices: [
+        { id: 'd-this', endpoint: 'https://push.example/this-device', label: 'Android · Chrome' },
+      ],
+    }),
+  })
+  await page.goto('/settings')
+  await expect(card(page, 'Notifications')).toContainText('This device')
+  await page.evaluate(() => sessionStorage.setItem('stand-in-signed-out', '1'))
+  await page.getByRole('button', { name: 'Sign out' }).first().click()
+  await expect(page).toHaveURL(/\/sign-in$/)
+  expect(db.push_devices.some((d) => d.id === 'd-this')).toBe(false)
 })

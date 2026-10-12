@@ -13,7 +13,8 @@ setting a phone alarm (goal 2).
 
 Quick capture is a Screen that opens over whatever you are doing, from any
 page, with one tap or one key; saving it leaves you exactly where you were.
-On a phone its button is in the top bar. Android's home-screen shortcut and
+Its button is at the top right of every page, in the top bar on a phone
+(Joe, 12 October 2026: no longer in the drawer on a computer). Android's home-screen shortcut and
 share-to-LifeOS come with capture from outside the app
 ([ADR-0028](0028-capture-from-outside-the-app.md)), built last.
 

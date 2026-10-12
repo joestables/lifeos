@@ -12,7 +12,7 @@
 | **Google Cloud** | Project `lifeos`, with the OAuth client used for Google sign-in ([integration setup](integration-setup.md#google-sign-in)). |
 | **Local Supabase in CI** | Started inside GitHub Actions; every migration applied from empty, then the database tests. In a cloud session, `npm run db:test` does the same with the live project's Postgres image (`supabase/postgres`, from Docker Hub). |
 | **Stand-in Supabase** | What Playwright walks run against — never real data. The e2e build points at `https://stand-in.supabase.co`, and `tests/e2e/stand-in.ts` answers its calls in the browser and can start a page signed in as a made-up person. `scripts/screenshot.mjs` does the same for screenshots (`SIGNED_IN`). |
-| **Test account** | Email/password, created by hand (its address first listed in `core_private.password_accounts`), in its own Personal Space, for occasional smoke walks against the real project (nightly once Stage 2 is in daily use). |
+| **Test account** | Email/password, created by hand (its address first listed in `core_private.password_accounts`), in its own Personal Space, for occasional smoke walks against the real project (a nightly one is deferred until the roadmap is complete). Not created yet. |
 
 - **Secrets on the project:** in Vault only, set by Claude or made by the
   functions themselves: the project's URL (`project_url`), the nightly

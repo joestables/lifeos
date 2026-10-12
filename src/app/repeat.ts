@@ -3,6 +3,7 @@ import { useCallback, useMemo } from 'react'
 import type { Repeat } from '@/components/lifeos'
 import { toast } from '@/components/ui/sonner'
 import {
+  archiveItem,
   completeOccurrence,
   newId,
   queue,
@@ -93,11 +94,21 @@ export function useTickDone() {
   return useCallback(
     (task: Item) => {
       const s = task.series_id ? series.get(task.series_id) : undefined
+      const was = task.status
+      let next: string | undefined
       if (s && s.mode === 'after_completion' && stillRepeats(task, s))
-        completeOccurrence(task.id, afterCompletion(s.rule, todayIn(s.timezone)))
+        next = completeOccurrence(task.id, afterCompletion(s.rule, todayIn(s.timezone)))
       else updateItem(task.id, { status: 'done' })
+      // Undo puts it back as it was (in Someday, say), and takes away the
+      // next occurrence ticking it made.
       toast(`Done "${itemTitle(task)}"`, {
-        action: { label: 'Undo', onClick: () => updateItem(task.id, { status: 'active' }) },
+        action: {
+          label: 'Undo',
+          onClick: () => {
+            updateItem(task.id, { status: was })
+            if (next) archiveItem(next)
+          },
+        },
       })
     },
     [series],

@@ -102,7 +102,8 @@ export function NotificationsCard() {
 }
 
 /**
- * A time kept once it is a whole time, as the browser's field fills it in.
+ * A time kept when I leave the field or press Enter: the browser's field
+ * changes with each digit, and "0" over "09:00" is "00:00" for a moment.
  * Keyed by its value, so a change from elsewhere starts it afresh.
  */
 function SettingTime({
@@ -115,15 +116,17 @@ function SettingTime({
   onChange: (time: string) => void
 }) {
   const [text, setText] = useState(value)
+  const keep = () => {
+    if (/^\d\d:\d\d$/.test(text) && text !== value) onChange(text)
+  }
   return (
     <TimeField
       aria-label={label}
       className="w-32"
       value={text}
-      onChange={(e) => {
-        setText(e.target.value)
-        if (/^\d\d:\d\d$/.test(e.target.value) && e.target.value !== value) onChange(e.target.value)
-      }}
+      onChange={(e) => setText(e.target.value)}
+      onBlur={keep}
+      onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()}
     />
   )
 }

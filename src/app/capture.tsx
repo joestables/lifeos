@@ -73,6 +73,8 @@ export function CaptureProvider({ children }: { children: ReactNode }) {
       if (e.key !== 'n' || e.metaKey || e.ctrlKey || e.altKey || e.repeat || isOpen.current) return
       const el = e.target as HTMLElement | null
       if (el?.closest('input, textarea, select, [contenteditable="true"]')) return
+      // Not while a menu or list is open, where N picks an option.
+      if (e.isComposing || document.querySelector('[role="menu"], [role="listbox"]')) return
       e.preventDefault()
       start('thought')
     }

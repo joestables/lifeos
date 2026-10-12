@@ -4,7 +4,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = extensions, public;
-select plan(29);
+select plan(30);
 
 insert into auth.users (id, email) values
   ('00000000-0000-4000-8000-00000000000a', 'ann@example.com'),
@@ -18,17 +18,18 @@ insert into core.push_devices (id, person_id, endpoint, p256dh, auth, label, ena
   ('00000000-0000-7000-8000-0000000000d2', '00000000-0000-4000-8000-00000000000a', 'https://push.example/ann-laptop', 'k', 'a', 'Laptop', false),
   ('00000000-0000-7000-8000-0000000000d3', '00000000-0000-4000-8000-00000000000b', 'https://push.example/ben-phone', 'k', 'a', 'Phone', true);
 
--- Ann's Tasks, with their Reminders at fixed times. Ann has no digest.
+-- Ann's Tasks, with their Reminders at fixed times, set the week before.
+-- Ann has no digest.
 update core.people set digest_on = false where id = '00000000-0000-4000-8000-00000000000a';
 insert into core.items (id, type, title, space_id, owner_id, do_on, do_at, due_on, status) values
   ('00000000-0000-7000-8000-000000000001', 'task', 'Call mum', :'a_space', '00000000-0000-4000-8000-00000000000a', '2026-10-12', '18:30', null, 'active'),
   ('00000000-0000-7000-8000-000000000002', 'task', 'Return the jacket', :'a_space', '00000000-0000-4000-8000-00000000000a', null, null, null, 'done'),
   ('00000000-0000-7000-8000-000000000003', 'task', 'Renew insurance', :'a_space', '00000000-0000-4000-8000-00000000000a', null, null, '2026-10-11', 'active'),
   ('00000000-0000-7000-8000-000000000004', 'thought', 'Gift idea for Sam', :'a_space', '00000000-0000-4000-8000-00000000000a', null, null, null, 'active');
-insert into core.reminders (id, item_id, person_id, fixed_at) values
-  ('00000000-0000-7000-8000-0000000000e1', '00000000-0000-7000-8000-000000000001', '00000000-0000-4000-8000-00000000000a', '2026-10-12 17:30:00+00'),
-  ('00000000-0000-7000-8000-0000000000e2', '00000000-0000-7000-8000-000000000002', '00000000-0000-4000-8000-00000000000a', '2026-10-12 17:30:00+00'),
-  ('00000000-0000-7000-8000-0000000000e4', '00000000-0000-7000-8000-000000000004', '00000000-0000-4000-8000-00000000000a', '2026-10-12 08:00:00+00');
+insert into core.reminders (id, item_id, person_id, fixed_at, updated_at) values
+  ('00000000-0000-7000-8000-0000000000e1', '00000000-0000-7000-8000-000000000001', '00000000-0000-4000-8000-00000000000a', '2026-10-12 17:30:00+00', '2026-10-05 09:00:00+00'),
+  ('00000000-0000-7000-8000-0000000000e2', '00000000-0000-7000-8000-000000000002', '00000000-0000-4000-8000-00000000000a', '2026-10-12 17:30:00+00', '2026-10-05 09:00:00+00'),
+  ('00000000-0000-7000-8000-0000000000e4', '00000000-0000-7000-8000-000000000004', '00000000-0000-4000-8000-00000000000a', '2026-10-12 08:00:00+00', '2026-10-05 09:00:00+00');
 
 -- 17:30:20 UTC on Monday 12 October.
 select core_private.queue_notifications('2026-10-12 17:30:20+00');
@@ -62,13 +63,24 @@ select is(
 );
 
 -- REM-004 3: more than 12 hours late, it is recorded as missed.
-insert into core.reminders (id, item_id, person_id, fixed_at) values
-  ('00000000-0000-7000-8000-0000000000e5', '00000000-0000-7000-8000-000000000004', '00000000-0000-4000-8000-00000000000a', '2026-10-12 01:00:00+00');
+insert into core.reminders (id, item_id, person_id, fixed_at, updated_at) values
+  ('00000000-0000-7000-8000-0000000000e5', '00000000-0000-7000-8000-000000000004', '00000000-0000-4000-8000-00000000000a', '2026-10-12 01:00:00+00', '2026-10-05 09:00:00+00');
 select core_private.queue_notifications('2026-10-12 17:32:00+00');
 select is(
   (select status from core.reminder_deliveries where key = 'reminder:00000000-0000-7000-8000-0000000000e5'),
   'missed',
   'REM-004 3: more than 12 hours late it is recorded as missed, not sent'
+);
+
+-- REM-004: one set after its time (a Task captured at 15:00 for today, its
+-- default at 09:00) isn't sent at all.
+insert into core.reminders (id, item_id, person_id, fixed_at, updated_at) values
+  ('00000000-0000-7000-8000-0000000000e6', '00000000-0000-7000-8000-000000000001', '00000000-0000-4000-8000-00000000000a', '2026-10-12 08:00:00+00', '2026-10-12 14:00:00+00');
+select core_private.queue_notifications('2026-10-12 17:33:00+00');
+select is(
+  (select count(*)::int from core.reminder_deliveries where key = 'reminder:00000000-0000-7000-8000-0000000000e6'),
+  0,
+  'REM-004: a Reminder already past when it was set isn''t sent'
 );
 
 -- REM-009: without a digest, an overdue Task is nudged at the default time

@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { ChevronDownIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
@@ -26,8 +27,15 @@ export function DateField({
   open?: boolean
   onOpenChange?: (open: boolean) => void
 }) {
+  // Its own open state unless the caller holds it (asking for a time's day).
+  const [ownOpen, setOwnOpen] = useState(false)
+  const isOpen = open ?? ownOpen
+  const setOpen = (next: boolean) => {
+    setOwnOpen(next)
+    onOpenChange?.(next)
+  }
   return (
-    <Popover open={open} onOpenChange={onOpenChange}>
+    <Popover open={isOpen} onOpenChange={setOpen}>
       <PopoverTrigger
         id={id}
         className={cn(
@@ -48,8 +56,9 @@ export function DateField({
           selected={value ? fromIsoDay(value) : undefined}
           defaultMonth={value ? fromIsoDay(value) : undefined}
           onSelect={(d) => {
-            onChange(d ? isoDayOf(d) : null)
-            onOpenChange?.(false)
+            // The chosen day picked again keeps it; "No date" clears it.
+            if (d) onChange(isoDayOf(d))
+            setOpen(false)
           }}
         />
         {value && (
@@ -59,7 +68,7 @@ export function DateField({
             className="self-start"
             onClick={() => {
               onChange(null)
-              onOpenChange?.(false)
+              setOpen(false)
             }}
           >
             No date

@@ -1,5 +1,7 @@
-import type { Reminder } from '@/data'
-import { reminderWhen } from './dates'
+import { addDays } from '@lifeos/recurrence'
+import type { ReminderChoice } from '@/components/lifeos'
+import type { Reminder, ReminderFields } from '@/data'
+import { reminderWhen, zonedInstant } from './dates'
 
 const days = (n: number) => (n === 1 ? '1 day' : `${n} days`)
 
@@ -27,3 +29,30 @@ export const reminderTime = (r: Pick<Reminder, 'fires_at'>, now: Date = new Date
 /** Reminders soonest first; ones with no time yet last. */
 export const byFiring = (a: Pick<Reminder, 'fires_at'>, b: Pick<Reminder, 'fires_at'>) =>
   (a.fires_at ?? '9').localeCompare(b.fires_at ?? '9')
+
+/** What a Reminder made or changed in its Dialog is saved as (REM-003). */
+export function reminderFields(choice: ReminderChoice, timezone: string): ReminderFields {
+  return choice.kind === 'fixed'
+    ? {
+        anchor: null,
+        offset_days: 0,
+        at_time: null,
+        fixed_at: zonedInstant(choice.day!, choice.time, timezone),
+      }
+    : { anchor: choice.kind, offset_days: -choice.daysBefore, at_time: choice.time, fixed_at: null }
+}
+
+/**
+ * When a Reminder not yet saved will fire, worked out on the device from the
+ * dates it hangs on; null while the date it needs is empty.
+ */
+export function choiceFiresAt(
+  choice: ReminderChoice,
+  dates: { do_on: string | null; due_on: string | null },
+  timezone: string,
+): string | null {
+  if (choice.kind === 'fixed')
+    return choice.day ? zonedInstant(choice.day, choice.time, timezone) : null
+  const day = dates[choice.kind]
+  return day ? zonedInstant(addDays(day, -choice.daysBefore), choice.time, timezone) : null
+}

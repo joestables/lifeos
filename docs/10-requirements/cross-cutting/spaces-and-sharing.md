@@ -79,6 +79,8 @@ Acceptance criteria
    and my data is removed from the device's local cache.
 2. Given I sign out with writes still queued, then I am warned that they
    haven't been sent before I confirm.
+3. Given notifications were on for this device, when I sign out, then they
+   stop: nothing more arrives on it.
 
 Non-goals (Stage 1): Contacts, Households and invitations (Stage 4); other
 sign-in providers; deleting an account (open, above).

@@ -238,6 +238,7 @@ export type Database = {
       }
       labels: {
         Row: {
+          aliases: string[]
           created_at: string
           created_by: string
           id: string
@@ -246,6 +247,7 @@ export type Database = {
         }
         ComputedFields: never
         Insert: {
+          aliases?: string[]
           created_at?: string
           created_by?: string
           id?: string
@@ -253,6 +255,7 @@ export type Database = {
           space_id: string
         }
         Update: {
+          aliases?: string[]
           created_at?: string
           created_by?: string
           id?: string
@@ -1016,6 +1019,7 @@ export type Database = {
       create_label: {
         Args: { p_id: string; p_name: string; p_space_id?: string }
         Returns: {
+          aliases: string[]
           created_at: string
           created_by: string
           id: string
@@ -1093,6 +1097,7 @@ export type Database = {
       rename_label: {
         Args: { p_id: string; p_name: string }
         Returns: {
+          aliases: string[]
           created_at: string
           created_by: string
           id: string

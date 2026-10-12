@@ -7,16 +7,20 @@
 
 ```
 AppShell
-├── Drawer (Sidebar)          brand · Capture · pages · Later · sync status · you
+├── Drawer (Sidebar)          brand · Search · pages · Later · sync status · you
 └── Page
-    ├── PageHeader            title · main action (right; a Fab on a phone)
+    ├── PageHeader            title · capture's "New" (right, on a computer)
     └── Content               36px sides, 20px between sections, in a ScrollArea
-        ├── Tabs or ToggleGroup (optional)
+        ├── Tabs (optional) · main action (just after them; a Fab on a phone)
         └── Sections          SectionLabel + rows, cards or a grid
 ```
 
 - One PageHeader and at most one primary button per page: the page's main
-  action ("New task", "New note"), always in the same place and style.
+  action ("New task", "New note"), always in the same place and style — a
+  PageAction just after the page's Tabs on a computer, 16px from them (a
+  little more than they are from each other), and a Fab on a phone.
+- Capture is "New" (a speech bubble with a plus) at the top right of every
+  page: in the PageHeader on a computer, the top bar on a phone.
 - Items open in a Dialog or on their own page ([below](#opening-an-item));
   focused tasks (capture, confirming) in a Dialog.
 - No browser scrollbars: whatever scrolls is a ScrollArea.
@@ -32,17 +36,17 @@ AppShell
   at weight 650, on every page.
 - Counts are 12px, muted, tabular, on the right. "Later" pages sit at 50%
   opacity.
-- The Capture button sits under the brand, full width, ink on every page,
-  with its shortcut (N) in a Kbd, on a computer; a phone's is in the top bar.
 - Each page's icon: Inbox `inbox`, Plan `calendar-days`, Tasks
   `square-check-big`, Notes `sticky-note`, Recipes `chef-hat`, Gym
   `dumbbell`, Goals `target`, Wardrobe `shirt`, Cardio `footprints`, Finance
   `wallet`.
 - The header holds the brand (the app icon at 24px, then "LifeOS" at 16px
   weight 750) and, on its right, Search: a muted ghost `search` button, with
-  "Search /" in a Tooltip on a computer, 44px in a phone's drawer. The foot
-  holds SyncStatus and your row (Avatar, name, Space). Your row opens
-  Settings, where Sign out is.
+  "Search /" in a Tooltip on a computer, 44px in a phone's drawer. Capture
+  isn't in the drawer: it is "New" at the top right of the page. The foot
+  holds your row (Avatar, name, Space), with SyncStatus over it only while
+  changes wait to send or weren't saved. Your row opens Settings, where
+  Sign out is.
 
 ## The app icon
 
@@ -124,7 +128,7 @@ used the same way on every screen.
   (star, pin), its "…" menu (Convert to, Delete) and Close; it opens with
   the Dialog itself focused, not its first control.
 - **Convert to** lists only the Types this Type converts into that the app
-  has yet; a toast says what it became ("Converted into a Task").
+  has yet; a toast says what it became ("Converted into a Task"), with Undo.
 - **Delete** closes the Item and says so in a toast with Undo ("Deleted
   "Renew insurance""); the Item waits in Recently deleted.
 
@@ -133,7 +137,9 @@ used the same way on every screen.
 [CAP-001–004](../10-requirements/cross-cutting/capture.md#requirements);
 the CaptureDialog in [components](components.md).
 
-- Opens over the page with one tap or N (not while typing in a field), the
+- Opens over the page from "New" at the top right, Inbox's Fab, or N on a
+  computer (not while typing in a field or with a menu open; over an open
+  Item it is fine), the
   line ready to type; Enter saves. Saving or closing changes nothing on the
   page but the new Item.
 - It makes a Thought unless switched to Task, and starts as a Thought every
@@ -154,9 +160,8 @@ the CaptureDialog in [components](components.md).
 Command in [components](components.md). Neutral, as it mixes Types.
 
 - Opens from the drawer's Search button, or with / on a computer (not while
-  typing in a field, nor over a Dialog), ready to type: a Dialog near the top
-  on a computer; on a phone, the Search page, which keeps what was typed so
-  going back from a result finds it again.
+  typing in a field, nor over a Dialog or menu), ready to type: a Dialog near
+  the top, on a phone too; a tap outside it closes it.
 - Results come as I type, best match first, grouped by Type ("Tasks",
   "Notes", "Thoughts"), each group where its best result is. Each shows a
   small TypeTile, its title and one muted line, the words matched in bold.
@@ -177,9 +182,13 @@ NoteEditor and LabelPicker in [components](components.md).
 
 - Under the title, Tabs: "All", then each Label a Note has, A–Z; choosing
   one narrows the page to it until All is chosen again.
-- "Pinned", then "Others", each a grid of NoteCards, most recently changed
-  first; without pinned Notes the grid has no heading.
-- "New note" opens an empty Note with its title ready to type; nothing is
+- "Pinned", then "Others", each NoteCards in a masonry, as Keep has them:
+  columns of cards fitting together with no gaps however tall each is, the
+  most recently changed first (left to right, then down); without pinned
+  Notes it has no heading.
+- "New note" (beside the Tabs on a computer, the Fab on a phone) opens an
+  empty Note — in a popup on a computer, on its own page on a phone — with
+  its title ready to type; nothing is
   kept until something is typed, so closing it untouched leaves nothing
   behind.
 - No Notes: an empty state, "No notes yet".
@@ -190,7 +199,13 @@ NoteEditor and LabelPicker in [components](components.md).
 DateField, TimeField, RepeatField, SubtaskList and AddRow in
 [components](components.md).
 
-- Under the title, Tabs: All tasks, By label, Recurring, Completed.
+- Under the title, Tabs: All tasks, By label, Recurring, Completed, then
+  "New task" on a computer (the Fab on a phone).
+- "New task" opens a new Task in a popup with every field a Task has —
+  title, notes, do-on date and time, due date, repeat, Reminders, Labels,
+  sub-tasks — and Cancel and Save at its foot; nothing is kept until Save,
+  and once anything is typed a click outside doesn't close it. Changing a
+  Task needs no Save: each change is kept as it is made.
 - A repeating Task shows only its next open occurrence, in every list.
 - **All tasks**: Overdue, Today, Tomorrow, each remaining day of this week by
   its name, Later, No date, Someday; each a SectionLabel and its rows,
@@ -287,13 +302,13 @@ DateField, TimeField, RepeatField, SubtaskList and AddRow in
 
 | State | How it looks |
 |---|---|
-| Hover | `--accent` fill (ghost and outline buttons, rows, menu items) |
+| Hover | `--accent` fill (ghost and outline buttons, rows, menu items); an empty checkbox fills with its colour's tint. Whatever can be pressed shows the pointing hand |
 | Focus | 3px `--ring-soft` halo; inputs switch to the card fill |
 | Selected / current | `--accent` fill; the Type's tint inside `TypeScope` |
 | Disabled | 50% opacity, no hover |
 | Loading | Skeletons shaped like the content, after about 300ms |
-| Saved / waiting to send | SyncStatus in the drawer; an Item not yet sent shows "Not sent yet" with a cloud icon in its meta |
-| Not saved | An Item whose change the server refused shows "Not saved" in red with a `cloud-alert` icon in its meta, and SyncStatus counts it ([OFF-004](../10-requirements/cross-cutting/offline.md#off-004--a-write-that-cant-be-saved-is-not-lost-silently)) |
+| Saved / waiting to send | Nothing while all is saved; SyncStatus in the drawer while changes wait; an Item not yet sent shows "Not sent yet" with a cloud icon in its meta |
+| Not saved | An Item whose change the server refused shows "Not saved" in red with a `cloud-alert` icon in its meta, and SyncStatus counts it, with "Clear" to put the Items back as they were saved ([OFF-004](../10-requirements/cross-cutting/offline.md#off-004--a-write-that-cant-be-saved-is-not-lost-silently)) |
 | Notifications off | On Inbox, while none of my devices has notifications: an Alert with `bell`, "Notifications are off", "Reminders can't reach you" (or "Add LifeOS to your Home Screen first" in an iPhone's browser), and "Not now" (ghost) and "Turn on" (outline) on the right, under the text on a phone. "Not now" puts it away on this device ([REM-001](../10-requirements/cross-cutting/reminders.md#rem-001--turn-on-notifications-for-a-device)) |
 | Offline | An Alert at the top of every page, with `cloud-off`: "Offline" (or "Can't refresh" when the server can't be reached) and "These may be out of date". What was loaded still shows (OFF-005) |
 | Error | Red text under the field, or a toast that says what went wrong and what to do |
@@ -322,7 +337,8 @@ sub-tasks `list-checks` with "2/5".
 ## Phone
 
 - **The top bar stays at the top of every page**, an Item's own page
-  included: the menu button on the left, the brand, and Capture on the right
+  included: the menu button on the left, the brand, and capture's "New" on
+  the right
   ([CAP-002](../10-requirements/cross-cutting/capture.md#cap-002--capture-from-any-page-without-losing-my-place)).
   It keeps clear of the notch.
 - The drawer becomes a left Sheet, 288px, attached to the left edge and the
@@ -330,7 +346,11 @@ sub-tasks `list-checks` with "2/5".
   closes it.
 - Page padding 20px; page title 22px; Tabs scroll sideways under it.
 - **The main action floats** bottom right as a Fab: a "+" only, no words.
-  Inbox's Fab opens capture, as the top bar's Capture does.
+  Inbox's Fab opens capture, as the top bar's "New" does.
+- **Pull to refresh:** the page scrolls in its own box, which the browser's
+  pull to refresh can't reach, so pulling down from the top of any page
+  shows a round indicator that turns as it follows the finger; let go past
+  72px and LifeOS reloads.
 - Dialogs sit inset 18px from the sides, as tall as their content;
   AlertDialog actions stack, full width.
 - Row actions: the "…" menu is always visible; a Thought in Inbox can be

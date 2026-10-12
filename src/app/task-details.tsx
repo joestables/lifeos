@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from 'react'
-import { DateField, RepeatField, SubtaskList, TimeField } from '@/components/lifeos'
+import { DateField, RepeatField, SubtaskList, TimeField, type Repeat } from '@/components/lifeos'
 import { LabelPicker } from '@/components/lifeos/LabelPicker'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -100,58 +100,87 @@ export function Field({
   )
 }
 
+/** A Task's dates and status, as its fields show them. */
+export interface TaskDates {
+  do_on: string | null
+  do_at: string | null
+  due_on: string | null
+  status: string
+}
+
 /**
- * Everything about a Task (TSK-002), each change kept as it is made: notes,
- * do-on date and time, due date, repeat, Reminders, Labels, sub-tasks. A
- * change to one occurrence of a repeat is to that one alone; a new repeat
- * applies from it on (TSK-011).
+ * A Task's fields (TSK-002), for a Task kept as it is changed or a new one
+ * kept on Save: notes, do-on date and time, due date, repeat, Reminders,
+ * Labels, sub-tasks. A time needs a day, so a time on its own asks for one.
  */
-export function TaskDetails({ item }: { item: Item }) {
+export function TaskFields({
+  notes,
+  onNotesChange,
+  onNotesBlur,
+  dates,
+  onDates,
+  repeat,
+  onRepeat,
+  startsOn,
+  describeFrom,
+  reminders,
+  labels,
+  chosen,
+  onToggleLabel,
+  onCreateLabel,
+  subtasks,
+  onAddSubtask,
+  onToggleSubtask,
+  onRenameSubtask,
+  onRemoveSubtask,
+}: {
+  notes: string
+  onNotesChange: (notes: string) => void
+  onNotesBlur?: () => void
+  dates: TaskDates
+  onDates: (patch: ItemFields) => void
+  repeat: Repeat | null
+  onRepeat: (repeat: Repeat | null) => void
+  startsOn: string
+  describeFrom?: string
+  /** Its Reminders, listed and changed. */
+  reminders: ReactNode
+  /** Mine, A to Z. */
+  labels: { id: string; name: string }[]
+  chosen: ReadonlySet<string>
+  onToggleLabel: (id: string, on: boolean) => void
+  onCreateLabel: (name: string) => void
+  subtasks: readonly { id: string; title: string; done: boolean }[]
+  onAddSubtask: (title: string) => void
+  onToggleSubtask: (id: string, done: boolean) => void
+  onRenameSubtask: (id: string, title: string) => void
+  onRemoveSubtask: (id: string) => void
+}) {
   const ids = useId()
-  const [notes, setNotes, flushNotes] = useKeptText(item.id, 'body', item.body ?? '')
   // The do-on Calendar, opened by hand or to ask for a time's day.
   const [dayOpen, setDayOpen] = useState(false)
   const pendingTime = useRef<string | null>(null)
-  const { labels, itemLabels } = useLabels(queue)
-  const subtasks = useSubtasks(queue).filter((s) => s.item_id === item.id)
-  const settings = useSettings(queue)
-  const reminders = useReminders(queue)
-  const series = useSeriesById()
   const today = isoDayOf(new Date())
-  const repeat = repeatOf(item, series)
 
   const setDoOn = (day: string | null) => {
     const patch: ItemFields = { do_on: day }
     if (day === null) patch.do_at = null
     else if (pendingTime.current) patch.do_at = pendingTime.current
     // A date makes a Someday Task active again (TSK-007).
-    if (day !== null && item.status === 'idea') patch.status = 'active'
+    if (day !== null && dates.status === 'idea') patch.status = 'active'
     pendingTime.current = null
-    updateItem(item.id, patch)
+    onDates(patch)
   }
   const setTime = (time: string) => {
-    if (!time) return updateItem(item.id, { do_at: null })
+    if (!time) return onDates({ do_at: null })
     // A time needs a day: ask for it (TSK-002).
-    if (!item.do_on) {
+    if (!dates.do_on) {
       pendingTime.current = time
       setDayOpen(true)
       return
     }
-    updateItem(item.id, { do_at: time })
+    onDates({ do_at: time })
   }
-
-  const chosen = new Set(itemLabels.filter((r) => r.item_id === item.id).map((r) => r.label_id))
-  const setRepeatTo = (next: typeof repeat) => {
-    if (!next) return stopRepeat(item.id)
-    repeatTask(item, next, {
-      labelIds: [...chosen],
-      timezone: settings.timezone,
-      reminders: reminders
-        .filter((r) => r.item_id === item.id && r.anchor && !r.is_default)
-        .map((r) => ({ anchor: r.anchor!, offset_days: r.offset_days, at_time: r.at_time })),
-    })
-  }
-  const byName = [...labels].sort((a, b) => a.name.localeCompare(b.name))
 
   return (
     <div className="flex flex-col gap-4">
@@ -159,15 +188,15 @@ export function TaskDetails({ item }: { item: Item }) {
         aria-label="Notes"
         placeholder="Notes"
         value={notes}
-        onChange={(e) => setNotes(e.target.value)}
-        onBlur={flushNotes}
+        onChange={(e) => onNotesChange(e.target.value)}
+        onBlur={onNotesBlur}
         className="min-h-16"
       />
       <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
         <Field label="Do on" htmlFor={`${ids}-do`}>
           <DateField
             id={`${ids}-do`}
-            value={item.do_on}
+            value={dates.do_on}
             onChange={setDoOn}
             open={dayOpen}
             onOpenChange={(open) => {
@@ -179,34 +208,32 @@ export function TaskDetails({ item }: { item: Item }) {
         <Field label="Time" htmlFor={`${ids}-at`}>
           <TimeField
             id={`${ids}-at`}
-            value={item.do_at?.slice(0, 5) ?? ''}
+            value={dates.do_at?.slice(0, 5) ?? ''}
             onChange={(e) => setTime(e.target.value)}
           />
         </Field>
         <Field label="Due" htmlFor={`${ids}-due`}>
           <DateField
             id={`${ids}-due`}
-            value={item.due_on}
-            late={item.status !== 'done' && item.due_on !== null && item.due_on < today}
-            onChange={(day) => updateItem(item.id, { due_on: day })}
+            value={dates.due_on}
+            late={dates.status !== 'done' && dates.due_on !== null && dates.due_on < today}
+            onChange={(day) => onDates({ due_on: day })}
           />
         </Field>
         <Field label="Repeat" htmlFor={`${ids}-repeat`}>
           <RepeatField
             id={`${ids}-repeat`}
             value={repeat}
-            startsOn={repeatStart(item, today)}
-            describeFrom={series.get(item.series_id ?? '')?.starts_on}
-            onChange={setRepeatTo}
+            startsOn={startsOn}
+            describeFrom={describeFrom}
+            onChange={onRepeat}
           />
         </Field>
       </div>
-      <Field label="Reminders">
-        <ItemReminders item={item} />
-      </Field>
+      <Field label="Reminders">{reminders}</Field>
       <Field label="Labels">
         <div className="flex flex-wrap items-center gap-1.5">
-          {byName
+          {labels
             .filter((l) => chosen.has(l.id))
             .map((l) => (
               <Badge key={l.id}>{l.name}</Badge>
@@ -217,22 +244,73 @@ export function TaskDetails({ item }: { item: Item }) {
                 Add
               </Button>
             }
-            labels={byName}
+            labels={labels}
             chosen={chosen}
-            onToggle={(id, on) => (on ? addLabel(item.id, id) : removeLabel(item.id, id))}
-            onCreate={(name) => addLabel(item.id, createLabel(name))}
+            onToggle={onToggleLabel}
+            onCreate={onCreateLabel}
           />
         </div>
       </Field>
       <Field label="Sub-tasks">
         <SubtaskList
           subtasks={subtasks}
-          onToggle={(id, done) => updateSubtask(item.id, id, { done })}
-          onRename={(id, title) => updateSubtask(item.id, id, { title })}
-          onRemove={(id) => removeSubtask(item.id, id)}
-          onAdd={(title) => addSubtask(item.id, title)}
+          onToggle={onToggleSubtask}
+          onRename={onRenameSubtask}
+          onRemove={onRemoveSubtask}
+          onAdd={onAddSubtask}
         />
       </Field>
     </div>
+  )
+}
+
+/**
+ * Everything about a Task (TSK-002), each change kept as it is made. A
+ * change to one occurrence of a repeat is to that one alone; a new repeat
+ * applies from it on (TSK-011).
+ */
+export function TaskDetails({ item }: { item: Item }) {
+  const [notes, setNotes, flushNotes] = useKeptText(item.id, 'body', item.body ?? '')
+  const { labels, itemLabels } = useLabels(queue)
+  const subtasks = useSubtasks(queue).filter((s) => s.item_id === item.id)
+  const settings = useSettings(queue)
+  const reminders = useReminders(queue)
+  const series = useSeriesById()
+  const repeat = repeatOf(item, series)
+
+  const chosen = new Set(itemLabels.filter((r) => r.item_id === item.id).map((r) => r.label_id))
+  const setRepeatTo = (next: Repeat | null) => {
+    if (!next) return stopRepeat(item.id)
+    repeatTask(item, next, {
+      labelIds: [...chosen],
+      timezone: settings.timezone,
+      reminders: reminders
+        .filter((r) => r.item_id === item.id && r.anchor && !r.is_default)
+        .map((r) => ({ anchor: r.anchor!, offset_days: r.offset_days, at_time: r.at_time })),
+    })
+  }
+
+  return (
+    <TaskFields
+      notes={notes}
+      onNotesChange={setNotes}
+      onNotesBlur={flushNotes}
+      dates={item}
+      onDates={(patch) => updateItem(item.id, patch)}
+      repeat={repeat}
+      onRepeat={setRepeatTo}
+      startsOn={repeatStart(item, isoDayOf(new Date()))}
+      describeFrom={series.get(item.series_id ?? '')?.starts_on}
+      reminders={<ItemReminders item={item} />}
+      labels={[...labels].sort((a, b) => a.name.localeCompare(b.name))}
+      chosen={chosen}
+      onToggleLabel={(id, on) => (on ? addLabel(item.id, id) : removeLabel(item.id, id))}
+      onCreateLabel={(name) => addLabel(item.id, createLabel(name))}
+      subtasks={subtasks}
+      onAddSubtask={(title) => addSubtask(item.id, title)}
+      onToggleSubtask={(id, done) => updateSubtask(item.id, id, { done })}
+      onRenameSubtask={(id, title) => updateSubtask(item.id, id, { title })}
+      onRemoveSubtask={(id) => removeSubtask(item.id, id)}
+    />
   )
 }

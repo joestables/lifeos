@@ -3,7 +3,15 @@ import { describeRule } from '@lifeos/recurrence'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { SquareCheckBigIcon } from 'lucide-react'
 import { useMemo, useState } from 'react'
-import { AddRow, EmptyState, PageHeader, SectionLabel, TypeScope } from '@/components/lifeos'
+import {
+  AddRow,
+  EmptyState,
+  PageAction,
+  PageHeader,
+  SectionLabel,
+  TabsRow,
+  TypeScope,
+} from '@/components/lifeos'
 import { Badge } from '@/components/ui/badge'
 import {
   Accordion,
@@ -12,7 +20,7 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { useOpenCapture } from '@/app/open-capture'
+import { NewTaskDialog } from '@/app/new-task'
 import { createTaskFrom } from '@/app/task-actions'
 import { useTaskFacts } from '@/app/task-facts'
 import { TaskRow } from '@/app/task-row'
@@ -39,7 +47,7 @@ export const Route = createFileRoute('/_app/tasks')({
 function Tasks() {
   const { view = 'all' } = Route.useSearch()
   const navigate = useNavigate()
-  const openCapture = useOpenCapture()
+  const [adding, setAdding] = useState(false)
   const { items, isLoading } = useItems(queue)
   const facts = useTaskFacts()
   const now = new Date()
@@ -63,29 +71,30 @@ function Tasks() {
 
   return (
     <TypeScope colour="blue">
-      <PageHeader
-        title="Tasks"
-        action={{ label: 'New task', onClick: () => openCapture('task') }}
-      />
+      <PageHeader title="Tasks" action={{ label: 'New task', onClick: () => setAdding(true) }} />
+      {adding && <NewTaskDialog onClose={() => setAdding(false)} />}
       <div className="flex max-w-3xl flex-col gap-5 px-5 pb-28 sm:px-9 sm:pb-8">
-        <Tabs
-          value={view}
-          onValueChange={(value: View) =>
-            void navigate({
-              to: '.',
-              search: (prev) => ({ ...prev, view: value === 'all' ? undefined : value }),
-              replace: true,
-            })
-          }
-        >
-          <TabsList aria-label="View">
-            {VIEWS.map((v) => (
-              <TabsTrigger key={v.value} value={v.value}>
-                {v.label}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-        </Tabs>
+        <TabsRow>
+          <Tabs
+            value={view}
+            onValueChange={(value: View) =>
+              void navigate({
+                to: '.',
+                search: (prev) => ({ ...prev, view: value === 'all' ? undefined : value }),
+                replace: true,
+              })
+            }
+          >
+            <TabsList aria-label="View">
+              {VIEWS.map((v) => (
+                <TabsTrigger key={v.value} value={v.value}>
+                  {v.label}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
+          <PageAction label="New task" onClick={() => setAdding(true)} />
+        </TabsRow>
         {!isLoading && !hasTasks && <EmptyState icon={SquareCheckBigIcon} title="No tasks yet" />}
 
         {view === 'all' &&

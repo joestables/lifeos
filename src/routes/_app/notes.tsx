@@ -5,8 +5,10 @@ import {
   EmptyState,
   NoteCard,
   NoteGrid,
+  PageAction,
   PageHeader,
   SectionLabel,
+  TabsRow,
   TypeScope,
 } from '@/components/lifeos'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -79,27 +81,31 @@ function Notes() {
     <TypeScope colour="yellow">
       <PageHeader title="Notes" action={{ label: 'New note', onClick: newNote }} />
       <div className="flex flex-col gap-5 px-5 pb-28 sm:px-9 sm:pb-8">
-        {tabs.length > 0 && (
-          <Tabs
-            value={current ?? 'all'}
-            onValueChange={(value: string) =>
-              void navigate({
-                to: '.',
-                search: (prev) => ({ ...prev, label: value === 'all' ? undefined : value }),
-                replace: true,
-              })
-            }
-          >
-            <TabsList aria-label="Label">
-              <TabsTrigger value="all">All</TabsTrigger>
-              {tabs.map((t) => (
-                <TabsTrigger key={t.id} value={t.id}>
-                  {t.name}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </Tabs>
-        )}
+        {/* Nothing in it on a phone without Labels, where the Fab is New note. */}
+        <TabsRow className={tabs.length === 0 ? 'max-md:hidden' : undefined}>
+          {tabs.length > 0 && (
+            <Tabs
+              value={current ?? 'all'}
+              onValueChange={(value: string) =>
+                void navigate({
+                  to: '.',
+                  search: (prev) => ({ ...prev, label: value === 'all' ? undefined : value }),
+                  replace: true,
+                })
+              }
+            >
+              <TabsList aria-label="Label">
+                <TabsTrigger value="all">All</TabsTrigger>
+                {tabs.map((t) => (
+                  <TabsTrigger key={t.id} value={t.id}>
+                    {t.name}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+            </Tabs>
+          )}
+          <PageAction label="New note" onClick={newNote} />
+        </TabsRow>
         {!isLoading && notes.length === 0 && (
           <EmptyState icon={StickyNoteIcon} title="No notes yet" />
         )}
