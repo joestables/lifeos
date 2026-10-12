@@ -2,7 +2,7 @@
 
 Newest first. Each entry is added in its own pull request.
 
-## Not yet opened — Stage 2, step 9: Tasks
+## [#7](https://github.com/joestables/lifeos/pull/7) — Stage 2, step 9: Tasks
 
 Branch `claude/kind-dijkstra-1kv0xt` · 2026-10-12
 
