@@ -46,8 +46,10 @@ Branch `claude/kind-dijkstra-1kv0xt` · 2026-10-12
   jump; the design screenshot test waits for its page to be drawn (it
   sometimes caught a blank page).
 - One migration (undoing a conversion, the default Reminder, past
-  Reminders, Label aliases, the nightly run, stuck notifications), 11 new
+  Reminders, Label aliases, the nightly run, stuck notifications), 12 new
   database tests, and browser tests for each change on desktop and phone.
+- Live: the migration is applied as `20261012214527`; the advisors found
+  nothing new.
 
 ## [#10](https://github.com/joestables/lifeos/pull/10) — Stage 2, step 12: Search
 
