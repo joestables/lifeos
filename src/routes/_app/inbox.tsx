@@ -62,7 +62,7 @@ function Inbox() {
             </SectionLabel>
             <div className="flex flex-col gap-1.5">
               {overdue.map((t) => (
-                <TaskRow key={t.id} task={t} now={now} {...facts.of(t.id)} />
+                <TaskRow key={t.id} task={t} now={now} {...facts.of(t)} />
               ))}
             </div>
           </section>
@@ -72,7 +72,7 @@ function Inbox() {
             <SectionLabel count={today.length}>Today</SectionLabel>
             <div className="flex flex-col gap-1.5">
               {today.map((t) => (
-                <TaskRow key={t.id} task={t} now={now} {...facts.of(t.id)} />
+                <TaskRow key={t.id} task={t} now={now} {...facts.of(t)} />
               ))}
             </div>
           </section>

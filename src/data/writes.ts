@@ -2,6 +2,7 @@ import { newId } from './ids'
 import { sameName, type Label } from './labels'
 import { nextPosition } from './subtasks'
 import type { WriteQueue } from './queue/queue'
+import type { RepeatArgs } from './series'
 import type { ItemFields } from './types'
 
 /**
@@ -94,6 +95,27 @@ export function writes(queue: WriteQueue, labelsNow: () => readonly Label[] = ()
     },
     removeSubtask(itemId: string, id: string): void {
       queue.enqueue('remove_subtask', { p_id: id }, [itemId])
+    },
+
+    /**
+     * Makes a Task repeat, or changes its repeat from it on, with the window
+     * the device worked out (TSK-008, TSK-011, ADR-0045).
+     */
+    setRepeat(args: RepeatArgs): void {
+      queue.enqueue('set_repeat', args, [args.p_item])
+    },
+    /** It is the last of its series (TSK-011). */
+    stopRepeat(itemId: string): void {
+      queue.enqueue('stop_repeat', { p_item: itemId }, [itemId])
+    },
+    /** Ticks a Task repeated after completion, making its next (TSK-009). */
+    completeOccurrence(itemId: string, nextOn: string): string {
+      const id = newId()
+      queue.enqueue('complete_occurrence', { p_id: itemId, p_next: id, p_next_on: nextOn }, [
+        itemId,
+        id,
+      ])
+      return id
     },
 
     /** Pins a Note or stars a Task, for me alone. */

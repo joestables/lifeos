@@ -43,6 +43,7 @@ import {
   PageHeader,
   PlanCard,
   SectionLabel,
+  RepeatField,
   SubtaskList,
   SwipeAction,
   SyncStatus,
@@ -117,7 +118,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import { Progress } from '@/components/ui/progress'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { RadioCard, RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import {
   Select,
   SelectContent,
@@ -592,7 +593,37 @@ function DesignPage() {
                 <Label htmlFor="d-at">Time</Label>
                 <TimeField id="d-at" defaultValue="18:30" />
               </div>
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="d-repeat">Repeat</Label>
+                <RepeatField
+                  id="d-repeat"
+                  value={{ mode: 'schedule', rule: 'FREQ=WEEKLY;BYDAY=MO' }}
+                  startsOn="2026-10-12"
+                  onChange={() => {}}
+                />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="d-repeat-none">Repeat</Label>
+                <RepeatField
+                  id="d-repeat-none"
+                  value={null}
+                  startsOn="2026-10-12"
+                  onChange={() => {}}
+                />
+              </div>
             </div>
+            <RadioGroup
+              aria-label="Repeats"
+              defaultValue="schedule"
+              className="gap-2.5 sm:grid-cols-2"
+            >
+              <RadioCard value="schedule" title="On a schedule" description="On set days" />
+              <RadioCard
+                value="after_completion"
+                title="After it's done"
+                description="A while after you tick it"
+              />
+            </RadioGroup>
             <SubtaskList
               subtasks={[
                 { id: 'a', title: 'Get a quote from Admiral', done: true },

@@ -24,11 +24,17 @@ Task repeated *after completion*.
 - **A nightly Edge Function makes the rest.** `pg_cron` calls
   `extend-series` through `pg_net` at 02:00 UTC (before the 03:00 health
   check), with a secret kept in Vault. For each series it:
-  - makes occurrences up to 12 weeks ahead, in the series' timezone;
+  - makes occurrences up to 12 weeks ahead, in the series' timezone, and
+    always the first one beyond, so a yearly Task's next exists once this
+    one is ticked (the device's first window is the same);
   - makes the next occurrence of an after-completion series whose last one
     is done and has none open, if nothing made it then;
   - closes untouched occurrences older than a series' newest due one as
-    *skipped*.
+    *skipped*. The app hides those already, so nothing waits on the run.
+- **Days, not instants.** The engine works in calendar days; an
+  occurrence's do-on date and time are local, so the clocks changing can't
+  move it, and its Reminder's instant is worked out by the database in the
+  person's timezone.
 - **Running twice does no harm.** An occurrence is unique by its series and
   the date the series made it for (`occurrence_on`, which stays put when the
   occurrence is moved), and the window is recorded in `generated_until`, so

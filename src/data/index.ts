@@ -15,6 +15,7 @@ import {
 } from './labels'
 import { queryClient } from './queryClient'
 import { applyPendingReminders, remindersKey, type Reminder } from './reminders'
+import { applyPendingSeries, seriesKey, type Series } from './series'
 import { applyPendingSubtasks, subtasksKey, type Subtask } from './subtasks'
 import { indexedDbQueueStore, WriteQueue } from './queue'
 import type { QueueEntry } from './queue/store'
@@ -34,8 +35,24 @@ const collections: {
   fold: (rows: never, e: QueueEntry) => unknown
 }[] = [
   {
+    // Before Items: a series is laid over the Items as they were.
+    key: seriesKey,
+    fns: ['set_repeat', 'stop_repeat'],
+    fold: (rows: Series[], e: QueueEntry) =>
+      applyPendingSeries(rows, [e], queryClient.getQueryData<ItemRow[]>(itemsKey) ?? []),
+  },
+  {
     key: itemsKey,
-    fns: ['create_item', 'update_item', 'archive_item', 'restore_item', 'convert_item'],
+    fns: [
+      'create_item',
+      'update_item',
+      'archive_item',
+      'restore_item',
+      'convert_item',
+      'set_repeat',
+      'stop_repeat',
+      'complete_occurrence',
+    ],
     fold: (rows: ItemRow[], e: QueueEntry) => foldSent(rows, e),
   },
   {
@@ -45,14 +62,30 @@ const collections: {
   },
   {
     key: itemLabelsKey,
-    fns: ['add_label', 'remove_label', 'delete_label', 'convert_item'],
+    fns: [
+      'add_label',
+      'remove_label',
+      'delete_label',
+      'convert_item',
+      'set_repeat',
+      'complete_occurrence',
+    ],
     fold: (rows: Parameters<typeof applyPendingItemLabels>[0], e: QueueEntry) =>
       applyPendingItemLabels(rows, [e]),
   },
   {
     key: remindersKey,
     // A Task's default Reminder is made and moved by the server with its dates.
-    fns: ['add_reminder', 'remove_reminder', 'create_item', 'update_item', 'convert_item'],
+    fns: [
+      'add_reminder',
+      'remove_reminder',
+      'create_item',
+      'update_item',
+      'convert_item',
+      'set_repeat',
+      'stop_repeat',
+      'complete_occurrence',
+    ],
     fold: (rows: Reminder[], e: QueueEntry) => applyPendingReminders(rows, [e]),
   },
   {
@@ -105,6 +138,9 @@ export const {
   addSubtask,
   updateSubtask,
   removeSubtask,
+  setRepeat,
+  stopRepeat,
+  completeOccurrence,
 } = writes(queue, labelsNow)
 
 export const { unsentWrites, signOut } = session(queue)
@@ -119,6 +155,7 @@ export {
   useOnline,
   useQueueEntries,
   useReminders,
+  useSeries,
   useSettings,
   useSubtasks,
   useSyncCounts,
@@ -127,6 +164,7 @@ export { newId } from './ids'
 export type { Label } from './labels'
 export { noteAction, reportEvent, startReporting } from './report'
 export type { Reminder } from './reminders'
+export type { RepeatArgs, RepeatMode, Series, SeriesTemplate } from './series'
 export type { Settings } from './settings'
 export type { Subtask } from './subtasks'
 export type { Item, ItemFields, SyncState } from './types'

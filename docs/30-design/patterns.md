@@ -162,12 +162,12 @@ NoteEditor and LabelPicker in [components](components.md).
 
 ## Tasks
 
-[TSK-001–007](../10-requirements/views/tasks.md#requirements); TaskDetails,
-DateField, TimeField, SubtaskList and AddRow in
+[TSK-001–011](../10-requirements/views/tasks.md#requirements); TaskDetails,
+DateField, TimeField, RepeatField, SubtaskList and AddRow in
 [components](components.md).
 
-- Under the title, Tabs: All tasks, By label, Recurring (with repeating
-  Tasks), Completed.
+- Under the title, Tabs: All tasks, By label, Recurring, Completed.
+- A repeating Task shows only its next open occurrence, in every list.
 - **All tasks**: Overdue, Today, Tomorrow, each remaining day of this week by
   its name, Later, No date, Someday; each a SectionLabel and its rows,
   hidden when empty. A Task sits under its do-on date, or its due date when
@@ -176,14 +176,25 @@ DateField, TimeField, SubtaskList and AddRow in
   each open; a Task with two Labels is under both, and rows leave Labels
   out of their meta. Each Label's group ends with an AddRow, "Add a task",
   which gives the new Task that Label.
+- **Recurring**: "On a schedule", then "After it's done", each a
+  SectionLabel and rows of each repeating Task's next occurrence, soonest
+  first; the row's meta gives its day and its repeat in full ("Every
+  Monday").
 - **Completed**: done Tasks, most recently changed first.
 - A Task's row: its Checkbox (ticking it is done, with Undo), then title and
-  meta: time, "Since Thu", the due date (red once passed), Labels,
-  sub-tasks "2/5"; on hover Tomorrow and the star; the "…" menu holds
+  meta: time, "Since Thu", the due date (red once passed), its repeat
+  (`repeat` and "Weekly"), Labels, sub-tasks "2/5"; on hover Tomorrow and the star; the "…" menu holds
   Tomorrow, Someday and Delete. A starred Task shows its filled star.
 - "New task" opens capture as a Task.
 - Setting a time with no do-on date opens the do-on Calendar to ask for the
   day.
+- **Repeat** sits with Do on, Time and Due. It opens a Dialog, "Repeat": a
+  RadioGroup of `cards` ("On a schedule", "After it's done"), then Every
+  (a number and a Select of Days, Weeks, Months, Years); on a schedule, also
+  On (a ToggleGroup of the days of the week, or a Select of "Day 12", "The
+  second Monday", "The last Monday", "The last day") and Ends (Never, On a
+  date, After a number of times). Footer: "Don't repeat" (outline, on the
+  left, once it repeats), Cancel, Save.
 
 ## Settings
 
@@ -232,10 +243,9 @@ DateField, TimeField, SubtaskList and AddRow in
 - Fields are filled, never outlined. Two short fields may sit side by side.
 - The primary action is last on the right (full width on a phone); Cancel or
   Close is an outline button beside it.
-- **Choosing between options that each need explaining** (changing a
-  repeat: "This task", "This and following", "All"): a RadioGroup of
-  `cards`; the chosen card has a ring, never a fill, and a primary Save
-  confirms.
+- **Choosing between options that each need explaining** (how a Task
+  repeats: "On a schedule", "After it's done"): a RadioGroup of `cards`; the
+  chosen card has a ring, never a fill, and a primary Save confirms.
 
 ## States
 

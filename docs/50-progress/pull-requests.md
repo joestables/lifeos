@@ -2,6 +2,48 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#8](https://github.com/joestables/lifeos/pull/8) — Stage 2, step 10: repeating Tasks
+
+Branch `claude/kind-dijkstra-1kv0xt` · 2026-10-12
+
+**What it did**
+- Plan step 10. `packages/recurrence`, the one repeat engine
+  ([ADR-0045](../20-architecture/adr/0045-extending-series.md)), ported from
+  v1 with its cases and no dependencies, now in calendar days: daily, every
+  weekday, weekly on chosen days, every N days, weeks, months or years,
+  monthly on a date, the nth or last weekday or the last day, yearly
+  (skipping 29 February), an end by date or count, after completion, and
+  the window a run makes. The app and the Edge Function import the same
+  files.
+- A Task's Repeat field opens the Repeat Dialog (the first RadioGroup of
+  `cards`: on a schedule, or after it's done). The device works out twelve
+  weeks of occurrences and the one after, and `core.set_repeat` writes the
+  series and them in one call, offline too. Changing the repeat of an
+  occurrence starts a new series from it, keeping occurrences I had
+  changed; "Don't repeat" stops it there. Ticking a Task repeated after
+  it's done makes its next (`core.complete_occurrence`).
+- Only a series' next open occurrence shows, in Tasks and Inbox; one
+  overtaken by a newer due one is skipped unless I changed it. Rows show
+  the repeat ("Weekly"); the Recurring view lists each repeating Task once,
+  on a schedule then after it's done, with its repeat in full. Occurrences
+  a repeat took away stay out of Recently deleted (ITM-003).
+- The nightly run: the `extend-series` Edge Function, called at 02:00 UTC
+  by the `nightly-series` job through `pg_net` with a secret in Vault, keeps
+  every series twelve weeks ahead, makes a missing after-completion next,
+  skips overtaken occurrences and records its heartbeat, which the health
+  check now watches ([runbook](../40-operations/runbook.md#the-nightly-series-run)).
+- ADR-0045 now says each window includes the first occurrence beyond it,
+  so ticking a yearly Task still shows the next, and that the engine works
+  in days. 38 engine tests, 27 database tests, 5 tests of the nightly run,
+  11 more unit tests and 5 browser tests (each on desktop and phone).
+- Live: the migration is applied as `20261012024305`; `extend-series` is
+  deployed; Vault holds `project_url` and `series_secret` (made in the
+  database, never copied out); a run by hand made the heartbeat, and a call
+  with the wrong secret was refused. The secret is checked against Vault by
+  the database, so nobody types a copy into the dashboard. `pg_net` was left
+  in `public`: moving it hangs on the live project
+  ([runbook](../40-operations/runbook.md#the-nightly-series-run)).
+
 ## [#7](https://github.com/joestables/lifeos/pull/7) — Stage 2, step 9: Tasks
 
 Branch `claude/kind-dijkstra-1kv0xt` · 2026-10-12
