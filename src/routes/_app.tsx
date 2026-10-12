@@ -18,6 +18,8 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { CaptureProvider } from '@/app/capture'
 import { useOpenCapture } from '@/app/open-capture'
 import { ItemPopup } from '@/app/items'
+import { useOpenSearch } from '@/app/open-search'
+import { SearchProvider } from '@/app/search'
 import { authReady, queue, useAuth, useItems, useOnline, useSyncCounts } from '@/data'
 import { inboxCount, inboxGroups } from '@/lib/inbox'
 
@@ -66,14 +68,16 @@ function SignedIn() {
 
   return (
     <CaptureProvider>
-      <Shell
-        name={auth.me.name}
-        item={item}
-        isNew={isNew === 'note'}
-        outOfDate={outOfDate}
-        online={online}
-        waiting={waiting}
-      />
+      <SearchProvider>
+        <Shell
+          name={auth.me.name}
+          item={item}
+          isNew={isNew === 'note'}
+          outOfDate={outOfDate}
+          online={online}
+          waiting={waiting}
+        />
+      </SearchProvider>
     </CaptureProvider>
   )
 }
@@ -97,9 +101,11 @@ function Shell({
 }) {
   const sync = useSyncCounts(queue)
   const openCapture = useOpenCapture()
+  const openSearch = useOpenSearch()
   return (
     <AppShell
       onCapture={() => openCapture()}
+      onSearch={openSearch}
       pages={PAGES.map((p) => (p.to === '/inbox' && waiting > 0 ? { ...p, count: waiting } : p))}
       me={{ name, space: 'Personal' }}
       sync={sync}

@@ -39,8 +39,10 @@ AppShell
   `dumbbell`, Goals `target`, Wardrobe `shirt`, Cardio `footprints`, Finance
   `wallet`.
 - The header holds the brand (the app icon at 24px, then "LifeOS" at 16px
-  weight 750) and, from Stage 2, Search; the foot holds SyncStatus and your row
-  (Avatar, name, Space). Your row opens Settings, where Sign out is.
+  weight 750) and, on its right, Search: a muted ghost `search` button, with
+  "Search /" in a Tooltip on a computer, 44px in a phone's drawer. The foot
+  holds SyncStatus and your row (Avatar, name, Space). Your row opens
+  Settings, where Sign out is.
 
 ## The app icon
 
@@ -145,6 +147,28 @@ the CaptureDialog in [components](components.md).
   else "Fri 23 Oct".
 - A toast says what was made, with Undo: "Thought saved", "Task saved · Fri
   18:00".
+
+## Search
+
+[SRC-001, SRC-002](../10-requirements/cross-cutting/search.md#requirements);
+Command in [components](components.md). Neutral, as it mixes Types.
+
+- Opens from the drawer's Search button, or with / on a computer (not while
+  typing in a field, nor over a Dialog), ready to type: a Dialog near the top
+  on a computer; on a phone, the Search page, which keeps what was typed so
+  going back from a result finds it again.
+- Results come as I type, best match first, grouped by Type ("Tasks",
+  "Notes", "Thoughts"), each group where its best result is. Each shows a
+  small TypeTile, its title and one muted line, the words matched in bold.
+- The line: the line of its body the search found; else its Labels, if they
+  matched; else a Task's day and time, its due date (red once passed),
+  "Completed Sun 4 Oct" or "Someday", or when a Thought was captured.
+- The arrow keys move the highlight; Enter or a tap opens the Item where its
+  Type opens ([Opening an Item](#opening-an-item)), closing the Dialog.
+- Nothing matching: "Nothing found". Offline, or with the server out of
+  reach, the Items on the device are searched, and a muted line with
+  `cloud-off` says "Offline · Results may be incomplete" (or "Can't reach
+  LifeOS · …").
 
 ## Notes
 

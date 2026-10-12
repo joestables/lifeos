@@ -182,6 +182,7 @@ export {
   useSyncCounts,
 } from './hooks'
 export { newId } from './ids'
+export { searchItemIds, searchKey } from './search'
 export type { Label } from './labels'
 export { noteAction, reportEvent, startReporting } from './report'
 export type { Reminder, ReminderFields } from './reminders'

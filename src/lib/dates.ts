@@ -90,6 +90,14 @@ export function dueWhen(day: string, now: Date = new Date()): string {
   return `Due ${shortDate(fromIsoDay(day))}`
 }
 
+/** When a Task was done: "Completed today", "Completed yesterday", else "Completed Sun 4 Oct". */
+export function doneWhen(iso: string, now: Date = new Date()): string {
+  const days = daysFrom(now, isoDayOf(new Date(iso)))
+  if (days === 0) return 'Completed today'
+  if (days === -1) return 'Completed yesterday'
+  return `Completed ${shortDate(new Date(iso))}`
+}
+
 /** A do-on date already past, as Inbox's Today shows it: "Since yesterday", "Since Thu", "Since Fri 2 Oct". */
 export function sinceWhen(day: string, now: Date = new Date()): string {
   const days = daysFrom(now, day)

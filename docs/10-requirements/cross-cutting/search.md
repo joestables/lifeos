@@ -16,6 +16,11 @@ Stage 2, are at the end.*
 - Search is **neutral**: it mixes Types, so each result shows its Type's
   colour ([ADR-0043](../../20-architecture/adr/0043-colour-by-type.md),
   Provisionally agreed).
+- On a computer it opens over the page; on a phone it is a page of its own,
+  which keeps what was typed for going back to
+  ([patterns](../../30-design/patterns.md#search)).
+- A repeating Task is found once, as its lists show it
+  ([TSK-008](../views/tasks.md#requirements)).
 
 ## Requirements
 
@@ -25,7 +30,7 @@ Stage 2, are at the end.*
 
 **As** Joe, **I want** to type a few words and find the Item, **so that** I
 never hunt through pages.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified
 
 Acceptance criteria
 1. Given any page, then Search opens from the navigation, or with one key
@@ -41,7 +46,7 @@ Acceptance criteria
 
 **As** Joe with no signal, **I want** to find Items I've already loaded,
 **so that** search still helps offline.
-Priority: Could · Status: agreed
+Priority: Could · Status: verified
 
 Acceptance criteria
 1. Given I have no connection, when I search, then the Items held on the
