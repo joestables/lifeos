@@ -187,7 +187,7 @@ test("TSK-002, TSK-005, TSK-006: a Task's details, each kept as it is changed", 
   await task.getByRole('textbox', { name: 'Add a sub-task' }).fill('File the certificate')
   await task.getByRole('textbox', { name: 'Add a sub-task' }).press('Enter')
 
-  await task.getByRole('button', { name: 'Add' }).click()
+  await task.getByRole('button', { name: 'Add', exact: true }).click()
   await page.getByRole('checkbox', { name: 'Home' }).click()
   await page.keyboard.press('Escape')
 

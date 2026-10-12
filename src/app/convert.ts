@@ -20,7 +20,7 @@ import { typeLook } from '@/lib/item-types'
  * default Reminder fires at the same moment.
  */
 export function useConvert() {
-  const settings = useSettings()
+  const settings = useSettings(queue)
   const reminders = useReminders(queue)
   return (item: Item, type: string) => {
     convertItem(item.id, type)

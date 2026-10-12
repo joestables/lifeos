@@ -14,9 +14,13 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Card } from '@/components/ui/card'
 import { LabelsCard } from '@/app/labels'
+import { NotificationsCard, RemindersCard } from '@/app/notification-settings'
 import { queue, signOut, unsentWrites, useDeletedItems, useLabels } from '@/data'
 
-/** Settings: Labels, Recently deleted and signing out (ITM-003, ITM-005, ACC-003). */
+/**
+ * Settings: notifications and Reminders, Labels, Recently deleted and signing
+ * out (REM-001, REM-007, REM-008, ITM-003, ITM-005, ACC-003).
+ */
 export const Route = createFileRoute('/_app/settings/')({
   component: Settings,
 })
@@ -38,6 +42,10 @@ function Settings() {
     <>
       <PageHeader title="Settings" />
       <div className="flex max-w-3xl flex-col gap-4 px-5 pb-8 sm:px-9">
+        <div className="grid items-start gap-4 md:grid-cols-2">
+          <NotificationsCard />
+          <RemindersCard />
+        </div>
         <div className="hidden md:block">
           <LabelsCard />
         </div>

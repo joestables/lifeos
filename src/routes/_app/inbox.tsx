@@ -19,6 +19,7 @@ import {
 import { useConvert } from '@/app/convert'
 import { deleteItem, useOpenItem } from '@/app/item-navigation'
 import { MoreMenu } from '@/app/more-menu'
+import { NotificationsOffer } from '@/app/notifications-offer'
 import { useOpenCapture } from '@/app/open-capture'
 import { useTaskFacts } from '@/app/task-facts'
 import { TaskRow } from '@/app/task-row'
@@ -54,6 +55,7 @@ function Inbox() {
     <>
       <PageHeader title="Inbox" />
       <div className="flex max-w-3xl flex-col gap-5 px-5 pb-28 sm:px-9 sm:pb-8">
+        <NotificationsOffer />
         {!isLoading && empty && <EmptyState icon={InboxIcon} title="Nothing needs you" />}
         {overdue.length > 0 && (
           <section>

@@ -8,7 +8,7 @@ function Alert({ className, ...props }: React.ComponentProps<'div'>) {
       role="status"
       data-slot="alert"
       className={cn(
-        'grid grid-cols-[auto_1fr] items-start gap-x-3 gap-y-0.5 rounded-lg bg-card px-4 py-3 shadow-card [&>svg]:row-span-2 [&>svg]:mt-0.5 [&>svg]:size-4 [&>svg]:text-muted-foreground',
+        'grid grid-cols-[auto_1fr] items-start gap-x-3 sm:has-data-[slot=alert-action]:grid-cols-[auto_1fr_auto] gap-y-0.5 rounded-lg bg-card px-4 py-3 shadow-card [&>svg]:row-span-2 [&>svg]:mt-0.5 [&>svg]:size-4 [&>svg]:text-muted-foreground',
         className,
       )}
       {...props}
@@ -32,4 +32,18 @@ function AlertDescription({ className, ...props }: React.ComponentProps<'div'>) 
   )
 }
 
-export { Alert, AlertDescription, AlertTitle }
+/** What to do about it, on the right: one or two small buttons. */
+function AlertAction({ className, ...props }: React.ComponentProps<'div'>) {
+  return (
+    <div
+      data-slot="alert-action"
+      className={cn(
+        'col-start-2 mt-2 flex items-center gap-1.5 sm:col-start-3 sm:row-span-2 sm:row-start-1 sm:mt-0 sm:self-center',
+        className,
+      )}
+      {...props}
+    />
+  )
+}
+
+export { Alert, AlertAction, AlertDescription, AlertTitle }

@@ -25,7 +25,8 @@ import { convertTargets, itemTitle, MARK_LABEL, opensAsPage, typeLook } from '@/
 import { useConvert } from './convert'
 import { deleteItem, draftNote, useCloseItem } from './item-navigation'
 import { NoteBody } from './note-body'
-import { TaskDetails, TaskTitle } from './task-details'
+import { ItemReminders } from './item-reminders'
+import { Field, TaskDetails, TaskTitle } from './task-details'
 
 /** An Item's mark (star, pin) and its "…" menu: Convert to, Delete. */
 export function ItemActions({ item, onDelete }: { item: Item; onDelete: () => void }) {
@@ -136,6 +137,14 @@ export function ItemPopup({ id, isNew = false }: { id: string | undefined; isNew
     >
       {item.type === 'task' ? (
         <TaskDetails key={item.id} item={item} />
+      ) : item.type === 'thought' ? (
+        // A Thought: its text, and Reminders at a set time (REM-003).
+        <div className="flex flex-col gap-4">
+          <ItemContent item={item} />
+          <Field label="Reminders">
+            <ItemReminders item={item} />
+          </Field>
+        </div>
       ) : (
         item.type !== 'note' && <ItemContent item={item} />
       )}

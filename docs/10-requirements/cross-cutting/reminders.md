@@ -24,6 +24,13 @@ first; the requirements, drafted at the start of Stage 2, are at the end.*
   from the Home Screen app, and its notifications have no actions
   (re-checked 10 October 2026), so on the iPhone a notification opens the
   Item. Done and Snooze buttons are for Android and computers.
+- **Where they are set:** a Task's Reminders in its popup, on its do-on or
+  due date or at a set time; a Thought's at a set time. Notes get theirs
+  with their own page's menu, later.
+- **What a notification says:** the Item's title (an overdue nudge
+  "Overdue: …"), its do-on time and due date, Done (Tasks only) and "Snooze
+  1 hour". The digest says only its counts ("2 overdue · 3 today · 4 to
+  sort") and opens Inbox.
 - **Later, with the native wrapper:** alarm-grade Reminders
   ([overview](../../20-architecture/overview.md#platforms)) and location
   Reminders ("near Tesco").
@@ -37,7 +44,7 @@ notification on each platform is checked by hand.*
 
 **As** Joe, **I want** to turn notifications on for each phone and computer
 I use, **so that** Reminders reach me wherever I am.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified
 
 Acceptance criteria
 1. Given none of my devices has notifications on, then Inbox offers to turn
@@ -53,7 +60,7 @@ Acceptance criteria
 
 **As** Joe, **I want** a dated Task to remind me without my asking, **so
 that** setting a date is enough.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified
 
 Acceptance criteria
 1. Given I give a Task a do-on date with no time, then it has a Reminder at
@@ -68,7 +75,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to add, change and remove Reminders on any Item,
 **so that** I'm reminded when it suits me.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified (on Tasks and Thoughts)
 
 Acceptance criteria
 1. Given an Item, then I can add a Reminder at a fixed date and time, or,
@@ -82,7 +89,7 @@ Acceptance criteria
 
 **As** Joe, **I want** each Reminder to arrive on time and only once, **so
 that** I can trust it instead of an alarm.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified (a real notification on each device is checked by hand)
 
 Acceptance criteria
 1. Given a Reminder at 09:00, then a notification with the Item's title (and
@@ -102,7 +109,7 @@ Acceptance criteria
 
 **As** Joe on Android or a computer, **I want** to tick a Task or snooze it
 from the notification, **so that** I needn't open the app.
-Priority: Must · Status: agreed
+Priority: Must · Status: built (verified but for a press with no signal, checked by hand)
 
 Acceptance criteria
 1. Given a Task's notification, when I choose Done, then the Task is done,
@@ -116,7 +123,7 @@ Acceptance criteria
 
 **As** Joe, **I want** tapping a notification to open what it's about,
 **so that** I can act on it at once — on the iPhone above all.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified
 
 Acceptance criteria
 1. Given a notification, when I tap it, then LifeOS opens on that Item's
@@ -126,7 +133,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to set my default time and which Reminders I get
 by default, **so that** the defaults suit my day.
-Priority: Should · Status: agreed
+Priority: Should · Status: verified
 
 Acceptance criteria
 1. Given Settings, when I change my default time to 08:00, then new
@@ -139,7 +146,7 @@ Acceptance criteria
 
 **As** Joe, **I want** one notification each morning saying what needs me,
 **so that** I know the shape of the day before opening anything.
-Priority: Should · Status: agreed
+Priority: Should · Status: verified
 
 Acceptance criteria
 1. Given the digest is on (it is by default, at 07:00), then each morning
@@ -152,7 +159,7 @@ Acceptance criteria
 
 **As** Joe, **I want** a nudge when a Task goes past its due date, **so
 that** a deadline doesn't slip by quietly.
-Priority: Should · Status: agreed
+Priority: Should · Status: verified
 
 Acceptance criteria
 1. Given a Task due yesterday that isn't done, then I get one notification

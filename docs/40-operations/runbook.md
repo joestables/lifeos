@@ -40,6 +40,33 @@ Done 9 October 2026.
 - **A nightly smoke walk** of production with the test account confirms that
   sign-in, capture and Inbox still work — added once Stage 2 is in daily use.
 
+## Notifications
+
+Reminders, the morning digest and overdue nudges
+([ADR-0044](../20-architecture/adr/0044-reminder-delivery.md)):
+
+- **Each minute** the `pg_cron` job `minute-notifications` runs
+  `core_private.notifications_tick()`: it queues what has come due in
+  `core.reminder_deliveries`, one row per notification and device, and when
+  rows wait it calls `send-notifications` through `pg_net` with the Vault
+  secret `push_secret`.
+- **`send-notifications`** claims rows, sends each by Web Push with the
+  VAPID keys in Vault (it makes them the first time it runs) and records
+  each result: *sent*, *failed* (tried again next minute), *gone* (the
+  device stops being sent to and `ops.events` gets `push_device_gone`),
+  *skipped* (done or deleted meanwhile, or the digest had nothing to say)
+  or *missed* (over 12 hours late). Its heartbeat is `send-notifications`.
+- **`notification-action`** does Done and Snooze from a notification's
+  buttons, proved by the delivery's token; the service worker keeps a press
+  made with no signal and sends it later.
+- **Checking it:** `select status, count(*) from core.reminder_deliveries
+  where created_at > now() - interval '1 day' group by 1`; the 03:00 health
+  check reports rows waiting over an hour. A real notification on each
+  phone and computer is checked by hand.
+- **Deploying them:** Claude deploys both functions through the Supabase
+  MCP without JWT checks (each checks its own secret or token);
+  `notification-action` with `packages/recurrence`'s files.
+
 ## The nightly series run
 
 Repeating Tasks are made ahead by the `extend-series` Edge Function

@@ -14,10 +14,13 @@
 | **Stand-in Supabase** | What Playwright walks run against — never real data. The e2e build points at `https://stand-in.supabase.co`, and `tests/e2e/stand-in.ts` answers its calls in the browser and can start a page signed in as a made-up person. `scripts/screenshot.mjs` does the same for screenshots (`SIGNED_IN`). |
 | **Test account** | Email/password, created by hand (its address first listed in `core_private.password_accounts`), in its own Personal Space, for occasional smoke walks against the real project (nightly once Stage 2 is in daily use). |
 
-- **Secrets on the project:** the nightly series run's shared secret is in
-  Vault only (`series_secret`, with the project's URL as `project_url`),
-  set by Claude ([runbook](runbook.md#the-nightly-series-run)). Neither is
-  in the repository.
+- **Secrets on the project:** in Vault only, set by Claude or made by the
+  functions themselves: the project's URL (`project_url`), the nightly
+  series run's secret (`series_secret`,
+  [runbook](runbook.md#the-nightly-series-run)), the minute job's secret
+  for `send-notifications` (`push_secret`) and the Web Push keys
+  (`vapid_public_key`, `vapid_private_key`, [runbook](runbook.md#notifications)).
+  None is in the repository, and none is an Edge Function secret.
 - The free tier allows two *active* projects (now `lifeos` and *doorbell*);
   paused projects don't count. There is no staging database.
 - **Anyone can sign up with Google**; email/password sign-up is off, so the

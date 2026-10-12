@@ -2,6 +2,48 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#9](https://github.com/joestables/lifeos/pull/9) — Stage 2, step 11: Reminders and notifications
+
+Branch `claude/kind-dijkstra-1kv0xt` · 2026-10-12
+
+**What it did**
+- Plan step 11
+  ([ADR-0044](../20-architecture/adr/0044-reminder-delivery.md)). Each
+  minute `pg_cron` queues what has come due, one row per notification and
+  device: Reminders (up to 12 hours late, then recorded as missed), each
+  person's morning digest at their digest time ("2 overdue · 3 today · 4 to
+  sort", skipped when nothing needs them), and, for those without a digest,
+  one nudge per overdue Task at their default time. When rows wait it wakes
+  `send-notifications`, which sends them by Web Push (topic and tag so a
+  repeat replaces itself, high urgency) and records each: sent, failed and
+  tried again, gone (the device stops being sent to, and `ops.events` says
+  so), skipped (done or deleted meanwhile) or missed.
+- Done and Snooze on a notification go to `notification-action` with the
+  delivery's token; Done on a Task repeated after completion makes its
+  next with the engine; Snooze brings it back in an hour, for me only.
+- LifeOS's own service worker (vite-plugin-pwa's injectManifest): the
+  offline files as before, the notification (its title, time and buttons),
+  a tap that opens the Item in the window already open, and presses made
+  with no signal kept and sent later.
+- Settings gains Notifications (this device's "Turn on", each device with
+  its switch and Remove; "Add LifeOS to your Home Screen first" in an
+  iPhone's browser) and Reminders (default time, dated Tasks and Thoughts,
+  the morning digest and its time). Inbox offers to turn notifications on
+  while no device has them, with "Not now". A Task's popup lists its
+  Reminders, each changed or removed, and adds them on its do-on or due
+  date or at a set time; a Thought's at a set time. A repeating Task's own
+  Reminders go to each occurrence. A dated Thought's Reminder respects the
+  Thought default.
+- New in the design spec first: ReminderList, ReminderDialog, Alert's
+  action, the Settings cards and Inbox's offer. ADR-0044 now says the VAPID
+  keys are made by the sender and kept in Vault, every secret is checked
+  by the database (nothing typed into a dashboard), and the health check
+  looks for notifications waiting over an hour.
+- 29 database tests, 9 tests of the two functions, 10 unit tests and 9
+  browser tests (each on desktop and phone). A browser can't be made to
+  show a real notification in a test, so what a push becomes is a unit
+  test, and a real one on each device is checked by hand.
+
 ## [#8](https://github.com/joestables/lifeos/pull/8) — Stage 2, step 10: repeating Tasks
 
 Branch `claude/kind-dijkstra-1kv0xt` · 2026-10-12

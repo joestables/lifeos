@@ -39,7 +39,10 @@ Three groups, in this order, each hidden when empty:
 | **Today** | My open Tasks to do today or earlier, or due today | Timed ones by time, then the rest by when they were made |
 | **To sort** | My Thoughts | Newest first |
 
-With nothing in any group, the page says "Nothing needs you".
+With nothing in any group, the page says "Nothing needs you". While none
+of my devices has notifications on, an Alert above the groups offers to
+turn them on, or "Not now"
+([REM-001](../cross-cutting/reminders.md#rem-001--turn-on-notifications-for-a-device)).
 
 ## Requirements
 

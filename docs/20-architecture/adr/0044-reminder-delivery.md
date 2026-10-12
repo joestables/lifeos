@@ -26,15 +26,19 @@ tier ([ADR-0003](0003-new-supabase-project.md)).
   *missed* instead.
 - **An Edge Function sends them, only when there is something to send.**
   When rows are waiting, the job calls the `send-notifications` Edge
-  Function through `pg_net`, with a secret kept in Vault. The function claims
+  Function through `pg_net`, with a secret kept only in Vault, which the
+  function checks with the database (`core.push_secret_ok`). The function claims
   waiting rows (so two runs never take the same row), encrypts and sends each
   by Web Push with the VAPID key, and records the result: *sent*, *failed*
   (tried again next minute, until the 12 hours are up), or *gone*. A device
   the push service says is gone stops being sent to, and the failure goes to
   `ops.events` ([runbook](../../40-operations/runbook.md)).
 - **Once on the device, even if a send is repeated.** Each message carries
-  the delivery's id as its Web Push topic and its notification tag, so a
-  repeat replaces the notification rather than adding a second.
+  the delivery's id as its Web Push topic and the notification's key (its
+  Reminder, digest or nudge) as its tag, so a repeat replaces the
+  notification rather than adding a second. What it says is worked out as
+  it is sent, so a Task done meanwhile is skipped and an empty digest isn't
+  sent.
 - **Every Reminder goes to every device the person has turned on**
   (`core.push_devices`); there is no choosing per Reminder.
 - **The notification carries what it needs.** Its title, the Item's time,
@@ -45,10 +49,11 @@ tier ([ADR-0003](0003-new-supabase-project.md)).
   which checks the token and makes the change as that person. With no
   signal, the service worker keeps the action and sends it when it can (or
   when LifeOS next opens). Snooze moves only that person's Reminder an hour
-  on (`snoozed_until`).
+  on (`snoozed_until`); a snoozed nudge is queued again an hour on.
 - **Checked like any other job.** Each run of the function records a
-  heartbeat in `ops.heartbeats`; the nightly health check reports a missing
-  one.
+  heartbeat in `ops.heartbeats`. As it runs only when there is something to
+  send, the nightly health check reports notifications waiting over an hour
+  rather than a quiet heartbeat.
 
 ## Consequences
 
@@ -59,8 +64,11 @@ tier ([ADR-0003](0003-new-supabase-project.md)).
 - An idle minute costs one small query; the Edge Function runs only when
   something is sent, well inside the free tier.
 - If the project is paused, nothing is sent; Joe's daily use keeps it awake.
-- The VAPID private key and the cron secret are Edge Function secrets and
-  Vault entries; the public key is in the app's build
+- The VAPID keys are made by `send-notifications` the first time it runs
+  and kept in Vault, so the private key is never copied anywhere; the app
+  reads the public key from the database (`core.vapid_public_key`), and the
+  cron secret is a Vault entry too
   ([integration setup](../../40-operations/integration-setup.md#web-push)).
+  Nothing has to be typed into a dashboard.
 - Later, FCM for the Android wrapper is another kind of device, sent by the
   same function.

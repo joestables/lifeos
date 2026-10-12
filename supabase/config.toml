@@ -418,3 +418,11 @@ enabled = true
 # person's JWT to send.
 [functions.extend-series]
 verify_jwt = false
+
+# Woken by the minute job with its own secret (ADR-0044).
+[functions.send-notifications]
+verify_jwt = false
+
+# Called by the service worker with a delivery's token, not a session (ADR-0044).
+[functions.notification-action]
+verify_jwt = false
