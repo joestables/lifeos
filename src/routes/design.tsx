@@ -3,6 +3,7 @@ import {
   BellIcon,
   CalendarIcon,
   ChefHatIcon,
+  CloudOffIcon,
   DumbbellIcon,
   EllipsisIcon,
   FootprintsIcon,
@@ -78,6 +79,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
+import { Command, CommandDialog, type CommandGroup } from '@/components/ui/command'
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
 import {
@@ -197,6 +199,53 @@ const TYPE_SWATCHES: {
 
 const TaskIcon = TYPE_ICONS.task!
 const NoteIcon = TYPE_ICONS.note!
+
+/** Search's results for "insur", as Command shows them (components.md#command). */
+const SEARCH_GROUPS: CommandGroup[] = [
+  {
+    label: 'Tasks',
+    items: [
+      {
+        id: 'renew',
+        label: 'Renew car insurance',
+        leading: <TypeTile size="sm" colour="blue" icon={TaskIcon} />,
+        title: (
+          <>
+            Renew car <strong>insur</strong>ance
+          </>
+        ),
+        line: <span className="text-destructive">Due Thu 8 Oct</span>,
+      },
+      {
+        id: 'travel',
+        label: 'Check travel insurance covers Japan',
+        leading: <TypeTile size="sm" colour="blue" icon={TaskIcon} />,
+        title: (
+          <>
+            Check travel <strong>insur</strong>ance covers Japan
+          </>
+        ),
+        line: 'Completed Sun 4 Oct',
+      },
+    ],
+  },
+  {
+    label: 'Notes',
+    items: [
+      {
+        id: 'house',
+        label: 'House details',
+        leading: <TypeTile size="sm" colour="yellow" icon={NoteIcon} />,
+        title: 'House details',
+        line: (
+          <>
+            Home <strong>insur</strong>ance renews in January
+          </>
+        ),
+      },
+    ],
+  },
+]
 const CAPTURE_TYPES = [
   { key: 'thought', label: 'Thought', colour: 'yellow' as const, icon: TYPE_ICONS.thought! },
   { key: 'task', label: 'Task', colour: 'blue' as const, icon: TaskIcon },
@@ -218,6 +267,8 @@ function Row({ children }: { children: ReactNode }) {
 function DesignPage() {
   const [dark, setDark] = useState(() => document.documentElement.classList.contains('dark'))
   const [itemOpen, setItemOpen] = useState(false)
+  const [searchOpen, setSearchOpen] = useState(false)
+  const [search, setSearch] = useState('insur')
   const [capture, setCapture] = useState({ open: false, type: 'thought', text: 'call mum fri 6pm' })
   const [chips, setChips] = useState({ core: true, food: true, fitness: false })
   const toggleMode = () => {
@@ -887,6 +938,19 @@ function DesignPage() {
           </ScrollArea>
         </Section>
 
+        <Section title="Search (Command)">
+          <div className="max-w-xl">
+            <Command
+              variant="page"
+              label="Search"
+              value={search}
+              onValueChange={setSearch}
+              groups={SEARCH_GROUPS}
+              onChoose={() => {}}
+            />
+          </div>
+        </Section>
+
         <Section title="Overlays">
           <Row>
             <DropdownMenu>
@@ -927,6 +991,23 @@ function DesignPage() {
             <Button variant="outline" onClick={() => setCapture((c) => ({ ...c, open: true }))}>
               Capture
             </Button>
+            <Button variant="outline" onClick={() => setSearchOpen(true)}>
+              Search
+            </Button>
+            <CommandDialog open={searchOpen} onOpenChange={setSearchOpen} title="Search">
+              <Command
+                label="Search"
+                value={search}
+                onValueChange={setSearch}
+                groups={SEARCH_GROUPS}
+                status={
+                  <>
+                    <CloudOffIcon aria-hidden /> Offline · Results may be incomplete
+                  </>
+                }
+                onChoose={() => setSearchOpen(false)}
+              />
+            </CommandDialog>
             <CaptureDialog
               open={capture.open}
               onOpenChange={(open) => setCapture((c) => ({ ...c, open }))}

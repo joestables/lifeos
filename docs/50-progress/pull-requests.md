@@ -2,6 +2,31 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#10](https://github.com/joestables/lifeos/pull/10) — Stage 2, step 12: Search
+
+Branch `claude/kind-dijkstra-1kv0xt` · 2026-10-12
+
+**What it did**
+- Plan step 12. Search opens from a button beside the brand in the drawer,
+  or with / on a computer: over the page on a computer (`CommandDialog`),
+  as its own page on a phone, which keeps what was typed in its address so
+  going back from a result finds it again.
+- Results come as I type, from `core.search_items` (step 4's full-text
+  search over titles, Labels and bodies), best match first, grouped by
+  Type, each with its TypeTile, its title and one line — the body line it
+  found, the Labels that matched, or a Task's dates — the words matched in
+  bold. They are shown as the device has them, so unsent changes count; a
+  repeating Task shows once. The arrow keys and Enter, or a tap, open the
+  Item where its Type opens.
+- Offline, or with the server out of reach, the Items on the device are
+  searched the same way, and Search says "Offline · Results may be
+  incomplete". Searches are never kept on the device.
+- New in the design spec first: Command's states and keys, the drawer's
+  Search button, and a Search section in patterns. Command is on the
+  design-system page.
+- 16 unit tests and 4 browser tests (desktop and phone; / on a computer
+  only). No migration: the database's part came with step 4.
+
 ## [#9](https://github.com/joestables/lifeos/pull/9) — Stage 2, step 11: Reminders and notifications
 
 Branch `claude/kind-dijkstra-1kv0xt` · 2026-10-12

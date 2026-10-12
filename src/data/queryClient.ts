@@ -1,5 +1,5 @@
 import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister'
-import { QueryClient } from '@tanstack/react-query'
+import { defaultShouldDehydrateQuery, QueryClient } from '@tanstack/react-query'
 import { createStore, del, get, set } from 'idb-keyval'
 
 const WEEK = 7 * 24 * 60 * 60 * 1000
@@ -28,4 +28,12 @@ export const persister = createAsyncStoragePersister({
   },
 })
 
-export const persistOptions = { persister, maxAge: WEEK }
+export const persistOptions = {
+  persister,
+  maxAge: WEEK,
+  // Searches are asked afresh (SRC-001); offline, the device's Items are searched (SRC-002).
+  dehydrateOptions: {
+    shouldDehydrateQuery: (query: Parameters<typeof defaultShouldDehydrateQuery>[0]) =>
+      query.queryKey[0] !== 'search' && defaultShouldDehydrateQuery(query),
+  },
+}

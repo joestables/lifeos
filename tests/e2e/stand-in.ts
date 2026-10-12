@@ -294,6 +294,34 @@ export async function standIn(
         (r) => !(r.item_id === a.p_item && r.label_id === a.p_label),
       )
     },
+    // As core.search_items: every word starts a word of the title, a Label or
+    // the body; title matches first. Only the ids, as the app asks.
+    search_items: (a) => {
+      const words = String(a.p_query)
+        .toLowerCase()
+        .split(/[^\p{L}\p{N}]+/u)
+        .filter(Boolean)
+      const has = (text: unknown, w: string) =>
+        String(text ?? '')
+          .toLowerCase()
+          .split(/[^\p{L}\p{N}]+/u)
+          .some((x) => x.startsWith(w))
+      const labelsOf = (id: unknown) =>
+        db.item_labels
+          .filter((r) => r.item_id === id)
+          .map((r) => db.labels.find((l) => l.id === r.label_id)?.name)
+          .join(' ')
+      const score = (i: Record<string, unknown>) =>
+        words.every((w) => has(i.title, w) || has(labelsOf(i.id), w) || has(i.body, w))
+          ? words.filter((w) => has(i.title, w)).length + 1
+          : 0
+      if (words.length === 0) return []
+      return db.items
+        .filter((i) => !i.archived_at && score(i) > 0)
+        .sort((x, y) => score(y) - score(x))
+        .slice(0, Number(a.p_limit ?? 30))
+        .map((i) => ({ id: i.id }))
+    },
     set_mark: (a) => {
       db.marks = db.marks.filter((m) => m.item_id !== a.p_item)
       if (a.p_on) db.marks.push({ item_id: String(a.p_item) })
@@ -305,7 +333,9 @@ export async function standIn(
     const rpc = url.pathname.match(/\/rest\/v1\/rpc\/(\w+)$/)
     if (rpc) {
       const result = write[rpc[1]!]?.(route.request().postDataJSON() ?? {})
-      return route.fulfill({ json: typeof result === 'string' ? result : null })
+      return route.fulfill({
+        json: typeof result === 'string' || Array.isArray(result) ? result : null,
+      })
     }
     const table = url.pathname.match(/\/rest\/v1\/(\w+)$/)?.[1]
     if (table) return route.fulfill({ json: db[table as keyof typeof db] ?? [] })

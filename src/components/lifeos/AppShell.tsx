@@ -1,10 +1,11 @@
 import { Link } from '@tanstack/react-router'
-import { PlusIcon, type LucideIcon } from 'lucide-react'
+import { PlusIcon, SearchIcon, type LucideIcon } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Kbd } from '@/components/ui/kbd'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import {
   Sidebar,
   SidebarContent,
@@ -44,6 +45,8 @@ interface ShellProps {
   notice?: ReactNode
   /** Opens capture (CAP-002): the drawer's button on a computer, the top bar's on a phone. */
   onCapture?: () => void
+  /** Opens Search (SRC-001): beside the brand in the drawer's header. */
+  onSearch?: () => void
   children: ReactNode
 }
 
@@ -64,7 +67,7 @@ function Brand() {
   )
 }
 
-function Drawer({ pages, me, sync, onCapture }: Omit<ShellProps, 'children' | 'notice'>) {
+function Drawer({ pages, me, sync, onCapture, onSearch }: Omit<ShellProps, 'children' | 'notice'>) {
   const { isMobile, setOpenMobile } = useSidebar()
   const now = pages.filter((p) => !p.later)
   const later = pages.filter((p) => p.later)
@@ -72,8 +75,42 @@ function Drawer({ pages, me, sync, onCapture }: Omit<ShellProps, 'children' | 'n
   return (
     <>
       <SidebarHeader>
-        <div className="flex h-8 items-center pl-1.5">
+        <div className="flex h-8 items-center justify-between pl-1.5 max-md:h-12">
           <Brand />
+          {onSearch &&
+            (isMobile ? (
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="Search"
+                className="size-11 text-muted-foreground [&_svg]:size-5"
+                onClick={() => {
+                  close()
+                  onSearch()
+                }}
+              >
+                <SearchIcon />
+              </Button>
+            ) : (
+              <Tooltip>
+                <TooltipTrigger
+                  render={
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      aria-label="Search"
+                      className="text-muted-foreground"
+                      onClick={onSearch}
+                    />
+                  }
+                >
+                  <SearchIcon />
+                </TooltipTrigger>
+                <TooltipContent>
+                  Search <Kbd>/</Kbd>
+                </TooltipContent>
+              </Tooltip>
+            ))}
         </div>
         {onCapture && !isMobile && (
           <Button className="mt-2 w-full" onClick={onCapture}>
@@ -137,11 +174,11 @@ function Drawer({ pages, me, sync, onCapture }: Omit<ShellProps, 'children' | 'n
  * which scrolls in a ScrollArea. On a phone, a top bar that stays at the top
  * (the menu button, the brand, Capture), and the drawer is a left Sheet.
  */
-export function AppShell({ children, onCapture, notice, ...drawer }: ShellProps) {
+export function AppShell({ children, onCapture, onSearch, notice, ...drawer }: ShellProps) {
   return (
     <SidebarProvider>
       <Sidebar>
-        <Drawer {...drawer} onCapture={onCapture} />
+        <Drawer {...drawer} onCapture={onCapture} onSearch={onSearch} />
       </Sidebar>
       <SidebarInset>
         <div className="box-content flex h-16 shrink-0 items-center gap-2 bg-background px-2 pt-[env(safe-area-inset-top)] md:hidden">

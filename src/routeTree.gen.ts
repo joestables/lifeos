@@ -20,6 +20,7 @@ import { Route as AppInboxRouteImport } from './routes/_app/inbox'
 import { Route as AppNotesRouteImport } from './routes/_app/notes'
 import { Route as AppPlanRouteImport } from './routes/_app/plan'
 import { Route as AppRecipesRouteImport } from './routes/_app/recipes'
+import { Route as AppSearchRouteImport } from './routes/_app/search'
 import { Route as AppTasksRouteImport } from './routes/_app/tasks'
 import { Route as AppWardrobeRouteImport } from './routes/_app/wardrobe'
 import { Route as AppItemIdRouteImport } from './routes/_app/item.$id'
@@ -81,6 +82,11 @@ const AppRecipesRoute = AppRecipesRouteImport.update({
   path: '/recipes',
   getParentRoute: () => AppRoute,
 } as any)
+const AppSearchRoute = AppSearchRouteImport.update({
+  id: '/search',
+  path: '/search',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppTasksRoute = AppTasksRouteImport.update({
   id: '/tasks',
   path: '/tasks',
@@ -123,6 +129,7 @@ export interface FileRoutesByFullPath {
   '/notes': typeof AppNotesRoute
   '/plan': typeof AppPlanRoute
   '/recipes': typeof AppRecipesRoute
+  '/search': typeof AppSearchRoute
   '/tasks': typeof AppTasksRoute
   '/wardrobe': typeof AppWardrobeRoute
   '/item/$id': typeof AppItemIdRoute
@@ -141,6 +148,7 @@ export interface FileRoutesByTo {
   '/notes': typeof AppNotesRoute
   '/plan': typeof AppPlanRoute
   '/recipes': typeof AppRecipesRoute
+  '/search': typeof AppSearchRoute
   '/tasks': typeof AppTasksRoute
   '/wardrobe': typeof AppWardrobeRoute
   '/item/$id': typeof AppItemIdRoute
@@ -161,6 +169,7 @@ export interface FileRoutesById {
   '/_app/notes': typeof AppNotesRoute
   '/_app/plan': typeof AppPlanRoute
   '/_app/recipes': typeof AppRecipesRoute
+  '/_app/search': typeof AppSearchRoute
   '/_app/tasks': typeof AppTasksRoute
   '/_app/wardrobe': typeof AppWardrobeRoute
   '/_app/item/$id': typeof AppItemIdRoute
@@ -181,6 +190,7 @@ export interface FileRouteTypes {
     | '/notes'
     | '/plan'
     | '/recipes'
+    | '/search'
     | '/tasks'
     | '/wardrobe'
     | '/item/$id'
@@ -199,6 +209,7 @@ export interface FileRouteTypes {
     | '/notes'
     | '/plan'
     | '/recipes'
+    | '/search'
     | '/tasks'
     | '/wardrobe'
     | '/item/$id'
@@ -218,6 +229,7 @@ export interface FileRouteTypes {
     | '/_app/notes'
     | '/_app/plan'
     | '/_app/recipes'
+    | '/_app/search'
     | '/_app/tasks'
     | '/_app/wardrobe'
     | '/_app/item/$id'
@@ -313,6 +325,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppRecipesRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/search': {
+      id: '/_app/search'
+      path: '/search'
+      fullPath: '/search'
+      preLoaderRoute: typeof AppSearchRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/tasks': {
       id: '/_app/tasks'
       path: '/tasks'
@@ -365,6 +384,7 @@ interface AppRouteChildren {
   AppNotesRoute: typeof AppNotesRoute
   AppPlanRoute: typeof AppPlanRoute
   AppRecipesRoute: typeof AppRecipesRoute
+  AppSearchRoute: typeof AppSearchRoute
   AppTasksRoute: typeof AppTasksRoute
   AppWardrobeRoute: typeof AppWardrobeRoute
   AppItemIdRoute: typeof AppItemIdRoute
@@ -380,6 +400,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppNotesRoute: AppNotesRoute,
   AppPlanRoute: AppPlanRoute,
   AppRecipesRoute: AppRecipesRoute,
+  AppSearchRoute: AppSearchRoute,
   AppTasksRoute: AppTasksRoute,
   AppWardrobeRoute: AppWardrobeRoute,
   AppItemIdRoute: AppItemIdRoute,
