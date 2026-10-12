@@ -1,8 +1,9 @@
-import { Children, isValidElement, useCallback, useEffect, useState } from 'react'
+import { Children, isValidElement, useCallback, useState } from 'react'
 import type * as React from 'react'
 import { CheckIcon } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { previewLines, type Inline } from '@/lib/markdown-preview'
+import { noteCardSize } from '@/lib/note-size'
 import { cn } from '@/lib/utils'
 
 function Runs({ runs }: { runs: Inline[] }) {
@@ -95,25 +96,10 @@ const GAP = 14
  * In reading order, near enough: left to right, then down.
  */
 export function NoteGrid({ children }: { children: React.ReactNode }) {
-  const cards = Children.toArray(children).filter(isValidElement)
-  const [columns, setColumns] = useState(2)
-  const [heights, setHeights] = useState<ReadonlyMap<string, number>>(new Map())
-  const [observer] = useState(() =>
-    typeof ResizeObserver === 'undefined'
-      ? null
-      : new ResizeObserver((entries) =>
-          setHeights((prev) => {
-            let next: Map<string, number> | null = null
-            for (const e of entries) {
-              const key = (e.target as HTMLElement).dataset.card!
-              const h = e.borderBoxSize[0]?.blockSize ?? e.target.getBoundingClientRect().height
-              if (prev.get(key) !== h) (next ??= new Map(prev)).set(key, h)
-            }
-            return next ?? prev
-          }),
-        ),
+  const cards = Children.toArray(children).filter(
+    isValidElement<Parameters<typeof noteCardSize>[0]>,
   )
-  useEffect(() => () => observer?.disconnect(), [observer])
+  const [columns, setColumns] = useState(2)
 
   // The grid's width decides how many columns fit.
   const grid = useCallback((el: HTMLDivElement | null) => {
@@ -125,27 +111,13 @@ export function NoteGrid({ children }: { children: React.ReactNode }) {
     ro.observe(el)
     return () => ro.disconnect()
   }, [])
-  const card = useCallback(
-    (el: HTMLDivElement | null) => {
-      if (!el || !observer) return
-      observer.observe(el)
-      return () => observer.unobserve(el)
-    },
-    [observer],
-  )
 
   const placed: React.ReactElement[][] = Array.from({ length: columns }, () => [])
   const filled = Array<number>(columns).fill(0)
   for (const c of cards) {
-    const key = String(c.key)
     const shortest = filled.indexOf(Math.min(...filled))
-    placed[shortest]!.push(
-      <div key={key} data-card={key} ref={card} className="flex flex-col">
-        {c}
-      </div>,
-    )
-    // Until it is measured, a card counts as one row, so they go round in turn.
-    filled[shortest]! += (heights.get(key) ?? 1) + GAP
+    placed[shortest]!.push(c)
+    filled[shortest]! += noteCardSize(c.props)
   }
 
   return (

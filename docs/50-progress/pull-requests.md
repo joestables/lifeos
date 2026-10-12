@@ -42,6 +42,9 @@ Branch `claude/kind-dijkstra-1kv0xt` · 2026-10-12
 - Plan step 13, the nightly smoke walk, is deferred until the roadmap is
   complete; Stage 2 is provisionally closed (Joe, 12 October), with step
   14's fixes still coming.
+- The Notes masonry places cards from what they show, so they never
+  jump; the design screenshot test waits for its page to be drawn (it
+  sometimes caught a blank page).
 - One migration (undoing a conversion, the default Reminder, past
   Reminders, Label aliases, the nightly run, stuck notifications), 11 new
   database tests, and browser tests for each change on desktop and phone.
