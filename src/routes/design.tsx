@@ -25,10 +25,12 @@ import {
 } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
 import {
+  AddRow,
   BackLink,
   BrandMark,
   CaptureDialog,
   CardRow,
+  DateField,
   EmptyState,
   ItemDialog,
   DayColumn,
@@ -41,8 +43,10 @@ import {
   PageHeader,
   PlanCard,
   SectionLabel,
+  SubtaskList,
   SwipeAction,
   SyncStatus,
+  TimeField,
   TYPE_ICONS,
   TypeBadge,
   TypeDot,
@@ -574,6 +578,32 @@ function DesignPage() {
                 onCreate={() => {}}
               />
             </Row>
+          </TypeScope>
+        </Section>
+
+        <Section title="Tasks">
+          <TypeScope colour="blue" className="flex max-w-xl flex-col gap-4">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="d-do">Do on</Label>
+                <DateField id="d-do" value={null} onChange={() => {}} />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="d-at">Time</Label>
+                <TimeField id="d-at" defaultValue="18:30" />
+              </div>
+            </div>
+            <SubtaskList
+              subtasks={[
+                { id: 'a', title: 'Get a quote from Admiral', done: true },
+                { id: 'b', title: 'Get a quote from Direct Line', done: false },
+              ]}
+              onToggle={() => {}}
+              onRename={() => {}}
+              onRemove={() => {}}
+              onAdd={() => {}}
+            />
+            <AddRow placeholder="Add a task" onAdd={() => {}} className="px-3.5" />
           </TypeScope>
         </Section>
 

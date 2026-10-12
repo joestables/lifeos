@@ -3,17 +3,11 @@ import { BellIcon, CalendarIcon, FlagIcon } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { toast } from '@/components/ui/sonner'
 import { CaptureDialog, type CaptureType } from '@/components/lifeos/CaptureDialog'
-import {
-  addFixedReminder,
-  archiveItem,
-  createItem,
-  useSettings,
-  type ItemFields,
-  type Settings,
-} from '@/data'
+import { addFixedReminder, archiveItem, createItem, useSettings, type Settings } from '@/data'
 import { dayName, fromIsoDay, shortDate, zonedInstant } from '@/lib/dates'
 import { typeLook } from '@/lib/item-types'
 import { OpenCapture } from './open-capture'
+import { createTaskFrom } from './task-actions'
 
 /** Thought first: what capture makes unless switched (ADR-0027). */
 const TYPES: CaptureType[] = ['thought', 'task'].map((key) => {
@@ -30,14 +24,7 @@ function when(dates: CaptureDates, now: Date): string | undefined {
 
 /** What a line becomes, as one call each to the write queue. */
 function save(type: string, line: string, dates: CaptureDates, settings: Settings): string {
-  if (type === 'task') {
-    const fields: ItemFields = { title: dates.title || line.trim() }
-    if (dates.doOn) fields.do_on = dates.doOn
-    if (dates.doAt) fields.do_at = dates.doAt
-    if (dates.dueOn) fields.due_on = dates.dueOn
-    // Its default Reminder comes with its do-on date (REM-002).
-    return createItem('task', fields)
-  }
+  if (type === 'task') return createTaskFrom(line, dates)
   const id = createItem('thought', { title: line.trim() })
   const day = dates.doOn ?? dates.dueOn
   if (day) {
@@ -66,8 +53,8 @@ export function CaptureProvider({ children }: { children: ReactNode }) {
   const [now, setNow] = useState(() => new Date())
   const dates = useMemo(() => parseCapture(text, now), [text, now])
 
-  const start = useCallback(() => {
-    setType('thought')
+  const start = useCallback((as: 'thought' | 'task' = 'thought') => {
+    setType(as)
     setText('')
     setNow(new Date())
     setOpen(true)
@@ -79,7 +66,7 @@ export function CaptureProvider({ children }: { children: ReactNode }) {
       const el = e.target as HTMLElement | null
       if (el?.closest('input, textarea, select, [contenteditable="true"]')) return
       e.preventDefault()
-      start()
+      start('thought')
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)

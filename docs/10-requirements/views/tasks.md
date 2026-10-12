@@ -47,8 +47,8 @@ October):
 |---|---|
 | **All tasks** (first) | Open Tasks under Overdue, Today, Tomorrow, each remaining day of this week, Later, No date, and Someday last |
 | **By label** | Open Tasks under each Label that has any, then No label — the nearest thing to Google Tasks' lists |
-| **Recurring** | Each repeating Task once, with its repeat and its next date: those on a schedule, then those after you finish |
-| **Completed** | Done Tasks, the most recently done first |
+| **Recurring** (with repeating Tasks, step 10) | Each repeating Task once, with its repeat and its next date: those on a schedule, then those after you finish |
+| **Completed** | Done Tasks, the most recently changed first (when they were done, unless changed since) |
 
 Each Task shows its title and, where it has them: do-on (and time), due
 (marked once overdue), Labels, sub-tasks done ("2/5"), whether it repeats and
@@ -63,7 +63,7 @@ and on a phone ([ITM-001](../cross-cutting/items.md#itm-001--open-an-item)).
 
 **As** Joe, **I want** to add a Task from the Tasks View in one line, **so
 that** it's as quick as Google Tasks.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified
 
 Acceptance criteria
 1. Given the Tasks View, when I add "renew insurance fri", then a Task
@@ -78,7 +78,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to set everything about a Task in one place, **so
 that** a Task can hold what I need to do it.
-Priority: Must · Status: agreed
+Priority: Must · Status: built (its repeat comes with step 10, its Reminders with step 11)
 
 Acceptance criteria
 1. Given a Task, when I open it, then I can change its title, notes, do-on
@@ -91,7 +91,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to tick a Task off and see it go, **so that** the
 list shows only what's left.
-Priority: Must · Status: agreed
+Priority: Must · Status: built (its Reminders being cleared is verified with step 11)
 
 Acceptance criteria
 1. Given an open Task, when I tick it, then it is done, leaves the open
@@ -104,7 +104,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to see my Tasks by when and by what they're for,
 **so that** I can plan the day and find the Car jobs.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified
 
 Acceptance criteria
 1. Given open Tasks to do today, tomorrow, next month, and with no date,
@@ -120,7 +120,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to star the Tasks that matter most, as in Google
 Tasks, **so that** they stand out wherever they appear.
-Priority: Should · Status: agreed
+Priority: Should · Status: verified
 
 Acceptance criteria
 1. Given a Task, when I star it, then it shows as starred wherever it
@@ -132,7 +132,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to tick off parts of a Task inside it, **so that** a
 job with parts stays one Task.
-Priority: Could · Status: agreed
+Priority: Could · Status: verified
 
 Acceptance criteria
 1. Given a Task, when I add five sub-tasks and tick two, then the Task shows
@@ -143,7 +143,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to park a Task for someday, **so that** it's kept but
 not in my way.
-Priority: Should · Status: agreed
+Priority: Should · Status: verified
 
 Acceptance criteria
 1. Given a Task, when I move it to Someday, then it loses its do-on date,

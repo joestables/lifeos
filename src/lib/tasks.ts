@@ -1,0 +1,122 @@
+import type { Item } from '@/data'
+import { fromIsoDay, isoDayOf } from './dates'
+
+export interface TaskGroup {
+  key: string
+  label: string
+  /** Overdue: its heading and count are red. */
+  danger?: boolean
+  tasks: Item[]
+}
+
+const weekday = new Intl.DateTimeFormat('en-GB', { weekday: 'long' })
+const addDays = (d: Date, n: number) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n)
+
+/** Open Tasks, live, a repeating one's next open occurrence only (ADR-0022). */
+function open(items: readonly Item[]): Item[] {
+  const live = items.filter(
+    (i) =>
+      i.type === 'task' && i.archived_at === null && (i.status === 'active' || i.status === 'idea'),
+  )
+  const first = new Map<string, Item>()
+  for (const t of live) {
+    if (!t.series_id || t.status !== 'active') continue
+    const seen = first.get(t.series_id)
+    if (!seen || (t.do_on ?? '') < (seen.do_on ?? '')) first.set(t.series_id, t)
+  }
+  return live.filter((t) => !t.series_id || first.get(t.series_id) === t)
+}
+
+/** Timed first, by time; then by when made (TSK-012 adds a hand-made order). */
+export function byTime(a: Item, b: Item): number {
+  if (a.do_at && b.do_at) return a.do_at.localeCompare(b.do_at)
+  if (a.do_at) return -1
+  if (b.do_at) return 1
+  return a.created_at.localeCompare(b.created_at)
+}
+
+/**
+ * "All tasks" (views/tasks.md): Overdue, Today, Tomorrow, each remaining day
+ * of this week, Later, No date, Someday — empty groups left out. A Task sits
+ * under its do-on date, or its due date when it has none; only a due date
+ * makes it overdue (TSK-004).
+ */
+export function taskGroups(items: readonly Item[], now: Date = new Date()): TaskGroup[] {
+  const today = isoDayOf(now)
+  const tomorrow = isoDayOf(addDays(now, 1))
+  // The week ends on Sunday.
+  const daysLeft = (7 - now.getDay()) % 7
+  const week = Array.from({ length: Math.max(0, daysLeft - 1) }, (_, i) =>
+    isoDayOf(addDays(now, i + 2)),
+  )
+
+  const groups: TaskGroup[] = [
+    { key: 'overdue', label: 'Overdue', danger: true, tasks: [] },
+    { key: 'today', label: 'Today', tasks: [] },
+    { key: 'tomorrow', label: 'Tomorrow', tasks: [] },
+    ...week.map((day) => ({ key: day, label: weekday.format(fromIsoDay(day)), tasks: [] })),
+    { key: 'later', label: 'Later', tasks: [] },
+    { key: 'none', label: 'No date', tasks: [] },
+    { key: 'someday', label: 'Someday', tasks: [] },
+  ]
+  const group = (key: string) => groups.find((g) => g.key === key)!
+
+  for (const t of open(items)) {
+    if (t.status === 'idea') group('someday').tasks.push(t)
+    else if (t.due_on !== null && t.due_on < today) group('overdue').tasks.push(t)
+    else {
+      const day = t.do_on ?? t.due_on
+      if (day === null) group('none').tasks.push(t)
+      else if (day <= today) group('today').tasks.push(t)
+      else if (day === tomorrow) group('tomorrow').tasks.push(t)
+      else if (week.includes(day)) group(day).tasks.push(t)
+      else group('later').tasks.push(t)
+    }
+  }
+  for (const g of groups) {
+    if (g.key === 'overdue')
+      g.tasks.sort((a, b) => a.due_on!.localeCompare(b.due_on!) || byTime(a, b))
+    else if (g.key === 'later')
+      g.tasks.sort(
+        (a, b) => (a.do_on ?? a.due_on!).localeCompare(b.do_on ?? b.due_on!) || byTime(a, b),
+      )
+    else g.tasks.sort(byTime)
+  }
+  return groups.filter((g) => g.tasks.length > 0)
+}
+
+/**
+ * "By label": each Label with open Tasks, A to Z, then No label; a Task with
+ * two Labels is under both (TSK-004). Someday Tasks are left to All tasks.
+ */
+export function tasksByLabel(
+  items: readonly Item[],
+  labels: readonly { id: string; name: string }[],
+  itemLabels: readonly { item_id: string; label_id: string }[],
+  now: Date = new Date(),
+): { id: string | null; name: string; tasks: Item[] }[] {
+  const ordered = taskGroups(items, now)
+    .filter((g) => g.key !== 'someday')
+    .flatMap((g) => g.tasks)
+  const of = (taskId: string) =>
+    new Set(itemLabels.filter((r) => r.item_id === taskId).map((r) => r.label_id))
+  const sets = new Map(ordered.map((t) => [t.id, of(t.id)]))
+  const out = [...labels]
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .map((l) => ({
+      id: l.id as string | null,
+      name: l.name,
+      tasks: ordered.filter((t) => sets.get(t.id)!.has(l.id)),
+    }))
+    .filter((g) => g.tasks.length > 0)
+  const unlabelled = ordered.filter((t) => sets.get(t.id)!.size === 0)
+  if (unlabelled.length > 0) out.push({ id: null, name: 'No label', tasks: unlabelled })
+  return out
+}
+
+/** "Completed": done Tasks, most recently changed first. */
+export function completedTasks(items: readonly Item[]): Item[] {
+  return items
+    .filter((i) => i.type === 'task' && i.archived_at === null && i.status === 'done')
+    .sort((a, b) => b.updated_at.localeCompare(a.updated_at))
+}

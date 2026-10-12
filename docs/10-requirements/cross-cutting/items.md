@@ -90,7 +90,7 @@ Acceptance criteria
 
 **As** Joe, **I want** one set of Labels for my Notes and Tasks that I can
 tidy, **so that** "Home" means the same thing everywhere.
-Priority: Must · Status: agreed (Labels made, renamed and deleted in Settings, and given to a Note from its LabelPicker, are built; giving a Task a Label comes with Tasks, step 9)
+Priority: Must · Status: verified
 
 Acceptance criteria
 1. Given a Note or a Task, when I type a Label's name, then I can pick an

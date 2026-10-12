@@ -17,6 +17,7 @@ import { applyPending } from './overlay'
 import type { WriteQueue } from './queue/queue'
 import type { QueueEntry } from './queue/store'
 import { applyPendingReminders, fetchReminders, remindersKey, type Reminder } from './reminders'
+import { applyPendingSubtasks, fetchSubtasks, subtasksKey, type Subtask } from './subtasks'
 import { DEFAULT_SETTINGS, fetchSettings, settingsKey, type Settings } from './settings'
 import type { Item } from './types'
 
@@ -148,4 +149,11 @@ export function useReminders(queue: WriteQueue): readonly Reminder[] {
   const entries = useQueueEntries(queue)
   const query = useQuery({ queryKey: remindersKey, queryFn: fetchReminders })
   return useMemo(() => applyPendingReminders(query.data ?? [], entries), [query.data, entries])
+}
+
+/** Every sub-task of the Tasks I can see, in order, with unsent ones laid over them. */
+export function useSubtasks(queue: WriteQueue): readonly Subtask[] {
+  const entries = useQueueEntries(queue)
+  const query = useQuery({ queryKey: subtasksKey, queryFn: fetchSubtasks })
+  return useMemo(() => applyPendingSubtasks(query.data ?? [], entries), [query.data, entries])
 }

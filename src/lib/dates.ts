@@ -107,3 +107,12 @@ export function reminderWhen(iso: string, now: Date = new Date()): string {
 /** A local Date as "2026-10-16". */
 export const isoDayOf = (d: Date) =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+
+/** A date in a field: "Today", "Tomorrow", "Yesterday", else "Fri 16 Oct". */
+export function dateName(day: string, now: Date = new Date()): string {
+  const days = daysFrom(now, day)
+  if (days === 0) return 'Today'
+  if (days === 1) return 'Tomorrow'
+  if (days === -1) return 'Yesterday'
+  return shortDate(fromIsoDay(day))
+}

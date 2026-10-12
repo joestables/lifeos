@@ -160,6 +160,31 @@ NoteEditor and LabelPicker in [components](components.md).
   behind.
 - No Notes: an empty state, "No notes yet".
 
+## Tasks
+
+[TSK-001–007](../10-requirements/views/tasks.md#requirements); TaskDetails,
+DateField, TimeField, SubtaskList and AddRow in
+[components](components.md).
+
+- Under the title, Tabs: All tasks, By label, Recurring (with repeating
+  Tasks), Completed.
+- **All tasks**: Overdue, Today, Tomorrow, each remaining day of this week by
+  its name, Later, No date, Someday; each a SectionLabel and its rows,
+  hidden when empty. A Task sits under its do-on date, or its due date when
+  it has none.
+- **By label**: an Accordion item per Label with Tasks (A–Z), then No label,
+  each open; a Task with two Labels is under both, and rows leave Labels
+  out of their meta. Each Label's group ends with an AddRow, "Add a task",
+  which gives the new Task that Label.
+- **Completed**: done Tasks, most recently changed first.
+- A Task's row: its Checkbox (ticking it is done, with Undo), then title and
+  meta: time, "Since Thu", the due date (red once passed), Labels,
+  sub-tasks "2/5"; on hover Tomorrow and the star; the "…" menu holds
+  Tomorrow, Someday and Delete. A starred Task shows its filled star.
+- "New task" opens capture as a Task.
+- Setting a time with no do-on date opens the do-on Calendar to ask for the
+  day.
+
 ## Settings
 
 - One column of Cards, `max-w-3xl`; from Stage 2, step 11, Notifications and
