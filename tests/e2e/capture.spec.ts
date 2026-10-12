@@ -24,12 +24,9 @@ async function start(page: Page, path = '/inbox') {
   return db
 }
 
-/** The drawer's button on a computer, the top bar's on a phone. */
+/** "New" at the top right: the page header's on a computer, the top bar's on a phone. */
 async function openCapture(page: Page) {
-  await page
-    .getByRole('button', { name: /^Capture/ })
-    .first()
-    .click()
+  await page.getByRole('button', { name: 'New', exact: true }).first().click()
   const capture = page.getByRole('dialog', { name: 'Capture' })
   await expect(capture.getByRole('textbox')).toBeFocused()
   return capture

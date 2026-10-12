@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  zonedParts,
   capturedWhen,
   dayName,
   dueWhen,
@@ -52,5 +53,18 @@ describe('dates as people read them (patterns.md#copy)', () => {
     expect(sinceWhen('2026-10-08', now)).toBe('Since Thu')
     expect(sinceWhen('2026-10-02', now)).toBe('Since Fri 2 Oct')
     expect(reminderWhen(new Date(2026, 9, 13, 15, 0).toISOString(), now)).toBe('Tue 15:00')
+  })
+})
+
+describe('a moment on the clock in my home timezone', () => {
+  it('is its day and time there, whatever the device says', () => {
+    expect(zonedParts('2026-10-12T18:00:00Z', 'Europe/London')).toEqual({
+      day: '2026-10-12',
+      time: '19:00',
+    })
+    expect(zonedParts('2026-10-12T23:30:00Z', 'America/New_York')).toEqual({
+      day: '2026-10-12',
+      time: '19:30',
+    })
   })
 })

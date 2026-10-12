@@ -37,8 +37,9 @@ Done 9 October 2026.
   notified** (Joe, 10 October): Joe checks, or asks Claude "any problems?",
   and Claude reads `ops.health_runs` and `ops.events`. Notifications can be
   added later. A broken Integration also shows in Inbox.
-- **A nightly smoke walk** of production with the test account confirms that
-  sign-in, capture and Inbox still work — added once Stage 2 is in daily use.
+- **A nightly smoke walk** of production with the test account, confirming
+  that sign-in, capture and Inbox still work, is deferred until the roadmap
+  is complete (Joe, 12 October 2026).
 
 ## Notifications
 

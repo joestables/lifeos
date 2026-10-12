@@ -9,13 +9,10 @@ import {
   useSettings,
   type Item,
   type Reminder,
-  type ReminderFields,
 } from '@/data'
-import { isoDayOf, zonedInstant } from '@/lib/dates'
-import { byFiring, reminderSays, reminderTime } from '@/lib/reminders'
-
-const hhmm = (d: Date) =>
-  `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
+import { todayIn } from '@lifeos/recurrence'
+import { zonedParts } from '@/lib/dates'
+import { byFiring, reminderFields, reminderSays, reminderTime } from '@/lib/reminders'
 
 /**
  * An Item's Reminders (REM-002, REM-003): its default and my own, each
@@ -41,30 +38,14 @@ export function ItemReminders({ item }: { item: Item }) {
   const choiceOf = (r: Reminder): ReminderChoice =>
     r.anchor
       ? { kind: r.anchor as 'do_on' | 'due_on', daysBefore: -r.offset_days, time: timeOf(r) }
-      : {
-          kind: 'fixed',
-          day: isoDayOf(new Date(r.fixed_at!)),
-          time: hhmm(new Date(r.fixed_at!)),
-        }
+      : // In my home timezone, as it was set (ADR-0021).
+        { kind: 'fixed', ...zonedParts(r.fixed_at!, settings.timezone) }
   const fresh: ReminderChoice = anchors[0]
     ? { kind: anchors[0], daysBefore: 0, time: timeOf() }
-    : { kind: 'fixed', day: isoDayOf(now), time: settings.defaultReminderTime }
+    : { kind: 'fixed', day: todayIn(settings.timezone), time: settings.defaultReminderTime }
 
   const save = (choice: ReminderChoice) => {
-    const fields: ReminderFields =
-      choice.kind === 'fixed'
-        ? {
-            anchor: null,
-            offset_days: 0,
-            at_time: null,
-            fixed_at: zonedInstant(choice.day!, choice.time, settings.timezone),
-          }
-        : {
-            anchor: choice.kind,
-            offset_days: -choice.daysBefore,
-            at_time: choice.time,
-            fixed_at: null,
-          }
+    const fields = reminderFields(choice, settings.timezone)
     if (editing?.id) updateReminder(item.id, editing.id, fields)
     else addReminder(item.id, fields)
     setEditing(null)

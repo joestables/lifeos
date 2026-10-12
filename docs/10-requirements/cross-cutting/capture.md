@@ -27,8 +27,8 @@ at the start of Stage 2, are at the end.*
 
 ## Where capture comes from
 
-- **In the app (Stage 2):** a button on every page (on a phone, in the top
-  bar) and a key on a computer.
+- **In the app (Stage 2):** "New" at the top right of every page (on a
+  phone, in the top bar) and a key on a computer.
 - **From outside the app (Stage 10)** — see [deferred](#deferred-to-stage-10):
   - **The capture address**, which anything that can make a web request can
     post to: **iOS Shortcuts and Siri** ("Hey Siri, LifeOS: buy oat milk"),

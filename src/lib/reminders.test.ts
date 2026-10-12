@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { byFiring, reminderSays, reminderTime } from './reminders'
+import { byFiring, choiceFiresAt, reminderFields, reminderSays, reminderTime } from './reminders'
 
 const NOW = new Date(2026, 9, 12, 9, 0)
 const r = (fields: Record<string, unknown>) => ({
@@ -37,5 +37,35 @@ describe('REM-003: a Reminder in words', () => {
       '2026-10-13T08:00:00Z',
       null,
     ])
+  })
+})
+
+describe('a Reminder not yet saved (TSK-001 4)', () => {
+  it('fires on its date, days before, at its time, in my timezone', () => {
+    expect(
+      choiceFiresAt(
+        { kind: 'do_on', daysBefore: 1, time: '18:00' },
+        { do_on: '2026-10-16', due_on: null },
+        'Europe/London',
+      ),
+    ).toBe('2026-10-15T17:00:00.000Z')
+    expect(
+      choiceFiresAt(
+        { kind: 'due_on', daysBefore: 0, time: '09:00' },
+        { do_on: null, due_on: null },
+        'Europe/London',
+      ),
+    ).toBeNull()
+  })
+
+  it('is saved as the server takes it', () => {
+    expect(
+      reminderFields({ kind: 'fixed', day: '2026-10-12', time: '19:00' }, 'Europe/London'),
+    ).toEqual({
+      anchor: null,
+      offset_days: 0,
+      at_time: null,
+      fixed_at: '2026-10-12T18:00:00.000Z',
+    })
   })
 })

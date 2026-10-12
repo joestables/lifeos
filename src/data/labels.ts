@@ -5,8 +5,11 @@ import { supabase } from './supabase'
 
 type Tables = Database['core']['Tables']
 
-/** A Label (ITM-005): one set per Space, shared by Notes and Tasks. */
-export type Label = Tables['labels']['Row']
+/**
+ * A Label (ITM-005): one set per Space, shared by Notes and Tasks. Its
+ * other ids (`aliases`) stay on the server.
+ */
+export type Label = Omit<Tables['labels']['Row'], 'aliases'>
 export type ItemLabel = Pick<Tables['item_labels']['Row'], 'item_id' | 'label_id'>
 /** One of my marks: a pinned Note, a starred Task. */
 export type Mark = Pick<Tables['marks']['Row'], 'item_id'>
@@ -16,7 +19,10 @@ export const itemLabelsKey = ['item_labels'] as const
 export const marksKey = ['marks'] as const
 
 export async function fetchLabels(): Promise<Label[]> {
-  const { data, error } = await supabase().from('labels').select('*').order('name')
+  const { data, error } = await supabase()
+    .from('labels')
+    .select('id, name, space_id, created_by, created_at')
+    .order('name')
   if (error) throw error
   return data
 }

@@ -16,9 +16,8 @@ Stage 2, are at the end.*
 - Search is **neutral**: it mixes Types, so each result shows its Type's
   colour ([ADR-0043](../../20-architecture/adr/0043-colour-by-type.md),
   Provisionally agreed).
-- On a computer it opens over the page; on a phone it is a page of its own,
-  which keeps what was typed for going back to
-  ([patterns](../../30-design/patterns.md#search)).
+- It opens over the page, on a phone as on a computer, and a tap outside it
+  closes it (Joe, 12 October; [patterns](../../30-design/patterns.md#search)).
 - A repeating Task is found once, as its lists show it
   ([TSK-008](../views/tasks.md#requirements)).
 

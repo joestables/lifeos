@@ -20,7 +20,7 @@ import { useOpenCapture } from '@/app/open-capture'
 import { ItemPopup } from '@/app/items'
 import { useOpenSearch } from '@/app/open-search'
 import { SearchProvider } from '@/app/search'
-import { authReady, queue, useAuth, useItems, useOnline, useSyncCounts } from '@/data'
+import { authReady, clearRefused, queue, useAuth, useItems, useOnline, useSyncCounts } from '@/data'
 import { inboxCount, inboxGroups } from '@/lib/inbox'
 
 /** The drawer's pages, in ADR-0026's order. */
@@ -109,6 +109,7 @@ function Shell({
       pages={PAGES.map((p) => (p.to === '/inbox' && waiting > 0 ? { ...p, count: waiting } : p))}
       me={{ name, space: 'Personal' }}
       sync={sync}
+      onClearRefused={() => void clearRefused()}
       notice={
         outOfDate && (
           <Alert>

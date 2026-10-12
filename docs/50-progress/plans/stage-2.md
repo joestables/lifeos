@@ -9,8 +9,10 @@ where the platform allows. Every Type has its colour. Until Stage 3, an
 event-shaped line is saved as a Thought or a Task. Capture from outside the
 app waits until after every other stage (Stage 10).
 
-**State:** in progress. Specs agreed 11 October 2026 (step 1); step 2's
-decisions agreed; step 3 done; steps 4 (the schema) and 5 (working with Items) done.
+**State:** provisionally closed (Joe, 12 October 2026). Steps 1–12 are
+done; step 14, Joe's daily use, goes on, with what he trips over fixed as
+it comes; step 13, the nightly smoke walk, is deferred until the roadmap
+is complete, when it is likely to come back.
 
 ## Steps
 
@@ -33,8 +35,8 @@ verifies.
 | 10 | Repeating Tasks: the RRULE engine ported from v1 (no dependencies), the first occurrences made on the device, the nightly job that keeps them ahead | Done 12 October: `packages/recurrence` (v1's cases ported, plus monthly on the nth weekday, after completion and the window); `core.set_repeat`, `stop_repeat`, `complete_occurrence` and the nightly run's functions; the `extend-series` Edge Function and the `nightly-series` job at 02:00 UTC; the Repeat field and Dialog, the Recurring view, a repeat in each row. TSK-008–011 verified | Code, tests citing TSK-008–011 |
 | 11 | Reminders: notifications on each device, the delivery job, Done and Snooze, defaults in Settings; then overdue nudges and the morning digest | Done 12 October: the minute job (`minute-notifications`), `send-notifications` and `notification-action`; LifeOS's own service worker (offline files, notifications, Done and Snooze kept with no signal); Notifications and Reminders in Settings; Inbox's offer to turn them on; Reminders in a Task's and a Thought's popup; the morning digest and overdue nudges. REM-001–004 and 006–009, TSK-002 and 003 verified; REM-005 built. A real notification on each device is Joe's to check by hand | Edge Function, `pg_cron` job, tests citing REM-* |
 | 12 | Search | Done 12 October: Command and `CommandDialog`; Search from the drawer's header, or / on a computer, over the page, and on a phone as its own page; results by Type as I type, the match in bold, from `core.search_items` and shown as the device has them; offline, the device's Items searched and "Results may be incomplete". SRC-001 and SRC-002 verified | Code, tests citing SRC-* |
-| 13 | The nightly smoke walk of production with the test account: sign-in, capture, Inbox ([runbook](../../40-operations/runbook.md)) | Not started | Scheduled workflow |
-| 14 | **Joe** — uses LifeOS daily instead of Google Tasks for a week; what he trips over is fixed | Not started | |
+| 13 | The nightly smoke walk of production with the test account: sign-in, capture, Inbox ([runbook](../../40-operations/runbook.md)) | Deferred (Joe, 12 October) until the roadmap is complete; likely to come back then. No software changes until then, and nobody relies on it yet | Scheduled workflow |
+| 14 | **Joe** — uses LifeOS daily instead of Google Tasks for a week; what he trips over is fixed | In progress. First round, 12 October: convert's Undo; the pointing hand on whatever can be pressed; capture as "New" at the top right (a speech bubble with a plus), no longer in the drawer; pull to refresh on a phone; Search a popup on a phone too; a checkbox's hover; "New task" opens a new Task with all its fields, kept on Save; Notes in a masonry; no "All changes saved"; "New task" and "New note" beside the Tabs. With them, a bug hunt's fixes (below) | Code, tests |
 
 Each step's code goes into the specs' status as it lands (*built*, then
 *verified* when a test citing the ID passes).
@@ -108,5 +110,38 @@ to match when the designs are agreed (step 3):
 - Every **Must** requirement in this stage's specs is *verified* (a test
   citing its ID passes).
 - Joe has used LifeOS instead of Google Tasks for a week.
-- The nightly smoke walk runs.
+- ~~The nightly smoke walk runs.~~ Deferred until the roadmap is complete
+  (Joe, 12 October): the stage is closed provisionally without it.
 - No two documents conflict.
+
+## Bug hunt (12 October)
+
+A read-through of the app and database for bugs, alongside Joe's first
+round of changes; each fix has its test.
+
+- Convert's Undo is accepted by the database: an Item can go back to the
+  Type its latest conversion came from, which the ontology may not allow
+  as a conversion (ITM-004 3).
+- A Type's default Reminder is made when the Item gains its date, so one I
+  removed or changed doesn't come back, or double, when the date moves
+  (REM-002 2); a Reminder already past when it was set isn't sent
+  (REM-004 6).
+- Converting a dated Thought into a Task keeps its Reminder when Tasks get
+  no default.
+- Changes the server refused can be cleared from the drawer (OFF-004 2).
+- Signing out stops this device's notifications (ACC-003 3).
+- N doesn't open capture while a menu or list is open; / doesn't open
+  Search over a Dialog or menu.
+- A Label made on a device that didn't know the name was taken is the same
+  Label (the server keeps the device's id as another name for it).
+- Undo after ticking a Task done puts it back as it was (Someday stays
+  Someday) and takes away the next occurrence it made.
+- A fixed Reminder is read in my home timezone, so saving it unchanged from
+  another timezone doesn't move it.
+- The date picker closes after a choice; picking the chosen day keeps it.
+- Settings' times are kept on leaving the field, not at each digit.
+- The nightly run no longer brings back an after-completion repeat whose
+  open occurrence I deleted; notifications a stopped sender had claimed
+  wake the sender again.
+- Left for later: renaming a Label to a name another Label has is refused
+  as a change not saved.

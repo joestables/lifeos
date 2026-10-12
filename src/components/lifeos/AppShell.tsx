@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import { PlusIcon, SearchIcon, type LucideIcon } from 'lucide-react'
+import { SearchIcon, type LucideIcon } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
@@ -24,6 +24,9 @@ import {
 } from '@/components/ui/sidebar'
 import type { TypeColour } from './colours'
 import { BrandMark } from './BrandMark'
+import { CaptureButton } from './CaptureButton'
+import { PullToRefresh } from './PullToRefresh'
+import { ShellCapture } from './shell-context'
 import { SyncStatus } from './SyncStatus'
 
 export interface DrawerPage {
@@ -41,12 +44,16 @@ interface ShellProps {
   pages: DrawerPage[]
   me: { name: string; space: string }
   sync: { pending: number; failed: number }
+  /** Clears changes the server refused, once seen (OFF-004). */
+  onClearRefused?: () => void
   /** Shown at the top of every page: the offline notice (OFF-005). */
   notice?: ReactNode
-  /** Opens capture (CAP-002): the drawer's button on a computer, the top bar's on a phone. */
+  /** Opens capture (CAP-002): "New" at the top right, in the PageHeader on a computer, the top bar on a phone. */
   onCapture?: () => void
   /** Opens Search (SRC-001): beside the brand in the drawer's header. */
   onSearch?: () => void
+  /** Pulled down from the top of a page on a phone. */
+  onRefresh?: () => void
   children: ReactNode
 }
 
@@ -67,7 +74,13 @@ function Brand() {
   )
 }
 
-function Drawer({ pages, me, sync, onCapture, onSearch }: Omit<ShellProps, 'children' | 'notice'>) {
+function Drawer({
+  pages,
+  me,
+  sync,
+  onSearch,
+  onClearRefused,
+}: Omit<ShellProps, 'children' | 'notice' | 'onCapture'>) {
   const { isMobile, setOpenMobile } = useSidebar()
   const now = pages.filter((p) => !p.later)
   const later = pages.filter((p) => p.later)
@@ -112,11 +125,6 @@ function Drawer({ pages, me, sync, onCapture, onSearch }: Omit<ShellProps, 'chil
               </Tooltip>
             ))}
         </div>
-        {onCapture && !isMobile && (
-          <Button className="mt-2 w-full" onClick={onCapture}>
-            <PlusIcon /> Capture <Kbd className="ml-auto">N</Kbd>
-          </Button>
-        )}
       </SidebarHeader>
       <SidebarContent>
         <nav aria-label="Pages">
@@ -149,7 +157,7 @@ function Drawer({ pages, me, sync, onCapture, onSearch }: Omit<ShellProps, 'chil
         </nav>
       </SidebarContent>
       <SidebarFooter>
-        <SyncStatus pending={sync.pending} failed={sync.failed} />
+        <SyncStatus pending={sync.pending} failed={sync.failed} onClear={onClearRefused} />
         <Link
           to="/settings"
           onClick={close}
@@ -174,36 +182,37 @@ function Drawer({ pages, me, sync, onCapture, onSearch }: Omit<ShellProps, 'chil
  * which scrolls in a ScrollArea. On a phone, a top bar that stays at the top
  * (the menu button, the brand, Capture), and the drawer is a left Sheet.
  */
-export function AppShell({ children, onCapture, onSearch, notice, ...drawer }: ShellProps) {
+export function AppShell({
+  children,
+  onCapture,
+  onSearch,
+  onRefresh = () => window.location.reload(),
+  notice,
+  ...drawer
+}: ShellProps) {
   return (
     <SidebarProvider>
       <Sidebar>
-        <Drawer {...drawer} onCapture={onCapture} onSearch={onSearch} />
+        <Drawer {...drawer} onSearch={onSearch} />
       </Sidebar>
       <SidebarInset>
         <div className="box-content flex h-16 shrink-0 items-center gap-2 bg-background px-2 pt-[env(safe-area-inset-top)] md:hidden">
           <SidebarTrigger />
           <Brand />
-          {onCapture && (
-            <Button
-              variant="ghost"
-              size="icon"
-              aria-label="Capture"
-              className="ml-auto size-12 [&_svg]:size-5.5"
-              onClick={onCapture}
-            >
-              <PlusIcon />
-            </Button>
-          )}
+          {onCapture && <CaptureButton className="ml-auto h-11" onClick={onCapture} />}
         </div>
-        <ScrollArea
-          className="flex-1"
-          viewportClassName="pb-[env(safe-area-inset-bottom)]"
-          restorationId="page"
-        >
-          {notice && <div className="px-5 pt-3 sm:px-9 sm:pt-6">{notice}</div>}
-          {children}
-        </ScrollArea>
+        <ShellCapture.Provider value={onCapture}>
+          <PullToRefresh onRefresh={onRefresh}>
+            <ScrollArea
+              className="flex-1"
+              viewportClassName="pb-[env(safe-area-inset-bottom)]"
+              restorationId="page"
+            >
+              {notice && <div className="px-5 pt-3 sm:px-9 sm:pt-6">{notice}</div>}
+              {children}
+            </ScrollArea>
+          </PullToRefresh>
+        </ShellCapture.Provider>
       </SidebarInset>
     </SidebarProvider>
   )

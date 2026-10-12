@@ -1,7 +1,20 @@
-import { CheckIcon, CloudAlertIcon, CloudIcon } from 'lucide-react'
+import { CloudAlertIcon, CloudIcon } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 
-/** In the drawer footer: "All changes saved", or what's waiting to send. */
-export function SyncStatus({ pending, failed }: { pending: number; failed: number }) {
+/**
+ * In the drawer footer, only while changes wait to send or weren't saved;
+ * changes not saved can be cleared once seen.
+ */
+export function SyncStatus({
+  pending,
+  failed,
+  onClear,
+}: {
+  pending: number
+  failed: number
+  onClear?: () => void
+}) {
+  if (pending === 0 && failed === 0) return null
   return (
     <div
       role="status"
@@ -13,16 +26,21 @@ export function SyncStatus({ pending, failed }: { pending: number; failed: numbe
           <span className="text-destructive">
             {failed === 1 ? '1 change not saved' : `${failed} changes not saved`}
           </span>
-        </>
-      ) : pending > 0 ? (
-        <>
-          <CloudIcon />
-          {pending === 1 ? '1 change waiting to send' : `${pending} changes waiting to send`}
+          {onClear && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="ml-auto h-6 px-2 text-xs"
+              onClick={onClear}
+            >
+              Clear
+            </Button>
+          )}
         </>
       ) : (
         <>
-          <CheckIcon className="text-success" />
-          All changes saved
+          <CloudIcon />
+          {pending === 1 ? '1 change waiting to send' : `${pending} changes waiting to send`}
         </>
       )}
     </div>

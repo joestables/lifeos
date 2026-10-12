@@ -78,11 +78,14 @@ export function deleteItem(item: Item) {
 }
 
 /** A Note opened before it is kept: "New note" (patterns.md#notes). */
-export function draftNote(id: string): Item {
+export const draftNote = (id: string): Item => draftItem(id, 'note')
+
+/** An Item not yet kept, with nothing in it. */
+export function draftItem(id: string, type: string): Item {
   const at = new Date().toISOString()
   return {
     id,
-    type: 'note',
+    type,
     title: '',
     body: '',
     space_id: '',

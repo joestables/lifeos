@@ -2,6 +2,55 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#11](https://github.com/joestables/lifeos/pull/11) — Stage 2, step 14: Joe's first round, and a bug hunt
+
+Branch `claude/kind-dijkstra-1kv0xt` · 2026-10-12
+
+**What it did**
+- Joe's first round from using LifeOS (plan step 14). The changes, each
+  specified first in the design system:
+  - Convert's toast has Undo (ITM-004 3).
+  - Whatever can be pressed shows the pointing hand.
+  - Capture is "New" with a speech bubble at the top right of every page,
+    no longer in the drawer (`CaptureButton`).
+  - Pull to refresh on a phone (`PullToRefresh`): the page scrolls in its
+    own box, which the browser's can't reach.
+  - Search is a popup on a phone too, closed by a tap outside; the Search
+    page is gone.
+  - A checkbox fills with its tint on hover.
+  - "New task" opens a new Task with every field, kept on Save
+    (`NewTaskDialog`, sharing `TaskFields` with the Task popup; TSK-001 4).
+  - Notes sit in a masonry, like Keep.
+  - The drawer says nothing while all is saved.
+  - "New task" and "New note" sit just after the Tabs (`PageAction`,
+    `TabsRow`).
+- A bug hunt across the app and database, with fixes:
+  - A default Reminder no longer comes back or doubles when a date moves.
+  - A Reminder already past when it was set isn't sent.
+  - Converting keeps a Thought's Reminder when Tasks get no default.
+  - Refused changes can be cleared (OFF-004 2).
+  - Signing out stops this device's notifications (ACC-003 3).
+  - N and / don't fire in menus.
+  - A Label made twice offline is one Label.
+  - Undo of "done" restores Someday and takes away a repeat's next
+    occurrence.
+  - A fixed Reminder is read in the home timezone.
+  - The date picker closes after a pick.
+  - Settings' times are kept on leaving the field.
+  - Two fixes to the nightly run and the notification sender.
+  - The full list is in the [plan](plans/stage-2.md#bug-hunt-12-october).
+- Plan step 13, the nightly smoke walk, is deferred until the roadmap is
+  complete; Stage 2 is provisionally closed (Joe, 12 October), with step
+  14's fixes still coming.
+- The Notes masonry places cards from what they show, so they never
+  jump; the design screenshot test waits for its page to be drawn (it
+  sometimes caught a blank page).
+- One migration (undoing a conversion, the default Reminder, past
+  Reminders, Label aliases, the nightly run, stuck notifications), 12 new
+  database tests, and browser tests for each change on desktop and phone.
+- Live: the migration is applied as `20261012214527`; the advisors found
+  nothing new.
+
 ## [#10](https://github.com/joestables/lifeos/pull/10) — Stage 2, step 12: Search
 
 Branch `claude/kind-dijkstra-1kv0xt` · 2026-10-12

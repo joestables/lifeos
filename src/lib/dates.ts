@@ -124,3 +124,18 @@ export function dateName(day: string, now: Date = new Date()): string {
   if (days === -1) return 'Yesterday'
   return shortDate(fromIsoDay(day))
 }
+
+/** A moment as a day and a time on the clock in a timezone: "2026-10-16", "18:00". */
+export function zonedParts(iso: string, timeZone: string): { day: string; time: string } {
+  const all = new Intl.DateTimeFormat('en-GB', {
+    timeZone,
+    hourCycle: 'h23',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).formatToParts(new Date(iso))
+  const p = (type: string) => all.find((x) => x.type === type)?.value ?? ''
+  return { day: `${p('year')}-${p('month')}-${p('day')}`, time: `${p('hour')}:${p('minute')}` }
+}

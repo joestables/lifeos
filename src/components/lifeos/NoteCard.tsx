@@ -1,7 +1,9 @@
+import { Children, isValidElement, useCallback, useState } from 'react'
 import type * as React from 'react'
 import { CheckIcon } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { previewLines, type Inline } from '@/lib/markdown-preview'
+import { noteCardSize } from '@/lib/note-size'
 import { cn } from '@/lib/utils'
 
 function Runs({ runs }: { runs: Inline[] }) {
@@ -83,11 +85,48 @@ export function NoteCard({
   )
 }
 
-/** NoteCards in a grid: 4 columns on a computer (each at least 200px), 2 on a phone. */
+/** The narrowest a column of NoteCards gets on a computer, and the gap between them. */
+const MIN_COLUMN = 200
+const GAP = 14
+
+/**
+ * NoteCards as a masonry (components.md, like Keep): as many columns as fit
+ * at 200px or more (2 on a phone), each card going under the shortest
+ * column so far, so cards of different heights fit together with no gaps.
+ * In reading order, near enough: left to right, then down.
+ */
 export function NoteGrid({ children }: { children: React.ReactNode }) {
+  const cards = Children.toArray(children).filter(
+    isValidElement<Parameters<typeof noteCardSize>[0]>,
+  )
+  const [columns, setColumns] = useState(2)
+
+  // The grid's width decides how many columns fit.
+  const grid = useCallback((el: HTMLDivElement | null) => {
+    if (!el || typeof ResizeObserver === 'undefined') return
+    const ro = new ResizeObserver(([e]) => {
+      const width = e!.contentRect.width
+      setColumns(Math.max(2, Math.floor((width + GAP) / (MIN_COLUMN + GAP))))
+    })
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
+
+  const placed: React.ReactElement[][] = Array.from({ length: columns }, () => [])
+  const filled = Array<number>(columns).fill(0)
+  for (const c of cards) {
+    const shortest = filled.indexOf(Math.min(...filled))
+    placed[shortest]!.push(c)
+    filled[shortest]! += noteCardSize(c.props)
+  }
+
   return (
-    <div className="grid grid-cols-2 items-start gap-2.5 sm:gap-3.5 md:grid-cols-[repeat(auto-fill,minmax(200px,1fr))]">
-      {children}
+    <div ref={grid} className="flex items-start gap-2.5 sm:gap-3.5">
+      {placed.map((column, i) => (
+        <div key={i} className="flex min-w-0 flex-1 flex-col gap-2.5 sm:gap-3.5">
+          {column}
+        </div>
+      ))}
     </div>
   )
 }

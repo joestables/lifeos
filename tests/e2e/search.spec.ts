@@ -76,11 +76,10 @@ async function start(page: Page, path = '/inbox') {
   return db
 }
 
-/** Search from the drawer: a dialog on a computer, the Search page on a phone. */
+/** Search from the drawer: a popup over the page. */
 async function openSearch(page: Page, isMobile: boolean) {
   if (isMobile) await page.getByRole('button', { name: 'Menu' }).click()
   await page.getByRole('button', { name: 'Search', exact: true }).click()
-  if (isMobile) await expect(page).toHaveURL(/\/search$/)
   const input = page.getByRole('combobox', { name: 'Search' })
   await expect(input).toBeFocused()
   return input
@@ -148,10 +147,7 @@ test('SRC-001 4: choosing a result opens the Item', async ({ page, isMobile }) =
     await results(page).getByRole('option', { name: 'House details' }).click()
     await expect(page).toHaveURL(new RegExp(`/item/${id(3)}$`))
     await expect(page.getByRole('heading', { name: 'House details' })).toBeVisible()
-    // Back to the search, as it was.
-    await page.goBack()
-    await expect(page.getByRole('combobox', { name: 'Search' })).toHaveValue('insur')
-    await expect(results(page).getByRole('option', { name: 'House details' })).toBeVisible()
+    await expect(input).toBeHidden()
   } else {
     // The arrow keys move the highlight; Enter opens it.
     await input.press('ArrowDown')
@@ -172,7 +168,6 @@ test('SRC-002: offline, the Items on the device are searched, and I am told it m
   isMobile,
 }) => {
   await start(page)
-  // Opened first: the test's browser has no service worker holding the app's files.
   const input = await openSearch(page, isMobile)
   await context.setOffline(true)
   await input.fill('insur')
@@ -189,4 +184,12 @@ test('SRC-002: offline, the Items on the device are searched, and I am told it m
     /^House details/,
   ])
   await context.setOffline(false)
+})
+
+test('SRC-001: Search closes with a tap outside it', async ({ page, isMobile }) => {
+  await start(page)
+  const input = await openSearch(page, isMobile)
+  await page.mouse.click(10, 800)
+  await expect(input).toBeHidden()
+  await expect(page.getByRole('heading', { name: 'Inbox', level: 1 })).toBeVisible()
 })

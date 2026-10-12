@@ -939,9 +939,8 @@ function DesignPage() {
         </Section>
 
         <Section title="Search (Command)">
-          <div className="max-w-xl">
+          <div className="max-w-xl rounded-xl bg-popover shadow-dialog">
             <Command
-              variant="page"
               label="Search"
               value={search}
               onValueChange={setSearch}

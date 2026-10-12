@@ -88,6 +88,8 @@ Acceptance criteria
    among the Types that exist.
 2. Given I convert a Note into a Task, then it keeps its title, body,
    Labels, links and Reminders, and its history records the conversion.
+3. Given I've just converted an Item, then I can undo it, and it is the
+   Type it was, as it was (Joe, 12 October).
 
 ### ITM-005 — Labels on Notes and Tasks
 

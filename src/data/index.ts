@@ -165,6 +165,14 @@ export const {
 
 export const { unsentWrites, signOut } = session(queue)
 
+/**
+ * Clears the changes the server refused, once I've seen them (OFF-004 2):
+ * each Item shows what was saved again.
+ */
+export async function clearRefused(): Promise<void> {
+  for (const e of queue.entries()) if (e.state === 'failed') await queue.discard(e.id)
+}
+
 export { authReady, signInWithGoogle, useAuth, type Me } from './auth'
 export {
   useDeletedItems,

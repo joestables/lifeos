@@ -4,7 +4,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = extensions, public;
-select plan(26);
+select plan(29);
 
 insert into auth.users (id, email) values
   ('00000000-0000-4000-8000-00000000000a', 'ann@example.com'),
@@ -116,6 +116,33 @@ select is(
   (select count(*)::int from core.reminders where item_id = '00000000-0000-7000-8000-000000000001'),
   2,
   'ITM-003: a restored Item has its Reminders'
+);
+
+-- REM-002: the default is made when the Task gains its date. One I removed
+-- doesn't come back when the date moves, and one I changed isn't joined by
+-- a second.
+select core.create_item('00000000-0000-7000-8000-000000000006', 'task', '{"title": "Dentist", "do_on": "2026-11-10"}');
+select core.remove_reminder((select id from core.reminders where item_id = '00000000-0000-7000-8000-000000000006'));
+select core.update_item('00000000-0000-7000-8000-000000000006', '{"do_on": "2026-11-11"}');
+select is(
+  (select count(*)::int from core.reminders where item_id = '00000000-0000-7000-8000-000000000006'),
+  0,
+  'REM-002: a default I removed doesn''t come back when the date moves'
+);
+select core.create_item('00000000-0000-7000-8000-000000000007', 'task', '{"title": "Haircut", "do_on": "2026-11-10"}');
+select core.update_reminder((select id from core.reminders where item_id = '00000000-0000-7000-8000-000000000007'), '{"at_time": "07:00"}');
+select core.update_item('00000000-0000-7000-8000-000000000007', '{"do_on": "2026-11-11"}');
+select is(
+  (select count(*)::int from core.reminders where item_id = '00000000-0000-7000-8000-000000000007'),
+  1,
+  'REM-002: a default I changed isn''t joined by a second when the date moves'
+);
+select core.update_item('00000000-0000-7000-8000-000000000007', '{"do_on": null}');
+select core.update_item('00000000-0000-7000-8000-000000000007', '{"do_on": "2026-11-12"}');
+select is(
+  (select count(*)::int from core.reminders where item_id = '00000000-0000-7000-8000-000000000007' and is_default),
+  1,
+  'REM-002: given a date again, it has its default again'
 );
 
 -- REM-007: changing the default time moves new Reminders only; a Type's

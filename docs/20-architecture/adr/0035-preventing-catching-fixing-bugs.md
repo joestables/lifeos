@@ -31,8 +31,8 @@ A layer at each stage a bug passes through:
 3. **Notice them in production:** one errors table, `ops.events`, rather than
    a third-party service; no in-app bug reporting; a nightly health check
    that records what it finds for Joe, or Claude, to look at (notifications
-   later, if wanted); a nightly smoke walk once
-   Stage 2 is in daily use.
+   later, if wanted); a nightly smoke walk, deferred
+   until the roadmap is complete (Joe, 12 October 2026).
 4. **Recover quickly:** undo for deletes, and recovery from Settings; Vercel's instant rollback;
    migrations fixed forward; no backups for now (if they return, restored
    once when first set up).

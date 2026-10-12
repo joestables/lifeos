@@ -401,21 +401,32 @@ export async function queuedWrites(page: Page, count: number) {
  * subscription made on asking, as if LifeOS were installed on an Android
  * phone (REM-001). Nothing is really sent.
  */
-export async function pushAllowed(page: Page, endpoint = 'https://push.example/this-device') {
-  await page.addInitScript((endpoint) => {
-    const sub = {
-      endpoint,
-      toJSON: () => ({ endpoint, keys: { p256dh: 'p256dh-key', auth: 'auth-key' } }),
-    }
-    let subscribed = false
-    let permission: NotificationPermission = 'default'
-    Object.defineProperty(Notification, 'permission', { get: () => permission })
-    Notification.requestPermission = async () => (permission = 'granted')
-    PushManager.prototype.getSubscription = async () =>
-      (subscribed ? sub : null) as unknown as PushSubscription
-    PushManager.prototype.subscribe = async () => {
-      subscribed = true
-      return sub as unknown as PushSubscription
-    }
-  }, endpoint)
+export async function pushAllowed(
+  page: Page,
+  endpoint = 'https://push.example/this-device',
+  { subscribed: already = false } = {},
+) {
+  await page.addInitScript(
+    ([endpoint, already]) => {
+      const sub = {
+        endpoint,
+        toJSON: () => ({ endpoint, keys: { p256dh: 'p256dh-key', auth: 'auth-key' } }),
+        unsubscribe: async () => {
+          subscribed = false
+          return true
+        },
+      }
+      let subscribed = already
+      let permission: NotificationPermission = 'default'
+      Object.defineProperty(Notification, 'permission', { get: () => permission })
+      Notification.requestPermission = async () => (permission = 'granted')
+      PushManager.prototype.getSubscription = async () =>
+        (subscribed ? sub : null) as unknown as PushSubscription
+      PushManager.prototype.subscribe = async () => {
+        subscribed = true
+        return sub as unknown as PushSubscription
+      }
+    },
+    [endpoint, already] as const,
+  )
 }
