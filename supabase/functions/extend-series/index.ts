@@ -30,7 +30,7 @@ const rpc: Rpc = async (fn, args) => {
 }
 
 Deno.serve(async (req) => {
-  const secret = req.headers.get('Authorization')?.replace(/^Bearer /, '')
+  const secret = req.headers.get('x-series-secret')
   if (!secret || !(await rpc('series_secret_ok', { p_secret: secret })))
     return new Response('Forbidden', { status: 403 })
   try {

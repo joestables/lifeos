@@ -338,7 +338,8 @@ select cron.schedule('nightly-series', '0 2 * * *', $$
       || '/functions/v1/extend-series',
     headers := jsonb_build_object(
       'Content-Type', 'application/json',
-      'Authorization', 'Bearer ' || (select decrypted_secret from vault.decrypted_secrets where name = 'series_secret')
+      -- Its own header: the platform reads Authorization as a JWT.
+      'x-series-secret', (select decrypted_secret from vault.decrypted_secrets where name = 'series_secret')
     ),
     body := '{}'::jsonb,
     timeout_milliseconds := 120000
