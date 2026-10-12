@@ -82,7 +82,10 @@ test('INB-001, INB-003, INB-005: what needs me, in three groups, counted in the 
 
   const today = group(page, 'Today').locator('[data-slot="item-row"]')
   await expect(today.first()).toContainText('Call mum18:00')
-  await expect(today.first().getByLabel('Starred')).toBeVisible()
+  await expect(today.first().getByRole('button', { name: 'Star' })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  )
   await expect(today.last()).toContainText('Since Thu')
   await expect(page.getByText('Book Japan flights')).toBeHidden()
 

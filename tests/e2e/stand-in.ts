@@ -18,6 +18,7 @@ export interface Rows {
   marks?: { item_id: string }[]
   people?: { timezone: string; default_reminder_time: string }[]
   reminders?: { id: string; item_id: string; fires_at: string; is_default: boolean }[]
+  subtasks?: { id: string; item_id: string; title: string; done: boolean; position: string }[]
 }
 
 /** An Item row with everything but what a test names. */
@@ -66,6 +67,7 @@ export async function standIn(
     marks: [...(rows.marks ?? [])],
     people: [...(rows.people ?? [])],
     reminders: [...(rows.reminders ?? [])] as Record<string, unknown>[],
+    subtasks: [...(rows.subtasks ?? [])],
   }
   const item = (id: unknown) => db.items.find((i) => i.id === id)
   const write: Record<string, (a: Record<string, unknown>) => void> = {
@@ -111,6 +113,21 @@ export async function standIn(
       db.labels = db.labels.filter((l) => l.id !== a.p_id)
       db.item_labels = db.item_labels.filter((r) => r.label_id !== a.p_id)
     },
+    add_subtask: (a) => {
+      if (db.subtasks.some((x) => x.id === a.p_id)) return
+      db.subtasks.push({
+        id: String(a.p_id),
+        item_id: String(a.p_item),
+        title: String(a.p_title),
+        done: false,
+        position: String(a.p_position),
+      })
+    },
+    update_subtask: (a) =>
+      db.subtasks.filter((x) => x.id === a.p_id).forEach((x) => Object.assign(x, a.p_patch)),
+    remove_subtask: (a) => {
+      db.subtasks = db.subtasks.filter((x) => x.id !== a.p_id)
+    },
     add_label: (a) => {
       if (!db.item_labels.some((r) => r.item_id === a.p_item && r.label_id === a.p_label))
         db.item_labels.push({ item_id: String(a.p_item), label_id: String(a.p_label) })
@@ -143,7 +160,8 @@ export async function standIn(
       refresh_token: 'stand-in',
       token_type: 'bearer',
       expires_in: 3600,
-      expires_at: Math.floor(Date.now() / 1000) + 3600,
+      // Years ahead, so a test's fixed clock never finds it expired.
+      expires_at: Math.floor(Date.now() / 1000) + 10 * 365 * 24 * 3600,
       user: {
         id: ANN.id,
         aud: 'authenticated',

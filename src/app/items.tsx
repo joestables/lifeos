@@ -25,6 +25,7 @@ import { convertTargets, itemTitle, MARK_LABEL, opensAsPage, typeLook } from '@/
 import { useConvert } from './convert'
 import { deleteItem, draftNote, useCloseItem } from './item-navigation'
 import { NoteBody } from './note-body'
+import { TaskDetails, TaskTitle } from './task-details'
 
 /** An Item's mark (star, pin) and its "…" menu: Convert to, Delete. */
 export function ItemActions({ item, onDelete }: { item: Item; onDelete: () => void }) {
@@ -114,7 +115,13 @@ export function ItemPopup({ id, isNew = false }: { id: string | undefined; isNew
       typeLabel={look.label}
       title={itemTitle(item)}
       wide={item.type === 'note'}
-      titleField={item.type === 'note' && <NoteBody key={item.id} item={item} draft={draft} />}
+      titleField={
+        item.type === 'note' ? (
+          <NoteBody key={item.id} item={item} draft={draft} />
+        ) : (
+          item.type === 'task' && <TaskTitle key={item.id} item={item} />
+        )
+      }
       actions={
         !draft && (
           <ItemActions
@@ -127,7 +134,11 @@ export function ItemPopup({ id, isNew = false }: { id: string | undefined; isNew
         )
       }
     >
-      {item.type !== 'note' && <ItemContent item={item} />}
+      {item.type === 'task' ? (
+        <TaskDetails key={item.id} item={item} />
+      ) : (
+        item.type !== 'note' && <ItemContent item={item} />
+      )}
     </ItemDialog>
   )
 }

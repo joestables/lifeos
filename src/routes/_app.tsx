@@ -99,7 +99,7 @@ function Shell({
   const openCapture = useOpenCapture()
   return (
     <AppShell
-      onCapture={openCapture}
+      onCapture={() => openCapture()}
       pages={PAGES.map((p) => (p.to === '/inbox' && waiting > 0 ? { ...p, count: waiting } : p))}
       me={{ name, space: 'Personal' }}
       sync={sync}

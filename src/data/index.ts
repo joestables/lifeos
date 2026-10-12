@@ -15,6 +15,7 @@ import {
 } from './labels'
 import { queryClient } from './queryClient'
 import { applyPendingReminders, remindersKey, type Reminder } from './reminders'
+import { applyPendingSubtasks, subtasksKey, type Subtask } from './subtasks'
 import { indexedDbQueueStore, WriteQueue } from './queue'
 import type { QueueEntry } from './queue/store'
 import { session } from './session'
@@ -53,6 +54,11 @@ const collections: {
     // A Task's default Reminder is made and moved by the server with its dates.
     fns: ['add_reminder', 'remove_reminder', 'create_item', 'update_item', 'convert_item'],
     fold: (rows: Reminder[], e: QueueEntry) => applyPendingReminders(rows, [e]),
+  },
+  {
+    key: subtasksKey,
+    fns: ['add_subtask', 'update_subtask', 'remove_subtask'],
+    fold: (rows: Subtask[], e: QueueEntry) => applyPendingSubtasks(rows, [e]),
   },
   {
     key: marksKey,
@@ -96,6 +102,9 @@ export const {
   setMark,
   addFixedReminder,
   removeReminder,
+  addSubtask,
+  updateSubtask,
+  removeSubtask,
 } = writes(queue, labelsNow)
 
 export const { unsentWrites, signOut } = session(queue)
@@ -111,6 +120,7 @@ export {
   useQueueEntries,
   useReminders,
   useSettings,
+  useSubtasks,
   useSyncCounts,
 } from './hooks'
 export { newId } from './ids'
@@ -118,4 +128,5 @@ export type { Label } from './labels'
 export { noteAction, reportEvent, startReporting } from './report'
 export type { Reminder } from './reminders'
 export type { Settings } from './settings'
+export type { Subtask } from './subtasks'
 export type { Item, ItemFields, SyncState } from './types'

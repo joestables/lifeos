@@ -1,6 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import type { ReactNode } from 'react'
-import { ArrowRightIcon, EllipsisIcon, InboxIcon, StarIcon, Trash2Icon } from 'lucide-react'
+import { InboxIcon, Trash2Icon } from 'lucide-react'
 import {
   EmptyState,
   Fab,
@@ -11,22 +10,20 @@ import {
   TypeTile,
 } from '@/components/lifeos'
 import { Button } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
 import {
-  DropdownMenu,
-  DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { toast } from '@/components/ui/sonner'
 import { useConvert } from '@/app/convert'
 import { deleteItem, useOpenItem } from '@/app/item-navigation'
+import { MoreMenu } from '@/app/more-menu'
 import { useOpenCapture } from '@/app/open-capture'
-import { queue, updateItem, useItems, useLabels, useMarks, useReminders, type Item } from '@/data'
-import { capturedWhen, dueWhen, isoDayOf, reminderWhen, sinceWhen } from '@/lib/dates'
+import { useTaskFacts } from '@/app/task-facts'
+import { TaskRow } from '@/app/task-row'
+import { queue, useItems, useReminders, type Item } from '@/data'
+import { capturedWhen, reminderWhen } from '@/lib/dates'
 import { inboxGroups } from '@/lib/inbox'
 import { convertTargets, itemTitle, typeLook } from '@/lib/item-types'
 
@@ -44,15 +41,8 @@ function Inbox() {
   const now = new Date()
   const { overdue, today, toSort } = inboxGroups(items, now)
   const empty = overdue.length + today.length + toSort.length === 0
-  const marks = useMarks(queue)
-  const { labels, itemLabels } = useLabels(queue)
+  const facts = useTaskFacts()
   const reminders = useReminders(queue)
-  const labelNames = (itemId: string) =>
-    itemLabels
-      .filter((r) => r.item_id === itemId)
-      .map((r) => labels.find((l) => l.id === r.label_id)?.name)
-      .filter((n): n is string => !!n)
-      .sort()
   // A Thought's next Reminder, if it has one still to come.
   const nextReminder = (itemId: string) =>
     reminders
@@ -72,14 +62,7 @@ function Inbox() {
             </SectionLabel>
             <div className="flex flex-col gap-1.5">
               {overdue.map((t) => (
-                <TaskRow
-                  key={t.id}
-                  task={t}
-                  now={now}
-                  late
-                  labels={labelNames(t.id)}
-                  starred={marks.has(t.id)}
-                />
+                <TaskRow key={t.id} task={t} now={now} {...facts.of(t.id)} />
               ))}
             </div>
           </section>
@@ -89,13 +72,7 @@ function Inbox() {
             <SectionLabel count={today.length}>Today</SectionLabel>
             <div className="flex flex-col gap-1.5">
               {today.map((t) => (
-                <TaskRow
-                  key={t.id}
-                  task={t}
-                  now={now}
-                  labels={labelNames(t.id)}
-                  starred={marks.has(t.id)}
-                />
+                <TaskRow key={t.id} task={t} now={now} {...facts.of(t.id)} />
               ))}
             </div>
           </section>
@@ -111,109 +88,8 @@ function Inbox() {
           </section>
         )}
       </div>
-      <Fab label="Capture" onClick={openCapture} />
+      <Fab label="Capture" onClick={() => openCapture()} />
     </>
-  )
-}
-
-function MoreMenu({ children }: { children: ReactNode }) {
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger render={<Button variant="ghost" size="icon-sm" aria-label="More" />}>
-        <EllipsisIcon />
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">{children}</DropdownMenuContent>
-    </DropdownMenu>
-  )
-}
-
-/** An open Task: tick it done, or move it to tomorrow (INB-003, INB-004). */
-function TaskRow({
-  task,
-  now,
-  late = false,
-  labels,
-  starred,
-}: {
-  task: Item
-  now: Date
-  late?: boolean
-  /** Its Labels' names, A to Z. */
-  labels: string[]
-  starred: boolean
-}) {
-  const open = useOpenItem()
-  const title = itemTitle(task)
-  const today = isoDayOf(now)
-
-  const done = () => {
-    updateItem(task.id, { status: 'done' })
-    toast(`Done "${title}"`, {
-      action: { label: 'Undo', onClick: () => updateItem(task.id, { status: 'active' }) },
-    })
-  }
-  const toTomorrow = () => {
-    const tomorrow = isoDayOf(new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1))
-    const was = task.do_on
-    updateItem(task.id, { do_on: tomorrow })
-    toast(`Moved "${title}" to tomorrow`, {
-      action: { label: 'Undo', onClick: () => updateItem(task.id, { do_on: was }) },
-    })
-  }
-
-  const meta = []
-  if (late && task.due_on)
-    meta.push(<span className="text-destructive">{dueWhen(task.due_on, now)}</span>)
-  if (!late) {
-    if (task.do_at) meta.push(task.do_at.slice(0, 5))
-    if (task.do_on && task.do_on < today) meta.push(sinceWhen(task.do_on, now))
-    if (task.due_on) meta.push(dueWhen(task.due_on, now))
-  }
-  meta.push(...labels)
-
-  return (
-    <ItemRow
-      leading={
-        <Checkbox
-          colour={TASK.colour}
-          aria-label={`Done: ${title}`}
-          checked={false}
-          onCheckedChange={(on) => on && done()}
-        />
-      }
-      title={title}
-      meta={meta}
-      sync={task.sync}
-      onOpen={() => open(task)}
-      actions={
-        !late && (
-          <Button variant="ghost" size="sm" onClick={toTomorrow}>
-            Tomorrow
-          </Button>
-        )
-      }
-      menu={
-        <MoreMenu>
-          {!late && (
-            <DropdownMenuItem onClick={toTomorrow}>
-              <ArrowRightIcon /> Tomorrow
-            </DropdownMenuItem>
-          )}
-          <DropdownMenuItem variant="destructive" onClick={() => deleteItem(task)}>
-            <Trash2Icon /> Delete
-          </DropdownMenuItem>
-        </MoreMenu>
-      }
-      trailing={
-        starred && (
-          <StarIcon
-            data-colour={TASK.colour}
-            aria-label="Starred"
-            className="size-4 fill-tc text-tc"
-          />
-        )
-      }
-    />
   )
 }
 

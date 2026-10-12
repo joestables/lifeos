@@ -2,6 +2,34 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## Not yet opened — Stage 2, step 9: Tasks
+
+Branch `claude/kind-dijkstra-1kv0xt` · 2026-10-12
+
+**What it did**
+- Plan step 9, the Tasks page: All tasks (Overdue, Today, Tomorrow, each
+  remaining day of the week by name, Later, No date, Someday), By label (an
+  open group per Label, then No label; each Label's group ends with "Add a
+  task", which gives the new Task that Label, its date understood) and
+  Completed (most recently changed first: the database keeps no done
+  time). "New task" opens capture as a Task. The Recurring view comes with
+  repeating Tasks (step 10).
+- A Task's row, shared with Inbox: tick done (with Undo; unticked in
+  Completed it is open again), time, "Since Thu", due (red once passed),
+  Labels, sub-tasks "2/5", Tomorrow and the star on hover, and a "…" menu
+  with Tomorrow, Someday and Delete.
+- The Task popup: its title and notes kept as typed, do-on date and time
+  (a time with no day opens the Calendar to ask for one), due date,
+  Labels from the LabelPicker, sub-tasks (tick, rename, remove, add), the
+  star. Someday clears the do-on date; a date makes it active again.
+- New in the design spec first: DateField, TimeField, SubtaskList, AddRow,
+  TaskDetails, and a Tasks section in patterns. The app reads sub-tasks.
+- Found on the way: By label's groups were all closed when they arrived
+  after the page was drawn; the do-on Calendar stayed open after asking
+  for a time's day; the stand-in's session expired when a test's clock ran
+  ahead of the real one. 7 unit tests and 7 browser tests (each on desktop
+  and phone).
+
 ## [#6](https://github.com/joestables/lifeos/pull/6) — Stage 2, step 8: Notes
 
 Branch `claude/kind-dijkstra-1kv0xt` · 2026-10-11

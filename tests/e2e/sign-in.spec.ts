@@ -31,7 +31,7 @@ test('ACC-001: signed in, I land in the app with the navigation drawer', async (
   ])
   await expect(page.getByText(ANN.name).filter({ visible: true })).toBeVisible()
   await pages.getByRole('link', { name: 'Tasks' }).click()
-  await expect(page.getByRole('heading', { name: 'Tasks' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Tasks', level: 1 })).toBeVisible()
   if (isMobile) await expect(pages).toBeHidden()
 })
 
