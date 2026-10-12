@@ -1140,6 +1140,7 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      series_secret_ok: { Args: { p_secret: string }; Returns: boolean }
       series_to_extend: {
         Args: Record<PropertyKey, never>
         Returns: {

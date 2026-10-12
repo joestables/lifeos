@@ -260,6 +260,18 @@ begin
 end
 $$;
 
+-- Whether a call carries the run's secret, kept only in Vault
+-- (environments.md): the Edge Function asks rather than holding a copy.
+create function core.series_secret_ok(p_secret text)
+returns boolean
+language sql stable security definer set search_path = '' as $$
+  select coalesce(
+    (select decrypted_secret = p_secret from vault.decrypted_secrets where name = 'series_secret'),
+    false
+  )
+$$;
+
+grant execute on function core.series_secret_ok(text) to service_role;
 grant execute on function core.series_to_extend() to service_role;
 grant execute on function core.extend_series(uuid, date[], date) to service_role;
 grant execute on function core.finish_series_run(boolean, jsonb) to service_role;

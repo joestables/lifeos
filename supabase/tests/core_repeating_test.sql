@@ -3,7 +3,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = extensions, public;
-select plan(26);
+select plan(27);
 
 insert into auth.users (id, email) values
   ('00000000-0000-4000-8000-00000000000a', 'ann@example.com'),
@@ -202,6 +202,8 @@ insert into core.items (id, type, title, space_id, owner_id, do_on, series_id, o
   ('00000000-0000-7000-8000-000000000302', 'task', 'Vitamins', :'a_space', '00000000-0000-4000-8000-00000000000a', current_date - 1, '00000000-0000-7000-8000-0000000003f1', current_date - 1);
 update core.items set touched_at = now(), body = 'Took half' where id = '00000000-0000-7000-8000-000000000301';
 
+select is(core.series_secret_ok('guess'), false,
+  'ADR-0045: the nightly run refuses a call without its secret');
 select ok(
   exists (select 1 from core.series_to_extend() where id = '00000000-0000-7000-8000-0000000003f1'),
   'ADR-0045: the run finds each series still making occurrences'

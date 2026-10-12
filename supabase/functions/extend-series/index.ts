@@ -1,6 +1,6 @@
 // extend-series: the nightly series run (ADR-0045), called by pg_cron at
-// 02:00 UTC through pg_net with a secret kept in Vault and as this
-// function's SERIES_SECRET. Deployed by Claude through the Supabase MCP with
+// 02:00 UTC through pg_net with a secret kept in Vault, which this function
+// checks with the database (core.series_secret_ok). Deployed by Claude through the Supabase MCP with
 // packages/recurrence's files (runbook.md#the-nightly-series-run).
 import { extendAll, type Rpc } from './run.ts'
 
@@ -30,8 +30,8 @@ const rpc: Rpc = async (fn, args) => {
 }
 
 Deno.serve(async (req) => {
-  const secret = Deno.env.get('SERIES_SECRET')
-  if (!secret || req.headers.get('Authorization') !== `Bearer ${secret}`)
+  const secret = req.headers.get('Authorization')?.replace(/^Bearer /, '')
+  if (!secret || !(await rpc('series_secret_ok', { p_secret: secret })))
     return new Response('Forbidden', { status: 403 })
   try {
     return Response.json(await extendAll(rpc))

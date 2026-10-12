@@ -47,8 +47,9 @@ Repeating Tasks are made ahead by the `extend-series` Edge Function
 
 - **When:** `pg_cron` job `nightly-series`, 02:00 UTC, calls it through
   `pg_net` with the project's URL and a shared secret from Vault
-  (`project_url`, `series_secret`); the function holds the same secret as
-  `SERIES_SECRET` and refuses any call without it.
+  (`project_url`, `series_secret`); the function refuses any call whose
+  secret the database doesn't confirm (`core.series_secret_ok`), so the
+  secret lives only in Vault.
 - **What it does:** makes each series' occurrences up to 12 weeks ahead (and
   the one after), the next of a Task repeated after it's done if nothing
   made it, then skips untouched occurrences overtaken by a newer due one,
@@ -61,7 +62,8 @@ Repeating Tasks are made ahead by the `extend-series` Edge Function
   twice does no harm.
 - **Deploying it:** Claude deploys `supabase/functions/extend-series`
   through the Supabase MCP with `packages/recurrence`'s files, without JWT
-  checks (it checks its own secret). A missed night changes nothing anyone
+  checks (it checks its own secret). Changing the secret is one Vault
+  update. A missed night changes nothing anyone
   sees: 12 weeks are already made.
 
 ## Recovering
