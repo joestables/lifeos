@@ -17,6 +17,7 @@ import { applyPending } from './overlay'
 import type { WriteQueue } from './queue/queue'
 import type { QueueEntry } from './queue/store'
 import { applyPendingReminders, fetchReminders, remindersKey, type Reminder } from './reminders'
+import { applyPendingSeries, fetchSeries, seriesKey, type Series } from './series'
 import { applyPendingSubtasks, fetchSubtasks, subtasksKey, type Subtask } from './subtasks'
 import { DEFAULT_SETTINGS, fetchSettings, settingsKey, type Settings } from './settings'
 import type { Item } from './types'
@@ -79,13 +80,17 @@ export function useItems(queue: WriteQueue): {
   return { items, isLoading, outOfDate }
 }
 
-/** Deleted Items, the most recently deleted first (ITM-003). */
+/**
+ * Deleted Items, the most recently deleted first (ITM-003). Occurrences a
+ * repeat took away when it changed or stopped were never mine to delete, so
+ * they aren't here (ADR-0022).
+ */
 export function useDeletedItems(queue: WriteQueue): { items: Item[]; isLoading: boolean } {
   const { all, isLoading } = useAllItems(queue)
   const items = useMemo(
     () =>
       all
-        .filter((i) => i.archived_at !== null)
+        .filter((i) => i.archived_at !== null && !(i.series_id && i.touched_at === null))
         .sort((a, b) => (a.archived_at! < b.archived_at! ? 1 : -1)),
     [all],
   )
@@ -156,4 +161,15 @@ export function useSubtasks(queue: WriteQueue): readonly Subtask[] {
   const entries = useQueueEntries(queue)
   const query = useQuery({ queryKey: subtasksKey, queryFn: fetchSubtasks })
   return useMemo(() => applyPendingSubtasks(query.data ?? [], entries), [query.data, entries])
+}
+
+/** Every series behind the Items I can see, with unsent repeat changes laid over them. */
+export function useSeries(queue: WriteQueue): readonly Series[] {
+  const entries = useQueueEntries(queue)
+  const query = useQuery({ queryKey: seriesKey, queryFn: fetchSeries })
+  const items = useQuery({ queryKey: itemsKey, queryFn: fetchItems })
+  return useMemo(
+    () => applyPendingSeries(query.data ?? [], entries, items.data ?? []),
+    [query.data, entries, items.data],
+  )
 }

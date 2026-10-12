@@ -1,4 +1,5 @@
 import { parseCapture } from '@lifeos/capture'
+import { describeRule } from '@lifeos/recurrence'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { SquareCheckBigIcon } from 'lucide-react'
 import { useMemo, useState } from 'react'
@@ -15,20 +16,23 @@ import { useOpenCapture } from '@/app/open-capture'
 import { createTaskFrom } from '@/app/task-actions'
 import { useTaskFacts } from '@/app/task-facts'
 import { TaskRow } from '@/app/task-row'
-import { addLabel, queue, useItems, type Item } from '@/data'
-import { completedTasks, taskGroups, tasksByLabel } from '@/lib/tasks'
+import { addLabel, queue, useItems, type Item, type RepeatMode } from '@/data'
+import { completedTasks, recurringTasks, taskGroups, tasksByLabel } from '@/lib/tasks'
 
-type View = 'all' | 'labels' | 'done'
+type View = 'all' | 'labels' | 'recurring' | 'done'
 const VIEWS: { value: View; label: string }[] = [
   { value: 'all', label: 'All tasks' },
   { value: 'labels', label: 'By label' },
+  { value: 'recurring', label: 'Recurring' },
   { value: 'done', label: 'Completed' },
 ]
 
-/** My Tasks, by when, by Label, or done (views/tasks.md). */
+/** My Tasks, by when, by Label, repeating, or done (views/tasks.md). */
 export const Route = createFileRoute('/_app/tasks')({
   validateSearch: (search: Record<string, unknown>): { view?: View } =>
-    search.view === 'labels' || search.view === 'done' ? { view: search.view } : {},
+    search.view === 'labels' || search.view === 'recurring' || search.view === 'done'
+      ? { view: search.view }
+      : {},
   component: Tasks,
 })
 
@@ -42,8 +46,8 @@ function Tasks() {
   const hasTasks = useMemo(() => items.some((i) => i.type === 'task'), [items])
 
   /** In By label the group is the Label, so rows leave Labels out. */
-  const row = (t: Item, showDay = false, withLabels = true) => {
-    const f = facts.of(t.id)
+  const row = (t: Item, showDay = false, withLabels = true, repeat?: string) => {
+    const f = facts.of(t)
     return (
       <TaskRow
         key={t.id}
@@ -52,6 +56,7 @@ function Tasks() {
         showDay={showDay}
         {...f}
         labels={withLabels ? f.labels : []}
+        repeat={repeat ?? f.repeat}
       />
     )
   }
@@ -96,6 +101,24 @@ function Tasks() {
           ))}
 
         {view === 'labels' && <ByLabel items={items} now={now} row={row} facts={facts} />}
+
+        {view === 'recurring' &&
+          recurringTasks(items, facts.series, now).map((g) => (
+            <section key={g.key}>
+              <SectionLabel count={g.tasks.length}>{g.label}</SectionLabel>
+              <div className="flex flex-col gap-1.5">
+                {g.tasks.map(({ task, series }) =>
+                  // Its repeat in full, and its next date (views/tasks.md).
+                  row(
+                    task,
+                    true,
+                    true,
+                    describeRule(series.rule, series.starts_on, series.mode as RepeatMode),
+                  ),
+                )}
+              </div>
+            </section>
+          ))}
 
         {view === 'done' && (
           <div className="flex flex-col gap-1.5">{completedTasks(items).map((t) => row(t))}</div>

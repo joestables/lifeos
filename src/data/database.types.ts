@@ -890,6 +890,39 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      complete_occurrence: {
+        Args: { p_id: string; p_next: string; p_next_on: string }
+        Returns: {
+          all_day: boolean | null
+          archived_at: string | null
+          body: string | null
+          created_at: string
+          do_at: string | null
+          do_on: string | null
+          due_on: string | null
+          ends_at: string | null
+          id: string
+          occurrence_on: string | null
+          owner_id: string
+          position: string | null
+          search: unknown
+          series_id: string | null
+          slot: string | null
+          space_id: string
+          starts_at: string | null
+          status: string
+          title: string
+          touched_at: string | null
+          type: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'items'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       convert_item: {
         Args: { p_id: string; p_type: string }
         Returns: {
@@ -973,6 +1006,11 @@ export type Database = {
         }
       }
       delete_label: { Args: { p_id: string }; Returns: undefined }
+      extend_series: {
+        Args: { p_days: string[]; p_series: string; p_until: string }
+        Returns: undefined
+      }
+      finish_series_run: { Args: { p_details?: Json; p_ok: boolean }; Returns: number }
       link_items: {
         Args: { p_from: string; p_id: string; p_link_type: string; p_to: string }
         Returns: undefined
@@ -1102,6 +1140,19 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      series_to_extend: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          ended_on: string
+          generated_until: string
+          id: string
+          last_done_on: string
+          mode: string
+          rule: string
+          starts_on: string
+          timezone: string
+        }[]
+      }
       set_device: {
         Args: { p_enabled: boolean; p_id: string }
         Returns: {
@@ -1125,6 +1176,49 @@ export type Database = {
         }
       }
       set_mark: { Args: { p_item: string; p_on: boolean }; Returns: undefined }
+      set_repeat: {
+        Args: {
+          p_item: string
+          p_mode: string
+          p_occurrences: Json
+          p_rule: string
+          p_series: string
+          p_starts_on: string
+          p_template: Json
+          p_timezone: string
+          p_until: string
+        }
+        Returns: {
+          all_day: boolean | null
+          archived_at: string | null
+          body: string | null
+          created_at: string
+          do_at: string | null
+          do_on: string | null
+          due_on: string | null
+          ends_at: string | null
+          id: string
+          occurrence_on: string | null
+          owner_id: string
+          position: string | null
+          search: unknown
+          series_id: string | null
+          slot: string | null
+          space_id: string
+          starts_at: string | null
+          status: string
+          title: string
+          touched_at: string | null
+          type: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'items'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       snooze_reminder: {
         Args: { p_id: string; p_until: string }
         Returns: {
@@ -1146,6 +1240,39 @@ export type Database = {
         SetofOptions: {
           from: '*'
           to: 'reminders'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      stop_repeat: {
+        Args: { p_item: string }
+        Returns: {
+          all_day: boolean | null
+          archived_at: string | null
+          body: string | null
+          created_at: string
+          do_at: string | null
+          do_on: string | null
+          due_on: string | null
+          ends_at: string | null
+          id: string
+          occurrence_on: string | null
+          owner_id: string
+          position: string | null
+          search: unknown
+          series_id: string | null
+          slot: string | null
+          space_id: string
+          starts_at: string | null
+          status: string
+          title: string
+          touched_at: string | null
+          type: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'items'
           isOneToOne: true
           isSetofReturn: false
         }

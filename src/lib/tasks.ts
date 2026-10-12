@@ -1,5 +1,6 @@
-import type { Item } from '@/data'
+import type { Item, Series } from '@/data'
 import { fromIsoDay, isoDayOf } from './dates'
+import { currentOccurrences, stillRepeats } from './series'
 
 export interface TaskGroup {
   key: string
@@ -12,19 +13,17 @@ export interface TaskGroup {
 const weekday = new Intl.DateTimeFormat('en-GB', { weekday: 'long' })
 const addDays = (d: Date, n: number) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n)
 
-/** Open Tasks, live, a repeating one's next open occurrence only (ADR-0022). */
-function open(items: readonly Item[]): Item[] {
-  const live = items.filter(
-    (i) =>
-      i.type === 'task' && i.archived_at === null && (i.status === 'active' || i.status === 'idea'),
+/** Open Tasks, live, a repeating one's next open occurrence only (TSK-008). */
+function open(items: readonly Item[], today: string): Item[] {
+  return currentOccurrences(
+    items.filter(
+      (i) =>
+        i.type === 'task' &&
+        i.archived_at === null &&
+        (i.status === 'active' || i.status === 'idea'),
+    ),
+    today,
   )
-  const first = new Map<string, Item>()
-  for (const t of live) {
-    if (!t.series_id || t.status !== 'active') continue
-    const seen = first.get(t.series_id)
-    if (!seen || (t.do_on ?? '') < (seen.do_on ?? '')) first.set(t.series_id, t)
-  }
-  return live.filter((t) => !t.series_id || first.get(t.series_id) === t)
 }
 
 /** Timed first, by time; then by when made (TSK-012 adds a hand-made order). */
@@ -61,7 +60,7 @@ export function taskGroups(items: readonly Item[], now: Date = new Date()): Task
   ]
   const group = (key: string) => groups.find((g) => g.key === key)!
 
-  for (const t of open(items)) {
+  for (const t of open(items, today)) {
     if (t.status === 'idea') group('someday').tasks.push(t)
     else if (t.due_on !== null && t.due_on < today) group('overdue').tasks.push(t)
     else {
@@ -119,4 +118,38 @@ export function completedTasks(items: readonly Item[]): Item[] {
   return items
     .filter((i) => i.type === 'task' && i.archived_at === null && i.status === 'done')
     .sort((a, b) => b.updated_at.localeCompare(a.updated_at))
+}
+
+/**
+ * "Recurring": each repeating Task once, by its next open occurrence — those
+ * on a schedule, then those that come back after they're done — soonest
+ * first (TSK-008, TSK-009).
+ */
+export function recurringTasks(
+  items: readonly Item[],
+  series: ReadonlyMap<string, Series>,
+  now: Date = new Date(),
+): { key: string; label: string; tasks: { task: Item; series: Series }[] }[] {
+  const next = open(items, isoDayOf(now)).flatMap((task) => {
+    const s = task.series_id ? series.get(task.series_id) : undefined
+    return s && stillRepeats(task, s) ? [{ task, series: s }] : []
+  })
+  next.sort(
+    (a, b) =>
+      (a.task.do_on ?? '').localeCompare(b.task.do_on ?? '') ||
+      byTime(a.task, b.task) ||
+      a.task.title.localeCompare(b.task.title),
+  )
+  return [
+    {
+      key: 'schedule',
+      label: 'On a schedule',
+      tasks: next.filter((n) => n.series.mode === 'schedule'),
+    },
+    {
+      key: 'after_completion',
+      label: "After it's done",
+      tasks: next.filter((n) => n.series.mode === 'after_completion'),
+    },
+  ].filter((g) => g.tasks.length > 0)
 }

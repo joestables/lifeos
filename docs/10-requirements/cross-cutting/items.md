@@ -73,6 +73,9 @@ Acceptance criteria
    when it was deleted.
 2. Given a deleted Item there, when I restore it, then it is back where it
    was, with its Labels, links and Reminders.
+3. Given a repeat I changed or stopped, then the occurrences it took away,
+   which I had never changed, are not listed: I didn't delete them
+   ([TSK-011](../views/tasks.md#tsk-011--change-or-stop-a-repeat)).
 
 ### ITM-004 — Convert an Item
 

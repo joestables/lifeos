@@ -40,6 +40,30 @@ Done 9 October 2026.
 - **A nightly smoke walk** of production with the test account confirms that
   sign-in, capture and Inbox still work — added once Stage 2 is in daily use.
 
+## The nightly series run
+
+Repeating Tasks are made ahead by the `extend-series` Edge Function
+([ADR-0045](../20-architecture/adr/0045-extending-series.md)):
+
+- **When:** `pg_cron` job `nightly-series`, 02:00 UTC, calls it through
+  `pg_net` with the project's URL and a shared secret from Vault
+  (`project_url`, `series_secret`); the function holds the same secret as
+  `SERIES_SECRET` and refuses any call without it.
+- **What it does:** makes each series' occurrences up to 12 weeks ahead (and
+  the one after), the next of a Task repeated after it's done if nothing
+  made it, then skips untouched occurrences overtaken by a newer due one,
+  and records its heartbeat (`ops.heartbeats`, `extend-series`). A failure
+  goes to `ops.events`; the 03:00 health check reports a heartbeat that is
+  late or failed.
+- **Checking it:** `select * from ops.heartbeats` and
+  `select * from cron.job_run_details where jobid = (select jobid from cron.job where jobname = 'nightly-series') order by start_time desc limit 5`.
+- **Running it by hand:** the same `net.http_post` as the job; running it
+  twice does no harm.
+- **Deploying it:** Claude deploys `supabase/functions/extend-series`
+  through the Supabase MCP with `packages/recurrence`'s files, without JWT
+  checks (it checks its own secret). A missed night changes nothing anyone
+  sees: 12 weeks are already made.
+
 ## Recovering
 
 - **A bad deploy:** Vercel's instant rollback.

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { Item } from '@/data'
-import { completedTasks, taskGroups, tasksByLabel } from './tasks'
+import { completedTasks, recurringTasks, taskGroups, tasksByLabel } from './tasks'
 
 const item = (id: string, fields: Partial<Item>): Item => ({
   id,
@@ -75,8 +75,8 @@ describe('All tasks (views/tasks.md)', () => {
 
   it('TSK-008: a repeating Task shows its next open occurrence only', () => {
     const items = [
-      item('bins-1', { do_on: '2026-10-12', series_id: 's' }),
-      item('bins-2', { do_on: '2026-10-19', series_id: 's' }),
+      item('bins-1', { do_on: '2026-10-12', series_id: 's', occurrence_on: '2026-10-12' }),
+      item('bins-2', { do_on: '2026-10-19', series_id: 's', occurrence_on: '2026-10-19' }),
     ]
     expect(shape(taskGroups(items, MON))).toEqual([['Today', ['bins-1']]])
   })
@@ -115,5 +115,46 @@ describe('By label and Completed', () => {
 
   it('TSK-003: done Tasks, most recently changed first', () => {
     expect(completedTasks(items).map((t) => t.id)).toEqual(['done-later', 'done'])
+  })
+})
+
+describe('Recurring', () => {
+  it('TSK-008, TSK-009: each repeating Task once, on a schedule first, soonest first', () => {
+    const occ = (id: string, series: string, on: string, fields: Partial<Item> = {}) =>
+      item(id, { series_id: series, occurrence_on: on, do_on: on, ...fields })
+    const series = new Map(
+      (
+        [
+          ['bins', 'schedule', null],
+          ['gym', 'schedule', null],
+          ['kettle', 'after_completion', null],
+          ['stopped', 'schedule', '2026-10-12'],
+        ] as const
+      ).map(([id, mode, ended_on]) => [
+        id,
+        {
+          id,
+          mode,
+          rule: 'FREQ=WEEKLY',
+          starts_on: '2026-10-01',
+          timezone: 'Europe/London',
+          ended_on,
+        },
+      ]),
+    )
+    const items = [
+      occ('bins-1', 'bins', '2026-10-19'),
+      occ('bins-2', 'bins', '2026-10-26'),
+      occ('gym-1', 'gym', '2026-10-14'),
+      occ('kettle-1', 'kettle', '2027-01-10'),
+      occ('stopped-1', 'stopped', '2026-10-12'),
+      item('plain', { do_on: '2026-10-13' }),
+    ]
+    expect(
+      recurringTasks(items, series, MON).map((g) => [g.label, g.tasks.map((t) => t.task.id)]),
+    ).toEqual([
+      ['On a schedule', ['gym-1', 'bins-1']],
+      ["After it's done", ['kettle-1']],
+    ])
   })
 })

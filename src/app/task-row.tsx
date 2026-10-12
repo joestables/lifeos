@@ -1,4 +1,4 @@
-import { ArrowRightIcon, ArchiveIcon, StarIcon, Trash2Icon } from 'lucide-react'
+import { ArrowRightIcon, ArchiveIcon, RepeatIcon, StarIcon, Trash2Icon } from 'lucide-react'
 import { ItemRow } from '@/components/lifeos'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -9,7 +9,8 @@ import { setMark, updateItem, type Item } from '@/data'
 import { dateName, dueWhen, isoDayOf, sinceWhen } from '@/lib/dates'
 import { itemTitle } from '@/lib/item-types'
 import { deleteItem, useOpenItem } from './item-navigation'
-import { tickDone, toSomeday } from './task-actions'
+import { useTickDone } from './repeat'
+import { toSomeday } from './task-actions'
 import { MoreMenu } from './more-menu'
 
 const tomorrowOf = (now: Date) =>
@@ -18,7 +19,8 @@ const tomorrowOf = (now: Date) =>
 /**
  * A Task in a list (patterns.md#tasks): tick it done, open it, move it to
  * tomorrow or Someday, star it. Its meta: time, the day when the group
- * doesn't say it, the due date (red once passed), Labels, sub-tasks "2/5".
+ * doesn't say it, the due date (red once passed), its repeat, Labels,
+ * sub-tasks "2/5".
  */
 export function TaskRow({
   task,
@@ -26,6 +28,7 @@ export function TaskRow({
   labels = [],
   starred = false,
   subtasks,
+  repeat,
   showDay = false,
 }: {
   task: Item
@@ -34,10 +37,13 @@ export function TaskRow({
   labels?: string[]
   starred?: boolean
   subtasks?: { done: number; total: number }
+  /** How it repeats, in a word or two ("Weekly"), while it does. */
+  repeat?: string
   /** Say its day ("Tomorrow", "Mon 19 Oct"): in Later, By label. */
   showDay?: boolean
 }) {
   const open = useOpenItem()
+  const tickDone = useTickDone()
   const title = itemTitle(task)
   const today = isoDayOf(now)
   const isDone = task.status === 'done'
@@ -59,6 +65,13 @@ export function TaskRow({
   }
   if (task.do_at) meta.push(task.do_at.slice(0, 5))
   if (!late && task.due_on) meta.push(dueWhen(task.due_on, now))
+  if (repeat)
+    meta.push(
+      <span className="inline-flex items-center gap-1">
+        <RepeatIcon className="size-3.5" aria-label="Repeats" />
+        {repeat}
+      </span>,
+    )
   meta.push(...labels)
   if (subtasks && subtasks.total > 0)
     meta.push(

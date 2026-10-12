@@ -3,14 +3,6 @@ import type { CaptureDates } from '@lifeos/capture'
 import { createItem, updateItem, type Item, type ItemFields } from '@/data'
 import { itemTitle } from '@/lib/item-types'
 
-/** Done, with Undo (TSK-003, INB-003). */
-export function tickDone(task: Item) {
-  updateItem(task.id, { status: 'done' })
-  toast(`Done "${itemTitle(task)}"`, {
-    action: { label: 'Undo', onClick: () => updateItem(task.id, { status: 'active' }) },
-  })
-}
-
 /** Parked for someday, without its do-on date (TSK-007), with Undo. */
 export function toSomeday(task: Item) {
   const was = { status: task.status, do_on: task.do_on, do_at: task.do_at }

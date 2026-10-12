@@ -1,5 +1,6 @@
 import type { Database } from './database.types'
 import type { QueueEntry } from './queue/store'
+import type { RepeatArgs } from './series'
 import { supabase } from './supabase'
 
 type Tables = Database['core']['Tables']
@@ -87,6 +88,24 @@ export function applyPendingItemLabels(
         break
       case 'delete_label':
         out = out.filter((r) => r.label_id !== a.p_id)
+        break
+      // A repeat's occurrences have its Labels; the next of one repeated
+      // after completion has the Labels of the one ticked, until sent.
+      case 'set_repeat': {
+        const { p_template, p_occurrences } = entry.args as unknown as RepeatArgs
+        for (const o of p_occurrences.slice(1))
+          for (const label of p_template.label_ids ?? [])
+            if (!out.some((r) => r.item_id === o.id && r.label_id === label))
+              out.push({ item_id: o.id, label_id: label })
+        break
+      }
+      case 'complete_occurrence':
+        if (!out.some((r) => r.item_id === a.p_next))
+          out.push(
+            ...out
+              .filter((r) => r.item_id === a.p_id)
+              .map((r) => ({ item_id: String(a.p_next), label_id: r.label_id })),
+          )
         break
     }
   }

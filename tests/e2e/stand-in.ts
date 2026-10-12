@@ -1,4 +1,5 @@
 import type { Page } from '@playwright/test'
+import { addDays } from '../../packages/recurrence/src/index.ts'
 
 /** The stand-in Supabase the e2e build points at (npm run build:e2e). */
 export const STAND_IN_URL = 'https://stand-in.supabase.co'
@@ -19,6 +20,7 @@ export interface Rows {
   people?: { timezone: string; default_reminder_time: string }[]
   reminders?: { id: string; item_id: string; fires_at: string; is_default: boolean }[]
   subtasks?: { id: string; item_id: string; title: string; done: boolean; position: string }[]
+  series?: Record<string, unknown>[]
 }
 
 /** An Item row with everything but what a test names. */
@@ -68,8 +70,50 @@ export async function standIn(
     people: [...(rows.people ?? [])],
     reminders: [...(rows.reminders ?? [])] as Record<string, unknown>[],
     subtasks: [...(rows.subtasks ?? [])],
+    series: [...(rows.series ?? [])],
   }
   const item = (id: unknown) => db.items.find((i) => i.id === id)
+  const now = () => new Date().toISOString()
+  // Repeats, as core.set_repeat, stop_repeat and complete_occurrence make them.
+  const endSeries = (seriesId: unknown, last: string, keep?: unknown) => {
+    for (const s of db.series)
+      if (s.id === seriesId && (!s.ended_on || String(s.ended_on) > last)) s.ended_on = last
+    for (const i of db.items)
+      if (
+        i.series_id === seriesId &&
+        String(i.occurrence_on) > last &&
+        !i.touched_at &&
+        !i.archived_at &&
+        (i.status === 'active' || i.status === 'idea') &&
+        i.id !== keep
+      )
+        i.archived_at = now()
+  }
+  type Template = {
+    title: string
+    body?: string | null
+    do_at?: string | null
+    due_offset_days?: number | null
+    label_ids?: string[]
+  }
+  const occurrence = (s: Record<string, unknown>, id: string, on: string) => {
+    if (item(id) || db.items.some((i) => i.series_id === s.id && i.occurrence_on === on)) return
+    const t = s.template as Template
+    db.items.push(
+      itemRow({
+        id,
+        type: 'task',
+        title: t.title,
+        body: t.body ?? null,
+        do_on: on,
+        do_at: t.do_at ?? null,
+        due_on: t.due_offset_days == null ? null : addDays(on, t.due_offset_days),
+        series_id: s.id,
+        occurrence_on: on,
+      }),
+    )
+    for (const label of t.label_ids ?? []) db.item_labels.push({ item_id: id, label_id: label })
+  }
   const write: Record<string, (a: Record<string, unknown>) => void> = {
     create_item: (a) => {
       if (item(a.p_id)) return
@@ -88,10 +132,51 @@ export async function standIn(
       const fields = a.p_fields as { fixed_at?: string }
       db.reminders.push({ id: a.p_id, item_id: a.p_item, fires_at: fields.fixed_at, ...fields })
     },
-    update_item: (a) =>
-      Object.assign(item(a.p_id) ?? {}, a.p_patch as object, {
-        updated_at: new Date().toISOString(),
-      }),
+    update_item: (a) => {
+      const i = item(a.p_id)
+      if (i?.series_id && !i.touched_at) i.touched_at = now()
+      Object.assign(i ?? {}, a.p_patch as object, { updated_at: now() })
+    },
+    set_repeat: (a) => {
+      const i = item(a.p_item)
+      if (!i || i.series_id === a.p_series) return
+      const occs = a.p_occurrences as { id: string; on: string }[]
+      const t = a.p_template as Template
+      if (i.series_id) endSeries(i.series_id, addDays(String(i.occurrence_on), -1), i.id)
+      const s = {
+        id: a.p_series,
+        mode: a.p_mode,
+        rule: a.p_rule,
+        starts_on: a.p_starts_on,
+        timezone: a.p_timezone,
+        template: t,
+        ended_on: null,
+      }
+      db.series.push(s)
+      const first = occs[0]!.on
+      Object.assign(i, {
+        series_id: a.p_series,
+        occurrence_on: first,
+        do_on: first,
+        do_at: t.do_at ?? null,
+        due_on: t.due_offset_days == null ? null : addDays(first, t.due_offset_days),
+        status: i.status === 'idea' ? 'active' : i.status,
+        touched_at: null,
+      })
+      for (const o of occs.slice(1)) occurrence(s, o.id, o.on)
+    },
+    stop_repeat: (a) => {
+      const i = item(a.p_item)
+      if (i?.series_id) endSeries(i.series_id, String(i.occurrence_on))
+    },
+    complete_occurrence: (a) => {
+      const i = item(a.p_id)
+      if (!i) return
+      Object.assign(i, { status: 'done', touched_at: i.touched_at ?? now(), updated_at: now() })
+      const s = db.series.find((x) => x.id === i.series_id)
+      if (s?.mode === 'after_completion' && !s.ended_on)
+        occurrence(s, String(a.p_next), String(a.p_next_on))
+    },
     remove_reminder: (a) => {
       db.reminders = db.reminders.filter((r) => r.id !== a.p_id)
     },

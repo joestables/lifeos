@@ -47,13 +47,22 @@ October):
 |---|---|
 | **All tasks** (first) | Open Tasks under Overdue, Today, Tomorrow, each remaining day of this week, Later, No date, and Someday last |
 | **By label** | Open Tasks under each Label that has any, then No label — the nearest thing to Google Tasks' lists |
-| **Recurring** (with repeating Tasks, step 10) | Each repeating Task once, with its repeat and its next date: those on a schedule, then those after you finish |
+| **Recurring** | Each repeating Task once, with its repeat and its next date: those on a schedule, then those that come back after they're done, soonest first |
 | **Completed** | Done Tasks, the most recently changed first (when they were done, unless changed since) |
 
 Each Task shows its title and, where it has them: do-on (and time), due
 (marked once overdue), Labels, sub-tasks done ("2/5"), whether it repeats and
 whether it is starred. A Task opens as a popup over the page, on a computer
 and on a phone ([ITM-001](../cross-cutting/items.md#itm-001--open-an-item)).
+
+**A repeat** is set in the Task's Repeat field: on a schedule, or a while
+after it's done. The Task becomes the repeat's first occurrence, from its
+do-on date (today, if it has none or it has passed); each occurrence after it
+is made with the Task's title, notes, time, Labels and due date (the same
+distance after its do-on date), but not its sub-tasks. Changing the repeat
+of an occurrence applies from that occurrence on (TSK-011); "Don't repeat"
+stops it there. Occurrences a repeat takes away when it changes or stops
+don't appear in Recently deleted: they were never edited.
 
 ## Requirements
 
@@ -78,7 +87,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to set everything about a Task in one place, **so
 that** a Task can hold what I need to do it.
-Priority: Must · Status: built (its repeat comes with step 10, its Reminders with step 11)
+Priority: Must · Status: built (its Reminders come with step 11)
 
 Acceptance criteria
 1. Given a Task, when I open it, then I can change its title, notes, do-on
@@ -154,7 +163,7 @@ Acceptance criteria
 
 **As** Joe, **I want** a Task to repeat on a schedule, **so that** "take
 the bins out" comes back every Monday.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified
 
 Acceptance criteria
 1. Given a Task, then I can make it repeat daily, every weekday, weekly on
@@ -172,7 +181,7 @@ Acceptance criteria
 **As** Joe, **I want** some Tasks to come back a while after I last did
 them, **so that** "descale the kettle" is three months after the last time,
 not on a fixed date.
-Priority: Should · Status: agreed
+Priority: Should · Status: verified
 
 Acceptance criteria
 1. Given a Task repeating three months after completion, when I tick it
@@ -183,7 +192,7 @@ Acceptance criteria
 **As** Joe, **I want** a missed daily Task to be skipped rather than stack
 up, **so that** missing vitamins on Monday doesn't leave seven overdue
 Tasks by Sunday.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified
 
 Acceptance criteria
 1. Given a daily Task not done on Monday, when Tuesday's occurrence comes
@@ -195,7 +204,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to change a repeat from a given date, or stop it,
 **so that** past occurrences and my edits are kept.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified
 
 Acceptance criteria
 1. Given a weekly Task, when I change one occurrence's title, then only
