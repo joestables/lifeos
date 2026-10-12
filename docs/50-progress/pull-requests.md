@@ -43,6 +43,13 @@ Branch `claude/kind-dijkstra-1kv0xt` · 2026-10-12
   browser tests (each on desktop and phone). A browser can't be made to
   show a real notification in a test, so what a push becomes is a unit
   test, and a real one on each device is checked by hand.
+- Live: the migration is applied as `20261012105115`; `send-notifications`
+  and `notification-action` are deployed; Vault holds `push_secret` (made in
+  the database) and the VAPID keys, which the sender made on its first run;
+  `minute-notifications` runs each minute. A call to `notification-action`
+  with a wrong token is refused. The security advisor's note that signed-in
+  people can call `core.vapid_public_key` is meant: it returns only the
+  public key a device subscribes with.
 
 ## [#8](https://github.com/joestables/lifeos/pull/8) — Stage 2, step 10: repeating Tasks
 
