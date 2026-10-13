@@ -14,7 +14,7 @@ export interface TypeDefinition {
   /** The time fields this Type may set; the database refuses the others. */
   timeFields: readonly TimeField[]
   colour: Colour
-  /** Whether the Type uses Labels (ADR-0014): Notes and Tasks only. */
+  /** Whether the Type uses Labels (ADR-0014): Thoughts, Notes and Tasks. */
   labels: boolean
   /** Its per-person mark, if it has one. */
   mark?: Mark
@@ -32,12 +32,12 @@ export const TYPES = [
     key: 'thought',
     module: 'core',
     label: 'Thought',
-    traits: [],
-    statuses: ['active'],
+    traits: ['completable'],
+    statuses: ['active', 'done'],
     defaultSpace: 'personal',
     timeFields: [],
     colour: 'yellow',
-    labels: false,
+    labels: true,
     subtasks: false,
     stage: 2,
   },

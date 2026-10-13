@@ -1,4 +1,5 @@
 import type { Page } from '@playwright/test'
+import { typeByKey } from '../../packages/ontology/src/index.ts'
 import { addDays } from '../../packages/recurrence/src/index.ts'
 
 /** The stand-in Supabase the e2e build points at (npm run build:e2e). */
@@ -255,7 +256,16 @@ export async function standIn(
     archive_item: (a) =>
       Object.assign(item(a.p_id) ?? {}, { archived_at: new Date().toISOString() }),
     restore_item: (a) => Object.assign(item(a.p_id) ?? {}, { archived_at: null }),
-    convert_item: (a) => Object.assign(item(a.p_id) ?? {}, { type: a.p_type }),
+    // The status is kept where the new Type has it, else active (ITM-004).
+    convert_item: (a) => {
+      const i = item(a.p_id)
+      if (!i) return {}
+      const keeps = (typeByKey(String(a.p_type))?.statuses as readonly string[]) ?? []
+      return Object.assign(i, {
+        type: a.p_type,
+        status: keeps.includes(String(i.status)) ? i.status : 'active',
+      })
+    },
     create_label: (a) =>
       db.labels.push({
         id: String(a.p_id),

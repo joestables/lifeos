@@ -12,6 +12,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import type { TypeColour } from './colours'
+import { LabelChips } from './LabelChips'
 
 export interface CaptureType {
   key: string
@@ -23,7 +24,7 @@ export interface CaptureType {
 /**
  * Capture (components.md): a Dialog near the top, so the page stays in
  * view. What it makes (Thought or Task), one line, then either the parser's
- * offer or the dates it understood.
+ * offer or the dates it understood, then my Labels to give it.
  */
 export function CaptureDialog({
   open,
@@ -35,6 +36,9 @@ export function CaptureDialog({
   onTextChange,
   offer,
   understood = [],
+  labels = [],
+  chosenLabels = new Set(),
+  onLabelsChange,
   onSave,
 }: {
   open: boolean
@@ -49,6 +53,10 @@ export function CaptureDialog({
   offer?: { type: string; label: string; onTake: () => void }
   /** What the line will be saved with: "Fri 16 Oct", "18:00". */
   understood?: { icon: LucideIcon; label: string }[]
+  /** Mine, A to Z, to give what is made (CAP-009). */
+  labels?: readonly { id: string; name: string }[]
+  chosenLabels?: ReadonlySet<string>
+  onLabelsChange?: (chosen: string[]) => void
   onSave: () => void
 }) {
   const input = useRef<HTMLInputElement>(null)
@@ -111,6 +119,14 @@ export function CaptureDialog({
                   </Badge>
                 ))}
               </div>
+            )}
+            {labels.length > 0 && onLabelsChange && (
+              <LabelChips
+                aria-label="Labels"
+                labels={labels}
+                chosen={chosenLabels}
+                onChange={onLabelsChange}
+              />
             )}
           </div>
           <DialogFooter className="flex-row px-[18px] pb-[18px] sm:px-5 sm:pb-5 [&>*]:flex-1 sm:[&>*]:flex-none">

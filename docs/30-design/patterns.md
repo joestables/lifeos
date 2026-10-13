@@ -144,6 +144,8 @@ the CaptureDialog in [components](components.md).
   page but the new Item.
 - It makes a Thought unless switched to Task, and starts as a Thought every
   time.
+- Under the line, my Labels as LabelChips, none chosen each time; what is
+  chosen is given to the Thought or Task saved.
 - Under the line, for a Thought with a date: the offer, "Task, Fri 18:00?",
   which switches to Task when tapped and is never taken on its own. For a
   Task: what it will be saved with, as Badges ("Fri 16 Oct 18:00", "Due
@@ -180,18 +182,20 @@ Command in [components](components.md). Neutral, as it mixes Types.
 [NTE-001–004](../10-requirements/views/notes.md#requirements); NoteCard,
 NoteEditor and LabelPicker in [components](components.md).
 
-- Under the title, Tabs: "All", then each Label a Note has, A–Z; choosing
-  one narrows the page to it until All is chosen again.
+- Under the title, LabelChips: every Label I have, A–Z, then "New note"
+  on a computer; choosing one or more narrows the page to the Notes with
+  any of them, until they are unchosen.
 - "Pinned", then "Others", each NoteCards in a masonry, as Keep has them:
   columns of cards fitting together with no gaps however tall each is, the
   most recently changed first (left to right, then down); without pinned
   Notes it has no heading.
-- "New note" (beside the Tabs on a computer, the Fab on a phone) opens an
+- "New note" (beside the LabelChips on a computer, the Fab on a phone) opens an
   empty Note — in a popup on a computer, on its own page on a phone — with
   its title ready to type; nothing is
   kept until something is typed, so closing it untouched leaves nothing
   behind.
-- No Notes: an empty state, "No notes yet".
+- No Notes: an empty state, "No notes yet"; none with the Labels chosen,
+  "No notes labelled Home" (or "with these labels").
 
 ## Tasks
 
@@ -199,8 +203,11 @@ NoteEditor and LabelPicker in [components](components.md).
 DateField, TimeField, RepeatField, SubtaskList and AddRow in
 [components](components.md).
 
-- Under the title, Tabs: All tasks, By label, Recurring, Completed, then
-  "New task" on a computer (the Fab on a phone).
+- Under the title, Tabs: All tasks, Recurring, Completed, then "New task"
+  on a computer (the Fab on a phone); 12px under them, LabelChips. The
+  Labels chosen narrow every view, stay chosen as the view changes (they
+  are kept in the page's address), and are given to a "New task"; none
+  left, "No tasks labelled Home".
 - "New task" opens a new Task in a popup with every field a Task has —
   title, notes, do-on date and time, due date, repeat, Reminders, Labels,
   sub-tasks — and Cancel and Save at its foot; nothing is kept until Save,
@@ -211,15 +218,11 @@ DateField, TimeField, RepeatField, SubtaskList and AddRow in
   its name, Later, No date, Someday; each a SectionLabel and its rows,
   hidden when empty. A Task sits under its do-on date, or its due date when
   it has none.
-- **By label**: an Accordion item per Label with Tasks (A–Z), then No label,
-  each open; a Task with two Labels is under both, and rows leave Labels
-  out of their meta. Each Label's group ends with an AddRow, "Add a task",
-  which gives the new Task that Label.
 - **Recurring**: "On a schedule", then "After it's done", each a
   SectionLabel and rows of each repeating Task's next occurrence, soonest
   first; the row's meta gives its day and its repeat in full ("Every
   Monday").
-- **Completed**: done Tasks, most recently changed first.
+- **Completed**: done Tasks, struck through, most recently changed first.
 - A Task's row: its Checkbox (ticking it is done, with Undo), then title and
   meta: time, "Since Thu", the due date (red once passed), its repeat
   (`repeat` and "Weekly"), Labels, sub-tasks "2/5"; on hover Tomorrow and the star; the "…" menu holds
@@ -229,7 +232,7 @@ DateField, TimeField, RepeatField, SubtaskList and AddRow in
   day.
 - **Reminders** sit under the dates: a ReminderList, each line opening the
   Reminder Dialog to change it. A Thought's popup has Reminders too, at a
-  set time only.
+  set time only, and its Labels; its checkbox sits before its title.
 - **Repeat** sits with Do on, Time and Due. It opens a Dialog, "Repeat": a
   RadioGroup of `cards` ("On a schedule", "After it's done"), then Every
   (a number and a Select of Days, Weeks, Months, Years); on a schedule, also
@@ -271,8 +274,9 @@ DateField, TimeField, RepeatField, SubtaskList and AddRow in
 - Order inside a row: tile or checkbox → title and meta → hover actions.
 - Meta parts are separated by "·"; times and counts in tabular figures.
 - A Task's row starts with its checkbox (blue), never a tile; ticking it
-  does it. Other Items start with their TypeTile.
-- A done Task: title struck through in `--muted-foreground`.
+  does it. A Thought's starts with its checkbox (yellow); ticking it ticks
+  it off. Other Items start with their TypeTile.
+- A done Item: title struck through in `--muted-foreground`.
 - A starred Task shows a filled star at the end of its row.
 - Row actions (Task, Note, Tomorrow, then the "…" menu) appear on hover and
   focus; on a phone only the "…" menu shows, always, holding the same
@@ -344,7 +348,7 @@ sub-tasks `list-checks` with "2/5".
 - The drawer becomes a left Sheet, 288px, attached to the left edge and the
   full height of the screen, opened from the menu button; choosing a page
   closes it.
-- Page padding 20px; page title 22px; Tabs scroll sideways under it.
+- Page padding 20px; page title 22px; Tabs and LabelChips scroll sideways under it.
 - **The main action floats** bottom right as a Fab: a "+" only, no words.
   Inbox's Fab opens capture, as the top bar's "New" does.
 - **Pull to refresh:** the page scrolls in its own box, which the browser's

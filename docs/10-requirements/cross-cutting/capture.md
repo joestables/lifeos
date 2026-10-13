@@ -122,6 +122,17 @@ Acceptance criteria
 2. Given I then convert it into a Task, then the Reminder stays
    ([ADR-0037](../../20-architecture/adr/0037-thoughts.md)).
 
+### CAP-009 — Label what I capture
+
+**As** Joe, **I want** to give a Thought or a Task its Labels as I capture
+it, **so that** it is filed from the start.
+Priority: Should · Status: verified
+
+Acceptance criteria
+1. Given my Labels shown as pills in capture, when I choose Home and save,
+   then the Thought (or Task) has the Label Home.
+2. Given I open capture again, then no Label is chosen.
+
 Non-goals (Stage 2): repeats typed in words ("every monday"); an LLM in
 capture; matching Ingredients (Stage 4); Events (Stage 3); everything in
 [deferred](#deferred-to-stage-10).

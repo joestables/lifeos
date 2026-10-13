@@ -18,7 +18,7 @@ Owner: **core**, a **Module** (`lists`, `food`, `fitness`, `goals`,
 | Tasks: Labels, do-on and due, star, sub-tasks, Someday, repeating | core | Tasks | 2 | [tasks](views/tasks.md) |
 | Inbox, including sorting Thoughts into other Types | core | Inbox | 2 | [inbox](views/inbox.md) |
 | Reminders by Web Push; Done/Snooze actions, overdue nudges, morning digest | core | — | 2 | [reminders](cross-cutting/reminders.md) |
-| Opening an Item; delete and recover; convert; Labels on Notes and Tasks | core | Each page; Settings | 2 | [items](cross-cutting/items.md) |
+| Opening an Item; delete and recover; convert; Labels on Thoughts, Notes and Tasks | core | Each page; Settings | 2 | [items](cross-cutting/items.md) |
 | Colour by Type; the app icon | core | — | 2 | [ADR-0043](../20-architecture/adr/0043-colour-by-type.md), [design system](../30-design/README.md) |
 | Search (full-text) | core | Search Screen | 2 | [search](cross-cutting/search.md) |
 | Offline writes (data layer and write queue) | core | — | 1 | [offline](cross-cutting/offline.md) |

@@ -6,7 +6,7 @@ import { supabase } from './supabase'
 type Tables = Database['core']['Tables']
 
 /**
- * A Label (ITM-005): one set per Space, shared by Notes and Tasks. Its
+ * A Label (ITM-005): one set per Space, shared by Thoughts, Notes and Tasks. Its
  * other ids (`aliases`) stay on the server.
  */
 export type Label = Omit<Tables['labels']['Row'], 'aliases'>

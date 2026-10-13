@@ -2,6 +2,35 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#12](https://github.com/joestables/lifeos/pull/12) — Stage 2, step 14: Labels as filters, Thoughts ticked off
+
+Branch `claude/laughing-babbage-maqg0k` · 2026-10-13
+
+**What it did**
+- Joe's second round from using LifeOS (plan step 14), each specified
+  first in the design system:
+  - `LabelChips`: my Labels as pills to choose, any number at once, kept in
+    the page's address. On Notes they replace the Label tabs; on Tasks they
+    replace By label, sit under the view Tabs, stay chosen across views and
+    are given to a "New task"; on Inbox they sit at the top (INB-007).
+  - Capture shows the Labels as pills, given to the Thought or Task saved
+    (CAP-009).
+  - Thoughts take Labels, shown in their row and set in their popup, and
+    kept when sorted (ADR-0014 amended).
+  - A Thought has a checkbox, as a Task does: ticked off, it is *done* and
+    leaves Inbox, with Undo; a Thought's notification offers Done
+    (INB-006, REM-005; ADR-0037 amended).
+  - Inbox's "To sort" is "Thoughts"; the morning digest says "4 thoughts".
+  - Done Tasks are struck through: a line-through didn't reach the title's
+    button in a row.
+- Converting keeps the status where the new Type has it, else active, as
+  ADR-0019 says (a done Thought made a Note is an active Note).
+- Two migrations (conversion's status, the digest; the generated ontology:
+  Thought is Completable, with *done* and Labels), a new database test file,
+  and browser tests for each change on desktop and phone.
+- Live: the migrations are applied as `20261013190144` and `20261013190156`;
+  the advisors found nothing new.
+
 ## [#11](https://github.com/joestables/lifeos/pull/11) — Stage 2, step 14: Joe's first round, and a bug hunt
 
 Branch `claude/kind-dijkstra-1kv0xt` · 2026-10-12

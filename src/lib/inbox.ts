@@ -7,8 +7,8 @@ export interface InboxGroups {
   overdue: Item[]
   /** Open Tasks to do today or earlier, or due today: timed ones by time, then by when made. */
   today: Item[]
-  /** Thoughts, newest first. */
-  toSort: Item[]
+  /** Thoughts not ticked off, newest first. */
+  thoughts: Item[]
 }
 
 /**
@@ -34,11 +34,11 @@ export function inboxGroups(items: readonly Item[], now: Date = new Date()): Inb
       if (b.do_at) return 1
       return a.created_at.localeCompare(b.created_at)
     })
-  const toSort = items
-    .filter((i) => i.type === 'thought' && i.archived_at === null)
+  const thoughts = items
+    .filter((i) => i.type === 'thought' && i.archived_at === null && i.status === 'active')
     .sort((a, b) => b.created_at.localeCompare(a.created_at))
-  return { overdue, today: todays, toSort }
+  return { overdue, today: todays, thoughts }
 }
 
 /** How many things wait in Inbox, for the drawer (INB-005). */
-export const inboxCount = (g: InboxGroups) => g.overdue.length + g.today.length + g.toSort.length
+export const inboxCount = (g: InboxGroups) => g.overdue.length + g.today.length + g.thoughts.length

@@ -100,6 +100,55 @@ export function Field({
   )
 }
 
+/** An Item's Labels as Badges, and "Add" to open the LabelPicker (ITM-005). */
+export function LabelsField({
+  labels,
+  chosen,
+  onToggle,
+  onCreate,
+}: {
+  /** Mine, A to Z. */
+  labels: { id: string; name: string }[]
+  chosen: ReadonlySet<string>
+  onToggle: (id: string, on: boolean) => void
+  onCreate: (name: string) => void
+}) {
+  return (
+    <div className="flex flex-wrap items-center gap-1.5">
+      {labels
+        .filter((l) => chosen.has(l.id))
+        .map((l) => (
+          <Badge key={l.id}>{l.name}</Badge>
+        ))}
+      <LabelPicker
+        trigger={
+          <Button variant="ghost" size="sm" className="text-muted-foreground">
+            Add
+          </Button>
+        }
+        labels={labels}
+        chosen={chosen}
+        onToggle={onToggle}
+        onCreate={onCreate}
+      />
+    </div>
+  )
+}
+
+/** An Item's own Labels, each change kept at once. */
+export function ItemLabels({ item }: { item: Item }) {
+  const { labels, itemLabels } = useLabels(queue)
+  const chosen = new Set(itemLabels.filter((r) => r.item_id === item.id).map((r) => r.label_id))
+  return (
+    <LabelsField
+      labels={[...labels].sort((a, b) => a.name.localeCompare(b.name))}
+      chosen={chosen}
+      onToggle={(id, on) => (on ? addLabel(item.id, id) : removeLabel(item.id, id))}
+      onCreate={(name) => addLabel(item.id, createLabel(name))}
+    />
+  )
+}
+
 /** A Task's dates and status, as its fields show them. */
 export interface TaskDates {
   do_on: string | null
@@ -232,24 +281,12 @@ export function TaskFields({
       </div>
       <Field label="Reminders">{reminders}</Field>
       <Field label="Labels">
-        <div className="flex flex-wrap items-center gap-1.5">
-          {labels
-            .filter((l) => chosen.has(l.id))
-            .map((l) => (
-              <Badge key={l.id}>{l.name}</Badge>
-            ))}
-          <LabelPicker
-            trigger={
-              <Button variant="ghost" size="sm" className="text-muted-foreground">
-                Add
-              </Button>
-            }
-            labels={labels}
-            chosen={chosen}
-            onToggle={onToggleLabel}
-            onCreate={onCreateLabel}
-          />
-        </div>
+        <LabelsField
+          labels={labels}
+          chosen={chosen}
+          onToggle={onToggleLabel}
+          onCreate={onCreateLabel}
+        />
       </Field>
       <Field label="Sub-tasks">
         <SubtaskList

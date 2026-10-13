@@ -16,8 +16,8 @@ Provisionally agreed). It replaces Google Tasks.
 - **Do-on and due:** do-on (a date, with an optional time) is when you mean to
   do it; due is a deadline, and only due makes a Task overdue
   ([ADR-0021](../../20-architecture/adr/0021-time.md), Provisionally agreed).
-- **Labels group Tasks**, like Google Tasks' lists (Home, Work, Car). Notes
-  and Tasks share one set of Labels
+- **Labels filter Tasks**, like choosing among Google Tasks' lists (Home,
+  Work, Car). Thoughts, Notes and Tasks share one set of Labels
   ([ADR-0014](../../20-architecture/adr/0014-reference-data-and-labels.md),
   Provisionally agreed).
 - **Tasks are starred**, as in Google Tasks: starring is the Task's mark,
@@ -40,15 +40,16 @@ Provisionally agreed). It replaces Google Tasks.
 
 ## What the page shows (Stage 2)
 
-"New task" is the page's main action. The page has four views (Joe, 11
-October):
+"New task" is the page's main action. The page has three views (Joe, 13
+October), and under them my Labels as pills: choosing one or more narrows
+every view to the Tasks with any of them, and the choice stays as I switch
+views.
 
 | View of the page | What it shows |
 |---|---|
 | **All tasks** (first) | Open Tasks under Overdue, Today, Tomorrow, each remaining day of this week, Later, No date, and Someday last |
-| **By label** | Open Tasks under each Label that has any, then No label — the nearest thing to Google Tasks' lists |
 | **Recurring** | Each repeating Task once, with its repeat and its next date: those on a schedule, then those that come back after they're done, soonest first |
-| **Completed** | Done Tasks, the most recently changed first (when they were done, unless changed since) |
+| **Completed** | Done Tasks, struck through, the most recently changed first (when they were done, unless changed since) |
 
 Each Task shows its title and, where it has them: do-on (and time), due
 (marked once overdue), Labels, sub-tasks done ("2/5"), whether it repeats and
@@ -79,8 +80,8 @@ Acceptance criteria
    "Renew insurance" to do on Friday is created, its date understood as
    capture understands it
    ([CAP-003](../cross-cutting/capture.md#cap-003--dates-and-times-are-understood-the-same-way-everywhere)).
-2. Given I add a Task while looking at one Label's Tasks, then it has that
-   Label.
+2. Given I add a Task with the page narrowed to Labels, then it starts
+   with those Labels.
 3. Given I have no signal, then the Task appears at once and is sent later.
 4. Given "New task", then a new Task opens with all its fields — title,
    notes, do-on date and time, due date, repeat, Reminders, Labels and
@@ -113,7 +114,7 @@ Acceptance criteria
 2. Given a done Task, when I untick it, then it is open again, and its
    Reminders still in the future come back.
 
-### TSK-004 — Tasks by date and by Label
+### TSK-004 — Tasks by date, filtered by Label
 
 **As** Joe, **I want** to see my Tasks by when and by what they're for,
 **so that** I can plan the day and find the Car jobs.
@@ -122,12 +123,12 @@ Priority: Must · Status: verified
 Acceptance criteria
 1. Given open Tasks to do today, tomorrow, next month, and with no date,
    then "All tasks" shows them under Today, Tomorrow, Later and No date.
-2. Given Tasks labelled Home and Car and one with none, then "By label"
-   shows Home, Car and No label, each with its Tasks; a Task with two Labels
-   is under both.
+2. Given Tasks labelled Home and Car and one with none, when I choose
+   Car, then every view shows only Car's Tasks, and still does when I
+   switch views; choosing Home too shows Tasks with either.
 3. Given a Task, when I give it a Label, then I can pick one I already have
    or make a new one, from the same set as Notes
-   ([ITM-005](../cross-cutting/items.md#itm-005--labels-on-notes-and-tasks)).
+   ([ITM-005](../cross-cutting/items.md#itm-005--labels-on-thoughts-notes-and-tasks)).
 
 ### TSK-005 — Star a Task
 

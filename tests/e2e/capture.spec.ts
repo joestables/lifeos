@@ -17,6 +17,10 @@ async function start(page: Page, path = '/inbox') {
         itemRow({ id: TASK, type: 'task', title: 'Renew car insurance' }),
         itemRow({ id: NOTE, type: 'note', title: 'Car details' }),
       ],
+      labels: [
+        { id: 'l-car', name: 'Car' },
+        { id: 'l-home', name: 'Home' },
+      ],
     },
   })
   await page.goto(path)
@@ -119,6 +123,38 @@ test('CAP-001, CAP-004: a dated line is offered as a Task, and kept as a Thought
     .toMatchObject({ type: 'task', do_on: '2026-10-13', do_at: '15:00' })
 })
 
+test('CAP-009: Labels chosen in capture are given to the Thought or the Task', async ({ page }) => {
+  const db = await start(page)
+  let capture = await openCapture(page)
+  const labels = capture.getByRole('group', { name: 'Labels' }).getByRole('button')
+  await expect(labels).toHaveText(['Car', 'Home'])
+  await capture.getByRole('textbox').fill('paint the shed')
+  await labels.filter({ hasText: 'Home' }).click()
+  await expect(labels.filter({ hasText: 'Home' })).toHaveAttribute('aria-pressed', 'true')
+  await capture.getByRole('button', { name: 'Save' }).click()
+  await expect(page.getByText('Thought saved')).toBeVisible()
+  await expect
+    .poll(() => {
+      const t = db.items.find((i) => i.title === 'paint the shed')
+      return t && db.item_labels.filter((r) => r.item_id === t.id).map((r) => r.label_id)
+    })
+    .toEqual(['l-home'])
+
+  // Opened again, nothing is chosen.
+  capture = await openCapture(page)
+  await expect(labels.filter({ hasText: 'Home' })).toHaveAttribute('aria-pressed', 'false')
+  await capture.getByRole('button', { name: 'Task', exact: true }).click()
+  await capture.getByRole('textbox').fill('wash the car')
+  await labels.filter({ hasText: 'Car' }).click()
+  await capture.getByRole('button', { name: 'Save' }).click()
+  await expect
+    .poll(() => {
+      const t = db.items.find((i) => i.title === 'Wash the car')
+      return t && [t.type, db.item_labels.filter((r) => r.item_id === t.id).map((r) => r.label_id)]
+    })
+    .toEqual(['task', ['l-car']])
+})
+
 test('CAP-001: with no signal, what I capture shows in Inbox at once and is sent when the connection returns', async ({
   page,
   context,
@@ -134,7 +170,7 @@ test('CAP-001: with no signal, what I capture shows in Inbox at once and is sent
   await expect(page.getByText('Thought saved')).toBeVisible()
   // It is in Inbox at once, waiting to be sorted.
   await expect(
-    page.locator('section').filter({ hasText: 'To sort' }).getByText('buy oat milk'),
+    page.locator('section').filter({ hasText: 'Thoughts' }).getByText('buy oat milk'),
   ).toBeVisible()
   expect(db.items.some((i) => i.title === 'buy oat milk')).toBe(false)
   await page.unroute('**/rest/v1/rpc/**', noSignal)

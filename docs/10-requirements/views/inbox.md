@@ -10,8 +10,13 @@ dashboard cards ([ADR-0026](../../20-architecture/adr/0026-navigation-drawer.md)
 ## Decisions
 
 - **Thoughts wait here to be sorted.** Capture makes a Thought by default;
-  it leaves Inbox when it is converted into another Type (a Note, Task, List…)
-  or deleted ([ADR-0037](../../20-architecture/adr/0037-thoughts.md),
+  it leaves Inbox when it is converted into another Type (a Note, Task, List…),
+  ticked off (done: it no longer matters) or deleted
+  ([ADR-0037](../../20-architecture/adr/0037-thoughts.md), Provisionally
+  agreed).
+- **Labels filter the page**, as on Notes and Tasks: what has no Labels
+  (an Event, from Stage 3) leaves while one is chosen
+  ([ADR-0014](../../20-architecture/adr/0014-reference-data-and-labels.md),
   Provisionally agreed).
 - **Due** drives "overdue" ([ADR-0021](../../20-architecture/adr/0021-time.md)).
 - A repeating Task shows its **next open occurrence only**
@@ -31,15 +36,18 @@ dashboard cards ([ADR-0026](../../20-architecture/adr/0026-navigation-drawer.md)
 
 ## What the page shows (Stage 2)
 
-Three groups, in this order, each hidden when empty:
+My Labels at the top, as pills to choose; with any chosen, every group
+shows only what has one of them. Then three groups, in this order, each
+hidden when empty:
 
 | Group | What is in it | Order |
 |---|---|---|
 | **Overdue** | My open Tasks whose due date has passed | Oldest due date first |
 | **Today** | My open Tasks to do today or earlier, or due today | Timed ones by time, then the rest by when they were made |
-| **To sort** | My Thoughts | Newest first |
+| **Thoughts** | My Thoughts not ticked off | Newest first |
 
-With nothing in any group, the page says "Nothing needs you". While none
+With nothing in any group, the page says "Nothing needs you"; with nothing
+left by the Labels chosen, "No items labelled Home". While none
 of my devices has notifications on, an Alert above the groups offers to
 turn them on, or "Not now"
 ([REM-001](../cross-cutting/reminders.md#rem-001--turn-on-notifications-for-a-device)).
@@ -56,7 +64,8 @@ Priority: Must · Status: verified
 
 Acceptance criteria
 1. Given I have captured three Thoughts, when I open Inbox, then they are
-   under "To sort", newest first, each showing when it was captured.
+   under "Thoughts", newest first, each showing when it was captured and
+   its Labels.
 2. Given a Thought is sorted or deleted, then it leaves Inbox at once,
    offline too.
 
@@ -116,6 +125,33 @@ Priority: Should · Status: verified
 Acceptance criteria
 1. Given two overdue Tasks, three for today and four Thoughts, then the
    navigation shows 9 beside Inbox, on every page.
+
+### INB-006 — Tick a Thought off
+
+**As** Joe, **I want** to tick a Thought off when it no longer matters, as I
+tick a Task, **so that** Inbox holds only what still needs me.
+Priority: Should · Status: verified
+
+Acceptance criteria
+1. Given a Thought in Inbox, when I tick it, then it is done, leaves Inbox
+   and its count, and I can undo that at once.
+2. Given a done Thought, opened from Search, when I untick it, then it is
+   back in Inbox.
+3. Given a done Thought, when I convert it, then it is done as a Task, and
+   an active Note.
+
+### INB-007 — Filter Inbox by Label
+
+**As** Joe, **I want** to narrow Inbox to one or more Labels, **so that** I
+can see just what's waiting for Home.
+Priority: Should · Status: verified
+
+Acceptance criteria
+1. Given my Labels shown at the top of Inbox, when I choose Family, then
+   each group shows only what is labelled Family; when I also choose Car,
+   what has either.
+2. Given a Label is chosen, then what has no Labels is hidden until I
+   clear the choice; the count beside Inbox doesn't change.
 
 Non-goals (Stage 2): entries from Modules and Integrations (from Stage 3);
 dismissing or snoozing an entry (`core.inbox_state`, when an entry first

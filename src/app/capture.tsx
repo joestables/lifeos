@@ -5,9 +5,11 @@ import { toast } from '@/components/ui/sonner'
 import { CaptureDialog, type CaptureType } from '@/components/lifeos/CaptureDialog'
 import {
   addFixedReminder,
+  addLabel,
   archiveItem,
   createItem,
   queue,
+  useLabels,
   useSettings,
   type Settings,
 } from '@/data'
@@ -29,8 +31,20 @@ function when(dates: CaptureDates, now: Date): string | undefined {
   return undefined
 }
 
-/** What a line becomes, as one call each to the write queue. */
-function save(type: string, line: string, dates: CaptureDates, settings: Settings): string {
+/** What a line becomes, as one call each to the write queue, with the Labels I chose (CAP-009). */
+function save(
+  type: string,
+  line: string,
+  dates: CaptureDates,
+  labelIds: readonly string[],
+  settings: Settings,
+): string {
+  const id = make(type, line, dates, settings)
+  for (const label of labelIds) addLabel(id, label)
+  return id
+}
+
+function make(type: string, line: string, dates: CaptureDates, settings: Settings): string {
   if (type === 'task') return createTaskFrom(line, dates)
   const id = createItem('thought', { title: line.trim() })
   const day = dates.doOn ?? dates.dueOn
@@ -50,6 +64,11 @@ function save(type: string, line: string, dates: CaptureDates, settings: Setting
  */
 export function CaptureProvider({ children }: { children: ReactNode }) {
   const settings = useSettings(queue)
+  const { labels } = useLabels(queue)
+  const allLabels = useMemo(
+    () => labels.map(({ id, name }) => ({ id, name })).sort((a, b) => a.name.localeCompare(b.name)),
+    [labels],
+  )
   const [open, setOpen] = useState(false)
   // Read by the N key without re-adding its listener.
   const isOpen = useRef(false)
@@ -58,12 +77,14 @@ export function CaptureProvider({ children }: { children: ReactNode }) {
   }, [open])
   const [type, setType] = useState('thought')
   const [text, setText] = useState('')
+  const [chosenLabels, setChosenLabels] = useState<string[]>([])
   const [now, setNow] = useState(() => new Date())
   const dates = useMemo(() => parseCapture(text, now), [text, now])
 
   const start = useCallback((as: 'thought' | 'task' = 'thought') => {
     setType(as)
     setText('')
+    setChosenLabels([])
     setNow(new Date())
     setOpen(true)
   }, [])
@@ -84,7 +105,9 @@ export function CaptureProvider({ children }: { children: ReactNode }) {
 
   const said = when(dates, now)
   const onSave = () => {
-    const id = save(type, text, dates, settings)
+    // A Label deleted while the Dialog was open isn't given.
+    const ids = chosenLabels.filter((l) => allLabels.some((a) => a.id === l))
+    const id = save(type, text, dates, ids, settings)
     setOpen(false)
     const made = `${typeLook(type).label} saved`
     toast(type === 'task' && said ? `${made} · ${said}` : made, {
@@ -124,6 +147,9 @@ export function CaptureProvider({ children }: { children: ReactNode }) {
             : undefined
         }
         understood={understood}
+        labels={allLabels}
+        chosenLabels={new Set(chosenLabels)}
+        onLabelsChange={setChosenLabels}
         onSave={onSave}
       />
     </OpenCapture.Provider>

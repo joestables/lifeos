@@ -38,11 +38,11 @@ const TASK = typeLook('task')
  */
 export function NewTaskDialog({
   onClose,
-  labelId,
+  labelIds = [],
 }: {
   onClose: () => void
-  /** Starts with this Label. */
-  labelId?: string
+  /** Starts with these Labels: the ones the page is narrowed to (TSK-001). */
+  labelIds?: readonly string[]
 }) {
   const settings = useSettings(queue)
   const { labels } = useLabels(queue)
@@ -60,7 +60,7 @@ export function NewTaskDialog({
   const [editing, setEditing] = useState<{ id?: string; choice: ReminderChoice } | null>(null)
   // Labels named here are made only on Save.
   const [newLabels, setNewLabels] = useState<{ id: string; name: string }[]>([])
-  const [chosen, setChosen] = useState<ReadonlySet<string>>(() => new Set(labelId ? [labelId] : []))
+  const [chosen, setChosen] = useState<ReadonlySet<string>>(() => new Set(labelIds))
   const [subtasks, setSubtasks] = useState<{ id: string; title: string; done: boolean }[]>([])
 
   const dirty =

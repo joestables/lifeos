@@ -37,6 +37,7 @@ import {
   DayColumn,
   FilterChip,
   ItemRow,
+  LabelChips,
   LabelPicker,
   NoteCard,
   NoteGrid,
@@ -246,6 +247,13 @@ const SEARCH_GROUPS: CommandGroup[] = [
     ],
   },
 ]
+const DEMO_LABELS = [
+  { id: 'car', name: 'Car' },
+  { id: 'home', name: 'Home' },
+  { id: 'travel', name: 'Travel' },
+  { id: 'work', name: 'Work' },
+]
+
 const CAPTURE_TYPES = [
   { key: 'thought', label: 'Thought', colour: 'yellow' as const, icon: TYPE_ICONS.thought! },
   { key: 'task', label: 'Task', colour: 'blue' as const, icon: TaskIcon },
@@ -271,6 +279,7 @@ function DesignPage() {
   const [search, setSearch] = useState('insur')
   const [capture, setCapture] = useState({ open: false, type: 'thought', text: 'call mum fri 6pm' })
   const [chips, setChips] = useState({ core: true, food: true, fitness: false })
+  const [chosenLabels, setChosenLabels] = useState<string[]>(['home'])
   const toggleMode = () => {
     document.documentElement.classList.toggle('dark', !dark)
     setDark(!dark)
@@ -456,12 +465,17 @@ function DesignPage() {
           <Tabs defaultValue="all">
             <TabsList>
               <TabsTrigger value="all">
-                All <TabsCount>12</TabsCount>
+                All tasks <TabsCount>12</TabsCount>
               </TabsTrigger>
-              <TabsTrigger value="home">Home</TabsTrigger>
-              <TabsTrigger value="travel">Travel</TabsTrigger>
+              <TabsTrigger value="recurring">Recurring</TabsTrigger>
+              <TabsTrigger value="done">Completed</TabsTrigger>
             </TabsList>
           </Tabs>
+          <LabelChips
+            labels={DEMO_LABELS}
+            chosen={new Set(chosenLabels)}
+            onChange={setChosenLabels}
+          />
           <Row>
             <ToggleGroup defaultValue={['week']}>
               <ToggleGroupItem value="day">Day</ToggleGroupItem>
@@ -486,10 +500,15 @@ function DesignPage() {
               <Tabs defaultValue="all">
                 <TabsList>
                   <TabsTrigger value="all">All tasks</TabsTrigger>
-                  <TabsTrigger value="label">By label</TabsTrigger>
+                  <TabsTrigger value="recurring">Recurring</TabsTrigger>
                   <TabsTrigger value="done">Completed</TabsTrigger>
                 </TabsList>
               </Tabs>
+              <LabelChips
+                labels={DEMO_LABELS}
+                chosen={new Set(chosenLabels)}
+                onChange={setChosenLabels}
+              />
               <Row>
                 <Button size="sm">
                   <PlusIcon /> New task
@@ -505,13 +524,11 @@ function DesignPage() {
               colour="yellow"
               className="flex flex-col gap-3 rounded-lg bg-card p-5 shadow-card"
             >
-              <Tabs defaultValue="all">
-                <TabsList>
-                  <TabsTrigger value="all">All</TabsTrigger>
-                  <TabsTrigger value="home">Home</TabsTrigger>
-                  <TabsTrigger value="travel">Travel</TabsTrigger>
-                </TabsList>
-              </Tabs>
+              <LabelChips
+                labels={DEMO_LABELS}
+                chosen={new Set(chosenLabels)}
+                onChange={setChosenLabels}
+              />
               <Row>
                 <Button size="sm">
                   <PlusIcon /> New note
@@ -549,9 +566,9 @@ function DesignPage() {
             />
             <SwipeAction label="Task" icon={TaskIcon} colour="blue" onAction={() => {}}>
               <ItemRow
-                leading={<TypeTile colour="yellow" icon={TYPE_ICONS.thought!} size="sm" />}
+                leading={<Checkbox colour="yellow" aria-label="Done" />}
                 title="Ceramics class for the anniversary?"
-                meta={['08:12']}
+                meta={['08:12', 'Home']}
                 onOpen={() => {}}
               />
             </SwipeAction>
@@ -559,6 +576,7 @@ function DesignPage() {
               leading={<Checkbox colour="blue" aria-label="Done" defaultChecked />}
               title="Renew passport"
               meta={['Done Tue']}
+              onOpen={() => {}}
               done
             />
             <ItemRow
@@ -1032,6 +1050,9 @@ function DesignPage() {
                     ]
                   : []
               }
+              labels={DEMO_LABELS}
+              chosenLabels={new Set(chosenLabels)}
+              onLabelsChange={setChosenLabels}
               onSave={() => setCapture((c) => ({ ...c, open: false }))}
             />
             <ItemDialog
@@ -1055,7 +1076,7 @@ function DesignPage() {
               <DialogContent>
                 <DialogHeader>
                   <DialogTitle>New label</DialogTitle>
-                  <DialogDescription>For Notes and Tasks</DialogDescription>
+                  <DialogDescription>For Thoughts, Notes and Tasks</DialogDescription>
                 </DialogHeader>
                 <Input aria-label="Name" defaultValue="Travel" />
                 <DialogFooter>

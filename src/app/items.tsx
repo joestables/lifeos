@@ -18,6 +18,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Toggle } from '@/components/ui/toggle'
 import { queue, setMark, useItem, useMarks, type Item } from '@/data'
 import { useIsMobile } from '@/hooks/use-mobile'
@@ -26,7 +27,8 @@ import { useConvert } from './convert'
 import { deleteItem, draftNote, useCloseItem } from './item-navigation'
 import { NoteBody } from './note-body'
 import { ItemReminders } from './item-reminders'
-import { Field, TaskDetails, TaskTitle } from './task-details'
+import { Field, ItemLabels, TaskDetails, TaskTitle } from './task-details'
+import { tickThought } from './thought-actions'
 
 /** An Item's mark (star, pin) and its "…" menu: Convert to, Delete. */
 export function ItemActions({ item, onDelete }: { item: Item; onDelete: () => void }) {
@@ -116,6 +118,17 @@ export function ItemPopup({ id, isNew = false }: { id: string | undefined; isNew
       typeLabel={look.label}
       title={itemTitle(item)}
       wide={item.type === 'note'}
+      leading={
+        item.type === 'thought' && (
+          <Checkbox
+            colour={look.colour}
+            aria-label="Done"
+            className="size-5"
+            checked={item.status === 'done'}
+            onCheckedChange={(on) => tickThought(item, on)}
+          />
+        )
+      }
       titleField={
         item.type === 'note' ? (
           <NoteBody key={item.id} item={item} draft={draft} />
@@ -138,11 +151,14 @@ export function ItemPopup({ id, isNew = false }: { id: string | undefined; isNew
       {item.type === 'task' ? (
         <TaskDetails key={item.id} item={item} />
       ) : item.type === 'thought' ? (
-        // A Thought: its text, and Reminders at a set time (REM-003).
+        // A Thought: its text, Reminders at a set time (REM-003) and Labels (ITM-005).
         <div className="flex flex-col gap-4">
           <ItemContent item={item} />
           <Field label="Reminders">
             <ItemReminders item={item} />
+          </Field>
+          <Field label="Labels">
+            <ItemLabels item={item} />
           </Field>
         </div>
       ) : (

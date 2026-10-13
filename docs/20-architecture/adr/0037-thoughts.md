@@ -2,7 +2,7 @@
 
 **Status:** Provisionally agreed · 2026-10-09
 
-**Amended:** 2026-10-10 by Joe, writing the Stage 2 specs (a Note has no *idea* status).
+**Amended:** 2026-10-10 by Joe, writing the Stage 2 specs (a Note has no *idea* status). 2026-10-13 by Joe, using Stage 2 (a Thought can be ticked off, and takes Labels).
 
 ## Context
 
@@ -18,7 +18,10 @@ later.
 - **Thoughts live in Inbox until sorted.** Sorting a Thought converts it in
   place into any Capturable Type — a Note, Task, List, Shop, Event, Recipe,
   Goal or Garment — or deletes it (archived, with undo). It keeps its id,
-  links, Reminders and history.
+  links, Reminders, Labels and history.
+- **A Thought can be ticked off** when it no longer matters: Thought is
+  Completable, so it is *done* and leaves Inbox, with undo, and is still
+  found by Search.
 - **A Note is a note**: kept, labelled and shown in the Notes View. Note is a
   Capturable Type, so a Thought can become one, and a Note can still be
   converted into other Capturable Types. The Unsorted / Filed flag goes.
@@ -34,6 +37,6 @@ later.
 
 - Amends ADR-0005, 0006, 0007, 0018, 0019, 0023, 0027, 0028 and 0033.
 - The core is built from four Types: Thought, Note, Task and Event.
-- Inbox shows Thoughts to sort; the Notes View shows only Notes.
+- Inbox shows the Thoughts not ticked off; the Notes View shows only Notes.
 - A Personal Thought or Note can still be seen by a Household one hop away
   if it is linked to a shared Item ([ADR-0016](0016-sharing-and-visibility.md)).
