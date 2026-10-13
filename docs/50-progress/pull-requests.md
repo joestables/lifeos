@@ -2,7 +2,7 @@
 
 Newest first. Each entry is added in its own pull request.
 
-## Pull request to come — Stage 2, step 14: Labels as filters, Thoughts ticked off
+## [#12](https://github.com/joestables/lifeos/pull/12) — Stage 2, step 14: Labels as filters, Thoughts ticked off
 
 Branch `claude/laughing-babbage-maqg0k` · 2026-10-13
 
