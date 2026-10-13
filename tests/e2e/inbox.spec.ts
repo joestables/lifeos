@@ -34,8 +34,14 @@ const rows = () => ({
     }),
     itemRow({ id: id(9), type: 'note', title: 'Boiler details' }),
   ],
-  labels: [{ id: 'l-car', name: 'Car' }],
-  item_labels: [{ item_id: id(1), label_id: 'l-car' }],
+  labels: [
+    { id: 'l-car', name: 'Car' },
+    { id: 'l-family', name: 'Family' },
+  ],
+  item_labels: [
+    { item_id: id(1), label_id: 'l-car' },
+    { item_id: id(7), label_id: 'l-family' },
+  ],
   marks: [{ item_id: id(3) }],
   reminders: [{ id: 'r-6', item_id: id(6), fires_at: '2026-10-13T14:00:00Z', is_default: false }],
 })
@@ -72,7 +78,7 @@ test('INB-001, INB-003, INB-005: what needs me, in three groups, counted in the 
 }) => {
   await start(page)
   const headings = page.getByRole('main').getByRole('heading', { level: 2 })
-  await expect(headings).toHaveText(['Overdue2', 'Today2', 'To sort3'])
+  await expect(headings).toHaveText(['Overdue2', 'Today2', 'Thoughts3'])
 
   const overdue = group(page, 'Overdue').locator('[data-slot="item-row"]')
   await expect(overdue).toHaveCount(2)
@@ -89,9 +95,9 @@ test('INB-001, INB-003, INB-005: what needs me, in three groups, counted in the 
   await expect(today.last()).toContainText('Since Thu')
   await expect(page.getByText('Book Japan flights')).toBeHidden()
 
-  const toSort = group(page, 'To sort').locator('[data-slot="item-row"]')
-  await expect(toSort).toHaveText([
-    /^Ceramics class.*08:12/,
+  const thoughts = group(page, 'Thoughts').locator('[data-slot="item-row"]')
+  await expect(thoughts).toHaveText([
+    /^Ceramics class.*08:12·Family/,
     /^dentist tue 3pm\?.*07:40·Tue 15:00/,
     /Yesterday/,
   ])
@@ -220,4 +226,44 @@ test('Inbox with nothing in it says so', async ({ page }) => {
   await standIn(page, { signedIn: true, rows: { items: [] } })
   await page.goto('/inbox')
   await expect(page.getByRole('heading', { name: 'Nothing needs you' })).toBeVisible()
+})
+
+const chip = (page: Page, name: string) =>
+  page.getByRole('group', { name: 'Filter by label' }).getByRole('button', { name })
+
+test('INB-006: a Thought ticked off leaves Inbox, with Undo', async ({ page, isMobile }) => {
+  const db = await start(page)
+  const desk = rowOf(page, 'Look into a standing desk')
+  await desk.getByRole('checkbox', { name: 'Done: Look into a standing desk' }).click()
+  await expect(desk).toBeHidden()
+  await expect.poll(() => db.items.find((i) => i.id === id(8))?.status).toBe('done')
+  await expect(page.getByRole('heading', { name: /^Thoughts/ })).toHaveText('Thoughts2')
+  if (!isMobile) await expect(page.getByRole('link', { name: /^Inbox/ })).toContainText('6')
+  await page.getByRole('button', { name: 'Undo' }).click()
+  await expect(desk).toBeVisible()
+  await expect.poll(() => db.items.find((i) => i.id === id(8))?.status).toBe('active')
+})
+
+test('INB-007: Labels narrow every group; what has no Label leaves while one is chosen', async ({
+  page,
+}) => {
+  await start(page)
+  await expect(page.getByRole('group', { name: 'Filter by label' }).getByRole('button')).toHaveText(
+    ['Car', 'Family'],
+  )
+  await chip(page, 'Family').click()
+  await expect(page.getByRole('main').getByRole('heading', { level: 2 })).toHaveText(['Thoughts1'])
+  await expect(page.locator('[data-slot="item-row"]')).toHaveText([/^Ceramics class/])
+  await chip(page, 'Car').click()
+  await expect(page.getByRole('main').getByRole('heading', { level: 2 })).toHaveText([
+    'Overdue1',
+    'Thoughts1',
+  ])
+  await chip(page, 'Car').click()
+  await chip(page, 'Family').click()
+  await expect(page.getByRole('main').getByRole('heading', { level: 2 })).toHaveText([
+    'Overdue2',
+    'Today2',
+    'Thoughts3',
+  ])
 })

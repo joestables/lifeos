@@ -117,12 +117,13 @@ from the notification, **so that** I needn't open the app.
 Priority: Must · Status: built (verified but for a press with no signal, checked by hand)
 
 Acceptance criteria
-1. Given a Task's notification, when I choose Done, then the Task is done,
-   offline too (sent when the connection returns).
+1. Given a Task's or a Thought's notification, when I choose Done, then it
+   is done (a Thought leaves Inbox), offline too (sent when the connection
+   returns).
 2. Given any Reminder's notification, when I choose Snooze, then it comes
    back in one hour, for me only.
-3. Given an Item that isn't Completable (a Thought, a Note), then the
-   notification offers Snooze only.
+3. Given an Item that isn't Completable (a Note), then the notification
+   offers Snooze only.
 
 ### REM-006 — A notification opens its Item
 
@@ -155,7 +156,7 @@ Priority: Should · Status: verified
 
 Acceptance criteria
 1. Given the digest is on (it is by default, at 07:00), then each morning
-   one notification says "2 overdue · 3 today · 4 to sort", and tapping it
+   one notification says "2 overdue · 3 today · 4 thoughts", and tapping it
    opens Inbox.
 2. Given nothing needs me, then no digest is sent.
 3. Given Settings, then I can change its time or turn it off.

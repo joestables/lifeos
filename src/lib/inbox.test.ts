@@ -47,6 +47,7 @@ describe('what Inbox shows (views/inbox.md)', () => {
     item('bins-2', { do_on: '2026-10-16', series_id: 'bins' }),
     item('older-thought', { type: 'thought', created_at: '2026-10-09T09:00:00Z' }),
     item('new-thought', { type: 'thought', created_at: '2026-10-11T08:12:00Z' }),
+    item('ticked-thought', { type: 'thought', status: 'done' }),
     item('note', { type: 'note' }),
   ]
   const g = inboxGroups(items, NOW)
@@ -63,8 +64,8 @@ describe('what Inbox shows (views/inbox.md)', () => {
     expect(ids(g.today)).not.toContain('bins-2')
   })
 
-  it('INB-001: Thoughts wait to be sorted, newest first', () => {
-    expect(ids(g.toSort)).toEqual(['new-thought', 'older-thought'])
+  it('INB-001, INB-006: Thoughts wait to be sorted, newest first, until ticked off', () => {
+    expect(ids(g.thoughts)).toEqual(['new-thought', 'older-thought'])
   })
 
   it('INB-005: the count is everything waiting', () => {

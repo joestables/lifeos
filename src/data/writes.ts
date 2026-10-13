@@ -58,7 +58,7 @@ export function writes(queue: WriteQueue, labelsNow: () => readonly Label[] = ()
     renameLabel(id: string, name: string): void {
       queue.enqueue('rename_label', { p_id: id, p_name: name.trim() }, [])
     },
-    /** It comes off every Note and Task; they are kept (ITM-005). */
+    /** It comes off every Item that has it; they are kept (ITM-005). */
     deleteLabel(id: string): void {
       queue.enqueue('delete_label', { p_id: id }, [])
     },

@@ -139,8 +139,8 @@ export function LabelsCard({
             {deleting && deleting.count > 0 && (
               <AlertDialogDescription>
                 {deleting.count === 1
-                  ? 'It comes off 1 Note or Task'
-                  : `It comes off ${deleting.count} Notes and Tasks`}
+                  ? 'It comes off 1 item'
+                  : `It comes off ${deleting.count} items`}
               </AlertDialogDescription>
             )}
           </AlertDialogHeader>

@@ -1,7 +1,7 @@
 # Working with Items
 
 *Stage 2. What every Item offers, whatever its Type — opening it, deleting
-and recovering it, converting it — and the Labels that Notes and Tasks
+and recovering it, converting it — and the Labels that Thoughts, Notes and Tasks
 share. The decisions come first; the requirements, drafted at the start of
 Stage 2, are at the end.*
 
@@ -22,7 +22,7 @@ Stage 2, are at the end.*
   Provisionally agreed). The ontology package decides which conversions
   exist.
 - **Not every Type has every feature.** Each Type declares what it has:
-  - **Labels** — Notes and Tasks, one shared set per Space; other Types
+  - **Labels** — Thoughts, Notes and Tasks, one shared set per Space; other Types
     don't use them ([ADR-0014](../../20-architecture/adr/0014-reference-data-and-labels.md),
     Provisionally agreed).
   - **A mark, under its own name** — Notes are *pinned*, Tasks *starred*,
@@ -87,22 +87,23 @@ Acceptance criteria
 1. Given an Item, then I'm offered only the Types it can be converted into,
    among the Types that exist.
 2. Given I convert a Note into a Task, then it keeps its title, body,
-   Labels, links and Reminders, and its history records the conversion.
+   Labels, links and Reminders, and its history records the conversion; its
+   status is kept where the new Type has it, else it is active (a done
+   Thought becomes an active Note).
 3. Given I've just converted an Item, then I can undo it, and it is the
    Type it was, as it was (Joe, 12 October).
 
-### ITM-005 — Labels on Notes and Tasks
+### ITM-005 — Labels on Thoughts, Notes and Tasks
 
-**As** Joe, **I want** one set of Labels for my Notes and Tasks that I can
-tidy, **so that** "Home" means the same thing everywhere.
+**As** Joe, **I want** one set of Labels for my Thoughts, Notes and Tasks
+that I can tidy, **so that** "Home" means the same thing everywhere.
 Priority: Must · Status: verified
 
 Acceptance criteria
-1. Given a Note or a Task, when I type a Label's name, then I can pick an
-   existing Label or make a new one.
-2. Given I rename a Label, then every Note and Task with it shows the new
-   name; when I delete a Label, it is removed from every Note and Task, and
-   they are kept.
+1. Given a Thought, a Note or a Task, when I type a Label's name, then I
+   can pick an existing Label or make a new one.
+2. Given I rename a Label, then every Item with it shows the new name; when
+   I delete a Label, it is removed from every Item, and they are kept.
 3. Given a Label "Home" exists, when I make "home", then I get the existing
    one rather than a second.
 4. Given any other Type, then Labels aren't offered.

@@ -64,7 +64,11 @@ export function ItemRow({
             <button
               type="button"
               onClick={onOpen}
-              className="rounded-[2px] text-left outline-none after:absolute after:inset-0 after:rounded-row focus-visible:after:ring-3 focus-visible:after:ring-ring-soft"
+              // A line-through doesn't reach into a button, so a done title draws its own.
+              className={cn(
+                'rounded-[2px] text-left outline-none after:absolute after:inset-0 after:rounded-row focus-visible:after:ring-3 focus-visible:after:ring-ring-soft',
+                done && 'line-through',
+              )}
             >
               {title}
             </button>

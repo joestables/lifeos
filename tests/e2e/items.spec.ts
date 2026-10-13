@@ -183,7 +183,7 @@ test('ITM-005: Labels are renamed and deleted in Settings, and their Items kept'
   await page.getByRole('menuitem', { name: 'Delete' }).click()
   const confirm = page.getByRole('alertdialog')
   await expect(confirm).toContainText('Delete "Home"?')
-  await expect(confirm).toContainText('It comes off 1 Note or Task')
+  await expect(confirm).toContainText('It comes off 1 item')
   await confirm.getByRole('button', { name: 'Delete' }).click()
   await expect(labels.getByText('Home', { exact: true })).toBeHidden()
   await page.goto(`/item/${NOTE}`)

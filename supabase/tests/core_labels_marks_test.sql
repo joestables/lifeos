@@ -18,7 +18,7 @@ select core.create_item('00000000-0000-7000-8000-000000000001', 'note', '{"title
 select core.create_item('00000000-0000-7000-8000-000000000002', 'task', '{"title": "Service the boiler"}');
 select core.create_item('00000000-0000-7000-8000-000000000003', 'thought', '{"title": "milk"}');
 
--- ITM-005: one set of Labels, shared by Notes and Tasks.
+-- ITM-005: one set of Labels, shared by Thoughts, Notes and Tasks.
 select core.create_label('00000000-0000-7000-8000-0000000000a1', 'Home');
 select is(
   (select id from core.create_label('00000000-0000-7000-8000-0000000000a2', ' home ')),
@@ -38,11 +38,11 @@ select is(
   2,
   'NTE-002, TSK-004: a Note and a Task share a Label; adding it twice counts once'
 );
-select throws_ok(
+select lives_ok(
   $$select core.add_label('00000000-0000-7000-8000-000000000003', '00000000-0000-7000-8000-0000000000a1')$$,
-  '23514', null,
-  'ITM-005: a Thought takes no Labels'
+  'ITM-005: a Thought takes Labels too'
 );
+select core.remove_label('00000000-0000-7000-8000-000000000003', '00000000-0000-7000-8000-0000000000a1');
 select core.create_label('00000000-0000-7000-8000-0000000000a3', 'Car');
 select core.add_label('00000000-0000-7000-8000-000000000002', '00000000-0000-7000-8000-0000000000a3');
 select is(

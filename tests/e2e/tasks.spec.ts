@@ -75,32 +75,57 @@ test('TSK-004, TSK-006, TSK-007: All tasks by when, Someday last; sub-tasks coun
   await expect(page.getByText('Return the jacket')).toBeHidden()
 })
 
-test('TSK-004: By label, a group per Label, then No label', async ({ page }) => {
-  await start(page, '/tasks?view=labels')
-  const groups = page.getByRole('main').locator('[data-slot="accordion-trigger"]')
-  await expect(groups).toHaveText(['Car2', 'Home1', 'No label3'])
-  await expect(rowOf(page, 'Take the bins out')).toContainText('Tomorrow')
-})
+const chip = (page: Page, name: string) =>
+  page.getByRole('group', { name: 'Filter by label' }).getByRole('button', { name })
 
-test("TSK-001: a Task added in a Label's group has that Label, its date understood", async ({
+test('TSK-004: Labels narrow every view, and stay chosen when the view changes', async ({
   page,
 }) => {
-  const db = await start(page, '/tasks?view=labels')
-  const home = page
-    .getByRole('main')
-    .locator('[data-slot="accordion-item"]')
-    .filter({ hasText: 'Home' })
-  await home.getByRole('textbox', { name: 'Add a task' }).fill('clean the gutters on sat')
-  await home.getByRole('textbox', { name: 'Add a task' }).press('Enter')
-  await expect(home).toContainText('Clean the gutters')
+  await start(page)
+  await expect(page.getByRole('tab', { name: 'By label' })).toHaveCount(0)
+  await expect(page.getByRole('group', { name: 'Filter by label' }).getByRole('button')).toHaveText(
+    ['Car', 'Home'],
+  )
+  await chip(page, 'Car').click()
+  await expect(chip(page, 'Car')).toHaveAttribute('aria-pressed', 'true')
+  await expect(page.locator('[data-slot="item-row"]')).toHaveText([
+    /^Renew car insurance/,
+    /^Book MOT/,
+  ])
+  // With two, a Task with either shows.
+  await chip(page, 'Home').click()
+  await expect(page.locator('[data-slot="item-row"]')).toHaveText([
+    /^Renew car insurance/,
+    /^Take the bins out/,
+    /^Book MOT/,
+  ])
+
+  await page.getByRole('tab', { name: 'Completed' }).click()
+  await expect(chip(page, 'Car')).toHaveAttribute('aria-pressed', 'true')
+  await expect(chip(page, 'Home')).toHaveAttribute('aria-pressed', 'true')
+  await expect(page.getByRole('heading', { name: 'No tasks with these labels' })).toBeVisible()
+  await chip(page, 'Car').click()
+  await chip(page, 'Home').click()
+  await expect(page.locator('[data-slot="item-row"]')).toHaveText([/^Return the jacket/])
+})
+
+test('TSK-001: a new Task made while the page is narrowed to a Label has that Label', async ({
+  page,
+}) => {
+  const db = await start(page)
+  await chip(page, 'Home').click()
+  await page.getByRole('button', { name: 'New task' }).click()
+  const dialog = page.getByRole('dialog', { name: 'New task' })
+  await dialog.getByRole('textbox', { name: 'Title' }).fill('Clean the gutters')
+  await expect(dialog.getByText('Home', { exact: true })).toBeVisible()
+  await dialog.getByRole('button', { name: 'Save' }).click()
+  await expect(rowOf(page, 'Clean the gutters')).toBeVisible()
   await expect
     .poll(() => {
       const t = db.items.find((i) => i.title === 'Clean the gutters')
-      return (
-        t && [t.do_on, db.item_labels.some((r) => r.item_id === t.id && r.label_id === 'l-home')]
-      )
+      return t && db.item_labels.some((r) => r.item_id === t.id && r.label_id === 'l-home')
     })
-    .toEqual(['2026-10-17', true])
+    .toBe(true)
 })
 
 test('TSK-001: "New task" opens a new Task with all its fields, kept on Save', async ({ page }) => {
@@ -166,6 +191,11 @@ test('TSK-003: ticked done, it leaves; Undo brings it back; Completed lists it',
     /^Fix the gate/,
     /^Return the jacket/,
   ])
+  // Done Tasks are struck through.
+  await expect(rowOf(page, 'Return the jacket').getByRole('button', { name: /^Return/ })).toHaveCSS(
+    'text-decoration-line',
+    'line-through',
+  )
   // Unticked, it is open again.
   await rowOf(page, 'Return the jacket').getByRole('checkbox').click()
   await expect(rowOf(page, 'Return the jacket')).toBeHidden()

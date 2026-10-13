@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { Item } from '@/data'
-import { completedTasks, recurringTasks, taskGroups, tasksByLabel } from './tasks'
+import { completedTasks, recurringTasks, taskGroups } from './tasks'
 
 const item = (id: string, fields: Partial<Item>): Item => ({
   id,
@@ -82,7 +82,7 @@ describe('All tasks (views/tasks.md)', () => {
   })
 })
 
-describe('By label and Completed', () => {
+describe('Completed', () => {
   const items = [
     item('mot', { due_on: '2026-10-30' }),
     item('insurance', { do_on: '2026-10-12' }),
@@ -91,28 +91,6 @@ describe('By label and Completed', () => {
     item('done', { status: 'done', updated_at: '2026-10-11T09:00:00Z' }),
     item('done-later', { status: 'done', updated_at: '2026-10-12T09:00:00Z' }),
   ]
-  const labels = [
-    { id: 'home', name: 'Home' },
-    { id: 'car', name: 'Car' },
-    { id: 'work', name: 'Work' },
-  ]
-  const itemLabels = [
-    { item_id: 'mot', label_id: 'car' },
-    { item_id: 'insurance', label_id: 'car' },
-    { item_id: 'insurance', label_id: 'home' },
-    { item_id: 'bins', label_id: 'home' },
-  ]
-
-  it('TSK-004: each Label A–Z, a Task with two under both, then No label', () => {
-    expect(
-      tasksByLabel(items, labels, itemLabels, MON).map((g) => [g.name, g.tasks.map((t) => t.id)]),
-    ).toEqual([
-      ['Car', ['insurance', 'mot']],
-      ['Home', ['insurance', 'bins']],
-      ['No label', ['passport']],
-    ])
-  })
-
   it('TSK-003: done Tasks, most recently changed first', () => {
     expect(completedTasks(items).map((t) => t.id)).toEqual(['done-later', 'done'])
   })

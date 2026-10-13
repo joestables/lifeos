@@ -45,7 +45,7 @@ test('whatever can be pressed shows the pointing hand', async ({ page, isMobile 
     l.evaluate((el) => getComputedStyle(el).cursor)
   expect(await cursor(page.getByRole('button', { name: 'Call mum' }))).toBe('pointer')
   expect(await cursor(page.getByRole('checkbox', { name: 'Done: Call mum' }))).toBe('pointer')
-  expect(await cursor(page.getByRole('tab', { name: 'By label' }))).toBe('pointer')
+  expect(await cursor(page.getByRole('tab', { name: 'Recurring' }))).toBe('pointer')
   expect(await cursor(page.getByRole('button', { name: 'New task' }))).toBe('pointer')
 })
 

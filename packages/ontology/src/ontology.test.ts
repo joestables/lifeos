@@ -58,7 +58,7 @@ describe('ontology', () => {
       const t = typeByKey(key)!
       return [t.colour, t.labels, t.mark, t.subtasks, t.defaultReminder]
     }
-    expect(look('thought')).toEqual(['yellow', false, undefined, false, undefined])
+    expect(look('thought')).toEqual(['yellow', true, undefined, false, undefined])
     expect(look('note')).toEqual(['yellow', true, 'pinned', false, undefined])
     expect(look('task')).toEqual(['blue', true, 'starred', true, 'do_on'])
     expect(look('event')).toEqual(['blue', false, undefined, false, undefined])

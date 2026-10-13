@@ -44,7 +44,7 @@ one.
 | Link / link type | A named edge between two Items | `core.links` + code constant |
 | Child row | Part of one Item, not an Item | Module tables |
 | Reference data | A Module's lookup list (muscle groups, cuisines, brands…) | Module lookup tables |
-| Label | A per-Space grouping on the Types that use one: Task groups, Note filters | `core.labels`, `core.item_labels` |
+| Label | A per-Space grouping on the Types that use one: it filters Inbox, Notes and Tasks | `core.labels`, `core.item_labels` |
 | Mark | A per-person flag under the Type's own name: pinned, starred, favourited | `core.marks` |
 | Series | A repeat rule that generates occurrences | `core.series` |
 | Reminder | A per-person notification on an Item | `core.reminders` |
@@ -176,7 +176,7 @@ of these, so the database enforces them.
 
 | Module | Type | S | C | Sh | Cap | Default Space | Statuses used (labels) | Colour | Labels | Mark | Stage |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| core | **Thought** (raw, unsorted; waits in Inbox) | — | — | — | — | Personal | active | yellow | — | — | 2 |
+| core | **Thought** (raw, unsorted; waits in Inbox until sorted or ticked off) | — | ✓ | — | — | Personal | active · done | yellow | ✓ | — | 2 |
 | core | **Note** | — | — | — | ✓ | Personal | active | yellow | ✓ | pinned | 2 |
 | core | **Task** | ✓ do-on / due | ✓ | ✓ | ✓ | Personal | idea "Someday" · active · done · cancelled (a missed repeat: "Skipped") | blue | ✓ | starred | 2 |
 | core | **Event** | ✓ start / end | — | ✓ | ✓ | Personal ("with household" → Household) | active · cancelled | blue | — | — | 3 |

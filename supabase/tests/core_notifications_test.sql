@@ -122,7 +122,7 @@ select is(
 select is(
   (select array[c.overdue, c.today, c.to_sort] from core_private.day_counts('00000000-0000-4000-8000-00000000000b', '2026-10-13') c),
   array[0, 1, 1],
-  'REM-008: the digest counts what is overdue, today and to sort'
+  'REM-008: the digest counts what is overdue, today and the Thoughts'
 );
 
 -- Sending: what is due now, by the real clock. A Reminder on Call mum and
@@ -158,12 +158,14 @@ select is(
 );
 select is(
   (select payload -> 'actions' from claimed where payload ->> 'tag' = 'reminder:00000000-0000-7000-8000-0000000000e4'),
-  jsonb_build_array(jsonb_build_object('action', 'snooze', 'title', 'Snooze 1 hour')),
-  'REM-005 3: a Thought''s notification offers Snooze only'
+  jsonb_build_array(
+    jsonb_build_object('action', 'done', 'title', 'Done'),
+    jsonb_build_object('action', 'snooze', 'title', 'Snooze 1 hour')),
+  'REM-005 1: a Thought''s notification offers Done and Snooze, as it can be ticked off'
 );
 select is(
   (select payload ->> 'title' from claimed where payload ->> 'tag' like 'digest:%'),
-  '1 today · 1 to sort',
+  '1 today · 1 thought',
   'REM-008 1: the digest says what needs me'
 );
 select is(

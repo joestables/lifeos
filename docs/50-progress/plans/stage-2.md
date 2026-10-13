@@ -36,7 +36,7 @@ verifies.
 | 11 | Reminders: notifications on each device, the delivery job, Done and Snooze, defaults in Settings; then overdue nudges and the morning digest | Done 12 October: the minute job (`minute-notifications`), `send-notifications` and `notification-action`; LifeOS's own service worker (offline files, notifications, Done and Snooze kept with no signal); Notifications and Reminders in Settings; Inbox's offer to turn them on; Reminders in a Task's and a Thought's popup; the morning digest and overdue nudges. REM-001–004 and 006–009, TSK-002 and 003 verified; REM-005 built. A real notification on each device is Joe's to check by hand | Edge Function, `pg_cron` job, tests citing REM-* |
 | 12 | Search | Done 12 October: Command and `CommandDialog`; Search from the drawer's header, or / on a computer, over the page, and on a phone as its own page; results by Type as I type, the match in bold, from `core.search_items` and shown as the device has them; offline, the device's Items searched and "Results may be incomplete". SRC-001 and SRC-002 verified | Code, tests citing SRC-* |
 | 13 | The nightly smoke walk of production with the test account: sign-in, capture, Inbox ([runbook](../../40-operations/runbook.md)) | Deferred (Joe, 12 October) until the roadmap is complete; likely to come back then. No software changes until then, and nobody relies on it yet | Scheduled workflow |
-| 14 | **Joe** — uses LifeOS daily instead of Google Tasks for a week; what he trips over is fixed | In progress. First round, 12 October: convert's Undo; the pointing hand on whatever can be pressed; capture as "New" at the top right (a speech bubble with a plus), no longer in the drawer; pull to refresh on a phone; Search a popup on a phone too; a checkbox's hover; "New task" opens a new Task with all its fields, kept on Save; Notes in a masonry; no "All changes saved"; "New task" and "New note" beside the Tabs. With them, a bug hunt's fixes (below) | Code, tests |
+| 14 | **Joe** — uses LifeOS daily instead of Google Tasks for a week; what he trips over is fixed | In progress. First round, 12 October: convert's Undo; the pointing hand on whatever can be pressed; capture as "New" at the top right (a speech bubble with a plus), no longer in the drawer; pull to refresh on a phone; Search a popup on a phone too; a checkbox's hover; "New task" opens a new Task with all its fields, kept on Save; Notes in a masonry; no "All changes saved"; "New task" and "New note" beside the Tabs. With them, a bug hunt's fixes (below). Second round, 13 October: Labels as pills to choose (`LabelChips`) on Notes (no Label tabs), Tasks (no By label; the choice kept across views, and given to a new Task) and Inbox; Labels chosen in capture (CAP-009); Thoughts take Labels and are ticked off like Tasks (INB-006, INB-007; ADR-0014 and ADR-0037 amended); Inbox's "To sort" is "Thoughts"; done Tasks struck through in Completed | Code, tests |
 
 Each step's code goes into the specs' status as it lands (*built*, then
 *verified* when a test citing the ID passes).
@@ -56,7 +56,7 @@ Each step's code goes into the specs' status as it lands (*built*, then
 - **One Recently deleted page** in Settings, for every Type.
 - **No Recent**, and no blanket Starred: each Type has its own mark —
   Notes pinned, Tasks starred (wanted, as in Google Tasks), Recipes
-  favourited (Stage 4). Labels are on Notes and Tasks only, one shared set
+  favourited (Stage 4). Labels are on Notes and Tasks only (Thoughts too, from 13 October), one shared set
   ([ADR-0014](../../20-architecture/adr/0014-reference-data-and-labels.md)
   amended).
 - **Notes are just notes**, like Google Keep: Labels filter them, a Note's
@@ -85,7 +85,8 @@ to match when the designs are agreed (step 3):
   under controls.
 - **Tasks open as a popup** in the middle of the screen, on a computer and a
   phone; Notes as a popup on a computer and a page of their own on a phone.
-- **The Tasks page's views** are All tasks, By label, Recurring and Completed.
+- **The Tasks page's views** are All tasks, By label, Recurring and Completed
+  (By label became a filter on 13 October).
 - **Choosing between options** (changing a repeat): the chosen option has an
   outline, and Save confirms.
 - **On a phone the menu button is always in the top bar.**

@@ -130,12 +130,17 @@ test('NTE-002, NTE-003: Labels from the picker narrow the page; pinned stays fir
   await expect.poll(() => db.item_labels.filter((r) => r.item_id === id(1)).length).toBe(3)
   await closeNote(page, isMobile)
 
-  const tabs = page.getByRole('tablist', { name: 'Label' }).getByRole('tab')
-  await expect(tabs).toHaveText(['All', 'Home', 'Packing', 'Travel'])
-  await tabs.filter({ hasText: 'Home' }).click()
+  // Every Label, as a pill to choose; no tabs.
+  await expect(page.getByRole('tab')).toHaveCount(0)
+  const chips = page.getByRole('group', { name: 'Filter by label' }).getByRole('button')
+  await expect(chips).toHaveText(['Car', 'Home', 'Packing', 'Travel'])
+  await chips.filter({ hasText: 'Home' }).click()
   await expect(cards(page)).toHaveText([/^Japan packing list/, /^House details/])
   await expect(page.getByRole('heading', { level: 2 })).toHaveText(['Pinned', 'Others'])
-  await tabs.filter({ hasText: 'All' }).click()
+  await chips.filter({ hasText: 'Car' }).click()
+  await chips.filter({ hasText: 'Home' }).click()
+  await expect(page.getByRole('heading', { name: 'No notes labelled Car' })).toBeVisible()
+  await chips.filter({ hasText: 'Car' }).click()
   await expect(cards(page)).toHaveCount(3)
 })
 

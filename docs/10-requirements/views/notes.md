@@ -16,7 +16,7 @@ Provisionally agreed) — in Stage 2, Notes, like Google Keep.
 - **Notes are Personal only**; something to share becomes a Shareable Type,
   such as a List.
 - **Labels filter the page**, as in Google Keep; a Note's own title is its
-  heading. Notes and Tasks share one set of Labels
+  heading. Thoughts, Notes and Tasks share one set of Labels
   ([ADR-0014](../../20-architecture/adr/0014-reference-data-and-labels.md),
   Provisionally agreed).
 - **Notes are pinned**, not starred: pinning is the Note's mark, kept at the
@@ -31,7 +31,9 @@ Provisionally agreed) — in Stage 2, Notes, like Google Keep.
 
 My Notes, pinned ones first, then the rest with the most recently changed
 first; each shows its title and the start of its body. "New note" is the
-page's main action. I can narrow the page to one Label. A Note opens as a
+page's main action. My Labels are pills above the Notes: choosing one or
+more narrows the page to the Notes with any of them, until I unchoose
+them. A Note opens as a
 popup over the page on a computer, and on a page of its own on a phone
 ([ITM-001](../cross-cutting/items.md#itm-001--open-an-item)).
 
@@ -55,7 +57,7 @@ Acceptance criteria
 
 ### NTE-002 — Labels on Notes
 
-**As** Joe, **I want** to label Notes and see one Label's Notes at a time,
+**As** Joe, **I want** to label Notes and see only some Labels' Notes,
 **so that** I can find a Note among many.
 Priority: Must · Status: verified
 
@@ -63,9 +65,10 @@ Acceptance criteria
 1. Given a Note, when I give it a Label, then I can pick one I already have
    or make a new one; a Note can have several.
 2. Given Notes labelled Home and Recipes, when I choose Home, then only Notes
-   labelled Home show, until I clear it.
+   labelled Home show, until I unchoose it; choosing Recipes too shows
+   Notes with either.
 3. Given the Labels I use on Tasks, then the same Labels are offered on
-   Notes ([ITM-005](../cross-cutting/items.md#itm-005--labels-on-notes-and-tasks)).
+   Notes ([ITM-005](../cross-cutting/items.md#itm-005--labels-on-thoughts-notes-and-tasks)).
 
 ### NTE-003 — Pin a Note
 

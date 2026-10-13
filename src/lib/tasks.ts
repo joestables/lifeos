@@ -84,35 +84,6 @@ export function taskGroups(items: readonly Item[], now: Date = new Date()): Task
   return groups.filter((g) => g.tasks.length > 0)
 }
 
-/**
- * "By label": each Label with open Tasks, A to Z, then No label; a Task with
- * two Labels is under both (TSK-004). Someday Tasks are left to All tasks.
- */
-export function tasksByLabel(
-  items: readonly Item[],
-  labels: readonly { id: string; name: string }[],
-  itemLabels: readonly { item_id: string; label_id: string }[],
-  now: Date = new Date(),
-): { id: string | null; name: string; tasks: Item[] }[] {
-  const ordered = taskGroups(items, now)
-    .filter((g) => g.key !== 'someday')
-    .flatMap((g) => g.tasks)
-  const of = (taskId: string) =>
-    new Set(itemLabels.filter((r) => r.item_id === taskId).map((r) => r.label_id))
-  const sets = new Map(ordered.map((t) => [t.id, of(t.id)]))
-  const out = [...labels]
-    .sort((a, b) => a.name.localeCompare(b.name))
-    .map((l) => ({
-      id: l.id as string | null,
-      name: l.name,
-      tasks: ordered.filter((t) => sets.get(t.id)!.has(l.id)),
-    }))
-    .filter((g) => g.tasks.length > 0)
-  const unlabelled = ordered.filter((t) => sets.get(t.id)!.size === 0)
-  if (unlabelled.length > 0) out.push({ id: null, name: 'No label', tasks: unlabelled })
-  return out
-}
-
 /** "Completed": done Tasks, most recently changed first. */
 export function completedTasks(items: readonly Item[]): Item[] {
   return items
