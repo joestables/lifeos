@@ -28,6 +28,8 @@ Branch `claude/laughing-babbage-maqg0k` · 2026-10-13
 - Two migrations (conversion's status, the digest; the generated ontology:
   Thought is Completable, with *done* and Labels), a new database test file,
   and browser tests for each change on desktop and phone.
+- Live: the migrations are applied as `20261013190144` and `20261013190156`;
+  the advisors found nothing new.
 
 ## [#11](https://github.com/joestables/lifeos/pull/11) — Stage 2, step 14: Joe's first round, and a bug hunt
 
