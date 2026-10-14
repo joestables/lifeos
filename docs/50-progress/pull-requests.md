@@ -34,6 +34,11 @@ Branch `claude/kind-babbage-p00wl4` · 2026-10-14
   AddToDay; PlanCard extended). A second pass after Joe's comments, closer
   to the first Plan design, with "Link a task" on an Event; agreed, and
   written into the design spec (components, patterns) and `/design`.
+- Step 4, the schema: an Event's place, Labels and default Reminder; all-day
+  Events as dates; Task ↔ Event mapping times; repeating Events;
+  `core.plan_items`; Plan's hidden Types; Google Calendar's connections,
+  calendars and references, with Google's fields locked on incoming
+  calendars. 35 database tests.
 
 ## [#12](https://github.com/joestables/lifeos/pull/12) — Stage 2, step 14: Labels as filters, Thoughts ticked off
 

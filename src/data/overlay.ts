@@ -8,6 +8,7 @@ const blankItem = (id: string, type: string, at: string): ItemRow => ({
   type,
   title: '',
   body: null,
+  place: null,
   space_id: '',
   owner_id: '',
   status: 'active',

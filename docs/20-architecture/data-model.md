@@ -64,7 +64,7 @@ modelled in ordinary Postgres tables plus a links table:
 ```
 core.items     id (UUIDv7, made on the device), type, title, body, space_id,
                owner_id, status, starts_at, ends_at, all_day, due_on (date),
-               do_on (date) + do_at (optional time), slot, series_id +
+               do_on (date) + do_at (optional time), slot, place, series_id +
                occurrence_on, position, touched_at, search, created_at,
                updated_at, archived_at
                (only the fields every View filters on)
@@ -72,14 +72,16 @@ core.items     id (UUIDv7, made on the device), type, title, body, space_id,
 <type> detail  1:1 with items, per Type, in its Module's schema, e.g.
                fitness.workout(item_id, actual_start, duration, readiness …)
                food.meal(item_id, servings)
-               lists.shop(item_id, place)
+               lists.shop(item_id, …)
 
 child rows     belong to one Item and are not Items themselves:
                workout_sets, variation_ingredients, list_lines …
 
 core.series    type, space, owner, the repeat rule (an RRULE), mode
                (schedule | after completion), starts_on, timezone, template
-               (what each occurrence is made with), generated_until, ended_on
+               (what each occurrence is made with: a Task's do_at and due
+               offset, an Event's start time and length, or all day and its
+               number of days), generated_until, ended_on
 core.links     from_item, to_item, link_type, origin (manual|action|integration) …
 core.reminders item_id, person, anchor (starts_at|do_on|due_on) + offset and
                time, or a fixed time; the default time it was made with;
@@ -136,8 +138,12 @@ use.
 | Outfit worn | `do_on` | `do_on` |
 | Goal | none: its deadline is in `goals.goal`, so a Goal is not on Plan | — |
 
-Task ↔ Event maps `do_on` + `do_at` to `starts_at` (all-day when there is no
-time); List → Shop gains a `do_on`.
+Task ↔ Event maps `do_on` + `do_at` to `starts_at` (an hour long; all day
+when there is no time), in the owner's timezone, and back; List → Shop gains
+a `do_on`. **An all-day Event keeps its days as dates**: `starts_at` is
+midnight UTC of its first day and `ends_at` midnight UTC of the day after its
+last, as Google keeps them, so it is the same days in any timezone (EVT-001).
+Plan reads a date range through `core.plan_items` ([ADR-0049](adr/0049-plans-read.md)).
 
 ## Item or child row?
 
@@ -171,10 +177,9 @@ Colour: the Type's colour ([ADR-0043](adr/0043-colour-by-type.md),
 Provisionally agreed). Labels: whether the Type uses Labels. Mark: the
 per-person mark the Type has, under its own name. The ontology package also
 declares which Types hold sub-tasks (Task) and which time field a Type's
-default Reminder follows (a Task's do-on date; an Event's start, from Stage
-3); the lookup table carries all of these, so the database enforces them.
-Event's Labels and default Reminder were agreed for Stage 3 on 14 October
-and reach the ontology package with Stage 3's schema step.
+default Reminder follows (a Task's do-on date; an Event's start, 30 minutes
+before) and which have a place (Event); the lookup table carries all of
+these, so the database enforces them.
 
 | Module | Type | S | C | Sh | Cap | Default Space | Statuses used (labels) | Colour | Labels | Mark | Stage |
 |---|---|---|---|---|---|---|---|---|---|---|---|
@@ -273,7 +278,7 @@ rule and create no links.
 
 | Table | Holds |
 |---|---|
-| `core.people` | A person: name, home timezone, default Reminder time (09:00), whether each Type's default Reminder is on, the morning digest and its time (07:00); later, food preferences |
+| `core.people` | A person: name, home timezone, default Reminder time (09:00), whether each Type's default Reminder is on, the morning digest and its time (07:00), the Types hidden on Plan (PLN-004); later, food preferences |
 | `core.contacts` | Contact requests between people, and whether they were accepted |
 | `core.spaces` · `core.space_members` · `core.space_invites` | Personal and Household Spaces, membership, invitations to a Household |
 | `core.items` | Every Item |
@@ -290,9 +295,9 @@ rule and create no links.
 | `core.capture_tokens` | Each person's capture-address secrets (hashed), revocable (Stage 10) |
 | `core.attachments` | Photos and files on Items (Supabase Storage) |
 | `core.connections` | Integration connections; tokens in Vault |
-| `core.external_refs` | Integration ids and raw payloads per Item |
+| `core.external_refs` | Integration ids and raw payloads per Item: its connection and calendar, the outside id and `etag`, the raw payload and the mapping's version |
 | `core.calendar_links` | Each Google calendar of a connection: its sync level, whether new Events go there, its sync token (Stage 3, [ADR-0047](adr/0047-google-calendar-sync.md), Provisionally agreed) |
-| `core_private.calendar_outbox` | Event changes waiting to go to Google (Stage 3, [ADR-0048](adr/0048-google-calendar-two-way.md), Provisionally agreed) |
+| `core_private.calendar_outbox` | Event changes waiting to go to Google (Stage 3's step 10, with two-way sync; [ADR-0048](adr/0048-google-calendar-two-way.md), Provisionally agreed) |
 | `ops.events` | Errors and failures from the app, Edge Functions, cron jobs and Integrations: what, where (screen), the last few actions, never Items' content |
 | `ops.health_runs` · `ops.heartbeats` | The nightly health check's findings; when jobs outside the database last ran: Reminder sending and the nightly series run ([ADR-0044](adr/0044-reminder-delivery.md), [ADR-0045](adr/0045-extending-series.md)) |
 

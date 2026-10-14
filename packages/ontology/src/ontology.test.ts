@@ -53,15 +53,15 @@ describe('ontology', () => {
     expect(convertsTo(typeByKey('event')!)).toEqual(['task'])
   })
 
-  it('gives Labels, marks and sub-tasks as the data model says (ADR-0014, ADR-0043)', () => {
+  it('gives Labels, marks, sub-tasks and a place as the data model says (ADR-0014, ADR-0043, EVT-001)', () => {
     const look = (key: string) => {
       const t = typeByKey(key)!
-      return [t.colour, t.labels, t.mark, t.subtasks, t.defaultReminder]
+      return [t.colour, t.labels, t.mark, t.subtasks, t.defaultReminder, t.place]
     }
-    expect(look('thought')).toEqual(['yellow', true, undefined, false, undefined])
-    expect(look('note')).toEqual(['yellow', true, 'pinned', false, undefined])
-    expect(look('task')).toEqual(['blue', true, 'starred', true, 'do_on'])
-    expect(look('event')).toEqual(['blue', false, undefined, false, undefined])
+    expect(look('thought')).toEqual(['yellow', true, undefined, false, undefined, false])
+    expect(look('note')).toEqual(['yellow', true, 'pinned', false, undefined, false])
+    expect(look('task')).toEqual(['blue', true, 'starred', true, 'do_on', false])
+    expect(look('event')).toEqual(['blue', true, undefined, false, 'starts_at', true])
   })
 
   it('builds each Type in its roadmap stage (data-model.md#types)', () => {

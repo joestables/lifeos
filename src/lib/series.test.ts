@@ -7,6 +7,7 @@ const occ = (id: string, on: string, fields: Partial<Item> = {}): Item => ({
   type: 'task',
   title: 'Vitamins',
   body: null,
+  place: null,
   space_id: 's',
   owner_id: 'a',
   status: 'active',

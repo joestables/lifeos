@@ -10,6 +10,7 @@ const row = (id: string, fields: Partial<ItemRow> = {}): ItemRow => ({
   type: 'task',
   title: 'Bins',
   body: null,
+  place: null,
   space_id: 's',
   owner_id: 'o',
   status: 'active',

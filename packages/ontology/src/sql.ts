@@ -32,6 +32,7 @@ export function lookupMigrationSql(): string {
       optional(t.mark),
       t.subtasks,
       optional(t.defaultReminder),
+      t.place,
     ].join(', '),
   )
   const links = LINK_TYPES.map((l) =>
@@ -44,7 +45,7 @@ export function lookupMigrationSql(): string {
 insert into core.item_types
   (key, module, label, schedulable, completable, shareable, capturable,
    statuses, default_space, time_fields, converts_to, colour, uses_labels,
-   mark, has_subtasks, default_reminder)
+   mark, has_subtasks, default_reminder, has_place)
 values
 ${types.map((r) => `  (${r})`).join(',\n')}
 on conflict (key) do update set
@@ -62,7 +63,8 @@ on conflict (key) do update set
   uses_labels = excluded.uses_labels,
   mark = excluded.mark,
   has_subtasks = excluded.has_subtasks,
-  default_reminder = excluded.default_reminder;
+  default_reminder = excluded.default_reminder,
+  has_place = excluded.has_place;
 
 insert into core.link_types
   (key, label, inverse_label, from_types, to_types, is_symmetric)
