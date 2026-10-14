@@ -18,14 +18,14 @@ Owner: **core**, a **Module** (`lists`, `food`, `fitness`, `goals`,
 | Tasks: Labels, do-on and due, star, sub-tasks, Someday, repeating | core | Tasks | 2 | [tasks](views/tasks.md) |
 | Inbox, including sorting Thoughts into other Types | core | Inbox | 2 | [inbox](views/inbox.md) |
 | Reminders by Web Push; Done/Snooze actions, overdue nudges, morning digest | core | — | 2 | [reminders](cross-cutting/reminders.md) |
-| Opening an Item; delete and recover; convert; Labels on Thoughts, Notes and Tasks | core | Each page; Settings | 2 | [items](cross-cutting/items.md) |
+| Opening an Item; delete and recover; convert; Labels on Thoughts, Notes and Tasks (Events from Stage 3) | core | Each page; Settings | 2 | [items](cross-cutting/items.md) |
 | Colour by Type; the app icon | core | — | 2 | [ADR-0043](../20-architecture/adr/0043-colour-by-type.md), [design system](../30-design/README.md) |
 | Search (full-text) | core | Search Screen | 2 | [search](cross-cutting/search.md) |
 | Offline writes (data layer and write queue) | core | — | 1 | [offline](cross-cutting/offline.md) |
 | Activity log: changes to items and links | core | — | 1 | [ADR-0030](../20-architecture/adr/0030-activity-log-by-triggers.md) |
 | Plan: every Schedulable Type, a week or a day, filtered by Type | core | Plan | 3 | [plan](views/plan.md) |
-| Events, repeating Events | core | Plan | 3 | — |
-| Google Calendar: incoming only or two-way, always Personal | Integration | Settings | 3 | [integrations](cross-cutting/integrations.md) |
+| Events, repeating Events, Tasks for an Event | core | Plan | 3 | [events](cross-cutting/events.md) |
+| Google Calendar: incoming only or two-way per calendar, always Personal | Integration | Settings | 3 | [integrations](cross-cutting/integrations.md#google-calendar) |
 | Recipes, Variations, ideas, cook log | `food` | Recipes | 4 | — |
 | Meal planning | `food` | Plan | 4 | — |
 | Shared AI service; food preferences | core | — | 4 | — |

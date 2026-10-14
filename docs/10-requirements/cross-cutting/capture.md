@@ -7,9 +7,8 @@ at the start of Stage 2, are at the end.*
 ## Decisions
 
 - **Quick capture** opens over whatever you are doing, from any page; it
-  makes a Thought, which lands in Inbox, with a one-tap switch to Task (and
-  Event from Stage 3); a deterministic parser offers, never forces, a Task
-  when it spots a date
+  makes a Thought, which lands in Inbox, with a one-tap switch to Task; a
+  deterministic parser offers, never forces, a Task when it spots a date
   ([ADR-0027](../../20-architecture/adr/0027-quick-capture.md), Provisionally agreed).
 - **A Thought whose text contains a date gets a Reminder** for that date
   ([ADR-0023](../../20-architecture/adr/0023-reminders.md), Provisionally agreed).
@@ -23,7 +22,10 @@ at the start of Stage 2, are at the end.*
   last, after every other stage
   ([ADR-0028](../../20-architecture/adr/0028-capture-from-outside-the-app.md),
   Provisionally agreed).
-- Until Stage 3, an event-shaped line is saved as a Thought or a Task.
+- **Capture makes Thoughts and Tasks only** (Joe, 14 October): an
+  event-shaped line is saved as a Thought or a Task. Events are made on
+  Plan, by switching a Task, or by sorting a Thought
+  ([events](events.md#decisions)).
 
 ## Where capture comes from
 
@@ -134,7 +136,7 @@ Acceptance criteria
 2. Given I open capture again, then no Label is chosen.
 
 Non-goals (Stage 2): repeats typed in words ("every monday"); an LLM in
-capture; matching Ingredients (Stage 4); Events (Stage 3); everything in
+capture; matching Ingredients (Stage 4); Events (Joe, 14 October); everything in
 [deferred](#deferred-to-stage-10).
 
 ## Deferred to Stage 10

@@ -2,7 +2,7 @@
 
 **Status:** Provisionally agreed · 2026-10-09
 
-**Amended:** 2026-10-10 by Joe, writing the Stage 2 specs (Labels only on the Types that declare them; on Notes they filter, not head). 2026-10-13 by Joe, using Stage 2 (Thoughts take Labels; Labels filter Tasks and Inbox rather than group Tasks).
+**Amended:** 2026-10-10 by Joe, writing the Stage 2 specs (Labels only on the Types that declare them; on Notes they filter, not head). 2026-10-13 by Joe, using Stage 2 (Thoughts take Labels; Labels filter Tasks and Inbox rather than group Tasks). 2026-10-14 by Joe, writing the Stage 3 specs (Events take Labels).
 
 ## Context
 
@@ -26,6 +26,8 @@ Areas such as Health, Home, Money).
     Car); the Tasks View **filters** by them, in each of its views.
   - **Notes** — labels **filter** the Notes View, like Google Keep; a
     Note's own title is its heading.
+  - **Events** (Stage 3) — labelled like Tasks, including Events from
+    Google Calendar, whose Labels stay in LifeOS.
   - **One way to filter**: each page shows my Labels as pills; choosing one
     or more shows what has any of them.
   - **Wardrobe** — whether v1's collections become labels on garments is

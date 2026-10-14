@@ -15,7 +15,7 @@ dashboard cards ([ADR-0026](../../20-architecture/adr/0026-navigation-drawer.md)
   ([ADR-0037](../../20-architecture/adr/0037-thoughts.md), Provisionally
   agreed).
 - **Labels filter the page**, as on Notes and Tasks: what has no Labels
-  (an Event, from Stage 3) leaves while one is chosen
+  leaves while one is chosen
   ([ADR-0014](../../20-architecture/adr/0014-reference-data-and-labels.md),
   Provisionally agreed).
 - **Due** drives "overdue" ([ADR-0021](../../20-architecture/adr/0021-time.md)).
@@ -85,7 +85,9 @@ Acceptance criteria
 2. Given a Thought, when I make it a Note (one action), then it becomes a
    Note in place and appears in the Notes View.
 3. Given a Thought, when I choose another Type, then only the Types a
-   Thought can become that exist are offered (Note and Task in Stage 2).
+   Thought can become that exist are offered (Note and Task in Stage 2;
+   Event from Stage 3, its date understood as for a Task and kept as its
+   start).
 4. Given a Thought, when I delete it, then it leaves Inbox, and I can undo
    that at once or recover it later from Settings
    ([ITM-002, ITM-003](../cross-cutting/items.md#requirements)).
@@ -155,4 +157,4 @@ Acceptance criteria
 
 Non-goals (Stage 2): entries from Modules and Integrations (from Stage 3);
 dismissing or snoozing an entry (`core.inbox_state`, when an entry first
-needs it); Events.
+needs it); Events, which Plan shows (Joe, 14 October).

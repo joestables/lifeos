@@ -2,7 +2,7 @@
 
 **Status:** Provisionally agreed · 2026-10-09
 
-**Amended:** 2026-10-09 by [ADR-0037](0037-thoughts.md) (Thoughts); 2026-10-10 by Joe, writing the Stage 2 specs (capture opens over any screen; Android's shortcut and share move to [ADR-0028](0028-capture-from-outside-the-app.md)).
+**Amended:** 2026-10-09 by [ADR-0037](0037-thoughts.md) (Thoughts); 2026-10-10 by Joe, writing the Stage 2 specs (capture opens over any screen; Android's shortcut and share move to [ADR-0028](0028-capture-from-outside-the-app.md)); 2026-10-14 by Joe, writing the Stage 3 specs (capture makes no Events).
 
 ## Context
 
@@ -20,8 +20,8 @@ share-to-LifeOS come with capture from outside the app
 
 - **Capture makes a Thought by default**, which lands in Inbox — capture
   quickly, sort later.
-- **A one-tap switch in the capture box makes it a Task instead** (and an
-  Event once Stage 3 exists). No keyword to remember.
+- **A one-tap switch in the capture box makes it a Task instead.** No
+  keyword to remember. Capture makes no Events: they are made on Plan.
 - **When the parser spots a date** ("call mum fri 6pm") it *offers* "Task,
   Fri 18:00?"; it never switches on its own. If the line stays a Thought, it
   still gets a Reminder for that date ([ADR-0023](0023-reminders.md)).

@@ -16,7 +16,7 @@ Provisionally agreed) — in Stage 2, Notes, like Google Keep.
 - **Notes are Personal only**; something to share becomes a Shareable Type,
   such as a List.
 - **Labels filter the page**, as in Google Keep; a Note's own title is its
-  heading. Thoughts, Notes and Tasks share one set of Labels
+  heading. Thoughts, Notes, Tasks and Events share one set of Labels
   ([ADR-0014](../../20-architecture/adr/0014-reference-data-and-labels.md),
   Provisionally agreed).
 - **Notes are pinned**, not starred: pinning is the Note's mark, kept at the

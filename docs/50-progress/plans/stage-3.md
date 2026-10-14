@@ -4,15 +4,15 @@
 It shows every Schedulable Item — Tasks and Events now, and Shops, Meals,
 Workouts and the rest as their stages arrive, with no Plan work
 ([ADR-0029](../../20-architecture/adr/0029-plan-reads-core-items.md)) — in
-a week on a computer and a day on a phone, filtered by Type. Events exist,
-repeat, remind and switch with Tasks; capture understands them. Google
+a week on a computer and a day on a phone, filtered by Type, with anything
+added to a day from its "+" and dragged between days. Events exist, repeat,
+remind, take Labels and switch with Tasks; capture stays Thoughts and Tasks. Google
 Calendar is connected, incoming only or both ways, and always Personal.
 Lists, Shops and list templates have moved to Stage 4b, after Recipes.
 
 **State:** the plan is written (14 October 2026), from Joe's brief (below).
-Joe answered questions 1–4, 7 and 8's Type filter the same day; step 1, the
-specs, is next, taking the recommendations for the rest unless Joe says
-otherwise.
+Joe answered the questions the same day; step 1's specs are drafted (14
+October), for Joe to agree.
 
 ## Steps
 
@@ -24,13 +24,13 @@ a stand-in for Google, as they do for Supabase.
 
 | # | Step | State | Produces |
 |---|---|---|---|
-| 1 | **Joe** — specs: Plan; Events (with repeats, Reminders, the Task ↔ Event switch, Tasks *for* an Event); Google Calendar (connecting, choosing calendars, the sync level, what goes each way, a broken connection); and what they change in capture, Inbox, items, Search and Reminders | To write, with the [questions](#questions-for-the-specs) answered | [Plan](../../10-requirements/views/plan.md) (PLN-*), an Events spec (EVT-*), [integrations](../../10-requirements/cross-cutting/integrations.md) (GCL-*), changes to [capture](../../10-requirements/cross-cutting/capture.md), [Inbox](../../10-requirements/views/inbox.md), [items](../../10-requirements/cross-cutting/items.md), [search](../../10-requirements/cross-cutting/search.md), [reminders](../../10-requirements/cross-cutting/reminders.md) |
+| 1 | **Joe** — specs: Plan; Events (with repeats, Reminders, Labels, the Task ↔ Event switch, Tasks *for* an Event); Google Calendar (connecting, choosing calendars, the sync level, what goes each way, a broken connection); and what they change in capture, Inbox, items, Search and Reminders | Drafted 14 October, with Joe's [answers](#questions-for-the-specs): PLN-001–007, EVT-001–006, GCL-001–006, all *proposed*; ADR-0014 (Events take Labels) and ADR-0027 (capture makes no Events) amended. For Joe to agree | [Plan](../../10-requirements/views/plan.md#requirements) (PLN-*), [Events](../../10-requirements/cross-cutting/events.md#requirements) (EVT-*), [Google Calendar](../../10-requirements/cross-cutting/integrations.md#google-calendar) (GCL-*), changes to [capture](../../10-requirements/cross-cutting/capture.md), [Inbox](../../10-requirements/views/inbox.md), [items](../../10-requirements/cross-cutting/items.md), [search](../../10-requirements/cross-cutting/search.md), [reminders](../../10-requirements/cross-cutting/reminders.md) |
 | 2 | Decisions: how Calendar sync runs (Google's push notifications to an Edge Function, incremental sync tokens, a `pg_cron` catch-up); how changes go out to Google on two-way, and who wins when both sides change; how a repeating Event maps to a Google repeating event; Plan's read over a date range (ADR-0029); re-check Google's rules for the scopes and an unverified app | To do | ADRs, re-checks recorded |
-| 3 | **Joe** — design, with Claude design: Plan's week (computer) and day (computer and phone), the Type filter (FilterChip), PlanCard and DayColumn for each Type; the Event popup and "New event"; capture's Event; Settings → Google Calendar (connect, calendars, sync level); how an imported Event looks; a broken connection in Inbox. Into the design spec first, then the shared components, with the screenshot tests refreshed | To do | [design system](../../30-design/README.md), components |
-| 4 | Schema: what an Event holds (and any detail it needs, such as a place); series for Events; Plan's read; `core.connections` (tokens in Vault) and `core.external_refs`; the chosen calendars and their sync level; the person's Plan settings; the ontology gains Event's default Reminder; database tests | To do | Migrations, database tests |
-| 5 | Events: the popup and "New event", all-day and timed, Reminders, the Task ↔ Event switch, capture's Event offer, a Thought sorted into an Event, Events in Search, Tasks *for* an Event | To do | Code, tests citing EVT-* and the changed CAP-, INB-, SRC- requirements |
+| 3 | **Joe** — design, with Claude design: Plan's week (computer) and day (computer and phone), the Type filter (FilterChip), PlanCard and DayColumn for each Type, a day's "+" and its choice of Type, dragging; the Event popup and "New event"; Settings → Google Calendar (connect, calendars, sync level); how an imported Event looks; a broken connection in Inbox. Into the design spec first, then the shared components, with the screenshot tests refreshed | To do | [design system](../../30-design/README.md), components |
+| 4 | Schema: what an Event holds (its place); Labels on Events; series for Events; Plan's read; `core.connections` (tokens in Vault) and `core.external_refs`; the chosen calendars and their sync level; the person's Plan settings; the ontology gains Event's default Reminder; database tests | To do | Migrations, database tests |
+| 5 | Events: the popup and "New event", all-day and timed, Labels, Reminders, the Task ↔ Event switch, a Thought sorted into an Event, Events in Search, Tasks *for* an Event | To do | Code, tests citing EVT-* and the changed INB-, ITM-, REM-, SRC- requirements |
 | 6 | Repeating Events: series for Events, with `packages/recurrence` and the nightly run | To do | Code, tests citing EVT-* |
-| 7 | Plan View: week and day, the Type filter, Today and moving between weeks or days, ticking a Task off, opening an Item, adding an Event or Task on a day, moving an Item to another day | To do | Code, tests citing PLN-* |
+| 7 | Plan View: week and day, the Type filter, Today and moving between weeks or days, ticking a Task off, opening an Item, adding any Schedulable Type on a day with "+", dragging to another day | To do | Code, tests citing PLN-* |
 | 8 | **Joe** — Google Cloud: enable the Calendar API, add the Calendar scopes to the consent screen (the app stays in Production, unverified), the Edge Function's redirect address on the OAuth client; the client secret into Supabase's Edge Function secrets | To do | [integration setup](../../40-operations/integration-setup.md#google-calendar-stage-3) |
 | 9 | Google Calendar, incoming: connect and disconnect in Settings, choose calendars, import and keep up to date, imported Events on Plan, a broken connection in Inbox and the nightly health check | To do | Edge Functions, `pg_cron` job, tests citing GCL-* |
 | 10 | Google Calendar, two-way: Events made, changed or deleted in LifeOS go to Google, on the calendars set to two-way | To do | Edge Function, tests citing GCL-* |
@@ -80,10 +80,11 @@ after it, and settle step 1.
 5. **Reminders on imported Events:** LifeOS's Reminder, Google's
    notification, or both? *Recommended:* LifeOS's own default for Events
    (say 30 minutes before a timed Event; none for all-day), and Google's left
-   to Google.
+   to Google. **Joe: no Reminder by default on an imported Event; I may add
+   one.**
 6. **Deleting:** an Event deleted in Google goes to Recently deleted in
    LifeOS; on two-way, deleting in LifeOS deletes it in Google.
-   *Recommended* as written.
+   *Recommended* as written. **Joe: fine.**
 7. **Plan's week:** each day a column of cards, untimed first and then by
    time (the DayColumn and PlanCard already in the design system), or an
    hour grid like Google Calendar? *Recommended:* the columns of cards; a
@@ -94,14 +95,37 @@ after it, and settle step 1.
    across every device**). Week starts on
    Monday. Done Items stay on their day, faded and struck through; overdue
    Tasks stay on their day (Inbox carries them). *Recommended* as written.
+   **Joe: the week starts on Monday.**
 9. **Adding from Plan:** pressing a day (or "New" with the day chosen)
    offers an Event or a Task on that day; on a computer an Item can be
-   dragged to another day. *Recommended* as written.
+   dragged to another day. *Recommended* as written. **Joe: a "+" to choose
+   any Type to add on that day; drag and drop, yes.**
 10. **Inbox and Events:** do today's Events show in Inbox's Today?
     *Recommended:* no — Inbox is what needs me; Plan shows the day.
+    **Joe: fine.**
 11. **What an Event holds:** title, start and end (or all day), place,
     notes, Reminders, repeat; no Labels (as the data model says).
-    *Recommended* as written.
+    *Recommended* as written. **Joe: and Labels.**
+
+## Joe's second answers (14 October)
+
+- **Capture stays Thoughts and Tasks**: no Event in capture
+  ([ADR-0027](../../20-architecture/adr/0027-quick-capture.md) amended).
+- **No Reminder by default on an Event from Google**; I may add one.
+- **Deleting** follows both ways, as recommended.
+- **The week starts on Monday.**
+- **A "+" on each day** makes any Type that can be planned, chosen from a
+  list; **dragging** moves Items between days.
+- **Inbox** doesn't show today's Events.
+- **An Event takes Labels**
+  ([ADR-0014](../../20-architecture/adr/0014-reference-data-and-labels.md)
+  amended).
+
+Taken as recommended, for Joe to confirm with the specs: an Event made in
+LifeOS reminds me 30 minutes before (none when all day); a Thought can
+still be sorted into an Event in Inbox; a new calendar connection starts
+with the main calendar incoming and the rest off; Events come in from four
+weeks back.
 
 ## Done when
 

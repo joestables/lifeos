@@ -17,7 +17,7 @@ Provisionally agreed). It replaces Google Tasks.
   do it; due is a deadline, and only due makes a Task overdue
   ([ADR-0021](../../20-architecture/adr/0021-time.md), Provisionally agreed).
 - **Labels filter Tasks**, like choosing among Google Tasks' lists (Home,
-  Work, Car). Thoughts, Notes and Tasks share one set of Labels
+  Work, Car). Thoughts, Notes, Tasks and Events share one set of Labels
   ([ADR-0014](../../20-architecture/adr/0014-reference-data-and-labels.md),
   Provisionally agreed).
 - **Tasks are starred**, as in Google Tasks: starring is the Task's mark,

@@ -7,7 +7,9 @@ first; the requirements, drafted at the start of Stage 2, are at the end.*
 
 - **Reminders attach to any Item**, relative to one of its times or at a
   fixed time; defaults per Type; a Task's default follows its do-on date at
-  the person's default time (09:00 unless changed); per person; a Thought with
+  the person's default time (09:00 unless changed); an Event I make, 30
+  minutes before it starts if it has a time, and one from Google Calendar
+  none (Stage 3, [events](events.md#decisions)); per person; a Thought with
   a date gets one ([ADR-0023](../../20-architecture/adr/0023-reminders.md),
   Provisionally agreed).
 - **Anchors per Type** are tabled in the
@@ -25,7 +27,8 @@ first; the requirements, drafted at the start of Stage 2, are at the end.*
   (re-checked 10 October 2026), so on the iPhone a notification opens the
   Item. Done and Snooze buttons are for Android and computers.
 - **Where they are set:** a Task's Reminders in its popup, on its do-on or
-  due date or at a set time; a Thought's at a set time. Notes get theirs
+  due date or at a set time; an Event's in its popup, before its start or at
+  a set time (Stage 3); a Thought's at a set time. Notes get theirs
   with their own page's menu, later.
 - **What a notification says:** the Item's title (an overdue nudge
   "Overdue: …"), its do-on time and due date, Done (Tasks only) and "Snooze
@@ -146,7 +149,7 @@ Acceptance criteria
    date-only Reminders are at 08:00, and existing ones are unchanged.
 2. Given Settings, then I can turn off the Task default (a dated Task
    reminds me on its do-on date) and the Thought default (a dated Thought
-   reminds me).
+   reminds me); from Stage 3, the Event default (30 minutes before).
 
 ### REM-008 — A morning digest
 

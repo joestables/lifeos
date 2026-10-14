@@ -18,6 +18,13 @@ Branch `claude/kind-babbage-p00wl4` · 2026-10-14
   capability map, data model, Modules list and Notes spec follow, and
   ADR-0042 (live updates) and ADR-0036 (the generated data-model now comes
   with the first Module, `food`, in Stage 4) are amended.
+- Drafted Stage 3's specs with Joe's answers: [Plan](../10-requirements/views/plan.md#requirements)
+  (PLN-001–007), a new [Events](../10-requirements/cross-cutting/events.md#requirements)
+  spec (EVT-001–006) and [Google Calendar](../10-requirements/cross-cutting/integrations.md#google-calendar)
+  (GCL-001–006), all *proposed*. Capture stays Thoughts and Tasks
+  (ADR-0027 amended); Events take Labels (ADR-0014 amended); capture,
+  Inbox, items, Reminders, Search, the data model, glossary and capability
+  map follow.
 
 ## [#12](https://github.com/joestables/lifeos/pull/12) — Stage 2, step 14: Labels as filters, Thoughts ticked off
 

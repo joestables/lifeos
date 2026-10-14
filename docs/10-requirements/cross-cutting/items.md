@@ -1,8 +1,8 @@
 # Working with Items
 
 *Stage 2. What every Item offers, whatever its Type — opening it, deleting
-and recovering it, converting it — and the Labels that Thoughts, Notes and Tasks
-share. The decisions come first; the requirements, drafted at the start of
+and recovering it, converting it — and the Labels that Thoughts, Notes, Tasks
+and Events share. The decisions come first; the requirements, drafted at the start of
 Stage 2, are at the end.*
 
 ## Decisions
@@ -22,7 +22,7 @@ Stage 2, are at the end.*
   Provisionally agreed). The ontology package decides which conversions
   exist.
 - **Not every Type has every feature.** Each Type declares what it has:
-  - **Labels** — Thoughts, Notes and Tasks, one shared set per Space; other Types
+  - **Labels** — Thoughts, Notes, Tasks and Events (from Stage 3), one shared set per Space; other Types
     don't use them ([ADR-0014](../../20-architecture/adr/0014-reference-data-and-labels.md),
     Provisionally agreed).
   - **A mark, under its own name** — Notes are *pinned*, Tasks *starred*,
@@ -96,11 +96,12 @@ Acceptance criteria
 ### ITM-005 — Labels on Thoughts, Notes and Tasks
 
 **As** Joe, **I want** one set of Labels for my Thoughts, Notes and Tasks
-that I can tidy, **so that** "Home" means the same thing everywhere.
-Priority: Must · Status: verified
+(and Events, from Stage 3) that I can tidy, **so that** "Home" means the
+same thing everywhere.
+Priority: Must · Status: verified (Events: proposed, Stage 3)
 
 Acceptance criteria
-1. Given a Thought, a Note or a Task, when I type a Label's name, then I
+1. Given a Thought, a Note, a Task or an Event, when I type a Label's name, then I
    can pick an existing Label or make a new one.
 2. Given I rename a Label, then every Item with it shows the new name; when
    I delete a Label, it is removed from every Item, and they are kept.
@@ -109,5 +110,5 @@ Acceptance criteria
 4. Given any other Type, then Labels aren't offered.
 
 Non-goals (Stage 2): Recent Items; one Starred list across Types; links
-between Items made by hand (Stage 3, with Events); attachments; an Item's
+between Items made by hand, beyond Tasks *for* an Event (Stage 3, [EVT-006](events.md#evt-006--tasks-for-an-event)); attachments; an Item's
 history shown on it; exporting.
