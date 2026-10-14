@@ -9,8 +9,10 @@ repeat, remind and switch with Tasks; capture understands them. Google
 Calendar is connected, incoming only or both ways, and always Personal.
 Lists, Shops and list templates have moved to Stage 4b, after Recipes.
 
-**State:** the plan is written (14 October 2026), from Joe's brief (below);
-step 1, the specs, is next, with the questions below for Joe.
+**State:** the plan is written (14 October 2026), from Joe's brief (below).
+Joe answered questions 1–4, 7 and 8's Type filter the same day; step 1, the
+specs, is next, taking the recommendations for the rest unless Joe says
+otherwise.
 
 ## Steps
 
@@ -55,20 +57,26 @@ Each step's code goes into the specs' status as it lands (*built*, then
 
 ## Questions for the specs
 
-Each has Claude's recommendation; Joe's answers settle step 1.
+Each has Claude's recommendation; Joe's answers (14 October) are in bold
+after it, and settle step 1.
 
 1. **Sync level per calendar or per account?** *Recommended:* per Google
    calendar — each is off, incoming or two-way; new LifeOS Events go to the
-   one I mark as the place for them.
+   one I mark as the place for them. **Joe: per calendar.**
 2. **What goes to Google on two-way?** *Recommended:* Events only. Tasks,
    Meals, Workouts and Shops stay in LifeOS, so Google Calendar isn't
-   cluttered with them. The alternative is every timed Item.
+   cluttered with them. The alternative is every timed Item. **Joe: Events
+   only.**
 3. **On incoming only, can I change an imported Event in LifeOS?**
    *Recommended:* no — its title and times are Google's, with "Edit in Google
-   Calendar"; I can still add Reminders and Tasks *for* it.
+   Calendar"; I can still add Reminders and Tasks *for* it. **Joe: no, it
+   can't be changed.**
 4. **"Always Personal":** imported Events are in my Personal Space and can't
    be shared. From Stage 4, does a Household Event go to my Google Calendar
    on two-way? *Recommended:* only Events in my Personal Space go out.
+   **Joe: yes, Household Events go to Google Calendar too.** What Calendar
+   brings in stays Personal; what goes out is my Personal and Household
+   Events, to my own two-way calendar.
 5. **Reminders on imported Events:** LifeOS's Reminder, Google's
    notification, or both? *Recommended:* LifeOS's own default for Events
    (say 30 minutes before a timed Event; none for all-day), and Google's left
@@ -80,8 +88,10 @@ Each has Claude's recommendation; Joe's answers settle step 1.
    time (the DayColumn and PlanCard already in the design system), or an
    hour grid like Google Calendar? *Recommended:* the columns of cards; a
    phone shows one day, with a strip of the week to move between days.
+   **Joe: agreed.**
 8. **The Type filter** is remembered for me across devices (with my
-   settings), not kept in the page's address as Labels are. Week starts on
+   settings), not kept in the page's address as Labels are (**Joe: yes,
+   across every device**). Week starts on
    Monday. Done Items stay on their day, faded and struck through; overdue
    Tasks stay on their day (Inbox carries them). *Recommended* as written.
 9. **Adding from Plan:** pressing a day (or "New" with the day chosen)
