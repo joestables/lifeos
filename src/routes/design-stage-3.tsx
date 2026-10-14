@@ -10,14 +10,13 @@ import {
   ExternalLinkIcon,
   FootprintsIcon,
   InboxIcon,
+  LinkIcon,
   LogOutIcon,
   MailIcon,
   MapPinIcon,
   PlusIcon,
-  RepeatIcon,
   ShirtIcon,
   SquareCheckBigIcon,
-  StarIcon,
   StickyNoteIcon,
   TagIcon,
   TargetIcon,
@@ -26,7 +25,6 @@ import {
 } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
 import {
-  AddRow,
   AddToDay,
   AppShell,
   CardRow,
@@ -35,23 +33,20 @@ import {
   FilterChip,
   ItemDialog,
   ItemRow,
-  NowLine,
   PageAction,
   PageHeader,
   PlanCard,
   PlanDay,
-  PlanDayLine,
   PlanToolbar,
   PlanWeek,
+  TaskLinker,
   ReminderList,
   RepeatField,
   SectionLabel,
   TimeField,
   TYPE_ICONS,
-  TypeTile,
   WeekStrip,
   type AddChoice,
-  type AllDaySpan,
   type DrawerPage,
   type PlanWeekDay,
 } from '@/components/lifeos'
@@ -115,6 +110,7 @@ const ADD: AddChoice[] = [
 ]
 
 const nothing = () => {}
+const task = () => <Checkbox colour="blue" aria-label="Done" />
 
 function Shell({ children, inbox = false }: { children: ReactNode; inbox?: boolean }) {
   return (
@@ -138,16 +134,6 @@ function Shell({ children, inbox = false }: { children: ReactNode; inbox?: boole
 
 /* ---------- The week's Items ---------- */
 
-const google = <CalendarSyncIcon aria-label="From Google Calendar" />
-const repeats = <RepeatIcon aria-label="Repeats" />
-const place = (name: string) => (
-  <>
-    <MapPinIcon aria-hidden />
-    <span>{name}</span>
-  </>
-)
-const task = (done = false) => <Checkbox colour="blue" aria-label="Done" checked={done} />
-
 function weekDays({
   add,
   dragging = false,
@@ -161,6 +147,17 @@ function weekDays({
     <AddToDay day={day} choices={ADD} onChoose={nothing} open={add === key ? true : undefined} />
   )
   const T = (node: ReactNode) => (tasks ? node : null)
+  const haircut = (drag = false) => (
+    <PlanCard
+      colour="blue"
+      icon={EventIcon}
+      type="Event"
+      title="Haircut"
+      time="12:30"
+      detail="Ruffians"
+      dragging={drag}
+    />
+  )
   return [
     {
       key: 'mon',
@@ -169,16 +166,7 @@ function weekDays({
       add: addButton('Mon 12 Oct', 'mon'),
       children: (
         <>
-          <PlanCard
-            colour="blue"
-            icon={EventIcon}
-            type="Event"
-            title="Dentist"
-            time="08:30"
-            detail={place('Smile Studio')}
-            marks={google}
-            past
-          />
+          <PlanCard colour="blue" icon={EventIcon} type="Event" title="Dentist" time="08:30" past />
           {T(
             <PlanCard
               colour="blue"
@@ -186,8 +174,6 @@ function weekDays({
               type="Task"
               title="Take the bins out"
               time="20:00"
-              leading={task(true)}
-              marks={repeats}
               done
             />,
           )}
@@ -202,14 +188,7 @@ function weekDays({
       children: (
         <>
           {T(
-            <PlanCard
-              colour="blue"
-              icon={TaskIcon}
-              type="Task"
-              title="Renew car insurance"
-              leading={task(true)}
-              done
-            />,
+            <PlanCard colour="blue" icon={TaskIcon} type="Task" title="Renew car insurance" done />,
           )}
           <PlanCard
             colour="blue"
@@ -217,7 +196,7 @@ function weekDays({
             type="Event"
             title="Dinner with Sam"
             time="19:30"
-            detail={place('Dishoom, Shoreditch')}
+            detail="Dishoom"
             past
           />
         </>
@@ -237,30 +216,17 @@ function weekDays({
               icon={TaskIcon}
               type="Task"
               title="Book Japan flights"
-              leading={task()}
               detail="Due today"
-              marks={<StarIcon aria-label="Starred" className="fill-current" />}
             />,
           )}
-          <NowLine time="14:05" />
-          {T(
-            <PlanCard
-              colour="blue"
-              icon={TaskIcon}
-              type="Task"
-              title="Call mum"
-              time="18:00"
-              leading={task()}
-            />,
-          )}
+          {T(<PlanCard colour="blue" icon={TaskIcon} type="Task" title="Call mum" time="18:00" />)}
           <PlanCard
             colour="blue"
             icon={EventIcon}
             type="Event"
             title="5-a-side"
-            time="19:00–20:00"
-            detail={place('Goals, Wembley')}
-            marks={repeats}
+            time="19:00"
+            detail="Goals, Wembley"
           />
         </>
       ),
@@ -272,28 +238,15 @@ function weekDays({
       add: addButton('Thu 15 Oct', 'thu'),
       children: (
         <>
-          {T(
-            <PlanCard
-              colour="blue"
-              icon={TaskIcon}
-              type="Task"
-              title="Pick up dry cleaning"
-              leading={task()}
-            />,
-          )}
-          {dragging ? (
-            <DropSlot />
-          ) : (
-            <PlanCard
-              colour="blue"
-              icon={EventIcon}
-              type="Event"
-              title="Haircut"
-              time="12:30"
-              detail={place('Ruffians')}
-              marks={google}
-            />
-          )}
+          <PlanCard
+            colour="blue"
+            icon={EventIcon}
+            type="Event"
+            title="Annual leave"
+            time="All day"
+          />
+          {T(<PlanCard colour="blue" icon={TaskIcon} type="Task" title="Pick up dry cleaning" />)}
+          {dragging ? <DropSlot /> : haircut()}
         </>
       ),
     },
@@ -305,32 +258,34 @@ function weekDays({
       add: addButton('Fri 16 Oct', 'fri'),
       children: (
         <>
-          {dragging && (
-            <div className="relative">
-              <DropSlot />
-              <div className="absolute -top-2 left-3 w-full">
-                <PlanCard
-                  colour="blue"
-                  icon={EventIcon}
-                  type="Event"
-                  title="Haircut"
-                  time="12:30"
-                  detail={place('Ruffians')}
-                  marks={google}
-                  dragging
-                />
-              </div>
-            </div>
-          )}
+          <PlanCard
+            colour="blue"
+            icon={EventIcon}
+            type="Event"
+            title="Annual leave"
+            time="All day"
+          />
+          <PlanCard
+            colour="blue"
+            icon={EventIcon}
+            type="Event"
+            title="Sarah's birthday"
+            time="All day"
+          />
           {T(
             <PlanCard
               colour="blue"
               icon={TaskIcon}
               type="Task"
               title="Order Sarah's present"
-              leading={task()}
               detail="Due Fri"
             />,
+          )}
+          {dragging && (
+            <div className="relative">
+              <DropSlot />
+              <div className="absolute -top-2 left-3 w-full">{haircut(true)}</div>
+            </div>
           )}
           <PlanCard
             colour="blue"
@@ -338,8 +293,7 @@ function weekDays({
             type="Event"
             title="Leaving drinks for Priya"
             time="18:00"
-            detail={place('The Crown')}
-            marks={google}
+            detail="The Crown"
           />
         </>
       ),
@@ -351,24 +305,14 @@ function weekDays({
       add: addButton('Sat 17 Oct', 'sat'),
       children: (
         <>
-          {T(
-            <PlanCard
-              colour="blue"
-              icon={TaskIcon}
-              type="Task"
-              title="Buy a card for mum"
-              leading={task()}
-              detail={<span>For Mum's birthday lunch</span>}
-            />,
-          )}
+          {T(<PlanCard colour="blue" icon={TaskIcon} type="Task" title="Buy a card for mum" />)}
           <PlanCard
             colour="blue"
             icon={EventIcon}
             type="Event"
             title="Mum's birthday lunch"
-            time="13:00–15:00"
-            detail={place('The Ivy, Richmond')}
-            marks={google}
+            time="13:00"
+            detail="The Ivy, Richmond"
           />
         </>
       ),
@@ -380,6 +324,14 @@ function weekDays({
       add: addButton('Sun 18 Oct', 'sun'),
       children: (
         <>
+          <PlanCard
+            colour="blue"
+            icon={EventIcon}
+            type="Event"
+            title="Edinburgh"
+            time="All day"
+            detail="Until Tue"
+          />
           {T(
             <PlanCard
               colour="blue"
@@ -387,8 +339,6 @@ function weekDays({
               type="Task"
               title="Take the bins out"
               time="20:00"
-              leading={task()}
-              marks={repeats}
             />,
           )}
         </>
@@ -396,29 +346,6 @@ function weekDays({
     },
   ]
 }
-
-const ALL_DAY: AllDaySpan[] = [
-  { key: 'leave', colour: 'blue', icon: EventIcon, title: 'Annual leave', from: 3, to: 4 },
-  {
-    key: 'sarah',
-    colour: 'blue',
-    icon: EventIcon,
-    title: "Sarah's birthday",
-    from: 4,
-    to: 4,
-    marks: google,
-  },
-  {
-    key: 'edinburgh',
-    colour: 'blue',
-    icon: EventIcon,
-    title: 'Edinburgh',
-    from: 6,
-    to: 6,
-    after: true,
-    marks: google,
-  },
-]
 
 function Filters({ tasks = true }: { tasks?: boolean }) {
   const [t, setT] = useState(tasks)
@@ -470,8 +397,8 @@ function PlanPage({
 function Week({ add, dragging, tasks }: { add?: string; dragging?: boolean; tasks?: boolean }) {
   return (
     <Shell>
-      <PlanPage layout="week" title="12 – 18 October 2026" tasks={tasks}>
-        <PlanWeek days={weekDays({ add, dragging, tasks })} allDay={ALL_DAY} />
+      <PlanPage layout="week" title="12 – 18 October" tasks={tasks}>
+        <PlanWeek days={weekDays({ add, dragging, tasks })} />
       </PlanPage>
     </Shell>
   )
@@ -486,87 +413,48 @@ const STRIP = [
   { key: 'thu', name: 'Thu', number: 15, dots: ['blue', 'blue', 'blue'] as const },
   { key: 'fri', name: 'Fri', number: 16, dots: ['blue', 'blue', 'blue'] as const },
   { key: 'sat', name: 'Sat', number: 17, dots: ['blue', 'blue'] as const },
-  { key: 'sun', name: 'Sun', number: 18, dots: ['blue'] as const },
+  { key: 'sun', name: 'Sun', number: 18, dots: ['blue', 'blue'] as const },
 ].map((d) => ({ ...d, dots: [...d.dots] }))
-
-const rowMenu = (
-  <Button variant="ghost" size="icon-sm" aria-label="More">
-    <EllipsisIcon />
-  </Button>
-)
 
 function DayList() {
   return (
-    <PlanDay
-      allDay={
-        <PlanDayLine time="All day">
-          <ItemRow
-            leading={<TypeTile colour="blue" icon={EventIcon} />}
-            title="Annual leave"
-            meta={['All day', 'Thu – Fri']}
-            menu={rowMenu}
-          />
-        </PlanDayLine>
-      }
-    >
-      <PlanDayLine>
-        <ItemRow
-          leading={task()}
-          title="Book Japan flights"
-          meta={['Due today', 'Travel']}
-          trailing={
-            <StarIcon
-              aria-label="Starred"
-              className="size-4 fill-current text-tc-text"
-              data-colour="blue"
-            />
-          }
-          menu={rowMenu}
-        />
-      </PlanDayLine>
-      <PlanDayLine>
-        <ItemRow leading={task()} title="Pick up dry cleaning" meta={['Home']} menu={rowMenu} />
-      </PlanDayLine>
-      <PlanDayLine time="12:30" until="13:15">
-        <ItemRow
-          leading={<TypeTile colour="blue" icon={EventIcon} />}
-          title="Haircut"
-          meta={[
-            <span key="p" className="inline-flex items-center gap-1">
-              <MapPinIcon className="size-3.5" />
-              Ruffians
-            </span>,
-            <span key="g" className="inline-flex items-center gap-1">
-              <CalendarSyncIcon className="size-3.5" />
-              Google
-            </span>,
-          ]}
-          menu={rowMenu}
-        />
-      </PlanDayLine>
-      <PlanDayLine className="py-1">
-        <NowLine time="14:05" />
-      </PlanDayLine>
-      <PlanDayLine time="18:00">
-        <ItemRow leading={task()} title="Call mum" meta={['Family']} menu={rowMenu} />
-      </PlanDayLine>
-      <PlanDayLine time="19:00" until="20:00">
-        <ItemRow
-          leading={<TypeTile colour="blue" icon={EventIcon} />}
-          title="5-a-side"
-          meta={[
-            <span key="p" className="inline-flex items-center gap-1">
-              <MapPinIcon className="size-3.5" />
-              Goals, Wembley
-            </span>,
-            <span key="r" className="inline-flex items-center gap-1">
-              <RepeatIcon className="size-3.5" />
-              Weekly
-            </span>,
-          ]}
-          menu={rowMenu}
-        />
-      </PlanDayLine>
+    <PlanDay>
+      <PlanCard
+        wide
+        colour="blue"
+        icon={EventIcon}
+        type="Event"
+        title="Annual leave"
+        time="All day"
+        detail="Thu – Fri"
+      />
+      <PlanCard wide colour="blue" icon={TaskIcon} type="Task" title="Pick up dry cleaning" />
+      <PlanCard
+        wide
+        colour="blue"
+        icon={EventIcon}
+        type="Event"
+        title="Haircut"
+        time="12:30–13:15"
+        detail="Ruffians"
+      />
+      <PlanCard
+        wide
+        colour="blue"
+        icon={TaskIcon}
+        type="Task"
+        title="Call the garage about the MOT"
+        time="16:00"
+      />
+      <PlanCard
+        wide
+        colour="blue"
+        icon={EventIcon}
+        type="Event"
+        title="Pub quiz"
+        time="20:00–22:30"
+        detail="The Railway"
+      />
     </PlanDay>
   )
 }
@@ -627,24 +515,57 @@ function Field({ label, children }: { label: string; children: ReactNode }) {
   )
 }
 
-function TasksFor() {
+const OPEN_TASKS = [
+  { id: 'a', title: 'Order flowers for mum', when: 'Fri 16 Oct' },
+  { id: 'b', title: 'Pick up dry cleaning', when: 'Thu 15 Oct' },
+  { id: 'c', title: 'Book Japan flights', when: 'Today' },
+  { id: 'd', title: 'Renew passport', when: 'No date' },
+]
+
+/** An Event's Tasks: each is a Task of its own, linked *for* the Event (EVT-006). */
+function TasksFor({
+  tasks,
+  linking = false,
+}: {
+  tasks: { title: string; when?: string; done?: boolean }[]
+  linking?: boolean
+}) {
   return (
-    <Field label="Tasks for this">
-      <div className="flex flex-col">
-        <div className="flex h-[34px] items-center gap-3">
-          <Checkbox colour="blue" aria-label="Done" />
-          <span className="flex-1 truncate">Buy a card for mum</span>
-          <span className="text-sm text-muted-foreground tabular-nums">Sat 17 Oct</span>
-        </div>
-        <div className="flex h-[34px] items-center gap-3">
-          <Checkbox colour="blue" aria-label="Done" checked />
-          <span className="flex-1 truncate text-muted-foreground line-through">Book the table</span>
-        </div>
-        <AddRow placeholder="Add a task" onAdd={nothing} />
+    <Field label="Tasks">
+      <div className="flex flex-col gap-1.5">
+        {tasks.map((t) => (
+          <ItemRow
+            key={t.title}
+            leading={<Checkbox colour="blue" aria-label="Done" checked={t.done} />}
+            title={t.title}
+            meta={t.when ? [t.when] : []}
+            done={t.done}
+            menu={rowMenu}
+          />
+        ))}
+        <TaskLinker
+          open={linking ? true : undefined}
+          initialQuery={linking ? 'flow' : ''}
+          tasks={OPEN_TASKS}
+          onLink={nothing}
+          onCreate={nothing}
+          trigger={
+            <Button variant="ghost" size="sm" className="self-start text-muted-foreground">
+              <LinkIcon />
+              Link a task
+            </Button>
+          }
+        />
       </div>
     </Field>
   )
 }
+
+const rowMenu = (
+  <Button variant="ghost" size="icon-sm" aria-label="More">
+    <EllipsisIcon />
+  </Button>
+)
 
 function Labels({ names }: { names: string[] }) {
   return (
@@ -757,7 +678,7 @@ function NewEvent() {
   )
 }
 
-function OpenEvent() {
+function OpenEvent({ linking = false }: { linking?: boolean }) {
   return (
     <ItemDialog
       open
@@ -777,7 +698,13 @@ function OpenEvent() {
     >
       <SyncedFrom calendar="Joe Stables" level="Two-way" />
       <EventFields />
-      <TasksFor />
+      <TasksFor
+        linking={linking}
+        tasks={[
+          { title: 'Buy a card for mum', when: 'Sat 17 Oct' },
+          { title: 'Book the table', done: true },
+        ]}
+      />
     </ItemDialog>
   )
 }
@@ -835,26 +762,18 @@ function GoogleEvent() {
         <ReminderList reminders={[]} onOpen={nothing} onRemove={nothing} onAdd={nothing} />
       </Field>
       <Labels names={['Family']} />
-      <Field label="Tasks for this">
-        <div className="flex flex-col">
-          <div className="flex h-[34px] items-center gap-3">
-            <Checkbox colour="blue" aria-label="Done" />
-            <span className="flex-1 truncate">Order Sarah's present</span>
-            <span className="text-sm text-muted-foreground tabular-nums">Due Fri</span>
-          </div>
-          <AddRow placeholder="Add a task" onAdd={nothing} />
-        </div>
-      </Field>
+      <TasksFor tasks={[{ title: "Order Sarah's present", when: 'Due Fri' }]} />
     </ItemDialog>
   )
 }
 
-function EventOver({ which }: { which: 'new' | 'open' | 'google' }) {
+function EventOver({ which }: { which: 'new' | 'open' | 'google' | 'link' }) {
   return (
     <>
       <Week />
       {which === 'new' && <NewEvent />}
       {which === 'open' && <OpenEvent />}
+      {which === 'link' && <OpenEvent linking />}
       {which === 'google' && <GoogleEvent />}
     </>
   )
@@ -1075,10 +994,10 @@ const SCREENS: Record<string, () => ReactNode> = {
   week: () => <Week />,
   'week-add': () => <Week add="thu" />,
   'week-drag': () => <Week dragging />,
-  'week-events': () => <Week tasks={false} />,
   day: () => <Day />,
   'event-new': () => <EventOver which="new" />,
   event: () => <EventOver which="open" />,
+  'event-link': () => <EventOver which="link" />,
   'event-google': () => <EventOver which="google" />,
   settings: () => <Settings />,
   'settings-new': () => <Settings connected={false} />,

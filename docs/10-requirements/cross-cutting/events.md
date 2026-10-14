@@ -135,10 +135,12 @@ a card" is with "Mum's birthday lunch".
 Priority: Should · Status: agreed
 
 Acceptance criteria
-1. Given an Event, when I add a Task for it, then the Task is made, linked
-   *for* the Event, and listed in the Event with its tick.
-2. Given an existing Task, then I can choose the Event it is for, and remove
-   that link.
+1. Given an Event, when I choose "Link a task", then I can find one of my
+   open Tasks and link it, or type a title no Task has and make that Task
+   there and then (Joe, 14 October); either way it is a Task of its own,
+   linked *for* the Event and listed in the Event with its tick.
+2. Given a Task linked to an Event, then I can remove the link from the
+   Event or from the Task, and the Task stays.
 3. Given a Task for an Event, then the Task shows what it is for, and opens
    it.
 
