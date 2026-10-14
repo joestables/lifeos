@@ -31,7 +31,9 @@ Branch `claude/kind-babbage-p00wl4` · 2026-10-14
 - Step 3's first design pass: Stage 3's screens drawn from the real
   components on `/design-stage-3`, on a design canvas for Joe, with the
   Plan components drafted (PlanWeek, PlanDay, PlanToolbar, WeekStrip,
-  AddToDay; PlanCard extended).
+  AddToDay; PlanCard extended). A second pass after Joe's comments, closer
+  to the first Plan design, with "Link a task" on an Event; agreed, and
+  written into the design spec (components, patterns) and `/design`.
 
 ## [#12](https://github.com/joestables/lifeos/pull/12) — Stage 2, step 14: Labels as filters, Thoughts ticked off
 

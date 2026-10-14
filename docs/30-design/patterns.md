@@ -112,6 +112,7 @@ used the same way on every screen.
 |---|---|---|
 | Thought | A Dialog over the page | A Dialog over the page |
 | Task | A Dialog over the page | A Dialog over the page |
+| Event | A Dialog over the page | A Dialog over the page |
 | Note | A Dialog over the page | Its own page, with a back link to where you were |
 
 - **Every Item has a link of its own**, `/item/<id>`: its own page where its
@@ -262,6 +263,17 @@ DateField, TimeField, RepeatField, SubtaskList and AddRow in
   deleting one asks first (AlertDialog), saying how many Items it comes off.
 - A Card of CardRows leads on: Recently deleted (with its count), then Sign
   out, which acts at once and so has no chevron.
+- **Google Calendar** ([GCL-001–006](../10-requirements/cross-cutting/integrations.md#google-calendar)):
+  a titled Card with a "…" menu (Sync now; Disconnect, in red). Not
+  connected: a CardRow "Not connected" with an outline "Connect". Connected:
+  a CardRow with `mail`, the Google account and, muted, "Synced 2 min ago";
+  then a CardRow per calendar, its name, "Can't edit" muted where I can't,
+  and an `sm` Select of Off, Incoming and (where I can edit it) Two-way;
+  then "New events go to", a Select of the two-way calendars. The Reminders
+  Card gains "Events, 30 min before" (a Switch).
+- **Google Calendar isn't syncing** (GCL-006): on Inbox, above the groups,
+  an Alert with `calendar-x-2`, "Google Calendar isn't syncing", since
+  when, and an outline "Reconnect".
 - **Recently deleted** has a back link to Settings above its title, and an
   ItemRow per deleted Item, newest first: its TypeTile, title, Type and
   "Deleted 10 min ago", and an outline Restore, which says so in a toast
@@ -286,10 +298,36 @@ DateField, TimeField, RepeatField, SubtaskList and AddRow in
 
 ## Plan
 
-- A week is seven DayColumns, 10px apart, Monday first. Today's number sits
-  in an ink pill and its column is filled a little more.
-- Each Item is a PlanCard in its Type's colour; past Items fade to 50%.
-- FilterChips above the week act as the key and the filter.
+[PLN-001–007](../10-requirements/views/plan.md#requirements); PlanCard,
+DayColumn, PlanWeek, PlanDay, PlanToolbar, WeekStrip and AddToDay in
+[components](components.md). Agreed with Joe on 14 October on the
+[Stage 3 design canvas](https://claude.ai/artifact/S7eLUszjswnPN77EkbTcxK)
+(private to Joe), after a first pass he found too busy.
+
+- Plan is neutral: no TypeScope; its primary button is ink.
+- Under the PageHeader, the PlanToolbar ("12 – 18 October" on the left;
+  previous, Today, next, Day / Week and "Add" on the right), then the
+  FilterChips of the Types there are, which act as the key and the filter.
+- **A week** (a computer's default): a PlanWeek, Monday first. Today's
+  number sits in an ink pill and its column is filled a little more. Each
+  day lists all-day and untimed Items first, then the rest by time, each a
+  PlanCard in its Type's colour saying its own time ("All day", "18:00").
+  An all-day Item over several days is a card on each of them; past and done
+  Items fade.
+- **A day** (chosen on a computer; always on a phone): the WeekStrip, then a
+  PlanDay, up to `max-w-3xl`. Times are inside the cards; nothing sits to
+  their left.
+- **Adding:** each day's "+" on hover (AddToDay), "Add" in the toolbar (for
+  today, or the day shown), the Fab on a phone; each opens a new Item of the
+  chosen Type, dated that day, in its popup with Cancel and Save.
+- **Moving:** on a computer a card is dragged to another day: it lifts, the
+  day under it fills a little more, and a DropSlot shows where it will land;
+  letting go moves it, with Undo in a toast. An Event from an
+  incoming-only calendar doesn't lift.
+- A card opens its Item as it opens anywhere else; Tasks are ticked in their
+  popup, not on the card.
+- A phone has no Week / Day switch and no dragging: the WeekStrip chooses
+  the day, and the Fab adds to it.
 
 ## Forms
 

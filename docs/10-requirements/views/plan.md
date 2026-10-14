@@ -52,19 +52,20 @@ events and tasks ([ADR-0026](../../20-architecture/adr/0026-navigation-drawer.md
 
 ## What the page shows (Stage 3)
 
-The Type pills at the top (Task and Event in Stage 3; more as their stages
-arrive), then the dates shown, with Today and the arrows to move a week (or a
-day) at a time, and, on a computer, a switch between Week and Day.
+The dates shown, with Today and the arrows to move a week (or a day) at a
+time, and, on a computer, a switch between Day and Week and "Add"; then
+the Type pills (Tasks and Events in Stage 3; more as their stages arrive).
 
 | Layout | Where | What it shows |
 |---|---|---|
 | **Week** | A computer, by default | Seven days, Monday to Sunday, side by side, each a column of cards with a "+" |
 | **Day** | A computer, when chosen; always on a phone | One day's cards, with a strip of the week's days above to move between them |
 
-Each card shows its Type's icon and colour, its title and its time (or "All
-day"); a Task its checkbox, star and due date where they differ; an Event its
-place; anything repeating, its repeat; an Event from Google Calendar, a small
-mark saying so. A card opens its Item as that Item opens anywhere else
+Each card shows its Type's icon and name in its colour, its title, then its
+time (or "All day") and one detail: an Event's place, a Task's due date where
+it differs. Nothing else (Joe, 14 October): no checkbox, star or marks; they
+are in the Item. In the day's list each card says its own time. A card opens
+its Item as that Item opens anywhere else
 ([ITM-001](../cross-cutting/items.md#itm-001--open-an-item)).
 
 ## Requirements
@@ -135,15 +136,15 @@ Acceptance criteria
 
 ### PLN-005 — Act on an Item from Plan
 
-**As** Joe, **I want** to open and tick things off straight from Plan, **so
+**As** Joe, **I want** to open things and tick them off from Plan, **so
 that** I needn't go to another page.
 Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given a card, when I open it, then the Item opens as it does anywhere
    else, and closing it leaves me where I was on Plan.
-2. Given a Task's card, when I tick it, then it is done, stays on its day
-   struck through, and I can undo that.
+2. Given a Task's card, when I open it and tick it, then it is done, stays
+   on its day struck through, and I can undo that.
 3. Given I have no signal, then what this device already has shows, marked
    as possibly out of date
    ([OFF-005](../cross-cutting/offline.md#off-005--read-what-ive-already-loaded)), and my changes show
