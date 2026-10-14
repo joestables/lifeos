@@ -53,8 +53,10 @@ every device turns notifications on again.
 - Publish the Google app to **Production, unverified** (a warning screen,
   fine under 100 users); in *Testing* mode refresh tokens expire after 7
   days.
-- Request `calendar.events` only, plus whatever listing my calendars needs
-  (re-checked in Stage 3's step 2).
+- Request `calendar.calendarlist.readonly` (listing my calendars) and
+  `calendar.events` only ([ADR-0047](../20-architecture/adr/0047-google-calendar-sync.md)).
+  Both are sensitive: an unverified app shows a warning screen and is
+  capped at 100 users over the project's life.
 - The sync level, incoming only or two-way, is chosen in LifeOS, not here.
 - Connecting Calendar is a separate OAuth flow run by an Edge Function;
   tokens are kept server-side in Vault.

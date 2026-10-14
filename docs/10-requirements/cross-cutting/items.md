@@ -98,7 +98,7 @@ Acceptance criteria
 **As** Joe, **I want** one set of Labels for my Thoughts, Notes and Tasks
 (and Events, from Stage 3) that I can tidy, **so that** "Home" means the
 same thing everywhere.
-Priority: Must · Status: verified (Events: proposed, Stage 3)
+Priority: Must · Status: verified (Events: agreed, Stage 3)
 
 Acceptance criteria
 1. Given a Thought, a Note, a Task or an Event, when I type a Label's name, then I

@@ -50,7 +50,7 @@ the end.*
 
 **As** Joe, **I want** to put something that's happening on a day, **so
 that** Plan shows it.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given "New event" (from a day's "+" on Plan, or Plan's main action), then
@@ -68,7 +68,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to change everything about an Event in one place,
 **so that** it stays right when plans change.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given an Event, when I open it, then I can change its title, times (or
@@ -81,7 +81,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to be reminded before an Event, **so that** I leave
 in time.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given I make an Event at 19:30, then it has a Reminder at 19:00; moving
@@ -98,7 +98,7 @@ Acceptance criteria
 
 **As** Joe, **I want** an Event to repeat, **so that** "5-a-side, every
 Wednesday 19:00" is set once.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given an Event, then I can make it repeat with the same choices as a Task
@@ -115,7 +115,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to turn a Task into an Event or back, **so that**
 "dinner with Sam fri 7pm" ends up as what it really is.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given a Task to do on Friday at 19:00, when I make it an Event, then it
@@ -132,7 +132,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to hang the jobs for an Event on it, **so that** "buy
 a card" is with "Mum's birthday lunch".
-Priority: Should · Status: proposed
+Priority: Should · Status: agreed
 
 Acceptance criteria
 1. Given an Event, when I add a Task for it, then the Task is made, linked

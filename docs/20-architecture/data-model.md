@@ -291,6 +291,8 @@ rule and create no links.
 | `core.attachments` | Photos and files on Items (Supabase Storage) |
 | `core.connections` | Integration connections; tokens in Vault |
 | `core.external_refs` | Integration ids and raw payloads per Item |
+| `core.calendar_links` | Each Google calendar of a connection: its sync level, whether new Events go there, its sync token (Stage 3, [ADR-0047](adr/0047-google-calendar-sync.md), Proposed) |
+| `core_private.calendar_outbox` | Event changes waiting to go to Google (Stage 3, [ADR-0048](adr/0048-google-calendar-two-way.md), Proposed) |
 | `ops.events` | Errors and failures from the app, Edge Functions, cron jobs and Integrations: what, where (screen), the last few actions, never Items' content |
 | `ops.health_runs` · `ops.heartbeats` | The nightly health check's findings; when jobs outside the database last ran: Reminder sending and the nightly series run ([ADR-0044](adr/0044-reminder-delivery.md), [ADR-0045](adr/0045-extending-series.md)) |
 
