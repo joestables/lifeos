@@ -4,10 +4,10 @@ LifeOS v2 is a personal and household life app built as one knowledge graph:
 Items, the Links between them, and Views over both. These documents are the
 source of truth for what it does and why. Code is checked against them.
 
-Stage 0 (requirements and architecture) and Stage 1 (foundation) are done.
-**Stage 2** is in progress: its [plan](50-progress/plans/stage-2.md) is
-written and its specs are agreed
-([roadmap](roadmap.md#where-we-are)).
+Stages 0 (requirements and architecture), 1 (foundation) and 2 (replacing
+Google Tasks) are done. **Stage 3**, Plan, Events and Google Calendar, has
+started: its [plan](50-progress/plans/stage-3.md) is written, and its specs
+come first ([roadmap](roadmap.md#where-we-are)).
 
 ## Index
 
@@ -48,7 +48,7 @@ choice, while the design is young.
   ([ADR-0008](20-architecture/adr/0008-registries-declared-in-code.md)):
   `packages/ontology` declares the core Types, link types and conversions.
   [data-model.md](20-architecture/data-model.md) is still written by hand
-  and must agree with it; it is generated from Stage 3.
+  and must agree with it; it is generated from Stage 4.
 
 Where a document states something that rests on an ADR, it cites it, e.g.
 "(ADR-0007, Provisionally agreed)". Anything citing a Proposed ADR is not yet

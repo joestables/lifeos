@@ -53,7 +53,9 @@ every device turns notifications on again.
 - Publish the Google app to **Production, unverified** (a warning screen,
   fine under 100 users); in *Testing* mode refresh tokens expire after 7
   days.
-- Request `calendar.events` only.
+- Request `calendar.events` only, plus whatever listing my calendars needs
+  (re-checked in Stage 3's step 2).
+- The sync level, incoming only or two-way, is chosen in LifeOS, not here.
 - Connecting Calendar is a separate OAuth flow run by an Edge Function;
   tokens are kept server-side in Vault.
 

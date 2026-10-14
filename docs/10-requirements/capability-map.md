@@ -23,14 +23,15 @@ Owner: **core**, a **Module** (`lists`, `food`, `fitness`, `goals`,
 | Search (full-text) | core | Search Screen | 2 | [search](cross-cutting/search.md) |
 | Offline writes (data layer and write queue) | core | — | 1 | [offline](cross-cutting/offline.md) |
 | Activity log: changes to items and links | core | — | 1 | [ADR-0030](../20-architecture/adr/0030-activity-log-by-triggers.md) |
-| Plan | core | Plan | 3 | [plan](views/plan.md) |
+| Plan: every Schedulable Type, a week or a day, filtered by Type | core | Plan | 3 | [plan](views/plan.md) |
 | Events, repeating Events | core | Plan | 3 | — |
-| Google Calendar | Integration | — | 3 | [integrations](cross-cutting/integrations.md) |
-| Lists, Shops, list templates, live updates | `lists` | Notes (Lists) | 3 | — |
+| Google Calendar: incoming only or two-way, always Personal | Integration | Settings | 3 | [integrations](cross-cutting/integrations.md) |
 | Recipes, Variations, ideas, cook log | `food` | Recipes | 4 | — |
-| Meal planning; ingredients to shopping lists | `food`, `lists` | Plan | 4 | — |
+| Meal planning | `food` | Plan | 4 | — |
 | Shared AI service; food preferences | core | — | 4 | — |
 | Contacts and Households: connect by Google email, invite, accept; sharing on | core | — | 4 | [spaces-and-sharing](cross-cutting/spaces-and-sharing.md) |
+| Lists, Shops, list templates, live updates | `lists` | Notes (Lists) | 4b | — |
+| Ingredients to shopping lists | `food`, `lists` | Recipes, Notes (Lists) | 4b | — |
 | Gym, with v1's recovery model and snapshots | `fitness` | Gym | 5 | — |
 | Goals and the measures registry | `goals` | Goals | 5 | — |
 | Wardrobe and outfits | `wardrobe` | Wardrobe | 6 | — |

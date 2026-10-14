@@ -180,8 +180,8 @@ of these, so the database enforces them.
 | core | **Note** | — | — | — | ✓ | Personal | active | yellow | ✓ | pinned | 2 |
 | core | **Task** | ✓ do-on / due | ✓ | ✓ | ✓ | Personal | idea "Someday" · active · done · cancelled (a missed repeat: "Skipped") | blue | ✓ | starred | 2 |
 | core | **Event** | ✓ start / end | — | ✓ | ✓ | Personal ("with household" → Household) | active · cancelled | blue | — | — | 3 |
-| lists | **List** (can be marked as a template) | — | — | ✓ | ✓ | Personal | active | yellow | — | — | 3 |
-| lists | **Shop** | ✓ do-on, place | ✓ | ✓ | ✓ | Household | active · done · cancelled | yellow | — | — | 3 |
+| lists | **List** (can be marked as a template) | — | — | ✓ | ✓ | Personal | active | yellow | — | — | 4b |
+| lists | **Shop** | ✓ do-on, place | ✓ | ✓ | ✓ | Household | active · done · cancelled | yellow | — | — | 4b |
 | food | **Recipe** (the dish) | — | — | ✓ | ✓ | Household | idea "Backlog" · active | green | — | favourited | 4 |
 | food | **Variation** (a way of making it) | — | — | ✓ | — | Its Recipe's, always | active; *untried · attempted · final* calculated from the cook log | green | — | — | 4 |
 | food | **Meal** | ✓ do-on + slot | ✓ "eaten" | ✓ | — | Household | active "Planned" · done · cancelled | green | — | — | 4 |

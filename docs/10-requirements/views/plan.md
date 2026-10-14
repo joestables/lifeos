@@ -1,8 +1,9 @@
 # Plan
 
 *Stage 3. Spec not yet written; what the page shows, its tabs, layouts and
-filters are decided here at the start of the stage. Below: the decisions it
-builds on.*
+filters are decided here at the start of the stage
+([Stage 3's plan](../../50-progress/plans/stage-3.md)). Below: the decisions
+it builds on.*
 
 **In one line:** the one place to plan meals, outfits, shops, gym, cardio,
 events and tasks ([ADR-0026](../../20-architecture/adr/0026-navigation-drawer.md),
@@ -10,6 +11,9 @@ events and tasks ([ADR-0026](../../20-architecture/adr/0026-navigation-drawer.md
 
 ## Inputs so far
 
+- **Joe's brief (14 October):** Plan shows every Type by default, and I
+  choose which Types to show; on a computer a week by default, or a day; on
+  a phone, a day. Workouts, Shops and Meals appear as their stages arrive.
 - **Plan is a query**: Schedulable Items in a date range. Nothing links to
   Plan ([ADR-0005](../../20-architecture/adr/0005-traits-links-rules.md),
   Provisionally agreed).

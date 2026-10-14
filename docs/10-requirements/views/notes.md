@@ -1,7 +1,7 @@
 # Notes
 
 *Stage 2. The decisions come first; the requirements, drafted at the start of
-Stage 2, are at the end. Lists join this page in Stage 3.*
+Stage 2, are at the end. Lists join this page in Stage 4b.*
 
 **In one line:** Notes, **Lists and Ideas** together
 ([ADR-0026](../../20-architecture/adr/0026-navigation-drawer.md),
@@ -95,5 +95,5 @@ Acceptance criteria
    ticked.
 
 Non-goals (Stage 2): a colour per Note; an *idea* state; images and
-attachments; sharing a Note; Lists (Stage 3); other Types' ideas on this
+attachments; sharing a Note; Lists (Stage 4b); other Types' ideas on this
 page, decided when those Types arrive.

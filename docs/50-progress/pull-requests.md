@@ -2,6 +2,23 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## Stage 3: the plan, and Lists moved to Stage 4b
+
+Branch `claude/kind-babbage-p00wl4` · 2026-10-14
+
+**What it did**
+- Closed Stage 2 (Joe, 14 October); its nightly smoke walk stays deferred.
+- Wrote [Stage 3's plan](plans/stage-3.md) from Joe's brief: Plan shows
+  every Schedulable Type, filtered by Type, a week on a computer (or a day)
+  and a day on a phone; Events, repeating, with the Task ↔ Event switch;
+  Google Calendar, incoming only or two-way, always Personal. Its first
+  step is the specs, with eleven questions for Joe.
+- Moved Lists, Shops and list templates (with live updates and ingredients
+  to shopping lists) to a new Stage 4b, after Recipes: the roadmap,
+  capability map, data model, Modules list and Notes spec follow, and
+  ADR-0042 (live updates) and ADR-0036 (the generated data-model now comes
+  with the first Module, `food`, in Stage 4) are amended.
+
 ## [#12](https://github.com/joestables/lifeos/pull/12) — Stage 2, step 14: Labels as filters, Thoughts ticked off
 
 Branch `claude/laughing-babbage-maqg0k` · 2026-10-13
