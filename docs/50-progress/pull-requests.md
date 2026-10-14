@@ -27,7 +27,11 @@ Branch `claude/kind-babbage-p00wl4` · 2026-10-14
   map follow.
 - Joe agreed the specs; step 2's decisions written as Proposed ADRs:
   ADR-0047 (how Google Calendar comes in), ADR-0048 (two-way), ADR-0049
-  (how Plan reads a week), with Google's rules re-checked.
+  (how Plan reads a week), with Google's rules re-checked; Joe agreed them.
+- Step 3's first design pass: Stage 3's screens drawn from the real
+  components on `/design-stage-3`, on a design canvas for Joe, with the
+  Plan components drafted (PlanWeek, PlanDay, PlanToolbar, WeekStrip,
+  AddToDay; PlanCard extended).
 
 ## [#12](https://github.com/joestables/lifeos/pull/12) — Stage 2, step 14: Labels as filters, Thoughts ticked off
 

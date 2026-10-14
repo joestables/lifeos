@@ -6,6 +6,18 @@ export { ItemRow } from './ItemRow'
 export { PageAction, PageHeader, TabsRow } from './PageHeader'
 export { CaptureButton } from './CaptureButton'
 export { PlanCard } from './PlanCard'
+export {
+  AllDayBar,
+  DropSlot,
+  NowLine,
+  PlanWeek,
+  type AllDaySpan,
+  type PlanWeekDay,
+} from './PlanWeek'
+export { PlanDay, PlanDayLine } from './PlanDay'
+export { PlanToolbar } from './PlanToolbar'
+export { WeekStrip, type WeekStripDay } from './WeekStrip'
+export { AddToDay, type AddChoice } from './AddToDay'
 export { SectionLabel } from './SectionLabel'
 export { SyncStatus } from './SyncStatus'
 export { AppShell, type DrawerPage } from './AppShell'

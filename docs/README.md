@@ -159,9 +159,9 @@ Consequences**, to a page.
 | [0044](20-architecture/adr/0044-reminder-delivery.md) | How Reminders are delivered | Provisionally agreed |
 | [0045](20-architecture/adr/0045-extending-series.md) | Where repeating Items are made | Provisionally agreed |
 | [0046](20-architecture/adr/0046-note-bodies.md) | A Note's body is Markdown, edited in place | Provisionally agreed |
-| [0047](20-architecture/adr/0047-google-calendar-sync.md) | How Google Calendar comes in | Proposed |
-| [0048](20-architecture/adr/0048-google-calendar-two-way.md) | Two-way Google Calendar | Proposed |
-| [0049](20-architecture/adr/0049-plans-read.md) | How Plan reads a week | Proposed |
+| [0047](20-architecture/adr/0047-google-calendar-sync.md) | How Google Calendar comes in | Provisionally agreed |
+| [0048](20-architecture/adr/0048-google-calendar-two-way.md) | Two-way Google Calendar | Provisionally agreed |
+| [0049](20-architecture/adr/0049-plans-read.md) | How Plan reads a week | Provisionally agreed |
 
 ## Sources
 

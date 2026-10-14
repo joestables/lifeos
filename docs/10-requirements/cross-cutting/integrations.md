@@ -55,7 +55,7 @@ of Stage 3 ([plan](../../50-progress/plans/stage-3.md)), are at the end.*
   LifeOS repeating Event goes out, how sync runs, and who wins when both
   sides change: [ADR-0047](../../20-architecture/adr/0047-google-calendar-sync.md)
   and [ADR-0048](../../20-architecture/adr/0048-google-calendar-two-way.md)
-  (Proposed).
+  (Provisionally agreed).
 - **A broken connection shows in Inbox** and in the nightly health check;
   the Events already in LifeOS stay.
 

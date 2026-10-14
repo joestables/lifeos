@@ -1,6 +1,6 @@
 # ADR-0048: Two-way Google Calendar
 
-**Status:** Proposed · 2026-10-14
+**Status:** Provisionally agreed · 2026-10-14
 
 ## Context
 

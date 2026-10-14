@@ -1,6 +1,6 @@
 # ADR-0047: How Google Calendar comes in
 
-**Status:** Proposed · 2026-10-14
+**Status:** Provisionally agreed · 2026-10-14
 
 ## Context
 
@@ -83,4 +83,4 @@ stale one returns 410, meaning sync again from scratch.
 - Adding sensitive scopes to the project that also signs people in is fine
   for sign-in, which asks only for `openid`, `email` and `profile`; the
   unverified-app warning appears only when connecting Calendar.
-- Two-way sync: [ADR-0048](0048-google-calendar-two-way.md) (Proposed).
+- Two-way sync: [ADR-0048](0048-google-calendar-two-way.md) (Provisionally agreed).

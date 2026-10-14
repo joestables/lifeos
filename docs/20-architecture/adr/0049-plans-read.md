@@ -1,6 +1,6 @@
 # ADR-0049: How Plan reads a week
 
-**Status:** Proposed · 2026-10-14
+**Status:** Provisionally agreed · 2026-10-14
 
 ## Context
 
