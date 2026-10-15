@@ -40,10 +40,10 @@ Branch `claude/kind-babbage-p00wl4` · 2026-10-14
   calendars and references, with Google's fields locked on incoming
   calendars. 35 database tests. Applied to the live project on 15 October
   in eleven smaller migrations (`stage3_columns` … `stage3_plan_items`,
-  `ontology`), since the connector timed out on larger ones; all but
+  `ontology`), since the connector timed out on larger ones.
   `stage3_convert` (Task ↔ Event mapping times), which the connector holds
   for a confirmation that never reaches the session (it contains a
-  `DELETE`), so the live project still converts the Stage 2 way.
+  `DELETE`), was run by Joe in the SQL editor, checked and recorded.
 
 ## [#12](https://github.com/joestables/lifeos/pull/12) — Stage 2, step 14: Labels as filters, Thoughts ticked off
 
