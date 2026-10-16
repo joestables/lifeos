@@ -98,12 +98,17 @@ export function setAllDay(t: EventTimes, allDay: boolean): EventTimes {
 }
 
 /**
- * A new Event's times on a day: from the next whole hour when it is today,
- * else 09:00, an hour long.
+ * A new Event's times on a day (PLN-006 2): from the next whole hour when it
+ * is today, else at my default time, an hour long.
  */
-export function newEventTimes(day: string, today: string, now: Date = new Date()): EventTimes {
-  const hour = day === today ? Math.min(now.getHours() + 1, 23) : 9
-  const start = `${String(hour).padStart(2, '0')}:00`
+export function newEventTimes(
+  day: string,
+  today: string,
+  now: Date = new Date(),
+  defaultTime: string = '09:00',
+): EventTimes {
+  const start =
+    day === today ? `${String(Math.min(now.getHours() + 1, 23)).padStart(2, '0')}:00` : defaultTime
   const end = fromWallMinutes(wallMinutes(day, start) + 60)
   return { allDay: false, startDay: day, startTime: start, endDay: end.day, endTime: end.time }
 }

@@ -50,10 +50,10 @@ the end.*
 
 **As** Joe, **I want** to put something that's happening on a day, **so
 that** Plan shows it.
-Priority: Must · Status: verified (from Plan's main action; a day's "+" comes with Plan, plan step 7)
+Priority: Must · Status: verified
 
 Acceptance criteria
-1. Given "New event" (from a day's "+" on Plan, or Plan's main action), then
+1. Given a new Event (from a day's "+" on Plan, or Plan's "Add"), then
    a new Event opens with all its fields — title, all day or a start and end
    time, place, notes, Labels, Reminders and repeat — and is kept only when
    I save it; cancelled, nothing is left behind.

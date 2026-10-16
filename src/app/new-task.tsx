@@ -33,8 +33,11 @@ const TASK = typeLook('task')
 export function NewTaskDialog({
   onClose,
   labelIds = [],
+  doOn = null,
 }: {
   onClose: () => void
+  /** To do on this day: a day's "+" on Plan (PLN-006). */
+  doOn?: string | null
   /** Starts with these Labels: the ones the page is narrowed to (TSK-001). */
   labelIds?: readonly string[]
 }) {
@@ -44,7 +47,7 @@ export function NewTaskDialog({
   const [title, setTitle] = useState('')
   const [notes, setNotes] = useState('')
   const [dates, setDates] = useState<TaskDates>({
-    do_on: null,
+    do_on: doOn,
     do_at: null,
     due_on: null,
     status: 'active',
@@ -56,7 +59,7 @@ export function NewTaskDialog({
   const dirty =
     title.trim() !== '' ||
     notes !== '' ||
-    dates.do_on !== null ||
+    dates.do_on !== doOn ||
     dates.due_on !== null ||
     subtasks.length > 0 ||
     reminders.length > 0

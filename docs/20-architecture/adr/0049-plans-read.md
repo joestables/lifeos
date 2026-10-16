@@ -21,10 +21,16 @@ repeat, and remembers the Types I've hidden on every device.
   Plan shows keeps it quick.
 - **Modules enrich later** by joining their published view in this function,
   as ADR-0029 allows; nothing changes for the Types that don't.
-- **The app reads a week at a time** (a day reads its week), so the next
-  and previous weeks can be fetched ahead; weeks already read stay in the
-  device's cache for offline use (OFF-005), with unsent changes laid over
-  them ([ADR-0042](0042-data-layer.md)).
+- **The app places Items from what the device already holds** (amended 16
+  October by Claude, for Joe to confirm): the data layer already keeps every
+  Item I can see, with unsent changes laid over them
+  ([ADR-0042](0042-data-layer.md)), so Plan works out each Item's days on
+  the device by the same rules as `core.plan_items` (`src/lib/plan.ts`).
+  Every week, earlier or later, shows at once and offline (OFF-005), and a
+  change shows on Plan the moment it is made. `core.plan_items` stays the
+  server's statement of those rules, for Modules joining their views and
+  for anything reading Plan without the app. *Was:* the app reads a week at
+  a time from `core.plan_items`, caching the weeks read.
 - **Hidden Types, not shown Types.** My settings (`core.people`) keep the
   Types I've hidden from Plan, so a Type added in a later stage shows until I
   hide it (PLN-004). Week or Day on a computer is kept on that device only.

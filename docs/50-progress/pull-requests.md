@@ -57,6 +57,11 @@ Branch `claude/kind-babbage-p00wl4` · 2026-10-14
   shown at once offline; one occurrence changed alone, or the repeat
   stopped from one on; a repeating Event found once in Search. Undoing a
   new repeating Task or Event now takes its repeat with it.
+- Step 7, Plan: the week on a computer and the day (a phone's, and a
+  computer's when chosen), each Item on its days, the Type filter kept on
+  every device, previous, Today, next and any date; adding a Task or an
+  Event on a day; dragging to another day with Undo. ADR-0049 amended: Plan
+  places Items from what the device holds (for Joe to confirm).
 
 ## [#12](https://github.com/joestables/lifeos/pull/12) — Stage 2, step 14: Labels as filters, Thoughts ticked off
 

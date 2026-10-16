@@ -229,7 +229,9 @@ export function NewEventDialog({ day, onClose }: { day: string; onClose: () => v
   const [title, setTitle] = useState('')
   const [place, setPlace] = useState('')
   const [notes, setNotes] = useState('')
-  const [kept, setKept] = useState(() => newEventTimes(day, today))
+  const [kept, setKept] = useState(() =>
+    newEventTimes(day, today, new Date(), settings.defaultReminderTime),
+  )
   const times = useTimes(kept, setKept)
   const [reminders, setReminders] = useState<DraftReminder[]>([])
   const [repeat, setRepeat] = useState<Repeat | null>(null)

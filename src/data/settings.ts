@@ -17,6 +17,8 @@ export interface Settings {
   digestOn: boolean
   /** "07:00" */
   digestTime: string
+  /** The Types I've hidden from Plan, on every device (PLN-004, ADR-0049). */
+  planHiddenTypes: readonly string[]
 }
 
 /** Until my settings have loaded, or with no signal before they ever did. */
@@ -28,6 +30,7 @@ export const DEFAULT_SETTINGS: Settings = {
   eventReminders: true,
   digestOn: true,
   digestTime: '07:00',
+  planHiddenTypes: [],
 }
 
 /** What core.update_settings takes. */
@@ -36,13 +39,16 @@ export interface SettingsPatch {
   reminder_defaults?: Record<string, boolean>
   digest_on?: boolean
   digest_time?: string
+  plan_hidden_types?: string[]
 }
 
 /** My row of core.people: the only one I can read. */
 export async function fetchSettings(): Promise<Settings> {
   const { data, error } = await supabase()
     .from('people')
-    .select('timezone, default_reminder_time, reminder_defaults, digest_on, digest_time')
+    .select(
+      'timezone, default_reminder_time, reminder_defaults, digest_on, digest_time, plan_hidden_types',
+    )
     .limit(1)
   if (error) throw error
   const me = data[0]
@@ -56,6 +62,7 @@ export async function fetchSettings(): Promise<Settings> {
     eventReminders: defaults.event !== false,
     digestOn: me.digest_on,
     digestTime: me.digest_time.slice(0, 5),
+    planHiddenTypes: me.plan_hidden_types ?? [],
   }
 }
 
@@ -77,6 +84,7 @@ export function applyPendingSettings(settings: Settings, entries: readonly Queue
       }),
       ...(p.digest_on !== undefined && { digestOn: p.digest_on }),
       ...(p.digest_time && { digestTime: p.digest_time.slice(0, 5) }),
+      ...(p.plan_hidden_types && { planHiddenTypes: p.plan_hidden_types }),
     }
   }
   return out

@@ -308,8 +308,9 @@ DayColumn, PlanWeek, PlanDay, PlanToolbar, WeekStrip and AddToDay in
 (private to Joe), after a first pass he found too busy.
 
 - Plan is neutral: no TypeScope; its primary button is ink.
-- Under the PageHeader, the PlanToolbar ("12 – 18 October" on the left;
-  previous, Today, next, Day / Week and "Add" on the right), then the
+- Under the PageHeader, the PlanToolbar ("12 – 18 October" on the left,
+  opening a Calendar to go to any date; previous, Today, next, Day / Week
+  and "Add" on the right), then the
   FilterChips of the Types there are, which act as the key and the filter.
 - **A week** (a computer's default): a PlanWeek, Monday first. Today's
   number sits in an ink pill and its column is filled a little more. Each

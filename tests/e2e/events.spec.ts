@@ -64,8 +64,12 @@ test('EVT-001: a new Event from Plan, an hour long until I change it, kept only 
   page,
 }) => {
   const db = await start(page, '/plan')
-  const newEvent = page.getByRole('button', { name: 'New event' }).last()
-  await newEvent.click()
+  // Plan's "Add" (the Fab on a phone), for today.
+  const newEvent = async () => {
+    await page.getByRole('button', { name: 'Add', exact: true }).filter({ visible: true }).click()
+    await page.getByRole('menuitem', { name: 'Event' }).click()
+  }
+  await newEvent()
   let dialog = page.getByRole('dialog', { name: 'New event' })
   await expect(dialog.getByRole('textbox', { name: 'Starts time' })).toHaveValue('11:00')
   await expect(dialog.getByRole('textbox', { name: 'Ends time' })).toHaveValue('12:00')
@@ -73,7 +77,7 @@ test('EVT-001: a new Event from Plan, an hour long until I change it, kept only 
   await expect(dialog).toBeHidden()
   expect(db.items.filter((i) => i.type === 'event')).toHaveLength(2)
 
-  await newEvent.click()
+  await newEvent()
   dialog = page.getByRole('dialog', { name: 'New event' })
   await dialog.getByRole('textbox', { name: 'Title' }).fill('Squash')
   await dialog.getByRole('textbox', { name: 'Starts time' }).fill('19:30')

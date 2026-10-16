@@ -79,6 +79,7 @@ export async function standIn(
       reminder_defaults: {},
       digest_on: true,
       digest_time: '07:00:00',
+      plan_hidden_types: [],
       ...p,
     })),
     reminders: (rows.reminders ?? []).map((r): Record<string, unknown> => ({

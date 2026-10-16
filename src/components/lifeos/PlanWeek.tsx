@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { HTMLAttributes, ReactNode } from 'react'
 import { cn } from '@/lib/utils'
 
 export interface PlanWeekDay {
@@ -13,6 +13,8 @@ export interface PlanWeekDay {
   add?: ReactNode
   /** Something is being dragged over it. */
   dropping?: boolean
+  /** Where a dragged card can be let go: the column's drag handlers (PLN-007). */
+  drop?: Pick<HTMLAttributes<HTMLDivElement>, 'onDragOver' | 'onDragLeave' | 'onDrop'>
 }
 
 /**
@@ -40,13 +42,18 @@ export function DayColumn({
   children,
   add,
   dropping = false,
+  drop,
   tall = false,
 }: Omit<PlanWeekDay, 'key'> & {
   /** In the week: runs to the foot of the page. */
   tall?: boolean
 }) {
   return (
-    <div className="group/day flex min-w-0 flex-col gap-2">
+    <div
+      role="group"
+      aria-label={`${name} ${number}`}
+      className="group/day flex min-w-0 flex-col gap-2"
+    >
       <div className="flex h-8 items-center gap-1.5 px-1">
         <span className="text-xs font-bold tracking-[0.06em] text-muted-foreground uppercase">
           {name}
@@ -66,6 +73,7 @@ export function DayColumn({
         )}
       </div>
       <div
+        {...drop}
         className={cn(
           'flex flex-1 flex-col gap-1.5 rounded-lg p-1.5 transition-colors',
           tall && 'min-h-[calc(100svh-250px)]',

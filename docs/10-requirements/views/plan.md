@@ -76,7 +76,7 @@ its Item as that Item opens anywhere else
 
 **As** Joe, **I want** my week on one page, whatever kind of thing is in it,
 **so that** I can see the shape of it at a glance.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified
 
 Acceptance criteria
 1. Given a computer, when I open Plan, then it shows this week, Monday to
@@ -97,7 +97,7 @@ Acceptance criteria
 
 **As** Joe, **I want** one day on its own, **so that** on my phone, or when
 a day is full, I can see it properly.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified
 
 Acceptance criteria
 1. Given a phone, when I open Plan, then it shows today, with the week's
@@ -110,7 +110,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to move to other weeks and days and back to today,
 **so that** I can plan ahead and look back.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified
 
 Acceptance criteria
 1. Given the week, when I press the next arrow, then the next week shows;
@@ -123,7 +123,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to hide the kinds of thing I don't want to see now,
 **so that** Plan shows what I'm planning.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified
 
 Acceptance criteria
 1. Given Plan, then every Schedulable Type that exists is shown as a pill,
@@ -138,7 +138,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to open things and tick them off from Plan, **so
 that** I needn't go to another page.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified
 
 Acceptance criteria
 1. Given a card, when I open it, then the Item opens as it does anywhere
@@ -154,7 +154,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to add anything that can be planned straight onto a
 day, **so that** planning is one step.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified
 
 Acceptance criteria
 1. Given a day, when I press its "+", then I choose among the Schedulable
@@ -169,7 +169,7 @@ Acceptance criteria
 
 **As** Joe on a computer, **I want** to drag something to another day, **so
 that** rearranging the week is quick.
-Priority: Should · Status: agreed
+Priority: Should · Status: verified (but 4, an incoming Google Event, with Google Calendar in plan step 9)
 
 Acceptance criteria
 1. Given the week, when I drag a Task from Tuesday to Thursday, then its
