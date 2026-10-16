@@ -1,4 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { CalendarBrokenAlert } from '@/app/google-calendar'
 import { InboxIcon, TagIcon, Trash2Icon } from 'lucide-react'
 import {
   EmptyState,
@@ -68,6 +69,7 @@ function Inbox() {
         {filter.labels.length > 0 && (
           <LabelChips labels={filter.labels} chosen={filter.chosen} onChange={filter.choose} />
         )}
+        <CalendarBrokenAlert />
         <NotificationsOffer />
         {!isLoading && !waiting && <EmptyState icon={InboxIcon} title="Nothing needs you" />}
         {waiting && empty && <EmptyState icon={TagIcon} title={filter.nothing('items')} />}

@@ -13,6 +13,12 @@ import {
   marksKey,
   type Label,
 } from './labels'
+import {
+  applyPendingCalendar,
+  calendarAction as askCalendar,
+  calendarKey,
+  type Calendar,
+} from './calendar'
 import { applyPendingLinks, linksKey, type Link } from './links'
 import { queryClient } from './queryClient'
 import { applyPendingReminders, remindersKey, type Reminder } from './reminders'
@@ -55,8 +61,15 @@ const collections: {
       'set_repeat',
       'stop_repeat',
       'complete_occurrence',
+      // A calendar turned off takes its Events off Plan (GCL-002 3).
+      'set_calendar_level',
     ],
     fold: (rows: ItemRow[], e: QueueEntry) => foldSent(rows, e),
+  },
+  {
+    key: calendarKey,
+    fns: ['set_calendar_level', 'set_new_events_calendar'],
+    fold: (cal: Calendar, e: QueueEntry) => applyPendingCalendar(cal, [e]),
   },
   {
     key: labelsKey,
@@ -164,6 +177,7 @@ export const {
   addSubtask,
   updateSubtask,
   removeSubtask,
+  setCalendarLevel,
   setRepeat,
   stopRepeat,
   completeOccurrence,
@@ -181,6 +195,7 @@ export async function clearRefused(): Promise<void> {
 
 export { authReady, signInWithGoogle, useAuth, type Me } from './auth'
 export {
+  useCalendar,
   useDeletedItems,
   useDevices,
   useItem,
@@ -196,6 +211,8 @@ export {
   useSubtasks,
   useSyncCounts,
 } from './hooks'
+export { googleEventUrl } from './calendar'
+export type { Calendar, CalendarLink, Connection, ExternalRef } from './calendar'
 export { newId } from './ids'
 export { searchItemIds, searchKey } from './search'
 export type { Label } from './labels'
@@ -208,3 +225,16 @@ export type { RepeatArgs, RepeatMode, Series, SeriesTemplate } from './series'
 export type { Settings, SettingsPatch } from './settings'
 export type { Subtask } from './subtasks'
 export type { Item, ItemFields, SyncState } from './types'
+
+/**
+ * Asks Google Calendar's Edge Function as me (GCL-001, ADR-0047): start
+ * connecting, disconnect, or sync now; then what it changed is read again.
+ */
+export async function calendarAction(action: 'start' | 'disconnect' | 'sync', returnTo?: string) {
+  const answer = await askCalendar(action, returnTo)
+  if (action !== 'start') {
+    void queryClient.invalidateQueries({ queryKey: calendarKey })
+    if (!answer.skipped) void queryClient.invalidateQueries({ queryKey: itemsKey })
+  }
+  return answer
+}

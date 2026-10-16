@@ -68,7 +68,7 @@ stand-in for Google; a real connection is checked by hand.*
 
 **As** Joe, **I want** to connect my Google Calendar to LifeOS, **so that**
 everything I'm doing is on Plan.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified (a real connection is checked by hand)
 
 Acceptance criteria
 1. Given Settings, when I choose Connect Google Calendar and allow it at
@@ -82,7 +82,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to choose, calendar by calendar, whether it only
 comes in or goes both ways, **so that** LifeOS changes only what I let it.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified but for two-way and where new Events go (plan step 10)
 
 Acceptance criteria
 1. Given my calendars in Settings, then I can set each to off, incoming or
@@ -95,7 +95,7 @@ Acceptance criteria
 
 **As** Joe, **I want** what's in my Google Calendar to show on Plan and keep
 up to date, **so that** I needn't look in two places.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified
 
 Acceptance criteria
 1. Given a calendar set to incoming or two-way, then its Events from four
@@ -112,7 +112,7 @@ Acceptance criteria
 
 **As** Joe, **I want** Events from an incoming-only calendar to stay as
 Google has them, **so that** Google stays the one place they're changed.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified
 
 Acceptance criteria
 1. Given an Event from an incoming-only calendar, when I open it, then its
@@ -147,7 +147,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to know when Google Calendar stops syncing, **so
 that** Plan isn't quietly out of date.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified
 
 Acceptance criteria
 1. Given Google refuses LifeOS's access (I revoked it, or it expired), then

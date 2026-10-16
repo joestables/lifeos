@@ -108,6 +108,7 @@ export type Database = {
           account: string
           broken_since: string | null
           created_at: string
+          disconnected_at: string | null
           id: string
           last_synced_at: string | null
           person_id: string
@@ -121,6 +122,7 @@ export type Database = {
           account?: string
           broken_since?: string | null
           created_at?: string
+          disconnected_at?: string | null
           id?: string
           last_synced_at?: string | null
           person_id?: string
@@ -133,6 +135,7 @@ export type Database = {
           account?: string
           broken_since?: string | null
           created_at?: string
+          disconnected_at?: string | null
           id?: string
           last_synced_at?: string | null
           person_id?: string
@@ -1089,6 +1092,36 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      calendar_begin: { Args: { p_return_to: string }; Returns: string }
+      calendar_broken: { Args: { p_connection: string; p_reason: string }; Returns: undefined }
+      calendar_connected: {
+        Args: { p_account: string; p_refresh_token: string; p_state: string }
+        Returns: Json
+      }
+      calendar_disconnected: { Args: { p_connection: string }; Returns: undefined }
+      calendar_save_events: { Args: { p_events: Json; p_link: string }; Returns: number }
+      calendar_secret_ok: { Args: { p_secret: string }; Returns: boolean }
+      calendar_set_calendars: {
+        Args: { p_calendars: Json; p_connection: string }
+        Returns: undefined
+      }
+      calendar_synced: {
+        Args: { p_link: string; p_sync_token: string; p_synced_until: string }
+        Returns: undefined
+      }
+      calendar_token: { Args: { p_connection: string }; Returns: string }
+      calendars_to_sync: {
+        Args: { p_connection?: string }
+        Returns: {
+          calendar_id: string
+          connection_id: string
+          level: string
+          link_id: string
+          sync_token: string
+          synced_until: string
+          timezone: string
+        }[]
       }
       claim_deliveries: {
         Args: { p_limit?: number }

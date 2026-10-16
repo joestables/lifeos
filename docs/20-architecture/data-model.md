@@ -295,7 +295,8 @@ rule and create no links.
 | `core.subtasks` | A Task's sub-tasks: title, done, position |
 | `core.capture_tokens` | Each person's capture-address secrets (hashed), revocable (Stage 10) |
 | `core.attachments` | Photos and files on Items (Supabase Storage) |
-| `core.connections` | Integration connections; tokens in Vault |
+| `core.connections` | Integration connections; tokens in Vault. A disconnected one is kept, emptied (`disconnected_at`), so reconnecting finds its calendars and outside ids again |
+| `core_private.oauth_states` | One-time states for connecting an Integration: whose, where the app was, when used (Stage 3) |
 | `core.external_refs` | Integration ids and raw payloads per Item: its connection and calendar, the outside id and `etag`, the raw payload and the mapping's version |
 | `core.calendar_links` | Each Google calendar of a connection: its sync level, whether new Events go there, its sync token (Stage 3, [ADR-0047](adr/0047-google-calendar-sync.md), Provisionally agreed) |
 | `core_private.calendar_outbox` | Event changes waiting to go to Google (Stage 3's step 10, with two-way sync; [ADR-0048](adr/0048-google-calendar-two-way.md), Provisionally agreed) |

@@ -62,6 +62,13 @@ Branch `claude/kind-babbage-p00wl4` · 2026-10-14
   every device, previous, Today, next and any date; adding a Task or an
   Event on a day; dragging to another day with Undo. ADR-0049 amended: Plan
   places Items from what the device holds (for Joe to confirm).
+- Steps 8 and 9, Google Calendar incoming: Joe set up Google Cloud; five
+  migrations and three Edge Functions (`calendar-connect`,
+  `calendar-callback`, `calendar-sync` every five minutes), live; Settings
+  connects, sets each calendar Off or Incoming, syncs and disconnects;
+  Events from Google are read-only on Plan and in their popup, with "Open
+  in Google Calendar"; a broken connection shows in Inbox and the health
+  check. ADR-0047's as-built choices recorded for Joe to confirm.
 
 ## [#12](https://github.com/joestables/lifeos/pull/12) — Stage 2, step 14: Labels as filters, Thoughts ticked off
 

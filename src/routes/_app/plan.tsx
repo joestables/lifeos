@@ -20,6 +20,7 @@ import {
 } from '@/components/lifeos'
 import { toast } from '@/components/ui/sonner'
 import { NewEventDialog } from '@/app/event-details'
+import { useGoogleReadOnly, useSyncOnOpen } from '@/app/google-source'
 import { useOpenItem } from '@/app/item-navigation'
 import { NewTaskDialog } from '@/app/new-task'
 import { queue, updateItem, updateSettings, useItems, useSettings, type Item } from '@/data'
@@ -93,6 +94,8 @@ function Plan() {
   const { items } = useItems(queue)
   const open = useOpenItem()
   const [chosenLayout, setLayout] = useLayout()
+  const googles = useGoogleReadOnly()
+  useSyncOnOpen()
   const layout: Layout = isMobile ? 'day' : chosenLayout
   const today = todayIn(settings.timezone)
   const day = search.day ?? today
@@ -148,7 +151,8 @@ function Plan() {
         onOpen={() => open(p.item)}
       />
     )
-    if (wide || isMobile) return node
+    // An Event from an incoming-only Google calendar stays where Google has it (PLN-007 4).
+    if (wide || isMobile || googles.has(p.item.id)) return node
     // On a computer's week, a card is dragged to another day (PLN-007).
     return (
       <div

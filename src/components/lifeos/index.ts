@@ -42,3 +42,4 @@ export {
   type ReminderLine,
 } from './ReminderList'
 export { EventTimesField, type EventTimesValue } from './EventTimesField'
+export { EventFact, EventSource } from './EventFacts'

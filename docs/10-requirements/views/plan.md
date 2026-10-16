@@ -169,7 +169,7 @@ Acceptance criteria
 
 **As** Joe on a computer, **I want** to drag something to another day, **so
 that** rearranging the week is quick.
-Priority: Should · Status: verified (but 4, an incoming Google Event, with Google Calendar in plan step 9)
+Priority: Should · Status: verified
 
 Acceptance criteria
 1. Given the week, when I drag a Task from Tuesday to Thursday, then its

@@ -13,6 +13,7 @@ import {
   marksKey,
   type Label,
 } from './labels'
+import { applyPendingCalendar, calendarKey, fetchCalendar, type Calendar } from './calendar'
 import { applyPendingLinks, fetchLinks, linksKey, type Link } from './links'
 import { applyPending } from './overlay'
 import type { WriteQueue } from './queue/queue'
@@ -202,4 +203,19 @@ export function useLinks(queue: WriteQueue): readonly Link[] {
   const entries = useQueueEntries(queue)
   const query = useQuery({ queryKey: linksKey, queryFn: fetchLinks })
   return useMemo(() => applyPendingLinks(query.data ?? [], entries), [query.data, entries])
+}
+
+const NO_CALENDAR: Calendar = { connection: null, links: [], refs: [] }
+
+/** My Google Calendar connection, calendars and which Events came from them (GCL-001–004). */
+export function useCalendar(queue: WriteQueue): Calendar & { isLoading: boolean } {
+  const entries = useQueueEntries(queue)
+  const query = useQuery({ queryKey: calendarKey, queryFn: fetchCalendar })
+  return useMemo(
+    () => ({
+      ...applyPendingCalendar(query.data ?? NO_CALENDAR, entries),
+      isLoading: query.isLoading,
+    }),
+    [query.data, query.isLoading, entries],
+  )
 }

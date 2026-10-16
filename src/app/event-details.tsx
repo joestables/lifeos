@@ -1,7 +1,16 @@
-import { LinkIcon, UnlinkIcon } from 'lucide-react'
+import {
+  CalendarDaysIcon,
+  ExternalLinkIcon,
+  LinkIcon,
+  MapPinIcon,
+  StickyNoteIcon,
+  UnlinkIcon,
+} from 'lucide-react'
 import { useId, useRef, useState, type ReactNode } from 'react'
 import { todayIn } from '@lifeos/recurrence'
 import {
+  EventFact,
+  EventSource,
   EventTimesField,
   ItemDialog,
   ItemRow,
@@ -29,6 +38,7 @@ import {
   useLabels,
   useLinks,
   useReminders,
+  googleEventUrl,
   useSettings,
   type Item,
   type ItemFields,
@@ -49,6 +59,7 @@ import { freshReminder, reminderAnchors, reminderFields } from '@/lib/reminders'
 import { useDraftLabels } from './draft-labels'
 import { DraftReminders, type DraftReminder } from './draft-reminders'
 import { ItemReminders } from './item-reminders'
+import { useGoogleSource } from './google-source'
 import { MoreMenu } from './more-menu'
 import { draftItem, useOpenItem } from './item-navigation'
 import { eventRepeatStart, repeatEvent, repeatOf, useSeriesById, useTickDone } from './repeat'
@@ -163,6 +174,60 @@ function EventFields({
   )
 }
 
+const LEVEL_NAME = { off: 'Off', incoming: 'Incoming', two_way: 'Two-way' } as const
+
+/**
+ * An Event from an incoming-only Google calendar (GCL-004): its date and
+ * time, place and notes are Google's, shown as lines, with "Open in Google
+ * Calendar"; its Reminders, Labels and Tasks are LifeOS's own.
+ */
+export function GoogleEventDetails({ item }: { item: Item }) {
+  const settings = useSettings(queue)
+  const source = useGoogleSource(item)
+  const t = eventTimes(item, settings.timezone)
+  return (
+    <div className="flex flex-col gap-4">
+      {source?.link && (
+        <EventSource calendar={source.link.name} level={LEVEL_NAME[source.link.level]} />
+      )}
+      <div className="flex flex-col">
+        {t && <EventFact icon={<CalendarDaysIcon />}>{eventWhen(t)}</EventFact>}
+        {item.place && <EventFact icon={<MapPinIcon />}>{item.place}</EventFact>}
+        {item.body && (
+          <EventFact icon={<StickyNoteIcon />}>
+            <span className="text-muted-foreground">{item.body}</span>
+          </EventFact>
+        )}
+      </div>
+      {source?.link && (
+        <Button
+          variant="outline"
+          size="sm"
+          className="self-start"
+          nativeButton={false}
+          render={
+            <a
+              href={googleEventUrl(source.ref!.external_id, source.link.calendar_id)}
+              target="_blank"
+              rel="noreferrer"
+            />
+          }
+        >
+          <ExternalLinkIcon />
+          Open in Google Calendar
+        </Button>
+      )}
+      <Field label="Reminders">
+        <ItemReminders item={item} />
+      </Field>
+      <Field label="Labels">
+        <ItemLabels item={item} />
+      </Field>
+      <EventTasks event={item} />
+    </div>
+  )
+}
+
 /** Everything about an Event (EVT-002), each change kept as it is made. */
 export function EventDetails({ item }: { item: Item }) {
   const settings = useSettings(queue)
@@ -191,9 +256,17 @@ export function EventDetails({ item }: { item: Item }) {
         })),
     })
   }
+  const source = useGoogleSource(item)
   return (
     <EventFields
-      times={times.field}
+      times={
+        <>
+          {source?.link && (
+            <EventSource calendar={source.link.name} level={LEVEL_NAME[source.link.level]} />
+          )}
+          {times.field}
+        </>
+      }
       repeat={(id) => (
         <RepeatField
           id={id}

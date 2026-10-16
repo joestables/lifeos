@@ -25,6 +25,15 @@ export interface Rows {
   subtasks?: { id: string; item_id: string; title: string; done: boolean; position: string }[]
   series?: Record<string, unknown>[]
   links?: { from_item: string; to_item: string; link_type: string }[]
+  connections?: Record<string, unknown>[]
+  calendar_links?: Record<string, unknown>[]
+  external_refs?: Record<string, unknown>[]
+  /** What connecting Google Calendar brings: its calendars and the main one's events. */
+  google?: {
+    account: string
+    calendars: Record<string, unknown>[]
+    events: Record<string, unknown>[]
+  }
 }
 
 /** An Item row with everything but what a test names. */
@@ -102,6 +111,51 @@ export async function standIn(
     subtasks: [...(rows.subtasks ?? [])],
     series: [...(rows.series ?? [])],
     links: [...(rows.links ?? [])],
+    connections: [...(rows.connections ?? [])],
+    calendar_links: [...(rows.calendar_links ?? [])],
+    external_refs: [...(rows.external_refs ?? [])],
+  }
+  /** What the Edge Function calendar-connect does, without Google (GCL-001). */
+  const calendar = (body: { action?: string }) => {
+    const conn = db.connections[0]
+    if (body.action === 'start') {
+      const g = rows.google ?? { account: 'ann@gmail.com', calendars: [], events: [] }
+      db.connections = [
+        {
+          id: 'conn',
+          account: g.account,
+          state: 'connected',
+          broken_since: null,
+          last_synced_at: new Date().toISOString(),
+          disconnected_at: null,
+        },
+      ]
+      db.calendar_links = g.calendars.map((c, i) => ({
+        level: i === 0 ? 'incoming' : 'off',
+        new_events: false,
+        can_edit: true,
+        is_primary: i === 0,
+        ...c,
+      }))
+      for (const e of g.events) {
+        db.items.push(itemRow({ type: 'event', ...e, id: String(e.id) }))
+        db.external_refs.push({
+          item_id: e.id,
+          calendar_link_id: db.calendar_links[0]?.id,
+          external_id: `g-${String(e.id)}`,
+        })
+      }
+      return { url: '/settings?calendar=connected' }
+    }
+    if (!conn || conn.disconnected_at) return { connected: false }
+    if (body.action === 'disconnect') {
+      conn.disconnected_at = new Date().toISOString()
+      for (const l of db.calendar_links) l.level = 'off'
+      for (const r of db.external_refs) Object.assign(item(r.item_id) ?? {}, { archived_at: now() })
+      return { connected: false }
+    }
+    conn.last_synced_at = new Date().toISOString()
+    return { connections: 1, saved: 0, broken: 0, failed: [] }
   }
   const item = (id: unknown) => db.items.find((i) => i.id === id)
   const now = () => new Date().toISOString()
@@ -384,6 +438,15 @@ export async function standIn(
         (l) => !(l.from_item === a.p_from && l.to_item === a.p_to && l.link_type === a.p_link_type),
       )
     },
+    set_calendar_level: (a) => {
+      const l = db.calendar_links.find((x) => x.id === a.p_link)
+      if (!l) return
+      l.level = a.p_level
+      if (a.p_level === 'off')
+        for (const r of db.external_refs)
+          if (r.calendar_link_id === l.id)
+            Object.assign(item(r.item_id) ?? {}, { archived_at: now() })
+    },
     set_mark: (a) => {
       db.marks = db.marks.filter((m) => m.item_id !== a.p_item)
       if (a.p_on) db.marks.push({ item_id: String(a.p_item) })
@@ -392,6 +455,8 @@ export async function standIn(
   await page.route(`${STAND_IN_URL}/**`, (route) => {
     const url = new URL(route.request().url())
     if (url.pathname.includes('/auth/v1/logout')) return route.fulfill({ status: 204 })
+    if (url.pathname.endsWith('/functions/v1/calendar-connect'))
+      return route.fulfill({ json: calendar(route.request().postDataJSON() ?? {}) })
     const rpc = url.pathname.match(/\/rest\/v1\/rpc\/(\w+)$/)
     if (rpc) {
       const result = write[rpc[1]!]?.(route.request().postDataJSON() ?? {})

@@ -269,10 +269,12 @@ DateField, TimeField, RepeatField, SubtaskList and AddRow in
 - **Google Calendar** ([GCL-001–006](../10-requirements/cross-cutting/integrations.md#google-calendar)):
   a titled Card with a "…" menu (Sync now; Disconnect, in red). Not
   connected: a CardRow "Not connected" with an outline "Connect". Connected:
-  a CardRow with `mail`, the Google account and, muted, "Synced 2 min ago";
-  then a CardRow per calendar, its name, "Can't edit" muted where I can't,
-  and an `sm` Select of Off, Incoming and (where I can edit it) Two-way;
-  then "New events go to", a Select of the two-way calendars. The Reminders
+  a CardRow with `mail`, the Google account and, muted, "Synced 2 min ago"
+  ("Not syncing" when broken); then a CardRow per calendar, its name, "Can't
+  edit" muted where I can't, and an `sm` Select of Off, Incoming and (where
+  I can edit it, from plan step 10) Two-way; then, from step 10, "New events
+  go to", a Select of the two-way calendars. Coming back from Google, a
+  toast says how it went ("Google Calendar connected"). The Reminders
   Card gains "Events, 30 min before" (a Switch).
 - **Google Calendar isn't syncing** (GCL-006): on Inbox, above the groups,
   an Alert with `calendar-x-2`, "Google Calendar isn't syncing", since

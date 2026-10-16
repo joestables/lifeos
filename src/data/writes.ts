@@ -43,6 +43,10 @@ export function writes(queue: WriteQueue, labelsNow: () => readonly Label[] = ()
         [from, to],
       )
     },
+    /** A Google calendar's sync level (GCL-002); off takes its Events off Plan. */
+    setCalendarLevel(link: string, level: 'off' | 'incoming' | 'two_way'): void {
+      queue.enqueue('set_calendar_level', { p_link: link, p_level: level }, [])
+    },
     unlinkItems(from: string, to: string, linkType: string): void {
       queue.enqueue('unlink_items', { p_from: from, p_to: to, p_link_type: linkType }, [from, to])
     },

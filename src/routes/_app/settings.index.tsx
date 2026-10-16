@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { LogOutIcon, TagIcon, Trash2Icon } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { CardRow, PageHeader } from '@/components/lifeos'
 import {
   AlertDialog,
@@ -13,17 +13,30 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import { Card } from '@/components/ui/card'
+import { GoogleCalendarCard } from '@/app/google-calendar'
 import { LabelsCard } from '@/app/labels'
+import { toast } from '@/components/ui/sonner'
 import { NotificationsCard, RemindersCard } from '@/app/notification-settings'
 import { queue, signOut, unsentWrites, useDeletedItems, useLabels } from '@/data'
 
 /**
- * Settings: notifications and Reminders, Labels, Recently deleted and signing
- * out (REM-001, REM-007, REM-008, ITM-003, ITM-005, ACC-003).
+ * Settings: notifications and Reminders, Google Calendar, Labels, Recently
+ * deleted and signing out (REM-001, REM-007, REM-008, GCL-001, GCL-002,
+ * ITM-003, ITM-005, ACC-003).
  */
 export const Route = createFileRoute('/_app/settings/')({
+  // Where Google sends me back after connecting (GCL-001).
+  validateSearch: (search: Record<string, unknown>): { calendar?: string } =>
+    typeof search.calendar === 'string' ? { calendar: search.calendar } : {},
   component: Settings,
 })
+
+const OUTCOMES: Record<string, string> = {
+  connected: 'Google Calendar connected',
+  cancelled: 'Google Calendar wasn’t connected',
+  expired: 'That took too long. Connect again',
+  failed: 'Google didn’t connect. Try again',
+}
 
 function Settings() {
   const navigate = useNavigate()
@@ -31,6 +44,12 @@ function Settings() {
   const { items: deleted } = useDeletedItems(queue)
   const [confirming, setConfirming] = useState(false)
   const waiting = unsentWrites()
+  const { calendar: outcome } = Route.useSearch()
+  useEffect(() => {
+    if (!outcome) return
+    toast(OUTCOMES[outcome] ?? OUTCOMES.failed!)
+    void navigate({ to: '.', search: {}, replace: true })
+  }, [outcome, navigate])
 
   const finishSignOut = async () => {
     await signOut()
@@ -46,6 +65,7 @@ function Settings() {
           <NotificationsCard />
           <RemindersCard />
         </div>
+        <GoogleCalendarCard />
         <div className="hidden md:block">
           <LabelsCard />
         </div>

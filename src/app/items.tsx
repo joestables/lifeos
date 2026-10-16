@@ -1,4 +1,4 @@
-import { EllipsisIcon, PinIcon, StarIcon, Trash2Icon } from 'lucide-react'
+import { EllipsisIcon, ExternalLinkIcon, PinIcon, StarIcon, Trash2Icon } from 'lucide-react'
 import { ItemDialog } from '@/components/lifeos'
 import { Button } from '@/components/ui/button'
 import {
@@ -20,22 +20,28 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Toggle } from '@/components/ui/toggle'
-import { queue, setMark, useItem, useMarks, type Item } from '@/data'
+import { googleEventUrl, queue, setMark, useItem, useMarks, type Item } from '@/data'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { convertTargets, itemTitle, MARK_LABEL, opensAsPage, typeLook } from '@/lib/item-types'
 import { useConvert } from './convert'
-import { EventDetails, EventTitle } from './event-details'
+import { EventDetails, EventTitle, GoogleEventDetails } from './event-details'
+import { useGoogleSource } from './google-source'
 import { deleteItem, draftNote, useCloseItem } from './item-navigation'
 import { NoteBody } from './note-body'
 import { ItemReminders } from './item-reminders'
 import { Field, ItemLabels, TaskDetails, TaskTitle } from './task-details'
 import { tickThought } from './thought-actions'
 
-/** An Item's mark (star, pin) and its "…" menu: Convert to, Delete. */
+/**
+ * An Item's mark (star, pin) and its "…" menu: Convert to, Delete. An Event
+ * from an incoming-only Google calendar offers only "Open in Google
+ * Calendar" (GCL-004).
+ */
 export function ItemActions({ item, onDelete }: { item: Item; onDelete: () => void }) {
   const marks = useMarks(queue)
   const look = typeLook(item.type)
-  const targets = convertTargets(item.type)
+  const google = useGoogleSource(item)
+  const targets = google?.readOnly ? [] : convertTargets(item.type)
   const convert = useConvert()
   const MarkIcon = look.mark === 'pinned' ? PinIcon : StarIcon
   return (
@@ -67,9 +73,25 @@ export function ItemActions({ item, onDelete }: { item: Item; onDelete: () => vo
               <DropdownMenuSeparator />
             </>
           )}
-          <DropdownMenuItem variant="destructive" onClick={onDelete}>
-            <Trash2Icon /> Delete
-          </DropdownMenuItem>
+          {google?.readOnly ? (
+            google.link && (
+              <DropdownMenuItem
+                render={
+                  <a
+                    href={googleEventUrl(google.ref!.external_id, google.link.calendar_id)}
+                    target="_blank"
+                    rel="noreferrer"
+                  />
+                }
+              >
+                <ExternalLinkIcon /> Open in Google Calendar
+              </DropdownMenuItem>
+            )
+          ) : (
+            <DropdownMenuItem variant="destructive" onClick={onDelete}>
+              <Trash2Icon /> Delete
+            </DropdownMenuItem>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
     </>
@@ -87,6 +109,7 @@ export function ItemPopup({ id, isNew = false }: { id: string | undefined; isNew
   const close = useCloseItem()
   const isMobile = useIsMobile()
   const { item: found, status } = useItem(queue, id ?? '')
+  const google = useGoogleSource({ id: id ?? '', type: found?.type ?? '' })
   const draft = isNew && !found
   const item = found ?? (draft && id ? draftNote(id) : undefined)
   if (!id || (status === 'loading' && !draft)) return null
@@ -135,6 +158,8 @@ export function ItemPopup({ id, isNew = false }: { id: string | undefined; isNew
           <NoteBody key={item.id} item={item} draft={draft} />
         ) : item.type === 'task' ? (
           <TaskTitle key={item.id} item={item} />
+        ) : item.type === 'event' && google?.readOnly ? (
+          <div className="pt-1 text-day">{itemTitle(item)}</div>
         ) : (
           item.type === 'event' && <EventTitle key={item.id} item={item} />
         )
@@ -153,6 +178,8 @@ export function ItemPopup({ id, isNew = false }: { id: string | undefined; isNew
     >
       {item.type === 'task' ? (
         <TaskDetails key={item.id} item={item} />
+      ) : item.type === 'event' && google?.readOnly ? (
+        <GoogleEventDetails key={item.id} item={item} />
       ) : item.type === 'event' ? (
         <EventDetails key={item.id} item={item} />
       ) : item.type === 'thought' ? (

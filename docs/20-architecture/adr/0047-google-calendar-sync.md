@@ -74,6 +74,21 @@ stale one returns 410, meaning sync again from scratch.
   used), in unit tests of the mapping and in the browser walks; a real
   connection is checked by hand.
 
+## As built (16 October, plan step 9)
+
+Claude's choices while building, within the decision; for Joe to confirm:
+
+- The callback is `calendar-callback`; the sync is `calendar-sync`.
+  Connecting also asks for `openid` and `email`, to name the Google account.
+- Disconnecting keeps the connection, emptied: the token is blanked in
+  Vault, every calendar off, imported Events to Recently deleted. Nothing is
+  deleted, so reconnecting matches Google's ids again.
+- Repeats are kept 12 weeks ahead by `calendar-sync` itself: a calendar is
+  read from scratch (four weeks back) once a week, rather than by
+  `extend-series`.
+- `calendar-connect` checks the person's token through the database rather
+  than the gateway, which would refuse the browser's preflight.
+
 ## Consequences
 
 - A change in Google reaches Plan within about five minutes, or as soon as

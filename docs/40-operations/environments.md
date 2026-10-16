@@ -18,9 +18,13 @@
   functions themselves: the project's URL (`project_url`), the nightly
   series run's secret (`series_secret`,
   [runbook](runbook.md#the-nightly-series-run)), the minute job's secret
-  for `send-notifications` (`push_secret`) and the Web Push keys
-  (`vapid_public_key`, `vapid_private_key`, [runbook](runbook.md#notifications)).
-  None is in the repository, and none is an Edge Function secret.
+  for `send-notifications` (`push_secret`), the Web Push keys
+  (`vapid_public_key`, `vapid_private_key`, [runbook](runbook.md#notifications)),
+  the five-minute calendar sync's secret (`calendar_secret`) and each Google
+  Calendar refresh token ([runbook](runbook.md#google-calendar)). None is in
+  the repository. The only Edge Function secrets are Google's OAuth client
+  ID and secret (`GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`), entered by Joe
+  ([integration setup](integration-setup.md#google-calendar-stage-3)).
 - The free tier allows two *active* projects (now `lifeos` and *doorbell*);
   paused projects don't count. There is no staging database.
 - **Anyone can sign up with Google**; email/password sign-up is off, so the
