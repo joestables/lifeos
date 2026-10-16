@@ -82,7 +82,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to choose, calendar by calendar, whether it only
 comes in or goes both ways, **so that** LifeOS changes only what I let it.
-Priority: Must · Status: verified but for two-way and where new Events go (plan step 10)
+Priority: Must · Status: verified
 
 Acceptance criteria
 1. Given my calendars in Settings, then I can set each to off, incoming or
@@ -125,7 +125,8 @@ Acceptance criteria
 
 **As** Joe, **I want** Events I make or change in LifeOS to be in my Google
 Calendar, **so that** Google Calendar stays complete.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified (against a stand-in for Google; a real
+calendar is checked by hand)
 
 Acceptance criteria
 1. Given a calendar where new Events go, when I make an Event in LifeOS,

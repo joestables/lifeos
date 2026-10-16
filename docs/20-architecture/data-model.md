@@ -299,7 +299,8 @@ rule and create no links.
 | `core_private.oauth_states` | One-time states for connecting an Integration: whose, where the app was, when used (Stage 3) |
 | `core.external_refs` | Integration ids and raw payloads per Item: its connection and calendar, the outside id and `etag`, the raw payload and the mapping's version |
 | `core.calendar_links` | Each Google calendar of a connection: its sync level, whether new Events go there, its sync token (Stage 3, [ADR-0047](adr/0047-google-calendar-sync.md), Provisionally agreed) |
-| `core_private.calendar_outbox` | Event changes waiting to go to Google (Stage 3's step 10, with two-way sync; [ADR-0048](adr/0048-google-calendar-two-way.md), Provisionally agreed) |
+| `core_private.calendar_outbox` | Events and repeating Events waiting to go to Google on a two-way calendar: one waiting row each, when it was queued, its tries and when to try next, when sent and why it failed (Stage 3, [ADR-0048](adr/0048-google-calendar-two-way.md), Provisionally agreed) |
+| `core_private.series_refs` | Which Google repeating event each series sent to Google is, with its `etag` (ADR-0048) |
 | `ops.events` | Errors and failures from the app, Edge Functions, cron jobs and Integrations: what, where (screen), the last few actions, never Items' content |
 | `ops.health_runs` · `ops.heartbeats` | The nightly health check's findings; when jobs outside the database last ran: Reminder sending and the nightly series run ([ADR-0044](adr/0044-reminder-delivery.md), [ADR-0045](adr/0045-extending-series.md)) |
 

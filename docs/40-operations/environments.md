@@ -20,7 +20,7 @@
   [runbook](runbook.md#the-nightly-series-run)), the minute job's secret
   for `send-notifications` (`push_secret`), the Web Push keys
   (`vapid_public_key`, `vapid_private_key`, [runbook](runbook.md#notifications)),
-  the five-minute calendar sync's secret (`calendar_secret`) and each Google
+  the calendar sync's and push's secret (`calendar_secret`) and each Google
   Calendar refresh token ([runbook](runbook.md#google-calendar)). None is in
   the repository. The only Edge Function secrets are Google's OAuth client
   ID and secret (`GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`), entered by Joe

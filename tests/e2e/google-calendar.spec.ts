@@ -151,6 +151,88 @@ test('GCL-002 3: a calendar turned off takes its Events off Plan', async ({ page
   await expect(page.getByText('Dentist')).toHaveCount(0)
 })
 
+test('GCL-002 1, 2: two-way where I can edit it, and the first two-way calendar is where new Events go', async ({
+  page,
+}) => {
+  const rows = connected()
+  rows.calendar_links!.push(
+    {
+      id: 'l-work',
+      calendar_id: 'work',
+      name: 'Work',
+      can_edit: true,
+      is_primary: false,
+      level: 'off',
+      new_events: false,
+    },
+    {
+      id: 'l-holidays',
+      calendar_id: 'holidays',
+      name: 'UK holidays',
+      can_edit: false,
+      is_primary: false,
+      level: 'incoming',
+      new_events: false,
+    },
+  )
+  const db = await start(page, rows, '/settings')
+  const card = page.locator('[data-slot="card"]').filter({ hasText: 'Google Calendar' })
+  await card.getByRole('combobox', { name: 'UK holidays: sync' }).click()
+  await expect(page.getByRole('option')).toHaveText(['Off', 'Incoming'])
+  await page.keyboard.press('Escape')
+  await expect(card.getByRole('combobox', { name: 'New events go to' })).toHaveCount(0)
+
+  /** Picks an option, then waits for the list to close before the next. */
+  const choose = async (select: string, option: string) => {
+    await card.getByRole('combobox', { name: select }).click()
+    await page.getByRole('option', { name: option }).click()
+    await expect(page.getByRole('listbox')).toHaveCount(0)
+  }
+  await choose('Ann: sync', 'Two-way')
+  await expect(card.getByRole('combobox', { name: 'New events go to' })).toContainText('Ann')
+  await choose('Work: sync', 'Two-way')
+  await card.getByRole('combobox', { name: 'New events go to' }).click()
+  await expect(page.getByRole('option')).toHaveText(['Ann', 'Work'])
+  await page.keyboard.press('Escape')
+  await expect(page.getByRole('listbox')).toHaveCount(0)
+  await choose('New events go to', 'Work')
+  await expect
+    .poll(() => db.calendar_links.map((l) => [l.id, l.level, l.new_events]))
+    .toEqual([
+      ['l-ann', 'two_way', false],
+      ['l-work', 'two_way', true],
+      ['l-holidays', 'incoming', false],
+    ])
+
+  // Work stops being two-way: new Events go to Ann again.
+  await choose('Work: sync', 'Incoming')
+  await expect(card.getByRole('combobox', { name: 'New events go to' })).toContainText('Ann')
+  await expect.poll(() => db.calendar_links[0]!.new_events).toBe(true)
+})
+
+test('GCL-005 2: an Event from a two-way calendar is mine to change and drag', async ({
+  page,
+  isMobile,
+}) => {
+  const rows = connected()
+  rows.calendar_links![0]!.level = 'two_way'
+  const db = await start(page, rows, `/plan?item=${DENTIST}`)
+  const popup = page.getByRole('dialog', { name: 'Dentist' })
+  await expect(popup).toContainText('Google Calendar · Ann · Two-way')
+  const title = popup.getByRole('textbox', { name: 'Title' })
+  await title.fill('Dentist, check-up')
+  await title.press('Enter')
+  await expect.poll(() => db.items.find((i) => i.id === DENTIST)?.title).toBe('Dentist, check-up')
+  if (isMobile) return
+  await page.keyboard.press('Escape')
+  const day = (name: string) => page.getByRole('group', { name, exact: true })
+  await day('Fri 16')
+    .locator('[data-slot="plan-card"]')
+    .filter({ hasText: 'Dentist' })
+    .dragTo(day('Sat 17'))
+  await expect.poll(() => db.items.find((i) => i.id === DENTIST)?.starts_at).toMatch(/^2026-10-17/)
+})
+
 test('GCL-006 1: a broken connection shows in Inbox, with Reconnect', async ({ page }) => {
   await start(page, connected('broken'), '/inbox')
   const alert = page.getByRole('status').filter({ hasText: 'Google Calendar isn’t syncing' })

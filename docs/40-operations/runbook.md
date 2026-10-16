@@ -72,7 +72,7 @@ Reminders, the morning digest and overdue nudges
 ## Google Calendar
 
 Connecting and syncing are LifeOS's own
-([ADR-0047](../20-architecture/adr/0047-google-calendar-sync.md)), in three
+([ADR-0047](../20-architecture/adr/0047-google-calendar-sync.md)), in four
 Edge Functions deployed by Claude through the Supabase MCP, sharing
 `supabase/functions/calendar-sync/run.ts` and `supabase.ts`:
 
@@ -95,10 +95,22 @@ Edge Functions deployed by Claude through the Supabase MCP, sharing
   notice, the health check); the calendar list refreshed; each calendar
   that is on read from its sync token, or from four weeks back (first time,
   after a 410, and weekly so repeats reach 12 weeks ahead).
+- **`calendar-push`** (two-way, [ADR-0048](../20-architecture/adr/0048-google-calendar-two-way.md);
+  `pg_cron` job `calendar-push` every minute, waking it through `pg_net`
+  with `calendar_secret` only while `core_private.calendar_outbox` has a
+  row due): claims up to 50 jobs (`core.calendar_outbox_claim`), sends
+  each Event, or repeating Event as one Google repeating event, to its
+  calendar, and records it (`core.calendar_pushed`, keeping Google's id and
+  `etag`) or the failure (`core.calendar_unpushed`, tried again after 1
+  minute, doubling to 6 hours). A refused token breaks the connection as
+  the sync does, and its jobs wait. It is deployed with `calendar-sync`'s
+  `run.ts` and `supabase.ts` and `packages/recurrence/src/days.ts`.
 - **Checking it:** `select * from core.connections`;
-  `select name, level, synced_until from core.calendar_links`; the job's
-  runs in `cron.job_run_details`; the function's logs (`get_logs`, edge
-  functions).
+  `select name, level, new_events, synced_until from core.calendar_links`;
+  what waits or failed:
+  `select * from core_private.calendar_outbox where sent_at is null or error is not null order by id desc`;
+  the jobs' runs in `cron.job_run_details`; the functions' logs
+  (`get_logs`, edge functions).
 - **Secrets:** the client's ID and secret are Edge Function secrets
   (`GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, entered by Joe); each refresh
   token, and `calendar_secret`, are in Vault.

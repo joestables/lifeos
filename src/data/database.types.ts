@@ -1100,6 +1100,11 @@ export type Database = {
         Returns: Json
       }
       calendar_disconnected: { Args: { p_connection: string }; Returns: undefined }
+      calendar_outbox_claim: { Args: { p_limit?: number }; Returns: Json }
+      calendar_pushed: {
+        Args: { p_outbox: number; p_refs: Json; p_series_ref?: Json }
+        Returns: undefined
+      }
       calendar_save_events: { Args: { p_events: Json; p_link: string }; Returns: number }
       calendar_secret_ok: { Args: { p_secret: string }; Returns: boolean }
       calendar_set_calendars: {
@@ -1111,6 +1116,7 @@ export type Database = {
         Returns: undefined
       }
       calendar_token: { Args: { p_connection: string }; Returns: string }
+      calendar_unpushed: { Args: { p_error: string; p_outbox: number }; Returns: undefined }
       calendars_to_sync: {
         Args: { p_connection?: string }
         Returns: {

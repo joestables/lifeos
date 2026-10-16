@@ -62,17 +62,21 @@ export async function fetchCalendar(): Promise<Calendar> {
   }
 }
 
-/** Lays unsent level changes over what the server last sent. */
+/** Lays unsent level changes, and where new Events go, over what the server last sent. */
 export function applyPendingCalendar(cal: Calendar, entries: readonly QueueEntry[]): Calendar {
   let links = cal.links
   for (const entry of entries) {
-    if (entry.fn !== 'set_calendar_level') continue
-    const a = entry.args as { p_link: string; p_level: CalendarLink['level'] }
-    links = links.map((l) =>
-      l.id === a.p_link
-        ? { ...l, level: a.p_level, new_events: l.new_events && a.p_level === 'two_way' }
-        : l,
-    )
+    if (entry.fn === 'set_calendar_level') {
+      const a = entry.args as { p_link: string; p_level: CalendarLink['level'] }
+      links = links.map((l) =>
+        l.id === a.p_link
+          ? { ...l, level: a.p_level, new_events: l.new_events && a.p_level === 'two_way' }
+          : l,
+      )
+    } else if (entry.fn === 'set_new_events_calendar') {
+      const a = entry.args as { p_link: string }
+      links = links.map((l) => ({ ...l, new_events: l.id === a.p_link }))
+    }
   }
   return { ...cal, links }
 }

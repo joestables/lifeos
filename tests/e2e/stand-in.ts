@@ -442,10 +442,14 @@ export async function standIn(
       const l = db.calendar_links.find((x) => x.id === a.p_link)
       if (!l) return
       l.level = a.p_level
+      l.new_events = l.new_events && a.p_level === 'two_way'
       if (a.p_level === 'off')
         for (const r of db.external_refs)
           if (r.calendar_link_id === l.id)
             Object.assign(item(r.item_id) ?? {}, { archived_at: now() })
+    },
+    set_new_events_calendar: (a) => {
+      for (const l of db.calendar_links) l.new_events = l.id === a.p_link
     },
     set_mark: (a) => {
       db.marks = db.marks.filter((m) => m.item_id !== a.p_item)

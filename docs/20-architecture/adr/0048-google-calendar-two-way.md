@@ -51,6 +51,41 @@ server through its write queue, last write winning field by field
 - **Switching an Event into a Task** deletes it in Google; switching it back
   sends it again.
 
+## As built (16 October, plan step 10)
+
+Claude's choices while building, within the decision, and where it differs;
+for Joe to confirm:
+
+- **The later change wins for the whole event, not field by field.**
+  `calendar-push` sends a change with Google's last-known `etag`; if Google
+  refuses it (412), it reads Google's event: if Google's `updated` is after
+  my change reached the server, Google's whole event is kept in LifeOS,
+  otherwise mine is sent again in full. Incoming sync leaves an Event alone
+  while a newer change of mine waits in the outbox. Field by field would
+  need each field's change time kept; whole-event is simpler and the same
+  whenever only one side changed.
+- **The outbox:** `core_private.calendar_outbox` (one waiting row per Event
+  or series, a second change bumping it), filled by triggers on Events and
+  series while I have a two-way calendar; `core.calendar_outbox_claim`
+  hands `calendar-push` up to 50 jobs, each to the calendar its Event came
+  from or, for a new one, where new Events go; `core.calendar_pushed` and
+  `core.calendar_unpushed` record the outcome, retrying after 1 minute,
+  doubling to 6 hours. A job with nowhere to go is closed. `pg_cron` job
+  `calendar-push` checks every minute and wakes the function only while
+  something waits.
+- **A repeating Event's occurrences match Google's instances by their
+  original day** (one occurrence a day), kept in `core_private.series_refs`
+  (series ↔ Google's repeating event). Its start is that of its first
+  occurrence still as the series made it; a changed occurrence is sent as
+  that instance's times, a deleted one cancels it. Instances Google makes
+  further ahead than LifeOS has occurrences aren't brought in until LifeOS
+  makes those occurrences; a rule changed in Google isn't yet followed.
+- **Recognising my own Events coming back:** an Event by the private
+  extended property `lifeosId`, a series' instances through `series_refs`
+  and their day; a copy the sync had already made is archived.
+- **Restoring** an Event sends it again: Google's cancelled event is
+  updated back to confirmed (or made anew if Google has dropped it).
+
 ## Consequences
 
 - A change reaches Google within about a minute of reaching the server; made

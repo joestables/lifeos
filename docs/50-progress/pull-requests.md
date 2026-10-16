@@ -69,6 +69,15 @@ Branch `claude/kind-babbage-p00wl4` · 2026-10-14
   Events from Google are read-only on Plan and in their popup, with "Open
   in Google Calendar"; a broken connection shows in Inbox and the health
   check. ADR-0047's as-built choices recorded for Joe to confirm.
+- Step 10, Google Calendar two-way: an outbox on the server filled by
+  triggers on Events and their series, and the `calendar-push` Edge
+  Function, woken each minute while something waits, sending each Event (a
+  repeating one as one Google repeating event) to its calendar, with
+  retries and a later change winning; incoming sync recognises what LifeOS
+  sent. Four migrations and the function, live; 16 database tests and unit
+  tests against a stand-in for Google. Settings offers Two-way and "New
+  events go to"; an Event from a two-way calendar is editable and
+  draggable. ADR-0048's as-built choices recorded for Joe to confirm.
 
 ## [#12](https://github.com/joestables/lifeos/pull/12) — Stage 2, step 14: Labels as filters, Thoughts ticked off
 

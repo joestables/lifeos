@@ -272,8 +272,10 @@ DateField, TimeField, RepeatField, SubtaskList and AddRow in
   a CardRow with `mail`, the Google account and, muted, "Synced 2 min ago"
   ("Not syncing" when broken); then a CardRow per calendar, its name, "Can't
   edit" muted where I can't, and an `sm` Select of Off, Incoming and (where
-  I can edit it, from plan step 10) Two-way; then, from step 10, "New events
-  go to", a Select of the two-way calendars. Coming back from Google, a
+  I can edit it) Two-way; then, once one is two-way, "New events go to", an
+  `sm` Select of the two-way calendars. The first calendar made two-way is
+  where new Events go until I choose another; if that one stops being
+  two-way, another two-way calendar takes over. Coming back from Google, a
   toast says how it went ("Google Calendar connected"). The Reminders
   Card gains "Events, 30 min before" (a Switch).
 - **Google Calendar isn't syncing** (GCL-006): on Inbox, above the groups,
