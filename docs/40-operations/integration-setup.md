@@ -61,6 +61,14 @@ every device turns notifications on again.
 - Connecting Calendar is a separate OAuth flow run by an Edge Function;
   tokens are kept server-side in Vault.
 
+| Where | Setting | State |
+|---|---|---|
+| Google Cloud project `lifeos` → APIs & Services → Library | **Google Calendar API** enabled | To do (Joe, plan step 8) |
+| … Google Auth Platform → Data Access | Add `.../auth/calendar.calendarlist.readonly` and `.../auth/calendar.events`, beside the sign-in scopes | To do (Joe) |
+| … Google Auth Platform → Audience | Stays **In production** (unverified); nothing to change | Done |
+| … Clients → the existing web client → Authorized redirect URIs | Add `https://nxydbufwuvsacayqoakh.supabase.co/functions/v1/calendar-callback`, exactly, beside the sign-in one | To do (Joe) |
+| Supabase → Edge Functions → Secrets | `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`: the same web client's ID and secret | To do (Joe); Claude never sees the secret |
+
 ## Capture address email (after Stage 9)
 
 An inbound-email service in front of the capture address, chosen when
