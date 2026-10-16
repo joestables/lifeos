@@ -13,6 +13,7 @@ import {
   marksKey,
   type Label,
 } from './labels'
+import { applyPendingLinks, fetchLinks, linksKey, type Link } from './links'
 import { applyPending } from './overlay'
 import type { WriteQueue } from './queue/queue'
 import type { QueueEntry } from './queue/store'
@@ -194,4 +195,11 @@ export function useSeries(queue: WriteQueue): readonly Series[] {
     () => applyPendingSeries(query.data ?? [], entries, items.data ?? []),
     [query.data, entries, items.data],
   )
+}
+
+/** Links between the Items I can see, with unsent ones laid over them (EVT-006). */
+export function useLinks(queue: WriteQueue): readonly Link[] {
+  const entries = useQueueEntries(queue)
+  const query = useQuery({ queryKey: linksKey, queryFn: fetchLinks })
+  return useMemo(() => applyPendingLinks(query.data ?? [], entries), [query.data, entries])
 }

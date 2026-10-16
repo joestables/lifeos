@@ -172,6 +172,22 @@ describe("a result's line", () => {
   })
 })
 
+describe('an Event in Search', () => {
+  it('SRC-001: says when and where it is', () => {
+    const event = item('e', {
+      type: 'event',
+      title: 'Lunch',
+      starts_at: '2026-10-17T12:00:00Z',
+      ends_at: '2026-10-17T14:00:00Z',
+      all_day: false,
+      place: 'The Ivy',
+    })
+    expect(resultLine(event, ['lunch'], [], NOW, 'Europe/London')).toEqual({
+      text: 'Sat 17 Oct 13:00–15:00 · The Ivy',
+    })
+  })
+})
+
 describe('results by Type', () => {
   it('in groups, each where its best result is', () => {
     const groups = byType([

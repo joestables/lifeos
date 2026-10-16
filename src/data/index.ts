@@ -13,6 +13,7 @@ import {
   marksKey,
   type Label,
 } from './labels'
+import { applyPendingLinks, linksKey, type Link } from './links'
 import { queryClient } from './queryClient'
 import { applyPendingReminders, remindersKey, type Reminder } from './reminders'
 import { applyPendingSeries, seriesKey, type Series } from './series'
@@ -91,6 +92,11 @@ const collections: {
       'complete_occurrence',
     ],
     fold: (rows: Reminder[], e: QueueEntry) => applyPendingReminders(rows, [e]),
+  },
+  {
+    key: linksKey,
+    fns: ['link_items', 'unlink_items'],
+    fold: (rows: Link[], e: QueueEntry) => applyPendingLinks(rows, [e]),
   },
   {
     key: subtasksKey,
@@ -180,6 +186,7 @@ export {
   useItem,
   useItems,
   useLabels,
+  useLinks,
   useMarks,
   useOnline,
   useQueueEntries,
@@ -192,6 +199,7 @@ export {
 export { newId } from './ids'
 export { searchItemIds, searchKey } from './search'
 export type { Label } from './labels'
+export type { Link } from './links'
 export { noteAction, reportEvent, startReporting } from './report'
 export type { Reminder, ReminderFields } from './reminders'
 export type { Device } from './devices'

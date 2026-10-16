@@ -29,12 +29,17 @@ export function TaskLinker({
   initialQuery?: string
 }) {
   const [query, setQuery] = useState(initialQuery)
+  const [isOpen, setOpen] = useState(false)
+  const close = () => {
+    setOpen(false)
+    setQuery('')
+  }
   const q = query.trim().toLocaleLowerCase()
   const shown = tasks.filter((t) => t.title.toLocaleLowerCase().includes(q))
   const canCreate = q !== '' && !tasks.some((t) => t.title.toLocaleLowerCase() === q)
   const TaskIcon = TYPE_ICONS.task!
   return (
-    <Popover open={open} onOpenChange={(o) => !o && setQuery('')}>
+    <Popover open={open ?? isOpen} onOpenChange={(o) => (o ? setOpen(true) : close())}>
       <PopoverTrigger render={trigger} />
       <PopoverContent align="start" className="w-80 gap-1.5 p-1.5">
         <div className="relative">
@@ -57,7 +62,10 @@ export function TaskLinker({
             {canCreate && (
               <button
                 type="button"
-                onClick={() => onCreate(query.trim())}
+                onClick={() => {
+                  onCreate(query.trim())
+                  close()
+                }}
                 className="flex h-10 items-center gap-2.5 rounded-sm px-2.5 text-left text-base outline-none hover:bg-accent focus-visible:bg-accent [&>svg]:size-4 [&>svg]:text-muted-foreground"
               >
                 <PlusIcon /> New task "{query.trim()}"
@@ -67,7 +75,10 @@ export function TaskLinker({
               <button
                 key={t.id}
                 type="button"
-                onClick={() => onLink(t.id)}
+                onClick={() => {
+                  onLink(t.id)
+                  close()
+                }}
                 className="flex h-10 items-center gap-2.5 rounded-sm px-2.5 text-left text-base outline-none hover:bg-accent focus-visible:bg-accent"
               >
                 <TypeTile colour="blue" icon={TaskIcon} size="sm" />

@@ -24,6 +24,7 @@ import { queue, setMark, useItem, useMarks, type Item } from '@/data'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { convertTargets, itemTitle, MARK_LABEL, opensAsPage, typeLook } from '@/lib/item-types'
 import { useConvert } from './convert'
+import { EventDetails, EventTitle } from './event-details'
 import { deleteItem, draftNote, useCloseItem } from './item-navigation'
 import { NoteBody } from './note-body'
 import { ItemReminders } from './item-reminders'
@@ -132,8 +133,10 @@ export function ItemPopup({ id, isNew = false }: { id: string | undefined; isNew
       titleField={
         item.type === 'note' ? (
           <NoteBody key={item.id} item={item} draft={draft} />
+        ) : item.type === 'task' ? (
+          <TaskTitle key={item.id} item={item} />
         ) : (
-          item.type === 'task' && <TaskTitle key={item.id} item={item} />
+          item.type === 'event' && <EventTitle key={item.id} item={item} />
         )
       }
       actions={
@@ -150,6 +153,8 @@ export function ItemPopup({ id, isNew = false }: { id: string | undefined; isNew
     >
       {item.type === 'task' ? (
         <TaskDetails key={item.id} item={item} />
+      ) : item.type === 'event' ? (
+        <EventDetails key={item.id} item={item} />
       ) : item.type === 'thought' ? (
         // A Thought: its text, Reminders at a set time (REM-003) and Labels (ITM-005).
         <div className="flex flex-col gap-4">

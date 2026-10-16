@@ -50,7 +50,7 @@ the end.*
 
 **As** Joe, **I want** to put something that's happening on a day, **so
 that** Plan shows it.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified (from Plan's main action; a day's "+" comes with Plan, plan step 7)
 
 Acceptance criteria
 1. Given "New event" (from a day's "+" on Plan, or Plan's main action), then
@@ -68,7 +68,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to change everything about an Event in one place,
 **so that** it stays right when plans change.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified (but for repeat, plan step 6)
 
 Acceptance criteria
 1. Given an Event, when I open it, then I can change its title, times (or
@@ -81,7 +81,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to be reminded before an Event, **so that** I leave
 in time.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified (a real notification on a device is checked by hand)
 
 Acceptance criteria
 1. Given I make an Event at 19:30, then it has a Reminder at 19:00; moving
@@ -115,7 +115,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to turn a Task into an Event or back, **so that**
 "dinner with Sam fri 7pm" ends up as what it really is.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified
 
 Acceptance criteria
 1. Given a Task to do on Friday at 19:00, when I make it an Event, then it
@@ -132,7 +132,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to hang the jobs for an Event on it, **so that** "buy
 a card" is with "Mum's birthday lunch".
-Priority: Should · Status: agreed
+Priority: Should · Status: verified
 
 Acceptance criteria
 1. Given an Event, when I choose "Link a task", then I can find one of my

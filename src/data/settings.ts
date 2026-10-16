@@ -12,6 +12,8 @@ export interface Settings {
   taskReminders: boolean
   /** Whether a dated Thought reminds me. */
   thoughtReminders: boolean
+  /** Whether an Event I make reminds me 30 minutes before (EVT-003). */
+  eventReminders: boolean
   digestOn: boolean
   /** "07:00" */
   digestTime: string
@@ -23,6 +25,7 @@ export const DEFAULT_SETTINGS: Settings = {
   defaultReminderTime: '09:00',
   taskReminders: true,
   thoughtReminders: true,
+  eventReminders: true,
   digestOn: true,
   digestTime: '07:00',
 }
@@ -50,6 +53,7 @@ export async function fetchSettings(): Promise<Settings> {
     defaultReminderTime: me.default_reminder_time.slice(0, 5),
     taskReminders: defaults.task !== false,
     thoughtReminders: defaults.thought !== false,
+    eventReminders: defaults.event !== false,
     digestOn: me.digest_on,
     digestTime: me.digest_time.slice(0, 5),
   }
@@ -67,6 +71,9 @@ export function applyPendingSettings(settings: Settings, entries: readonly Queue
       ...(p.reminder_defaults?.task !== undefined && { taskReminders: p.reminder_defaults.task }),
       ...(p.reminder_defaults?.thought !== undefined && {
         thoughtReminders: p.reminder_defaults.thought,
+      }),
+      ...(p.reminder_defaults?.event !== undefined && {
+        eventReminders: p.reminder_defaults.event,
       }),
       ...(p.digest_on !== undefined && { digestOn: p.digest_on }),
       ...(p.digest_time && { digestTime: p.digest_time.slice(0, 5) }),

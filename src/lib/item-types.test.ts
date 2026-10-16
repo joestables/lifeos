@@ -3,9 +3,10 @@ import { convertTargets, itemTitle, opensAsPage, typeLook } from './item-types'
 
 describe('Types in the app', () => {
   it('ITM-004: offers only conversions into Types the app has yet', () => {
-    expect(convertTargets('thought').map((t) => t.key)).toEqual(['note', 'task'])
-    expect(convertTargets('note').map((t) => t.key)).toEqual(['task'])
-    expect(convertTargets('task')).toEqual([])
+    expect(convertTargets('thought').map((t) => t.key)).toEqual(['event', 'note', 'task'])
+    expect(convertTargets('note').map((t) => t.key)).toEqual(['event', 'task'])
+    expect(convertTargets('task').map((t) => t.key)).toEqual(['event'])
+    expect(convertTargets('event').map((t) => t.key)).toEqual(['task'])
   })
 
   it('ITM-001: a Task opens in a popup everywhere; a Note on its own page on a phone', () => {

@@ -134,8 +134,10 @@ function ThoughtRow({
 }) {
   const open = useOpenItem()
   const convert = useConvert()
-  // Task first: the one a swipe does.
+  // Task first: the one a swipe does. Task and Note are one action each;
+  // any other Type is in the menu (INB-002).
   const targets = convertTargets('thought').slice().reverse()
+  const quick = targets.filter((t) => t.key === 'task' || t.key === 'note')
   const meta = [capturedWhen(thought.created_at, now)]
   if (reminder) meta.push(reminderWhen(reminder, now))
   meta.push(...labels)
@@ -161,7 +163,7 @@ function ThoughtRow({
         meta={meta}
         sync={thought.sync}
         onOpen={() => open(thought)}
-        actions={targets.map((t) => (
+        actions={quick.map((t) => (
           <Button key={t.key} variant="outline" size="sm" onClick={() => convert(thought, t.key)}>
             <t.icon data-colour={t.colour} className="text-tc-text" /> {t.label}
           </Button>

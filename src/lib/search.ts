@@ -1,4 +1,5 @@
 import type { Item } from '@/data'
+import { eventTimes, eventWhen } from './events'
 import { capturedWhen, dateName, doneWhen, dueWhen, isoDayOf } from './dates'
 import { plainLine } from './markdown-preview'
 
@@ -118,6 +119,7 @@ export function resultLine(
   words: readonly string[],
   labels: readonly string[],
   now: Date = new Date(),
+  timezone: string = 'Europe/London',
 ): ResultLine | undefined {
   const lines = bodyLines(item.body)
   // An untitled Item's first line is its title.
@@ -138,6 +140,12 @@ export function resultLine(
     if (item.due_on) return { text: dueWhen(item.due_on, now) }
     if (item.status === 'idea') return { text: 'Someday' }
     return undefined
+  }
+  if (item.type === 'event') {
+    const t = eventTimes(item, timezone)
+    const when = t && eventWhen(t)
+    const text = [when, item.place?.trim()].filter(Boolean).join(' · ')
+    return text ? { text } : undefined
   }
   if (item.type === 'thought') return { text: capturedWhen(item.created_at, now) }
   return rest[0] ? { text: rest[0] } : undefined

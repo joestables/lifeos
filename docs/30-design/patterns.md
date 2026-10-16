@@ -129,7 +129,9 @@ used the same way on every screen.
   (star, pin), its "…" menu (Convert to, Delete) and Close; it opens with
   the Dialog itself focused, not its first control.
 - **Convert to** lists only the Types this Type converts into that the app
-  has yet; a toast says what it became ("Converted into a Task"), with Undo.
+  has yet; a toast says what it became ("Converted into a Task", "Converted
+  into an Event"), with Undo. A Thought's row offers Task and Note as its
+  own buttons; Event is in its "…" menu.
 - **Delete** closes the Item and says so in a toast with Undo ("Deleted
   "Renew insurance""); the Item waits in Recently deleted.
 
@@ -170,7 +172,8 @@ Command in [components](components.md). Neutral, as it mixes Types.
   small TypeTile, its title and one muted line, the words matched in bold.
 - The line: the line of its body the search found; else its Labels, if they
   matched; else a Task's day and time, its due date (red once passed),
-  "Completed Sun 4 Oct" or "Someday", or when a Thought was captured.
+  "Completed Sun 4 Oct" or "Someday"; an Event's day and times and its place
+  ("Sat 17 Oct 13:00–15:00 · The Ivy"); or when a Thought was captured.
 - The arrow keys move the highlight; Enter or a tap opens the Item where its
   Type opens ([Opening an Item](#opening-an-item)), closing the Dialog.
 - Nothing matching: "Nothing found". Offline, or with the server out of

@@ -158,6 +158,13 @@ export function RemindersCard() {
           onCheckedChange={(on) => updateSettings({ reminder_defaults: { thought: on } })}
         />
       </CardRow>
+      <CardRow label="Events, 30 min before">
+        <Switch
+          aria-label="Remind me 30 minutes before events"
+          checked={settings.eventReminders}
+          onCheckedChange={(on) => updateSettings({ reminder_defaults: { event: on } })}
+        />
+      </CardRow>
       <CardRow label="Morning digest">
         <Switch
           aria-label="Morning digest"

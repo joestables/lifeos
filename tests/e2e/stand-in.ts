@@ -23,12 +23,14 @@ export interface Rows {
   push_devices?: Record<string, unknown>[]
   subtasks?: { id: string; item_id: string; title: string; done: boolean; position: string }[]
   series?: Record<string, unknown>[]
+  links?: { from_item: string; to_item: string; link_type: string }[]
 }
 
 /** An Item row with everything but what a test names. */
 export const itemRow = (fields: Record<string, unknown> & { id: string; type: string }) => ({
   title: '',
   body: null,
+  place: null,
   space_id: 's',
   owner_id: ANN.id,
   status: 'active',
@@ -97,6 +99,7 @@ export async function standIn(
     })),
     subtasks: [...(rows.subtasks ?? [])],
     series: [...(rows.series ?? [])],
+    links: [...(rows.links ?? [])],
   }
   const item = (id: unknown) => db.items.find((i) => i.id === id)
   const now = () => new Date().toISOString()
@@ -331,6 +334,21 @@ export async function standIn(
         .sort((x, y) => score(y) - score(x))
         .slice(0, Number(a.p_limit ?? 30))
         .map((i) => ({ id: i.id }))
+    },
+    link_items: (a) => {
+      const same = (l: { from_item: string; to_item: string; link_type: string }) =>
+        l.from_item === a.p_from && l.to_item === a.p_to && l.link_type === a.p_link_type
+      if (!db.links.some(same))
+        db.links.push({
+          from_item: String(a.p_from),
+          to_item: String(a.p_to),
+          link_type: String(a.p_link_type),
+        })
+    },
+    unlink_items: (a) => {
+      db.links = db.links.filter(
+        (l) => !(l.from_item === a.p_from && l.to_item === a.p_to && l.link_type === a.p_link_type),
+      )
     },
     set_mark: (a) => {
       db.marks = db.marks.filter((m) => m.item_id !== a.p_item)

@@ -44,6 +44,14 @@ Branch `claude/kind-babbage-p00wl4` · 2026-10-14
   `stage3_convert` (Task ↔ Event mapping times), which the connector holds
   for a confirmation that never reaches the session (it contains a
   `DELETE`), was run by Joe in the SQL editor, checked and recorded.
+- Step 5, Events in the app: the Event popup and "New event" (from Plan's
+  main action until Plan is built), times kept as dates when all day, an
+  end before the start refused; place, notes, Labels; Reminders before an
+  Event starts or on its day at a time, its notification saying when and
+  where (two small migrations), and the Event default in Settings; the
+  Task ↔ Event switch, and a Thought sorted into an Event; Events in
+  Search; Tasks *for* an Event, linked or made there, shown on the Task.
+  The design spec gains EventTimesField and the Event's Reminder choices.
 
 ## [#12](https://github.com/joestables/lifeos/pull/12) — Stage 2, step 14: Labels as filters, Thoughts ticked off
 

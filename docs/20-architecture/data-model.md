@@ -83,8 +83,9 @@ core.series    type, space, owner, the repeat rule (an RRULE), mode
                offset, an Event's start time and length, or all day and its
                number of days), generated_until, ended_on
 core.links     from_item, to_item, link_type, origin (manual|action|integration) …
-core.reminders item_id, person, anchor (starts_at|do_on|due_on) + offset and
-               time, or a fixed time; the default time it was made with;
+core.reminders item_id, person, anchor (starts_at|do_on|due_on) + days
+               and a time, or minutes before an Event's start
+               (offset_minutes), or a fixed time; the default time it was made with;
                is_default; snoozed_until; fires_at (calculated)
 core.activity  item_id, verb, changed (jsonb), at, actor — written by triggers
 ```

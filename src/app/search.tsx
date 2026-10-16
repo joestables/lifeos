@@ -2,7 +2,7 @@ import { CloudOffIcon } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { TypeTile } from '@/components/lifeos'
 import { Command, CommandDialog, type CommandGroup } from '@/components/ui/command'
-import { queue, useLabels, type Item } from '@/data'
+import { queue, useLabels, useSettings, type Item } from '@/data'
 import { itemTitle, typeLook } from '@/lib/item-types'
 import { byType, markMatches, resultLine, type Marked } from '@/lib/search'
 import { OpenSearch } from './open-search'
@@ -15,6 +15,7 @@ const bold = (parts: Marked[]) =>
 /** Command's groups for a search's results: by Type, each with its tile and line. */
 function useResultGroups(results: Item[], words: string[]): CommandGroup[] {
   const { labels, itemLabels } = useLabels(queue)
+  const { timezone } = useSettings(queue)
   return useMemo(() => {
     const now = new Date()
     const names = new Map(labels.map((l) => [l.id, l.name]))
@@ -30,7 +31,7 @@ function useResultGroups(results: Item[], words: string[]): CommandGroup[] {
         label: `${look.label}s`,
         items: items.map((item) => {
           const title = itemTitle(item)
-          const line = resultLine(item, words, labelsOf(item.id), now)
+          const line = resultLine(item, words, labelsOf(item.id), now, timezone)
           return {
             id: item.id,
             label: title,
@@ -45,7 +46,7 @@ function useResultGroups(results: Item[], words: string[]): CommandGroup[] {
         }),
       }
     })
-  }, [results, words, labels, itemLabels])
+  }, [results, words, labels, itemLabels, timezone])
 }
 
 /**

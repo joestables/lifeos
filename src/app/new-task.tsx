@@ -1,31 +1,24 @@
 import { useRef, useState } from 'react'
-import {
-  ItemDialog,
-  ReminderDialog,
-  ReminderList,
-  type ReminderChoice,
-  type Repeat,
-} from '@/components/lifeos'
+import { ItemDialog, type ReminderChoice, type Repeat } from '@/components/lifeos'
 import { Button } from '@/components/ui/button'
 import { toast } from '@/components/ui/sonner'
 import {
-  addLabel,
   addReminder,
   addSubtask,
   archiveItem,
   createItem,
-  createLabel,
   newId,
   queue,
   updateSubtask,
-  useLabels,
   useSettings,
   type ItemFields,
 } from '@/data'
-import { isoDayOf, reminderWhen } from '@/lib/dates'
+import { isoDayOf } from '@/lib/dates'
 import { typeLook } from '@/lib/item-types'
-import { choiceFiresAt, reminderFields, reminderSays } from '@/lib/reminders'
+import { reminderFields } from '@/lib/reminders'
 import { draftItem } from './item-navigation'
+import { useDraftLabels } from './draft-labels'
+import { DraftReminders, type DraftReminder } from './draft-reminders'
 import { repeatTask } from './repeat'
 import { TaskFields, type TaskDates } from './task-details'
 
@@ -45,7 +38,7 @@ export function NewTaskDialog({
   labelIds?: readonly string[]
 }) {
   const settings = useSettings(queue)
-  const { labels } = useLabels(queue)
+  const draftLabels = useDraftLabels(labelIds)
   const titleRef = useRef<HTMLInputElement>(null)
   const [title, setTitle] = useState('')
   const [notes, setNotes] = useState('')
@@ -56,11 +49,7 @@ export function NewTaskDialog({
     status: 'active',
   })
   const [repeat, setRepeat] = useState<Repeat | null>(null)
-  const [reminders, setReminders] = useState<{ id: string; choice: ReminderChoice }[]>([])
-  const [editing, setEditing] = useState<{ id?: string; choice: ReminderChoice } | null>(null)
-  // Labels named here are made only on Save.
-  const [newLabels, setNewLabels] = useState<{ id: string; name: string }[]>([])
-  const [chosen, setChosen] = useState<ReadonlySet<string>>(() => new Set(labelIds))
+  const [reminders, setReminders] = useState<DraftReminder[]>([])
   const [subtasks, setSubtasks] = useState<{ id: string; title: string; done: boolean }[]>([])
 
   const dirty =
@@ -75,7 +64,6 @@ export function NewTaskDialog({
     ...(dates.do_on ? (['do_on'] as const) : []),
     ...(dates.due_on ? (['due_on'] as const) : []),
   ]
-  const allLabels = [...labels, ...newLabels].sort((a, b) => a.name.localeCompare(b.name))
 
   const save = () => {
     if (!title.trim()) return titleRef.current?.focus()
@@ -83,17 +71,17 @@ export function NewTaskDialog({
     if (dates.do_at) fields.do_at = dates.do_at
     if (notes.trim()) fields.body = notes
     const id = createItem('task', fields)
-    const labelIds = [...chosen].map((l) => {
-      const made = newLabels.find((n) => n.id === l)
-      return made ? createLabel(made.name) : l
-    })
-    for (const l of labelIds) addLabel(id, l)
+    const labelIds = draftLabels.save(id)
     for (const s of subtasks) {
       const sid = addSubtask(id, s.title)
       if (s.done) updateSubtask(id, sid, { done: true })
     }
     // A Reminder on a date the Task hasn't got is left out.
-    const kept = reminders.filter((r) => r.choice.kind === 'fixed' || dates[r.choice.kind])
+    const kept = reminders.filter(
+      (r) =>
+        r.choice.kind === 'fixed' ||
+        ((r.choice.kind === 'do_on' || r.choice.kind === 'due_on') && dates[r.choice.kind]),
+    )
     for (const r of kept) addReminder(id, reminderFields(r.choice, settings.timezone))
     if (repeat) {
       const anchored = kept
@@ -172,65 +160,18 @@ export function NewTaskDialog({
         onRepeat={setRepeat}
         startsOn={dates.do_on && dates.do_on > today ? dates.do_on : today}
         reminders={
-          <>
-            <ReminderList
-              reminders={reminders.map((r) => {
-                const at = choiceFiresAt(r.choice, dates, settings.timezone)
-                const f = reminderFields(r.choice, settings.timezone)
-                return {
-                  id: r.id,
-                  when: at && reminderWhen(at),
-                  says: reminderSays({
-                    ...f,
-                    anchor: f.anchor ?? null,
-                    offset_days: f.offset_days ?? 0,
-                    fixed_at: f.fixed_at ?? null,
-                    snoozed_until: null,
-                  }),
-                }
-              })}
-              onOpen={(id) => {
-                const r = reminders.find((x) => x.id === id)
-                if (r) setEditing({ id, choice: r.choice })
-              }}
-              onRemove={(id) => setReminders((rs) => rs.filter((r) => r.id !== id))}
-              onAdd={() => setEditing({ choice: fresh })}
-            />
-            {editing && (
-              <ReminderDialog
-                value={editing.choice}
-                anchors={anchors}
-                onSave={(choice) => {
-                  setReminders((rs) =>
-                    editing.id
-                      ? rs.map((r) => (r.id === editing.id ? { ...r, choice } : r))
-                      : [...rs, { id: newId(), choice }],
-                  )
-                  setEditing(null)
-                }}
-                onClose={() => setEditing(null)}
-              />
-            )}
-          </>
+          <DraftReminders
+            reminders={reminders}
+            onChange={setReminders}
+            anchors={anchors}
+            dates={dates}
+            fresh={fresh}
+          />
         }
-        labels={allLabels}
-        chosen={chosen}
-        onToggleLabel={(id, on) =>
-          setChosen((c) => {
-            const next = new Set(c)
-            if (on) next.add(id)
-            else next.delete(id)
-            return next
-          })
-        }
-        onCreateLabel={(name) => {
-          const existing = allLabels.find(
-            (l) => l.name.trim().toLocaleLowerCase() === name.trim().toLocaleLowerCase(),
-          )
-          const id = existing?.id ?? newId()
-          if (!existing) setNewLabels((n) => [...n, { id, name: name.trim() }])
-          setChosen((c) => new Set([...c, id]))
-        }}
+        labels={draftLabels.labels}
+        chosen={draftLabels.chosen}
+        onToggleLabel={draftLabels.toggle}
+        onCreateLabel={draftLabels.create}
         subtasks={subtasks}
         onAddSubtask={(t) => setSubtasks((s) => [...s, { id: newId(), title: t, done: false }])}
         onToggleSubtask={(id, done) =>
