@@ -80,3 +80,12 @@ describe('whether a Task still repeats', () => {
     expect(stillRepeats(item, undefined)).toBe(false)
   })
 })
+
+describe('a repeating Event is found once (SRC-001)', () => {
+  const event = (id: string, on: string) => occ(id, on, { type: 'event', do_on: null })
+  it('as its next occurrence from today, else its last', () => {
+    const weeks = [event('a', '2026-10-07'), event('b', '2026-10-14'), event('c', '2026-10-21')]
+    expect(ids(currentOccurrences(weeks, TUE))).toEqual(['b'])
+    expect(ids(currentOccurrences(weeks, '2026-10-30'))).toEqual(['c'])
+  })
+})

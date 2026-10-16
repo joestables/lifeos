@@ -88,14 +88,16 @@ function initial(value: Repeat | null, startsOn: string) {
 }
 
 /**
- * A Task's repeat (components.md): looks like a Select, says the repeat in
- * words ("Every Monday") or "None", and opens the Repeat dialog.
+ * A Task's or an Event's repeat (components.md): looks like a Select, says
+ * the repeat in words ("Every Monday") or "None", and opens the Repeat
+ * dialog. An Event repeats on a schedule only (EVT-004), so it isn't asked.
  */
 export function RepeatField({
   id,
   value,
   startsOn,
   describeFrom = startsOn,
+  scheduleOnly = false,
   onChange,
 }: {
   id?: string
@@ -104,6 +106,8 @@ export function RepeatField({
   startsOn: string
   /** The day the current repeat started, for saying it. */
   describeFrom?: string
+  /** On a schedule only: an Event's. */
+  scheduleOnly?: boolean
   /** A repeat, or null to stop repeating. */
   onChange: (repeat: Repeat | null) => void
 }) {
@@ -128,6 +132,7 @@ export function RepeatField({
         <RepeatDialog
           value={value}
           startsOn={startsOn}
+          scheduleOnly={scheduleOnly}
           onClose={() => setOpen(false)}
           onSave={(repeat) => {
             onChange(repeat)
@@ -160,11 +165,13 @@ function Row({
 function RepeatDialog({
   value,
   startsOn,
+  scheduleOnly,
   onClose,
   onSave,
 }: {
   value: Repeat | null
   startsOn: string
+  scheduleOnly: boolean
   onClose: () => void
   onSave: (repeat: Repeat | null) => void
 }) {
@@ -232,19 +239,21 @@ function RepeatDialog({
             if (valid) save()
           }}
         >
-          <RadioGroup
-            aria-label="Repeats"
-            value={s.mode}
-            onValueChange={(mode) => set({ mode: mode as RepeatMode })}
-            className="gap-2.5 sm:grid-cols-2"
-          >
-            <RadioCard value="schedule" title="On a schedule" description="On set days" />
-            <RadioCard
-              value="after_completion"
-              title="After it's done"
-              description="A while after you tick it"
-            />
-          </RadioGroup>
+          {!scheduleOnly && (
+            <RadioGroup
+              aria-label="Repeats"
+              value={s.mode}
+              onValueChange={(mode) => set({ mode: mode as RepeatMode })}
+              className="gap-2.5 sm:grid-cols-2"
+            >
+              <RadioCard value="schedule" title="On a schedule" description="On set days" />
+              <RadioCard
+                value="after_completion"
+                title="After it's done"
+                description="A while after you tick it"
+              />
+            </RadioGroup>
+          )}
 
           <Row label={schedule ? 'Every' : 'Comes back after'} htmlFor={`${ids}-every`}>
             <div className="grid grid-cols-3 gap-2.5">

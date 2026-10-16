@@ -2,7 +2,7 @@ import type { Database } from './database.types'
 import type { QueueEntry } from './queue/store'
 import { supabase } from './supabase'
 
-/** A repeat rule that makes occurrences (ADR-0022): each repeating Task's. */
+/** A repeat rule that makes occurrences (ADR-0022): each repeating Task's or Event's. */
 export type Series = Pick<
   Database['core']['Tables']['series']['Row'],
   'id' | 'mode' | 'rule' | 'starts_on' | 'timezone' | 'ended_on'
@@ -14,11 +14,23 @@ export type RepeatMode = 'schedule' | 'after_completion'
 export type SeriesTemplate = {
   title: string
   body?: string | null
+  /** A Task's. */
   do_at?: string | null
   due_offset_days?: number | null
+  /** An Event's (EVT-004): its place, start time in the series' timezone and length, or all day for some days. */
+  place?: string | null
+  start_time?: string | null
+  duration_minutes?: number | null
+  all_day?: boolean
+  days?: number | null
   label_ids?: string[]
-  /** The Task's own Reminders on its dates, made for each occurrence (REM-002 4). */
-  reminders?: { anchor: string; offset_days: number; at_time: string | null }[]
+  /** Its own Reminders on its dates, made for each occurrence (REM-002 4). */
+  reminders?: {
+    anchor: string
+    offset_days: number
+    at_time: string | null
+    offset_minutes?: number
+  }[]
 }
 
 /** The arguments of core.set_repeat, worked out on the device (ADR-0045). */
@@ -30,7 +42,7 @@ export type RepeatArgs = {
   p_starts_on: string
   p_timezone: string
   p_template: SeriesTemplate
-  /** The Task itself first, then the rest of the window. */
+  /** The Item itself first, then the rest of the window. */
   p_occurrences: { id: string; on: string }[]
   p_until: string
 }

@@ -13,6 +13,7 @@ import {
   type Item,
   type Series,
 } from '@/data'
+import { eventTimes } from '@/lib/events'
 import { itemTitle } from '@/lib/item-types'
 import { stillRepeats } from '@/lib/series'
 
@@ -22,7 +23,7 @@ export function useSeriesById(): ReadonlyMap<string, Series> {
   return useMemo(() => new Map(series.map((s) => [s.id, s])), [series])
 }
 
-/** A Task's repeat, while it still repeats. */
+/** A Task's or an Event's repeat, while it still repeats. */
 export function repeatOf(item: Item, series: ReadonlyMap<string, Series>): Repeat | null {
   const s = item.series_id ? series.get(item.series_id) : undefined
   return s && stillRepeats(item, s) ? { mode: s.mode as Repeat['mode'], rule: s.rule } : null
@@ -76,6 +77,75 @@ export function repeatTask(
       body: item.body,
       do_at: item.do_at,
       due_offset_days: item.due_on ? daysBetween(anchor, item.due_on) : null,
+      label_ids: labelIds,
+      reminders,
+    },
+    p_occurrences: window.days.map((on, i) => ({ id: i === 0 ? item.id : newId(), on })),
+    p_until: window.until,
+  })
+  return true
+}
+
+/**
+ * The day an Event's repeat starts from: its start day, never before today,
+ * so a new repeat doesn't fill the past.
+ */
+export function eventRepeatStart(item: Item, timezone: string, today: string): string {
+  const t = eventTimes(item, timezone)
+  return t && t.startDay > today ? t.startDay : today
+}
+
+/**
+ * Makes an Event repeat on a schedule, or changes its repeat from it on
+ * (EVT-004): each occurrence at its start time in my timezone and for its
+ * length, or all day for its days; with its place, Labels and own
+ * Reminders. The Event becomes the first occurrence. False when the repeat
+ * would make nothing.
+ */
+export function repeatEvent(
+  item: Item,
+  repeat: Repeat,
+  {
+    labelIds,
+    timezone,
+    reminders = [],
+  }: {
+    labelIds: string[]
+    timezone: string
+    reminders?: {
+      anchor: string
+      offset_days: number
+      at_time: string | null
+      offset_minutes: number
+    }[]
+  },
+): boolean {
+  const t = eventTimes(item, timezone)
+  if (!t) return false
+  const today = todayIn(timezone)
+  const startsOn = eventRepeatStart(item, timezone, today)
+  const first = nextOccurrence(repeat.rule, startsOn, startsOn, true)
+  if (!first) return false
+  const window = windowOf(repeat.rule, startsOn, null, today)
+  const minutes =
+    item.starts_at && item.ends_at
+      ? Math.round((Date.parse(item.ends_at) - Date.parse(item.starts_at)) / 60_000)
+      : 60
+  setRepeat({
+    p_item: item.id,
+    p_series: newId(),
+    p_mode: 'schedule',
+    p_rule: repeat.rule,
+    p_starts_on: startsOn,
+    p_timezone: timezone,
+    p_template: {
+      title: item.title,
+      body: item.body,
+      place: item.place,
+      start_time: t.allDay ? null : t.startTime,
+      duration_minutes: t.allDay ? null : minutes,
+      all_day: t.allDay,
+      days: t.allDay ? daysBetween(t.startDay, t.endDay) + 1 : null,
       label_ids: labelIds,
       reminders,
     },

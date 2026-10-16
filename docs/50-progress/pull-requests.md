@@ -52,6 +52,11 @@ Branch `claude/kind-babbage-p00wl4` · 2026-10-14
   Task ↔ Event switch, and a Thought sorted into an Event; Events in
   Search; Tasks *for* an Event, linked or made there, shown on the Task.
   The design spec gains EventTimesField and the Event's Reminder choices.
+- Step 6, repeating Events: Repeat on an Event (on a schedule only), each
+  occurrence at its time in London either side of the clocks changing,
+  shown at once offline; one occurrence changed alone, or the repeat
+  stopped from one on; a repeating Event found once in Search. Undoing a
+  new repeating Task or Event now takes its repeat with it.
 
 ## [#12](https://github.com/joestables/lifeos/pull/12) — Stage 2, step 14: Labels as filters, Thoughts ticked off
 

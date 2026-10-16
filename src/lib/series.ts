@@ -9,7 +9,9 @@ const made = (i: Item) => i.occurrence_on ?? i.do_on ?? ''
  * A repeating Task shows its next open occurrence only (TSK-008, ADR-0022).
  * An untouched one overtaken by a newer occurrence that has come due is
  * skipped (TSK-010): the nightly run closes it, and until then it is hidden
- * here. One I changed stays open, and shows until it is done.
+ * here. One I changed stays open, and shows until it is done. A repeating
+ * Event, which nobody ticks off, shows its next one from today, else its
+ * last (SRC-001; Plan shows every occurrence).
  */
 export function currentOccurrences<T extends Item>(items: readonly T[], today: string): T[] {
   const bySeries = new Map<string, T[]>()
@@ -23,9 +25,13 @@ export function currentOccurrences<T extends Item>(items: readonly T[], today: s
       .filter((o) => o.do_on !== null && o.do_on <= today)
       .reduce<string | null>((max, o) => (max && max > made(o) ? max : made(o)), null)
     const skipped = (o: T) => o.touched_at === null && latestDue !== null && made(o) < latestDue
-    const next = occurrences
+    const open = occurrences
       .filter((o) => isOpen(o) && !skipped(o))
-      .sort((a, b) => when(a).localeCompare(when(b)) || made(a).localeCompare(made(b)))[0]
+      .sort((a, b) => when(a).localeCompare(when(b)) || made(a).localeCompare(made(b)))
+    const next =
+      occurrences[0]?.type === 'event'
+        ? (open.find((o) => made(o) >= today) ?? open[open.length - 1])
+        : open[0]
     for (const o of occurrences) if (isOpen(o) && o !== next) hidden.add(o.id)
   }
   return items.filter((i) => !hidden.has(i.id))

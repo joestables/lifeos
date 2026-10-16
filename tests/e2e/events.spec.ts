@@ -9,6 +9,7 @@ const DINNER = id(2)
 const CARD = id(3)
 const FLOWERS = id(4)
 const THOUGHT = id(5)
+const FOOTBALL = id(6)
 
 test.use({ timezoneId: 'Europe/London', locale: 'en-GB' })
 
@@ -38,6 +39,15 @@ const rows = () => ({
       title: 'drinks with Alex sat 6pm',
       created_at: '2026-10-16T08:00:00Z',
     }),
+    itemRow({
+      id: FOOTBALL,
+      type: 'event',
+      title: '5-a-side',
+      place: 'Powerleague',
+      starts_at: '2026-10-21T18:00:00Z',
+      ends_at: '2026-10-21T19:00:00Z',
+      all_day: false,
+    }),
   ],
   labels: [{ id: 'l-family', name: 'Family' }],
   links: [{ from_item: CARD, to_item: LUNCH, link_type: 'for' }],
@@ -61,11 +71,11 @@ test('EVT-001: a new Event from Plan, an hour long until I change it, kept only 
   await expect(dialog.getByRole('textbox', { name: 'Ends time' })).toHaveValue('12:00')
   await dialog.getByRole('button', { name: 'Cancel' }).click()
   await expect(dialog).toBeHidden()
-  expect(db.items.filter((i) => i.type === 'event')).toHaveLength(1)
+  expect(db.items.filter((i) => i.type === 'event')).toHaveLength(2)
 
   await newEvent.click()
   dialog = page.getByRole('dialog', { name: 'New event' })
-  await dialog.getByRole('textbox', { name: 'Title' }).fill('5-a-side')
+  await dialog.getByRole('textbox', { name: 'Title' }).fill('Squash')
   await dialog.getByRole('textbox', { name: 'Starts time' }).fill('19:30')
   await expect(dialog.getByRole('textbox', { name: 'Ends time' })).toHaveValue('20:30')
 
@@ -75,14 +85,14 @@ test('EVT-001: a new Event from Plan, an hour long until I change it, kept only 
   await expect(dialog.getByRole('button', { name: 'Save' })).toBeDisabled()
   await dialog.getByRole('textbox', { name: 'Ends time' }).fill('21:00')
 
-  await dialog.getByRole('textbox', { name: 'Place' }).fill('Powerleague')
+  await dialog.getByRole('textbox', { name: 'Place' }).fill('Wimbledon Squash Club')
   await dialog.getByRole('button', { name: 'Save' }).click()
   await expect(page.getByText('Event saved')).toBeVisible()
   await expect
-    .poll(() => db.items.find((i) => i.title === '5-a-side'))
+    .poll(() => db.items.find((i) => i.title === 'Squash'))
     .toMatchObject({
       type: 'event',
-      place: 'Powerleague',
+      place: 'Wimbledon Squash Club',
       starts_at: '2026-10-16T18:30:00.000Z',
       ends_at: '2026-10-16T20:00:00.000Z',
       all_day: false,
@@ -241,4 +251,58 @@ test('REM-007 2: the Event default is turned off in Settings', async ({ page }) 
   await expect(events).toBeChecked()
   await events.click()
   await expect.poll(() => db.people[0]!.reminder_defaults).toEqual({ event: false })
+})
+
+test('EVT-004: a weekly Event at its time either side of the clocks changing; one changed alone; stopped', async ({
+  page,
+}) => {
+  const db = await start(page, `/plan?item=${FOOTBALL}`)
+  const popup = page.getByRole('dialog', { name: '5-a-side' })
+  await popup.getByRole('button', { name: 'Repeat' }).click()
+  const repeat = page.getByRole('dialog', { name: 'Repeat' })
+  // An Event repeats on a schedule only: there is no choice to make.
+  await expect(repeat.getByRole('radio')).toHaveCount(0)
+  await expect(repeat.getByRole('button', { name: 'Wednesday' })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  )
+  await repeat.getByRole('button', { name: 'Save' }).click()
+  await expect(popup.getByRole('button', { name: 'Repeat' })).toHaveText('Every Wednesday')
+
+  const weeks = () =>
+    db.items
+      .filter((i) => i.title === '5-a-side' && !i.archived_at)
+      .sort((a, b) => String(a.starts_at).localeCompare(String(b.starts_at)))
+  // 19:00 London time: BST before Sunday 25 October, GMT after.
+  await expect
+    .poll(() =>
+      weeks()
+        .slice(0, 2)
+        .map((i) => [i.starts_at, i.ends_at, i.place]),
+    )
+    .toEqual([
+      ['2026-10-21T18:00:00.000Z', '2026-10-21T19:00:00.000Z', 'Powerleague'],
+      ['2026-10-28T19:00:00.000Z', '2026-10-28T20:00:00.000Z', 'Powerleague'],
+    ])
+  expect(weeks().length).toBeGreaterThan(8)
+
+  // One occurrence changed is that one alone.
+  const second = String(weeks()[1]!.id)
+  await page.keyboard.press('Escape')
+  await page.goto(`/plan?item=${second}`)
+  const next = page.getByRole('dialog', { name: '5-a-side' })
+  await next.getByRole('textbox', { name: 'Place' }).fill('Goals, Wimbledon')
+  await next.getByRole('textbox', { name: 'Place' }).blur()
+  await expect.poll(() => weeks()[1]!.place).toBe('Goals, Wimbledon')
+  expect(weeks()[2]!.place).toBe('Powerleague')
+
+  // Stopped from this one on: the later ones go, this one stays.
+  await next.getByRole('button', { name: 'Repeat' }).click()
+  await page
+    .getByRole('dialog', { name: 'Repeat' })
+    .getByRole('button', { name: "Don't repeat" })
+    .click()
+  await expect
+    .poll(() => weeks().map((i) => i.starts_at))
+    .toEqual(['2026-10-21T18:00:00.000Z', '2026-10-28T19:00:00.000Z'])
 })

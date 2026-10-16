@@ -1,6 +1,7 @@
 import type { Page } from '@playwright/test'
 import { typeByKey } from '../../packages/ontology/src/index.ts'
 import { addDays } from '../../packages/recurrence/src/index.ts'
+import { zonedInstant } from '../../src/lib/dates.ts'
 
 /** The stand-in Supabase the e2e build points at (npm run build:e2e). */
 export const STAND_IN_URL = 'https://stand-in.supabase.co'
@@ -123,7 +124,30 @@ export async function standIn(
     body?: string | null
     do_at?: string | null
     due_offset_days?: number | null
+    place?: string | null
+    start_time?: string | null
+    duration_minutes?: number | null
+    all_day?: boolean
+    days?: number | null
     label_ids?: string[]
+  }
+  // An Event's times on a day, as core_private.make_occurrences makes them.
+  const eventOn = (s: Record<string, unknown>, on: string) => {
+    const t = s.template as Template
+    if (t.all_day)
+      return {
+        do_on: null,
+        all_day: true,
+        starts_at: `${on}T00:00:00.000Z`,
+        ends_at: `${addDays(on, t.days ?? 1)}T00:00:00.000Z`,
+      }
+    const start = zonedInstant(on, (t.start_time ?? '09:00').slice(0, 5), String(s.timezone))
+    return {
+      do_on: null,
+      all_day: false,
+      starts_at: start,
+      ends_at: new Date(Date.parse(start) + (t.duration_minutes ?? 60) * 60_000).toISOString(),
+    }
   }
   const occurrence = (s: Record<string, unknown>, id: string, on: string) => {
     if (item(id) || db.items.some((i) => i.series_id === s.id && i.occurrence_on === on)) return
@@ -131,12 +155,16 @@ export async function standIn(
     db.items.push(
       itemRow({
         id,
-        type: 'task',
+        type: String(s.type ?? 'task'),
         title: t.title,
         body: t.body ?? null,
-        do_on: on,
-        do_at: t.do_at ?? null,
-        due_on: t.due_offset_days == null ? null : addDays(on, t.due_offset_days),
+        ...(s.type === 'event'
+          ? { place: t.place ?? null, ...eventOn(s, on) }
+          : {
+              do_on: on,
+              do_at: t.do_at ?? null,
+              due_on: t.due_offset_days == null ? null : addDays(on, t.due_offset_days),
+            }),
         series_id: s.id,
         occurrence_on: on,
       }),
@@ -221,6 +249,7 @@ export async function standIn(
       if (i.series_id) endSeries(i.series_id, addDays(String(i.occurrence_on), -1), i.id)
       const s = {
         id: a.p_series,
+        type: i.type,
         mode: a.p_mode,
         rule: a.p_rule,
         starts_on: a.p_starts_on,
@@ -233,9 +262,13 @@ export async function standIn(
       Object.assign(i, {
         series_id: a.p_series,
         occurrence_on: first,
-        do_on: first,
-        do_at: t.do_at ?? null,
-        due_on: t.due_offset_days == null ? null : addDays(first, t.due_offset_days),
+        ...(i.type === 'event'
+          ? eventOn(s, first)
+          : {
+              do_on: first,
+              do_at: t.do_at ?? null,
+              due_on: t.due_offset_days == null ? null : addDays(first, t.due_offset_days),
+            }),
         status: i.status === 'idea' ? 'active' : i.status,
         touched_at: null,
       })

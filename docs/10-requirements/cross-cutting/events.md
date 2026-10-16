@@ -68,7 +68,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to change everything about an Event in one place,
 **so that** it stays right when plans change.
-Priority: Must · Status: verified (but for repeat, plan step 6)
+Priority: Must · Status: verified
 
 Acceptance criteria
 1. Given an Event, when I open it, then I can change its title, times (or
@@ -98,7 +98,7 @@ Acceptance criteria
 
 **As** Joe, **I want** an Event to repeat, **so that** "5-a-side, every
 Wednesday 19:00" is set once.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified
 
 Acceptance criteria
 1. Given an Event, then I can make it repeat with the same choices as a Task

@@ -1,6 +1,14 @@
 import { LinkIcon, UnlinkIcon } from 'lucide-react'
-import { useRef, useState, type ReactNode } from 'react'
-import { EventTimesField, ItemDialog, ItemRow, TypeTile } from '@/components/lifeos'
+import { useId, useRef, useState, type ReactNode } from 'react'
+import { todayIn } from '@lifeos/recurrence'
+import {
+  EventTimesField,
+  ItemDialog,
+  ItemRow,
+  RepeatField,
+  TypeTile,
+  type Repeat,
+} from '@/components/lifeos'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { DropdownMenuItem } from '@/components/ui/dropdown-menu'
@@ -14,10 +22,13 @@ import {
   createItem,
   linkItems,
   queue,
+  stopRepeat,
   unlinkItems,
   updateItem,
   useItems,
+  useLabels,
   useLinks,
+  useReminders,
   useSettings,
   type Item,
   type ItemFields,
@@ -38,9 +49,9 @@ import { freshReminder, reminderAnchors, reminderFields } from '@/lib/reminders'
 import { useDraftLabels } from './draft-labels'
 import { DraftReminders, type DraftReminder } from './draft-reminders'
 import { ItemReminders } from './item-reminders'
-import { useOpenItem } from './item-navigation'
 import { MoreMenu } from './more-menu'
-import { useTickDone } from './repeat'
+import { draftItem, useOpenItem } from './item-navigation'
+import { eventRepeatStart, repeatEvent, repeatOf, useSeriesById, useTickDone } from './repeat'
 import { useKeptText } from './kept-text'
 import { Field, ItemLabels, LabelsField } from './task-details'
 
@@ -100,11 +111,14 @@ function EventFields({
   notes,
   onNotes,
   onNotesBlur,
+  repeat,
   reminders,
   labels,
   tasks,
 }: {
   times: ReactNode
+  /** The RepeatField, given the id its Label names. */
+  repeat: (id: string) => ReactNode
   place: string
   onPlace: (place: string) => void
   onPlaceBlur?: () => void
@@ -115,19 +129,25 @@ function EventFields({
   labels: ReactNode
   tasks?: ReactNode
 }) {
+  const ids = useId()
   return (
     <div className="flex flex-col gap-4">
       {times}
-      <Field label="Place">
-        <Input
-          aria-label="Place"
-          placeholder="None"
-          autoComplete="off"
-          value={place}
-          onChange={(e) => onPlace(e.target.value)}
-          onBlur={onPlaceBlur}
-        />
-      </Field>
+      <div className="grid grid-cols-2 gap-3 max-sm:grid-cols-1">
+        <Field label="Place">
+          <Input
+            aria-label="Place"
+            placeholder="None"
+            autoComplete="off"
+            value={place}
+            onChange={(e) => onPlace(e.target.value)}
+            onBlur={onPlaceBlur}
+          />
+        </Field>
+        <Field label="Repeat" htmlFor={`${ids}-repeat`}>
+          {repeat(`${ids}-repeat`)}
+        </Field>
+      </div>
       <Textarea
         aria-label="Notes"
         placeholder="Notes"
@@ -152,9 +172,38 @@ export function EventDetails({ item }: { item: Item }) {
   const times = useTimes(eventTimes(item, settings.timezone) ?? newEventTimes(today, today), (t) =>
     updateItem(item.id, eventFields(t, settings.timezone)),
   )
+  const { itemLabels } = useLabels(queue)
+  const reminders = useReminders(queue)
+  const series = useSeriesById()
+  // A change to one occurrence is to that one; a new repeat applies from it on (EVT-004 3).
+  const setRepeatTo = (next: Repeat | null) => {
+    if (!next) return stopRepeat(item.id)
+    repeatEvent(item, next, {
+      labelIds: itemLabels.filter((r) => r.item_id === item.id).map((r) => r.label_id),
+      timezone: settings.timezone,
+      reminders: reminders
+        .filter((r) => r.item_id === item.id && r.anchor && !r.is_default)
+        .map((r) => ({
+          anchor: r.anchor!,
+          offset_days: r.offset_days,
+          at_time: r.at_time,
+          offset_minutes: r.offset_minutes,
+        })),
+    })
+  }
   return (
     <EventFields
       times={times.field}
+      repeat={(id) => (
+        <RepeatField
+          id={id}
+          scheduleOnly
+          value={repeatOf(item, series)}
+          startsOn={eventRepeatStart(item, settings.timezone, todayIn(settings.timezone))}
+          describeFrom={series.get(item.series_id ?? '')?.starts_on}
+          onChange={setRepeatTo}
+        />
+      )}
       place={place}
       onPlace={setPlace}
       onPlaceBlur={flushPlace}
@@ -183,6 +232,7 @@ export function NewEventDialog({ day, onClose }: { day: string; onClose: () => v
   const [kept, setKept] = useState(() => newEventTimes(day, today))
   const times = useTimes(kept, setKept)
   const [reminders, setReminders] = useState<DraftReminder[]>([])
+  const [repeat, setRepeat] = useState<Repeat | null>(null)
   const labels = useDraftLabels()
   const stored = eventFields(times.shown, settings.timezone)
   const anchors = reminderAnchors({ type: 'event', do_on: null, due_on: null, ...stored })
@@ -195,10 +245,42 @@ export function NewEventDialog({ day, onClose }: { day: string; onClose: () => v
     if (place.trim()) fields.place = place.trim()
     if (notes.trim()) fields.body = notes
     const id = createItem('event', fields)
-    labels.save(id)
-    for (const r of reminders) addReminder(id, reminderFields(r.choice, settings.timezone))
+    const labelIds = labels.save(id)
+    const own = reminders.map((r) => reminderFields(r.choice, settings.timezone))
+    for (const f of own) addReminder(id, f)
+    if (repeat)
+      repeatEvent(
+        {
+          ...draftItem(id, 'event'),
+          ...fields,
+          body: fields.body ?? null,
+          place: fields.place ?? null,
+        },
+        repeat,
+        {
+          labelIds,
+          timezone: settings.timezone,
+          reminders: own
+            .filter((f) => f.anchor)
+            .map((f) => ({
+              anchor: f.anchor!,
+              offset_days: f.offset_days ?? 0,
+              at_time: f.at_time ?? null,
+              offset_minutes: f.offset_minutes ?? 0,
+            })),
+        },
+      )
     onClose()
-    toast('Event saved', { action: { label: 'Undo', onClick: () => archiveItem(id) } })
+    toast('Event saved', {
+      action: {
+        label: 'Undo',
+        onClick: () => {
+          // A repeat goes with it.
+          if (repeat) stopRepeat(id)
+          archiveItem(id)
+        },
+      },
+    })
   }
 
   return (
@@ -236,6 +318,15 @@ export function NewEventDialog({ day, onClose }: { day: string; onClose: () => v
     >
       <EventFields
         times={times.field}
+        repeat={(id) => (
+          <RepeatField
+            id={id}
+            scheduleOnly
+            value={repeat}
+            startsOn={times.shown.startDay > today ? times.shown.startDay : today}
+            onChange={setRepeat}
+          />
+        )}
         place={place}
         onPlace={setPlace}
         notes={notes}

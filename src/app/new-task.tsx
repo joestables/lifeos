@@ -9,6 +9,7 @@ import {
   createItem,
   newId,
   queue,
+  stopRepeat,
   updateSubtask,
   useSettings,
   type ItemFields,
@@ -107,7 +108,16 @@ export function NewTaskDialog({
       )
     }
     onClose()
-    toast('Task saved', { action: { label: 'Undo', onClick: () => archiveItem(id) } })
+    toast('Task saved', {
+      action: {
+        label: 'Undo',
+        onClick: () => {
+          // A repeat goes with it.
+          if (repeat) stopRepeat(id)
+          archiveItem(id)
+        },
+      },
+    })
   }
 
   const fresh: ReminderChoice = anchors[0]
