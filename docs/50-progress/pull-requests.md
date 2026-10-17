@@ -2,9 +2,9 @@
 
 Newest first. Each entry is added in its own pull request.
 
-## Stage 3: the plan, and Lists moved to Stage 4b
+## [#13](https://github.com/joestables/lifeos/pull/13) — Stage 3: Plan, Events and Google Calendar
 
-Branch `claude/kind-babbage-p00wl4` · 2026-10-14
+Branch `claude/kind-babbage-p00wl4` · 2026-10-14 to 2026-10-17
 
 **What it did**
 - Closed Stage 2 (Joe, 14 October); its nightly smoke walk stays deferred.
