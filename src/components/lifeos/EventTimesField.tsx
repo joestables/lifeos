@@ -49,7 +49,7 @@ export function EventTimesField({
             aria-label={`${label} time`}
             aria-invalid={which === 'end' && endInvalid ? true : undefined}
             value={time}
-            onChange={(e) => e.target.value && set(day, e.target.value)}
+            onChange={(t) => t && set(day, t)}
           />
         )}
       </div>

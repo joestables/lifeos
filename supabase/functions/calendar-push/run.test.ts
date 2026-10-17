@@ -92,9 +92,11 @@ describe('what goes to Google (GCL-005)', () => {
       status: 'confirmed',
       extendedProperties: { private: { lifeosId: 'dinner' } },
     })
-    expect(db.of('calendar_pushed')).toEqual([
+    expect(db.of('calendar_sent')).toEqual([
       {
         p_outbox: 1,
+        p_series_ref: null,
+        p_queued_at: '2026-10-16T10:00:00Z',
         p_refs: [
           {
             item_id: 'dinner',
@@ -246,7 +248,7 @@ describe('what goes to Google (GCL-005)', () => {
       method: 'DELETE',
       path: '/calendars/ann%40gmail.com/events/w_3',
     })
-    expect(db.of('calendar_pushed')[0]).toMatchObject({
+    expect(db.of('calendar_sent')[0]).toMatchObject({
       p_refs: [
         { item_id: 'o1', external_id: 'w_1' },
         { item_id: 'o2', external_id: 'w_2' },
@@ -265,6 +267,83 @@ describe('what goes to Google (GCL-005)', () => {
     expect(googleRule('FREQ=MONTHLY;UNTIL=20270101', null, false)).toBe(
       'RRULE:FREQ=MONTHLY;UNTIL=20270101T235959Z',
     )
+    // In summer the day ends an hour earlier in UTC.
+    expect(googleRule('FREQ=DAILY', '2026-07-01', false, 'Europe/London')).toBe(
+      'RRULE:FREQ=DAILY;UNTIL=20260701T225959Z',
+    )
+  })
+
+  it('ADR-0048: an Event made to repeat replaces its single Google event; a changed first occurrence keeps its day', async () => {
+    const g = fakeGoogle((m, path) =>
+      path.endsWith('/instances')
+        ? {
+            status: 200,
+            body: {
+              items: [
+                { id: 'w_1', originalStartTime: { dateTime: '2026-10-21T19:00:00+01:00' } },
+                { id: 'w_2', originalStartTime: { dateTime: '2026-10-28T19:00:00Z' } },
+              ],
+            },
+          }
+        : m === 'DELETE'
+          ? { status: 204 }
+          : { status: 200, body: { id: 'w', etag: '"1"' } },
+    )
+    const db = database([
+      itemJob(
+        {},
+        {
+          item: null,
+          series: {
+            id: 's1',
+            rule: 'FREQ=WEEKLY;BYDAY=WE;COUNT=2',
+            ended_on: null,
+            template: { title: '5-a-side', start_time: '19:00', duration_minutes: 90 },
+            external_id: null,
+            etag: null,
+            occurrences: [
+              {
+                id: 'o1',
+                on: '2026-10-21',
+                starts_at: '2026-10-21T09:00:00.000Z',
+                ends_at: '2026-10-21T10:00:00.000Z',
+                all_day: false,
+                archived: false,
+                touched: true,
+                external_id: 'g-single',
+              },
+              {
+                id: 'o2',
+                on: '2026-10-28',
+                starts_at: '2026-10-28T19:00:00.000Z',
+                ends_at: null,
+                all_day: false,
+                archived: false,
+                touched: false,
+              },
+            ],
+          },
+        },
+      ),
+    ])
+    await pushAll(db.rpc, g.fetch, CLIENT)
+    expect(g.calls[0]!.body).toMatchObject({
+      start: { dateTime: '2026-10-21T19:00:00', timeZone: 'Europe/London' },
+      end: { dateTime: '2026-10-21T20:30:00', timeZone: 'Europe/London' },
+    })
+    expect(g.calls.map((c) => [c.method, c.path.split('/').at(-1)])).toEqual([
+      ['POST', 'events'],
+      ['GET', 'instances'],
+      ['DELETE', 'g-single'],
+      ['PATCH', 'w_1'],
+    ])
+    expect(db.of('calendar_sent')[0]).toMatchObject({
+      p_refs: [
+        { item_id: 'o1', external_id: 'w' },
+        { item_id: 'o2', external_id: 'w_2' },
+      ],
+      p_queued_at: '2026-10-16T10:00:00Z',
+    })
   })
 
   it('GCL-006: a refused token breaks the connection and holds its jobs', async () => {

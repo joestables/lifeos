@@ -232,8 +232,9 @@ export function TaskFields({
         <Field label="Time" htmlFor={`${ids}-at`}>
           <TimeField
             id={`${ids}-at`}
+            none
             value={dates.do_at?.slice(0, 5) ?? ''}
-            onChange={(e) => setTime(e.target.value)}
+            onChange={setTime}
           />
         </Field>
         <Field label="Due" htmlFor={`${ids}-due`}>

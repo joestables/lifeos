@@ -142,6 +142,7 @@ export function ItemPopup({ id, isNew = false }: { id: string | undefined; isNew
       typeLabel={look.label}
       title={itemTitle(item)}
       wide={item.type === 'note'}
+      standard={item.type === 'task' || item.type === 'event'}
       leading={
         item.type === 'thought' && (
           <Checkbox

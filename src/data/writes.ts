@@ -47,9 +47,17 @@ export function writes(queue: WriteQueue, labelsNow: () => readonly Label[] = ()
     setCalendarLevel(link: string, level: 'off' | 'incoming' | 'two_way'): void {
       queue.enqueue('set_calendar_level', { p_link: link, p_level: level }, [])
     },
-    /** The two-way calendar new Events go to (GCL-002 2). */
-    setNewEventsCalendar(link: string): void {
-      queue.enqueue('set_new_events_calendar', { p_link: link }, [])
+    /** My default calendar: the two-way one new Events go to, or none (GCL-002 2). */
+    setNewEventsCalendar(link: string | null): void {
+      // The generated types don't know an argument may be null.
+      queue.enqueue('set_new_events_calendar', { p_link: link as string }, [])
+    },
+    /**
+     * The calendar a new Event goes to, or none (GCL-005 1): written before
+     * the Event itself, so it is never sent without it.
+     */
+    setEventCalendar(item: string, link: string | null): void {
+      queue.enqueue('set_event_calendar', { p_item: item, p_link: link as string }, [item])
     },
     unlinkItems(from: string, to: string, linkType: string): void {
       queue.enqueue('unlink_items', { p_from: from, p_to: to, p_link_type: linkType }, [from, to])

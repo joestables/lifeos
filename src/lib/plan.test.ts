@@ -150,6 +150,13 @@ describe('what a card says', () => {
     expect(cardLine(away, '2026-10-18', TZ)).toEqual({ time: 'All day', detail: 'Until Tue' })
     expect(cardLine(away, '2026-10-19', TZ)).toEqual({ time: 'All day', detail: undefined })
   })
+  it('one that runs to midnight is all day on its last day, not "Until 00:00"', () => {
+    // Fri 20:00 to Sun 00:00 in London.
+    const party = placeOf(event('party', '2026-10-16T19:00:00Z', '2026-10-17T23:00:00Z'), TZ)!
+    expect(cardLine(party, '2026-10-17', TZ)).toEqual({ time: 'All day', detail: undefined })
+    const late = placeOf(event('late', '2026-10-16T19:00:00Z', '2026-10-17T01:00:00Z'), TZ)!
+    expect(cardLine(late, '2026-10-17', TZ)).toEqual({ time: 'Until 02:00', detail: undefined })
+  })
   it('a Task its time and its due date', () => {
     const t = placeOf(
       item('t', { do_on: '2026-10-14', do_at: '18:00:00', due_on: '2026-10-16' }),

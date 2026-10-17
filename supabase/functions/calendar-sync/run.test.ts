@@ -168,6 +168,18 @@ describe('the sync run (ADR-0047)', () => {
     expect(db.of('calendar_synced')).toEqual([
       { p_link: 'main', p_sync_token: 'sync-1', p_synced_until: '2027-01-08' },
     ])
+    // GCL-003 3: instances a changed repeat no longer has go; a single event has none.
+    expect(db.of('calendar_prune')).toEqual([
+      {
+        p_link: 'main',
+        p_masters: [
+          { master: 'one', keep: [] },
+          { master: 'w', keep: ['w_1', 'w_2'] },
+        ],
+        p_from: '2026-09-18T00:00:00Z',
+        p_until: '2027-01-08T00:00:00Z',
+      },
+    ])
     expect(db.of('calendar_set_calendars')[0]!.p_calendars).toEqual([
       { id: 'ann@gmail.com', name: 'Ann', can_edit: true, primary: true },
     ])

@@ -31,6 +31,8 @@ export interface PushOccurrence {
   all_day: boolean | null
   archived: boolean
   touched: boolean
+  /** Its Google event, if it has one: an instance, or the single event it was. */
+  external_id?: string | null
 }
 
 /** A repeating Event, as calendar-push sends it: one repeating event in Google. */
@@ -97,20 +99,64 @@ export function eventBody(item: PushItem, timezone: string): Record<string, unkn
   }
 }
 
+/** The UTC instant of a wall-clock time on a day in a timezone. */
+export function zonedUtc(day: string, time: string, timezone: string): Date {
+  const guess = Date.parse(`${day}T${time}Z`)
+  const f = new Intl.DateTimeFormat('en-GB', {
+    timeZone: timezone,
+    hourCycle: 'h23',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  })
+  const at = (ms: number) => {
+    const p = Object.fromEntries(f.formatToParts(new Date(ms)).map((x) => [x.type, x.value]))
+    return Date.UTC(+p.year!, +p.month! - 1, +p.day!, +p.hour!, +p.minute!, +p.second!)
+  }
+  // The offset where it lands, checked once more across a clock change.
+  let t = guess - (at(guess) - guess)
+  t = guess - (at(t) - t)
+  return new Date(t)
+}
+
 /**
- * A series' rule as Google takes it: ended where LifeOS ended it, its end in
- * UTC for a timed event, as the iCalendar standard asks.
+ * A series' rule as Google takes it: ended where LifeOS ended it; for a
+ * timed event, at the end of that day in its timezone, written in UTC as
+ * the iCalendar standard asks.
  */
-export function googleRule(rule: string, endedOn: string | null, allDay: boolean): string {
+export function googleRule(
+  rule: string,
+  endedOn: string | null,
+  allDay: boolean,
+  timezone = 'Europe/London',
+): string {
   const parts = rule.split(';').filter((p) => p !== '')
   const ownUntil = parts.find((p) => p.startsWith('UNTIL='))?.slice(6)
   const until = endedOn ? endedOn.replaceAll('-', '') : ownUntil
   const kept = parts.filter((p) => !p.startsWith('UNTIL=') && !(endedOn && p.startsWith('COUNT=')))
-  if (until) kept.push(`UNTIL=${allDay ? until.slice(0, 8) : `${until.slice(0, 8)}T235959Z`}`)
+  if (until) {
+    const d = until.slice(0, 8)
+    const day = `${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6, 8)}`
+    const utc = zonedUtc(day, '23:59:59', timezone)
+      .toISOString()
+      .replace(/[-:]|\.\d{3}/g, '')
+    kept.push(`UNTIL=${allDay ? d : utc}`)
+  }
   return `RRULE:${kept.join(';')}`
 }
 
-/** A LifeOS series as one repeating Google event, from its first live occurrence. */
+/** "HH:MM" plus minutes, on a day: Google's local dateTime ("2026-10-20T20:30:00"). */
+const localPlus = (day: string, time: string, minutes: number) =>
+  new Date(Date.parse(`${day}T${time}:00Z`) + minutes * 60_000).toISOString().slice(0, 19)
+
+/**
+ * A LifeOS series as one repeating Google event, starting on its first
+ * occurrence at the series' own times, so Google's instances fall on
+ * LifeOS's days whatever became of that first one.
+ */
 export function seriesBody(series: PushSeries, timezone: string, first: PushOccurrence) {
   const t = series.template
   const allDay = Boolean(t.all_day)
@@ -119,13 +165,21 @@ export function seriesBody(series: PushSeries, timezone: string, first: PushOccu
         start: { date: first.on },
         end: { date: addDays(first.on, t.days ?? 1) },
       }
-    : googleTimes(first, timezone)
+    : t.start_time
+      ? {
+          start: { dateTime: localPlus(first.on, t.start_time, 0), timeZone: timezone },
+          end: {
+            dateTime: localPlus(first.on, t.start_time, t.duration_minutes ?? 60),
+            timeZone: timezone,
+          },
+        }
+      : googleTimes(first, timezone)
   return {
     summary: t.title ?? '',
     description: t.body ?? '',
     location: t.place ?? '',
     ...times,
-    recurrence: [googleRule(series.rule, series.ended_on, allDay)],
+    recurrence: [googleRule(series.rule, series.ended_on, allDay, timezone)],
     status: 'confirmed',
     extendedProperties: { private: { lifeosSeries: series.id } },
   }
@@ -242,14 +296,12 @@ export async function pushSeries(
   job: PushJob,
 ): Promise<{ refs: Ref[]; seriesRef: Record<string, string | undefined> | null }> {
   const s = job.series!
-  const live = s.occurrences.filter((o) => !o.archived)
-  const first = live[0]
-  if (!first) {
+  const first = s.occurrences[0]
+  if (!s.occurrences.some((o) => !o.archived) || !first) {
     if (s.external_id) await g.remove(job.calendar_id, s.external_id)
     return { refs: [], seriesRef: null }
   }
-  // Its start is that of the first occurrence still as the series made it.
-  const body = seriesBody(s, job.timezone, live.find((o) => !o.touched) ?? first)
+  const body = seriesBody(s, job.timezone, first)
   let master = s.external_id ? await g.patch(job.calendar_id, s.external_id, body) : null
   if (!master || gone(master.status)) master = await g.insert(job.calendar_id, body)
   if (!ok(master.status) || !master.body) throw new Error(`Google series: ${master.status}`)
@@ -270,6 +322,14 @@ export async function pushSeries(
   }
   const byDay = new Map(instances.map((e) => [onOf(e), e]))
   const refs: Ref[] = []
+  // An occurrence that was a single event in Google (the Event made to
+  // repeat): that event goes, its instance takes its place.
+  const masterId = master.body.id
+  for (const o of s.occurrences)
+    if (o.external_id && o.external_id !== masterId && !o.external_id.startsWith(`${masterId}_`)) {
+      const r = await g.remove(job.calendar_id, o.external_id)
+      if (!ok(r.status) && !gone(r.status)) throw new Error(`Google delete: ${r.status}`)
+    }
   for (const o of s.occurrences) {
     const inst = byDay.get(o.on)
     if (!inst) continue
@@ -325,13 +385,19 @@ export async function pushAll(rpc: Rpc, fetch: Fetch, client: { id: string; secr
       try {
         if (job.item) {
           const { refs } = await pushItem(rpc, g, job)
-          await rpc('calendar_pushed', { p_outbox: job.outbox, p_refs: refs })
+          await rpc('calendar_sent', {
+            p_outbox: job.outbox,
+            p_refs: refs,
+            p_series_ref: null,
+            p_queued_at: job.queued_at,
+          })
         } else {
           const { refs, seriesRef } = await pushSeries(g, job)
-          await rpc('calendar_pushed', {
+          await rpc('calendar_sent', {
             p_outbox: job.outbox,
             p_refs: refs,
             p_series_ref: seriesRef,
+            p_queued_at: job.queued_at,
           })
         }
         sent += 1

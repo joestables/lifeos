@@ -16,7 +16,7 @@ server through its write queue, last write winning field by field
 
 - **An outbox on the server.** A trigger on Events (and their series)
   writes a row to `core_private.calendar_outbox` when an Event on a two-way
-  calendar — or a new Event, when I have a calendar marked for new Events —
+  calendar — or a new Event, when I have a default calendar or chose one for it —
   is made, changed in a field Google has, archived or restored. Writes made
   by `calendar-sync` itself set a flag that the trigger skips, so nothing
   echoes back. The minute job wakes `calendar-push` when rows are waiting;
@@ -68,23 +68,38 @@ for Joe to confirm:
   or series, a second change bumping it), filled by triggers on Events and
   series while I have a two-way calendar; `core.calendar_outbox_claim`
   hands `calendar-push` up to 50 jobs, each to the calendar its Event came
-  from or, for a new one, where new Events go; `core.calendar_pushed` and
-  `core.calendar_unpushed` record the outcome, retrying after 1 minute,
-  doubling to 6 hours. A job with nowhere to go is closed. `pg_cron` job
-  `calendar-push` checks every minute and wakes the function only while
-  something waits.
+  from or, for a new one, the calendar chosen as it was made
+  (`core_private.event_calendars`, written just before the Event) or else
+  my default calendar; a repeat made from an Event already in Google goes
+  to that Event's calendar. `core.calendar_sent` and
+  `core.calendar_unpushed` record the outcome; a job is tried again after 5
+  minutes, doubling to 6 hours, and a broken connection's jobs wait a
+  quarter of an hour at a time. A change made while its job was with Google
+  stays waiting and goes next. A job with nowhere to go is closed.
+  `pg_cron` job `calendar-push` checks every minute and wakes the function
+  only while something waits.
 - **A repeating Event's occurrences match Google's instances by their
   original day** (one occurrence a day), kept in `core_private.series_refs`
-  (series ↔ Google's repeating event). Its start is that of its first
-  occurrence still as the series made it; a changed occurrence is sent as
-  that instance's times, a deleted one cancels it. Instances Google makes
-  further ahead than LifeOS has occurrences aren't brought in until LifeOS
-  makes those occurrences; a rule changed in Google isn't yet followed.
+  (series ↔ Google's repeating event). It starts on its first occurrence's
+  day at the series' own times, whatever became of that occurrence; a
+  changed occurrence is sent as that instance's times, a deleted one
+  cancels it, and an Event made to repeat has its single Google event
+  replaced by the series. A timed repeat ends at the end of its last day
+  in my timezone. Instances Google makes further ahead than LifeOS has
+  occurrences aren't brought in until LifeOS makes those occurrences; a
+  rule changed in Google isn't yet followed; a repeat I made, deleted in
+  Google, ends in LifeOS.
 - **Recognising my own Events coming back:** an Event by the private
   extended property `lifeosId`, a series' instances through `series_refs`
   and their day; a copy the sync had already made is archived.
 - **Restoring** an Event sends it again: Google's cancelled event is
-  updated back to confirmed (or made anew if Google has dropped it).
+  updated back to confirmed (or made anew if Google has dropped it); a
+  cancellation older than my waiting change doesn't delete it again.
+- **An Event made in LifeOS stays mine** (`external_refs.made_in_lifeos`):
+  disconnecting, or turning its calendar off or incoming, leaves it on Plan
+  and editable; only Events Google made go. An Event switched into a Task
+  has its Google event deleted and is a Task from then on, whatever Google
+  says of its old event.
 
 ## Consequences
 

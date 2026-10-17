@@ -94,16 +94,19 @@ Edge Functions deployed by Claude through the Supabase MCP, sharing
   connection broken (`core.calendar_broken`, an `ops.events` row, Inbox's
   notice, the health check); the calendar list refreshed; each calendar
   that is on read from its sync token, or from four weeks back (first time,
-  after a 410, and weekly so repeats reach 12 weeks ahead).
+  after a 410, and weekly so repeats reach 12 weeks ahead); then instances
+  a changed repeat no longer has go (`core.calendar_prune`).
 - **`calendar-push`** (two-way, [ADR-0048](../20-architecture/adr/0048-google-calendar-two-way.md);
   `pg_cron` job `calendar-push` every minute, waking it through `pg_net`
   with `calendar_secret` only while `core_private.calendar_outbox` has a
   row due): claims up to 50 jobs (`core.calendar_outbox_claim`), sends
   each Event, or repeating Event as one Google repeating event, to its
-  calendar, and records it (`core.calendar_pushed`, keeping Google's id and
-  `etag`) or the failure (`core.calendar_unpushed`, tried again after 1
-  minute, doubling to 6 hours). A refused token breaks the connection as
-  the sync does, and its jobs wait. It is deployed with `calendar-sync`'s
+  calendar, and records it (`core.calendar_sent`, keeping Google's id and
+  `etag`; a change made meanwhile stays waiting) or the failure
+  (`core.calendar_unpushed`, tried again after 5 minutes, doubling to 6
+  hours). A refused token breaks the connection as the sync does, and its
+  jobs wait, a quarter of an hour at a time. A new Event's chosen calendar
+  is in `core_private.event_calendars`. It is deployed with `calendar-sync`'s
   `run.ts` and `supabase.ts` and `packages/recurrence/src/days.ts`.
 - **Checking it:** `select * from core.connections`;
   `select name, level, new_events, synced_until from core.calendar_links`;

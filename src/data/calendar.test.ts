@@ -19,7 +19,7 @@ const cal = (links: CalendarLink[]): Calendar => ({ connection: null, links, ref
 const shape = (c: Calendar) => c.links.map((l) => [l.id, l.level, l.new_events])
 
 describe('calendar', () => {
-  it('GCL-002 1, 2: a calendar made two-way, then where new Events go, shows at once', () => {
+  it('GCL-002 1, 2: a calendar made two-way, then my default calendar, shows at once', () => {
     const now = applyPendingCalendar(cal([link('ann', 'two_way', true), link('work', 'off')]), [
       entry('set_calendar_level', { p_link: 'work', p_level: 'two_way' }),
       entry('set_new_events_calendar', { p_link: 'work' }),
@@ -30,7 +30,14 @@ describe('calendar', () => {
     ])
   })
 
-  it('GCL-002 2: a calendar that stops being two-way stops being where new Events go', () => {
+  it('GCL-002 2: my default calendar can be None', () => {
+    const now = applyPendingCalendar(cal([link('ann', 'two_way', true)]), [
+      entry('set_new_events_calendar', { p_link: null }),
+    ])
+    expect(shape(now)).toEqual([['ann', 'two_way', false]])
+  })
+
+  it('GCL-002 2: a calendar that stops being two-way stops being my default', () => {
     const now = applyPendingCalendar(cal([link('ann', 'two_way', true)]), [
       entry('set_calendar_level', { p_link: 'ann', p_level: 'incoming' }),
     ])

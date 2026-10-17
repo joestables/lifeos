@@ -67,9 +67,13 @@ describe('Event times', () => {
     expect(endsAfterStart(t)).toBe(true)
   })
 
-  it('a new Event today starts at the next whole hour', () => {
-    const t = newEventTimes('2026-10-16', '2026-10-16', new Date(2026, 9, 16, 14, 20))
+  it('a new Event today starts at the next whole hour on my home clock', () => {
+    const t = newEventTimes('2026-10-16', '2026-10-16', new Date('2026-10-16T13:20:00Z'))
     expect(t).toMatchObject({ startTime: '15:00', endTime: '16:00' })
+    // Late in the evening, the next quarter hour.
+    expect(
+      newEventTimes('2026-10-16', '2026-10-16', new Date('2026-10-16T22:20:00Z')),
+    ).toMatchObject({ startTime: '23:30', endDay: '2026-10-17', endTime: '00:30' })
   })
 
   it('all day keeps its days; off again, it is 09:00 to 10:00', () => {

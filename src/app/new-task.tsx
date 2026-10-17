@@ -138,6 +138,7 @@ export function NewTaskDialog({
       colour={TASK.colour}
       icon={TASK.icon}
       typeLabel="New task"
+      standard
       title="New task"
       keepOnOutsideClick={dirty}
       titleField={

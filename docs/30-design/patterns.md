@@ -124,6 +124,9 @@ used the same way on every screen.
   and Back from an Item's own page returns to the same place on the list.
 - An Item's own page keeps the top bar (menu, brand, Capture), with a back
   link above the title.
+- On a phone, a Task's and an Event's Dialog are one height, 440px
+  ([tokens](tokens.md#sizes)): a Task shows down to its Reminders, an Event
+  to its Place and Repeat, and the rest scrolls inside the Dialog.
 - Changes are kept as they are made; there is no Save in an Item's Dialog.
 - The Dialog's header holds the Type's tile and name, the Item's mark
   (star, pin), its "…" menu (Convert to, Delete) and Close; it opens with
@@ -272,10 +275,10 @@ DateField, TimeField, RepeatField, SubtaskList and AddRow in
   a CardRow with `mail`, the Google account and, muted, "Synced 2 min ago"
   ("Not syncing" when broken); then a CardRow per calendar, its name, "Can't
   edit" muted where I can't, and an `sm` Select of Off, Incoming and (where
-  I can edit it) Two-way; then, once one is two-way, "New events go to", an
-  `sm` Select of the two-way calendars. The first calendar made two-way is
-  where new Events go until I choose another; if that one stops being
-  two-way, another two-way calendar takes over. Coming back from Google, a
+  I can edit it) Two-way; then, once one is two-way, "Default calendar", an
+  `sm` Select of None and the two-way calendars. The first calendar made
+  two-way is the default until I choose; one that stops being two-way stops
+  being it. Coming back from Google, a
   toast says how it went ("Google Calendar connected"). The Reminders
   Card gains "Events, 30 min before" (a Switch).
 - **Google Calendar isn't syncing** (GCL-006): on Inbox, above the groups,

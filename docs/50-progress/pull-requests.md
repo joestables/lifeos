@@ -78,6 +78,16 @@ Branch `claude/kind-babbage-p00wl4` · 2026-10-14
   tests against a stand-in for Google. Settings offers Two-way and "New
   events go to"; an Event from a two-way calendar is editable and
   draggable. ADR-0048's as-built choices recorded for Joe to confirm.
+- Step 11, Joe's first round: "Default calendar" (with None) in place of
+  "New events go to", and a Calendar field on a new Event; a Task's and an
+  Event's popup one height on a phone (440px), scrolling inside; TimeField
+  a Select of quarter hours. Then a bug hunt of Plan and Calendar, its
+  findings fixed: Events made in LifeOS stay on disconnecting; a Task
+  switched from an Event isn't deleted by Google; changes made mid-push
+  aren't lost; Google's older cancellations, changed repeats, deleted
+  repeats and repeats made from Events handled; Plan's midnight ends, a new
+  Event's start time and dragging while loading fixed. Six migrations and
+  four Edge Functions, live; 19 database tests, unit tests and walks.
 
 ## [#12](https://github.com/joestables/lifeos/pull/12) — Stage 2, step 14: Labels as filters, Thoughts ticked off
 

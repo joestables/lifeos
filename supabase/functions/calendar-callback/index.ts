@@ -5,7 +5,7 @@
 // calendars, reads them once, and sends me back to Settings. Deployed by
 // Claude through the Supabase MCP with calendar-sync's files and
 // packages/recurrence's.
-import { accountOf, google, syncAll } from '../calendar-sync/run.ts'
+import { accountOf, allowedReturn, google, syncAll } from '../calendar-sync/run.ts'
 import { client, redirectUri, rpc } from '../calendar-sync/supabase.ts'
 
 const FALLBACK = 'https://lifeos-bice-mu.vercel.app/settings'
@@ -55,5 +55,6 @@ Deno.serve(async (req) => {
     // Connected all the same; the five-minute sync carries on.
     console.error('calendar-callback: first sync', String(e))
   }
-  return back(done.return_to, 'connected')
+  // Only back to the app's own addresses, whatever the state was made with.
+  return back(allowedReturn(done.return_to) ? done.return_to : FALLBACK, 'connected')
 })

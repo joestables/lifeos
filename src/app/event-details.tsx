@@ -39,11 +39,14 @@ import {
   useLinks,
   useReminders,
   googleEventUrl,
+  newId,
+  setEventCalendar,
+  useCalendar,
   useSettings,
   type Item,
   type ItemFields,
 } from '@/data'
-import { dateName, isoDayOf } from '@/lib/dates'
+import { dateName } from '@/lib/dates'
 import {
   endsAfterStart,
   eventFields,
@@ -59,7 +62,8 @@ import { freshReminder, reminderAnchors, reminderFields } from '@/lib/reminders'
 import { useDraftLabels } from './draft-labels'
 import { DraftReminders, type DraftReminder } from './draft-reminders'
 import { ItemReminders } from './item-reminders'
-import { useGoogleSource } from './google-source'
+import { CalendarSelect } from './calendar-select'
+import { isOn, useGoogleSource } from './google-source'
 import { MoreMenu } from './more-menu'
 import { draftItem, useOpenItem } from './item-navigation'
 import { eventRepeatStart, repeatEvent, repeatOf, useSeriesById, useTickDone } from './repeat'
@@ -123,11 +127,14 @@ function EventFields({
   onNotes,
   onNotesBlur,
   repeat,
+  calendar,
   reminders,
   labels,
   tasks,
 }: {
   times: ReactNode
+  /** A new Event's Calendar, given the id its Label names (GCL-005 1). */
+  calendar?: (id: string) => ReactNode
   /** The RepeatField, given the id its Label names. */
   repeat: (id: string) => ReactNode
   place: string
@@ -158,6 +165,11 @@ function EventFields({
         <Field label="Repeat" htmlFor={`${ids}-repeat`}>
           {repeat(`${ids}-repeat`)}
         </Field>
+        {calendar && (
+          <Field label="Calendar" htmlFor={`${ids}-calendar`}>
+            {calendar(`${ids}-calendar`)}
+          </Field>
+        )}
       </div>
       <Textarea
         aria-label="Notes"
@@ -231,7 +243,7 @@ export function GoogleEventDetails({ item }: { item: Item }) {
 /** Everything about an Event (EVT-002), each change kept as it is made. */
 export function EventDetails({ item }: { item: Item }) {
   const settings = useSettings(queue)
-  const today = isoDayOf(new Date())
+  const today = todayIn(settings.timezone)
   const [place, setPlace, flushPlace] = useKeptText(item.id, 'place', item.place ?? '')
   const [notes, setNotes, flushNotes] = useKeptText(item.id, 'body', item.body ?? '')
   const times = useTimes(eventTimes(item, settings.timezone) ?? newEventTimes(today, today), (t) =>
@@ -297,18 +309,24 @@ export function EventDetails({ item }: { item: Item }) {
  */
 export function NewEventDialog({ day, onClose }: { day: string; onClose: () => void }) {
   const settings = useSettings(queue)
-  const today = isoDayOf(new Date())
+  const today = todayIn(settings.timezone)
   const titleRef = useRef<HTMLInputElement>(null)
   const [title, setTitle] = useState('')
   const [place, setPlace] = useState('')
   const [notes, setNotes] = useState('')
   const [kept, setKept] = useState(() =>
-    newEventTimes(day, today, new Date(), settings.defaultReminderTime),
+    newEventTimes(day, today, new Date(), settings.defaultReminderTime, settings.timezone),
   )
   const times = useTimes(kept, setKept)
   const [reminders, setReminders] = useState<DraftReminder[]>([])
   const [repeat, setRepeat] = useState<Repeat | null>(null)
   const labels = useDraftLabels()
+  // Which Google calendar it goes to: my default, unless I choose (GCL-005 1).
+  const calendar = useCalendar(queue)
+  const twoWay = isOn(calendar.connection) && calendar.links.some((l) => l.level === 'two_way')
+  const [chosen, setChosen] = useState<string | null | undefined>(undefined)
+  const calendarId =
+    chosen === undefined ? (calendar.links.find((l) => l.new_events)?.id ?? null) : chosen
   const stored = eventFields(times.shown, settings.timezone)
   const anchors = reminderAnchors({ type: 'event', do_on: null, due_on: null, ...stored })
   const dirty = title.trim() !== '' || place !== '' || notes !== '' || reminders.length > 0
@@ -319,7 +337,10 @@ export function NewEventDialog({ day, onClose }: { day: string; onClose: () => v
     const fields: ItemFields = { title: title.trim(), ...eventFields(kept, settings.timezone) }
     if (place.trim()) fields.place = place.trim()
     if (notes.trim()) fields.body = notes
-    const id = createItem('event', fields)
+    const id = newId()
+    // Before the Event, so it never goes out without it.
+    if (twoWay) setEventCalendar(id, calendarId)
+    createItem('event', fields, id)
     const labelIds = labels.save(id)
     const own = reminders.map((r) => reminderFields(r.choice, settings.timezone))
     for (const f of own) addReminder(id, f)
@@ -365,6 +386,7 @@ export function NewEventDialog({ day, onClose }: { day: string; onClose: () => v
       colour={EVENT.colour}
       icon={EVENT.icon}
       typeLabel="New event"
+      standard
       title="New event"
       keepOnOutsideClick={dirty}
       titleField={
@@ -402,6 +424,18 @@ export function NewEventDialog({ day, onClose }: { day: string; onClose: () => v
             onChange={setRepeat}
           />
         )}
+        calendar={
+          twoWay
+            ? (id) => (
+                <CalendarSelect
+                  id={id}
+                  links={calendar.links}
+                  value={calendarId}
+                  onChange={setChosen}
+                />
+              )
+            : undefined
+        }
         place={place}
         onPlace={setPlace}
         notes={notes}

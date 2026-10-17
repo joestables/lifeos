@@ -34,8 +34,9 @@ of Stage 3 ([plan](../../50-progress/plans/stage-3.md)), are at the end.*
 - **Each person connects their own Google Calendar**, from Settings; the
   connection is theirs alone.
 - **The sync level is per calendar** (Joe, 14 October): each of my Google
-  calendars is *off*, *incoming* (Google → LifeOS) or *two-way*. One two-way
-  calendar is where new LifeOS Events go.
+  calendars is *off*, *incoming* (Google → LifeOS) or *two-way*. My
+  *default calendar* is one of the two-way ones, or None (Joe, 17 October):
+  a new Event goes there unless I choose another, or None, as I make it.
 - **What comes in is always Personal** (Joe, 14 October): Events from Google
   land in my Personal Space and can't be shared.
 - **Only Events go out** (Joe, 14 October): on two-way, the Events I make or
@@ -76,7 +77,8 @@ Acceptance criteria
 2. Given I connect, then my main calendar is *incoming* and the rest *off*,
    until I change them.
 3. Given I disconnect, then LifeOS stops reading and writing my calendars,
-   and the Events it brought in leave Plan; Events I made in LifeOS stay.
+   and the Events it brought in leave Plan; Events I made in LifeOS stay,
+   even those sent to Google, and stay mine to change.
 
 #### GCL-002 — Choose each calendar's sync level
 
@@ -87,9 +89,12 @@ Priority: Must · Status: verified
 Acceptance criteria
 1. Given my calendars in Settings, then I can set each to off, incoming or
    two-way; two-way only on a calendar I can edit in Google.
-2. Given any calendar is two-way, then I choose one of them as where new
-   Events go; with none two-way, Events I make stay in LifeOS.
-3. Given I turn a calendar off, then its Events leave Plan.
+2. Given any calendar is two-way, then I choose my default calendar: one
+   of them, or None; the first I make two-way is it until I choose. With
+   None, or none two-way, Events I make stay in LifeOS unless I choose a
+   calendar for one.
+3. Given I turn a calendar off, then the Events it brought in leave Plan;
+   those I made in LifeOS stay.
 
 #### GCL-003 — Events come in from Google
 
@@ -129,9 +134,11 @@ Priority: Must · Status: verified (against a stand-in for Google; a real
 calendar is checked by hand)
 
 Acceptance criteria
-1. Given a calendar where new Events go, when I make an Event in LifeOS,
-   then it is in that Google calendar within a minute of reaching the
-   server.
+1. Given a two-way calendar, when I make an Event in LifeOS, then its
+   Calendar is my default calendar, and I can choose another two-way one or
+   None; it is in that Google calendar within a minute of reaching the
+   server (with None, it stays in LifeOS). Made any other way (from a Task,
+   a Thought, a day's drag), it goes to my default calendar.
 2. Given an Event from a two-way calendar, when I change its title, times,
    place, notes or repeat in LifeOS, then the change is made in Google, in
    the calendar it came from; when I delete it, it is deleted in Google, and

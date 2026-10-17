@@ -27,6 +27,7 @@ import {
   type CalendarLink,
 } from '@/data'
 import { reminderWhen, whenAgo } from '@/lib/dates'
+import { CalendarSelect } from './calendar-select'
 import { connectGoogleCalendar, isOn } from './google-source'
 
 const LEVELS: { value: CalendarLink['level']; label: string }[] = [
@@ -37,8 +38,8 @@ const LEVELS: { value: CalendarLink['level']; label: string }[] = [
 
 /**
  * A calendar's level (GCL-002 1), two-way only where I can edit it. The
- * first calendar made two-way becomes where new Events go, and when that one
- * stops being two-way, another two-way calendar takes over (GCL-002 2).
+ * first calendar made two-way becomes my default calendar; one that stops
+ * being two-way stops being it (GCL-002 2).
  */
 function LevelSelect({ link, links }: { link: CalendarLink; links: CalendarLink[] }) {
   const levels = LEVELS.filter(
@@ -46,9 +47,8 @@ function LevelSelect({ link, links }: { link: CalendarLink; links: CalendarLink[
   )
   const change = (level: CalendarLink['level']) => {
     setCalendarLevel(link.id, level)
-    const others = links.filter((l) => l.id !== link.id && l.level === 'two_way')
-    if (level === 'two_way' && !others.some((l) => l.new_events)) setNewEventsCalendar(link.id)
-    else if (level !== 'two_way' && link.new_events && others[0]) setNewEventsCalendar(others[0].id)
+    const first = !links.some((l) => l.id !== link.id && l.level === 'two_way')
+    if (level === 'two_way' && first) setNewEventsCalendar(link.id)
   }
   return (
     <Select
@@ -70,30 +70,6 @@ function LevelSelect({ link, links }: { link: CalendarLink; links: CalendarLink[
   )
 }
 
-/** Which two-way calendar new Events go to (GCL-002 2). */
-function NewEventsSelect({ links }: { links: CalendarLink[] }) {
-  const twoWay = links.filter((l) => l.level === 'two_way')
-  const items = twoWay.map((l) => ({ value: l.id, label: l.name }))
-  return (
-    <Select
-      value={twoWay.find((l) => l.new_events)?.id ?? null}
-      items={items}
-      onValueChange={(id) => setNewEventsCalendar(id as string)}
-    >
-      <SelectTrigger size="sm" className="w-32" aria-label="New events go to">
-        <SelectValue placeholder="Choose" />
-      </SelectTrigger>
-      <SelectContent>
-        {items.map((l) => (
-          <SelectItem key={l.value} value={l.value}>
-            {l.label}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
-  )
-}
-
 function CardTitleRow({ title, children }: { title: string; children?: ReactNode }) {
   return (
     <div className="flex h-8 items-center gap-3 pb-2">
@@ -106,7 +82,7 @@ function CardTitleRow({ title, children }: { title: string; children?: ReactNode
 /**
  * Settings → Google Calendar (patterns.md#settings, GCL-001, GCL-002):
  * connect; then the account and when it last synced, each calendar's level,
- * where new Events go once one is two-way, Sync now and Disconnect.
+ * my default calendar once one is two-way, Sync now and Disconnect.
  */
 export function GoogleCalendarCard() {
   const { connection, links, isLoading } = useCalendar(queue)
@@ -171,8 +147,15 @@ export function GoogleCalendarCard() {
             </CardRow>
           ))}
           {links.some((l) => l.level === 'two_way') && (
-            <CardRow label="New events go to">
-              <NewEventsSelect links={links} />
+            <CardRow label="Default calendar">
+              <CalendarSelect
+                size="sm"
+                className="w-32"
+                aria-label="Default calendar"
+                links={links}
+                value={links.find((l) => l.new_events)?.id ?? null}
+                onChange={setNewEventsCalendar}
+              />
             </CardRow>
           )}
         </>

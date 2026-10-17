@@ -27,6 +27,8 @@ export interface ExternalRef {
   item_id: string
   calendar_link_id: string | null
   external_id: string
+  /** Sent from LifeOS, not brought in: it stays mine (GCL-001 3). */
+  made_in_lifeos: boolean
 }
 
 export interface Calendar {
@@ -50,7 +52,7 @@ export async function fetchCalendar(): Promise<Calendar> {
       .select('id, calendar_id, name, can_edit, is_primary, level, new_events')
       .order('is_primary', { ascending: false })
       .order('name'),
-    db.from('external_refs').select('item_id, calendar_link_id, external_id'),
+    db.from('external_refs').select('item_id, calendar_link_id, external_id, made_in_lifeos'),
   ])
   if (c.error) throw c.error
   if (l.error) throw l.error
@@ -62,7 +64,7 @@ export async function fetchCalendar(): Promise<Calendar> {
   }
 }
 
-/** Lays unsent level changes, and where new Events go, over what the server last sent. */
+/** Lays unsent level changes, and my default calendar, over what the server last sent. */
 export function applyPendingCalendar(cal: Calendar, entries: readonly QueueEntry[]): Calendar {
   let links = cal.links
   for (const entry of entries) {
@@ -74,7 +76,7 @@ export function applyPendingCalendar(cal: Calendar, entries: readonly QueueEntry
           : l,
       )
     } else if (entry.fn === 'set_new_events_calendar') {
-      const a = entry.args as { p_link: string }
+      const a = entry.args as { p_link: string | null }
       links = links.map((l) => ({ ...l, new_events: l.id === a.p_link }))
     }
   }

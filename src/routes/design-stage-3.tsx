@@ -851,12 +851,19 @@ function CalendarCard({ connected = true }: { connected?: boolean }) {
             <Level value="incoming" twoWay={false} name="UK holidays" />
           </CardRow>
           <div className="my-1.5 h-px bg-foreground/7" />
-          <CardRow label="New events go to">
-            <Select defaultValue="joe" items={[{ value: 'joe', label: 'Joe Stables' }]}>
-              <SelectTrigger size="sm" className="w-32" aria-label="New events go to">
+          <CardRow label="Default calendar">
+            <Select
+              defaultValue="joe"
+              items={[
+                { value: '', label: 'None' },
+                { value: 'joe', label: 'Joe Stables' },
+              ]}
+            >
+              <SelectTrigger size="sm" className="w-32" aria-label="Default calendar">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="">None</SelectItem>
                 <SelectItem value="joe">Joe Stables</SelectItem>
               </SelectContent>
             </Select>

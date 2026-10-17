@@ -161,7 +161,7 @@ test.describe('on a computer', () => {
     await fri.getByRole('button', { name: 'Add to Fri 16 Oct' }).click()
     await page.getByRole('menuitem', { name: 'Event' }).click()
     const event = page.getByRole('dialog', { name: 'New event' })
-    await expect(event.getByRole('textbox', { name: 'Starts time' })).toHaveValue('09:00')
+    await expect(event.getByRole('combobox', { name: 'Starts time' })).toContainText('09:00')
     await event.getByRole('textbox', { name: 'Title' }).fill('Haircut')
     await event.getByRole('button', { name: 'Save' }).click()
     await expect(cards(fri)).toHaveText([/Haircut.*09:00/, /Dinner with Sam/])

@@ -1,4 +1,4 @@
-import type { Page } from '@playwright/test'
+import { expect, type Locator, type Page } from '@playwright/test'
 import { typeByKey } from '../../packages/ontology/src/index.ts'
 import { addDays } from '../../packages/recurrence/src/index.ts'
 import { zonedInstant } from '../../src/lib/dates.ts'
@@ -114,6 +114,8 @@ export async function standIn(
     connections: [...(rows.connections ?? [])],
     calendar_links: [...(rows.calendar_links ?? [])],
     external_refs: [...(rows.external_refs ?? [])],
+    /** The calendar chosen for each new Event (set_event_calendar). */
+    event_calendars: [] as { item_id: string; calendar_link_id: string | null }[],
   }
   /** What the Edge Function calendar-connect does, without Google (GCL-001). */
   const calendar = (body: { action?: string }) => {
@@ -151,7 +153,9 @@ export async function standIn(
     if (body.action === 'disconnect') {
       conn.disconnected_at = new Date().toISOString()
       for (const l of db.calendar_links) l.level = 'off'
-      for (const r of db.external_refs) Object.assign(item(r.item_id) ?? {}, { archived_at: now() })
+      // Events I made in LifeOS stay (GCL-001 3).
+      for (const r of db.external_refs)
+        if (!r.made_in_lifeos) Object.assign(item(r.item_id) ?? {}, { archived_at: now() })
       return { connected: false }
     }
     conn.last_synced_at = new Date().toISOString()
@@ -445,11 +449,17 @@ export async function standIn(
       l.new_events = l.new_events && a.p_level === 'two_way'
       if (a.p_level === 'off')
         for (const r of db.external_refs)
-          if (r.calendar_link_id === l.id)
+          if (r.calendar_link_id === l.id && !r.made_in_lifeos)
             Object.assign(item(r.item_id) ?? {}, { archived_at: now() })
     },
     set_new_events_calendar: (a) => {
       for (const l of db.calendar_links) l.new_events = l.id === a.p_link
+    },
+    set_event_calendar: (a) => {
+      db.event_calendars.push({
+        item_id: String(a.p_item),
+        calendar_link_id: (a.p_link as string | null) ?? null,
+      })
     },
     set_mark: (a) => {
       db.marks = db.marks.filter((m) => m.item_id !== a.p_item)
@@ -560,4 +570,12 @@ export async function pushAllowed(
     },
     [endpoint, already] as const,
   )
+}
+
+/** Picks a time from a TimeField (a Select of quarter hours), then waits for it to close. */
+export async function pickTime(field: Locator, time: string) {
+  await field.click()
+  const page = field.page()
+  await page.getByRole('option', { name: time, exact: true }).click()
+  await expect(page.getByRole('listbox')).toHaveCount(0)
 }

@@ -163,6 +163,7 @@ export type Database = {
           external_id: string
           external_updated: string | null
           item_id: string
+          made_in_lifeos: boolean
           mapping_version: number
           raw: Json | null
           updated_at: string
@@ -176,6 +177,7 @@ export type Database = {
           external_id: string
           external_updated?: string | null
           item_id: string
+          made_in_lifeos?: boolean
           mapping_version?: number
           raw?: Json | null
           updated_at?: string
@@ -188,6 +190,7 @@ export type Database = {
           external_id?: string
           external_updated?: string | null
           item_id?: string
+          made_in_lifeos?: boolean
           mapping_version?: number
           raw?: Json | null
           updated_at?: string
@@ -1101,12 +1104,20 @@ export type Database = {
       }
       calendar_disconnected: { Args: { p_connection: string }; Returns: undefined }
       calendar_outbox_claim: { Args: { p_limit?: number }; Returns: Json }
+      calendar_prune: {
+        Args: { p_from: string; p_link: string; p_masters: Json; p_until: string }
+        Returns: number
+      }
       calendar_pushed: {
         Args: { p_outbox: number; p_refs: Json; p_series_ref?: Json }
         Returns: undefined
       }
       calendar_save_events: { Args: { p_events: Json; p_link: string }; Returns: number }
       calendar_secret_ok: { Args: { p_secret: string }; Returns: boolean }
+      calendar_sent: {
+        Args: { p_outbox: number; p_queued_at: string; p_refs: Json; p_series_ref: Json }
+        Returns: undefined
+      }
       calendar_set_calendars: {
         Args: { p_calendars: Json; p_connection: string }
         Returns: undefined
@@ -1487,6 +1498,7 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      set_event_calendar: { Args: { p_item: string; p_link: string }; Returns: undefined }
       set_mark: { Args: { p_item: string; p_on: boolean }; Returns: undefined }
       set_new_events_calendar: {
         Args: { p_link: string }

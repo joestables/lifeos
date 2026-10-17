@@ -161,8 +161,9 @@ Acceptance criteria
    Types that exist (Task and Event in Stage 3), and a new Item of that Type
    opens with all its fields, dated that day; it is kept only when I save it.
 2. Given a new Task from "+", then its do-on date is that day; a new Event
-   starts that day at the next whole hour if the day is today, otherwise at
-   my default time, and lasts an hour.
+   starts that day at the next whole hour on my home clock if the day is
+   today (late in the evening, the next quarter hour), otherwise at my
+   default time, and lasts an hour.
 3. Given I save it, then it is on that day at once.
 
 ### PLN-007 — Drag to another day

@@ -19,31 +19,41 @@ export async function connectGoogleCalendar() {
 /**
  * Where an Event came from, if Google (GCL-003, GCL-004): its calendar, its
  * level, and whether Google's fields are Google's (an incoming calendar).
+ * An Event made in LifeOS is mine whatever its calendar is now, shown as in
+ * Google only while that calendar is two-way; anything but an Event isn't
+ * Google's at all.
  */
 export function useGoogleSource(item: Pick<Item, 'id' | 'type'>) {
   const { refs, links, isLoading } = useCalendar(queue)
-  const ref = refs.find((r) => r.item_id === item.id)
+  if (item.type !== 'event') return null
   // Until it's known, an Event isn't taken to be mine to change.
-  if (isLoading && item.type === 'event') return { ref: undefined, link: undefined, readOnly: true }
+  if (isLoading) return { ref: undefined, link: undefined, readOnly: true }
+  const ref = refs.find((r) => r.item_id === item.id)
   if (!ref) return null
   const link = links.find((l) => l.id === ref.calendar_link_id)
+  if (ref.made_in_lifeos && link?.level !== 'two_way') return null
   return {
     ref,
     link,
-    /** Not two-way: it can't be changed, moved or deleted here (GCL-004). */
-    readOnly: link?.level !== 'two_way',
+    /** Google's, from a calendar that isn't two-way: it can't be changed, moved or deleted here (GCL-004). */
+    readOnly: !ref.made_in_lifeos && link?.level !== 'two_way',
   }
 }
 
-/** The ids of Events from calendars that aren't two-way, for Plan's dragging (PLN-007 4). */
-export function useGoogleReadOnly(): ReadonlySet<string> {
-  const { refs, links } = useCalendar(queue)
+/**
+ * Whether an Item on Plan is Google's and so can't be dragged (PLN-007 4):
+ * an Event from a calendar that isn't two-way, or any Event while that
+ * isn't known yet.
+ */
+export function useGoogleLocked(): (item: Pick<Item, 'id' | 'type'>) => boolean {
+  const { refs, links, isLoading } = useCalendar(queue)
   const twoWay = new Set(links.filter((l) => l.level === 'two_way').map((l) => l.id))
-  return new Set(
+  const locked = new Set(
     refs
-      .filter((r) => !r.calendar_link_id || !twoWay.has(r.calendar_link_id))
+      .filter((r) => !r.made_in_lifeos && (!r.calendar_link_id || !twoWay.has(r.calendar_link_id)))
       .map((r) => r.item_id),
   )
+  return (item) => item.type === 'event' && (isLoading || locked.has(item.id))
 }
 
 /** When Plan opens, Google is asked for changes, at most once a minute (ADR-0047). */

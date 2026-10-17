@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
-import { itemRow, standIn } from './stand-in'
+import { itemRow, pickTime, standIn } from './stand-in'
 
 // Friday 16 October 2026, 10:20 in London (BST, an hour ahead of UTC).
 const NOW = new Date('2026-10-16T10:20:00+01:00')
@@ -71,8 +71,15 @@ test('EVT-001: a new Event from Plan, an hour long until I change it, kept only 
   }
   await newEvent()
   let dialog = page.getByRole('dialog', { name: 'New event' })
-  await expect(dialog.getByRole('textbox', { name: 'Starts time' })).toHaveValue('11:00')
-  await expect(dialog.getByRole('textbox', { name: 'Ends time' })).toHaveValue('12:00')
+  await expect(dialog.getByRole('combobox', { name: 'Starts time' })).toContainText('11:00')
+  await expect(dialog.getByRole('combobox', { name: 'Ends time' })).toContainText('12:00')
+  // Times come in quarter hours, the list opening at the one chosen.
+  await dialog.getByRole('combobox', { name: 'Starts time' }).click()
+  await expect(page.getByRole('option')).toHaveCount(96)
+  await expect(page.getByRole('option', { name: '11:00' })).toBeInViewport()
+  await expect(page.getByRole('option', { name: '11:05' })).toHaveCount(0)
+  await page.keyboard.press('Escape')
+  await expect(page.getByRole('listbox')).toHaveCount(0)
   await dialog.getByRole('button', { name: 'Cancel' }).click()
   await expect(dialog).toBeHidden()
   expect(db.items.filter((i) => i.type === 'event')).toHaveLength(2)
@@ -80,14 +87,14 @@ test('EVT-001: a new Event from Plan, an hour long until I change it, kept only 
   await newEvent()
   dialog = page.getByRole('dialog', { name: 'New event' })
   await dialog.getByRole('textbox', { name: 'Title' }).fill('Squash')
-  await dialog.getByRole('textbox', { name: 'Starts time' }).fill('19:30')
-  await expect(dialog.getByRole('textbox', { name: 'Ends time' })).toHaveValue('20:30')
+  await pickTime(dialog.getByRole('combobox', { name: 'Starts time' }), '19:30')
+  await expect(dialog.getByRole('combobox', { name: 'Ends time' })).toContainText('20:30')
 
   // An end before the start is refused.
-  await dialog.getByRole('textbox', { name: 'Ends time' }).fill('18:00')
+  await pickTime(dialog.getByRole('combobox', { name: 'Ends time' }), '18:00')
   await expect(dialog.getByRole('alert')).toHaveText('It ends before it starts')
   await expect(dialog.getByRole('button', { name: 'Save' })).toBeDisabled()
-  await dialog.getByRole('textbox', { name: 'Ends time' }).fill('21:00')
+  await pickTime(dialog.getByRole('combobox', { name: 'Ends time' }), '21:00')
 
   await dialog.getByRole('textbox', { name: 'Place' }).fill('Wimbledon Squash Club')
   await dialog.getByRole('button', { name: 'Save' }).click()
@@ -108,8 +115,8 @@ test('EVT-001 3, EVT-002: an Event changed in its popup; all day kept as dates; 
 }) => {
   const db = await start(page, `/plan?item=${LUNCH}`)
   const popup = page.getByRole('dialog', { name: "Mum's birthday lunch" })
-  await expect(popup.getByRole('textbox', { name: 'Starts time' })).toHaveValue('13:00')
-  await expect(popup.getByRole('textbox', { name: 'Ends time' })).toHaveValue('15:00')
+  await expect(popup.getByRole('combobox', { name: 'Starts time' })).toContainText('13:00')
+  await expect(popup.getByRole('combobox', { name: 'Ends time' })).toContainText('15:00')
   await expect(popup.getByRole('textbox', { name: 'Place' })).toHaveValue('The Ivy, Richmond')
 
   await popup.getByRole('textbox', { name: 'Place' }).fill('The Ivy, Kew')
@@ -119,13 +126,13 @@ test('EVT-001 3, EVT-002: an Event changed in its popup; all day kept as dates; 
     .poll(() => db.items.find((i) => i.id === LUNCH))
     .toMatchObject({ place: 'The Ivy, Kew', body: 'Table for six' })
 
-  await popup.getByRole('textbox', { name: 'Starts time' }).fill('12:30')
+  await pickTime(popup.getByRole('combobox', { name: 'Starts time' }), '12:30')
   await expect
     .poll(() => db.items.find((i) => i.id === LUNCH))
     .toMatchObject({ starts_at: '2026-10-17T11:30:00.000Z', ends_at: '2026-10-17T13:30:00.000Z' })
 
   await popup.getByRole('switch').click()
-  await expect(popup.getByRole('textbox', { name: 'Starts time' })).toBeHidden()
+  await expect(popup.getByRole('combobox', { name: 'Starts time' })).toBeHidden()
   await expect
     .poll(() => db.items.find((i) => i.id === LUNCH))
     .toMatchObject({
@@ -164,7 +171,7 @@ test('EVT-003 3: an Event reminds me before it starts, or on a day before it at 
   await reminder.getByRole('combobox', { name: 'On', exact: true }).click()
   await page.getByRole('option', { name: 'The day it starts' }).click()
   await reminder.getByRole('spinbutton', { name: 'Days before' }).fill('1')
-  await reminder.getByRole('textbox', { name: 'Time' }).fill('18:00')
+  await pickTime(reminder.getByRole('combobox', { name: 'Time' }), '18:00')
   await reminder.getByRole('button', { name: 'Save' }).click()
   await expect
     .poll(() => db.reminders.filter((r) => r.item_id === LUNCH).map((r) => r.offset_days))
@@ -180,8 +187,8 @@ test('EVT-005: a Task becomes an Event at its time, an hour long, and back with 
   await popup.getByRole('button', { name: 'More' }).first().click()
   await page.getByRole('menuitem', { name: 'Event' }).click()
   await expect(page.getByText('Converted into an Event')).toBeVisible()
-  await expect(popup.getByRole('textbox', { name: 'Starts time' })).toHaveValue('19:00')
-  await expect(popup.getByRole('textbox', { name: 'Ends time' })).toHaveValue('20:00')
+  await expect(popup.getByRole('combobox', { name: 'Starts time' })).toContainText('19:00')
+  await expect(popup.getByRole('combobox', { name: 'Ends time' })).toContainText('20:00')
   await expect
     .poll(() => db.items.find((i) => i.id === DINNER))
     .toMatchObject({

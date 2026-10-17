@@ -101,14 +101,32 @@ export function setAllDay(t: EventTimes, allDay: boolean): EventTimes {
  * A new Event's times on a day (PLN-006 2): from the next whole hour when it
  * is today, else at my default time, an hour long.
  */
+/**
+ * When a new Event today starts: the next whole hour on my home clock; late
+ * in the evening, the next quarter hour, so it never starts in the past.
+ */
+function nextStart(now: Date, timezone: string): string {
+  const [h, m] = new Intl.DateTimeFormat('en-GB', {
+    timeZone: timezone,
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+  })
+    .format(now)
+    .split(':')
+    .map(Number) as [number, number]
+  if (h < 23) return `${String(h + 1).padStart(2, '0')}:00`
+  return `23:${String(Math.min(45, (Math.floor(m / 15) + 1) * 15)).padStart(2, '0')}`
+}
+
 export function newEventTimes(
   day: string,
   today: string,
   now: Date = new Date(),
   defaultTime: string = '09:00',
+  timezone: string = 'Europe/London',
 ): EventTimes {
-  const start =
-    day === today ? `${String(Math.min(now.getHours() + 1, 23)).padStart(2, '0')}:00` : defaultTime
+  const start = day === today ? nextStart(now, timezone) : defaultTime
   const end = fromWallMinutes(wallMinutes(day, start) + 60)
   return { allDay: false, startDay: day, startTime: start, endDay: end.day, endTime: end.time }
 }

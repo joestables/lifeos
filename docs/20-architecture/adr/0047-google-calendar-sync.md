@@ -32,7 +32,7 @@ stale one returns 410, meaning sync again from scratch.
   Function secret.
 - **Each calendar is a row** (`core.calendar_links`: connection, Google
   calendar id, name, whether I can edit it, level *off · incoming · two-way*,
-  whether new Events go there, the sync token). Settings changes these
+  whether it is my default calendar, the sync token). Settings changes these
   through database functions, like everything else.
 - **Polling first, with sync tokens.** A `pg_cron` job every five minutes
   wakes a `calendar-sync` Edge Function (through `pg_net`, with a secret in
@@ -88,6 +88,12 @@ Claude's choices while building, within the decision; for Joe to confirm:
   `extend-series`.
 - `calendar-connect` checks the person's token through the database rather
   than the gateway, which would refuse the browser's preflight.
+- After the bug hunt (17 October): a repeating event changed in Google (its
+  rule, "this and following", or no longer repeating) drops instances
+  without saying so, so after reading one, `calendar-sync` names the
+  instances it has and `core.calendar_prune` sends the others it brought in
+  to Recently deleted; a cancellation only ever deletes an Event; and
+  `calendar-callback` sends me back only to the app's own addresses.
 
 ## Consequences
 

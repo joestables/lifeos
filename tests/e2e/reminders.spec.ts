@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
-import { itemRow, pushAllowed, standIn, type Rows } from './stand-in'
+import { itemRow, pickTime, pushAllowed, type Rows, standIn } from './stand-in'
 
 // Monday 12 October 2026, 09:00 in London.
 const NOW = new Date('2026-10-12T09:00:00+01:00')
@@ -101,13 +101,11 @@ test('REM-007, REM-008: my default time, the defaults by Type and the morning di
 }) => {
   const db = await start(page, '/settings')
   const reminders = card(page, 'Reminders')
-  await reminders.getByLabel('Default time').fill('08:00')
-  await reminders.getByLabel('Default time').press('Enter')
+  await pickTime(reminders.getByLabel('Default time'), '08:00')
   await expect.poll(() => db.people[0]!.default_reminder_time).toBe('08:00')
   await reminders.getByRole('switch', { name: 'Remind me of dated tasks' }).click()
   await expect.poll(() => db.people[0]!.reminder_defaults).toEqual({ task: false })
-  await reminders.getByLabel('Digest time').fill('06:30')
-  await reminders.getByLabel('Digest time').press('Enter')
+  await pickTime(reminders.getByLabel('Digest time'), '06:30')
   await expect.poll(() => db.people[0]!.digest_time).toBe('06:30')
   await reminders.getByRole('switch', { name: 'Morning digest' }).click()
   await expect.poll(() => db.people[0]!.digest_on).toBe(false)
@@ -126,7 +124,7 @@ test("REM-002, REM-003: a Task's Reminders, its default and my own, changed and 
   await task.getByRole('button', { name: 'Add a reminder' }).click()
   const dialog = page.getByRole('dialog', { name: 'Reminder' })
   await dialog.getByLabel('Days before').fill('1')
-  await dialog.getByLabel('Time').fill('18:00')
+  await pickTime(dialog.getByLabel('Time'), '18:00')
   await dialog.getByRole('button', { name: 'Save' }).click()
   await expect
     .poll(() => db.reminders.find((r) => r.id !== 'r-default'))
@@ -134,7 +132,7 @@ test("REM-002, REM-003: a Task's Reminders, its default and my own, changed and 
 
   // The default, moved to 08:00, becomes mine.
   await task.getByRole('button', { name: /^Fri 09:00/ }).click()
-  await dialog.getByLabel('Time').fill('08:00')
+  await pickTime(dialog.getByLabel('Time'), '08:00')
   await dialog.getByRole('button', { name: 'Save' }).click()
   await expect
     .poll(() => db.reminders.find((r) => r.id === 'r-default'))
@@ -149,7 +147,7 @@ test('REM-003: a Thought gets a Reminder at a set time', async ({ page }) => {
   const thought = page.getByRole('dialog', { name: 'Gift idea for Sam' })
   await thought.getByRole('button', { name: 'Add a reminder' }).click()
   const dialog = page.getByRole('dialog', { name: 'Reminder' })
-  await dialog.getByLabel('Time').fill('19:00')
+  await pickTime(dialog.getByLabel('Time'), '19:00')
   await dialog.getByRole('button', { name: 'Save' }).click()
   await expect
     .poll(() => db.reminders.find((r) => r.item_id === id(2)))

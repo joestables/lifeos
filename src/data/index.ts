@@ -179,6 +179,7 @@ export const {
   removeSubtask,
   setCalendarLevel,
   setNewEventsCalendar,
+  setEventCalendar,
   setRepeat,
   stopRepeat,
   completeOccurrence,

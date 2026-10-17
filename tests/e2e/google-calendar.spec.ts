@@ -151,7 +151,7 @@ test('GCL-002 3: a calendar turned off takes its Events off Plan', async ({ page
   await expect(page.getByText('Dentist')).toHaveCount(0)
 })
 
-test('GCL-002 1, 2: two-way where I can edit it, and the first two-way calendar is where new Events go', async ({
+test('GCL-002 1, 2: two-way where I can edit it; the first two-way calendar is my default, which can be None', async ({
   page,
 }) => {
   const rows = connected()
@@ -180,7 +180,7 @@ test('GCL-002 1, 2: two-way where I can edit it, and the first two-way calendar 
   await card.getByRole('combobox', { name: 'UK holidays: sync' }).click()
   await expect(page.getByRole('option')).toHaveText(['Off', 'Incoming'])
   await page.keyboard.press('Escape')
-  await expect(card.getByRole('combobox', { name: 'New events go to' })).toHaveCount(0)
+  await expect(card.getByRole('combobox', { name: 'Default calendar' })).toHaveCount(0)
 
   /** Picks an option, then waits for the list to close before the next. */
   const choose = async (select: string, option: string) => {
@@ -189,13 +189,13 @@ test('GCL-002 1, 2: two-way where I can edit it, and the first two-way calendar 
     await expect(page.getByRole('listbox')).toHaveCount(0)
   }
   await choose('Ann: sync', 'Two-way')
-  await expect(card.getByRole('combobox', { name: 'New events go to' })).toContainText('Ann')
+  await expect(card.getByRole('combobox', { name: 'Default calendar' })).toContainText('Ann')
   await choose('Work: sync', 'Two-way')
-  await card.getByRole('combobox', { name: 'New events go to' }).click()
-  await expect(page.getByRole('option')).toHaveText(['Ann', 'Work'])
+  await card.getByRole('combobox', { name: 'Default calendar' }).click()
+  await expect(page.getByRole('option')).toHaveText(['None', 'Ann', 'Work'])
   await page.keyboard.press('Escape')
   await expect(page.getByRole('listbox')).toHaveCount(0)
-  await choose('New events go to', 'Work')
+  await choose('Default calendar', 'Work')
   await expect
     .poll(() => db.calendar_links.map((l) => [l.id, l.level, l.new_events]))
     .toEqual([
@@ -204,10 +204,56 @@ test('GCL-002 1, 2: two-way where I can edit it, and the first two-way calendar 
       ['l-holidays', 'incoming', false],
     ])
 
-  // Work stops being two-way: new Events go to Ann again.
-  await choose('Work: sync', 'Incoming')
-  await expect(card.getByRole('combobox', { name: 'New events go to' })).toContainText('Ann')
-  await expect.poll(() => db.calendar_links[0]!.new_events).toBe(true)
+  // None: new Events stay in LifeOS unless I choose a calendar for one.
+  await choose('Default calendar', 'None')
+  await expect.poll(() => db.calendar_links.some((l) => l.new_events)).toBe(false)
+  await expect(card.getByRole('combobox', { name: 'Default calendar' })).toContainText('None')
+})
+
+test('GCL-005 1: a new Event goes to the calendar chosen for it, my default unless I change it', async ({
+  page,
+}) => {
+  const rows = connected()
+  rows.calendar_links![0]!.level = 'two_way'
+  rows.calendar_links![0]!.new_events = true
+  rows.calendar_links!.push({
+    id: 'l-work',
+    calendar_id: 'work',
+    name: 'Work',
+    can_edit: true,
+    is_primary: false,
+    level: 'two_way',
+    new_events: false,
+  })
+  const db = await start(page, rows, '/plan')
+  const make = async (title: string, calendar?: string) => {
+    await page.getByRole('button', { name: 'Add', exact: true }).filter({ visible: true }).click()
+    await page.getByRole('menuitem', { name: 'Event' }).click()
+    const dialog = page.getByRole('dialog', { name: 'New event' })
+    await dialog.getByRole('textbox', { name: 'Title' }).fill(title)
+    const field = dialog.getByRole('combobox', { name: 'Calendar' })
+    await expect(field).toContainText('Ann')
+    if (calendar) {
+      await field.click()
+      await expect(page.getByRole('option')).toHaveText(['None', 'Ann', 'Work'])
+      await page.getByRole('option', { name: calendar }).click()
+      await expect(page.getByRole('listbox')).toHaveCount(0)
+    }
+    await dialog.getByRole('button', { name: 'Save' }).click()
+    await expect(dialog).toBeHidden()
+  }
+  await make('Standup', 'Work')
+  await make('Think', 'None')
+  await make('Gym')
+  // The choice is written before the Event, so it never goes out without it.
+  const title = (id: string) => db.items.find((i) => i.id === id)?.title
+  await expect
+    .poll(() => db.event_calendars.map((c) => [title(c.item_id), c.calendar_link_id]))
+    .toEqual([
+      ['Standup', 'l-work'],
+      ['Think', null],
+      ['Gym', 'l-ann'],
+    ])
 })
 
 test('GCL-005 2: an Event from a two-way calendar is mine to change and drag', async ({
@@ -241,7 +287,15 @@ test('GCL-006 1: a broken connection shows in Inbox, with Reconnect', async ({ p
 })
 
 test('GCL-001 3: disconnecting takes Google’s Events off Plan; my own stay', async ({ page }) => {
-  const db = await start(page, connected(), '/settings')
+  const rows = connected()
+  // Lunch was made in LifeOS and sent to Google.
+  rows.external_refs!.push({
+    item_id: LUNCH,
+    calendar_link_id: 'l-ann',
+    external_id: 'g-lunch',
+    made_in_lifeos: true,
+  })
+  const db = await start(page, rows, '/settings')
   await page.getByRole('button', { name: 'Google Calendar options' }).click()
   await page.getByRole('menuitem', { name: 'Disconnect' }).click()
   await expect(page.getByText('Google Calendar disconnected')).toBeVisible()

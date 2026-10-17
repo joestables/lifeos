@@ -108,7 +108,8 @@ export function cardLine(
       day === p.first && p.last > day
         ? `Until ${daysBetween(day, p.last) < 7 ? weekdayName(last) : shortDate(last)}`
         : undefined
-    if (t.allDay || (p.first < day && p.last > day))
+    // A day in the middle, or the last of one that runs to midnight, is all day.
+    if (t.allDay || (p.first < day && (p.last > day || t.endDay > day)))
       return { time: 'All day', detail: until ?? place }
     if (p.first < day) return { time: `Until ${t.endTime}`, detail: place }
     const time = long && p.last === day ? `${t.startTime}–${t.endTime}` : t.startTime

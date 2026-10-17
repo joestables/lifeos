@@ -231,7 +231,7 @@ export function ReminderDialog({
                 <TimeField
                   id={`${ids}-at`}
                   value={choice.time}
-                  onChange={(e) => setChoice({ ...choice, time: e.target.value })}
+                  onChange={(time) => setChoice({ ...choice, time })}
                 />
               </div>
             </div>

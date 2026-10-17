@@ -148,7 +148,8 @@ export async function accessToken(
  * Reads one calendar (ADR-0047): from its sync token, or from four weeks back
  * when it has none, when Google has forgotten it (410), or when its repeats
  * need making further ahead. A repeating event comes as its instances up to
- * 12 weeks ahead. Saved in pages, then the next sync token kept.
+ * 12 weeks ahead. Saved in pages; then instances a changed repeat no
+ * longer has go, and the next sync token is kept.
  */
 export async function syncCalendar(
   rpc: Rpc,
@@ -171,11 +172,18 @@ export async function syncCalendar(
     read = await api.events(cal.calendar_id, { timeMin: from })
   }
   const mapped: Record<string, unknown>[] = []
+  // Each event read that isn't one instance: the instances it has now, so
+  // ones a changed repeat dropped can go (none, if it no longer repeats).
+  const masters: { master: string; keep: string[] }[] = []
   for (const e of read.items) {
     if (e.recurrence && e.status !== 'cancelled') {
       const inst = await api.instances(cal.calendar_id, e.id, from, `${until}T00:00:00Z`)
       mapped.push(...inst.items.map(mapEvent))
-    } else mapped.push(mapEvent(e))
+      masters.push({ master: e.id, keep: inst.items.map((i) => i.id) })
+    } else {
+      mapped.push(mapEvent(e))
+      if (!e.recurringEventId && e.status !== 'cancelled') masters.push({ master: e.id, keep: [] })
+    }
   }
   let saved = 0
   for (let i = 0; i < mapped.length; i += 100)
@@ -185,6 +193,13 @@ export async function syncCalendar(
         p_events: mapped.slice(i, i + 100),
       }),
     )
+  if (masters.length > 0)
+    await rpc('calendar_prune', {
+      p_link: cal.link_id,
+      p_masters: masters,
+      p_from: from,
+      p_until: `${until}T00:00:00Z`,
+    })
   await rpc('calendar_synced', {
     p_link: cal.link_id,
     p_sync_token: read.syncToken ?? null,
