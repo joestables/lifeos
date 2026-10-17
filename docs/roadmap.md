@@ -29,9 +29,10 @@ unavailable. Agreed: v1 is being wiped
 Each stage's working plan, and a record of every pull request, live in
 [50-progress](50-progress/). Stages 0, 1 and 2 are done
 ([Stage 2's plan](50-progress/plans/stage-2.md); its nightly smoke walk is
-deferred until the roadmap is complete). **Stage 3 has started**: its
-[plan](50-progress/plans/stage-3.md) is written, and its first step is the
-specs, for Joe to agree. Lists, Shops and list templates moved from Stage 3
+deferred until the roadmap is complete). Stage 3 is done (Joe, 17 October;
+[its plan](50-progress/plans/stage-3.md)): Plan, Events and Google
+Calendar, incoming and two-way. **Stage 4 (Recipes) is next**, and starts
+by writing its plan. Lists, Shops and list templates moved from Stage 3
 to Stage 4b, after Recipes (Joe, 14 October).
 
 Each stage begins by writing its own plan (`50-progress/plans/stage-N.md`,
@@ -48,6 +49,7 @@ agrees before anything is built.
 | Unit conversion (100 g + 1 cup); whether a pantry is wanted | Recipes spec (Stage 4) |
 | Which v1 AI features return (Explore, Labs, dish images, recipe import) | Stage 4 |
 | A Project Type, if grouping Tasks needs more than Labels | When needed |
+| Stage 3's as-built choices: Google Calendar's ([ADR-0047](20-architecture/adr/0047-google-calendar-sync.md#as-built-16-october-plan-step-9)); two-way, where the later change wins for the whole event rather than field by field ([ADR-0048](20-architecture/adr/0048-google-calendar-two-way.md#as-built-16-october-plan-step-10)); Plan placing Items from what the device holds ([ADR-0049](20-architecture/adr/0049-plans-read.md)) | To confirm |
 | How Contact search avoids revealing who has an account; whether a Contact can be removed ([ADR-0039](20-architecture/adr/0039-accounts-contacts-households.md)) | Before Stage 4 |
 
 ## Re-checks

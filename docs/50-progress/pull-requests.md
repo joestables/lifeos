@@ -94,6 +94,9 @@ Branch `claude/kind-babbage-p00wl4` · 2026-10-14
   load. No empty "…" menu. Connecting Google Calendar is finished in the
   app by the person who began it (`calendar_received`, `calendar_finish`);
   `calendar-callback` and `calendar-connect` redeployed.
+- Stage 3 closed (Joe, 17 October): plan, roadmap and CLAUDE.md say so;
+  the as-built choices in ADR-0047, 0048 and 0049 carried to the roadmap's
+  open questions for Joe to confirm.
 
 ## [#12](https://github.com/joestables/lifeos/pull/12) — Stage 2, step 14: Labels as filters, Thoughts ticked off
 
