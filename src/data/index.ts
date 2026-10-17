@@ -230,10 +230,14 @@ export type { Item, ItemFields, SyncState } from './types'
 
 /**
  * Asks Google Calendar's Edge Function as me (GCL-001, ADR-0047): start
- * connecting, disconnect, or sync now; then what it changed is read again.
+ * connecting, finish it, disconnect, or sync now; then what it changed is
+ * read again.
  */
-export async function calendarAction(action: 'start' | 'disconnect' | 'sync', returnTo?: string) {
-  const answer = await askCalendar(action, returnTo)
+export async function calendarAction(
+  action: 'start' | 'finish' | 'disconnect' | 'sync',
+  extra?: string,
+) {
+  const answer = await askCalendar(action, extra)
   if (action !== 'start') {
     void queryClient.invalidateQueries({ queryKey: calendarKey })
     if (!answer.skipped) void queryClient.invalidateQueries({ queryKey: itemsKey })

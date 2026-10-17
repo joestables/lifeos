@@ -1103,6 +1103,7 @@ export type Database = {
         Returns: Json
       }
       calendar_disconnected: { Args: { p_connection: string }; Returns: undefined }
+      calendar_finish: { Args: { p_code: string }; Returns: string }
       calendar_outbox_claim: { Args: { p_limit?: number }; Returns: Json }
       calendar_prune: {
         Args: { p_from: string; p_link: string; p_masters: Json; p_until: string }
@@ -1111,6 +1112,10 @@ export type Database = {
       calendar_pushed: {
         Args: { p_outbox: number; p_refs: Json; p_series_ref?: Json }
         Returns: undefined
+      }
+      calendar_received: {
+        Args: { p_account: string; p_refresh_token: string; p_state: string }
+        Returns: Json
       }
       calendar_save_events: { Args: { p_events: Json; p_link: string }; Returns: number }
       calendar_secret_ok: { Args: { p_secret: string }; Returns: boolean }

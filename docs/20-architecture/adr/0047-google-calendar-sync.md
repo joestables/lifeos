@@ -94,6 +94,11 @@ Claude's choices while building, within the decision; for Joe to confirm:
   instances it has and `core.calendar_prune` sends the others it brought in
   to Recently deleted; a cancellation only ever deletes an Event; and
   `calendar-callback` sends me back only to the app's own addresses.
+- Connecting is finished in the app (Joe, 17 October): the callback carries
+  no app sign-in, so it only keeps the token against its one-time state and
+  sends me back with a one-time code; the app, signed in, finishes, and the
+  database refuses anyone but the person who began. A consent link made by
+  one person and opened by another connects no one.
 
 ## Consequences
 

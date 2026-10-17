@@ -88,6 +88,12 @@ Branch `claude/kind-babbage-p00wl4` · 2026-10-14
   repeats and repeats made from Events handled; Plan's midnight ends, a new
   Event's start time and dragging while loading fixed. Six migrations and
   four Edge Functions, live; 19 database tests, unit tests and walks.
+- After Joe's report: the app's read of my calendars was refused the new
+  `made_in_lifeos` column, so Settings lost its Google Calendar card or
+  offered Connect; granted, tested, and Settings now says when it can't
+  load. No empty "…" menu. Connecting Google Calendar is finished in the
+  app by the person who began it (`calendar_received`, `calendar_finish`);
+  `calendar-callback` and `calendar-connect` redeployed.
 
 ## [#12](https://github.com/joestables/lifeos/pull/12) — Stage 2, step 14: Labels as filters, Thoughts ticked off
 

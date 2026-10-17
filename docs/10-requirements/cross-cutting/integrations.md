@@ -73,7 +73,9 @@ Priority: Must · Status: verified (a real connection is checked by hand)
 
 Acceptance criteria
 1. Given Settings, when I choose Connect Google Calendar and allow it at
-   Google, then my Google calendars are listed in Settings.
+   Google, then my Google calendars are listed in Settings; only I, who
+   began, can finish connecting, so a link someone else began connects
+   nothing.
 2. Given I connect, then my main calendar is *incoming* and the rest *off*,
    until I change them.
 3. Given I disconnect, then LifeOS stops reading and writing my calendars,

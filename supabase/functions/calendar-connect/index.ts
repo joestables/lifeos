@@ -2,8 +2,9 @@
 // signed in. Their token goes with every database call, so the database
 // checks it (the gateway doesn't, or it would refuse the browser's CORS
 // preflight). Start connecting
-// (GCL-001), disconnect (GCL-001 3), or sync now when Plan opens (ADR-0047,
-// at most once a minute). Deployed by Claude through the Supabase MCP with
+// (GCL-001), finish it with the code Google's callback sent me back with
+// (only the person who began can), disconnect (GCL-001 3), or sync now when
+// Plan opens (ADR-0047, at most once a minute). Deployed by Claude through the Supabase MCP with
 // calendar-sync's files and packages/recurrence's.
 import { allowedReturn, consentUrl, syncAll } from '../calendar-sync/run.ts'
 import { asPerson, client, redirectUri, rpc } from '../calendar-sync/supabase.ts'
@@ -31,9 +32,10 @@ async function handle(req: Request): Promise<Response> {
   const token = req.headers.get('Authorization')?.replace(/^Bearer /, '')
   if (!token) return answer({ error: 'Not signed in' }, 401)
   const me = asPerson(token)
-  const { action, returnTo } = (await req.json().catch(() => ({}))) as {
+  const { action, returnTo, code } = (await req.json().catch(() => ({}))) as {
     action?: string
     returnTo?: string
+    code?: string
   }
 
   if (action === 'start') {
@@ -41,6 +43,21 @@ async function handle(req: Request): Promise<Response> {
     if (!client.id) return answer({ error: 'Google Calendar isn’t set up' }, 503)
     const state = (await me.rpc('calendar_begin', { p_return_to: returnTo })) as string
     return answer({ url: consentUrl(client.id, redirectUri, state) })
+  }
+
+  if (action === 'finish') {
+    if (!code) return answer({ error: 'No code' }, 400)
+    let connection: string
+    try {
+      connection = (await me.rpc('calendar_finish', { p_code: code })) as string
+    } catch {
+      return answer({ error: 'Expired' }, 410)
+    }
+    // Its calendars listed and read once; the five-minute sync carries on if not.
+    await syncAll(rpc, fetch, client, { connection }).catch((e) =>
+      console.error('calendar-connect: first sync', String(e)),
+    )
+    return answer({ connected: true })
   }
 
   // My connection, as I can see it.

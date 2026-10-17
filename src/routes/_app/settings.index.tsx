@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { LogOutIcon, TagIcon, Trash2Icon } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { CardRow, PageHeader } from '@/components/lifeos'
 import {
   AlertDialog,
@@ -17,7 +17,7 @@ import { GoogleCalendarCard } from '@/app/google-calendar'
 import { LabelsCard } from '@/app/labels'
 import { toast } from '@/components/ui/sonner'
 import { NotificationsCard, RemindersCard } from '@/app/notification-settings'
-import { queue, signOut, unsentWrites, useDeletedItems, useLabels } from '@/data'
+import { calendarAction, queue, signOut, unsentWrites, useDeletedItems, useLabels } from '@/data'
 
 /**
  * Settings: notifications and Reminders, Google Calendar, Labels, Recently
@@ -25,9 +25,12 @@ import { queue, signOut, unsentWrites, useDeletedItems, useLabels } from '@/data
  * ITM-003, ITM-005, ACC-003).
  */
 export const Route = createFileRoute('/_app/settings/')({
-  // Where Google sends me back after connecting (GCL-001).
-  validateSearch: (search: Record<string, unknown>): { calendar?: string } =>
-    typeof search.calendar === 'string' ? { calendar: search.calendar } : {},
+  // Where Google sends me back after connecting (GCL-001): to finish, with
+  // its code, or how it went.
+  validateSearch: (search: Record<string, unknown>): { calendar?: string; code?: string } => ({
+    ...(typeof search.calendar === 'string' ? { calendar: search.calendar } : {}),
+    ...(typeof search.code === 'string' ? { code: search.code } : {}),
+  }),
   component: Settings,
 })
 
@@ -44,12 +47,18 @@ function Settings() {
   const { items: deleted } = useDeletedItems(queue)
   const [confirming, setConfirming] = useState(false)
   const waiting = unsentWrites()
-  const { calendar: outcome } = Route.useSearch()
+  const { calendar: outcome, code } = Route.useSearch()
+  const finished = useRef<string | undefined>(undefined)
   useEffect(() => {
-    if (!outcome) return
-    toast(OUTCOMES[outcome] ?? OUTCOMES.failed!)
+    if (!outcome || (code && finished.current === code)) return
+    finished.current = code
     void navigate({ to: '.', search: {}, replace: true })
-  }, [outcome, navigate])
+    if (outcome !== 'finish') return void toast(OUTCOMES[outcome] ?? OUTCOMES.failed!)
+    // Finished as me: only the person who began can (GCL-001).
+    calendarAction('finish', code)
+      .then(() => toast(OUTCOMES.connected!))
+      .catch(() => toast(OUTCOMES.expired!))
+  }, [outcome, code, navigate])
 
   const finishSignOut = async () => {
     await signOut()

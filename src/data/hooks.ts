@@ -208,14 +208,21 @@ export function useLinks(queue: WriteQueue): readonly Link[] {
 const NO_CALENDAR: Calendar = { connection: null, links: [], refs: [] }
 
 /** My Google Calendar connection, calendars and which Events came from them (GCL-001–004). */
-export function useCalendar(queue: WriteQueue): Calendar & { isLoading: boolean } {
+export function useCalendar(
+  queue: WriteQueue,
+): Calendar & { isLoading: boolean; isError: boolean; retry: () => void } {
   const entries = useQueueEntries(queue)
   const query = useQuery({ queryKey: calendarKey, queryFn: fetchCalendar })
+  const { refetch } = query
+  // Not read: not known, so treated as still loading, never as not connected.
+  const isError = query.isError && !query.data
   return useMemo(
     () => ({
       ...applyPendingCalendar(query.data ?? NO_CALENDAR, entries),
-      isLoading: query.isLoading,
+      isLoading: query.isLoading || isError,
+      isError,
+      retry: () => void refetch(),
     }),
-    [query.data, query.isLoading, entries],
+    [query.data, query.isLoading, isError, entries, refetch],
   )
 }

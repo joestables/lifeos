@@ -85,14 +85,16 @@ export function applyPendingCalendar(cal: Calendar, entries: readonly QueueEntry
 
 /**
  * Asks the calendar-connect Edge Function, as me (GCL-001): start connecting
- * (it answers with Google's consent page), disconnect, or sync now.
+ * (it answers with Google's consent page, `extra` being where to come back
+ * to), finish it (`extra` being the code Google's callback sent me back
+ * with), disconnect, or sync now.
  */
 export async function calendarAction(
-  action: 'start' | 'disconnect' | 'sync',
-  returnTo?: string,
+  action: 'start' | 'finish' | 'disconnect' | 'sync',
+  extra?: string,
 ): Promise<{ url?: string; connected?: boolean; skipped?: boolean }> {
   const { data, error } = await supabase().functions.invoke('calendar-connect', {
-    body: { action, returnTo },
+    body: action === 'finish' ? { action, code: extra } : { action, returnTo: extra },
   })
   if (error) throw error
   return data as { url?: string; connected?: boolean; skipped?: boolean }

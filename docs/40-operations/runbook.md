@@ -78,16 +78,20 @@ Edge Functions deployed by Claude through the Supabase MCP, sharing
 
 - **`calendar-connect`** (the app, as me): starts connecting
   (`core.calendar_begin` makes a one-time state; Google's consent page asks
-  for Calendar, offline, every time), disconnects (revokes the token at
+  for Calendar, offline, every time), finishes connecting with the code
+  the callback sent me back with (`core.calendar_finish`, only for the
+  person who began; then lists and reads my calendars once), disconnects
+  (revokes the token at
   Google, then `core.calendar_disconnected`), and syncs when Plan opens, at
   most once a minute. It doesn't ask the gateway to check the token, which
   would refuse the browser's preflight; every database call carries the
   person's token, so the database checks it.
 - **`calendar-callback`** (Google's redirect): trades the code for tokens
-  with the client secret, keeps the refresh token in Vault
-  (`core.calendar_connected`, the state good once for 15 minutes), lists
-  the calendars, reads them once, and sends me back to Settings with
-  `?calendar=connected`, `cancelled`, `expired` or `failed`.
+  with the client secret and connects no one itself: it keeps the refresh
+  token in Vault against the state (`core.calendar_received`, the state
+  good once for 15 minutes) and sends me back to Settings, only at the
+  app's own addresses, with `?calendar=finish&code=…` for the app to finish
+  as me, or `cancelled`, `expired` or `failed`.
 - **`calendar-sync`** (every five minutes, `pg_cron` job `calendar-sync`,
   through `pg_net` with `calendar_secret` from Vault, only while a calendar
   is on): a fresh access token per connection; Google refusing it marks the

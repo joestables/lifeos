@@ -118,9 +118,12 @@ export async function standIn(
     event_calendars: [] as { item_id: string; calendar_link_id: string | null }[],
   }
   /** What the Edge Function calendar-connect does, without Google (GCL-001). */
-  const calendar = (body: { action?: string }) => {
+  const calendar = (body: { action?: string; code?: string }) => {
     const conn = db.connections[0]
-    if (body.action === 'start') {
+    // Google's consent page and callback, skipped: back to Settings to finish.
+    if (body.action === 'start') return { url: '/settings?calendar=finish&code=c-1' }
+    if (body.action === 'finish') {
+      if (body.code !== 'c-1') throw new Error('expired')
       const g = rows.google ?? { account: 'ann@gmail.com', calendars: [], events: [] }
       db.connections = [
         {
@@ -147,7 +150,7 @@ export async function standIn(
           external_id: `g-${String(e.id)}`,
         })
       }
-      return { url: '/settings?calendar=connected' }
+      return { connected: true }
     }
     if (!conn || conn.disconnected_at) return { connected: false }
     if (body.action === 'disconnect') {
@@ -470,7 +473,11 @@ export async function standIn(
     const url = new URL(route.request().url())
     if (url.pathname.includes('/auth/v1/logout')) return route.fulfill({ status: 204 })
     if (url.pathname.endsWith('/functions/v1/calendar-connect'))
-      return route.fulfill({ json: calendar(route.request().postDataJSON() ?? {}) })
+      try {
+        return route.fulfill({ json: calendar(route.request().postDataJSON() ?? {}) })
+      } catch {
+        return route.fulfill({ status: 410, json: { error: 'Expired' } })
+      }
     const rpc = url.pathname.match(/\/rest\/v1\/rpc\/(\w+)$/)
     if (rpc) {
       const result = write[rpc[1]!]?.(route.request().postDataJSON() ?? {})

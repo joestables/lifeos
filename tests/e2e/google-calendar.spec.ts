@@ -305,3 +305,41 @@ test('GCL-001 3: disconnecting takes Google’s Events off Plan; my own stay', a
   expect(db.items.find((i) => i.id === DENTIST)?.archived_at).toBeTruthy()
   expect(db.items.find((i) => i.id === LUNCH)?.archived_at).toBeNull()
 })
+
+test('GCL-001: a finish code that isn’t mine, or has run out, connects nothing', async ({
+  page,
+}) => {
+  const db = await start(page, { google }, '/settings?calendar=finish&code=someone-elses')
+  await expect(page.getByText('That took too long. Connect again')).toBeVisible()
+  await expect(
+    page.locator('[data-slot="card"]').filter({ hasText: 'Google Calendar' }),
+  ).toContainText('Not connected')
+  expect(db.connections).toEqual([])
+})
+
+test('GCL-001: when my calendars can’t be read, Settings says so rather than offering Connect', async ({
+  page,
+}) => {
+  await start(page, connected(), '/settings')
+  let fail = true
+  await page.route('**/rest/v1/external_refs**', (route) =>
+    fail
+      ? route.fulfill({ status: 401, json: { message: 'permission denied' } })
+      : route.fallback(),
+  )
+  await page.reload()
+  const card = page.locator('[data-slot="card"]').filter({ hasText: 'Google Calendar' })
+  await expect(card).toContainText('Couldn’t load', { timeout: 15_000 })
+  await expect(card.getByRole('button', { name: 'Connect' })).toHaveCount(0)
+  fail = false
+  await card.getByRole('button', { name: 'Try again' }).click()
+  await expect(card).toContainText('ann@gmail.com')
+
+  // Meanwhile Google's Events stay Google's, with no empty "…" menu.
+  fail = true
+  await page.goto(`/plan?item=${DENTIST}`)
+  const popup = page.getByRole('dialog', { name: 'Dentist' })
+  await expect(popup).toBeVisible()
+  await expect(popup.getByRole('textbox', { name: 'Title' })).toHaveCount(0)
+  await expect(popup.getByRole('button', { name: 'More' })).toHaveCount(0)
+})

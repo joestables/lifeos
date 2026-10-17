@@ -85,9 +85,20 @@ function CardTitleRow({ title, children }: { title: string; children?: ReactNode
  * my default calendar once one is two-way, Sync now and Disconnect.
  */
 export function GoogleCalendarCard() {
-  const { connection, links, isLoading } = useCalendar(queue)
+  const { connection, links, isLoading, isError, retry } = useCalendar(queue)
   const [busy, setBusy] = useState(false)
   const connected = isOn(connection)
+  if (isError)
+    return (
+      <Card className="gap-0">
+        <CardTitleRow title="Google Calendar" />
+        <CardRow label="Couldn’t load">
+          <Button variant="outline" size="sm" onClick={retry}>
+            Try again
+          </Button>
+        </CardRow>
+      </Card>
+    )
   if (isLoading) return null
 
   const act = async (action: 'sync' | 'disconnect') => {

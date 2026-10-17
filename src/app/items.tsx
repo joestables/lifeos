@@ -55,45 +55,48 @@ export function ItemActions({ item, onDelete }: { item: Item; onDelete: () => vo
           <MarkIcon />
         </Toggle>
       )}
-      <DropdownMenu>
-        <DropdownMenuTrigger render={<Button variant="ghost" size="icon-sm" aria-label="More" />}>
-          <EllipsisIcon />
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          {targets.length > 0 && (
-            <>
-              <DropdownMenuGroup>
-                <DropdownMenuLabel>Convert to</DropdownMenuLabel>
-                {targets.map((t) => (
-                  <DropdownMenuItem key={t.key} onClick={() => convert(item, t.key)}>
-                    <t.icon /> {t.label}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuGroup>
-              <DropdownMenuSeparator />
-            </>
-          )}
-          {google?.readOnly ? (
-            google.link && (
-              <DropdownMenuItem
-                render={
-                  <a
-                    href={googleEventUrl(google.ref!.external_id, google.link.calendar_id)}
-                    target="_blank"
-                    rel="noreferrer"
-                  />
-                }
-              >
-                <ExternalLinkIcon /> Open in Google Calendar
+      {/* Nothing to offer (Google's, not yet known): no menu at all. */}
+      {!(google?.readOnly && !google.link) && (
+        <DropdownMenu>
+          <DropdownMenuTrigger render={<Button variant="ghost" size="icon-sm" aria-label="More" />}>
+            <EllipsisIcon />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            {targets.length > 0 && (
+              <>
+                <DropdownMenuGroup>
+                  <DropdownMenuLabel>Convert to</DropdownMenuLabel>
+                  {targets.map((t) => (
+                    <DropdownMenuItem key={t.key} onClick={() => convert(item, t.key)}>
+                      <t.icon /> {t.label}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuGroup>
+                <DropdownMenuSeparator />
+              </>
+            )}
+            {google?.readOnly ? (
+              google.link && (
+                <DropdownMenuItem
+                  render={
+                    <a
+                      href={googleEventUrl(google.ref!.external_id, google.link.calendar_id)}
+                      target="_blank"
+                      rel="noreferrer"
+                    />
+                  }
+                >
+                  <ExternalLinkIcon /> Open in Google Calendar
+                </DropdownMenuItem>
+              )
+            ) : (
+              <DropdownMenuItem variant="destructive" onClick={onDelete}>
+                <Trash2Icon /> Delete
               </DropdownMenuItem>
-            )
-          ) : (
-            <DropdownMenuItem variant="destructive" onClick={onDelete}>
-              <Trash2Icon /> Delete
-            </DropdownMenuItem>
-          )}
-        </DropdownMenuContent>
-      </DropdownMenu>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )}
     </>
   )
 }

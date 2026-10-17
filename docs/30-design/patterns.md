@@ -129,8 +129,9 @@ used the same way on every screen.
   to its Place and Repeat, and the rest scrolls inside the Dialog.
 - Changes are kept as they are made; there is no Save in an Item's Dialog.
 - The Dialog's header holds the Type's tile and name, the Item's mark
-  (star, pin), its "…" menu (Convert to, Delete) and Close; it opens with
-  the Dialog itself focused, not its first control.
+  (star, pin), its "…" menu (Convert to, Delete) and Close, with no "…"
+  when it would be empty; it opens with the Dialog itself focused, not its
+  first control.
 - **Convert to** lists only the Types this Type converts into that the app
   has yet; a toast says what it became ("Converted into a Task", "Converted
   into an Event"), with Undo. A Thought's row offers Task and Note as its
@@ -279,7 +280,9 @@ DateField, TimeField, RepeatField, SubtaskList and AddRow in
   `sm` Select of None and the two-way calendars. The first calendar made
   two-way is the default until I choose; one that stops being two-way stops
   being it. Coming back from Google, a
-  toast says how it went ("Google Calendar connected"). The Reminders
+  toast says how it went ("Google Calendar connected"). When my calendars
+  can't be read, the Card says "Couldn't load" with an outline "Try
+  again", never "Connect"; meanwhile Events from Google stay Google's. The Reminders
   Card gains "Events, 30 min before" (a Switch).
 - **Google Calendar isn't syncing** (GCL-006): on Inbox, above the groups,
   an Alert with `calendar-x-2`, "Google Calendar isn't syncing", since

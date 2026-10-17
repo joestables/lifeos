@@ -1,11 +1,12 @@
 // calendar-callback: where Google sends me back after I allow LifeOS into
 // my calendars (GCL-001). Not signed in (Google's redirect carries no app
-// token), so it trusts only the one-time state the app's start made
-// (core.calendar_connected). It keeps the refresh token in Vault, lists my
-// calendars, reads them once, and sends me back to Settings. Deployed by
-// Claude through the Supabase MCP with calendar-sync's files and
-// packages/recurrence's.
-import { accountOf, allowedReturn, google, syncAll } from '../calendar-sync/run.ts'
+// token), so it connects no one itself: it keeps the refresh token in Vault
+// against the one-time state the app's start made (core.calendar_received)
+// and sends me back to Settings with a finish code, which the app, signed in
+// as me, hands to calendar-connect to finish (only the person who began
+// can). Deployed by Claude through the Supabase MCP with calendar-sync's
+// files and packages/recurrence's.
+import { accountOf, allowedReturn } from '../calendar-sync/run.ts'
 import { client, redirectUri, rpc } from '../calendar-sync/supabase.ts'
 
 const FALLBACK = 'https://lifeos-bice-mu.vercel.app/settings'
@@ -35,9 +36,9 @@ Deno.serve(async (req) => {
     return back(FALLBACK, 'failed')
   }
 
-  let done: { connection: string; return_to: string }
+  let done: { finish: string; return_to: string }
   try {
-    done = (await rpc('calendar_connected', {
+    done = (await rpc('calendar_received', {
       p_state: state,
       p_account: accountOf(tokens.id_token),
       p_refresh_token: tokens.refresh_token,
@@ -46,15 +47,7 @@ Deno.serve(async (req) => {
     console.error('calendar-callback: state', String(e))
     return back(FALLBACK, 'expired')
   }
-
-  try {
-    const calendars = await google(fetch, tokens.access_token).calendars()
-    await rpc('calendar_set_calendars', { p_connection: done.connection, p_calendars: calendars })
-    await syncAll(rpc, fetch, client, { connection: done.connection })
-  } catch (e) {
-    // Connected all the same; the five-minute sync carries on.
-    console.error('calendar-callback: first sync', String(e))
-  }
   // Only back to the app's own addresses, whatever the state was made with.
-  return back(allowedReturn(done.return_to) ? done.return_to : FALLBACK, 'connected')
+  const to = allowedReturn(done.return_to) ? done.return_to : FALLBACK
+  return back(to, `finish&code=${encodeURIComponent(done.finish)}`)
 })
