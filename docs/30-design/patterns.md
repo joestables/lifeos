@@ -37,9 +37,9 @@ AppShell
 - Counts are 12px, muted, tabular, on the right. "Later" pages sit at 50%
   opacity.
 - Each page's icon: Inbox `inbox`, Plan `calendar-days`, Tasks
-  `square-check-big`, Notes `sticky-note`, Recipes `chef-hat`, Gym
-  `dumbbell`, Goals `target`, Wardrobe `shirt`, Cardio `footprints`, Finance
-  `wallet`.
+  `square-check-big`, Notes `sticky-note`, Gym `dumbbell`, Cardio
+  `footprints`, Recipes `chef-hat`, Goals `target`, Wardrobe `shirt`, Finance
+  `wallet`; Meal plan and Shopping get theirs with their design in Stage 4.
 - The header holds the brand (the app icon at 24px, then "LifeOS" at 16px
   weight 750) and, on its right, Search: a muted ghost `search` button, with
   "Search /" in a Tooltip on a computer, 44px in a phone's drawer. Capture

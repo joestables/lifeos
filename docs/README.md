@@ -4,10 +4,10 @@ LifeOS v2 is a personal and household life app built as one knowledge graph:
 Items, the Links between them, and Views over both. These documents are the
 source of truth for what it does and why. Code is checked against them.
 
-Stages 0 (requirements and architecture), 1 (foundation) and 2 (replacing
-Google Tasks) are done. **Stage 3**, Plan, Events and Google Calendar, has
-started: its [plan](50-progress/plans/stage-3.md) is written, and its specs
-come first ([roadmap](roadmap.md#where-we-are)).
+Stages 0 (requirements and architecture), 1 (foundation), 2 (replacing
+Google Tasks) and 3 (Plan, Events and Google Calendar) are done. **Stage 4**,
+Recipes, has started: its [plan](50-progress/plans/stage-4.md) is written,
+and its specs come first ([roadmap](roadmap.md#where-we-are)).
 
 ## Index
 

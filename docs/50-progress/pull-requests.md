@@ -2,6 +2,30 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## Stage 4: Recipes — the plan, and the drawer's new order
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-17
+
+**What it did**
+- Wrote [Stage 4's plan](plans/stage-4.md) from Joe's brief: Recipes (the
+  library and saved ideas) and Meal plan (planning Meals, and the Ingredient
+  database) as their own pages, with Shopping — shopping lists made by hand
+  or from the meal plan — as a third, in Stage 4b. Its first step is the
+  specs, with eleven questions for Joe, among them shopping lists replacing
+  the List and Shop Types.
+- The drawer's new order: Inbox, Plan, Tasks, Notes, Gym, Cardio, Recipes,
+  Goals, Wardrobe, then Finance under "Later". Cardio moved out of "Later"
+  as a blank coral page (`/cardio`); Meal plan and Shopping join when built.
+  ADR-0026 amended (the pages and their order), ADR-0043 (Meal plan green,
+  Shopping yellow), the drawer pattern, the Notes spec (no longer "Notes,
+  Lists and Ideas"), the capability map, roadmap, docs index and
+  `CLAUDE.md` follow; the drawer's Playwright walk checks the new order.
+
+**Left for later**
+- Joe's answers to the plan's questions, then the specs (step 1) and every
+  document that names List or Shop, once he agrees shopping lists replace
+  them.
+
 ## [#13](https://github.com/joestables/lifeos/pull/13) — Stage 3: Plan, Events and Google Calendar
 
 Branch `claude/kind-babbage-p00wl4` · 2026-10-14 to 2026-10-17

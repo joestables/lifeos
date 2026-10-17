@@ -15,6 +15,7 @@ import { Route as DesignRouteImport } from './routes/design'
 import { Route as DesignStage3RouteImport } from './routes/design-stage-3'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as SignInRouteImport } from './routes/sign-in'
+import { Route as AppCardioRouteImport } from './routes/_app/cardio'
 import { Route as AppGoalsRouteImport } from './routes/_app/goals'
 import { Route as AppGymRouteImport } from './routes/_app/gym'
 import { Route as AppInboxRouteImport } from './routes/_app/inbox'
@@ -56,6 +57,11 @@ const SignInRoute = SignInRouteImport.update({
   id: '/sign-in',
   path: '/sign-in',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AppCardioRoute = AppCardioRouteImport.update({
+  id: '/cardio',
+  path: '/cardio',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppGoalsRoute = AppGoalsRouteImport.update({
   id: '/goals',
@@ -124,6 +130,7 @@ export interface FileRoutesByFullPath {
   '/design-stage-3': typeof DesignStage3Route
   '/privacy': typeof PrivacyRoute
   '/sign-in': typeof SignInRoute
+  '/cardio': typeof AppCardioRoute
   '/goals': typeof AppGoalsRoute
   '/gym': typeof AppGymRoute
   '/inbox': typeof AppInboxRoute
@@ -143,6 +150,7 @@ export interface FileRoutesByTo {
   '/design-stage-3': typeof DesignStage3Route
   '/privacy': typeof PrivacyRoute
   '/sign-in': typeof SignInRoute
+  '/cardio': typeof AppCardioRoute
   '/goals': typeof AppGoalsRoute
   '/gym': typeof AppGymRoute
   '/inbox': typeof AppInboxRoute
@@ -164,6 +172,7 @@ export interface FileRoutesById {
   '/design-stage-3': typeof DesignStage3Route
   '/privacy': typeof PrivacyRoute
   '/sign-in': typeof SignInRoute
+  '/_app/cardio': typeof AppCardioRoute
   '/_app/goals': typeof AppGoalsRoute
   '/_app/gym': typeof AppGymRoute
   '/_app/inbox': typeof AppInboxRoute
@@ -185,6 +194,7 @@ export interface FileRouteTypes {
     | '/design-stage-3'
     | '/privacy'
     | '/sign-in'
+    | '/cardio'
     | '/goals'
     | '/gym'
     | '/inbox'
@@ -204,6 +214,7 @@ export interface FileRouteTypes {
     | '/design-stage-3'
     | '/privacy'
     | '/sign-in'
+    | '/cardio'
     | '/goals'
     | '/gym'
     | '/inbox'
@@ -224,6 +235,7 @@ export interface FileRouteTypes {
     | '/design-stage-3'
     | '/privacy'
     | '/sign-in'
+    | '/_app/cardio'
     | '/_app/goals'
     | '/_app/gym'
     | '/_app/inbox'
@@ -290,6 +302,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/sign-in'
       preLoaderRoute: typeof SignInRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_app/cardio': {
+      id: '/_app/cardio'
+      path: '/cardio'
+      fullPath: '/cardio'
+      preLoaderRoute: typeof AppCardioRouteImport
+      parentRoute: typeof AppRoute
     }
     '/_app/goals': {
       id: '/_app/goals'
@@ -379,6 +398,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AppRouteChildren {
+  AppCardioRoute: typeof AppCardioRoute
   AppGoalsRoute: typeof AppGoalsRoute
   AppGymRoute: typeof AppGymRoute
   AppInboxRoute: typeof AppInboxRoute
@@ -394,6 +414,7 @@ interface AppRouteChildren {
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppCardioRoute: AppCardioRoute,
   AppGoalsRoute: AppGoalsRoute,
   AppGymRoute: AppGymRoute,
   AppInboxRoute: AppInboxRoute,

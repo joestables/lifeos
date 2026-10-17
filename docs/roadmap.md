@@ -11,8 +11,8 @@ starts by writing the specs it needs, and no earlier.*
 | 1 | **Starts with its specs:** sign-in and Spaces, offline writes. Then foundation: pause v1; **new Supabase project** (London); repo; core schema and Spaces; auth; navigation drawer; **the design system** (shadcn themed with LifeOS tokens, and the shared components the first screens need); data layer and write queue; the activity log (items and links); **the ontology package** (constants and the lookup migration); **CI with database tests**; the `can_read` benchmark; `ops.events` and the nightly health check | A solid base, built only as far as Stage 2 needs |
 | 2 | **Starts with its specs:** capture, Thoughts and Inbox, Notes, Tasks (with repeats), Reminders. Then: the colours by Type and the app icon, designed with Joe; capture in the app (Thought by default); sorting Thoughts in Inbox; Notes with Labels and pins; Tasks with Labels, stars, sub-tasks and **repeating Tasks**; Inbox; Reminders by Web Push with Done/Snooze actions (Android and desktop), overdue nudges and the morning digest; Search; Playwright walks in CI (the nightly smoke walk deferred until the roadmap is complete). Until Stage 3, an event-shaped line is saved as a Thought or a Task. | **Replaces Google Tasks — start using it daily** |
 | 3 | **Starts with its specs:** Plan, Events, Google Calendar. Then: Plan, every Schedulable Type in a week (computer) or a day (phone), filtered by Type; Events (and repeating Events, with Labels), with the Task ↔ Event switch; Google Calendar, incoming only or two-way, always Personal | The one planning view |
-| 4 | Recipes, Variations and ideas, cook log, meal planning; the shared AI service and food preferences; Contacts and Households, with sharing on | Shared with girlfriend |
-| 4b | Lists, Shops and list templates, with live updates; ingredients to shopping lists | Shopping together |
+| 4 | **Starts with its specs:** Recipes, Meal plan, Ingredients. Then: the **Recipes** page (the recipe library and saved ideas, Variations, cook log) and the **Meal plan** page (planning Meals, and the Ingredient database Recipes draw on); the shared AI service and food preferences; Contacts and Households, with sharing on | Shared with girlfriend |
+| 4b | **Shopping:** shopping lists made by hand, or from the meal plan with more added from the Ingredient database or typed; live updates. Shopping lists replace the List Type (to confirm with Stage 4's specs) | Shopping together |
 | 5 | Gym (with v1's recovery model and snapshots), then Goals and the measures registry | The joined-up payoff |
 | 6 | Wardrobe and outfits | |
 | 7 | Android wrapper: exact-alarm Reminders, then Health Connect | Phone alarms can go |
@@ -31,9 +31,12 @@ Each stage's working plan, and a record of every pull request, live in
 ([Stage 2's plan](50-progress/plans/stage-2.md); its nightly smoke walk is
 deferred until the roadmap is complete). Stage 3 is done (Joe, 17 October;
 [its plan](50-progress/plans/stage-3.md)): Plan, Events and Google
-Calendar, incoming and two-way. **Stage 4 (Recipes) is next**, and starts
-by writing its plan. Lists, Shops and list templates moved from Stage 3
-to Stage 4b, after Recipes (Joe, 14 October).
+Calendar, incoming and two-way. **Stage 4 (Recipes) has started**:
+[its plan](50-progress/plans/stage-4.md) is written, and its specs come
+first. Lists and Shops moved from Stage 3 to Stage 4b, after Recipes (Joe,
+14 October); on 17 October Joe set out Recipes, Meal plan and Shopping as
+three pages, with shopping lists taking the place of Lists, and moved Cardio
+into the drawer as a blank page.
 
 Each stage begins by writing its own plan (`50-progress/plans/stage-N.md`,
 shaped like the last one) whose first step is the stage's specs, which Joe
@@ -45,7 +48,8 @@ agrees before anything is built.
 |---|---|
 | Leaving the Household: does "created by" decide ownership, or does the leaver take a copy? ([ADR-0016](20-architecture/adr/0016-sharing-and-visibility.md)) | To confirm |
 | The inbound-email service for the capture address: Cloudflare Email Routing or Postmark ([integration setup](40-operations/integration-setup.md#capture-address-email-after-stage-9)) | Stage 10 |
-| On a repeating Shop, do unticked lines carry over to the next occurrence? | Lists spec (Stage 4b) |
+| Shopping lists replacing List and Shop: does a shopping list keep a Shop's date, place and done (on Plan), and where do packing lists go? ([Stage 4 plan](50-progress/plans/stage-4.md#questions-for-the-specs)) | Stage 4 specs |
+| On a repeating shopping list, do unticked lines carry over to the next occurrence? | Shopping spec (Stage 4b) |
 | Unit conversion (100 g + 1 cup); whether a pantry is wanted | Recipes spec (Stage 4) |
 | Which v1 AI features return (Explore, Labs, dish images, recipe import) | Stage 4 |
 | A Project Type, if grouping Tasks needs more than Labels | When needed |

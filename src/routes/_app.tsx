@@ -29,11 +29,11 @@ const PAGES: DrawerPage[] = [
   { to: '/plan', label: 'Plan', colour: 'none', icon: CalendarDaysIcon },
   { to: '/tasks', label: 'Tasks', colour: 'blue', icon: SquareCheckBigIcon },
   { to: '/notes', label: 'Notes', colour: 'yellow', icon: StickyNoteIcon },
-  { to: '/recipes', label: 'Recipes', colour: 'green', icon: ChefHatIcon },
   { to: '/gym', label: 'Gym', colour: 'coral', icon: DumbbellIcon },
+  { to: '/cardio', label: 'Cardio', colour: 'coral', icon: FootprintsIcon },
+  { to: '/recipes', label: 'Recipes', colour: 'green', icon: ChefHatIcon },
   { to: '/goals', label: 'Goals', colour: 'purple', icon: TargetIcon },
   { to: '/wardrobe', label: 'Wardrobe', colour: 'orange', icon: ShirtIcon },
-  { to: '/cardio', label: 'Cardio', colour: 'coral', icon: FootprintsIcon, later: true },
   { to: '/finance', label: 'Finance', colour: 'none', icon: WalletIcon, later: true },
 ]
 

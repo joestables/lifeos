@@ -1,11 +1,12 @@
 # Notes
 
 *Stage 2. The decisions come first; the requirements, drafted at the start of
-Stage 2, are at the end. Lists join this page in Stage 4b.*
+Stage 2, are at the end.*
 
-**In one line:** Notes, **Lists and Ideas** together
+**In one line:** Notes, like Google Keep
 ([ADR-0026](../../20-architecture/adr/0026-navigation-drawer.md),
-Provisionally agreed) — in Stage 2, Notes, like Google Keep.
+Provisionally agreed). Shopping lists have their own page, Shopping, and
+Recipe ideas live in Recipes.
 
 ## Decisions
 
@@ -95,5 +96,5 @@ Acceptance criteria
    ticked.
 
 Non-goals (Stage 2): a colour per Note; an *idea* state; images and
-attachments; sharing a Note; Lists (Stage 4b); other Types' ideas on this
-page, decided when those Types arrive.
+attachments; sharing a Note; shopping lists (the Shopping page); other
+Types' ideas on this page.
