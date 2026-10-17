@@ -59,7 +59,7 @@ templates, and starting a session opens the session-logging Screen.
 | **Reference data** | A Module's small lookup lists (muscle groups, cuisines, brands…). Not Items. |
 | **Type colour** | The colour that marks a Type's Items, and the pages about them; related Types share one (Tasks and Events blue). Inbox and Plan are neutral ([ADR-0043](../20-architecture/adr/0043-colour-by-type.md)). |
 | **Design token** | A named design value — a colour, size, radius, shadow — defined once and used by every component ([tokens](../30-design/tokens.md)). |
-| **Label** | A per-Space grouping on the Types that use one (Thoughts, Notes and Tasks): filters Inbox, Notes and Tasks. Replaces "tags". |
+| **Label** | A per-Space grouping on the Types that use one (Thoughts, Notes, Tasks and Events): filters Inbox, Notes and Tasks. Replaces "tags". |
 | **Sorting** | Dealing with a Thought in Inbox: converting it into another Type, ticking it off, or deleting it. |
 | **Mark** | A per-person flag a Type may have, under its own name: a Note is **pinned**, a Task **starred**, a Recipe **favourited**. Types without one have none. |
 | **Sub-task** | A line ticked inside a Task: a title and a tick, not a Task of its own. |

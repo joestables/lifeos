@@ -64,7 +64,7 @@ modelled in ordinary Postgres tables plus a links table:
 ```
 core.items     id (UUIDv7, made on the device), type, title, body, space_id,
                owner_id, status, starts_at, ends_at, all_day, due_on (date),
-               do_on (date) + do_at (optional time), slot, series_id +
+               do_on (date) + do_at (optional time), slot, place, series_id +
                occurrence_on, position, touched_at, search, created_at,
                updated_at, archived_at
                (only the fields every View filters on)
@@ -72,17 +72,20 @@ core.items     id (UUIDv7, made on the device), type, title, body, space_id,
 <type> detail  1:1 with items, per Type, in its Module's schema, e.g.
                fitness.workout(item_id, actual_start, duration, readiness …)
                food.meal(item_id, servings)
-               lists.shop(item_id, place)
+               lists.shop(item_id, …)
 
 child rows     belong to one Item and are not Items themselves:
                workout_sets, variation_ingredients, list_lines …
 
 core.series    type, space, owner, the repeat rule (an RRULE), mode
                (schedule | after completion), starts_on, timezone, template
-               (what each occurrence is made with), generated_until, ended_on
+               (what each occurrence is made with: a Task's do_at and due
+               offset, an Event's start time and length, or all day and its
+               number of days), generated_until, ended_on
 core.links     from_item, to_item, link_type, origin (manual|action|integration) …
-core.reminders item_id, person, anchor (starts_at|do_on|due_on) + offset and
-               time, or a fixed time; the default time it was made with;
+core.reminders item_id, person, anchor (starts_at|do_on|due_on) + days
+               and a time, or minutes before an Event's start
+               (offset_minutes), or a fixed time; the default time it was made with;
                is_default; snoozed_until; fires_at (calculated)
 core.activity  item_id, verb, changed (jsonb), at, actor — written by triggers
 ```
@@ -136,8 +139,12 @@ use.
 | Outfit worn | `do_on` | `do_on` |
 | Goal | none: its deadline is in `goals.goal`, so a Goal is not on Plan | — |
 
-Task ↔ Event maps `do_on` + `do_at` to `starts_at` (all-day when there is no
-time); List → Shop gains a `do_on`.
+Task ↔ Event maps `do_on` + `do_at` to `starts_at` (an hour long; all day
+when there is no time), in the owner's timezone, and back; List → Shop gains
+a `do_on`. **An all-day Event keeps its days as dates**: `starts_at` is
+midnight UTC of its first day and `ends_at` midnight UTC of the day after its
+last, as Google keeps them, so it is the same days in any timezone (EVT-001).
+Plan reads a date range through `core.plan_items` ([ADR-0049](adr/0049-plans-read.md)).
 
 ## Item or child row?
 
@@ -171,17 +178,18 @@ Colour: the Type's colour ([ADR-0043](adr/0043-colour-by-type.md),
 Provisionally agreed). Labels: whether the Type uses Labels. Mark: the
 per-person mark the Type has, under its own name. The ontology package also
 declares which Types hold sub-tasks (Task) and which time field a Type's
-default Reminder follows (a Task's do-on date); the lookup table carries all
-of these, so the database enforces them.
+default Reminder follows (a Task's do-on date; an Event's start, 30 minutes
+before) and which have a place (Event); the lookup table carries all of
+these, so the database enforces them.
 
 | Module | Type | S | C | Sh | Cap | Default Space | Statuses used (labels) | Colour | Labels | Mark | Stage |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | core | **Thought** (raw, unsorted; waits in Inbox until sorted or ticked off) | — | ✓ | — | — | Personal | active · done | yellow | ✓ | — | 2 |
 | core | **Note** | — | — | — | ✓ | Personal | active | yellow | ✓ | pinned | 2 |
 | core | **Task** | ✓ do-on / due | ✓ | ✓ | ✓ | Personal | idea "Someday" · active · done · cancelled (a missed repeat: "Skipped") | blue | ✓ | starred | 2 |
-| core | **Event** | ✓ start / end | — | ✓ | ✓ | Personal ("with household" → Household) | active · cancelled | blue | — | — | 3 |
-| lists | **List** (can be marked as a template) | — | — | ✓ | ✓ | Personal | active | yellow | — | — | 3 |
-| lists | **Shop** | ✓ do-on, place | ✓ | ✓ | ✓ | Household | active · done · cancelled | yellow | — | — | 3 |
+| core | **Event** (a place; not captured, but a Thought can become one) | ✓ start / end | — | ✓ | ✓ | Personal ("with household" → Household); from Google Calendar always Personal | active · cancelled | blue | ✓ | — | 3 |
+| lists | **List** (can be marked as a template) | — | — | ✓ | ✓ | Personal | active | yellow | — | — | 4b |
+| lists | **Shop** | ✓ do-on, place | ✓ | ✓ | ✓ | Household | active · done · cancelled | yellow | — | — | 4b |
 | food | **Recipe** (the dish) | — | — | ✓ | ✓ | Household | idea "Backlog" · active | green | — | favourited | 4 |
 | food | **Variation** (a way of making it) | — | — | ✓ | — | Its Recipe's, always | active; *untried · attempted · final* calculated from the cook log | green | — | — | 4 |
 | food | **Meal** | ✓ do-on + slot | ✓ "eaten" | ✓ | — | Household | active "Planned" · done · cancelled | green | — | — | 4 |
@@ -220,7 +228,7 @@ more than Labels).
 
 | Module | Detail tables (1:1 with an Item) | Child rows |
 |---|---|---|
-| core | — (Thought, Note, Task, Event use `core.items` only) | `subtasks(item_id, title, done, position)` — a Task's sub-tasks |
+| core | — (Thought, Note, Task use `core.items` only; where an Event's place is kept is decided with Stage 3's schema) | `subtasks(item_id, title, done, position)` — a Task's sub-tasks |
 | lists | `shop(place)` | `list_lines(text, ingredient_id?, qty, unit, section, checked, position, for_item_id?, generated, touched_at)` — used by List and Shop |
 | food | `recipe(photo, cuisine, category, protein, carbs)`, `variation(servings, prep_min, cook_min, source_url, notes, final)`, `meal(servings)`, `ingredient(section, default_unit, staple)` | `variation_ingredients(ingredient_id, qty, unit, prep_note, group, position)`, `variation_steps`, `cook_log(person, cooked_on, rating, notes, meal_id?)`; reference data: cuisines, categories, protein, carbs, units |
 | fitness | `exercise(muscle_groups, equipment, increment, target)`, `workout(actual_start, duration, readiness, stage)`, `cardio_activity(kind, distance_m, duration_s, avg_hr)` | `template_exercises(exercise_id, sets, reps, target)`, `workout_entries(exercise_id, snapshot)`, `workout_sets(entry_id, set_no, reps, weight, rpe)`; reference data: muscle groups, equipment, recovery settings per person |
@@ -271,7 +279,7 @@ rule and create no links.
 
 | Table | Holds |
 |---|---|
-| `core.people` | A person: name, home timezone, default Reminder time (09:00), whether each Type's default Reminder is on, the morning digest and its time (07:00); later, food preferences |
+| `core.people` | A person: name, home timezone, default Reminder time (09:00), whether each Type's default Reminder is on, the morning digest and its time (07:00), the Types hidden on Plan (PLN-004); later, food preferences |
 | `core.contacts` | Contact requests between people, and whether they were accepted |
 | `core.spaces` · `core.space_members` · `core.space_invites` | Personal and Household Spaces, membership, invitations to a Household |
 | `core.items` | Every Item |
@@ -287,8 +295,13 @@ rule and create no links.
 | `core.subtasks` | A Task's sub-tasks: title, done, position |
 | `core.capture_tokens` | Each person's capture-address secrets (hashed), revocable (Stage 10) |
 | `core.attachments` | Photos and files on Items (Supabase Storage) |
-| `core.connections` | Integration connections; tokens in Vault |
-| `core.external_refs` | Integration ids and raw payloads per Item |
+| `core.connections` | Integration connections; tokens in Vault. A disconnected one is kept, emptied (`disconnected_at`), so reconnecting finds its calendars and outside ids again |
+| `core_private.oauth_states` | One-time states for connecting an Integration: whose, where the app was, when used; then the token waiting in Vault and the one-time code the person who began finishes with (Stage 3) |
+| `core.external_refs` | Integration ids and raw payloads per Item: its connection and calendar, the outside id and `etag`, the raw payload and the mapping's version, and whether the Item was made in LifeOS and sent out (`made_in_lifeos`: it stays mine when the calendar goes) |
+| `core.calendar_links` | Each Google calendar of a connection: its sync level, whether it is my default calendar (`new_events`), its sync token (Stage 3, [ADR-0047](adr/0047-google-calendar-sync.md), Provisionally agreed) |
+| `core_private.calendar_outbox` | Events and repeating Events waiting to go to Google on a two-way calendar: one waiting row each, when it was queued, its tries and when to try next, when sent and why it failed (Stage 3, [ADR-0048](adr/0048-google-calendar-two-way.md), Provisionally agreed) |
+| `core_private.event_calendars` | The calendar chosen for a new Event as it was made, or none (GCL-005 1, ADR-0048) |
+| `core_private.series_refs` | Which Google repeating event each series sent to Google is, with its `etag` (ADR-0048) |
 | `ops.events` | Errors and failures from the app, Edge Functions, cron jobs and Integrations: what, where (screen), the last few actions, never Items' content |
 | `ops.health_runs` · `ops.heartbeats` | The nightly health check's findings; when jobs outside the database last ran: Reminder sending and the nightly series run ([ADR-0044](adr/0044-reminder-delivery.md), [ADR-0045](adr/0045-extending-series.md)) |
 

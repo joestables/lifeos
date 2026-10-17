@@ -13,7 +13,8 @@ import { TypeTile } from './TypeTile'
 /**
  * An Item opened as a popup (patterns.md#opening-an-item): centred, never
  * attached to an edge. The header names the Type and holds the Item's
- * actions and Close; the title and the rest scroll in a ScrollArea.
+ * actions and Close; the title and the rest scroll in a ScrollArea. A
+ * Task's and an Event's are 440px high on a phone (tokens.md#sizes).
  */
 export function ItemDialog({
   open,
@@ -26,6 +27,7 @@ export function ItemDialog({
   actions,
   titleField,
   wide = false,
+  standard = false,
   footer,
   keepOnOutsideClick = false,
   children,
@@ -44,6 +46,8 @@ export function ItemDialog({
   titleField?: React.ReactNode
   /** 640px, for a Note. */
   wide?: boolean
+  /** On a phone, one height whatever it holds, its body scrolling: a Task's or an Event's. */
+  standard?: boolean
   /** Under the scrolling body: Cancel and Save, for a new Item kept only on Save. */
   footer?: React.ReactNode
   /** Clicking outside doesn't close it: something typed would be lost. */
@@ -62,9 +66,10 @@ export function ItemDialog({
         className={cn(
           'max-h-[calc(100svh-36px)] gap-0 overflow-hidden p-0',
           wide ? 'max-w-[640px]' : 'max-w-[580px]',
+          standard && 'max-sm:h-[min(440px,calc(100svh-36px))]',
         )}
       >
-        <TypeScope colour={colour} className="flex min-h-0 flex-col">
+        <TypeScope colour={colour} className="flex min-h-0 flex-1 flex-col">
           <div className="flex items-center gap-1 pt-3.5 pr-3.5 pl-5">
             <span className="flex flex-1 items-center gap-2 text-sm text-muted-foreground">
               <TypeTile colour={colour} icon={icon} size="sm" />
@@ -75,7 +80,7 @@ export function ItemDialog({
               <XIcon />
             </DialogClose>
           </div>
-          <ScrollArea className="min-h-0">
+          <ScrollArea className="min-h-0 flex-1">
             <div className="flex flex-col gap-4 px-5 pt-2.5 pb-5">
               {titleField ? (
                 <DialogTitle className="sr-only">{title}</DialogTitle>

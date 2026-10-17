@@ -33,7 +33,8 @@ Done 9 October 2026.
 - **A nightly health check** (`pg_cron`, 03:00 UTC, `ops.health_check()`)
   looks at the last day's events, failed jobs and the heartbeats of jobs
   outside the database (from Stage 2, Reminder sending and the nightly
-  series run; Integration connections join when there are some), and records what it finds in `ops.health_runs`. **Nobody is
+  series run; from Stage 3, Google Calendar connections that aren't
+  syncing), and records what it finds in `ops.health_runs`. **Nobody is
   notified** (Joe, 10 October): Joe checks, or asks Claude "any problems?",
   and Claude reads `ops.health_runs` and `ops.events`. Notifications can be
   added later. A broken Integration also shows in Inbox.
@@ -67,6 +68,59 @@ Reminders, the morning digest and overdue nudges
 - **Deploying them:** Claude deploys both functions through the Supabase
   MCP without JWT checks (each checks its own secret or token);
   `notification-action` with `packages/recurrence`'s files.
+
+## Google Calendar
+
+Connecting and syncing are LifeOS's own
+([ADR-0047](../20-architecture/adr/0047-google-calendar-sync.md)), in four
+Edge Functions deployed by Claude through the Supabase MCP, sharing
+`supabase/functions/calendar-sync/run.ts` and `supabase.ts`:
+
+- **`calendar-connect`** (the app, as me): starts connecting
+  (`core.calendar_begin` makes a one-time state; Google's consent page asks
+  for Calendar, offline, every time), finishes connecting with the code
+  the callback sent me back with (`core.calendar_finish`, only for the
+  person who began; then lists and reads my calendars once), disconnects
+  (revokes the token at
+  Google, then `core.calendar_disconnected`), and syncs when Plan opens, at
+  most once a minute. It doesn't ask the gateway to check the token, which
+  would refuse the browser's preflight; every database call carries the
+  person's token, so the database checks it.
+- **`calendar-callback`** (Google's redirect): trades the code for tokens
+  with the client secret and connects no one itself: it keeps the refresh
+  token in Vault against the state (`core.calendar_received`, the state
+  good once for 15 minutes) and sends me back to Settings, only at the
+  app's own addresses, with `?calendar=finish&code=…` for the app to finish
+  as me, or `cancelled`, `expired` or `failed`.
+- **`calendar-sync`** (every five minutes, `pg_cron` job `calendar-sync`,
+  through `pg_net` with `calendar_secret` from Vault, only while a calendar
+  is on): a fresh access token per connection; Google refusing it marks the
+  connection broken (`core.calendar_broken`, an `ops.events` row, Inbox's
+  notice, the health check); the calendar list refreshed; each calendar
+  that is on read from its sync token, or from four weeks back (first time,
+  after a 410, and weekly so repeats reach 12 weeks ahead); then instances
+  a changed repeat no longer has go (`core.calendar_prune`).
+- **`calendar-push`** (two-way, [ADR-0048](../20-architecture/adr/0048-google-calendar-two-way.md);
+  `pg_cron` job `calendar-push` every minute, waking it through `pg_net`
+  with `calendar_secret` only while `core_private.calendar_outbox` has a
+  row due): claims up to 50 jobs (`core.calendar_outbox_claim`), sends
+  each Event, or repeating Event as one Google repeating event, to its
+  calendar, and records it (`core.calendar_sent`, keeping Google's id and
+  `etag`; a change made meanwhile stays waiting) or the failure
+  (`core.calendar_unpushed`, tried again after 5 minutes, doubling to 6
+  hours). A refused token breaks the connection as the sync does, and its
+  jobs wait, a quarter of an hour at a time. A new Event's chosen calendar
+  is in `core_private.event_calendars`. It is deployed with `calendar-sync`'s
+  `run.ts` and `supabase.ts` and `packages/recurrence/src/days.ts`.
+- **Checking it:** `select * from core.connections`;
+  `select name, level, new_events, synced_until from core.calendar_links`;
+  what waits or failed:
+  `select * from core_private.calendar_outbox where sent_at is null or error is not null order by id desc`;
+  the jobs' runs in `cron.job_run_details`; the functions' logs
+  (`get_logs`, edge functions).
+- **Secrets:** the client's ID and secret are Edge Function secrets
+  (`GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, entered by Joe); each refresh
+  token, and `calendar_secret`, are in Vault.
 
 ## The nightly series run
 

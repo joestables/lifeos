@@ -1,7 +1,7 @@
 # Notes
 
 *Stage 2. The decisions come first; the requirements, drafted at the start of
-Stage 2, are at the end. Lists join this page in Stage 3.*
+Stage 2, are at the end. Lists join this page in Stage 4b.*
 
 **In one line:** Notes, **Lists and Ideas** together
 ([ADR-0026](../../20-architecture/adr/0026-navigation-drawer.md),
@@ -16,7 +16,7 @@ Provisionally agreed) — in Stage 2, Notes, like Google Keep.
 - **Notes are Personal only**; something to share becomes a Shareable Type,
   such as a List.
 - **Labels filter the page**, as in Google Keep; a Note's own title is its
-  heading. Thoughts, Notes and Tasks share one set of Labels
+  heading. Thoughts, Notes, Tasks and Events share one set of Labels
   ([ADR-0014](../../20-architecture/adr/0014-reference-data-and-labels.md),
   Provisionally agreed).
 - **Notes are pinned**, not starred: pinning is the Note's mark, kept at the
@@ -95,5 +95,5 @@ Acceptance criteria
    ticked.
 
 Non-goals (Stage 2): a colour per Note; an *idea* state; images and
-attachments; sharing a Note; Lists (Stage 3); other Types' ideas on this
+attachments; sharing a Note; Lists (Stage 4b); other Types' ideas on this
 page, decided when those Types arrive.

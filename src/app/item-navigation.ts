@@ -88,6 +88,7 @@ export function draftItem(id: string, type: string): Item {
     type,
     title: '',
     body: '',
+    place: null,
     space_id: '',
     owner_id: '',
     status: 'active',

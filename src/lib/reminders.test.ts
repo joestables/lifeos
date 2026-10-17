@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest'
-import { byFiring, choiceFiresAt, reminderFields, reminderSays, reminderTime } from './reminders'
+import {
+  byFiring,
+  choiceFiresAt,
+  reminderChoice,
+  reminderFields,
+  reminderSays,
+  reminderTime,
+} from './reminders'
 
 const NOW = new Date(2026, 9, 12, 9, 0)
 const r = (fields: Record<string, unknown>) => ({
@@ -65,7 +72,53 @@ describe('a Reminder not yet saved (TSK-001 4)', () => {
       anchor: null,
       offset_days: 0,
       at_time: null,
+      offset_minutes: 0,
       fixed_at: '2026-10-12T18:00:00.000Z',
     })
+  })
+
+  it('EVT-003 3: before an Event starts, or on a day before it at a time', () => {
+    expect(reminderFields({ kind: 'before', minutes: 60, time: '09:00' }, 'Europe/London')).toEqual(
+      { anchor: 'starts_at', offset_days: 0, at_time: null, offset_minutes: -60, fixed_at: null },
+    )
+    expect(
+      reminderFields({ kind: 'starts_at', daysBefore: 1, time: '18:00' }, 'Europe/London'),
+    ).toEqual({
+      anchor: 'starts_at',
+      offset_days: -1,
+      at_time: '18:00',
+      offset_minutes: 0,
+      fixed_at: null,
+    })
+    const r = {
+      anchor: 'starts_at',
+      offset_days: 0,
+      at_time: null,
+      offset_minutes: -30,
+      fixed_at: null,
+      snoozed_until: null,
+    }
+    expect(reminderSays(r)).toBe('30 minutes before')
+    expect(reminderSays({ ...r, offset_minutes: -60 })).toBe('1 hour before')
+    expect(reminderSays({ ...r, offset_days: -1, at_time: '18:00:00' })).toBe('1 day before')
+    expect(reminderChoice(r, '09:00', 'Europe/London')).toEqual({
+      kind: 'before',
+      minutes: 30,
+      time: '09:00',
+    })
+    expect(
+      choiceFiresAt(
+        { kind: 'before', minutes: 30, time: '09:00' },
+        { starts_at: '2026-10-17T12:00:00.000Z' },
+        'Europe/London',
+      ),
+    ).toBe('2026-10-17T11:30:00.000Z')
+    expect(
+      choiceFiresAt(
+        { kind: 'starts_at', daysBefore: 1, time: '18:00' },
+        { start_day: '2026-10-17' },
+        'Europe/London',
+      ),
+    ).toBe('2026-10-16T17:00:00.000Z')
   })
 })

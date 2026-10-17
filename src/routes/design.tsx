@@ -18,6 +18,7 @@ import {
   SunIcon,
   TargetIcon,
   Trash2Icon,
+  LinkIcon,
   LogOutIcon,
   TagIcon,
   UtensilsIcon,
@@ -27,6 +28,13 @@ import {
 import { useState, type ReactNode } from 'react'
 import {
   AddRow,
+  AddToDay,
+  DropSlot,
+  PageAction,
+  PlanDay,
+  PlanToolbar,
+  TaskLinker,
+  WeekStrip,
   BackLink,
   BrandMark,
   CaptureDialog,
@@ -280,6 +288,8 @@ function DesignPage() {
   const [capture, setCapture] = useState({ open: false, type: 'thought', text: 'call mum fri 6pm' })
   const [chips, setChips] = useState({ core: true, food: true, fitness: false })
   const [chosenLabels, setChosenLabels] = useState<string[]>(['home'])
+  const [planLayout, setPlanLayout] = useState<'week' | 'day'>('week')
+  const [stripDay, setStripDay] = useState('fri')
   const toggleMode = () => {
     document.documentElement.classList.toggle('dark', !dark)
     setDark(!dark)
@@ -718,13 +728,23 @@ function DesignPage() {
         </Section>
 
         <Section title="Plan">
+          <PlanToolbar
+            title="5 – 11 October"
+            layout={planLayout}
+            onLayout={setPlanLayout}
+            onToday={() => {}}
+            onPrevious={() => {}}
+            onNext={() => {}}
+            step="week"
+            action={<PageAction label="Add" onClick={() => {}} />}
+          />
           <Row>
             <FilterChip
               colour="blue"
               pressed={chips.core}
               onPressedChange={(core) => setChips({ ...chips, core })}
             >
-              Tasks and events
+              Tasks
             </FilterChip>
             <FilterChip
               colour="green"
@@ -738,17 +758,30 @@ function DesignPage() {
               pressed={chips.fitness}
               onPressedChange={(fitness) => setChips({ ...chips, fitness })}
             >
-              Gym
+              Workouts
             </FilterChip>
           </Row>
           <div className="grid max-w-3xl grid-cols-3 gap-2.5">
-            <DayColumn name="Thu" number={8}>
+            <DayColumn
+              name="Thu"
+              number={8}
+              add={
+                <AddToDay
+                  day="Thu 8 Oct"
+                  choices={[
+                    { key: 'task', label: 'Task', colour: 'blue', icon: TYPE_ICONS.task! },
+                    { key: 'event', label: 'Event', colour: 'blue', icon: TYPE_ICONS.event! },
+                  ]}
+                  onChoose={() => {}}
+                />
+              }
+            >
               <PlanCard
                 colour="blue"
                 icon={TYPE_ICONS.task!}
                 type="Task"
                 title="Renew passport"
-                past
+                done
               />
               <PlanCard
                 colour="coral"
@@ -759,13 +792,15 @@ function DesignPage() {
                 past
               />
             </DayColumn>
-            <DayColumn name="Fri" number={9} today>
+            <DayColumn name="Fri" number={9} today dropping>
+              <DropSlot />
               <PlanCard
                 colour="blue"
                 icon={TYPE_ICONS.event!}
                 type="Event"
                 title="Dishoom"
                 time="19:30"
+                detail="Shoreditch"
               />
               <PlanCard
                 colour="yellow"
@@ -777,8 +812,54 @@ function DesignPage() {
             </DayColumn>
             <DayColumn name="Sat" number={10}>
               <PlanCard colour="green" icon={UtensilsIcon} type="Dinner" title="Chicken katsu" />
-              <PlanCard colour="orange" icon={ShirtIcon} type="Outfit" title="Olive knit" />
+              <PlanCard
+                colour="orange"
+                icon={ShirtIcon}
+                type="Outfit"
+                title="Olive knit"
+                dragging
+              />
             </DayColumn>
+          </div>
+          <div className="flex max-w-md flex-col gap-3">
+            <WeekStrip
+              days={[
+                { key: 'mon', name: 'Mon', number: 5, dots: ['blue'] },
+                { key: 'tue', name: 'Tue', number: 6, dots: ['blue', 'green'] },
+                { key: 'wed', name: 'Wed', number: 7 },
+                { key: 'thu', name: 'Thu', number: 8, dots: ['blue', 'coral'] },
+                { key: 'fri', name: 'Fri', number: 9, today: true, dots: ['blue', 'yellow'] },
+                { key: 'sat', name: 'Sat', number: 10, dots: ['green', 'orange'] },
+                { key: 'sun', name: 'Sun', number: 11 },
+              ]}
+              chosen={stripDay}
+              onChoose={setStripDay}
+            />
+            <PlanDay>
+              <PlanCard
+                wide
+                colour="blue"
+                icon={TYPE_ICONS.event!}
+                type="Event"
+                title="Dishoom"
+                time="19:30–21:30"
+                detail="Shoreditch"
+              />
+            </PlanDay>
+            <TaskLinker
+              tasks={[
+                { id: 'a', title: 'Buy a card for mum', when: 'Sat 10 Oct' },
+                { id: 'b', title: 'Book the table', when: 'No date' },
+              ]}
+              onLink={() => {}}
+              onCreate={() => {}}
+              trigger={
+                <Button variant="ghost" size="sm" className="self-start">
+                  <LinkIcon />
+                  Link a task
+                </Button>
+              }
+            />
           </div>
         </Section>
 

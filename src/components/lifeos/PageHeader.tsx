@@ -1,4 +1,5 @@
 import { PlusIcon } from 'lucide-react'
+import type * as React from 'react'
 import { useContext, type ReactNode } from 'react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -43,9 +44,13 @@ export function PageHeader({
  * just after the page's Tabs, a little further from them than they are from
  * each other. Hidden on a phone, where the Fab has it.
  */
-export function PageAction({ label, onClick }: { label: string; onClick: () => void }) {
+export function PageAction({
+  label,
+  className,
+  ...props
+}: Omit<React.ComponentProps<typeof Button>, 'children'> & { label: string }) {
   return (
-    <Button size="sm" className="hidden md:inline-flex" onClick={onClick}>
+    <Button size="sm" className={cn('hidden md:inline-flex', className)} {...props}>
       <PlusIcon /> {label}
     </Button>
   )

@@ -2,36 +2,85 @@ import type { LucideIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { TypeColour } from './colours'
 
-/** A small card in a Plan day, in its Type's colour; past Items fade to 50%. */
+/**
+ * An Item on Plan (components.md): its Type's icon and name in the Type's
+ * colour, its title, then its time and a detail (a place, "Due Fri") in
+ * muted text. Past Items fade; done ones are struck through; one being
+ * dragged lifts. `wide` is the day's list: a little roomier.
+ */
 export function PlanCard({
   colour,
   icon: Icon,
   type,
   title,
   time,
+  detail,
   past = false,
+  done = false,
+  dragging = false,
+  wide = false,
+  onOpen,
 }: {
   colour: TypeColour
   icon: LucideIcon
+  /** "Task", "Event", "Dinner" */
   type: string
   title: string
+  /** "19:30", "19:30–21:30", "All day"; none for an untimed Task. */
   time?: string
+  /** A place, "Due Fri". */
+  detail?: string
   past?: boolean
+  done?: boolean
+  dragging?: boolean
+  wide?: boolean
+  onOpen?: () => void
 }) {
+  const meta = [time, detail].filter(Boolean).join(' · ')
   return (
     <div
+      data-slot="plan-card"
       data-colour={colour}
       className={cn(
-        'flex min-w-0 flex-col gap-1.5 rounded-control bg-card px-2.5 py-[9px] shadow-card',
-        past && 'opacity-50 shadow-none',
+        'relative flex min-w-0 flex-col rounded-control bg-card shadow-card transition-[box-shadow,opacity]',
+        wide ? 'gap-1 px-3.5 py-3' : 'gap-1.5 px-2.5 py-[9px]',
+        (past || done) && 'opacity-50 shadow-none',
+        dragging && 'z-10 rotate-[1.5deg] cursor-grabbing opacity-100 shadow-pop',
       )}
     >
-      <div className="flex items-center gap-1.5 text-xs font-semibold text-tc-text [&_svg]:size-[13px]">
-        <Icon />
+      <div className="flex items-center gap-1.5 text-xs font-semibold text-tc-text [&_svg]:size-[13px] [&_svg]:shrink-0">
+        <Icon aria-hidden />
         {type}
       </div>
-      <div className="text-sm leading-[1.3] font-[650]">{title}</div>
-      {time && <div className="text-xs text-muted-foreground tabular-nums">{time}</div>}
+      <div
+        className={cn(
+          'font-[650] break-words',
+          wide ? 'text-base leading-[1.35]' : 'text-sm leading-[1.3]',
+          done && 'line-through',
+        )}
+      >
+        {onOpen ? (
+          <button
+            type="button"
+            onClick={onOpen}
+            className="text-left outline-none after:absolute after:inset-0 after:rounded-control focus-visible:after:ring-3 focus-visible:after:ring-ring-soft"
+          >
+            {title}
+          </button>
+        ) : (
+          title
+        )}
+      </div>
+      {meta && (
+        <div
+          className={cn(
+            'truncate text-muted-foreground tabular-nums',
+            wide ? 'text-sm' : 'text-xs',
+          )}
+        >
+          {meta}
+        </div>
+      )}
     </div>
   )
 }

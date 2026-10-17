@@ -53,9 +53,21 @@ every device turns notifications on again.
 - Publish the Google app to **Production, unverified** (a warning screen,
   fine under 100 users); in *Testing* mode refresh tokens expire after 7
   days.
-- Request `calendar.events` only.
+- Request `calendar.calendarlist.readonly` (listing my calendars) and
+  `calendar.events` only ([ADR-0047](../20-architecture/adr/0047-google-calendar-sync.md)).
+  Both are sensitive: an unverified app shows a warning screen and is
+  capped at 100 users over the project's life.
+- The sync level, incoming only or two-way, is chosen in LifeOS, not here.
 - Connecting Calendar is a separate OAuth flow run by an Edge Function;
   tokens are kept server-side in Vault.
+
+| Where | Setting | State |
+|---|---|---|
+| Google Cloud project `lifeos` → APIs & Services → Library | **Google Calendar API** enabled | Done (Joe, 16 October) |
+| … Google Auth Platform → Data Access | Add `.../auth/calendar.calendarlist.readonly` and `.../auth/calendar.events`, beside the sign-in scopes | Done (Joe, 16 October) |
+| … Google Auth Platform → Audience | Stays **In production** (unverified); nothing to change | Done |
+| … Clients → the existing web client → Authorized redirect URIs | Add `https://nxydbufwuvsacayqoakh.supabase.co/functions/v1/calendar-callback`, exactly, beside the sign-in one | Done (Joe, 16 October) |
+| Supabase → Edge Functions → Secrets | `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`: the same web client's ID and secret | Done (Joe, 16 October); Claude never sees the secret. The client ID was checked as set from the function itself |
 
 ## Capture address email (after Stage 9)
 

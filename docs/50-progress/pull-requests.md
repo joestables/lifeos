@@ -2,6 +2,102 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#13](https://github.com/joestables/lifeos/pull/13) — Stage 3: Plan, Events and Google Calendar
+
+Branch `claude/kind-babbage-p00wl4` · 2026-10-14 to 2026-10-17
+
+**What it did**
+- Closed Stage 2 (Joe, 14 October); its nightly smoke walk stays deferred.
+- Wrote [Stage 3's plan](plans/stage-3.md) from Joe's brief: Plan shows
+  every Schedulable Type, filtered by Type, a week on a computer (or a day)
+  and a day on a phone; Events, repeating, with the Task ↔ Event switch;
+  Google Calendar, incoming only or two-way, always Personal. Its first
+  step is the specs, with eleven questions for Joe.
+- Moved Lists, Shops and list templates (with live updates and ingredients
+  to shopping lists) to a new Stage 4b, after Recipes: the roadmap,
+  capability map, data model, Modules list and Notes spec follow, and
+  ADR-0042 (live updates) and ADR-0036 (the generated data-model now comes
+  with the first Module, `food`, in Stage 4) are amended.
+- Drafted Stage 3's specs with Joe's answers: [Plan](../10-requirements/views/plan.md#requirements)
+  (PLN-001–007), a new [Events](../10-requirements/cross-cutting/events.md#requirements)
+  spec (EVT-001–006) and [Google Calendar](../10-requirements/cross-cutting/integrations.md#google-calendar)
+  (GCL-001–006), all *proposed*. Capture stays Thoughts and Tasks
+  (ADR-0027 amended); Events take Labels (ADR-0014 amended); capture,
+  Inbox, items, Reminders, Search, the data model, glossary and capability
+  map follow.
+- Joe agreed the specs; step 2's decisions written as Proposed ADRs:
+  ADR-0047 (how Google Calendar comes in), ADR-0048 (two-way), ADR-0049
+  (how Plan reads a week), with Google's rules re-checked; Joe agreed them.
+- Step 3's first design pass: Stage 3's screens drawn from the real
+  components on `/design-stage-3`, on a design canvas for Joe, with the
+  Plan components drafted (PlanWeek, PlanDay, PlanToolbar, WeekStrip,
+  AddToDay; PlanCard extended). A second pass after Joe's comments, closer
+  to the first Plan design, with "Link a task" on an Event; agreed, and
+  written into the design spec (components, patterns) and `/design`.
+- Step 4, the schema: an Event's place, Labels and default Reminder; all-day
+  Events as dates; Task ↔ Event mapping times; repeating Events;
+  `core.plan_items`; Plan's hidden Types; Google Calendar's connections,
+  calendars and references, with Google's fields locked on incoming
+  calendars. 35 database tests. Applied to the live project on 15 October
+  in eleven smaller migrations (`stage3_columns` … `stage3_plan_items`,
+  `ontology`), since the connector timed out on larger ones.
+  `stage3_convert` (Task ↔ Event mapping times), which the connector holds
+  for a confirmation that never reaches the session (it contains a
+  `DELETE`), was run by Joe in the SQL editor, checked and recorded.
+- Step 5, Events in the app: the Event popup and "New event" (from Plan's
+  main action until Plan is built), times kept as dates when all day, an
+  end before the start refused; place, notes, Labels; Reminders before an
+  Event starts or on its day at a time, its notification saying when and
+  where (two small migrations), and the Event default in Settings; the
+  Task ↔ Event switch, and a Thought sorted into an Event; Events in
+  Search; Tasks *for* an Event, linked or made there, shown on the Task.
+  The design spec gains EventTimesField and the Event's Reminder choices.
+- Step 6, repeating Events: Repeat on an Event (on a schedule only), each
+  occurrence at its time in London either side of the clocks changing,
+  shown at once offline; one occurrence changed alone, or the repeat
+  stopped from one on; a repeating Event found once in Search. Undoing a
+  new repeating Task or Event now takes its repeat with it.
+- Step 7, Plan: the week on a computer and the day (a phone's, and a
+  computer's when chosen), each Item on its days, the Type filter kept on
+  every device, previous, Today, next and any date; adding a Task or an
+  Event on a day; dragging to another day with Undo. ADR-0049 amended: Plan
+  places Items from what the device holds (for Joe to confirm).
+- Steps 8 and 9, Google Calendar incoming: Joe set up Google Cloud; five
+  migrations and three Edge Functions (`calendar-connect`,
+  `calendar-callback`, `calendar-sync` every five minutes), live; Settings
+  connects, sets each calendar Off or Incoming, syncs and disconnects;
+  Events from Google are read-only on Plan and in their popup, with "Open
+  in Google Calendar"; a broken connection shows in Inbox and the health
+  check. ADR-0047's as-built choices recorded for Joe to confirm.
+- Step 10, Google Calendar two-way: an outbox on the server filled by
+  triggers on Events and their series, and the `calendar-push` Edge
+  Function, woken each minute while something waits, sending each Event (a
+  repeating one as one Google repeating event) to its calendar, with
+  retries and a later change winning; incoming sync recognises what LifeOS
+  sent. Four migrations and the function, live; 16 database tests and unit
+  tests against a stand-in for Google. Settings offers Two-way and "New
+  events go to"; an Event from a two-way calendar is editable and
+  draggable. ADR-0048's as-built choices recorded for Joe to confirm.
+- Step 11, Joe's first round: "Default calendar" (with None) in place of
+  "New events go to", and a Calendar field on a new Event; a Task's and an
+  Event's popup one height on a phone (440px), scrolling inside; TimeField
+  a Select of quarter hours. Then a bug hunt of Plan and Calendar, its
+  findings fixed: Events made in LifeOS stay on disconnecting; a Task
+  switched from an Event isn't deleted by Google; changes made mid-push
+  aren't lost; Google's older cancellations, changed repeats, deleted
+  repeats and repeats made from Events handled; Plan's midnight ends, a new
+  Event's start time and dragging while loading fixed. Six migrations and
+  four Edge Functions, live; 19 database tests, unit tests and walks.
+- After Joe's report: the app's read of my calendars was refused the new
+  `made_in_lifeos` column, so Settings lost its Google Calendar card or
+  offered Connect; granted, tested, and Settings now says when it can't
+  load. No empty "…" menu. Connecting Google Calendar is finished in the
+  app by the person who began it (`calendar_received`, `calendar_finish`);
+  `calendar-callback` and `calendar-connect` redeployed.
+- Stage 3 closed (Joe, 17 October): plan, roadmap and CLAUDE.md say so;
+  the as-built choices in ADR-0047, 0048 and 0049 carried to the roadmap's
+  open questions for Joe to confirm.
+
 ## [#12](https://github.com/joestables/lifeos/pull/12) — Stage 2, step 14: Labels as filters, Thoughts ticked off
 
 Branch `claude/laughing-babbage-maqg0k` · 2026-10-13

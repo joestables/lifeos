@@ -39,6 +39,186 @@ export type Database = {
           },
         ]
       }
+      calendar_links: {
+        Row: {
+          calendar_id: string
+          can_edit: boolean
+          connection_id: string
+          created_at: string
+          id: string
+          is_primary: boolean
+          level: string
+          name: string
+          new_events: boolean
+          person_id: string
+          sync_token: string | null
+          synced_until: string | null
+          updated_at: string
+        }
+        ComputedFields: never
+        Insert: {
+          calendar_id: string
+          can_edit?: boolean
+          connection_id: string
+          created_at?: string
+          id?: string
+          is_primary?: boolean
+          level?: string
+          name?: string
+          new_events?: boolean
+          person_id: string
+          sync_token?: string | null
+          synced_until?: string | null
+          updated_at?: string
+        }
+        Update: {
+          calendar_id?: string
+          can_edit?: boolean
+          connection_id?: string
+          created_at?: string
+          id?: string
+          is_primary?: boolean
+          level?: string
+          name?: string
+          new_events?: boolean
+          person_id?: string
+          sync_token?: string | null
+          synced_until?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'calendar_links_connection_id_fkey'
+            columns: ['connection_id']
+            isOneToOne: false
+            referencedRelation: 'connections'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'calendar_links_person_id_fkey'
+            columns: ['person_id']
+            isOneToOne: false
+            referencedRelation: 'people'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      connections: {
+        Row: {
+          account: string
+          broken_since: string | null
+          created_at: string
+          disconnected_at: string | null
+          id: string
+          last_synced_at: string | null
+          person_id: string
+          provider: string
+          state: string
+          token_secret: string | null
+          updated_at: string
+        }
+        ComputedFields: never
+        Insert: {
+          account?: string
+          broken_since?: string | null
+          created_at?: string
+          disconnected_at?: string | null
+          id?: string
+          last_synced_at?: string | null
+          person_id?: string
+          provider: string
+          state?: string
+          token_secret?: string | null
+          updated_at?: string
+        }
+        Update: {
+          account?: string
+          broken_since?: string | null
+          created_at?: string
+          disconnected_at?: string | null
+          id?: string
+          last_synced_at?: string | null
+          person_id?: string
+          provider?: string
+          state?: string
+          token_secret?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'connections_person_id_fkey'
+            columns: ['person_id']
+            isOneToOne: false
+            referencedRelation: 'people'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      external_refs: {
+        Row: {
+          calendar_link_id: string | null
+          connection_id: string
+          created_at: string
+          etag: string | null
+          external_id: string
+          external_updated: string | null
+          item_id: string
+          made_in_lifeos: boolean
+          mapping_version: number
+          raw: Json | null
+          updated_at: string
+        }
+        ComputedFields: never
+        Insert: {
+          calendar_link_id?: string | null
+          connection_id: string
+          created_at?: string
+          etag?: string | null
+          external_id: string
+          external_updated?: string | null
+          item_id: string
+          made_in_lifeos?: boolean
+          mapping_version?: number
+          raw?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          calendar_link_id?: string | null
+          connection_id?: string
+          created_at?: string
+          etag?: string | null
+          external_id?: string
+          external_updated?: string | null
+          item_id?: string
+          made_in_lifeos?: boolean
+          mapping_version?: number
+          raw?: Json | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'external_refs_calendar_link_id_fkey'
+            columns: ['calendar_link_id']
+            isOneToOne: false
+            referencedRelation: 'calendar_links'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'external_refs_connection_id_fkey'
+            columns: ['connection_id']
+            isOneToOne: false
+            referencedRelation: 'connections'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'external_refs_item_id_fkey'
+            columns: ['item_id']
+            isOneToOne: true
+            referencedRelation: 'items'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       item_labels: {
         Row: {
           created_at: string
@@ -81,6 +261,7 @@ export type Database = {
           converts_to: string[]
           default_reminder: string | null
           default_space: string
+          has_place: boolean
           has_subtasks: boolean
           key: string
           label: string
@@ -100,6 +281,7 @@ export type Database = {
           converts_to: string[]
           default_reminder?: string | null
           default_space: string
+          has_place?: boolean
           has_subtasks?: boolean
           key: string
           label: string
@@ -118,6 +300,7 @@ export type Database = {
           converts_to?: string[]
           default_reminder?: string | null
           default_space?: string
+          has_place?: boolean
           has_subtasks?: boolean
           key?: string
           label?: string
@@ -144,6 +327,7 @@ export type Database = {
           id: string
           occurrence_on: string | null
           owner_id: string
+          place: string | null
           position: string | null
           search: unknown
           series_id: string | null
@@ -169,6 +353,7 @@ export type Database = {
           id?: string
           occurrence_on?: string | null
           owner_id?: string
+          place?: string | null
           position?: string | null
           search?: unknown
           series_id?: string | null
@@ -193,6 +378,7 @@ export type Database = {
           id?: string
           occurrence_on?: string | null
           owner_id?: string
+          place?: string | null
           position?: string | null
           search?: unknown
           series_id?: string | null
@@ -409,6 +595,7 @@ export type Database = {
           digest_time: string
           id: string
           name: string
+          plan_hidden_types: string[]
           reminder_defaults: NonNullable<Json>
           timezone: string
         }
@@ -420,6 +607,7 @@ export type Database = {
           digest_time?: string
           id: string
           name?: string
+          plan_hidden_types?: string[]
           reminder_defaults?: NonNullable<Json>
           timezone?: string
         }
@@ -430,6 +618,7 @@ export type Database = {
           digest_time?: string
           id?: string
           name?: string
+          plan_hidden_types?: string[]
           reminder_defaults?: NonNullable<Json>
           timezone?: string
         }
@@ -887,6 +1076,7 @@ export type Database = {
           id: string
           occurrence_on: string | null
           owner_id: string
+          place: string | null
           position: string | null
           search: unknown
           series_id: string | null
@@ -905,6 +1095,55 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      calendar_begin: { Args: { p_return_to: string }; Returns: string }
+      calendar_broken: { Args: { p_connection: string; p_reason: string }; Returns: undefined }
+      calendar_connected: {
+        Args: { p_account: string; p_refresh_token: string; p_state: string }
+        Returns: Json
+      }
+      calendar_disconnected: { Args: { p_connection: string }; Returns: undefined }
+      calendar_finish: { Args: { p_code: string }; Returns: string }
+      calendar_outbox_claim: { Args: { p_limit?: number }; Returns: Json }
+      calendar_prune: {
+        Args: { p_from: string; p_link: string; p_masters: Json; p_until: string }
+        Returns: number
+      }
+      calendar_pushed: {
+        Args: { p_outbox: number; p_refs: Json; p_series_ref?: Json }
+        Returns: undefined
+      }
+      calendar_received: {
+        Args: { p_account: string; p_refresh_token: string; p_state: string }
+        Returns: Json
+      }
+      calendar_save_events: { Args: { p_events: Json; p_link: string }; Returns: number }
+      calendar_secret_ok: { Args: { p_secret: string }; Returns: boolean }
+      calendar_sent: {
+        Args: { p_outbox: number; p_queued_at: string; p_refs: Json; p_series_ref: Json }
+        Returns: undefined
+      }
+      calendar_set_calendars: {
+        Args: { p_calendars: Json; p_connection: string }
+        Returns: undefined
+      }
+      calendar_synced: {
+        Args: { p_link: string; p_sync_token: string; p_synced_until: string }
+        Returns: undefined
+      }
+      calendar_token: { Args: { p_connection: string }; Returns: string }
+      calendar_unpushed: { Args: { p_error: string; p_outbox: number }; Returns: undefined }
+      calendars_to_sync: {
+        Args: { p_connection?: string }
+        Returns: {
+          calendar_id: string
+          connection_id: string
+          level: string
+          link_id: string
+          sync_token: string
+          synced_until: string
+          timezone: string
+        }[]
       }
       claim_deliveries: {
         Args: { p_limit?: number }
@@ -931,6 +1170,7 @@ export type Database = {
           id: string
           occurrence_on: string | null
           owner_id: string
+          place: string | null
           position: string | null
           search: unknown
           series_id: string | null
@@ -964,6 +1204,7 @@ export type Database = {
           id: string
           occurrence_on: string | null
           owner_id: string
+          place: string | null
           position: string | null
           search: unknown
           series_id: string | null
@@ -997,6 +1238,7 @@ export type Database = {
           id: string
           occurrence_on: string | null
           owner_id: string
+          place: string | null
           position: string | null
           search: unknown
           series_id: string | null
@@ -1052,6 +1294,17 @@ export type Database = {
       link_items: {
         Args: { p_from: string; p_id: string; p_link_type: string; p_to: string }
         Returns: undefined
+      }
+      plan_items: {
+        Args: { p_from: string; p_to: string }
+        Returns: {
+          calendar_level: string
+          calendar_name: string
+          item: Database['core']['Tables']['items']['Row']
+          plan_from: string
+          plan_to: string
+          repeats: boolean
+        }[]
       }
       push_keys: {
         Args: Record<PropertyKey, never>
@@ -1136,6 +1389,7 @@ export type Database = {
           id: string
           occurrence_on: string | null
           owner_id: string
+          place: string | null
           position: string | null
           search: unknown
           series_id: string | null
@@ -1169,6 +1423,7 @@ export type Database = {
           id: string
           occurrence_on: string | null
           owner_id: string
+          place: string | null
           position: string | null
           search: unknown
           series_id: string | null
@@ -1202,6 +1457,30 @@ export type Database = {
           timezone: string
         }[]
       }
+      set_calendar_level: {
+        Args: { p_level: string; p_link: string }
+        Returns: {
+          calendar_id: string
+          can_edit: boolean
+          connection_id: string
+          created_at: string
+          id: string
+          is_primary: boolean
+          level: string
+          name: string
+          new_events: boolean
+          person_id: string
+          sync_token: string | null
+          synced_until: string | null
+          updated_at: string
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'calendar_links'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       set_device: {
         Args: { p_enabled: boolean; p_id: string }
         Returns: {
@@ -1224,7 +1503,32 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      set_event_calendar: { Args: { p_item: string; p_link: string }; Returns: undefined }
       set_mark: { Args: { p_item: string; p_on: boolean }; Returns: undefined }
+      set_new_events_calendar: {
+        Args: { p_link: string }
+        Returns: {
+          calendar_id: string
+          can_edit: boolean
+          connection_id: string
+          created_at: string
+          id: string
+          is_primary: boolean
+          level: string
+          name: string
+          new_events: boolean
+          person_id: string
+          sync_token: string | null
+          synced_until: string | null
+          updated_at: string
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'calendar_links'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       set_push_keys: {
         Args: { p_private: string; p_public: string }
         Returns: {
@@ -1256,6 +1560,7 @@ export type Database = {
           id: string
           occurrence_on: string | null
           owner_id: string
+          place: string | null
           position: string | null
           search: unknown
           series_id: string | null
@@ -1314,6 +1619,7 @@ export type Database = {
           id: string
           occurrence_on: string | null
           owner_id: string
+          place: string | null
           position: string | null
           search: unknown
           series_id: string | null
@@ -1351,6 +1657,7 @@ export type Database = {
           id: string
           occurrence_on: string | null
           owner_id: string
+          place: string | null
           position: string | null
           search: unknown
           series_id: string | null
@@ -1404,6 +1711,7 @@ export type Database = {
           digest_time: string
           id: string
           name: string
+          plan_hidden_types: string[]
           reminder_defaults: NonNullable<Json>
           timezone: string
         }

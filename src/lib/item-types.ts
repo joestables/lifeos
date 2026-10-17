@@ -5,7 +5,7 @@ import { FileIcon } from 'lucide-react'
 import { TYPE_ICONS } from '@/components/lifeos/colours'
 
 /** The roadmap stage being built: the app offers a Type from its stage on. */
-export const APP_STAGE = 2
+export const APP_STAGE = 3
 
 export interface TypeLook {
   key: string
@@ -14,13 +14,14 @@ export interface TypeLook {
   icon: LucideIcon
   mark?: Mark
   /** The page an Item of this Type lives on, and that page's name. */
-  home: '/inbox' | '/tasks' | '/notes'
+  home: '/inbox' | '/tasks' | '/notes' | '/plan'
   homeLabel: string
 }
 
 const HOMES: Record<string, Pick<TypeLook, 'home' | 'homeLabel'>> = {
   task: { home: '/tasks', homeLabel: 'Tasks' },
   note: { home: '/notes', homeLabel: 'Notes' },
+  event: { home: '/plan', homeLabel: 'Plan' },
 }
 
 /** How a Type looks and where it lives (ontology + patterns.md#icons). */

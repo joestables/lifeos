@@ -194,12 +194,14 @@ reset role;
 set local role service_role;
 
 -- A daily "Vitamins" series, made to today, extended by the run.
+-- Dates as London has them: the run decides what is due in the series' timezone.
+select (now() at time zone 'Europe/London')::date as london_today \gset
 insert into core.series (id, type, space_id, owner_id, mode, rule, starts_on, timezone, template, generated_until)
 values ('00000000-0000-7000-8000-0000000003f1', 'task', :'a_space', '00000000-0000-4000-8000-00000000000a',
-        'schedule', 'FREQ=DAILY', current_date - 2, 'Europe/London', '{"title": "Vitamins"}', current_date - 1);
+        'schedule', 'FREQ=DAILY', (:'london_today')::date - 2, 'Europe/London', '{"title": "Vitamins"}', (:'london_today')::date - 1);
 insert into core.items (id, type, title, space_id, owner_id, do_on, series_id, occurrence_on) values
-  ('00000000-0000-7000-8000-000000000301', 'task', 'Vitamins', :'a_space', '00000000-0000-4000-8000-00000000000a', current_date - 2, '00000000-0000-7000-8000-0000000003f1', current_date - 2),
-  ('00000000-0000-7000-8000-000000000302', 'task', 'Vitamins', :'a_space', '00000000-0000-4000-8000-00000000000a', current_date - 1, '00000000-0000-7000-8000-0000000003f1', current_date - 1);
+  ('00000000-0000-7000-8000-000000000301', 'task', 'Vitamins', :'a_space', '00000000-0000-4000-8000-00000000000a', (:'london_today')::date - 2, '00000000-0000-7000-8000-0000000003f1', (:'london_today')::date - 2),
+  ('00000000-0000-7000-8000-000000000302', 'task', 'Vitamins', :'a_space', '00000000-0000-4000-8000-00000000000a', (:'london_today')::date - 1, '00000000-0000-7000-8000-0000000003f1', (:'london_today')::date - 1);
 update core.items set touched_at = now(), body = 'Took half' where id = '00000000-0000-7000-8000-000000000301';
 
 select is(core.series_secret_ok('guess'), false,
@@ -221,15 +223,15 @@ select ok(
   'TSK-009: an after-completion series whose open one I deleted makes no more'
 );
 update core.items set archived_at = null where id = '00000000-0000-7000-8000-000000000202';
-select core.extend_series('00000000-0000-7000-8000-0000000003f1', array[current_date, current_date + 1], current_date + 1);
-select core.extend_series('00000000-0000-7000-8000-0000000003f1', array[current_date, current_date + 1], current_date + 1);
+select core.extend_series('00000000-0000-7000-8000-0000000003f1', array[(:'london_today')::date, (:'london_today')::date + 1], (:'london_today')::date + 1);
+select core.extend_series('00000000-0000-7000-8000-0000000003f1', array[(:'london_today')::date, (:'london_today')::date + 1], (:'london_today')::date + 1);
 select is(
   (select count(*)::int from core.items where series_id = '00000000-0000-7000-8000-0000000003f1'),
   4,
   'ADR-0045: running twice still leaves one occurrence a day'
 );
 select is(
-  (select (generated_until - current_date) from core.series where id = '00000000-0000-7000-8000-0000000003f1'),
+  (select (generated_until - (:'london_today')::date) from core.series where id = '00000000-0000-7000-8000-0000000003f1'),
   1,
   'ADR-0045: the run records how far it made the series'
 );

@@ -2,6 +2,9 @@
 
 **Status:** Provisionally agreed · 2026-10-09
 
+**Amended:** 2026-10-14 by the Stage 3 plan (Lists, and their live updates,
+moved to Stage 4b).
+
 ## Context
 
 [ADR-0031](0031-offline-and-concurrent-edits.md) asks for a write queue with
@@ -54,7 +57,7 @@ TanStack DB collections, whose core is still pre-1.0.
 - A few hundred lines of queue code that LifeOS owns, tested with unit tests
   citing OFF-001–005.
 - Each new action needs a database function, in a migration.
-- No live updates in Stage 1; shared Lists add them in Stage 3.
+- No live updates in Stage 1; shared Lists add them in Stage 4b.
 - If the queue proves not enough, TanStack DB with its offline outbox (or
   PowerSync) replaces it behind the same hooks
   ([ADR-0031](0031-offline-and-concurrent-edits.md)).

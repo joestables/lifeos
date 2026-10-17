@@ -4,7 +4,7 @@ One file per Module, written at the start of its stage — not before.
 
 | Module | Types | Stage |
 |---|---|---|
-| `lists` | List, Shop | 3 |
+| `lists` | List, Shop | 4b |
 | `food` | Recipe, Variation, Meal, Ingredient | 4 |
 | `fitness` | Exercise, Workout template, Workout (5); Cardio activity (8) | 5, 8 |
 | `goals` | Goal | 5 |

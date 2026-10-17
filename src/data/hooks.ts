@@ -13,6 +13,8 @@ import {
   marksKey,
   type Label,
 } from './labels'
+import { applyPendingCalendar, calendarKey, fetchCalendar, type Calendar } from './calendar'
+import { applyPendingLinks, fetchLinks, linksKey, type Link } from './links'
 import { applyPending } from './overlay'
 import type { WriteQueue } from './queue/queue'
 import type { QueueEntry } from './queue/store'
@@ -193,5 +195,34 @@ export function useSeries(queue: WriteQueue): readonly Series[] {
   return useMemo(
     () => applyPendingSeries(query.data ?? [], entries, items.data ?? []),
     [query.data, entries, items.data],
+  )
+}
+
+/** Links between the Items I can see, with unsent ones laid over them (EVT-006). */
+export function useLinks(queue: WriteQueue): readonly Link[] {
+  const entries = useQueueEntries(queue)
+  const query = useQuery({ queryKey: linksKey, queryFn: fetchLinks })
+  return useMemo(() => applyPendingLinks(query.data ?? [], entries), [query.data, entries])
+}
+
+const NO_CALENDAR: Calendar = { connection: null, links: [], refs: [] }
+
+/** My Google Calendar connection, calendars and which Events came from them (GCL-001–004). */
+export function useCalendar(
+  queue: WriteQueue,
+): Calendar & { isLoading: boolean; isError: boolean; retry: () => void } {
+  const entries = useQueueEntries(queue)
+  const query = useQuery({ queryKey: calendarKey, queryFn: fetchCalendar })
+  const { refetch } = query
+  // Not read: not known, so treated as still loading, never as not connected.
+  const isError = query.isError && !query.data
+  return useMemo(
+    () => ({
+      ...applyPendingCalendar(query.data ?? NO_CALENDAR, entries),
+      isLoading: query.isLoading || isError,
+      isError,
+      retry: () => void refetch(),
+    }),
+    [query.data, query.isLoading, isError, entries, refetch],
   )
 }

@@ -18,14 +18,17 @@ export type Reminder = Pick<
   | 'anchor'
   | 'offset_days'
   | 'at_time'
+  | 'offset_minutes'
   | 'fixed_at'
   | 'snoozed_until'
 >
 
 /** What core.add_reminder and core.update_reminder take. */
 export interface ReminderFields {
-  anchor?: 'do_on' | 'due_on' | null
+  anchor?: 'do_on' | 'due_on' | 'starts_at' | null
   offset_days?: number
+  /** Before an Event's start by minutes ("30 minutes before"). */
+  offset_minutes?: number
   at_time?: string | null
   fixed_at?: string | null
 }
@@ -36,7 +39,7 @@ export async function fetchReminders(): Promise<Reminder[]> {
   const { data, error } = await supabase()
     .from('reminders')
     .select(
-      'id, item_id, fires_at, is_default, anchor, offset_days, at_time, fixed_at, snoozed_until',
+      'id, item_id, fires_at, is_default, anchor, offset_days, at_time, offset_minutes, fixed_at, snoozed_until',
     )
   if (error) throw error
   return data
@@ -71,6 +74,7 @@ export function applyPendingReminders(
           anchor: f.anchor ?? null,
           offset_days: f.offset_days ?? 0,
           at_time: f.at_time ?? null,
+          offset_minutes: f.offset_minutes ?? 0,
           fixed_at: f.fixed_at ?? null,
           snoozed_until: null,
         })

@@ -2,6 +2,9 @@
 
 **Status:** Provisionally agreed · 2026-10-09
 
+**Amended:** 2026-10-14 by the Stage 3 plan (the first Module, `lists`,
+moved to Stage 4b, so the first Module is now `food` in Stage 4).
+
 ## Context
 
 Modules and Integrations will be added for years. The ontology (Types,
@@ -18,7 +21,7 @@ a change process and impact analysis.
   is out of date. Built in steps:
   - *Stage 1:* the TypeScript constants and the generated lookup-table
     migration. Until then `data-model.md` is written by hand, and says so.
-  - *Stage 3, with the first Module:* the generated data-model tables and
+  - *Stage 4, with the first Module:* the generated data-model tables and
     Mermaid diagrams.
   - *Stages 4–5:* the impact script, model version tags and the MCP
     descriptions.

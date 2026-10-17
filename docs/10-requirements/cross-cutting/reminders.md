@@ -7,7 +7,9 @@ first; the requirements, drafted at the start of Stage 2, are at the end.*
 
 - **Reminders attach to any Item**, relative to one of its times or at a
   fixed time; defaults per Type; a Task's default follows its do-on date at
-  the person's default time (09:00 unless changed); per person; a Thought with
+  the person's default time (09:00 unless changed); an Event I make, 30
+  minutes before it starts if it has a time, and one from Google Calendar
+  none (Stage 3, [events](events.md#decisions)); per person; a Thought with
   a date gets one ([ADR-0023](../../20-architecture/adr/0023-reminders.md),
   Provisionally agreed).
 - **Anchors per Type** are tabled in the
@@ -25,11 +27,14 @@ first; the requirements, drafted at the start of Stage 2, are at the end.*
   (re-checked 10 October 2026), so on the iPhone a notification opens the
   Item. Done and Snooze buttons are for Android and computers.
 - **Where they are set:** a Task's Reminders in its popup, on its do-on or
-  due date or at a set time; a Thought's at a set time. Notes get theirs
+  due date or at a set time; an Event's in its popup, some minutes before it
+  starts ("30 minutes before"), on the day it starts or days before at a
+  time ("1 day before at 18:00"; an all-day Event's only so), or at a set
+  time (Stage 3); a Thought's at a set time. Notes get theirs
   with their own page's menu, later.
 - **What a notification says:** the Item's title (an overdue nudge
-  "Overdue: …"), its do-on time and due date, Done (Tasks only) and "Snooze
-  1 hour". The digest says only its counts ("2 overdue · 3 today · 4 to
+  "Overdue: …"), its do-on time and due date, or an Event's start and place
+  ("Sat 17 Oct 13:00 · The Ivy"), Done (Tasks only) and "Snooze 1 hour". The digest says only its counts ("2 overdue · 3 today · 4 to
   sort") and opens Inbox.
 - **Later, with the native wrapper:** alarm-grade Reminders
   ([overview](../../20-architecture/overview.md#platforms)) and location
@@ -77,12 +82,13 @@ Acceptance criteria
 
 **As** Joe, **I want** to add, change and remove Reminders on any Item,
 **so that** I'm reminded when it suits me.
-Priority: Must · Status: verified (on Tasks and Thoughts)
+Priority: Must · Status: verified (on Tasks, Thoughts and Events)
 
 Acceptance criteria
 1. Given an Item, then I can add a Reminder at a fixed date and time, or,
    on a Task, relative to its do-on or due date ("on the day at 08:00",
-   "1 day before at 18:00"); it may have several.
+   "1 day before at 18:00"), on an Event, relative to its start
+   ([EVT-003](events.md#evt-003--an-event-reminds-me)); it may have several.
 2. Given a relative Reminder, when the date it hangs on moves, then the
    Reminder moves with it.
 3. Given I remove a Reminder, then it doesn't fire.
@@ -146,7 +152,7 @@ Acceptance criteria
    date-only Reminders are at 08:00, and existing ones are unchanged.
 2. Given Settings, then I can turn off the Task default (a dated Task
    reminds me on its do-on date) and the Thought default (a dated Thought
-   reminds me).
+   reminds me); from Stage 3, the Event default (30 minutes before).
 
 ### REM-008 — A morning digest
 

@@ -198,6 +198,7 @@ No borders on surfaces: edges come from `--shadow-card`'s hairline.
 | Badge | 22px high | |
 | Avatar | 30px | |
 | Drawer | 256px wide, full height; a 288px Sheet on a phone | |
+| Item popup on a phone | 440px high (at most the screen less 36px), whatever it holds; what doesn't fit scrolls inside it | A Task's and an Event's popup, new or not: a Task shows down to its Reminders, an Event to its Place and Repeat |
 | Floating button (phone) | 56px square, `--radius-lg`, 22px icon; 20px from the right, 28px from the bottom | |
 | ScrollArea thumb | 6px wide, 2px from the edge | |
 | Icon | 16px, stroke 1.75; 12px and 14px small; 22px large | |

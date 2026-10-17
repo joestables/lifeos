@@ -1,6 +1,7 @@
-import type { Page } from '@playwright/test'
+import { expect, type Locator, type Page } from '@playwright/test'
 import { typeByKey } from '../../packages/ontology/src/index.ts'
 import { addDays } from '../../packages/recurrence/src/index.ts'
+import { zonedInstant } from '../../src/lib/dates.ts'
 
 /** The stand-in Supabase the e2e build points at (npm run build:e2e). */
 export const STAND_IN_URL = 'https://stand-in.supabase.co'
@@ -23,12 +24,23 @@ export interface Rows {
   push_devices?: Record<string, unknown>[]
   subtasks?: { id: string; item_id: string; title: string; done: boolean; position: string }[]
   series?: Record<string, unknown>[]
+  links?: { from_item: string; to_item: string; link_type: string }[]
+  connections?: Record<string, unknown>[]
+  calendar_links?: Record<string, unknown>[]
+  external_refs?: Record<string, unknown>[]
+  /** What connecting Google Calendar brings: its calendars and the main one's events. */
+  google?: {
+    account: string
+    calendars: Record<string, unknown>[]
+    events: Record<string, unknown>[]
+  }
 }
 
 /** An Item row with everything but what a test names. */
 export const itemRow = (fields: Record<string, unknown> & { id: string; type: string }) => ({
   title: '',
   body: null,
+  place: null,
   space_id: 's',
   owner_id: ANN.id,
   status: 'active',
@@ -76,6 +88,7 @@ export async function standIn(
       reminder_defaults: {},
       digest_on: true,
       digest_time: '07:00:00',
+      plan_hidden_types: [],
       ...p,
     })),
     reminders: (rows.reminders ?? []).map((r): Record<string, unknown> => ({
@@ -97,6 +110,59 @@ export async function standIn(
     })),
     subtasks: [...(rows.subtasks ?? [])],
     series: [...(rows.series ?? [])],
+    links: [...(rows.links ?? [])],
+    connections: [...(rows.connections ?? [])],
+    calendar_links: [...(rows.calendar_links ?? [])],
+    external_refs: [...(rows.external_refs ?? [])],
+    /** The calendar chosen for each new Event (set_event_calendar). */
+    event_calendars: [] as { item_id: string; calendar_link_id: string | null }[],
+  }
+  /** What the Edge Function calendar-connect does, without Google (GCL-001). */
+  const calendar = (body: { action?: string; code?: string }) => {
+    const conn = db.connections[0]
+    // Google's consent page and callback, skipped: back to Settings to finish.
+    if (body.action === 'start') return { url: '/settings?calendar=finish&code=c-1' }
+    if (body.action === 'finish') {
+      if (body.code !== 'c-1') throw new Error('expired')
+      const g = rows.google ?? { account: 'ann@gmail.com', calendars: [], events: [] }
+      db.connections = [
+        {
+          id: 'conn',
+          account: g.account,
+          state: 'connected',
+          broken_since: null,
+          last_synced_at: new Date().toISOString(),
+          disconnected_at: null,
+        },
+      ]
+      db.calendar_links = g.calendars.map((c, i) => ({
+        level: i === 0 ? 'incoming' : 'off',
+        new_events: false,
+        can_edit: true,
+        is_primary: i === 0,
+        ...c,
+      }))
+      for (const e of g.events) {
+        db.items.push(itemRow({ type: 'event', ...e, id: String(e.id) }))
+        db.external_refs.push({
+          item_id: e.id,
+          calendar_link_id: db.calendar_links[0]?.id,
+          external_id: `g-${String(e.id)}`,
+        })
+      }
+      return { connected: true }
+    }
+    if (!conn || conn.disconnected_at) return { connected: false }
+    if (body.action === 'disconnect') {
+      conn.disconnected_at = new Date().toISOString()
+      for (const l of db.calendar_links) l.level = 'off'
+      // Events I made in LifeOS stay (GCL-001 3).
+      for (const r of db.external_refs)
+        if (!r.made_in_lifeos) Object.assign(item(r.item_id) ?? {}, { archived_at: now() })
+      return { connected: false }
+    }
+    conn.last_synced_at = new Date().toISOString()
+    return { connections: 1, saved: 0, broken: 0, failed: [] }
   }
   const item = (id: unknown) => db.items.find((i) => i.id === id)
   const now = () => new Date().toISOString()
@@ -120,7 +186,30 @@ export async function standIn(
     body?: string | null
     do_at?: string | null
     due_offset_days?: number | null
+    place?: string | null
+    start_time?: string | null
+    duration_minutes?: number | null
+    all_day?: boolean
+    days?: number | null
     label_ids?: string[]
+  }
+  // An Event's times on a day, as core_private.make_occurrences makes them.
+  const eventOn = (s: Record<string, unknown>, on: string) => {
+    const t = s.template as Template
+    if (t.all_day)
+      return {
+        do_on: null,
+        all_day: true,
+        starts_at: `${on}T00:00:00.000Z`,
+        ends_at: `${addDays(on, t.days ?? 1)}T00:00:00.000Z`,
+      }
+    const start = zonedInstant(on, (t.start_time ?? '09:00').slice(0, 5), String(s.timezone))
+    return {
+      do_on: null,
+      all_day: false,
+      starts_at: start,
+      ends_at: new Date(Date.parse(start) + (t.duration_minutes ?? 60) * 60_000).toISOString(),
+    }
   }
   const occurrence = (s: Record<string, unknown>, id: string, on: string) => {
     if (item(id) || db.items.some((i) => i.series_id === s.id && i.occurrence_on === on)) return
@@ -128,12 +217,16 @@ export async function standIn(
     db.items.push(
       itemRow({
         id,
-        type: 'task',
+        type: String(s.type ?? 'task'),
         title: t.title,
         body: t.body ?? null,
-        do_on: on,
-        do_at: t.do_at ?? null,
-        due_on: t.due_offset_days == null ? null : addDays(on, t.due_offset_days),
+        ...(s.type === 'event'
+          ? { place: t.place ?? null, ...eventOn(s, on) }
+          : {
+              do_on: on,
+              do_at: t.do_at ?? null,
+              due_on: t.due_offset_days == null ? null : addDays(on, t.due_offset_days),
+            }),
         series_id: s.id,
         occurrence_on: on,
       }),
@@ -218,6 +311,7 @@ export async function standIn(
       if (i.series_id) endSeries(i.series_id, addDays(String(i.occurrence_on), -1), i.id)
       const s = {
         id: a.p_series,
+        type: i.type,
         mode: a.p_mode,
         rule: a.p_rule,
         starts_on: a.p_starts_on,
@@ -230,9 +324,13 @@ export async function standIn(
       Object.assign(i, {
         series_id: a.p_series,
         occurrence_on: first,
-        do_on: first,
-        do_at: t.do_at ?? null,
-        due_on: t.due_offset_days == null ? null : addDays(first, t.due_offset_days),
+        ...(i.type === 'event'
+          ? eventOn(s, first)
+          : {
+              do_on: first,
+              do_at: t.do_at ?? null,
+              due_on: t.due_offset_days == null ? null : addDays(first, t.due_offset_days),
+            }),
         status: i.status === 'idea' ? 'active' : i.status,
         touched_at: null,
       })
@@ -332,6 +430,40 @@ export async function standIn(
         .slice(0, Number(a.p_limit ?? 30))
         .map((i) => ({ id: i.id }))
     },
+    link_items: (a) => {
+      const same = (l: { from_item: string; to_item: string; link_type: string }) =>
+        l.from_item === a.p_from && l.to_item === a.p_to && l.link_type === a.p_link_type
+      if (!db.links.some(same))
+        db.links.push({
+          from_item: String(a.p_from),
+          to_item: String(a.p_to),
+          link_type: String(a.p_link_type),
+        })
+    },
+    unlink_items: (a) => {
+      db.links = db.links.filter(
+        (l) => !(l.from_item === a.p_from && l.to_item === a.p_to && l.link_type === a.p_link_type),
+      )
+    },
+    set_calendar_level: (a) => {
+      const l = db.calendar_links.find((x) => x.id === a.p_link)
+      if (!l) return
+      l.level = a.p_level
+      l.new_events = l.new_events && a.p_level === 'two_way'
+      if (a.p_level === 'off')
+        for (const r of db.external_refs)
+          if (r.calendar_link_id === l.id && !r.made_in_lifeos)
+            Object.assign(item(r.item_id) ?? {}, { archived_at: now() })
+    },
+    set_new_events_calendar: (a) => {
+      for (const l of db.calendar_links) l.new_events = l.id === a.p_link
+    },
+    set_event_calendar: (a) => {
+      db.event_calendars.push({
+        item_id: String(a.p_item),
+        calendar_link_id: (a.p_link as string | null) ?? null,
+      })
+    },
     set_mark: (a) => {
       db.marks = db.marks.filter((m) => m.item_id !== a.p_item)
       if (a.p_on) db.marks.push({ item_id: String(a.p_item) })
@@ -340,6 +472,12 @@ export async function standIn(
   await page.route(`${STAND_IN_URL}/**`, (route) => {
     const url = new URL(route.request().url())
     if (url.pathname.includes('/auth/v1/logout')) return route.fulfill({ status: 204 })
+    if (url.pathname.endsWith('/functions/v1/calendar-connect'))
+      try {
+        return route.fulfill({ json: calendar(route.request().postDataJSON() ?? {}) })
+      } catch {
+        return route.fulfill({ status: 410, json: { error: 'Expired' } })
+      }
     const rpc = url.pathname.match(/\/rest\/v1\/rpc\/(\w+)$/)
     if (rpc) {
       const result = write[rpc[1]!]?.(route.request().postDataJSON() ?? {})
@@ -439,4 +577,12 @@ export async function pushAllowed(
     },
     [endpoint, already] as const,
   )
+}
+
+/** Picks a time from a TimeField (a Select of quarter hours), then waits for it to close. */
+export async function pickTime(field: Locator, time: string) {
+  await field.click()
+  const page = field.page()
+  await page.getByRole('option', { name: time, exact: true }).click()
+  await expect(page.getByRole('listbox')).toHaveCount(0)
 }

@@ -63,6 +63,8 @@ export default tseslint.config(
       'src/components/**',
       'src/data/**',
       'src/routes/design.tsx',
+      // Stage 3's screens drawn for the design step (plan step 3), until Plan is built.
+      'src/routes/design-stage-3.tsx',
       'src/**/*.test.{ts,tsx}',
     ],
     rules: {

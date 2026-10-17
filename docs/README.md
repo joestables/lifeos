@@ -4,17 +4,17 @@ LifeOS v2 is a personal and household life app built as one knowledge graph:
 Items, the Links between them, and Views over both. These documents are the
 source of truth for what it does and why. Code is checked against them.
 
-Stage 0 (requirements and architecture) and Stage 1 (foundation) are done.
-**Stage 2** is in progress: its [plan](50-progress/plans/stage-2.md) is
-written and its specs are agreed
-([roadmap](roadmap.md#where-we-are)).
+Stages 0 (requirements and architecture), 1 (foundation) and 2 (replacing
+Google Tasks) are done. **Stage 3**, Plan, Events and Google Calendar, has
+started: its [plan](50-progress/plans/stage-3.md) is written, and its specs
+come first ([roadmap](roadmap.md#where-we-are)).
 
 ## Index
 
 | Folder | What it holds |
 |---|---|
 | [00-foundation](00-foundation/) | [Vision](00-foundation/vision.md) · [Principles](00-foundation/principles.md) · [Glossary](00-foundation/glossary.md) |
-| [10-requirements](10-requirements/) | [Capability map](10-requirements/capability-map.md) · cross-cutting: [capture](10-requirements/cross-cutting/capture.md), [spaces and sharing](10-requirements/cross-cutting/spaces-and-sharing.md), [reminders](10-requirements/cross-cutting/reminders.md), [search](10-requirements/cross-cutting/search.md), [offline](10-requirements/cross-cutting/offline.md), [items](10-requirements/cross-cutting/items.md), [integrations](10-requirements/cross-cutting/integrations.md) · views: [Inbox](10-requirements/views/inbox.md), [Tasks](10-requirements/views/tasks.md), [Notes](10-requirements/views/notes.md), [Plan](10-requirements/views/plan.md) · [modules](10-requirements/modules/) · [non-functional](10-requirements/non-functional.md) |
+| [10-requirements](10-requirements/) | [Capability map](10-requirements/capability-map.md) · cross-cutting: [capture](10-requirements/cross-cutting/capture.md), [spaces and sharing](10-requirements/cross-cutting/spaces-and-sharing.md), [reminders](10-requirements/cross-cutting/reminders.md), [search](10-requirements/cross-cutting/search.md), [events](10-requirements/cross-cutting/events.md), [offline](10-requirements/cross-cutting/offline.md), [items](10-requirements/cross-cutting/items.md), [integrations](10-requirements/cross-cutting/integrations.md) · views: [Inbox](10-requirements/views/inbox.md), [Tasks](10-requirements/views/tasks.md), [Notes](10-requirements/views/notes.md), [Plan](10-requirements/views/plan.md) · [modules](10-requirements/modules/) · [non-functional](10-requirements/non-functional.md) |
 | [20-architecture](20-architecture/) | [Overview](20-architecture/overview.md) · [Data model](20-architecture/data-model.md) · [Contracts](20-architecture/contracts.md) · [ADRs](#architecture-decision-records) |
 | [30-design](30-design/) | [The design system](30-design/README.md): [design language](30-design/design-language.md) · [tokens](30-design/tokens.md) · [components](30-design/components.md) · [patterns](30-design/patterns.md) · [reference](30-design/reference.html) |
 | [40-operations](40-operations/) | [Environments](40-operations/environments.md) · [Migrations](40-operations/migrations.md) · [Backups](40-operations/backups.md) · [Runbook](40-operations/runbook.md) · [Integration setup](40-operations/integration-setup.md) |
@@ -48,7 +48,7 @@ choice, while the design is young.
   ([ADR-0008](20-architecture/adr/0008-registries-declared-in-code.md)):
   `packages/ontology` declares the core Types, link types and conversions.
   [data-model.md](20-architecture/data-model.md) is still written by hand
-  and must agree with it; it is generated from Stage 3.
+  and must agree with it; it is generated from Stage 4.
 
 Where a document states something that rests on an ADR, it cites it, e.g.
 "(ADR-0007, Provisionally agreed)". Anything citing a Proposed ADR is not yet
@@ -159,6 +159,9 @@ Consequences**, to a page.
 | [0044](20-architecture/adr/0044-reminder-delivery.md) | How Reminders are delivered | Provisionally agreed |
 | [0045](20-architecture/adr/0045-extending-series.md) | Where repeating Items are made | Provisionally agreed |
 | [0046](20-architecture/adr/0046-note-bodies.md) | A Note's body is Markdown, edited in place | Provisionally agreed |
+| [0047](20-architecture/adr/0047-google-calendar-sync.md) | How Google Calendar comes in | Provisionally agreed |
+| [0048](20-architecture/adr/0048-google-calendar-two-way.md) | Two-way Google Calendar | Provisionally agreed |
+| [0049](20-architecture/adr/0049-plans-read.md) | How Plan reads a week | Provisionally agreed |
 
 ## Sources
 

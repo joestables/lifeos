@@ -155,13 +155,14 @@ select is(
   1,
   'ITM-004: its pin is kept, as the Task''s star'
 );
--- Into a Type with neither: both go.
+-- Into a Type with Labels and no mark (an Event, from Stage 3): the Labels
+-- stay, the star goes.
 select core.convert_item('00000000-0000-7000-8000-000000000001', 'event');
 select is(
-  (select count(*)::int from core.item_labels where item_id = '00000000-0000-7000-8000-000000000001')
-    + (select count(*)::int from core.marks where item_id = '00000000-0000-7000-8000-000000000001'),
-  0,
-  'ITM-004: converted into a Type without Labels or a mark, it loses them'
+  array[(select count(*)::int from core.item_labels where item_id = '00000000-0000-7000-8000-000000000001'),
+        (select count(*)::int from core.marks where item_id = '00000000-0000-7000-8000-000000000001')],
+  array[1, 0],
+  'ITM-004: converted into a Type without a mark, it loses it, and keeps Labels the Type has'
 );
 
 -- ADR-0037: a Note has no idea status.

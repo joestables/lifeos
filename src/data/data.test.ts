@@ -16,6 +16,7 @@ const row = (id: string, title: string): ItemRow => ({
   type: 'task',
   title,
   body: null,
+  place: null,
   space_id: 's',
   owner_id: 'o',
   status: 'active',

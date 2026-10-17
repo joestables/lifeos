@@ -18,6 +18,7 @@ export type ItemFields = Partial<
     ItemRow,
     | 'title'
     | 'body'
+    | 'place'
     | 'status'
     | 'space_id'
     | 'starts_at'

@@ -1,4 +1,5 @@
 import { addDays, daysBetween } from '@lifeos/recurrence'
+import { zonedInstant } from '@/lib/dates'
 import type { QueueEntry } from './queue/store'
 import type { RepeatArgs } from './series'
 import type { Item, ItemFields, ItemRow } from './types'
@@ -8,6 +9,7 @@ const blankItem = (id: string, type: string, at: string): ItemRow => ({
   type,
   title: '',
   body: null,
+  place: null,
   space_id: '',
   owner_id: '',
   status: 'active',
@@ -128,14 +130,36 @@ export function applyPending(items: readonly ItemRow[], entries: readonly QueueE
         if (!item || !first || item.series_id === a.p_series) break
         takeAway(item.series_id, item.occurrence_on, item.id)
         const t = a.p_template
-        const fields = (on: string) => ({
-          do_at: t.do_at ?? null,
-          due_on: t.due_offset_days == null ? null : addDays(on, t.due_offset_days),
-        })
+        // An Event at its time on each day, in the series' timezone (EVT-004).
+        const eventOn = (on: string): Partial<Item> => {
+          if (t.all_day)
+            return {
+              do_on: null,
+              all_day: true,
+              starts_at: `${on}T00:00:00.000Z`,
+              ends_at: `${addDays(on, t.days ?? 1)}T00:00:00.000Z`,
+            }
+          const start = zonedInstant(on, (t.start_time ?? '09:00').slice(0, 5), a.p_timezone)
+          return {
+            do_on: null,
+            all_day: false,
+            starts_at: start,
+            ends_at: new Date(
+              Date.parse(start) + (t.duration_minutes ?? 60) * 60_000,
+            ).toISOString(),
+          }
+        }
+        const fields = (on: string): Partial<Item> =>
+          item.type === 'event'
+            ? eventOn(on)
+            : {
+                do_on: on,
+                do_at: t.do_at ?? null,
+                due_on: t.due_offset_days == null ? null : addDays(on, t.due_offset_days),
+              }
         mark(item.id, {
           series_id: a.p_series,
           occurrence_on: first.on,
-          do_on: first.on,
           ...fields(first.on),
           status: item.status === 'idea' ? 'active' : item.status,
           touched_at: null,
@@ -144,6 +168,7 @@ export function applyPending(items: readonly ItemRow[], entries: readonly QueueE
           occurrence(item, a.p_series, o.id, o.on, {
             title: t.title,
             body: t.body ?? null,
+            place: t.place ?? null,
             ...fields(o.on),
           })
         break

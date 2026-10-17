@@ -14,12 +14,14 @@ export interface TypeDefinition {
   /** The time fields this Type may set; the database refuses the others. */
   timeFields: readonly TimeField[]
   colour: Colour
-  /** Whether the Type uses Labels (ADR-0014): Thoughts, Notes and Tasks. */
+  /** Whether the Type uses Labels (ADR-0014): Thoughts, Notes, Tasks and Events. */
   labels: boolean
   /** Its per-person mark, if it has one. */
   mark?: Mark
   /** Whether it holds sub-tasks: lines you tick inside it. */
   subtasks: boolean
+  /** Whether it has a place (an Event's "The Ivy, Richmond"). */
+  place: boolean
   /** The time field its default Reminder follows (ADR-0023), if it has one. */
   defaultReminder?: TimeField
   /** The roadmap stage that builds it: the app offers a Type only from then. */
@@ -39,6 +41,7 @@ export const TYPES = [
     colour: 'yellow',
     labels: true,
     subtasks: false,
+    place: false,
     stage: 2,
   },
   {
@@ -53,6 +56,7 @@ export const TYPES = [
     labels: true,
     mark: 'pinned',
     subtasks: false,
+    place: false,
     stage: 2,
   },
   {
@@ -68,6 +72,7 @@ export const TYPES = [
     labels: true,
     mark: 'starred',
     subtasks: true,
+    place: false,
     defaultReminder: 'do_on',
     stage: 2,
   },
@@ -80,8 +85,11 @@ export const TYPES = [
     defaultSpace: 'personal',
     timeFields: ['starts_at', 'ends_at', 'all_day'],
     colour: 'blue',
-    labels: false,
+    labels: true,
     subtasks: false,
+    place: true,
+    // 30 minutes before a timed Event I make; none when all day or from Google (EVT-003).
+    defaultReminder: 'starts_at',
     stage: 3,
   },
 ] as const satisfies readonly TypeDefinition[]

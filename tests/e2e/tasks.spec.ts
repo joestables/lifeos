@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
-import { itemRow, standIn } from './stand-in'
+import { itemRow, pickTime, standIn } from './stand-in'
 
 // Monday 12 October 2026, 09:00 in London: tomorrow is Tuesday, and
 // Wednesday to Sunday have their own groups.
@@ -242,7 +242,7 @@ test("TSK-002, TSK-005, TSK-006: a Task's details, each kept as it is changed", 
   await task.getByRole('button', { name: 'Star' }).click()
 
   // A time needs a day: the do-on Calendar opens to ask for it.
-  await task.getByLabel('Time').fill('18:30')
+  await pickTime(task.getByLabel('Time'), '18:30')
   await page.getByRole('button', { name: /13th/ }).click()
 
   await task.getByRole('checkbox', { name: 'Done: Pay' }).click()

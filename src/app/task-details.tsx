@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from 'react'
+import { useId, useRef, useState, type ReactNode } from 'react'
 import { DateField, RepeatField, SubtaskList, TimeField, type Repeat } from '@/components/lifeos'
 import { LabelPicker } from '@/components/lifeos/LabelPicker'
 import { Badge } from '@/components/ui/badge'
@@ -24,38 +24,10 @@ import {
   type ItemFields,
 } from '@/data'
 import { isoDayOf } from '@/lib/dates'
+import { TaskFor } from './event-details'
+import { useKeptText } from './kept-text'
 import { ItemReminders } from './item-reminders'
 import { repeatOf, repeatStart, repeatTask, useSeriesById, useTickDone } from './repeat'
-
-/** How long typing pauses before it is kept. */
-const PAUSE = 400
-
-/** Text kept as it is typed: a short pause, or at once on leaving. */
-function useKeptText(id: string, field: 'title' | 'body', initial: string) {
-  const [text, setText] = useState(initial)
-  const waiting = useRef<string | null>(null)
-  const timer = useRef<ReturnType<typeof setTimeout>>(undefined)
-  const flush = useCallback(() => {
-    clearTimeout(timer.current)
-    if (waiting.current === null) return
-    updateItem(id, { [field]: waiting.current } as ItemFields)
-    waiting.current = null
-  }, [id, field])
-  useEffect(() => {
-    window.addEventListener('pagehide', flush)
-    return () => {
-      window.removeEventListener('pagehide', flush)
-      flush()
-    }
-  }, [flush])
-  const change = (value: string) => {
-    setText(value)
-    waiting.current = value
-    clearTimeout(timer.current)
-    timer.current = setTimeout(flush, PAUSE)
-  }
-  return [text, change, flush] as const
-}
 
 /** A Task's checkbox and title, edited in place (TSK-002). */
 export function TaskTitle({ item }: { item: Item }) {
@@ -182,6 +154,7 @@ export function TaskFields({
   onToggleSubtask,
   onRenameSubtask,
   onRemoveSubtask,
+  forEvent,
 }: {
   notes: string
   onNotesChange: (notes: string) => void
@@ -204,6 +177,8 @@ export function TaskFields({
   onToggleSubtask: (id: string, done: boolean) => void
   onRenameSubtask: (id: string, title: string) => void
   onRemoveSubtask: (id: string) => void
+  /** The Events it is for (EVT-006 3). */
+  forEvent?: ReactNode
 }) {
   const ids = useId()
   // The do-on Calendar, opened by hand or to ask for a time's day.
@@ -257,8 +232,9 @@ export function TaskFields({
         <Field label="Time" htmlFor={`${ids}-at`}>
           <TimeField
             id={`${ids}-at`}
+            none
             value={dates.do_at?.slice(0, 5) ?? ''}
-            onChange={(e) => setTime(e.target.value)}
+            onChange={setTime}
           />
         </Field>
         <Field label="Due" htmlFor={`${ids}-due`}>
@@ -288,6 +264,7 @@ export function TaskFields({
           onCreate={onCreateLabel}
         />
       </Field>
+      {forEvent}
       <Field label="Sub-tasks">
         <SubtaskList
           subtasks={subtasks}
@@ -348,6 +325,7 @@ export function TaskDetails({ item }: { item: Item }) {
       onToggleSubtask={(id, done) => updateSubtask(item.id, id, { done })}
       onRenameSubtask={(id, title) => updateSubtask(item.id, id, { title })}
       onRemoveSubtask={(id) => removeSubtask(item.id, id)}
+      forEvent={<TaskFor task={item} />}
     />
   )
 }

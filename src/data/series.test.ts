@@ -10,6 +10,7 @@ const row = (id: string, fields: Partial<ItemRow> = {}): ItemRow => ({
   type: 'task',
   title: 'Bins',
   body: null,
+  place: null,
   space_id: 's',
   owner_id: 'o',
   status: 'active',
@@ -145,5 +146,47 @@ describe('a repeat shows at once, before it is sent (OFF-001)', () => {
       [entry('update_item', { p_id: 'a', p_patch: { title: 'x' } })],
     )
     expect(after!.touched_at).not.toBeNull()
+  })
+})
+
+describe('a repeating Event shows at once (EVT-004)', () => {
+  it('each occurrence at 19:00 London time, either side of the clocks changing', () => {
+    const event = row('five', {
+      type: 'event',
+      title: '5-a-side',
+      place: 'Powerleague',
+      starts_at: '2026-10-21T18:00:00.000Z',
+      ends_at: '2026-10-21T19:00:00.000Z',
+      all_day: false,
+    })
+    const items = applyPending(
+      [event],
+      [
+        entry(
+          'set_repeat',
+          repeat({
+            p_item: 'five',
+            p_rule: 'FREQ=WEEKLY;BYDAY=WE',
+            p_starts_on: '2026-10-21',
+            p_template: {
+              title: '5-a-side',
+              place: 'Powerleague',
+              start_time: '19:00',
+              duration_minutes: 60,
+              all_day: false,
+              days: null,
+            },
+            p_occurrences: [
+              { id: 'five', on: '2026-10-21' },
+              { id: 'five-2', on: '2026-10-28' },
+            ],
+          }),
+        ),
+      ],
+    )
+    expect(items.map((i) => [i.id, i.starts_at, i.ends_at, i.do_on, i.place])).toEqual([
+      ['five', '2026-10-21T18:00:00.000Z', '2026-10-21T19:00:00.000Z', null, 'Powerleague'],
+      ['five-2', '2026-10-28T19:00:00.000Z', '2026-10-28T20:00:00.000Z', null, 'Powerleague'],
+    ])
   })
 })
