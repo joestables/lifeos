@@ -29,7 +29,7 @@ share-to-LifeOS come with capture from outside the app
   `packages/capture`, so the capture address can use it too), so capture
   works with no signal. An LLM may improve guesses later, but capture never
   depends on one.
-- **Sorting a Thought:** convert it in place into a Note, Task, List or any
+- **Sorting a Thought:** convert it in place into a Note, Task, Shopping list or any
   other Capturable Type (one swipe for the common ones), or delete it
   (archived, with undo) ([ADR-0037](0037-thoughts.md)).
 

@@ -16,7 +16,7 @@ Stage 2, are at the end.*
   Provisionally agreed).
 - **Conversion changes an Item's Type in place**: it keeps its id, links,
   Reminders and history. Thought → any Capturable Type; Note → any other
-  Capturable Type; Task ↔ Event; List ↔ Shop. Everything else is "create
+  Capturable Type; Task ↔ Event. Everything else is "create
   from" + *became* ([ADR-0018](../../20-architecture/adr/0018-changing-an-items-type.md),
   [ADR-0019](../../20-architecture/adr/0019-conversion-keeps-space-and-status.md),
   Provisionally agreed). The ontology package decides which conversions

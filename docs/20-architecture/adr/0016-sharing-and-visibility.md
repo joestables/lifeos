@@ -32,7 +32,7 @@ and add events, while most of his life stays personal.
 
 ## Consequences
 
-- To confirm: "created by" decides ownership, so a shared List one person
+- To confirm: "created by" decides ownership, so a shared Shopping list one person
   started and the other filled — or a Recipe one added that the other has
   cooked six times, cook log included — leaves with its creator. The
   alternative: the leaver takes a **copy** of the shared Items they created,

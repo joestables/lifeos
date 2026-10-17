@@ -16,7 +16,7 @@ later.
 - **Thought is a new core Type**: a raw, unsorted capture. **Capture makes a
   Thought by default**; the one-tap switch to Task stays.
 - **Thoughts live in Inbox until sorted.** Sorting a Thought converts it in
-  place into any Capturable Type — a Note, Task, List, Shop, Event, Recipe,
+  place into any Capturable Type — a Note, Task, Shopping list, Event, Recipe,
   Goal or Garment — or deletes it (archived, with undo). It keeps its id,
   links, Reminders, Labels and history.
 - **A Thought can be ticked off** when it no longer matters: Thought is
@@ -26,7 +26,7 @@ later.
   Capturable Type, so a Thought can become one, and a Note can still be
   converted into other Capturable Types. The Unsorted / Filed flag goes.
 - **Thoughts and Notes are Personal only**: neither is Shareable. Something
-  to share is converted into a Shareable Type, such as a List.
+  to share is converted into a Shareable Type, such as a Shopping list.
 - **An idea** is still a status, not a Type: a Thought can be sorted into a
   Type in its *idea* status (a Recipe idea, a "Someday" Task). A Note is
   just a note, with no *idea* status.

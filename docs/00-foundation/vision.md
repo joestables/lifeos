@@ -80,7 +80,7 @@ ontology, so an AI can be handed the whole picture:
 - *"What's on this week, and am I on track for bench 60 kg?"* — Plan, Gym and
   Goals in one answer.
 - *"Plan dinners around my gym days and Saturday's shop, using recipes we
-  haven't cooked for a while."* — Recipes, Meals, Workouts and Shops together.
+  haven't cooked for a while."* — Recipes, Meals, Workouts and Shopping lists together.
 - *"I've got Dishoom on Friday — suggest an outfit I haven't worn recently."*
   — Events, Outfits and wear history.
 - *"Turn these five thoughts into tasks and the rest into notes."* — sorting

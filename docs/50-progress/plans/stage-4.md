@@ -12,8 +12,11 @@ turn sharing on. **Shopping** follows in Stage 4b.
 
 **State:** started 17 October 2026. Joe's brief is below; the drawer
 already has its new order, with Cardio as a blank page (this plan's pull
-request). Next: step 1, the specs, starting from Joe's answers to the
-[questions](#questions-for-the-specs).
+request). Joe agreed every recommendation below (17 October). Step 1 is
+under way: Claude's first draft of the Recipes, Meal plan and Ingredients
+spec is written for Joe to refine over several rounds; Shopping lists
+replacing List and Shop is decided
+([ADR-0050](../../20-architecture/adr/0050-shopping-list.md)).
 
 ## Steps
 
@@ -25,14 +28,14 @@ a stand-in, as they do for Supabase.
 
 | # | Step | State | Produces |
 |---|---|---|---|
-| 1 | **Joe** — specs: the Recipes page (library and ideas, a Recipe and its Variations, the cook log, cook it now); the Meal plan page (planning Meals by slot, servings, ticking a Meal done, the Ingredient database); Ingredients and ingredient lines; food preferences; Contacts and Households with sharing on; and the Shopping direction for Stage 4b (shopping lists replacing List and Shop), with what they change in capture, Inbox, items, Search, Plan and Reminders | Questions written, waiting for Joe's answers | `modules/food.md` (RCP-*, MPL-*, ING-*), changes to [spaces and sharing](../../10-requirements/cross-cutting/spaces-and-sharing.md), [capture](../../10-requirements/cross-cutting/capture.md), [Inbox](../../10-requirements/views/inbox.md), [items](../../10-requirements/cross-cutting/items.md), [search](../../10-requirements/cross-cutting/search.md), [Plan](../../10-requirements/views/plan.md); every document that names List or Shop, once Joe agrees |
-| 2 | Decisions: one shopping-list Type in place of List and Shop (superseding [ADR-0010](../../20-architecture/adr/0010-shop-is-its-own-type.md), amending [ADR-0012](../../20-architecture/adr/0012-ingredients-and-shopping-lists.md)); unit conversion and a pantry; the shared AI service (where it runs, which model, what it may read); recipe import; how Contact search avoids revealing who has an account ([ADR-0039](../../20-architecture/adr/0039-accounts-contacts-households.md)); the generated data model with the first Module ([ADR-0036](../../20-architecture/adr/0036-changing-the-model-over-time.md)) | — | ADRs |
+| 1 | **Joe** — specs: the Recipes page (library and ideas, a Recipe and its Variations, the cook log, cook it now); the Meal plan page (planning Meals by slot, servings, ticking a Meal done, the Ingredient database); Ingredients and ingredient lines; food preferences; Contacts and Households with sharing on; and the Shopping direction for Stage 4b (shopping lists replacing List and Shop), with what they change in capture, Inbox, items, Search, Plan and Reminders | Joe agreed the recommendations 17 October. First draft for Joe's review, 17 October: [food](../../10-requirements/modules/food.md) (RCP-001–013, ING-001–002, MPL-001–006, all *proposed*), drawn from Joe's brief, the ADRs and v1's Recipes spec, with its open points listed; ADR-0050 (one Shopping list Type) agreed, ADR-0010 superseded, ADR-0012 amended, and every document naming List or Shop updated. Still to come: the next rounds with Joe, then the changes to spaces and sharing (Households), capture, Inbox, items, Search and Plan | [food](../../10-requirements/modules/food.md) (RCP-*, MPL-*, ING-*), changes to [spaces and sharing](../../10-requirements/cross-cutting/spaces-and-sharing.md), [capture](../../10-requirements/cross-cutting/capture.md), [Inbox](../../10-requirements/views/inbox.md), [items](../../10-requirements/cross-cutting/items.md), [search](../../10-requirements/cross-cutting/search.md), [Plan](../../10-requirements/views/plan.md); every document that named List or Shop |
+| 2 | Decisions: one shopping-list Type in place of List and Shop (done with step 1: [ADR-0050](../../20-architecture/adr/0050-shopping-list.md)); unit conversion and a pantry; the shared AI service (where it runs, which model, what it may read); recipe import; how Contact search avoids revealing who has an account ([ADR-0039](../../20-architecture/adr/0039-accounts-contacts-households.md)); the generated data model with the first Module ([ADR-0036](../../20-architecture/adr/0036-changing-the-model-over-time.md)) | — | ADRs |
 | 3 | **Joe** — design, with Claude design: the Recipes grid and a Recipe (Variations, ingredient lines, method, cook log); the Meal plan's week and its slots; the Ingredient database; adding a Meal from a Recipe; Meal cards on Plan; the drawer icons for Meal plan and Shopping. Into the design spec first, then the shared components, with the screenshot tests refreshed | — | [design system](../../30-design/README.md), components |
 | 4 | Schema: the `food` Module — Recipe, Variation, Meal, Ingredient in the ontology; ingredient lines, method steps and the cook log as child rows; a Variation keeping its Recipe's Space; reference data (cuisines, aisles); the generated data model; database tests | — | Migrations, database tests |
 | 5 | Recipes page: the library and ideas, a Recipe, its Variations, the cook log and "Cook it now", favourites, Recipes in Search | — | Code, tests citing RCP-* |
 | 6 | Ingredients: the database on the Meal plan page; ingredient lines matched to an Ingredient or creating one | — | Code, tests citing ING-* |
 | 7 | Meal plan: Meals by slot over a week, from a Recipe's Variation, servings scaling the quantities; Meals on Plan; ticking a Meal done logs a cook | — | Code, tests citing MPL-* |
-| 8 | The shared AI service and food preferences; whichever v1 AI features Joe brings back (recipe import first, recommended) | — | Edge Function, code, tests |
+| 8 | The shared AI service and food preferences; whichever v1 AI features Joe brings back (recipe import first, agreed) | — | Edge Function, code, tests |
 | 9 | **Joe** — Contacts and Households: connect by Google email, invite, accept; sharing on, so Recipes, Meals and Ingredients can live in the Household | — | Code, tests citing ACC-* |
 | 10 | **Joe** — uses Recipes and the Meal plan; what he trips over is fixed | — | Code, tests |
 
@@ -58,7 +61,9 @@ Each step's code goes into the specs' status as it lands (*built*, then
 
 ## Questions for the specs
 
-Each has Claude's recommendation; Joe's answers settle step 1.
+Each has Claude's recommendation. **Joe agreed all eleven as recommended
+(17 October)**, and asked Claude to draft the Recipes spec first, to find
+what his brief might have missed.
 
 1. **Shopping lists in place of List and Shop.** A Shop was a List with a
    date, a place and a done state, on Plan with its own Reminder

@@ -2,6 +2,8 @@
 
 **Status:** Provisionally agreed · 2026-10-09
 
+**Amended:** 2026-10-17 by [ADR-0050](0050-shopping-list.md) (one Shopping list Type) and Joe's answers for Stage 4 (a shopping list made from the days I choose).
+
 ## Context
 
 Each Variation has ingredients; a Meal uses one Variation; the Meal's
@@ -17,10 +19,11 @@ ingredients should be collated onto a shopping list.
 - **Ingredient lines** are child rows of a Variation: quantity, unit, prep
   note, optional group, each pointing at an Ingredient. A line typed as free
   text is matched to an Ingredient, or creates one.
-- **Adding a Meal's ingredients to a list** creates one list line per
+- **Adding Meals' ingredients to a Shopping list** creates one line per
   ingredient per Meal, pointing at its Ingredient and *for* its Meal.
-  - By default they go to the next Shop before the meal's date, else the
-    Household's standing shopping List; another can be picked.
+  - "Make a shopping list" on the Meal plan takes the days I choose into a
+    new Shopping list, or adds them to one I pick; then I add more, from the
+    Ingredient database or typed.
   - **Collation is a display rule, not merged data:** lines with the same
     Ingredient and compatible units show as one row ("Panko 250 g · Katsu
     Thu, Schnitzel Sat").

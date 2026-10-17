@@ -13,13 +13,14 @@ it really is — is an everyday action.
 
 **Change in place, governed by rules in the ontology.**
 
-- **Thought → any Capturable Type** (Note, Task, Event, List, Shop, Recipe,
+- **Thought → any Capturable Type** (Note, Task, Event, Shopping list, Recipe,
   Goal, Garment): always, in place — this is how the Inbox is sorted. The
   Item keeps its id, links, Reminders and history.
 - **Note → any other Capturable Type:** in place too (a Note that turns out
-  to be a List).
+  to be a Shopping list).
 - Between closely related Types whose fields map cleanly: in place —
-  **Task ↔ Event, List ↔ Shop**.
+  **Task ↔ Event** (List ↔ Shop went with
+  [ADR-0050](0050-shopping-list.md)).
 - Anything else: **"create from"** — a new Item linked by *became*, so
   nothing is destroyed.
 - Links the new Type doesn't allow are listed for a decision, never silently

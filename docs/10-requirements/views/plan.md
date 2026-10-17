@@ -13,7 +13,7 @@ events and tasks ([ADR-0026](../../20-architecture/adr/0026-navigation-drawer.md
   Plan ([ADR-0005](../../20-architecture/adr/0005-traits-links-rules.md),
   Provisionally agreed).
 - **Plan reads `core.items`**; Modules may only enrich how their Items look,
-  so a new Schedulable Type — Shops, Meals, Workouts, Outfits worn — appears
+  so a new Schedulable Type — dated Shopping lists, Meals, Workouts, Outfits worn — appears
   on Plan with no Plan work
   ([ADR-0029](../../20-architecture/adr/0029-plan-reads-core-items.md),
   Provisionally agreed).
@@ -185,5 +185,5 @@ Acceptance criteria
 
 Non-goals (Stage 3): an hour grid; a month view; dragging on a phone (a
 phone moves an Item by changing its date); dragging to a time within a day;
-planning Meals, Shops, Workouts and Outfits (with their stages); readiness
+planning Meals, Shopping lists, Workouts and Outfits (with their stages); readiness
 suggestions and "plan my week" (later); Plan in Inbox's digest.

@@ -376,7 +376,7 @@ DayColumn, PlanWeek, PlanDay, PlanToolbar, WeekStrip and AddToDay in
 Lucide only, at 16px with a 1.75 stroke (12 or 14px small, 22px large).
 Grey by default; a Type colour only in tiles, checkboxes, the drawer and
 pressed Toggles. Each Type always uses the same icon: Thought `lightbulb`, Note
-`file-text`, Task `square-check-big`, Event `calendar`, Shop `shopping-cart`,
+`file-text`, Task `square-check-big`, Event `calendar`, Shopping list `shopping-cart`,
 Meal `utensils`, Recipe `chef-hat`, Workout `dumbbell`, Cardio activity
 `footprints`, Goal `target`, Outfit and Garment `shirt`. Marks: star (Task),
 pin (Note), heart (Recipe). A Task that repeats shows `repeat` in its meta;

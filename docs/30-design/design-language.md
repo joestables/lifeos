@@ -34,7 +34,7 @@ agreed)*
 - **Colour means one thing: what Type an Item is**
   ([ADR-0043](../20-architecture/adr/0043-colour-by-type.md), Provisionally
   agreed). Related Types share a colour: Tasks and Events blue; Thoughts,
-  Notes, Lists and Shops yellow; Gym and Cardio coral; Recipes green;
+  Notes and Shopping lists yellow; Gym and Cardio coral; Recipes green;
   Wardrobe orange; Goals purple.
 - **A page takes the colour of the Types it is about:** it becomes shadcn's
   primary and ring there, so the main button, selected tab, checkboxes,

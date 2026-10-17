@@ -40,5 +40,5 @@ repeat, and remembers the Types I've hidden on every device.
 
 ## Consequences
 
-Plan needs no knowledge of Meals, Shops or Workouts until their Modules want
+Plan needs no knowledge of Meals, Shopping lists or Workouts until their Modules want
 a subtitle or icon.

@@ -15,14 +15,15 @@ Recipe ideas live in Recipes.
   ([ADR-0037](../../20-architecture/adr/0037-thoughts.md), Provisionally
   agreed).
 - **Notes are Personal only**; something to share becomes a Shareable Type,
-  such as a List.
+  such as a Shopping list. A packing or DIY list is a Note
+  with a checklist ([ADR-0050](../../20-architecture/adr/0050-shopping-list.md)).
 - **Labels filter the page**, as in Google Keep; a Note's own title is its
   heading. Thoughts, Notes, Tasks and Events share one set of Labels
   ([ADR-0014](../../20-architecture/adr/0014-reference-data-and-labels.md),
   Provisionally agreed).
 - **Notes are pinned**, not starred: pinning is the Note's mark, kept at the
   top of the page.
-- **Notes are yellow**, with Thoughts, Lists and Shops; the page takes that
+- **Notes are yellow**, with Thoughts and Shopping lists; the page takes that
   colour, and a Note has no colour of its own
   ([ADR-0043](../../20-architecture/adr/0043-colour-by-type.md),
   Provisionally agreed).

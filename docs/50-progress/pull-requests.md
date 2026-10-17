@@ -2,7 +2,7 @@
 
 Newest first. Each entry is added in its own pull request.
 
-## Stage 4: Recipes — the plan, and the drawer's new order
+## Stage 4: Recipes — the plan, the drawer's new order, and the first draft of the specs
 
 Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-17
 
@@ -21,10 +21,18 @@ Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-17
   Lists and Ideas"), the capability map, roadmap, docs index and
   `CLAUDE.md` follow; the drawer's Playwright walk checks the new order.
 
+- Joe agreed all eleven recommendations. Claude's first draft of the
+  [food spec](../10-requirements/modules/food.md) — Recipes, the Meal plan
+  and Ingredients (RCP-001–013, ING-001–002, MPL-001–006, all *proposed*) —
+  drawn from Joe's brief, the ADRs and v1's Recipes spec, with seven open
+  points for Joe. ADR-0050: one Shopping list Type, in place of List and
+  Shop (ADR-0010 superseded; ADR-0012 and ADR-0013 amended); the `lists`
+  Module becomes `shopping`; the glossary, data model, capability map,
+  Modules list, design system, specs and other ADRs follow.
+
 **Left for later**
-- Joe's answers to the plan's questions, then the specs (step 1) and every
-  document that names List or Shop, once he agrees shopping lists replace
-  them.
+- Joe's rounds on the food spec; then the Households, capture, Inbox,
+  items, Search and Plan changes that step 1 also covers.
 
 ## [#13](https://github.com/joestables/lifeos/pull/13) — Stage 3: Plan, Events and Google Calendar
 

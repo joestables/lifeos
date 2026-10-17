@@ -4,8 +4,8 @@ One file per Module, written at the start of its stage — not before.
 
 | Module | Types | Stage |
 |---|---|---|
-| `lists` | List, Shop | 4b |
-| `food` | Recipe, Variation, Meal, Ingredient | 4 |
+| `shopping` | Shopping list ([ADR-0050](../../20-architecture/adr/0050-shopping-list.md)) | 4b |
+| `food` | Recipe, Variation, Meal, Ingredient ([spec](food.md)) | 4 |
 | `fitness` | Exercise, Workout template, Workout (5); Cardio activity (8) | 5, 8 |
 | `goals` | Goal | 5 |
 | `wardrobe` | Garment, Outfit, Outfit worn | 6 |

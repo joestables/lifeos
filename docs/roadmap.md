@@ -12,7 +12,7 @@ starts by writing the specs it needs, and no earlier.*
 | 2 | **Starts with its specs:** capture, Thoughts and Inbox, Notes, Tasks (with repeats), Reminders. Then: the colours by Type and the app icon, designed with Joe; capture in the app (Thought by default); sorting Thoughts in Inbox; Notes with Labels and pins; Tasks with Labels, stars, sub-tasks and **repeating Tasks**; Inbox; Reminders by Web Push with Done/Snooze actions (Android and desktop), overdue nudges and the morning digest; Search; Playwright walks in CI (the nightly smoke walk deferred until the roadmap is complete). Until Stage 3, an event-shaped line is saved as a Thought or a Task. | **Replaces Google Tasks — start using it daily** |
 | 3 | **Starts with its specs:** Plan, Events, Google Calendar. Then: Plan, every Schedulable Type in a week (computer) or a day (phone), filtered by Type; Events (and repeating Events, with Labels), with the Task ↔ Event switch; Google Calendar, incoming only or two-way, always Personal | The one planning view |
 | 4 | **Starts with its specs:** Recipes, Meal plan, Ingredients. Then: the **Recipes** page (the recipe library and saved ideas, Variations, cook log) and the **Meal plan** page (planning Meals, and the Ingredient database Recipes draw on); the shared AI service and food preferences; Contacts and Households, with sharing on | Shared with girlfriend |
-| 4b | **Shopping:** shopping lists made by hand, or from the meal plan with more added from the Ingredient database or typed; live updates. Shopping lists replace the List Type (to confirm with Stage 4's specs) | Shopping together |
+| 4b | **Shopping:** shopping lists made by hand, or from the meal plan with more added from the Ingredient database or typed; live updates. One Shopping list Type replaces List and Shop ([ADR-0050](20-architecture/adr/0050-shopping-list.md)) | Shopping together |
 | 5 | Gym (with v1's recovery model and snapshots), then Goals and the measures registry | The joined-up payoff |
 | 6 | Wardrobe and outfits | |
 | 7 | Android wrapper: exact-alarm Reminders, then Health Connect | Phone alarms can go |
@@ -35,7 +35,8 @@ Calendar, incoming and two-way. **Stage 4 (Recipes) has started**:
 [its plan](50-progress/plans/stage-4.md) is written, and its specs come
 first. Lists and Shops moved from Stage 3 to Stage 4b, after Recipes (Joe,
 14 October); on 17 October Joe set out Recipes, Meal plan and Shopping as
-three pages, with shopping lists taking the place of Lists, and moved Cardio
+three pages, with one Shopping list Type taking the place of List and Shop
+([ADR-0050](20-architecture/adr/0050-shopping-list.md)), and moved Cardio
 into the drawer as a blank page.
 
 Each stage begins by writing its own plan (`50-progress/plans/stage-N.md`,
@@ -48,10 +49,8 @@ agrees before anything is built.
 |---|---|
 | Leaving the Household: does "created by" decide ownership, or does the leaver take a copy? ([ADR-0016](20-architecture/adr/0016-sharing-and-visibility.md)) | To confirm |
 | The inbound-email service for the capture address: Cloudflare Email Routing or Postmark ([integration setup](40-operations/integration-setup.md#capture-address-email-after-stage-9)) | Stage 10 |
-| Shopping lists replacing List and Shop: does a shopping list keep a Shop's date, place and done (on Plan), and where do packing lists go? ([Stage 4 plan](50-progress/plans/stage-4.md#questions-for-the-specs)) | Stage 4 specs |
 | On a repeating shopping list, do unticked lines carry over to the next occurrence? | Shopping spec (Stage 4b) |
-| Unit conversion (100 g + 1 cup); whether a pantry is wanted | Recipes spec (Stage 4) |
-| Which v1 AI features return (Explore, Labs, dish images, recipe import) | Stage 4 |
+| The Recipes, Meal plan and Ingredients draft's open points: who edits a Household's Recipes, the Ingredient catalogue before a Household, slots, what v1 had that it leaves out ([food](10-requirements/modules/food.md#open-points-for-joe)) | Stage 4 specs |
 | A Project Type, if grouping Tasks needs more than Labels | When needed |
 | Stage 3's as-built choices: Google Calendar's ([ADR-0047](20-architecture/adr/0047-google-calendar-sync.md#as-built-16-october-plan-step-9)); two-way, where the later change wins for the whole event rather than field by field ([ADR-0048](20-architecture/adr/0048-google-calendar-two-way.md#as-built-16-october-plan-step-10)); Plan placing Items from what the device holds ([ADR-0049](20-architecture/adr/0049-plans-read.md)) | To confirm |
 | How Contact search avoids revealing who has an account; whether a Contact can be removed ([ADR-0039](20-architecture/adr/0039-accounts-contacts-households.md)) | Before Stage 4 |

@@ -6,7 +6,7 @@
 
 A pattern recurs across the product: a **definition** and its dated
 **occurrences** (Variation → Meal, Workout template → Workout, Outfit →
-Outfit worn, List template → List, series → occurrence). Strength v1 called
+Outfit worn, series → occurrence). Strength v1 called
 snapshots "the heart of the model": when a workout starts, it freezes each
 exercise's name, target weight and reps as they stood at that moment, so
 June's sets are judged against June's target even after August's raise.

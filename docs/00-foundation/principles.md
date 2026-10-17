@@ -28,7 +28,7 @@ unless marked.*
    - settings and default Space.
 
    Adding a Module changes neither the core nor other Modules.
-2. **One Postgres schema per area** (`core`, `lists`, `food`, `fitness`,
+2. **One Postgres schema per area** (`core`, `shopping`, `food`, `fitness`,
    `goals`, `wardrobe`, later `health` and `finance`).
    - Inside the database, Modules read each other only through published
      views and functions, and internal helpers sit in a schema the API can't
@@ -61,7 +61,7 @@ unless marked.*
    - Modules are packages in the repo, registered at build time.
    - The core is built from four real Types (Thought, Note, Task, Event), not
      from a general ontology designed in advance.
-9. **Live updates where two people share a thing.** Shared Lists and Shops
+9. **Live updates where two people share a thing.** Shared Shopping lists
    use Supabase Realtime, so two people in Tesco see each other's ticks at
    once. Elsewhere, data refreshes on focus.
 10. **Search** is Postgres full-text search over titles, bodies and labels

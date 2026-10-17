@@ -10,7 +10,7 @@ dashboard cards ([ADR-0026](../../20-architecture/adr/0026-navigation-drawer.md)
 ## Decisions
 
 - **Thoughts wait here to be sorted.** Capture makes a Thought by default;
-  it leaves Inbox when it is converted into another Type (a Note, Task, List…),
+  it leaves Inbox when it is converted into another Type (a Note, Task, Shopping list…),
   ticked off (done: it no longer matters) or deleted
   ([ADR-0037](../../20-architecture/adr/0037-thoughts.md), Provisionally
   agreed).

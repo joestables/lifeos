@@ -4,7 +4,7 @@
 specs that detail each one are written at the start of its stage. Items
 marked "candidate" are candidate requirements for that spec, not designs.*
 
-Owner: **core**, a **Module** (`lists`, `food`, `fitness`, `goals`,
+Owner: **core**, a **Module** (`shopping`, `food`, `fitness`, `goals`,
 `wardrobe`, `health`, `finance`) or an **Integration**. Page: the drawer page
 (View) or Screen it lives on.
 
@@ -26,12 +26,12 @@ Owner: **core**, a **Module** (`lists`, `food`, `fitness`, `goals`,
 | Plan: every Schedulable Type, a week or a day, filtered by Type | core | Plan | 3 | [plan](views/plan.md) |
 | Events, repeating Events, Tasks for an Event | core | Plan | 3 | [events](cross-cutting/events.md) |
 | Google Calendar: incoming only or two-way per calendar, always Personal | Integration | Settings | 3 | [integrations](cross-cutting/integrations.md#google-calendar) |
-| Recipes, Variations, ideas, cook log | `food` | Recipes | 4 | — |
-| Meal planning; the Ingredient database | `food` | Meal plan (Meals on Plan too) | 4 | — |
+| Recipes, Variations, ideas, cook log | `food` | Recipes | 4 | [food](modules/food.md) |
+| Meal planning; the Ingredient database | `food` | Meal plan (Meals on Plan too) | 4 | [food](modules/food.md) |
 | Shared AI service; food preferences | core | — | 4 | — |
 | Contacts and Households: connect by Google email, invite, accept; sharing on | core | — | 4 | [spaces-and-sharing](cross-cutting/spaces-and-sharing.md) |
-| Shopping lists, made by hand or from the meal plan, live updates | `lists` | Shopping | 4b | — |
-| Ingredients to shopping lists | `food`, `lists` | Meal plan, Shopping | 4b | — |
+| Shopping lists, made by hand or from the meal plan, live updates | `shopping` | Shopping | 4b | — |
+| Ingredients to shopping lists | `food`, `shopping` | Meal plan, Shopping | 4b | — |
 | Gym, with v1's recovery model and snapshots | `fitness` | Gym | 5 | — |
 | Goals and the measures registry | `goals` | Goals | 5 | — |
 | Wardrobe and outfits | `wardrobe` | Wardrobe | 6 | — |

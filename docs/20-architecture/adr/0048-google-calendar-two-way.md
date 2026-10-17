@@ -105,7 +105,7 @@ for Joe to confirm:
 
 - A change reaches Google within about a minute of reaching the server; made
   offline, once the write queue has sent it.
-- Google never sees Tasks, Meals, Workouts or Shops.
+- Google never sees Tasks, Meals, Workouts or Shopping lists.
 - A Household Event will be sent by each member who has a two-way calendar
   (Stage 4 decides whether that means one copy per member's calendar, or
   Google's own invitations).

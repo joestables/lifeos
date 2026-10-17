@@ -15,7 +15,7 @@ decisions known so far.*
   it when the rule or the data grows.
 - Capture must be faster than Google Tasks or setting a phone alarm
   ([vision](../00-foundation/vision.md)).
-- Shared Lists and Shops update live; elsewhere, data refreshes on focus.
+- Shared Shopping lists update live; elsewhere, data refreshes on focus.
 
 ## Offline
 

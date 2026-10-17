@@ -72,10 +72,10 @@ core.items     id (UUIDv7, made on the device), type, title, body, space_id,
 <type> detail  1:1 with items, per Type, in its Module's schema, e.g.
                fitness.workout(item_id, actual_start, duration, readiness …)
                food.meal(item_id, servings)
-               lists.shop(item_id, …)
+               shopping.shopping_list(item_id, place)
 
 child rows     belong to one Item and are not Items themselves:
-               workout_sets, variation_ingredients, list_lines …
+               workout_sets, variation_ingredients, shopping_lines …
 
 core.series    type, space, owner, the repeat rule (an RRULE), mode
                (schedule | after completion), starts_on, timezone, template
@@ -105,7 +105,7 @@ core.activity  item_id, verb, changed (jsonb), at, actor — written by triggers
   SQL function, `core_private.uuidv7()`.
 - **`do_on` is a date with an optional time.** A Task is something *you do*,
   by or on a date; an Event is something that *happens* at a time. "Sat 10:00
-  Tesco" is a Shop with a do-on time; "Dishoom 19:30" is an Event.
+  Tesco" is a Shopping list with a do-on time; "Dishoom 19:30" is an Event.
 - **`touched_at`** is set the first time a person edits, ticks, labels,
   adds a sub-task to or links an occurrence; what the series itself writes
   doesn't count ([ADR-0022](adr/0022-repeating-items.md)).
@@ -133,15 +133,14 @@ use.
 |---|---|---|
 | Task | `do_on` + `do_at`, `due_on` | `do_on`, `due_on` |
 | Event | `starts_at`, `ends_at`, `all_day` | `starts_at` |
-| Shop | `do_on` + `do_at` | `do_on` |
+| Shopping list (when dated) | `do_on` + `do_at` | `do_on` |
 | Meal | `do_on` + `slot` | `do_on` |
 | Workout, Cardio activity | `starts_at` (planned; what happened is in the detail table) | `starts_at` |
 | Outfit worn | `do_on` | `do_on` |
 | Goal | none: its deadline is in `goals.goal`, so a Goal is not on Plan | — |
 
 Task ↔ Event maps `do_on` + `do_at` to `starts_at` (an hour long; all day
-when there is no time), in the owner's timezone, and back; List → Shop gains
-a `do_on`. **An all-day Event keeps its days as dates**: `starts_at` is
+when there is no time), in the owner's timezone, and back. **An all-day Event keeps its days as dates**: `starts_at` is
 midnight UTC of its first day and `ends_at` midnight UTC of the day after its
 last, as Google keeps them, so it is the same days in any timezone (EVT-001).
 Plan reads a date range through `core.plan_items` ([ADR-0049](adr/0049-plans-read.md)).
@@ -165,7 +164,6 @@ the same one.
 | Variation (of a Recipe) | Meal | *uses* | Servings and, once added to a list, the scaled quantities on its list lines |
 | Workout template | Workout | *follows* | Each exercise's targets, at the start of the session |
 | Outfit | Outfit worn on a day | *wears* | The garments in the outfit on the day |
-| List template (packing) | A List for one trip | *from template* | The template's lines |
 | Series (repeat rule) | Each occurrence | `series_id` | The series' fields, when generated |
 
 Planning is mostly *creating occurrences of definitions*. History is read
@@ -188,8 +186,7 @@ these, so the database enforces them.
 | core | **Note** | — | — | — | ✓ | Personal | active | yellow | ✓ | pinned | 2 |
 | core | **Task** | ✓ do-on / due | ✓ | ✓ | ✓ | Personal | idea "Someday" · active · done · cancelled (a missed repeat: "Skipped") | blue | ✓ | starred | 2 |
 | core | **Event** (a place; not captured, but a Thought can become one) | ✓ start / end | — | ✓ | ✓ | Personal ("with household" → Household); from Google Calendar always Personal | active · cancelled | blue | ✓ | — | 3 |
-| lists | **List** (can be marked as a template) | — | — | ✓ | ✓ | Personal | active | yellow | — | — | 4b |
-| lists | **Shop** | ✓ do-on, place | ✓ | ✓ | ✓ | Household | active · done · cancelled | yellow | — | — | 4b |
+| shopping | **Shopping list** (a date is optional; a standing list has none) | ✓ do-on, place (optional) | ✓ | ✓ | ✓ | Household | active · done · cancelled | yellow | — | — | 4b |
 | food | **Recipe** (the dish) | — | — | ✓ | ✓ | Household | idea "Backlog" · active | green | — | favourited | 4 |
 | food | **Variation** (a way of making it) | — | — | ✓ | — | Its Recipe's, always | active; *untried · attempted · final* calculated from the cook log | green | — | — | 4 |
 | food | **Meal** | ✓ do-on + slot | ✓ "eaten" | ✓ | — | Household | active "Planned" · done · cancelled | green | — | — | 4 |
@@ -204,12 +201,12 @@ these, so the database enforces them.
 | wardrobe | **Outfit worn** | ✓ do-on | ✓ "worn" | — | — | Personal | active "Planned" · done · cancelled | orange | — | — | 6 |
 | finance | **Account** | — | — | ✓ | — | Personal | active · cancelled "Closed" | Stage 9 | — | — | 9 |
 
-Shop and List: [ADR-0010](adr/0010-shop-is-its-own-type.md) (Provisionally agreed).
+Shopping list: [ADR-0050](adr/0050-shopping-list.md) (Provisionally agreed), superseding ADR-0010's List and Shop.
 Recipe and Variation: [ADR-0011](adr/0011-recipe-and-variation.md) (Provisionally agreed).
 Ingredient: [ADR-0012](adr/0012-ingredients-and-shopping-lists.md) (Provisionally agreed).
 
 **In-place conversions:** Thought → any Capturable Type (sorting the Inbox);
-Note → any other Capturable Type; Task ↔ Event; List ↔ Shop. Everything else is "create from" + *became*
+Note → any other Capturable Type; Task ↔ Event. Everything else is "create from" + *became*
 ([ADR-0018](adr/0018-changing-an-items-type.md), Provisionally agreed).
 Thoughts and Notes: [ADR-0037](adr/0037-thoughts.md) (Provisionally agreed).
 
@@ -229,7 +226,7 @@ more than Labels).
 | Module | Detail tables (1:1 with an Item) | Child rows |
 |---|---|---|
 | core | — (Thought, Note, Task use `core.items` only; where an Event's place is kept is decided with Stage 3's schema) | `subtasks(item_id, title, done, position)` — a Task's sub-tasks |
-| lists | `shop(place)` | `list_lines(text, ingredient_id?, qty, unit, section, checked, position, for_item_id?, generated, touched_at)` — used by List and Shop |
+| shopping | `shopping_list(place)` | `shopping_lines(text, ingredient_id?, qty, unit, section, checked, position, for_item_id?, generated, touched_at)` |
 | food | `recipe(photo, cuisine, category, protein, carbs)`, `variation(servings, prep_min, cook_min, source_url, notes, final)`, `meal(servings)`, `ingredient(section, default_unit, staple)` | `variation_ingredients(ingredient_id, qty, unit, prep_note, group, position)`, `variation_steps`, `cook_log(person, cooked_on, rating, notes, meal_id?)`; reference data: cuisines, categories, protein, carbs, units |
 | fitness | `exercise(muscle_groups, equipment, increment, target)`, `workout(actual_start, duration, readiness, stage)`, `cardio_activity(kind, distance_m, duration_s, avg_hr)` | `template_exercises(exercise_id, sets, reps, target)`, `workout_entries(exercise_id, snapshot)`, `workout_sets(entry_id, set_no, reps, weight, rpe)`; reference data: muscle groups, equipment, recovery settings per person |
 | goals | `goal(kind, measure_key, params, target, unit, period, start_on, deadline)` | — |
@@ -246,12 +243,11 @@ more than Labels).
 | **wears** | Outfit worn → Outfit | worn on | Planning an outfit |
 | **includes** | Outfit → Garment | in outfit | Building an outfit |
 | **worn to** | Outfit worn → Event | outfit | Picking an outfit for an event |
-| **for** | Task / Shop → Event | to do for | Hand, or capture ("card for mum's lunch") |
-| **contributes to** | Task / Event / Shop / Workout / Cardio activity → Goal | contributors | Hand (counted only by milestone goals) |
+| **for** | Task / Shopping list → Event | to do for | Hand, or capture ("card for mum's lunch") |
+| **contributes to** | Task / Event / Shopping list / Workout / Cardio activity → Goal | contributors | Hand (counted only by milestone goals) |
 | **sub-goal of** | Goal → Goal | sub-goals | Hand (one level) |
 | **became** | any → any | came from | "Create from" |
 | **variation of** | Variation → Recipe | variations | Creating a Recipe (its first Variation) or "Make a variation"; exactly one per Variation ([ADR-0011](adr/0011-recipe-and-variation.md), Provisionally agreed) |
-| **from template** | List → List | made from it | "New list from template" |
 | **relates to** | any ↔ any | relates to | Hand — the catch-all |
 
 Child-row pointers that are not links: a list line's `for_item_id` (→ Meal or
@@ -334,9 +330,8 @@ flowchart LR
     Meal
     Ingredient
   end
-  subgraph LISTS[Lists]
-    List
-    Shop
+  subgraph SHOPPING[Shopping]
+    Shop[Shopping list]
   end
   subgraph WARDROBE[Wardrobe]
     Garment
@@ -357,7 +352,6 @@ flowchart LR
   Thought == converts in place ==> Task
   Thought == converts in place ==> Recipe
   Task -. converts .- Event
-  List -. converts .- Shop
 
   Meal -- uses --> Variation
   Variation -- variation of --> Recipe
@@ -381,11 +375,11 @@ flowchart LR
   Goal -. "rule: measured by" .-> Cardio
 ```
 
-Drawn selectively to stay readable: a Thought also converts to Event, List,
-Shop, Goal and Garment (every Capturable Type), and a Note to any other
-Capturable Type; *contributes to* also comes from Shops,
-Workouts and Cardio; Lists have lines too, and a line can point at an Event as
-well as a Meal; measures also exist for Meals and Tasks. Two link types
+Drawn selectively to stay readable: a Thought also converts to Event,
+Shopping list, Goal and Garment (every Capturable Type), and a Note to any other
+Capturable Type; *contributes to* also comes from Shopping lists,
+Workouts and Cardio; a Shopping list's line can point at an Event as well as
+a Meal; measures also exist for Meals and Tasks. Two link types
 connect any pair of Types and are not drawn: *became* and *relates to*.
 Finance's Account (Stage 9) is not shown.
 
@@ -400,7 +394,7 @@ flowchart LR
   R2["Tofu katsu<br/>Variation · untried · H"]
   R3["Miso salmon traybake<br/>Recipe · idea · H<br/>(captured as a Thought)"]
   M["Katsu curry<br/>Meal · Thu dinner · H"]
-  S["Big shop<br/>Shop · Sat 10:00 · H"]
+  S["Big shop<br/>Shopping list · Sat 10:00 · H"]
   L(["Panko 100 g<br/>list line"])
   RL(["100 g panko<br/>recipe line"])
   I["Panko breadcrumbs<br/>Ingredient · H"]
@@ -435,7 +429,7 @@ flowchart LR
 What it shows:
 
 - **Views are queries, not links:** Plan is every dated Item in the week
-  (Meal, Shop, both Events, the Task, Outfit worn, Workout); nothing links to
+  (Meal, Shopping list, both Events, the Task, Outfit worn, Workout); nothing links to
   Plan.
 - **The action creates the link:** planning the meal made *uses*; picking an
   outfit for Dishoom made *worn to*.
