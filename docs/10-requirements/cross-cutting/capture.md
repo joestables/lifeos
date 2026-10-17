@@ -42,7 +42,9 @@ at the start of Stage 2, are at the end.*
   - **Email** — a forwarding address, so an email or booking confirmation
     becomes a Thought. This needs an inbound-email service in front, chosen
     then ([integration setup](../../40-operations/integration-setup.md#capture-address-email-after-stage-9)).
-  - **Android:** the installed app's home-screen shortcut and share target,
+  - **Android:** the installed app's home-screen shortcut and share target
+    (the share target comes earlier, in Stage 4, for recipe ideas:
+    [RCP-003](../modules/recipes.md#rcp-003--save-an-idea-from-another-app)),
     and a widget for typing a Thought once the Android wrapper exists
     (Stage 7).
 - Capture's "buy oat milk" matches an Ingredient if one exists (Stage 4).

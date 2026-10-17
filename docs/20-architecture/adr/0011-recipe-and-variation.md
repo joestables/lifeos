@@ -2,6 +2,8 @@
 
 **Status:** Provisionally agreed · 2026-10-09
 
+**Amended:** 2026-10-17 by Joe's notes for the [Recipes spec](../../10-requirements/modules/recipes.md) (states set on each Variation; a cook keeps a snapshot).
+
 ## Context
 
 v1's Recipes spec: *the Recipe is the dish and the Variation is the way you
@@ -12,8 +14,8 @@ lost the dish, so the Recipes grid would have shown one card per variation.
 
 - **Recipe and Variation are two Types.**
   - **Recipe** (the dish): what identifies it in a grid — name, photo,
-    cuisine and other facets, and each person's star. Status *idea* or
-    *active*; *idea* is v1's *backlog*.
+    category, cuisine, tags, protein and carbs, and each person's favourite.
+    Its state is the highest of its Variations' (below).
   - **Variation** (the way you make it): ingredient lines, method steps,
     servings, times, sources, notes, and the cook log. Every Recipe has at
     least one, linked by *variation of*; the interface hides the Variation
@@ -28,8 +30,12 @@ lost the dish, so the Recipes grid would have shown one card per variation.
     optional pointer to the Meal it was for).
   - **Cook it now** (from the Recipe) writes a log entry and nothing else.
   - **Ticking a Meal done** writes a log entry pointing at the Meal.
-  - The Variation's state is **calculated from its log**: *untried*,
-    *attempted*, *final* (marked by you).
+  - **Each Variation's state is set by hand:** Idea → Draft → Complete, or
+    Archived. The Recipe's is worked out: the highest of its Variations'
+    that aren't archived, and Archived only when all are.
+  - **A cook log entry keeps a snapshot** of the Variation as cooked
+    ([ADR-0013](0013-occurrences-snapshot-their-definition.md)), so its
+    verdict and notes are read against what was made.
 
 ## Consequences
 

@@ -28,15 +28,15 @@ a stand-in, as they do for Supabase.
 
 | # | Step | State | Produces |
 |---|---|---|---|
-| 1 | **Joe** — specs: the Recipes page (library and ideas, a Recipe and its Variations, the cook log, cook it now); the Meal plan page (planning Meals by slot, servings, ticking a Meal done, the Ingredient database); Ingredients and ingredient lines; food preferences; Contacts and Households with sharing on; and the Shopping direction for Stage 4b (shopping lists replacing List and Shop), with what they change in capture, Inbox, items, Search, Plan and Reminders | Joe agreed the recommendations 17 October. First draft for Joe's review, 17 October: [food](../../10-requirements/modules/food.md) (RCP-001–013, ING-001–002, MPL-001–006, all *proposed*), drawn from Joe's brief, the ADRs and v1's Recipes spec, with its open points listed; ADR-0050 (one Shopping list Type) agreed, ADR-0010 superseded, ADR-0012 amended, and every document naming List or Shop updated. Still to come: the next rounds with Joe, then the changes to spaces and sharing (Households), capture, Inbox, items, Search and Plan | [food](../../10-requirements/modules/food.md) (RCP-*, MPL-*, ING-*), changes to [spaces and sharing](../../10-requirements/cross-cutting/spaces-and-sharing.md), [capture](../../10-requirements/cross-cutting/capture.md), [Inbox](../../10-requirements/views/inbox.md), [items](../../10-requirements/cross-cutting/items.md), [search](../../10-requirements/cross-cutting/search.md), [Plan](../../10-requirements/views/plan.md); every document that named List or Shop |
+| 1 | **Joe** — specs: the Recipes page (library and ideas, a Recipe and its Variations, states, the log, Cooking, import, sharing ideas in); the Meal plan (Meals by slot, the Ingredient database); Shopping for Stage 4b; food preferences; Households, or something lighter; and what they change in capture, Inbox, items, Search, Plan and Reminders | Joe agreed the recommendations 17 October; ADR-0050 (one Shopping list Type) agreed, ADR-0010 superseded, every document naming List or Shop updated. A first draft drawn partly on v1's Recipes spec was withdrawn at Joe's wish (he wants first principles, not v1). Second draft, from [Joe's notes](#joes-notes-17-october), with Claude's suggestions marked: [recipes](../../10-requirements/modules/recipes.md) (RCP-001–017) and [meals](../../10-requirements/modules/meals.md) (MPL-001–004, ING-001–002, SHP-001–004), all *proposed*; ADR-0011 (states set on each Variation, a cook's snapshot), ADR-0012 (a line is an amount, a unit and an ingredient; six aisles), ADR-0014 (Recipes' tags) and ADR-0028 (Android's share target in Stage 4) amended. Next: Joe's rounds on both, and [Households](#households) | [recipes](../../10-requirements/modules/recipes.md) (RCP-*), [meals](../../10-requirements/modules/meals.md) (MPL-*, ING-*, SHP-*), changes to [spaces and sharing](../../10-requirements/cross-cutting/spaces-and-sharing.md), [capture](../../10-requirements/cross-cutting/capture.md), [Inbox](../../10-requirements/views/inbox.md), [items](../../10-requirements/cross-cutting/items.md), [search](../../10-requirements/cross-cutting/search.md), [Plan](../../10-requirements/views/plan.md) |
 | 2 | Decisions: one shopping-list Type in place of List and Shop (done with step 1: [ADR-0050](../../20-architecture/adr/0050-shopping-list.md)); unit conversion and a pantry; the shared AI service (where it runs, which model, what it may read); recipe import; how Contact search avoids revealing who has an account ([ADR-0039](../../20-architecture/adr/0039-accounts-contacts-households.md)); the generated data model with the first Module ([ADR-0036](../../20-architecture/adr/0036-changing-the-model-over-time.md)) | — | ADRs |
 | 3 | **Joe** — design, with Claude design: the Recipes grid and a Recipe (Variations, ingredient lines, method, cook log); the Meal plan's week and its slots; the Ingredient database; adding a Meal from a Recipe; Meal cards on Plan; the drawer icons for Meal plan and Shopping. Into the design spec first, then the shared components, with the screenshot tests refreshed | — | [design system](../../30-design/README.md), components |
 | 4 | Schema: the `food` Module — Recipe, Variation, Meal, Ingredient in the ontology; ingredient lines, method steps and the cook log as child rows; a Variation keeping its Recipe's Space; reference data (cuisines, aisles); the generated data model; database tests | — | Migrations, database tests |
 | 5 | Recipes page: the library and ideas, a Recipe, its Variations, the cook log and "Cook it now", favourites, Recipes in Search | — | Code, tests citing RCP-* |
 | 6 | Ingredients: the database on the Meal plan page; ingredient lines matched to an Ingredient or creating one | — | Code, tests citing ING-* |
 | 7 | Meal plan: Meals by slot over a week, from a Recipe's Variation, servings scaling the quantities; Meals on Plan; ticking a Meal done logs a cook | — | Code, tests citing MPL-* |
-| 8 | The shared AI service and food preferences; whichever v1 AI features Joe brings back (recipe import first, agreed) | — | Edge Function, code, tests |
-| 9 | **Joe** — Contacts and Households: connect by Google email, invite, accept; sharing on, so Recipes, Meals and Ingredients can live in the Household | — | Code, tests citing ACC-* |
+| 8 | The shared AI service and food preferences; the AI features the specs keep: import first, then filling ingredients from a method | — | Edge Function, code, tests |
+| 9 | **Joe** — sharing with his girlfriend, the way Joe chooses ([Households](#households)), so Recipes, Meals, Ingredients and shopping lists can be shared | — | Code, tests citing ACC-* |
 | 10 | **Joe** — uses Recipes and the Meal plan; what he trips over is fixed | — | Code, tests |
 
 Each step's code goes into the specs' status as it lands (*built*, then
@@ -110,6 +110,70 @@ what his brief might have missed.
     want it redder, it can move towards red, but not onto it.
 11. **Finance** wasn't in your order. *Recommended:* it stays at the foot
     under "Later", as now.
+
+## Joe's notes (17 October)
+
+Rough notes, for Claude to shape, not copy; and **first principles rather
+than v1**: v1's Recipes documents aren't to be drawn on.
+
+- **Two specs:** `recipes.md` for the Recipes page; `meals.md` for the Meal
+  plan, the Ingredient database and shopping.
+- **Recipes page:** two tabs for now, Recipes (Draft and Complete, as cards
+  with photos) and Ideas (as a list). Archived Recipes are reached from
+  Settings.
+- **States:** Idea, Draft, Complete, Archived, set on each Variation; the
+  Recipe's is the highest of its Variations'.
+- **A Recipe's heading:** category, cuisine, tags, protein, carbs; edited
+  apart from a Variation's content. Each Variation has its own name, state,
+  ingredients, method, notes, time, servings and sources; one is the
+  default; a new one is a duplicate.
+- **Ideas** need only a title, a link or a note; shared from TikTok or
+  elsewhere straight in; a link saved before is warned about; bulk promote,
+  archive and delete; an Idea becomes a Draft keeping everything.
+- **The library:** search; filter by category, cuisine, tags, protein, carbs
+  and favourites; sort and group; my own favourites; select many.
+- **Getting recipes in:** by hand; imported from a web page as a Draft,
+  rewritten in my style.
+- **Modes:** read, edit and cooking. Cooking scales servings (ingredients
+  only, not the method's numbers).
+- **Ingredient lines:** an amount, a unit and an ingredient, nothing else;
+  autocomplete with link-or-create; a line may stay outside the database;
+  the list can be generated from the method by AI.
+- **"@" references** to my own Recipes in the method or notes, up to three
+  suggestions, buttons outside editing (Cooking too).
+- **A log per Recipe:** Variations made, changed and deleted, heading edits,
+  and cooks with notes and a verdict; a cook keeps a snapshot of what was
+  cooked.
+- **Ingredients:** a required aisle, in this order: Fruit & Veg, Bakery,
+  Protein, Chilled, Cupboard, Frozen. Categories, cuisines, tags, protein
+  and carbs kept in Settings.
+- **Households:** not decided; Joe is the main user, his girlfriend an
+  occasional one.
+
+## Households
+
+Joe hasn't decided how Households should work, or whether something
+lighter would do: he is the main user, his girlfriend an occasional one.
+The current design ([ADR-0016](../../20-architecture/adr/0016-sharing-and-visibility.md),
+[ADR-0039](../../20-architecture/adr/0039-accounts-contacts-households.md))
+gives each person a Personal Space and lets two people share a Household
+Space. Three ways forward, for Joe to choose:
+
+1. **A Household, as designed.** She signs in with Google; Recipes, Meals,
+   Ingredients and shopping lists live in the Household; both of us edit
+   them; lists update live. *Most capable; the most to build* (Contacts,
+   invitations, leaving).
+2. **Lighter: one Household, no Contacts.** Joe's account invites her
+   directly by email; there is only ever one Household; no Contact
+   requests or leaving rules yet. *The same use, about half the building*;
+   ADR-0039 would be amended.
+3. **Lightest: share links.** A shopping list or a Recipe can be opened by
+   link, without an account; a shared list can be ticked. *Almost nothing to
+   build, nothing for her to sign up to; anyone with the link can see it.*
+
+*Recommended:* **2**, built late in the stage (step 9), so Recipes and the
+Meal plan don't wait on it. Everything in the specs works the same for one
+person or two.
 
 ## Done when
 

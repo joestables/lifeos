@@ -21,18 +21,26 @@ Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-17
   Lists and Ideas"), the capability map, roadmap, docs index and
   `CLAUDE.md` follow; the drawer's Playwright walk checks the new order.
 
-- Joe agreed all eleven recommendations. Claude's first draft of the
-  [food spec](../10-requirements/modules/food.md) — Recipes, the Meal plan
-  and Ingredients (RCP-001–013, ING-001–002, MPL-001–006, all *proposed*) —
-  drawn from Joe's brief, the ADRs and v1's Recipes spec, with seven open
-  points for Joe. ADR-0050: one Shopping list Type, in place of List and
-  Shop (ADR-0010 superseded; ADR-0012 and ADR-0013 amended); the `lists`
-  Module becomes `shopping`; the glossary, data model, capability map,
-  Modules list, design system, specs and other ADRs follow.
+- Joe agreed all eleven recommendations. ADR-0050: one Shopping list Type,
+  in place of List and Shop (ADR-0010 superseded; ADR-0012 and ADR-0013
+  amended); the `lists` Module becomes `shopping`; the glossary, data
+  model, capability map, Modules list, design system, specs and other ADRs
+  follow.
+- A first draft of the food spec drew partly on v1's Recipes documents; Joe
+  wanted first principles instead, so it was withdrawn. The second draft,
+  from Joe's notes with Claude's suggestions marked, is two specs:
+  [recipes](../10-requirements/modules/recipes.md) (RCP-001–017) and
+  [meals](../10-requirements/modules/meals.md) (MPL-001–004, ING-001–002,
+  SHP-001–004), all *proposed*. ADR-0011 (states Idea, Draft, Complete,
+  Archived, set on each Variation; a cook keeps a snapshot), ADR-0012 (a
+  line is an amount, a unit and an ingredient; six aisles), ADR-0014
+  (Recipes' tags) and ADR-0028 (Android's share target in Stage 4) amended;
+  the data model, glossary, capture spec and roadmap follow. The plan sets
+  out three ways to share with Joe's girlfriend.
 
 **Left for later**
-- Joe's rounds on the food spec; then the Households, capture, Inbox,
-  items, Search and Plan changes that step 1 also covers.
+- Joe's rounds on both specs and his choice on Households; then the
+  capture, Inbox, items, Search and Plan changes that step 1 also covers.
 
 ## [#13](https://github.com/joestables/lifeos/pull/13) — Stage 3: Plan, Events and Google Calendar
 

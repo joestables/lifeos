@@ -1,11 +1,11 @@
 # Module specs
 
-One file per Module, written at the start of its stage — not before.
+One file per Module, or per page where a Module has several, written at the start of its stage — not before.
 
 | Module | Types | Stage |
 |---|---|---|
-| `shopping` | Shopping list ([ADR-0050](../../20-architecture/adr/0050-shopping-list.md)) | 4b |
-| `food` | Recipe, Variation, Meal, Ingredient ([spec](food.md)) | 4 |
+| `shopping` | Shopping list ([meals](meals.md#shopping), [ADR-0050](../../20-architecture/adr/0050-shopping-list.md)) | 4b |
+| `food` | Recipe, Variation, Meal, Ingredient ([recipes](recipes.md), [meals](meals.md)) | 4 |
 | `fitness` | Exercise, Workout template, Workout (5); Cardio activity (8) | 5, 8 |
 | `goals` | Goal | 5 |
 | `wardrobe` | Garment, Outfit, Outfit worn | 6 |

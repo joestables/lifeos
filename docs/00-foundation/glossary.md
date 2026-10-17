@@ -64,7 +64,7 @@ templates, and starting a session opens the session-logging Screen.
 | **Mark** | A per-person flag a Type may have, under its own name: a Note is **pinned**, a Task **starred**, a Recipe **favourited**. Types without one have none. |
 | **Sub-task** | A line ticked inside a Task: a title and a tick, not a Task of its own. |
 | **Capture address** | A personal URL and secret that creates Items in its owner's Personal Space. |
-| **Cook log** | The record of each time a Variation was cooked. |
+| **Cook log** | The record of each time a Variation was cooked: who, when, a verdict and notes, and a snapshot of the Variation as cooked. |
 | **Ontology** | Types, Traits, statuses, link types, measures and reference data: the schema of the graph. |
 
 ## Not used

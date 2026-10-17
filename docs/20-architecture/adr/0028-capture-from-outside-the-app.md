@@ -2,7 +2,7 @@
 
 **Status:** Provisionally agreed · 2026-10-09
 
-**Amended:** 2026-10-09 by [ADR-0037](0037-thoughts.md) (Thoughts); 2026-10-10 by Joe, writing the Stage 2 specs (built after every other stage, not in Stage 2).
+**Amended:** 2026-10-09 by [ADR-0037](0037-thoughts.md) (Thoughts); 2026-10-10 by Joe, writing the Stage 2 specs (built after every other stage, not in Stage 2); 2026-10-17 by Joe's notes for the [Recipes spec](../../10-requirements/modules/recipes.md) (Android's share target comes in Stage 4, for recipe ideas).
 
 ## Context
 

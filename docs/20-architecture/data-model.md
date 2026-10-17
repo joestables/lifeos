@@ -187,8 +187,8 @@ these, so the database enforces them.
 | core | **Task** | ✓ do-on / due | ✓ | ✓ | ✓ | Personal | idea "Someday" · active · done · cancelled (a missed repeat: "Skipped") | blue | ✓ | starred | 2 |
 | core | **Event** (a place; not captured, but a Thought can become one) | ✓ start / end | — | ✓ | ✓ | Personal ("with household" → Household); from Google Calendar always Personal | active · cancelled | blue | ✓ | — | 3 |
 | shopping | **Shopping list** (a date is optional; a standing list has none) | ✓ do-on, place (optional) | ✓ | ✓ | ✓ | Household | active · done · cancelled | yellow | — | — | 4b |
-| food | **Recipe** (the dish) | — | — | ✓ | ✓ | Household | idea "Backlog" · active | green | — | favourited | 4 |
-| food | **Variation** (a way of making it) | — | — | ✓ | — | Its Recipe's, always | active; *untried · attempted · final* calculated from the cook log | green | — | — | 4 |
+| food | **Recipe** (the dish) | — | — | ✓ | ✓ | Household | idea "Idea" · active "Draft" · done "Complete" · cancelled "Archived" — the highest of its Variations', worked out | green | — | favourited | 4 |
+| food | **Variation** (a way of making it) | — | — | ✓ | — | Its Recipe's, always | idea "Idea" · active "Draft" · done "Complete" · cancelled "Archived", set by hand | green | — | — | 4 |
 | food | **Meal** | ✓ do-on + slot | ✓ "eaten" | ✓ | — | Household | active "Planned" · done · cancelled | green | — | — | 4 |
 | food | **Ingredient** | — | — | ✓ | — | Household | active | green | — | — | 4 |
 | fitness | **Exercise** | — | — | — | — | Personal | active | coral | — | — | 5 |
@@ -227,7 +227,7 @@ more than Labels).
 |---|---|---|
 | core | — (Thought, Note, Task use `core.items` only; where an Event's place is kept is decided with Stage 3's schema) | `subtasks(item_id, title, done, position)` — a Task's sub-tasks |
 | shopping | `shopping_list(place)` | `shopping_lines(text, ingredient_id?, qty, unit, section, checked, position, for_item_id?, generated, touched_at)` |
-| food | `recipe(photo, cuisine, category, protein, carbs)`, `variation(servings, prep_min, cook_min, source_url, notes, final)`, `meal(servings)`, `ingredient(section, default_unit, staple)` | `variation_ingredients(ingredient_id, qty, unit, prep_note, group, position)`, `variation_steps`, `cook_log(person, cooked_on, rating, notes, meal_id?)`; reference data: cuisines, categories, protein, carbs, units |
+| food | `recipe(photo, category, cuisine, default_variation)`, `variation(name, servings, prep_min, cook_min, sources, notes)`, `meal(servings, slot, leftovers_of?)`, `ingredient(aisle, default_unit, staple)` | `variation_ingredients(ingredient_id?, text?, qty, qty_max?, approx, unit, position)`, `variation_steps`, `cook_log(person, cooked_on, verdict, notes, servings, snapshot)`; the Recipe's tags, protein and carbs; reference data: categories, cuisines, tags, protein, carbs (all subject to the Stage 4 specs) |
 | fitness | `exercise(muscle_groups, equipment, increment, target)`, `workout(actual_start, duration, readiness, stage)`, `cardio_activity(kind, distance_m, duration_s, avg_hr)` | `template_exercises(exercise_id, sets, reps, target)`, `workout_entries(exercise_id, snapshot)`, `workout_sets(entry_id, set_no, reps, weight, rpe)`; reference data: muscle groups, equipment, recovery settings per person |
 | goals | `goal(kind, measure_key, params, target, unit, period, start_on, deadline)` | — |
 | wardrobe | `garment(category, brand, colour, size, fit, photo, url, price)`, `outfit(photo)` | `outfit_worn_garments` (the snapshot); reference data: category, brand, colour, size, fit |
@@ -391,7 +391,7 @@ H = Household Space, P = Personal.
 flowchart LR
   RD["Katsu curry<br/>Recipe · H"]
   R1["Chicken katsu<br/>Variation · cooked 6× · H"]
-  R2["Tofu katsu<br/>Variation · untried · H"]
+  R2["Tofu katsu<br/>Variation · Draft · H"]
   R3["Miso salmon traybake<br/>Recipe · idea · H<br/>(captured as a Thought)"]
   M["Katsu curry<br/>Meal · Thu dinner · H"]
   S["Big shop<br/>Shopping list · Sat 10:00 · H"]
@@ -443,5 +443,4 @@ What it shows:
 - **Recipe to shopping list:** the Chicken katsu Variation's "100 g panko"
   line and the Big shop's "Panko 100 g" line both point at one Ingredient,
   and the list line is *for* Thursday's Meal, which *uses* that Variation.
-  Tofu katsu has its own lines (not drawn) and is untried, calculated from its
-  empty cook log.
+  Tofu katsu has its own lines (not drawn) and is still a Draft.
