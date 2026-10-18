@@ -66,6 +66,10 @@ Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-17
   Household; the recipe style is in v1's code, to be pointed to later; a list holding Meals of two
   Households is seen by both.
 
+- The rest of step 1: capture (sorting a Thought into a Recipe Idea or a
+  Shopping list), Inbox (food puts nothing there, Joe), items (ITM-006),
+  search (SRC-003) and Plan (PLN-008), all *proposed*.
+
 **Left for later**
 - Joe's further rounds on the specs; then the
   capture, Inbox, items, Search and Plan changes that step 1 also covers.

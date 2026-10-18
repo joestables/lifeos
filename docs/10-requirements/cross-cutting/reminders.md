@@ -9,7 +9,8 @@ first; the requirements, drafted at the start of Stage 2, are at the end.*
   fixed time; defaults per Type; a Task's default follows its do-on date at
   the person's default time (09:00 unless changed); an Event I make, 30
   minutes before it starts if it has a time, and one from Google Calendar
-  none (Stage 3, [events](events.md#decisions)); per person; a Thought with
+  none (Stage 3, [events](events.md#decisions)); Meals and Shopping lists
+  none, though I may add one to either (Stage 4); per person; a Thought with
   a date gets one ([ADR-0023](../../20-architecture/adr/0023-reminders.md),
   Provisionally agreed).
 - **Anchors per Type** are tabled in the

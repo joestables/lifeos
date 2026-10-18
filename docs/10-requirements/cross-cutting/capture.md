@@ -17,7 +17,12 @@ at the start of Stage 2, are at the end.*
 - **Sorting a Thought:** convert it in place into a Note, Task, Shopping list or other
   Capturable Type, or delete it (archive, with undo)
   ([ADR-0037](../../20-architecture/adr/0037-thoughts.md), Provisionally
-  agreed).
+  agreed). From Stage 4 a Thought can become a Recipe Idea, any link in it
+  kept as a source, or a Shopping list, split at its commas
+  ([ITM-006](items.md#itm-006--food-items)).
+- **Capture stays Thoughts and Tasks in Stage 4 too:** it makes no Recipe,
+  Meal or Shopping list, and matches nothing against the Pantry; that
+  happens when a Thought is sorted.
 - **Capture from outside the app** through a personal capture address, built
   last, after every other stage
   ([ADR-0028](../../20-architecture/adr/0028-capture-from-outside-the-app.md),
@@ -47,7 +52,6 @@ at the start of Stage 2, are at the end.*
     [RCP-003](../modules/recipes.md#rcp-003--save-an-idea-from-another-app)),
     and a widget for typing a Thought once the Android wrapper exists
     (Stage 7).
-- Capture's "buy oat milk" matches a Pantry entry if one exists (Stage 4).
 
 ## Requirements
 
@@ -138,7 +142,8 @@ Acceptance criteria
 2. Given I open capture again, then no Label is chosen.
 
 Non-goals (Stage 2): repeats typed in words ("every monday"); an LLM in
-capture; matching Ingredients (Stage 4); Events (Joe, 14 October); everything in
+capture; matching the Pantry or making food Items (Stage 4 does this when a
+Thought is sorted); Events (Joe, 14 October); everything in
 [deferred](#deferred-to-stage-10).
 
 ## Deferred to Stage 10
@@ -156,6 +161,9 @@ are written in full then:
 - **CAP-007 — Capture by email:** forwarding an email makes a Thought from
   its subject and text.
 - **CAP-008 — Capture from Android's home screen and share sheet:** a
-  shortcut on the app's icon, and LifeOS in the share sheet.
+  shortcut on the app's icon, and LifeOS in the share sheet. Sharing a link
+  as a recipe Idea comes first, in Stage 4
+  ([RCP-003](../modules/recipes.md#rcp-003--save-an-idea-from-another-app)),
+  with an iPhone to follow.
 - **An Android widget** for typing a Thought straight from the home screen,
   with the Android wrapper.

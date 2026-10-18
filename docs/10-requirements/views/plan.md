@@ -41,7 +41,9 @@ events and tasks ([ADR-0026](../../20-architecture/adr/0026-navigation-drawer.md
 - **Plan is neutral**: it mixes Types, so each Item shows its own Type's
   colour ([ADR-0043](../../20-architecture/adr/0043-colour-by-type.md),
   Provisionally agreed).
-- Meals use fixed slots: breakfast, lunch, dinner (Stage 4).
+- Meals use fixed slots: breakfast, lunch, dinner (Stage 4), shown in
+  that order among a day's untimed Items
+  ([PLN-008](#pln-008--meals-and-shopping-lists-on-plan)).
 - The standard time fields hold the plan; detail tables hold what happened,
   enabling planned-vs-done ([ADR-0021](../../20-architecture/adr/0021-time.md)).
 - Planning is mostly creating occurrences of definitions, and the action
@@ -183,7 +185,30 @@ Acceptance criteria
 4. Given an Event from a Google calendar that is incoming only, then it
    can't be dragged ([GCL-004](../cross-cutting/integrations.md#gcl-004--incoming-events-are-googles)).
 
+### PLN-008 — Meals and shopping lists on Plan
+
+**As** Joe, **I want** Meals and dated shopping lists on Plan with
+everything else, **so that** Plan stays the one view of my days.
+Priority: Must · Status: proposed (Stage 4)
+
+Acceptance criteria
+1. Given Meals I can see, then each shows on its day as a card: Meal, its
+   name (or "Leftovers: Katsu curry"), and its slot in place of a time;
+   Breakfast, Lunch and Dinner in that order, among the day's untimed
+   Items.
+2. Given a dated Shopping list, then it shows on its day with its time if
+   it has one, and its place as its detail.
+3. Given the Type pills, then Meal and Shopping list are among them.
+4. Given a day's "+", when I choose Meal, then the Meal plan's search adds
+   one to that day in the slot I choose
+   ([MPL-002](../modules/meals.md#mpl-002--plan-a-meal)); when I choose
+   Shopping list, then a new list opens dated that day.
+5. Given a computer, when I drag a Meal to another day, then it keeps its
+   slot; a Shopping list moves to the new day, keeping its time.
+6. Given a Meal's card, when I open it and tick it eaten, then it is done
+   and no cook is logged.
+
 Non-goals (Stage 3): an hour grid; a month view; dragging on a phone (a
 phone moves an Item by changing its date); dragging to a time within a day;
-planning Meals, Shopping lists, Workouts and Outfits (with their stages); readiness
+Workouts and Outfits (with their stages); readiness
 suggestions and "plan my week" (later); Plan in Inbox's digest.

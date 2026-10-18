@@ -229,6 +229,22 @@ Household; Joe's recipe style is already in v1's code, and he'll say where
 when import is built. A list holding Meals of two Households is seen by
 both.
 
+## The rest of step 1 (18 October)
+
+What the food specs change elsewhere, drafted for Joe, all *proposed*:
+[capture](../../10-requirements/cross-cutting/capture.md) (sorting a
+Thought into a Recipe Idea or a Shopping list; capture itself stays
+Thoughts and Tasks; the share target for recipe ideas first),
+[Inbox](../../10-requirements/views/inbox.md) (food puts nothing in Inbox,
+Joe's decision), [items](../../10-requirements/cross-cutting/items.md)
+(ITM-006: how food Items open, delete, recover and convert; Pantry entries
+aren't Items), [search](../../10-requirements/cross-cutting/search.md)
+(SRC-003: Recipes, Ideas and Shopping lists) and
+[Plan](../../10-requirements/views/plan.md) (PLN-008: Meals and dated
+Shopping lists on Plan, added from a day's "+", dragged); and
+[reminders](../../10-requirements/cross-cutting/reminders.md) (Meals and
+Shopping lists have no default Reminder).
+
 ## Done when
 
 - Every **Must** requirement in this stage's specs is *verified* (a test
