@@ -23,7 +23,8 @@
 - **CI applies every migration from empty** to a local Supabase with the
   Supabase CLI, then runs the database tests (`supabase/tests`, pgTAP). A
   migration is applied to the live project only after CI has passed on the
-  commit that adds it.
+  commit that adds it — CI runs on pull requests, so the branch needs one, a
+  draft at least ([CI](environments.md#ci)).
 - **In a cloud session**, `npm run db:test` does the same against the same
   Postgres image as the live project, run in Docker (the CLI's other images
   can't be fetched there).

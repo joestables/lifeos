@@ -8,7 +8,7 @@
 | **v2 Supabase project** | `lifeos`, ref `nxydbufwuvsacayqoakh`, **London (eu-west-2)**, Postgres 17, created 9 October 2026. URL `https://nxydbufwuvsacayqoakh.supabase.co`. Session pooler: host `aws-0-eu-west-2.pooler.supabase.com`, port 5432, database `postgres`, user `postgres.nxydbufwuvsacayqoakh`. Free tier: pauses after a week idle; 1 GB file storage; no downloadable backups, and none taken ([backups](backups.md)). |
 | **v1 Supabase project** | *JoeStables LifeOS*, ref `faduazybenrtpswhdlhc`, Stockholm. **Paused**, without a backup (Joe's choice); restorable from the dashboard for about 90 days. Reference only; deleted once clearly not needed. |
 | **Vercel** | Project `lifeos` in team `joestables1`, linked to the GitHub repository; a preview of every pull request. Its environment holds the two public Supabase values, `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` (locally: `.env.local`, from `.env.example`). Vercel Authentication protects previews only; production is public. v1's project is retired with v1. |
-| **GitHub** | Repository `joestables/lifeos`. Actions secret `SUPABASE_DB_PASSWORD`, unused since the backup was dropped. `master` is protected: a pull request and the three CI checks before merging. |
+| **GitHub** | Repository `joestables/lifeos`. Actions secret `SUPABASE_DB_PASSWORD`, unused since the backup was dropped. `master` is protected: a pull request and the three CI checks before merging ([CI](#ci)). |
 | **Google Cloud** | Project `lifeos`, with the OAuth client used for Google sign-in ([integration setup](integration-setup.md#google-sign-in)). |
 | **Local Supabase in CI** | Started inside GitHub Actions; every migration applied from empty, then the database tests. In a cloud session, `npm run db:test` does the same with the live project's Postgres image (`supabase/postgres`, from Docker Hub). |
 | **Stand-in Supabase** | What Playwright walks run against — never real data. The e2e build points at `https://stand-in.supabase.co`, and `tests/e2e/stand-in.ts` answers its calls in the browser and can start a page signed in as a made-up person. `scripts/screenshot.mjs` does the same for screenshots (`SIGNED_IN`). |
@@ -33,6 +33,24 @@
 - **Walking the app in a browser:** a background dev server and a
   session-start hook, because Claude Code crashed when it launched a dev
   server in previous sessions.
+
+## CI
+
+`.github/workflows/ci.yml`, on GitHub Actions. The free plan's 2,000
+minutes a month are shared by every private repository, so CI runs only
+where it earns its minutes (Joe, 18 October 2026):
+
+- **Once per push to a pull request, and on `master` after a merge.** A
+  branch without a pull request gets no CI; open a draft one to have it
+  checked.
+- **The checks first:** typecheck, lint, format, token check, unit tests,
+  the ontology check and the build. The database and browser tests wait for
+  them, and don't start if they fail.
+- **Only documents changed** (`docs/`, `.claude/`, Markdown at the root):
+  the database and browser tests are skipped.
+- **Browser tests on pull requests only**, not on `master` after a merge.
+
+A skipped job counts as passed for `master`'s protection.
 
 ## Claude cloud sessions
 
