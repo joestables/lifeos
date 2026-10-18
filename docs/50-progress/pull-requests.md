@@ -73,7 +73,8 @@ Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-17
 - Merged `master` (#14, CI's fewer minutes) into the branch.
 - Step 2's decisions, as Proposed ADRs for Joe: ADR-0052 (food in the
   database), ADR-0053 (quantities and units), ADR-0054 (the AI service and
-  recipe import), ADR-0055 (sharing into LifeOS), ADR-0056 (Cooking on the
+  recipe import, on Gemini's free tier, never billed — first written for a
+  paid model, rewritten at Joe's word), ADR-0055 (sharing into LifeOS), ADR-0056 (Cooking on the
   device), with the facts they rest on re-checked.
 
 **Left for later**
