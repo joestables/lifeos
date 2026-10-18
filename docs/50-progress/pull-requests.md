@@ -98,6 +98,13 @@ Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-17
   recipe's title, slot names once down the week, a lock for the Personal
   exception, form-height selects, a dash for no unit, Settings rows aligned.
 
+- Third pass, on Joe's notes: the filters in one Card (State and Category
+  open, the rest an Accordion, collapsed, with a count), and on a phone in
+  a Sheet; selecting several Recipes (Select on a computer, a long press on
+  a phone) with a shared SelectionBar, Ideas too; the phone toolbar without
+  S / M / L and with Group beside Sort; the Pantry's recipe count hidden on
+  a phone. RCP-001 and PAN-001 follow.
+
 **Left for later**
 - Joe's agreement to the second design pass, then the design spec; Joe's further rounds on the specs; then the
   capture, Inbox, items, Search and Plan changes that step 1 also covers.

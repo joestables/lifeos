@@ -137,8 +137,12 @@ Provisionally agreed).
 ## What the page shows
 
 **Recipes** tab: Draft and Complete Recipes as cards with a photo (name,
-cuisine, favourite, a Draft mark), with Draft · Complete · All, search,
-filters, sort and group. **Ideas** tab: Ideas as a list (name, source, when
+cuisine, favourite, a Draft mark) at a card size I choose (S, M or L,
+on a computer), with search, sort, group and Select over the grid. On a
+computer the filters stand in one card on the left: State (Draft ·
+Complete · All) and Category always open, the other filters collapsed
+until opened; on a phone they open from a Filters button (Joe, 18
+October). **Ideas** tab: Ideas as a list (name, source, when
 saved, the start of the note). "New" offers *New recipe*, *New idea* and
 *Import*. A Recipe opens on its own page.
 
@@ -156,16 +160,19 @@ Acceptance criteria
 1. Given the Recipes tab, then every Draft and Complete Recipe I can see
    shows as a card: photo (or a quiet placeholder), name, cuisine, my heart,
    and a mark on a Draft. Ideas and Archived Recipes don't show.
-2. Given Draft · Complete · All at the top (All to start), then the grid
-   shows that state's Recipes.
+2. Given Draft · Complete · All, the first of the filters (All to start),
+   then the grid shows that state's Recipes.
 3. Given I search, then Recipes match by name, tag or ingredient.
 4. Given I filter by category, cuisine, tags, protein, carbs or favourites,
    then only matching Recipes show (any choice within a filter, every filter
-   together), and my filters are kept for next time.
+   together), and my filters are kept for next time. A collapsed filter
+   says how many of its choices are on.
 5. Given I'm in a Household, then a Created by filter lists me and every
    member of all my Households; outside a Household it isn't shown.
 6. Given I sort (recently added, recently cooked, A–Z) or group (by
    category, cuisine or state), then the grid follows, and my choice is kept.
+7. *(Suggested)* Given S, M or L on a computer, then the cards take that
+   size, and my choice is kept; a phone shows two across.
 
 ### RCP-002 — Ideas
 

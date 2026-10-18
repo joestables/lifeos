@@ -29,13 +29,15 @@ function Pill({
 
 /**
  * A Pantry entry (PAN-001, PAN-002): its name, then its unit and how many
- * Recipes use it, muted; on the right, Staple as a tap-to-toggle pill on
+ * Recipes use it, muted (the count only on a computer: a phone's row has
+ * no room beside both pills; Joe, 18 October); on the right, Staple as a tap-to-toggle pill on
  * every row (Joe, 18 October) and, for a staple, Out of stock beside it;
  * then the entry's "…" menu.
  */
 export function PantryRow({
   name,
-  meta,
+  unit,
+  recipes,
   staple = false,
   out = false,
   onStaple,
@@ -43,8 +45,10 @@ export function PantryRow({
   menu,
 }: {
   name: string
-  /** "tbsp · 21 recipes" */
-  meta?: string
+  /** Its default unit: "tbsp". */
+  unit?: string
+  /** How many Recipes use it. */
+  recipes?: number
   staple?: boolean
   out?: boolean
   onStaple?: (on: boolean) => void
@@ -58,8 +62,16 @@ export function PantryRow({
     >
       <div className="flex min-w-0 flex-1 flex-col sm:flex-row sm:items-baseline sm:gap-3">
         <span className="truncate font-semibold">{name}</span>
-        {meta && (
-          <span className="text-sm text-muted-foreground tabular-nums sm:truncate">{meta}</span>
+        {(unit || !!recipes) && (
+          <span className="truncate text-sm text-muted-foreground tabular-nums">
+            {unit}
+            {!!recipes && (
+              <span className="max-sm:hidden">
+                {unit && ' · '}
+                {recipes} {recipes === 1 ? 'recipe' : 'recipes'}
+              </span>
+            )}
+          </span>
         )}
       </div>
       <div className="flex items-center gap-1.5">

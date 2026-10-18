@@ -44,7 +44,8 @@ export {
 export { EventTimesField, type EventTimesValue } from './EventTimesField'
 export { EventFact, EventSource } from './EventFacts'
 export { RecipeCard, RecipeGrid, RecipePhoto, StarRating, type CardSize } from './RecipeCard'
-export { FilterPanel, type FilterGroup } from './FilterPanel'
+export { FilterPanel, FilterSection, type FilterGroup } from './FilterPanel'
+export { SelectionBar } from './SelectionBar'
 export { PantryRow } from './PantryRow'
 export {
   IngredientLineEditor,

@@ -42,6 +42,8 @@ import {
   BackLink,
   CardRow,
   FilterPanel,
+  FilterSection,
+  SelectionBar,
   IngredientLineEditor,
   PantryRow,
   SubheadingEditor,
@@ -71,6 +73,7 @@ import {
   TypeScope,
   TypeTile,
   type CardSize,
+  type FilterGroup,
   type DrawerPage,
   type IngredientGroup,
   type Slot,
@@ -106,6 +109,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
+import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Textarea } from '@/components/ui/textarea'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
@@ -178,19 +182,22 @@ function SmallSelect({
   options,
   label,
   full = false,
+  fill = false,
 }: {
   value: string
   options: string[]
   label: string
   /** A form field's height and width, rather than a toolbar's. */
   full?: boolean
+  /** A toolbar's height, sharing the row's width (a phone). */
+  fill?: boolean
 }) {
   return (
     <Select defaultValue={value}>
       <SelectTrigger
         size={full ? 'default' : 'sm'}
         aria-label={label}
-        className={full ? 'w-full' : 'w-auto'}
+        className={full ? 'w-full' : fill ? 'min-w-0 flex-1' : 'w-auto'}
       >
         <SelectValue />
       </SelectTrigger>
@@ -257,9 +264,10 @@ function NewRecipeMenu({ open }: { open?: boolean }) {
   )
 }
 
-const FILTER_GROUPS: { name: string; values: string[]; chosen?: string[] }[] = [
+const FILTER_GROUPS: FilterGroup[] = [
   {
     name: 'Category',
+    open: true,
     values: ['Breakfast', 'Lunch', 'Dinner', 'Condiments', 'Baking', 'Smoothies'],
     chosen: ['Dinner'],
   },
@@ -283,89 +291,121 @@ const FILTER_GROUPS: { name: string; values: string[]; chosen?: string[] }[] = [
   { name: 'Favourites', values: ['Mine', 'Sam’s', 'Both of ours'] },
 ]
 
-function LibraryToolbar({ size, phone = false }: { size: CardSize; phone?: boolean }) {
+function RecipeSearch() {
+  return (
+    <div className="relative min-w-0 flex-1">
+      <SearchIcon className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+      <Input size="sm" aria-label="Search recipes" placeholder="Search recipes" className="pl-9" />
+    </div>
+  )
+}
+
+function SortAndGroup({ fill = false }: { fill?: boolean }) {
+  return (
+    <>
+      <SmallSelect
+        fill={fill}
+        label="Sort"
+        value="Recently added"
+        options={['Recently added', 'Recently cooked', 'A–Z']}
+      />
+      <SmallSelect
+        fill={fill}
+        label="Group"
+        value="No groups"
+        options={['No groups', 'By category', 'By cuisine', 'By state']}
+      />
+    </>
+  )
+}
+
+/** Draft · Complete · All, the first section of the Filters. */
+function StateFilter() {
+  return (
+    <FilterSection title="State">
+      <ToggleGroup aria-label="State" defaultValue={['all']} className="self-start">
+        <ToggleGroupItem value="draft">Draft</ToggleGroupItem>
+        <ToggleGroupItem value="complete">Complete</ToggleGroupItem>
+        <ToggleGroupItem value="all">All</ToggleGroupItem>
+      </ToggleGroup>
+    </FilterSection>
+  )
+}
+
+function RecipeBulkActions() {
+  return (
+    <>
+      <Button variant="ghost" size="sm">
+        <ArchiveIcon /> Archive
+      </Button>
+      <Button variant="ghost" size="sm" className="text-destructive">
+        <Trash2Icon /> Delete
+      </Button>
+    </>
+  )
+}
+
+function LibraryToolbar({
+  size,
+  phone = false,
+  selecting = false,
+}: {
+  size: CardSize
+  phone?: boolean
+  selecting?: boolean
+}) {
+  if (selecting)
+    return (
+      <SelectionBar count={2} onDone={nothing}>
+        <RecipeBulkActions />
+      </SelectionBar>
+    )
   if (phone)
     return (
       <div className="flex flex-col gap-2">
-        <div className="relative">
-          <SearchIcon className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            size="sm"
-            aria-label="Search recipes"
-            placeholder="Search recipes"
-            className="pl-9"
-          />
-        </div>
-        <div className="flex items-center justify-between gap-2">
-          <ToggleGroup aria-label="State" defaultValue={['all']}>
-            <ToggleGroupItem value="draft">Draft</ToggleGroupItem>
-            <ToggleGroupItem value="complete">Complete</ToggleGroupItem>
-            <ToggleGroupItem value="all">All</ToggleGroupItem>
-          </ToggleGroup>
+        <div className="flex items-center gap-2">
+          <RecipeSearch />
           <Button variant="outline" size="sm">
             <SlidersHorizontalIcon /> Filters
             <Badge className="-mr-1">2</Badge>
           </Button>
         </div>
-        <div className="flex items-center justify-between gap-2">
-          <SmallSelect
-            label="Sort"
-            value="Recently added"
-            options={['Recently added', 'Recently cooked', 'A–Z']}
-          />
-          <ToggleGroup aria-label="Card size" defaultValue={[size]}>
-            <ToggleGroupItem value="S">S</ToggleGroupItem>
-            <ToggleGroupItem value="M">M</ToggleGroupItem>
-            <ToggleGroupItem value="L">L</ToggleGroupItem>
-          </ToggleGroup>
+        <div className="flex items-center gap-2">
+          <SortAndGroup fill />
         </div>
       </div>
     )
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <ToggleGroup aria-label="State" defaultValue={['all']}>
-        <ToggleGroupItem value="draft">Draft</ToggleGroupItem>
-        <ToggleGroupItem value="complete">Complete</ToggleGroupItem>
-        <ToggleGroupItem value="all">All</ToggleGroupItem>
+      <RecipeSearch />
+      <SortAndGroup />
+      <ToggleGroup aria-label="Card size" defaultValue={[size]}>
+        <ToggleGroupItem value="S">S</ToggleGroupItem>
+        <ToggleGroupItem value="M">M</ToggleGroupItem>
+        <ToggleGroupItem value="L">L</ToggleGroupItem>
       </ToggleGroup>
-      <div className="relative min-w-0 flex-1 basis-56">
-        <SearchIcon className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          size="sm"
-          aria-label="Search recipes"
-          placeholder="Search recipes"
-          className="pl-9"
-        />
-      </div>
-      <div className="flex items-center gap-2">
-        <SmallSelect
-          label="Sort"
-          value="Recently added"
-          options={['Recently added', 'Recently cooked', 'A–Z']}
-        />
-        <SmallSelect
-          label="Group"
-          value="No groups"
-          options={['No groups', 'By category', 'By cuisine', 'By state']}
-        />
-        <ToggleGroup aria-label="Card size" defaultValue={[size]}>
-          <ToggleGroupItem value="S">S</ToggleGroupItem>
-          <ToggleGroupItem value="M">M</ToggleGroupItem>
-          <ToggleGroupItem value="L">L</ToggleGroupItem>
-        </ToggleGroup>
-      </div>
+      <Button variant="ghost" size="sm">
+        <ListChecksIcon /> Select
+      </Button>
     </div>
   )
 }
+
+const SELECTED = ['Chicken shawarma', 'Mushroom risotto']
 
 function Library({
   menu,
   size = 'M',
   phone = false,
+  selecting = false,
+  filters = false,
 }: {
   menu?: boolean
   size?: CardSize
   phone?: boolean
+  selecting?: boolean
+  /** A phone's Filters, open in a Sheet. */
+  filters?: boolean
 }) {
   return (
     <Shell page="Recipes">
@@ -373,20 +413,47 @@ function Library({
         <PageHeader title="Recipes" action={{ label: 'New recipe', onClick: nothing }} />
         <div className="flex flex-col gap-5 px-5 pb-28 sm:px-9">
           <RecipesTabs tab="recipes" action={<NewRecipeMenu open={menu} />} />
-          <div className="grid items-start gap-8 lg:grid-cols-[232px_minmax(0,1fr)]">
+          <div className="grid items-start gap-6 lg:grid-cols-[248px_minmax(0,1fr)]">
             <div className="hidden lg:block">
-              <FilterPanel groups={FILTER_GROUPS} onChange={nothing} onReset={nothing} />
+              <FilterPanel groups={FILTER_GROUPS} onChange={nothing} onReset={nothing}>
+                <StateFilter />
+              </FilterPanel>
             </div>
             <div className="flex min-w-0 flex-col gap-4">
-              <LibraryToolbar size={size} phone={phone} />
-              <RecipeGrid size={size}>
+              <LibraryToolbar size={size} phone={phone} selecting={selecting} />
+              <RecipeGrid size={phone ? 'M' : size}>
                 {RECIPES.map((r) => (
-                  <RecipeCard key={r.name} {...r} onOpen={nothing} />
+                  <RecipeCard
+                    key={r.name}
+                    {...r}
+                    selecting={selecting}
+                    selected={selecting && SELECTED.includes(r.name)}
+                    onOpen={nothing}
+                    onSelect={nothing}
+                  />
                 ))}
               </RecipeGrid>
             </div>
           </div>
         </div>
+        {filters && (
+          <Sheet open>
+            <SheetContent side="right" initialFocus={false} data-colour="green">
+              <SheetHeader>
+                <SheetTitle>Filters</SheetTitle>
+              </SheetHeader>
+              <div>
+                <FilterPanel bare groups={FILTER_GROUPS} onChange={nothing} onReset={nothing}>
+                  <StateFilter />
+                </FilterPanel>
+              </div>
+              <SheetFooter className="grid grid-cols-2">
+                <Button variant="outline">Reset</Button>
+                <Button>Show 9 recipes</Button>
+              </SheetFooter>
+            </SheetContent>
+          </Sheet>
+        )}
       </TypeScope>
     </Shell>
   )
@@ -422,8 +489,7 @@ function Ideas({ selecting = false }: { selecting?: boolean }) {
         <div className="flex max-w-3xl flex-col gap-4 px-5 pb-28 sm:px-9">
           <RecipesTabs tab="ideas" action={<PageAction label="New idea" onClick={nothing} />} />
           {selecting ? (
-            <div className="flex h-10 items-center gap-2 rounded-control bg-muted pr-1.5 pl-3">
-              <span className="flex-1 text-sm font-semibold">2 selected</span>
+            <SelectionBar count={2} onDone={nothing}>
               <Button variant="ghost" size="sm">
                 <ChefHatIcon /> Make drafts
               </Button>
@@ -433,10 +499,7 @@ function Ideas({ selecting = false }: { selecting?: boolean }) {
               <Button variant="ghost" size="sm" className="text-destructive">
                 <Trash2Icon /> Delete
               </Button>
-              <Button variant="ghost" size="icon-sm" aria-label="Stop selecting">
-                <XIcon />
-              </Button>
-            </div>
+            </SelectionBar>
           ) : (
             <div className="flex items-center gap-2">
               <div className="relative min-w-0 flex-1">
@@ -1488,7 +1551,8 @@ function Entry({
   return (
     <PantryRow
       name={name}
-      meta={[unit, used ? `${used} recipes` : null].filter(Boolean).join(' · ')}
+      unit={unit}
+      recipes={used}
       staple={staple}
       out={out}
       menu={more(
@@ -1844,6 +1908,7 @@ function PhoneMealPlan() {
 
 const SCREENS: Record<string, () => ReactNode> = {
   recipes: () => <Library />,
+  'recipes-select': () => <Library selecting />,
   'recipes-s': () => <Library size="S" />,
   'recipes-l': () => <Library size="L" />,
   'recipes-new': () => <Library menu />,
@@ -1871,6 +1936,8 @@ const SCREENS: Record<string, () => ReactNode> = {
   household: () => <Household />,
   'household-invite': () => <Household inviting />,
   'm-recipes': () => <Library phone />,
+  'm-recipes-select': () => <Library phone selecting />,
+  'm-recipes-filters': () => <Library phone filters />,
   'm-ideas': () => <Ideas />,
   'm-recipe': () => <PhoneRecipe />,
   'm-cooking': () => <PhoneCooking />,

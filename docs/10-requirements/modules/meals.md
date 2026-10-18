@@ -207,7 +207,7 @@ Priority: Must · Status: proposed
 
 Acceptance criteria
 1. Given Meal plan → Pantry, then ingredients show under their aisles, in
-   aisle order, with how many Recipes use each, then household items apart;
+   aisle order, with how many Recipes use each (on a computer), then household items apart;
    staples and out-of-stock are marked; a search narrows them.
 2. Given New, then I add an ingredient or a household item: a name, an
    aisle (Cupboard to start) and a default unit.
