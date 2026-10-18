@@ -43,14 +43,18 @@ export {
 } from './ReminderList'
 export { EventTimesField, type EventTimesValue } from './EventTimesField'
 export { EventFact, EventSource } from './EventFacts'
-export { RecipeCard, RecipeGrid, RecipePhoto, StarRating } from './RecipeCard'
+export { RecipeCard, RecipeGrid, RecipePhoto, StarRating, type CardSize } from './RecipeCard'
+export { FilterPanel, type FilterGroup } from './FilterPanel'
+export { PantryRow } from './PantryRow'
 export {
+  IngredientLineEditor,
   IngredientList,
   LogEntry,
   MethodSteps,
   RecipeFact,
   ServingsStepper,
   StepEditor,
+  SubheadingEditor,
   TimerChip,
   type IngredientGroup,
   type IngredientLine,

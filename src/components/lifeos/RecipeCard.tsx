@@ -73,15 +73,15 @@ export function RecipeCard({
       >
         <HeartIcon />
       </Toggle>
-      <div className="flex min-w-0 flex-col gap-1 px-3.5 pt-2.5 pb-3">
+      <div className="flex min-w-0 flex-col gap-1 px-3.5 pt-2.5 pb-3 group-data-[size=S]/grid:gap-0.5 group-data-[size=S]/grid:px-2.5 group-data-[size=S]/grid:pt-2 group-data-[size=S]/grid:pb-2.5">
         <button
           type="button"
           onClick={onOpen}
-          className="truncate text-left font-[650] outline-none after:absolute after:inset-0 after:rounded-lg focus-visible:after:ring-3 focus-visible:after:ring-ring-soft"
+          className="truncate text-left font-[650] outline-none group-data-[size=S]/grid:text-sm after:absolute after:inset-0 after:rounded-lg focus-visible:after:ring-3 focus-visible:after:ring-ring-soft"
         >
           {name}
         </button>
-        <div className="flex min-w-0 items-center gap-1.5 text-sm text-muted-foreground">
+        <div className="flex min-w-0 items-center gap-1.5 text-sm text-muted-foreground group-data-[size=S]/grid:text-xs">
           <span className="truncate">{[cuisine, by].filter(Boolean).join(' · ')}</span>
           {draft && (
             <Badge variant="outline" className="ml-auto shrink-0">
@@ -94,10 +94,24 @@ export function RecipeCard({
   )
 }
 
-/** RecipeCards in a grid: as many columns as fit at 190px or more, two on a phone. */
-export function RecipeGrid({ children }: { children: ReactNode }) {
+/** The card sizes the library offers (S / M / L). */
+export type CardSize = 'S' | 'M' | 'L'
+
+/**
+ * RecipeCards in a grid, at the size I choose: as many columns as fit at
+ * 150, 200 or 280px; on a phone three, two or one across.
+ */
+export function RecipeGrid({ size = 'M', children }: { size?: CardSize; children: ReactNode }) {
   return (
-    <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-[repeat(auto-fill,minmax(190px,1fr))] sm:gap-3.5">
+    <div
+      data-size={size}
+      className={cn(
+        'group/grid grid gap-2.5 sm:gap-3.5',
+        size === 'S' && 'grid-cols-3 sm:grid-cols-[repeat(auto-fill,minmax(150px,1fr))]',
+        size === 'M' && 'grid-cols-2 sm:grid-cols-[repeat(auto-fill,minmax(200px,1fr))]',
+        size === 'L' && 'grid-cols-1 sm:grid-cols-[repeat(auto-fill,minmax(280px,1fr))]',
+      )}
+    >
       {children}
     </div>
   )

@@ -1,4 +1,4 @@
-import { HouseIcon, PlusIcon, RotateCcwIcon, UtensilsIcon } from 'lucide-react'
+import { LockIcon, PlusIcon, RotateCcwIcon, UtensilsIcon } from 'lucide-react'
 import type * as React from 'react'
 import type { ReactNode } from 'react'
 import { cn } from '@/lib/utils'
@@ -9,8 +9,9 @@ export type Slot = 'Breakfast' | 'Lunch' | 'Dinner'
 /**
  * A Meal on the Meal plan (MPL-001), shaped like a PlanCard: its name, up
  * to two lines, then a muted line with its servings (or "Leftovers"), its
- * Variation when its Recipe has more than one, and a house when it's the
- * Household's. A typed Meal or leftovers sit lighter, with no card shadow.
+ * Variation when its Recipe has more than one, and a lock when it's
+ * Personal while the plan shows Household meals too: only the exception is
+ * marked, so a week of shared dinners isn't a row of icons. A typed Meal or leftovers sit lighter, with no card shadow.
  * Eaten, it fades and is struck through; being dragged, it lifts.
  */
 export function MealCard({
@@ -18,7 +19,7 @@ export function MealCard({
   servings,
   variation,
   kind = 'recipe',
-  household,
+  personal = false,
   dragging = false,
   eaten = false,
   onOpen,
@@ -28,8 +29,8 @@ export function MealCard({
   /** When its Recipe has more than one. */
   variation?: string
   kind?: 'recipe' | 'typed' | 'leftovers'
-  /** The Household's name, when it's a Household Meal. */
-  household?: string
+  /** Personal, among Household Meals: marked with a lock. */
+  personal?: boolean
   dragging?: boolean
   eaten?: boolean
   onOpen?: () => void
@@ -60,12 +61,12 @@ export function MealCard({
       >
         {name}
       </button>
-      {(parts.length > 0 || household || kind !== 'recipe') && (
+      {(parts.length > 0 || personal || kind !== 'recipe') && (
         <span className="flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground tabular-nums [&_svg]:size-3 [&_svg]:shrink-0">
           {kind === 'leftovers' && <RotateCcwIcon aria-hidden />}
           {kind === 'typed' && <UtensilsIcon aria-hidden />}
           <span className="truncate">{parts.join(' · ')}</span>
-          {household && <HouseIcon aria-label={household} className="ml-auto" />}
+          {personal && <LockIcon aria-label="Personal" className="ml-auto" />}
         </span>
       )}
     </div>
@@ -83,8 +84,11 @@ export function MealSlot({
   add,
   adding = false,
   dropping = false,
+  label = true,
 }: {
   slot: Slot
+  /** False in the week, where the slots are named once, down the left. */
+  label?: boolean
   children?: ReactNode
   /** The slot's "+": opens the search (MPL-002). */
   add?: ReactNode
@@ -94,9 +98,11 @@ export function MealSlot({
   const empty = !children
   return (
     <div className="group/slot flex min-w-0 flex-col gap-1">
-      <div className="px-1 text-[11px] font-bold tracking-[0.06em] text-muted-foreground uppercase">
-        {slot}
-      </div>
+      {label && (
+        <div className="px-1 text-[11px] font-bold tracking-[0.06em] text-muted-foreground uppercase">
+          {slot}
+        </div>
+      )}
       {children}
       {empty && (
         <div
@@ -172,8 +178,8 @@ export function MealDay({
 /**
  * The Meal plan's week on a computer (MPL-001): seven days, Monday first,
  * laid out as Plan's week, with a row for each slot so Breakfast, Lunch and
- * Dinner line up across the days. Each day is a lightly filled column,
- * today's filled a little more.
+ * Dinner line up across the days, named once down the left. Each day is a
+ * lightly filled column, today's filled a little more.
  */
 export function MealWeek({
   days,
@@ -182,13 +188,18 @@ export function MealWeek({
 }: {
   days: { key: string; name: string; number: number; today?: boolean; dropping?: string }[]
   slots: readonly Slot[]
-  /** A day's slot: a MealSlot. */
+  /** A day's slot: a MealSlot without its label. */
   cell: (day: string, slot: Slot) => ReactNode
 }) {
   return (
-    <div role="grid" aria-label="Week" className="grid grid-cols-7 gap-x-2.5">
+    <div
+      role="grid"
+      aria-label="Week"
+      className="grid grid-cols-[76px_repeat(7,minmax(0,1fr))] gap-x-2.5"
+    >
+      <div aria-hidden />
       {days.map((d) => (
-        <div key={d.key} role="columnheader" className="flex h-8 items-center gap-1.5 px-1 pb-2">
+        <div key={d.key} role="columnheader" className="flex h-8 items-center gap-1.5 px-1">
           <span className="text-xs font-bold tracking-[0.06em] text-muted-foreground uppercase">
             {d.name}
           </span>
@@ -202,26 +213,39 @@ export function MealWeek({
           </span>
         </div>
       ))}
-      {slots.map((slot, row) =>
-        days.map((d) => (
+      {slots.map((slot, row) => (
+        <div key={slot} role="row" className="contents">
           <div
-            key={`${d.key}-${slot}`}
-            role="gridcell"
+            role="rowheader"
             className={cn(
-              'flex min-w-0 flex-col px-1.5 pt-2 pb-2.5',
-              d.today
-                ? 'bg-[color-mix(in_oklch,var(--foreground)_5%,transparent)]'
-                : 'bg-[color-mix(in_oklch,var(--foreground)_2.5%,transparent)]',
-              row === 0 && 'mt-2 rounded-t-lg pt-2.5',
-              row === slots.length - 1 && 'rounded-b-lg',
-              d.dropping === slot &&
-                'bg-[color-mix(in_oklch,var(--foreground)_7%,transparent)] ring-2 ring-ring-soft ring-inset',
+              'pt-4 text-[11px] font-bold tracking-[0.06em] text-muted-foreground uppercase',
+              row === 0 && 'mt-2.5 pt-5',
             )}
           >
-            {cell(d.key, slot)}
+            {slot}
           </div>
-        )),
-      )}
+          {days.map((d) => (
+            <div
+              key={`${d.key}-${slot}`}
+              role="gridcell"
+              aria-label={`${d.name} ${slot.toLowerCase()}`}
+              className={cn(
+                'flex min-h-[78px] min-w-0 flex-col justify-start px-1.5 py-2',
+                d.today
+                  ? 'bg-[color-mix(in_oklch,var(--foreground)_5%,transparent)]'
+                  : 'bg-[color-mix(in_oklch,var(--foreground)_2.5%,transparent)]',
+                row === 0 && 'mt-2.5 rounded-t-lg pt-2.5',
+                row === slots.length - 1 && 'rounded-b-lg pb-2.5',
+                row > 0 && 'border-t border-dashed border-foreground/6',
+                d.dropping === slot &&
+                  'bg-[color-mix(in_oklch,var(--foreground)_7%,transparent)] ring-2 ring-ring-soft ring-inset',
+              )}
+            >
+              {cell(d.key, slot)}
+            </div>
+          ))}
+        </div>
+      ))}
     </div>
   )
 }

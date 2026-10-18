@@ -39,7 +39,12 @@ import { useState, type ReactNode } from 'react'
 import {
   AddMealButton,
   AppShell,
+  BackLink,
   CardRow,
+  FilterPanel,
+  IngredientLineEditor,
+  PantryRow,
+  SubheadingEditor,
   IngredientList,
   ItemDialog,
   ItemRow,
@@ -65,12 +70,12 @@ import {
   TimerChip,
   TypeScope,
   TypeTile,
+  type CardSize,
   type DrawerPage,
   type IngredientGroup,
   type Slot,
 } from '@/components/lifeos'
 import { Fab } from '@/components/lifeos/Fab'
-import { Alert, AlertAction, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -172,14 +177,21 @@ function SmallSelect({
   value,
   options,
   label,
+  full = false,
 }: {
   value: string
   options: string[]
   label: string
+  /** A form field's height and width, rather than a toolbar's. */
+  full?: boolean
 }) {
   return (
     <Select defaultValue={value}>
-      <SelectTrigger size="sm" aria-label={label} className="w-auto">
+      <SelectTrigger
+        size={full ? 'default' : 'sm'}
+        aria-label={label}
+        className={full ? 'w-full' : 'w-auto'}
+      >
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
@@ -271,39 +283,44 @@ const FILTER_GROUPS: { name: string; values: string[]; chosen?: string[] }[] = [
   { name: 'Favourites', values: ['Mine', 'Sam’s', 'Both of ours'] },
 ]
 
-function FiltersButton({ open, count = 0 }: { open?: boolean; count?: number }) {
-  return (
-    <Popover open={open}>
-      <PopoverTrigger render={<Button variant="outline" size="sm" />}>
-        <SlidersHorizontalIcon /> Filters
-        {count > 0 && <Badge className="-mr-1">{count}</Badge>}
-      </PopoverTrigger>
-      <PopoverContent align="end" className="flex w-[380px] flex-col gap-4 p-4">
-        <div className="flex items-center justify-between">
-          <span className="text-h2">Filters</span>
-          <Button variant="ghost" size="sm">
-            Reset
+function LibraryToolbar({ size, phone = false }: { size: CardSize; phone?: boolean }) {
+  if (phone)
+    return (
+      <div className="flex flex-col gap-2">
+        <div className="relative">
+          <SearchIcon className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            size="sm"
+            aria-label="Search recipes"
+            placeholder="Search recipes"
+            className="pl-9"
+          />
+        </div>
+        <div className="flex items-center justify-between gap-2">
+          <ToggleGroup aria-label="State" defaultValue={['all']}>
+            <ToggleGroupItem value="draft">Draft</ToggleGroupItem>
+            <ToggleGroupItem value="complete">Complete</ToggleGroupItem>
+            <ToggleGroupItem value="all">All</ToggleGroupItem>
+          </ToggleGroup>
+          <Button variant="outline" size="sm">
+            <SlidersHorizontalIcon /> Filters
+            <Badge className="-mr-1">2</Badge>
           </Button>
         </div>
-        {FILTER_GROUPS.map((g) => (
-          <div key={g.name} className="flex flex-col gap-2">
-            <Label>{g.name}</Label>
-            <LabelChips
-              aria-label={g.name}
-              icon={null}
-              className="flex-wrap overflow-visible"
-              labels={g.values.map((v) => ({ id: v, name: v }))}
-              chosen={new Set(g.chosen ?? [])}
-              onChange={nothing}
-            />
-          </div>
-        ))}
-      </PopoverContent>
-    </Popover>
-  )
-}
-
-function LibraryToolbar({ filters }: { filters?: boolean }) {
+        <div className="flex items-center justify-between gap-2">
+          <SmallSelect
+            label="Sort"
+            value="Recently added"
+            options={['Recently added', 'Recently cooked', 'A–Z']}
+          />
+          <ToggleGroup aria-label="Card size" defaultValue={[size]}>
+            <ToggleGroupItem value="S">S</ToggleGroupItem>
+            <ToggleGroupItem value="M">M</ToggleGroupItem>
+            <ToggleGroupItem value="L">L</ToggleGroupItem>
+          </ToggleGroup>
+        </div>
+      </div>
+    )
   return (
     <div className="flex flex-wrap items-center gap-2">
       <ToggleGroup aria-label="State" defaultValue={['all']}>
@@ -320,34 +337,55 @@ function LibraryToolbar({ filters }: { filters?: boolean }) {
           className="pl-9"
         />
       </div>
-      <FiltersButton open={filters} count={filters ? 2 : 0} />
-      <SmallSelect
-        label="Sort"
-        value="Recently added"
-        options={['Recently added', 'Recently cooked', 'A–Z']}
-      />
-      <SmallSelect
-        label="Group"
-        value="No groups"
-        options={['No groups', 'By category', 'By cuisine', 'By state']}
-      />
+      <div className="flex items-center gap-2">
+        <SmallSelect
+          label="Sort"
+          value="Recently added"
+          options={['Recently added', 'Recently cooked', 'A–Z']}
+        />
+        <SmallSelect
+          label="Group"
+          value="No groups"
+          options={['No groups', 'By category', 'By cuisine', 'By state']}
+        />
+        <ToggleGroup aria-label="Card size" defaultValue={[size]}>
+          <ToggleGroupItem value="S">S</ToggleGroupItem>
+          <ToggleGroupItem value="M">M</ToggleGroupItem>
+          <ToggleGroupItem value="L">L</ToggleGroupItem>
+        </ToggleGroup>
+      </div>
     </div>
   )
 }
 
-function Library({ filters, menu }: { filters?: boolean; menu?: boolean }) {
+function Library({
+  menu,
+  size = 'M',
+  phone = false,
+}: {
+  menu?: boolean
+  size?: CardSize
+  phone?: boolean
+}) {
   return (
     <Shell page="Recipes">
       <TypeScope colour="green">
         <PageHeader title="Recipes" action={{ label: 'New recipe', onClick: nothing }} />
-        <div className="flex flex-col gap-4 px-5 pb-28 sm:px-9">
+        <div className="flex flex-col gap-5 px-5 pb-28 sm:px-9">
           <RecipesTabs tab="recipes" action={<NewRecipeMenu open={menu} />} />
-          <LibraryToolbar filters={filters} />
-          <RecipeGrid>
-            {RECIPES.map((r) => (
-              <RecipeCard key={r.name} {...r} onOpen={nothing} />
-            ))}
-          </RecipeGrid>
+          <div className="grid items-start gap-8 lg:grid-cols-[232px_minmax(0,1fr)]">
+            <div className="hidden lg:block">
+              <FilterPanel groups={FILTER_GROUPS} onChange={nothing} onReset={nothing} />
+            </div>
+            <div className="flex min-w-0 flex-col gap-4">
+              <LibraryToolbar size={size} phone={phone} />
+              <RecipeGrid size={size}>
+                {RECIPES.map((r) => (
+                  <RecipeCard key={r.name} {...r} onOpen={nothing} />
+                ))}
+              </RecipeGrid>
+            </div>
+          </div>
         </div>
       </TypeScope>
     </Shell>
@@ -583,22 +621,23 @@ function RecipeHeading({ other = false }: { other?: boolean }) {
     <div className="flex flex-col gap-5 md:flex-row md:items-start">
       <RecipePhoto className="w-full shrink-0 rounded-lg md:w-72" />
       <div className="flex min-w-0 flex-1 flex-col gap-3">
-        <div className="flex items-start gap-2">
-          <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-            <h1 className="text-[22px] leading-[1.2] font-[750] tracking-[-0.025em] sm:text-h1">
-              Katsu curry
-            </h1>
-            <Select defaultValue="Air fryer · Complete">
-              <SelectTrigger size="sm" aria-label="Variation" className="w-auto self-start">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Air fryer · Complete">Air fryer · Complete</SelectItem>
-                <SelectItem value="Standard · Complete">Standard · Complete</SelectItem>
-                <SelectItem value="Tofu (Sam) · Draft">Tofu (Sam) · Draft</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+        <div className="flex items-center gap-2 text-sm">
+          <span className="font-semibold text-muted-foreground">Variation</span>
+          <Select defaultValue="Air fryer">
+            <SelectTrigger
+              size="sm"
+              aria-label="Variation"
+              className="w-auto bg-transparent px-2 font-semibold hover:bg-accent"
+            >
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Air fryer">Air fryer</SelectItem>
+              <SelectItem value="Standard">Standard</SelectItem>
+              <SelectItem value="Tofu (Sam)">Tofu (Sam)</SelectItem>
+            </SelectContent>
+          </Select>
+          <Badge variant="outline">Complete</Badge>
         </div>
         <div className="flex flex-wrap gap-1.5">
           {other && <RecipeFact>By Sam</RecipeFact>}
@@ -714,7 +753,7 @@ function RecipePage({ other = false }: { other?: boolean }) {
   return (
     <Shell page="Recipes">
       <TypeScope colour="green">
-        <PageHeader title="" back={{ label: 'Recipes', onClick: nothing }} />
+        <PageHeader title="Katsu curry" back={{ label: 'Recipes', onClick: nothing }} />
         <div className="flex flex-col gap-5 px-5 pb-12 sm:px-9">
           <RecipeHeading other={other} />
           <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)_minmax(0,1fr)]">
@@ -741,25 +780,6 @@ function RecipePage({ other = false }: { other?: boolean }) {
 
 /* ---------- Editing ---------- */
 
-function EditLine({ text, parsed, typed }: { text: string; parsed: string; typed?: boolean }) {
-  return (
-    <div className="group/line flex items-center gap-2">
-      <Input defaultValue={text} aria-label="Ingredient" className="flex-1" />
-      <span className="hidden w-44 shrink-0 truncate text-sm text-muted-foreground sm:block">
-        {typed ? 'Kept as typed' : parsed}
-      </span>
-      <Button
-        variant="ghost"
-        size="icon-sm"
-        aria-label="Remove"
-        className="opacity-0 group-hover/line:opacity-100"
-      >
-        <XIcon />
-      </Button>
-    </div>
-  )
-}
-
 function EditVariation({
   suggesting = false,
   referencing = false,
@@ -770,23 +790,15 @@ function EditVariation({
   return (
     <Shell page="Recipes">
       <TypeScope colour="green">
-        <PageHeader title="" back={{ label: 'Katsu curry', onClick: nothing }} />
+        <PageHeader title="Edit variation" back={{ label: 'Katsu curry', onClick: nothing }} />
         <div className="flex flex-col gap-5 px-5 pb-12 sm:px-9">
-          <div className="flex flex-wrap items-end gap-3">
-            <div className="flex min-w-0 flex-1 flex-col gap-1">
-              <span className="text-sm font-semibold text-muted-foreground">
-                Editing a variation
-              </span>
-              <h1 className="text-h1">Katsu curry</h1>
-            </div>
-            <Button>Done</Button>
-          </div>
-          <Card className="grid gap-4 sm:grid-cols-[minmax(0,1.4fr)_repeat(4,minmax(0,1fr))]">
+          <Card className="grid items-end gap-4 sm:grid-cols-[minmax(0,1.4fr)_repeat(4,minmax(0,1fr))_auto]">
             <Field label="Variation">
               <Input defaultValue="Air fryer" />
             </Field>
             <Field label="State">
               <SmallSelect
+                full
                 label="State"
                 value="Complete"
                 options={['Draft', 'Complete', 'Archived']}
@@ -801,8 +813,9 @@ function EditVariation({
             <Field label="Serves">
               <Input defaultValue="4" inputMode="numeric" />
             </Field>
+            <Button>Done</Button>
           </Card>
-          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
+          <div className="grid gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
             <Panel
               title="Ingredients"
               action={
@@ -812,58 +825,66 @@ function EditVariation({
               }
             >
               <div className="flex flex-col gap-2">
-                <EditLine text="4 chicken thighs" parsed="4 · Chicken thighs" />
-                <EditLine text="100 g panko" parsed="100 g · Panko breadcrumbs" />
-                <EditLine text="2 eggs" parsed="2 · Eggs" />
-                <Popover open={suggesting}>
-                  <PopoverTrigger nativeButton={false} render={<div />}>
-                    <Input
-                      defaultValue="1 tbsp gochuj"
-                      aria-label="Ingredient"
-                      autoFocus={suggesting}
-                    />
-                  </PopoverTrigger>
-                  <PopoverContent align="start" className="w-[320px] p-1.5">
-                    <div className="px-2 pt-1 pb-1.5 text-xs font-semibold text-muted-foreground">
-                      Pantry
-                    </div>
-                    <button
-                      type="button"
-                      className="flex h-9 w-full items-center justify-between rounded-sm bg-accent px-2 text-sm"
-                    >
-                      <span>
-                        <b>Gochuj</b>ang
-                      </span>
-                      <span className="text-xs text-muted-foreground">Cupboard</span>
-                    </button>
-                    <button
-                      type="button"
-                      className="flex h-9 w-full items-center justify-between rounded-sm px-2 text-sm hover:bg-accent"
-                    >
-                      <span>
-                        <b>Gochuj</b>ang mayo
-                      </span>
-                      <span className="text-xs text-muted-foreground">Chilled</span>
-                    </button>
-                    <div className="my-1 h-px bg-border" />
-                    <button
-                      type="button"
-                      className="flex h-9 w-full items-center gap-2 rounded-sm px-2 text-sm hover:bg-accent"
-                    >
-                      <PlusIcon className="size-4" /> Add “Gochujang paste” to the Pantry
-                    </button>
-                    <button
-                      type="button"
-                      className="flex h-9 w-full items-center gap-2 rounded-sm px-2 text-sm hover:bg-accent"
-                    >
-                      <TagIcon className="size-4" /> Keep as typed
-                    </button>
-                  </PopoverContent>
-                </Popover>
-                <div className="pt-2 text-sm font-bold text-muted-foreground">For the sauce</div>
-                <EditLine text="1 onion" parsed="1 · Onion" />
-                <EditLine text="1-2 tbsp honey" parsed="1–2 tbsp · Honey" />
-                <EditLine text="pinch of shichimi" parsed="" typed />
+                <IngredientLineEditor amount="4" ingredient="Chicken thighs" />
+                <IngredientLineEditor amount="100" unit="g" ingredient="Panko breadcrumbs" />
+                <IngredientLineEditor amount="2" ingredient="Eggs" />
+                <IngredientLineEditor
+                  amount="1"
+                  unit="tbsp"
+                  ingredient="Gochuj"
+                  status="typing"
+                  ingredientField={
+                    <Popover open={suggesting}>
+                      <PopoverTrigger nativeButton={false} render={<div />}>
+                        <Input
+                          defaultValue="Gochuj"
+                          aria-label="Ingredient"
+                          autoFocus={suggesting}
+                        />
+                      </PopoverTrigger>
+                      <PopoverContent align="start" className="w-[320px] p-1.5">
+                        <div className="px-2 pt-1 pb-1.5 text-xs font-semibold text-muted-foreground">
+                          Pantry
+                        </div>
+                        <button
+                          type="button"
+                          className="flex h-9 w-full items-center justify-between rounded-sm bg-accent px-2 text-sm"
+                        >
+                          <span>
+                            <b>Gochuj</b>ang
+                          </span>
+                          <span className="text-xs text-muted-foreground">Cupboard</span>
+                        </button>
+                        <button
+                          type="button"
+                          className="flex h-9 w-full items-center justify-between rounded-sm px-2 text-sm hover:bg-accent"
+                        >
+                          <span>
+                            <b>Gochuj</b>ang mayo
+                          </span>
+                          <span className="text-xs text-muted-foreground">Chilled</span>
+                        </button>
+                        <div className="my-1 h-px bg-border" />
+                        <button
+                          type="button"
+                          className="flex h-9 w-full items-center gap-2 rounded-sm px-2 text-sm hover:bg-accent"
+                        >
+                          <PlusIcon className="size-4" /> Add “Gochujang paste” to the Pantry
+                        </button>
+                        <button
+                          type="button"
+                          className="flex h-9 w-full items-center gap-2 rounded-sm px-2 text-sm hover:bg-accent"
+                        >
+                          <TagIcon className="size-4" /> Keep as typed
+                        </button>
+                      </PopoverContent>
+                    </Popover>
+                  }
+                />
+                <SubheadingEditor value="For the sauce" />
+                <IngredientLineEditor amount="1" ingredient="Onion" />
+                <IngredientLineEditor amount="1-2" unit="tbsp" ingredient="Honey" />
+                <IngredientLineEditor amount="" ingredient="Pinch of shichimi" status="typed" />
                 <div className="flex gap-1 pt-1">
                   <Button variant="ghost" size="sm" className="text-muted-foreground">
                     <PlusIcon /> Add an ingredient
@@ -955,6 +976,7 @@ function EditHeading() {
               <div className="grid grid-cols-2 gap-3">
                 <Field label="Category">
                   <SmallSelect
+                    full
                     label="Category"
                     value="Dinner"
                     options={['Breakfast', 'Lunch', 'Dinner', 'Baking']}
@@ -962,6 +984,7 @@ function EditHeading() {
                 </Field>
                 <Field label="Cuisine">
                   <SmallSelect
+                    full
                     label="Cuisine"
                     value="Japanese"
                     options={['Japanese', 'Korean', 'Thai']}
@@ -1011,9 +1034,10 @@ function Cooking({ scaled = false }: { scaled?: boolean }) {
     <Shell page="Recipes">
       <TypeScope colour="green">
         <div className="flex flex-col gap-5 px-5 pt-4 pb-12 sm:px-9 sm:pt-[30px]">
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-              <span className="text-sm font-semibold text-tc-text">Cooking · Air fryer</span>
+          <div className="flex flex-wrap items-end gap-3">
+            <div className="flex min-w-0 flex-1 flex-col gap-1">
+              <BackLink label="Recipe" onClick={nothing} />
+              <span className="pt-1 text-sm font-semibold text-tc-text">Cooking · Air fryer</span>
               <h1 className="text-[22px] leading-[1.2] font-[750] tracking-[-0.025em] sm:text-h1">
                 Katsu curry
               </h1>
@@ -1163,35 +1187,34 @@ const MP_DAYS = [
 type MealData = Parameters<typeof MealCard>[0]
 const MEALS: Record<string, Partial<Record<Slot, MealData>>> = {
   mon: {
-    Breakfast: { name: 'Overnight oats', servings: 1, eaten: true },
+    Breakfast: { name: 'Overnight oats', servings: 1, eaten: true, personal: true },
     Dinner: {
       name: 'Katsu curry',
       servings: 4,
       variation: 'Air fryer',
-      household: 'Home',
       eaten: true,
     },
   },
   tue: {
-    Lunch: { name: 'Katsu curry', kind: 'leftovers', household: 'Home' },
-    Dinner: { name: 'Gochujang noodles', servings: 2, household: 'Home' },
+    Lunch: { name: 'Katsu curry', kind: 'leftovers' },
+    Dinner: { name: 'Gochujang noodles', servings: 2 },
   },
   wed: {
-    Breakfast: { name: 'Berry smoothie', servings: 1 },
-    Dinner: { name: 'Out: Dishoom', kind: 'typed', household: 'Home' },
+    Breakfast: { name: 'Berry smoothie', servings: 1, personal: true },
+    Dinner: { name: 'Out: Dishoom', kind: 'typed' },
   },
   thu: {
-    Lunch: { name: 'Shakshuka', servings: 2 },
-    Dinner: { name: 'Chilli con carne', servings: 6, household: 'Home' },
+    Lunch: { name: 'Shakshuka', servings: 2, personal: true },
+    Dinner: { name: 'Chilli con carne', servings: 6 },
   },
   fri: {
-    Lunch: { name: 'Chilli con carne', kind: 'leftovers', household: 'Home' },
-    Dinner: { name: 'Takeaway', kind: 'typed', household: 'Home' },
+    Lunch: { name: 'Chilli con carne', kind: 'leftovers' },
+    Dinner: { name: 'Takeaway', kind: 'typed' },
   },
-  sat: { Dinner: { name: 'Thai green curry', servings: 2, household: 'Home' } },
+  sat: { Dinner: { name: 'Thai green curry', servings: 2 } },
   sun: {
-    Breakfast: { name: 'Shakshuka', servings: 2 },
-    Dinner: { name: 'Mushroom risotto', servings: 4, household: 'Home' },
+    Breakfast: { name: 'Shakshuka', servings: 2, personal: true },
+    Dinner: { name: 'Mushroom risotto', servings: 4 },
   },
 }
 
@@ -1225,29 +1248,32 @@ function SlotFor({
   slot,
   adding,
   dragging,
+  label = false,
 }: {
   day: string
   slot: Slot
   adding?: string
   dragging?: boolean
+  label?: boolean
 }) {
   const meal = MEALS[day]?.[slot]
   const key = `${day}-${slot}`
   if (dragging && key === 'thu-Dinner')
     return (
-      <MealSlot slot={slot}>
+      <MealSlot slot={slot} label={label}>
         <div className="h-[46px] rounded-control border-[1.5px] border-dashed border-muted-foreground/35" />
       </MealSlot>
     )
   if (dragging && key === 'sat-Lunch')
     return (
-      <MealSlot slot={slot}>
+      <MealSlot slot={slot} label={label}>
         <MealCard {...MEALS.thu!.Dinner!} dragging />
       </MealSlot>
     )
   return (
     <MealSlot
       slot={slot}
+      label={label}
       adding={adding === key}
       add={adding === key ? <AddMealPopover slot={slot} /> : undefined}
     >
@@ -1446,7 +1472,7 @@ const AISLES: { aisle: string; entries: [string, string, number, boolean?, boole
   },
 ]
 
-function PantryRow({
+function Entry({
   name,
   unit,
   used,
@@ -1460,28 +1486,20 @@ function PantryRow({
   out?: boolean
 }) {
   return (
-    <CardRow
-      label={name}
-      value={[unit, used ? `${used} recipes` : null].filter(Boolean).join(' · ')}
-      chevron={false}
-    >
-      <div className="flex items-center gap-1.5">
-        {out && <Badge variant="outline">Out of stock</Badge>}
-        {staple && <Badge>Staple</Badge>}
-        {more(
-          <>
-            <DropdownMenuItem>{staple ? 'Not a staple' : 'Make it a staple'}</DropdownMenuItem>
-            {staple && (
-              <DropdownMenuItem>{out ? 'Back in stock' : 'Out of stock'}</DropdownMenuItem>
-            )}
-            <DropdownMenuItem>Edit</DropdownMenuItem>
-            <DropdownMenuItem>Recipes that use it</DropdownMenuItem>
-            <DropdownMenuItem>Merge with…</DropdownMenuItem>
-            <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
-          </>,
-        )}
-      </div>
-    </CardRow>
+    <PantryRow
+      name={name}
+      meta={[unit, used ? `${used} recipes` : null].filter(Boolean).join(' · ')}
+      staple={staple}
+      out={out}
+      menu={more(
+        <>
+          <DropdownMenuItem>Edit</DropdownMenuItem>
+          <DropdownMenuItem>Recipes that use it</DropdownMenuItem>
+          <DropdownMenuItem>Merge with…</DropdownMenuItem>
+          <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
+        </>,
+      )}
+    />
   )
 }
 
@@ -1511,17 +1529,19 @@ function Pantry() {
           <SectionLabel>Ingredients</SectionLabel>
           {AISLES.map((a) => (
             <Card key={a.aisle} className="gap-0 px-2 py-1.5">
-              <div className="px-2 pt-2 pb-1 text-sm font-bold">{a.aisle}</div>
+              <div className="px-3 pt-2.5 pb-1 text-sm font-bold text-muted-foreground">
+                {a.aisle}
+              </div>
               {a.entries.map(([n, u, used, staple, out]) => (
-                <PantryRow key={n} name={n} unit={u} used={used} staple={staple} out={out} />
+                <Entry key={n} name={n} unit={u} used={used} staple={staple} out={out} />
               ))}
             </Card>
           ))}
           <SectionLabel>Household items</SectionLabel>
           <Card className="gap-0 px-2 py-1.5">
-            <PantryRow name="Bin bags" unit="" used={0} staple out />
-            <PantryRow name="Kitchen roll" unit="" used={0} staple />
-            <PantryRow name="Washing-up liquid" unit="" used={0} />
+            <Entry name="Bin bags" unit="" used={0} staple out />
+            <Entry name="Kitchen roll" unit="" used={0} staple />
+            <Entry name="Washing-up liquid" unit="" used={0} />
           </Card>
         </div>
       </TypeScope>
@@ -1550,6 +1570,7 @@ function NewEntry() {
               <div className="grid grid-cols-2 gap-3">
                 <Field label="Aisle">
                   <SmallSelect
+                    full
                     label="Aisle"
                     value="Cupboard"
                     options={['Fruit & Veg', 'Bakery', 'Protein', 'Chilled', 'Cupboard', 'Frozen']}
@@ -1557,6 +1578,7 @@ function NewEntry() {
                 </Field>
                 <Field label="Default unit">
                   <SmallSelect
+                    full
                     label="Default unit"
                     value="tbsp"
                     options={['None', 'g', 'kg', 'ml', 'l', 'tsp', 'tbsp']}
@@ -1604,12 +1626,22 @@ function Settings() {
             value="Member · 4 members"
             render={<a href="#h2" />}
           />
+          <CardRow icon={<MailIcon />} label="Sam Carter invited you to Allotment" className="px-3">
+            <div className="flex items-center gap-1.5">
+              <Button variant="ghost" size="sm">
+                Decline
+              </Button>
+              <Button variant="outline" size="sm">
+                Join
+              </Button>
+            </div>
+          </CardRow>
         </Card>
         <Card className="gap-0 px-2 py-1.5">
           <div className="px-3 pt-2 pb-1">
             <CardTitle>Food</CardTitle>
           </div>
-          <CardRow label="New meals are for" chevron={false}>
+          <CardRow icon={<UtensilsIcon />} label="New meals are for" className="px-3">
             <SmallSelect
               label="New meals are for"
               value="Home"
@@ -1723,42 +1755,6 @@ function Household({ inviting = false }: { inviting?: boolean }) {
   )
 }
 
-function Invited() {
-  return (
-    <Shell page="Inbox">
-      <PageHeader title="Inbox" action={{ label: 'Capture', onClick: nothing }} />
-      <div className="flex max-w-3xl flex-col gap-5 px-5 pb-8 sm:px-9">
-        <Alert>
-          <HouseIcon />
-          <AlertTitle>Sam Carter invited you to Home</AlertTitle>
-          <AlertDescription>Share recipes, meals and shopping lists</AlertDescription>
-          <AlertAction>
-            <Button variant="ghost" size="sm">
-              Decline
-            </Button>
-            <Button variant="outline" size="sm">
-              Join
-            </Button>
-          </AlertAction>
-        </Alert>
-        <section className="flex flex-col gap-2">
-          <SectionLabel count={2}>Today</SectionLabel>
-          <ItemRow
-            leading={<Checkbox colour="blue" aria-label="Done" />}
-            title="Book Japan flights"
-            meta={['Due today']}
-          />
-          <ItemRow
-            leading={<Checkbox colour="blue" aria-label="Done" />}
-            title="Call mum"
-            meta={['18:00']}
-          />
-        </section>
-      </div>
-    </Shell>
-  )
-}
-
 /* ---------- Phone ---------- */
 
 function PhoneRecipe() {
@@ -1766,6 +1762,12 @@ function PhoneRecipe() {
     <Shell page="Recipes">
       <TypeScope colour="green">
         <div className="flex flex-col gap-4 px-5 pt-3 pb-12">
+          <div className="flex flex-col gap-1">
+            <BackLink label="Recipes" onClick={nothing} />
+            <h1 className="pt-1 text-[22px] leading-[1.2] font-[750] tracking-[-0.025em]">
+              Katsu curry
+            </h1>
+          </div>
           <RecipeHeading />
           <Panel title="Ingredients">
             <IngredientList groups={KATSU} />
@@ -1780,35 +1782,29 @@ function PhoneRecipe() {
 }
 
 function PhoneCooking() {
-  const steps = STEPS.slice(2).map((s) =>
+  const steps = STEPS.map((s) =>
     s.key === '4' ? { ...s, timer: <TimerChip label="Air fry" time="08:42" state="running" /> } : s,
   )
   return (
     <Shell page="Recipes">
       <TypeScope colour="green">
         <div className="flex flex-col gap-4 px-5 pt-3 pb-12">
-          <div className="flex items-center gap-2">
-            <div className="flex min-w-0 flex-1 flex-col">
-              <span className="text-sm font-semibold text-tc-text">Cooking · Air fryer</span>
+          <div className="flex items-end gap-2">
+            <div className="flex min-w-0 flex-1 flex-col gap-1">
+              <BackLink label="Recipe" onClick={nothing} />
+              <span className="pt-1 text-sm font-semibold text-tc-text">Cooking · Air fryer</span>
               <h1 className="text-[22px] leading-[1.2] font-[750] tracking-[-0.025em]">
                 Katsu curry
               </h1>
             </div>
             <Button size="sm">Finish</Button>
           </div>
-          <ServingsStepper value={4} />
-          <Tabs defaultValue="method">
-            <TabsList>
-              <TabsTrigger value="ingredients">Ingredients</TabsTrigger>
-              <TabsTrigger value="method">Method</TabsTrigger>
-            </TabsList>
-          </Tabs>
-          <MethodSteps
-            cooking
-            steps={steps.map((s, i) => ({ ...s, key: String(i + 3) }))}
-            done={['3']}
-            current="4"
-          />
+          <Panel title="Ingredients" action={<ServingsStepper value={4} />}>
+            <IngredientList groups={KATSU} />
+          </Panel>
+          <Panel title="Method">
+            <MethodSteps cooking steps={steps} done={['1', '2', '3']} current="4" />
+          </Panel>
         </div>
       </TypeScope>
     </Shell>
@@ -1833,7 +1829,7 @@ function PhoneMealPlan() {
           {MP_DAYS.slice(2, 5).map((d) => (
             <MealDay key={d.key} name={d.name} date={`${d.number} Oct`} today={d.today}>
               {(['Breakfast', 'Lunch', 'Dinner'] as const).map((slot) => (
-                <SlotFor key={slot} day={d.key} slot={slot} />
+                <SlotFor key={slot} day={d.key} slot={slot} label />
               ))}
             </MealDay>
           ))}
@@ -1848,7 +1844,8 @@ function PhoneMealPlan() {
 
 const SCREENS: Record<string, () => ReactNode> = {
   recipes: () => <Library />,
-  'recipes-filters': () => <Library filters />,
+  'recipes-s': () => <Library size="S" />,
+  'recipes-l': () => <Library size="L" />,
   'recipes-new': () => <Library menu />,
   ideas: () => <Ideas />,
   'ideas-select': () => <Ideas selecting />,
@@ -1873,8 +1870,7 @@ const SCREENS: Record<string, () => ReactNode> = {
   settings: () => <Settings />,
   household: () => <Household />,
   'household-invite': () => <Household inviting />,
-  invited: () => <Invited />,
-  'm-recipes': () => <Library />,
+  'm-recipes': () => <Library phone />,
   'm-ideas': () => <Ideas />,
   'm-recipe': () => <PhoneRecipe />,
   'm-cooking': () => <PhoneCooking />,

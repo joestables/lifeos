@@ -89,8 +89,17 @@ Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-17
   meal cards and the aligned week); `scripts/design-shots.mjs` takes any
   stage's design page.
 
+- Step 3's second pass, on Joe's answers: S / M / L card sizes; Filters
+  always showing in a column on the left (FilterPanel); separate amount,
+  unit and ingredient boxes (IngredientLineEditor, SubheadingEditor);
+  Cooking on a phone as one long page; a tap-to-toggle Staple (and Out of
+  stock) on every Pantry row (PantryRow); an invitation only in Settings →
+  Households. Then a polish pass over every screen: back links, the phone
+  recipe's title, slot names once down the week, a lock for the Personal
+  exception, form-height selects, a dash for no unit, Settings rows aligned.
+
 **Left for later**
-- Joe's comments on the first design pass, then the design spec; Joe's further rounds on the specs; then the
+- Joe's agreement to the second design pass, then the design spec; Joe's further rounds on the specs; then the
   capture, Inbox, items, Search and Plan changes that step 1 also covers.
 
 ## [#14](https://github.com/joestables/lifeos/pull/14) — CI: fewer GitHub Actions minutes

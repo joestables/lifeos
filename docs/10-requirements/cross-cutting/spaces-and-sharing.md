@@ -121,9 +121,10 @@ Acceptance criteria
 1. Given a Household I own, when I invite a Google email address, then the
    invitation is kept, and I'm told it was sent whether or not that address
    has an account.
-2. Given an invitation for my address, when I next open LifeOS (or first
-   sign up), then I'm offered it, with the Household's name and who sent
-   it; Join makes me a member, Decline removes it.
+2. Given an invitation for my address (whether I had an account or sign
+   up later), then it waits in Settings → Households, and only there (not
+   Inbox; Joe, 18 October), with the Household's name and who sent it;
+   Join makes me a member, Decline removes it.
 3. Given I'm a member, not the owner, then I can't invite anyone.
 4. Given an invitation not yet answered, then the owner can withdraw it.
 

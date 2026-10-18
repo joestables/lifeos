@@ -1,6 +1,8 @@
 import {
   ChefHatIcon,
   GripVerticalIcon,
+  PackageCheckIcon,
+  TypeIcon,
   MinusIcon,
   PauseIcon,
   PlayIcon,
@@ -13,6 +15,14 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
+import { Input } from '@/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { cn } from '@/lib/utils'
 
 /** A line of a Recipe's ingredients: its amount and unit, then the ingredient. */
@@ -307,4 +317,105 @@ export function LogEntry({
 /** A fact about a Recipe in its heading: category, cuisine, a tag. */
 export function RecipeFact({ children }: { children: ReactNode }) {
   return <Badge variant="secondary">{children}</Badge>
+}
+
+/** The units a line may have (ADR-0053): none for a count or an unmeasured line. */
+const UNITS = ['', 'g', 'kg', 'ml', 'l', 'tsp', 'tbsp'] as const
+
+/**
+ * An ingredient line being edited (RCP-007): a handle to reorder it, then
+ * separate boxes for the amount, the unit and the ingredient (Joe, 18
+ * October), then whether the ingredient is in the Pantry, and Remove. The
+ * ingredient box suggests Pantry entries as I type.
+ */
+export function IngredientLineEditor({
+  amount,
+  unit,
+  ingredient,
+  status = 'pantry',
+  ingredientField,
+}: {
+  amount?: string
+  unit?: (typeof UNITS)[number]
+  ingredient: string
+  /** In the Pantry, kept as typed, or still being typed. */
+  status?: 'pantry' | 'typed' | 'typing'
+  /** The ingredient box, when it carries its suggestions (a Popover's trigger). */
+  ingredientField?: ReactNode
+}) {
+  return (
+    <div className="group/line flex items-center gap-2">
+      <GripVerticalIcon
+        aria-hidden
+        className="size-4 shrink-0 cursor-grab text-muted-foreground opacity-0 group-hover/line:opacity-100"
+      />
+      <Input
+        aria-label="Amount"
+        defaultValue={amount}
+        inputMode="decimal"
+        placeholder="—"
+        className="w-[72px] shrink-0 text-right tabular-nums"
+      />
+      <Select defaultValue={unit ?? ''}>
+        <SelectTrigger aria-label="Unit" className="w-24 shrink-0">
+          <SelectValue>
+            {(v: string) => v || <span className="text-muted-foreground">—</span>}
+          </SelectValue>
+        </SelectTrigger>
+        <SelectContent>
+          {UNITS.map((u) => (
+            <SelectItem key={u || 'none'} value={u}>
+              {u || 'No unit'}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      <div className="relative min-w-0 flex-1">
+        {ingredientField ?? (
+          <Input aria-label="Ingredient" defaultValue={ingredient} className="pr-9" />
+        )}
+        {status !== 'typing' && (
+          <span
+            title={status === 'pantry' ? 'In the Pantry' : 'Kept as typed'}
+            className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-muted-foreground [&_svg]:size-4"
+          >
+            {status === 'pantry' ? (
+              <PackageCheckIcon aria-label="In the Pantry" />
+            ) : (
+              <TypeIcon aria-label="Kept as typed" />
+            )}
+          </span>
+        )}
+      </div>
+      <Button
+        variant="ghost"
+        size="icon-sm"
+        aria-label="Remove"
+        className="shrink-0 opacity-0 group-hover/line:opacity-100 focus-visible:opacity-100"
+      >
+        <XIcon />
+      </Button>
+    </div>
+  )
+}
+
+/** A subheading among the lines being edited ("For the sauce"). */
+export function SubheadingEditor({ value }: { value: string }) {
+  return (
+    <div className="group/line flex items-center gap-2 pt-2">
+      <GripVerticalIcon
+        aria-hidden
+        className="size-4 shrink-0 cursor-grab text-muted-foreground opacity-0 group-hover/line:opacity-100"
+      />
+      <Input aria-label="Subheading" defaultValue={value} className="flex-1 font-bold" />
+      <Button
+        variant="ghost"
+        size="icon-sm"
+        aria-label="Remove subheading"
+        className="shrink-0 opacity-0 group-hover/line:opacity-100 focus-visible:opacity-100"
+      >
+        <XIcon />
+      </Button>
+    </div>
+  )
 }
