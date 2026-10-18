@@ -2,7 +2,7 @@
 
 Newest first. Each entry is added in its own pull request.
 
-## CI: fewer GitHub Actions minutes
+## [#14](https://github.com/joestables/lifeos/pull/14) — CI: fewer GitHub Actions minutes
 
 Branch `claude/stoic-ramanujan-9attfe` · 2026-10-18
 
