@@ -23,8 +23,8 @@ See [offline](cross-cutting/offline.md).
 
 ## Privacy
 
-- Anyone can sign up, but nobody sees another person's Items until they are
-  Contacts and have both joined a Household
+- Anyone can sign up, but nobody sees another person's Items until one has
+  invited the other into a Household and the invitation is accepted
   ([ADR-0039](../20-architecture/adr/0039-accounts-contacts-households.md)).
 - Everything is personal data: if backups are taken, they go to private,
   encrypted storage ([backups](../40-operations/backups.md)).

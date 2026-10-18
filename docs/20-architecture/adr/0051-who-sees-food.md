@@ -41,7 +41,9 @@ food should be shared instead (18 October).
   its author's Household without being shared) and
   [ADR-0017](0017-enforcing-visibility.md) (the visibility rule gains that
   path).
-- To confirm with the specs: a Variation kept by someone who leaves sits
-  under a copy of the Recipe's heading in their own Recipes; merging two
-  Pantry entries needs the merger to have added both; a household item's
-  aisle.
+- Settled with the specs (Joe, 18 October): a leaver's Variations sit
+  under a copy of the Recipe's heading in their own Recipes, never merged
+  back on rejoining; merging two Pantry entries needs the merger to have
+  added both; household items have their own aisle, Household; any member
+  of a Household changes its staples. With several Households, a Recipe is
+  seen by everyone in any Household with its author.

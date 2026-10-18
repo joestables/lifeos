@@ -34,8 +34,8 @@ and for AI.
   - Snapshots copy values, not other Items: through one hop the Household
     sees "Olive knit · 3 garments", not the garments.
 - **Joining** a Household is set by
-  [ADR-0039](0039-accounts-contacts-households.md): Contacts first, then an
-  accepted invitation.
+  [ADR-0039](0039-accounts-contacts-households.md): the owner's invitation
+  by email, accepted.
 
 ## Consequences
 

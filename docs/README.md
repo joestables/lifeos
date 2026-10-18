@@ -151,7 +151,7 @@ Consequences**, to a page.
 | [0036](20-architecture/adr/0036-changing-the-model-over-time.md) | Changing the model over time | Provisionally agreed |
 | [0037](20-architecture/adr/0037-thoughts.md) | Capture makes a Thought, sorted from Inbox | Provisionally agreed |
 | [0038](20-architecture/adr/0038-one-design-system.md) | One design system, built from shared components | Provisionally agreed |
-| [0039](20-architecture/adr/0039-accounts-contacts-households.md) | Accounts, Contacts and Households | Provisionally agreed |
+| [0039](20-architecture/adr/0039-accounts-contacts-households.md) | Accounts and Households | Provisionally agreed |
 | [0040](20-architecture/adr/0040-migrations-applied-by-claude.md) | Migrations are applied by Claude through the Supabase MCP | Provisionally agreed |
 | [0041](20-architecture/adr/0041-visual-direction.md) | Visual direction: Stone, neutral, coloured by Type | Provisionally agreed |
 | [0042](20-architecture/adr/0042-data-layer.md) | The data layer | Provisionally agreed |

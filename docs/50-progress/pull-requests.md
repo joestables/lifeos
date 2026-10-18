@@ -51,8 +51,17 @@ Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-17
   amended; the data model, glossary (Pantry, Slot), capture, Plan, sharing
   spec, design tokens and roadmap follow.
 
+- Joe's answers to the third draft: Households settled — no Contacts; an
+  owner invites by email; members can't invite; several Households per
+  person; core, for every Module (HSH-001–004 in spaces and sharing;
+  ADR-0039 amended). Recipes: unique names but for copies kept on leaving,
+  a Created by filter and pooled lists in a Household, iPhone sharing to
+  follow. Meals: a Household aisle for household items, kept apart; merging
+  only by whoever added both; staples per Household; a default Space for
+  new Meals in Settings and a Household filter; Copy week tucked away.
+
 **Left for later**
-- Joe's further rounds on both specs and how his girlfriend joins; then the
+- Joe's further rounds on the specs; then the
   capture, Inbox, items, Search and Plan changes that step 1 also covers.
 
 ## [#13](https://github.com/joestables/lifeos/pull/13) — Stage 3: Plan, Events and Google Calendar

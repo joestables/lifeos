@@ -8,7 +8,7 @@ later stage; where a box first appears is in the [roadmap](../roadmap.md).*
 ```mermaid
 flowchart LR
   person["Person<br/>signs up with Google,<br/>uses LifeOS personally"]
-  member["Household member<br/>a Contact who accepted<br/>an invitation (Stage 4)"]
+  member["Household member<br/>invited by email,<br/>accepted (Stage 4)"]
   shortcuts["iOS Shortcuts, Siri,<br/>Android HTTP shortcuts<br/>(after Stage 9)"]
   email["Inbound-email service<br/>(after Stage 9)"]
 

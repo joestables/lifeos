@@ -3,6 +3,7 @@
 *Stage 4, the `food` Module's Recipes page. **A draft for Joe to refine**,
 written from Joe's notes (17 October) and his comments on the first round
 (18 October), with Claude's own suggestions marked **(suggested)**.
+Households themselves are core: [spaces and sharing](../cross-cutting/spaces-and-sharing.md).
 Everything is *proposed* until Joe agrees it. The Meal plan, the Pantry and
 shopping lists are in [meals](meals.md).*
 
@@ -46,7 +47,12 @@ Provisionally agreed).
   all of theirs, read-only.
 - **Someone else's Recipe can take my Variation:** I can add a Variation to
   it, which is mine to edit; its heading and other Variations stay the
-  author's. If I leave the Household, I keep my Variations.
+  author's. If I leave the Household, I keep my Variations, under a copy of
+  the Recipe's heading that becomes mine. If I rejoin, the two Recipes stay
+  separate and nothing is merged (Joe, 18 October).
+- **A Recipe's name is unique** among the Recipes I can see, mine and my
+  Households'. The one exception is a copy kept on leaving, seen beside the
+  original again after rejoining (Joe, 18 October).
 - **A favourite is mine alone**, a per-person mark (heart), on anyone's
   Recipe.
 
@@ -58,6 +64,10 @@ Provisionally agreed).
   Labels, so "Quick" never appears among my Tasks' Labels
   ([ADR-0014](../../20-architecture/adr/0014-reference-data-and-labels.md),
   Provisionally agreed). Each is optional, so an Idea needs none.
+- **In a Household, the lists are pooled for browsing:** filters offer the
+  categories, cuisines, tags, protein and carbs of everyone in all my
+  Households, the same name counting as one (Joe, 18 October). Each person
+  still keeps their own lists.
 - **Recipes are green**, with Variations, Meals and the Pantry
   ([ADR-0043](../../20-architecture/adr/0043-colour-by-type.md),
   Provisionally agreed).
@@ -105,8 +115,10 @@ Provisionally agreed).
 - **By hand**, as an Idea or a Draft.
 - **Shared from another app** — TikTok, Instagram, a browser — straight into
   an Idea, with its link (and its title and thumbnail when the link offers
-  them) (Joe, 17 October). On Android the installed app is a share target;
-  capture from outside the app was Stage 10
+  them) (Joe, 17 October). On Android the installed app is a share target
+  now; **an iPhone must follow** (Joe, 18 October), through an iOS Shortcut,
+  since a web app can't be a share target on iOS. Capture from outside the
+  app was Stage 10
   ([ADR-0028](../../20-architecture/adr/0028-capture-from-outside-the-app.md),
   amended), so this brings the share target forward for recipes.
 - **Imported from a web page or a video's link**, as a Draft. A video is
@@ -146,7 +158,9 @@ Acceptance criteria
 4. Given I filter by category, cuisine, tags, protein, carbs or favourites,
    then only matching Recipes show (any choice within a filter, every filter
    together), and my filters are kept for next time.
-5. Given I sort (recently added, recently cooked, A–Z) or group (by
+5. Given I'm in a Household, then a Created by filter lists me and every
+   member of all my Households; outside a Household it isn't shown.
+6. Given I sort (recently added, recently cooked, A–Z) or group (by
    category, cuisine or state), then the grid follows, and my choice is kept.
 
 ### RCP-002 — Ideas
@@ -179,6 +193,7 @@ Acceptance criteria
    which, and can open it or save anyway.
 3. Given no signal, then the Idea is kept and sent later; its title and
    thumbnail fill in when it is.
+4. *Later:* given an iPhone, then an iOS Shortcut does the same.
 
 ### RCP-004 — Many at once
 
@@ -226,6 +241,8 @@ Acceptance criteria
    nothing typed is lost.
 5. Given a new list value in a field ("Korean"), then it is added to my
    list as I type it.
+6. Given a name already used by a Recipe I can see, then it is refused, and
+   I'm told whose it is.
 
 ### RCP-007 — Ingredient lines
 
@@ -400,10 +417,13 @@ Acceptance criteria
 2. Given someone else's Recipe, when I choose Add my variation, then a copy
    of the Variation I'm looking at becomes mine, under their Recipe, and I
    edit it freely.
-3. Given I leave the Household, then I keep my Variations, and stop seeing
-   their Recipes.
-4. **(Suggested)** Given the filters, then I can show only mine, only
-   theirs, or both.
+3. Given I leave the Household, then each Recipe I added Variations to is
+   copied into my Recipes — its heading, with my Variations under it — and
+   I stop seeing theirs.
+4. Given I rejoin, then my copies and their Recipes are separate, even with
+   the same name, and nothing is merged.
+5. Given the filters, then categories, cuisines, tags, protein and carbs
+   include everyone's in all my Households, the same name counting once.
 
 ### RCP-018 — Settings for Recipes
 
@@ -422,13 +442,9 @@ nutrition; converting weight to volume; sharing a Recipe outside LifeOS.
 
 ## Open points for Joe
 
-1. **Leaving with my Variations** (RCP-017 3): they need a Recipe to sit
-   under. *Recommended:* a copy of the Recipe's heading becomes mine, with
-   my Variations under it.
-2. **The lists in a Household:** categories, cuisines and tags are each
-   person's. When I see your Recipes, *recommended:* your values show and
-   filter alongside mine, the same name counting as one.
-3. **Sharing on an iPhone:** a web app can't be a share target on iOS; an
-   iOS Shortcut can do it later. Is Android enough for now?
-4. **Joe's recipe style:** Joe to give Claude how imports should be written,
+1. **Joining with a name we both have:** if we each have a "Hummus" before
+   I join your Household, the rule above would clash. *Recommended:* both
+   stay, each card saying whose it is; a new Recipe still can't take a name
+   in use.
+2. **Joe's recipe style:** Joe to give Claude how imports should be written,
    before import is built (step 8).

@@ -4,6 +4,7 @@
 (Shopping, in the `shopping` Module). **A draft for Joe to refine**, from
 Joe's brief and answers (17 October) and his comments on the first round
 (18 October), with Claude's own suggestions marked **(suggested)**.
+Households themselves are core: [spaces and sharing](../cross-cutting/spaces-and-sharing.md).
 Everything is *proposed* until Joe agrees it. Recipes themselves are in
 [recipes](recipes.md).*
 
@@ -33,9 +34,11 @@ Provisionally agreed).
 - **Leftovers of a Meal** fill a later slot, marked as leftovers and named
   after the Meal they come from; they add nothing to a shopping list.
   Removing the first Meal removes its leftovers (Joe, 18 October).
-- **A Meal is Personal or the Household's**
+- **A Meal is Personal or belongs to one of my Households**
   ([ADR-0051](../../20-architecture/adr/0051-who-sees-food.md),
-  Provisionally agreed).
+  Provisionally agreed). A new Meal takes my default from Settings →
+  Food (Personal, or one of my Households), and the week can be filtered to
+  Personal, one Household or all (Joe, 18 October).
 - **Ticking a Meal eaten logs no cook**: a cook is logged from Cooking
   ([recipes](recipes.md#the-log); Joe, 18 October). No Reminder by default.
 - **Meals are on Plan too**, as every Schedulable Type is, and Plan's "+"
@@ -45,20 +48,26 @@ Provisionally agreed).
 ### The Pantry
 
 - **The Meal plan's Pantry tab** holds ingredients and household items ("bin
-  bags", "kitchen roll") (Joe, 18 October). Ingredients are offered in
-  recipes and shopping lists; household items only in shopping lists.
+  bags", "kitchen roll"), shown apart (Joe, 18 October). Ingredients are
+  offered in recipes and shopping lists; household items only in shopping
+  lists. Both are one catalogue underneath.
 - **One Pantry for everyone in LifeOS** (ADR-0051): anyone may add an entry,
   and everyone sees and uses it. Only the person who added an entry may
   change, merge or delete it; an entry any Recipe uses can't be deleted.
 - **An entry has a name, an aisle and a default unit.** The aisle is one of
   **Fruit & Veg, Bakery, Protein, Chilled, Cupboard, Frozen**, in that order
-  (Joe, 17 October); a new entry starts in Cupboard (Joe, 18 October).
-- **Staple and out of stock are ours**, not the entry's (ADR-0051): we mark
-  which entries are staples, and a staple that has run out as **out of
-  stock**.
+  (Joe, 17 October); a new ingredient starts in Cupboard. A household item's
+  aisle is **Household**, after Frozen, and only household items use it (Joe,
+  18 October).
+- **Staple and out of stock are each Household's**, not the entry's
+  (ADR-0051): any member marks which entries are the Household's staples,
+  and a staple that has run out as **out of stock**. Without a Household
+  they are mine; my first Household starts with a copy of them, and I keep
+  mine for Personal lists (Joe, 18 October). A list uses the staples of the
+  Space it belongs to.
 - **Merging two entries** that are the same ("Spring onions", "Scallions")
-  keeps one, under a name I choose; at most two at a time (Joe, 18
-  October).
+  keeps one, under a name I choose; at most two at a time, and only when I
+  added both (Joe, 18 October).
 
 ### Shopping
 
@@ -99,8 +108,9 @@ Provisionally agreed).
 **Meal plan.** Two tabs. **Week**: Monday to Sunday — columns on a computer,
 days stacked on a phone — each day's Breakfast, Lunch and Dinner with their
 Meals (photo, name, servings; leftovers marked); ‹ Today › and a date, as on
-Plan; "Make a shopping list". **Pantry**: every entry by aisle, staples and
-out-of-stock marked, with a search.
+Plan; a filter for Personal, each Household or all; "Make a shopping list";
+"Copy week" tucked in the week's menu. **Pantry**: ingredients by aisle, then
+household items, staples and out-of-stock marked, with a search.
 
 **Shopping.** The lists — dated ones by date, then standing ones — each
 opening to its lines by aisle or by my subheadings, with ticking, adding and
@@ -126,6 +136,8 @@ Acceptance criteria
 3. Given ‹, ›, Today or a date, then that week shows.
 4. Given leftovers, then they're marked as leftovers, with the Meal they
    come from.
+5. Given the filter, then the week shows Personal Meals, one Household's,
+   or all of mine.
 
 ### MPL-002 — Plan a Meal
 
@@ -139,8 +151,8 @@ Acceptance criteria
    choosing one adds a Meal of its default Variation, or offers its
    Variations when it has more than one.
 2. Given a new Meal, then its servings are the Variation's until I change
-   them, and it is the Household's when I'm in one, until I make it
-   Personal.
+   them, and its Space is my default from Settings → Food (Personal or one
+   of my Households) until I change it.
 3. Given the "+", then I can instead type a Meal ("Out: Dishoom"), or
    choose Leftovers of an earlier Meal.
 4. Given Plan's "+" on a day, when I choose Meal, then the same search adds
@@ -163,15 +175,26 @@ Acceptance criteria
    needs on the list changes with it.
 5. Given I tick a Meal eaten, then it shows eaten, and no cook is logged.
 
+### MPL-005 — My default for new Meals
+
+**As** Joe, **I want** to choose where new Meals go, **so that** I don't set
+it on every Meal.
+Priority: Should · Status: proposed
+
+Acceptance criteria
+1. Given Settings → Food, then I choose Personal or one of my Households as
+   the default for new Meals; Personal until I choose.
+
 ### MPL-004 — Copy a week
 
 **As** Joe, **I want** to start a week from an earlier one, **so that** a
 good week is quick to repeat.
-Priority: Could · Status: proposed (suggested)
+Priority: Could · Status: proposed
 
 Acceptance criteria
-1. Given a week, when I copy it to another, then its Meals are made again on
-   the same days and slots.
+1. Given Copy week in the week's menu (not on the page itself), when I
+   choose another week, then the Meals are made again on the same days and
+   slots.
 
 ### PAN-001 — The Pantry
 
@@ -180,9 +203,9 @@ useful as my recipes grow.
 Priority: Must · Status: proposed
 
 Acceptance criteria
-1. Given Meal plan → Pantry, then every entry shows under its aisle, in
-   aisle order, with how many Recipes use it, staples and out-of-stock
-   marked; a search narrows them.
+1. Given Meal plan → Pantry, then ingredients show under their aisles, in
+   aisle order, with how many Recipes use each, then household items apart;
+   staples and out-of-stock are marked; a search narrows them.
 2. Given New, then I add an ingredient or a household item: a name, an
    aisle (Cupboard to start) and a default unit.
 3. Given an entry I added, then I change its name, aisle and default unit,
@@ -199,7 +222,8 @@ that** I buy it on the next shop.
 Priority: Must · Status: proposed
 
 Acceptance criteria
-1. Given any entry, then I tick it as one of our staples, or untick it.
+1. Given any entry, then any member of the Household ticks it as one of the
+   Household's staples, or unticks it; without a Household, as mine.
 2. Given a staple, when I mark it out of stock, then it is added to the next
    shopping list I make, whether or not a Meal needs it.
 3. **(Suggested)** Given an out-of-stock staple on a list, when I tick it
@@ -214,7 +238,8 @@ Priority: Should · Status: proposed
 Acceptance criteria
 1. Given two entries, when I merge them and choose the name, then one is
    kept, with that name, and every recipe and list line points at it.
-2. Given more than two selected, then Merge isn't offered.
+2. Given more than two selected, or one I didn't add, then Merge isn't
+   offered.
 
 ### PAN-004 — Entries from a Recipe
 
@@ -304,12 +329,8 @@ macros; prices; ordering online; AI planning of the week (later).
 
 ## Open points for Joe
 
-1. **A household item's aisle:** the six aisles are food. *Recommended:* a
-   seventh, **Household**, after Frozen, for household items only.
-2. **Who may merge:** *recommended:* only someone who added both entries,
-   since a merge changes every recipe that uses them.
-3. **Staples before a Household:** *recommended:* mine, becoming the
-   Household's when I make one.
-4. **A new Meal's Space:** *recommended:* the Household's when I'm in one
-   (MPL-002 2), since we mostly eat together.
-5. **Copying a week** (MPL-004): keep or drop?
+1. **A shopping list from Meals in two Households:** a list holding any
+   Household Meal is that Household's, but the week might hold Meals of
+   two. *Recommended:* Make a shopping list takes the Meals the filter
+   shows, and if they span Households, makes one list per Household,
+   Personal Meals joining the one I pick.
