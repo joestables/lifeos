@@ -2,7 +2,7 @@
 
 **Status:** Provisionally agreed · 2026-10-09
 
-**Amended:** 2026-10-17 by Joe's notes for the [Recipes spec](../../10-requirements/modules/recipes.md) (states set on each Variation; a cook keeps a snapshot).
+**Amended:** 2026-10-17 by Joe's notes for the [Recipes spec](../../10-requirements/modules/recipes.md) (states set on each Variation; a cook keeps a snapshot); 2026-10-18 by Joe's comments on the Stage 4 specs (ticking a Meal eaten logs no cook) and [ADR-0051](0051-who-sees-food.md) (a Household member may add their own Variation to another's Recipe).
 
 ## Context
 
@@ -25,11 +25,12 @@ lost the dish, so the Recipes grid would have shown one card per variation.
     stored.
 - **A Meal uses a Variation**, with its own servings; quantities scale by
   meal servings ÷ variation servings.
-- **Cooking is logged on the Variation, with or without a Meal.**
+- **Cooking is logged on the Variation.**
   - Every cook is a **cook log entry** (child row: who, when, rating, notes,
     optional pointer to the Meal it was for).
   - **Cook it now** (from the Recipe) writes a log entry and nothing else.
-  - **Ticking a Meal done** writes a log entry pointing at the Meal.
+  - **Ticking a Meal eaten logs no cook** (Joe, 18 October): a cook comes
+    from Cooking, with its verdict and snapshot.
   - **Each Variation's state is set by hand:** Idea → Draft → Complete, or
     Archived. The Recipe's is worked out: the highest of its Variations'
     that aren't archived, and Archived only when all are.

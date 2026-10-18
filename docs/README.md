@@ -163,6 +163,7 @@ Consequences**, to a page.
 | [0048](20-architecture/adr/0048-google-calendar-two-way.md) | Two-way Google Calendar | Provisionally agreed |
 | [0049](20-architecture/adr/0049-plans-read.md) | How Plan reads a week | Provisionally agreed |
 | [0050](20-architecture/adr/0050-shopping-list.md) | One Shopping list Type, in place of List and Shop | Provisionally agreed |
+| [0051](20-architecture/adr/0051-who-sees-food.md) | Who sees and edits Recipes, the Pantry, Meals and shopping lists | Provisionally agreed |
 
 ## Sources
 

@@ -149,11 +149,13 @@ Plan reads a date range through `core.plan_items` ([ADR-0049](adr/0049-plans-rea
 
 An Item if it needs to be **linked, scheduled, shared or searched on its
 own**; otherwise a child row. A child row may *point at* an Item without being
-one: a set points at its Exercise; a recipe line points at its Ingredient; a
-list line can point at both the Ingredient it is and the Meal it is for
+one: a set points at its Exercise; a recipe line points at its Pantry entry; a
+list line can point at both the Pantry entry it is and the Meal it is for
 ("Panko · for Katsu, Thu"). Garments are Items, because outfits link to them.
-Ingredients are Items for the same reason Exercises are: many lines point at
-the same one.
+**The Pantry is neither:** a catalogue of ingredients and household items
+shared by everyone in LifeOS, each entry with whoever added it; many lines
+point at one entry, and staples are each Household's
+([ADR-0051](adr/0051-who-sees-food.md), Provisionally agreed).
 
 ## Definition → occurrence
 
@@ -187,10 +189,9 @@ these, so the database enforces them.
 | core | **Task** | ✓ do-on / due | ✓ | ✓ | ✓ | Personal | idea "Someday" · active · done · cancelled (a missed repeat: "Skipped") | blue | ✓ | starred | 2 |
 | core | **Event** (a place; not captured, but a Thought can become one) | ✓ start / end | — | ✓ | ✓ | Personal ("with household" → Household); from Google Calendar always Personal | active · cancelled | blue | ✓ | — | 3 |
 | shopping | **Shopping list** (a date is optional; a standing list has none) | ✓ do-on, place (optional) | ✓ | ✓ | ✓ | Household | active · done · cancelled | yellow | — | — | 4b |
-| food | **Recipe** (the dish) | — | — | ✓ | ✓ | Household | idea "Idea" · active "Draft" · done "Complete" · cancelled "Archived" — the highest of its Variations', worked out | green | — | favourited | 4 |
-| food | **Variation** (a way of making it) | — | — | ✓ | — | Its Recipe's, always | idea "Idea" · active "Draft" · done "Complete" · cancelled "Archived", set by hand | green | — | — | 4 |
-| food | **Meal** | ✓ do-on + slot | ✓ "eaten" | ✓ | — | Household | active "Planned" · done · cancelled | green | — | — | 4 |
-| food | **Ingredient** | — | — | ✓ | — | Household | active | green | — | — | 4 |
+| food | **Recipe** (the dish) | — | — | ✓ | ✓ | Its author's Personal, seen read-only by their Household ([ADR-0051](adr/0051-who-sees-food.md)) | idea "Idea" · active "Draft" · done "Complete" · cancelled "Archived" — the highest of its Variations', worked out | green | — | favourited | 4 |
+| food | **Variation** (a way of making it) | — | — | ✓ | — | Its own author's: the Recipe's, or a Household member's added to it (ADR-0051) | idea "Idea" · active "Draft" · done "Complete" · cancelled "Archived", set by hand | green | — | — | 4 |
+| food | **Meal** (or a typed Meal, or leftovers of one) | ✓ do-on + slot | ✓ "eaten" (logs no cook) | ✓ | — | Household when in one, else Personal | active "Planned" · done · cancelled | green | — | — | 4 |
 | fitness | **Exercise** | — | — | — | — | Personal | active | coral | — | — | 5 |
 | fitness | **Workout template** | — | — | — | — | Personal | active | coral | — | — | 5 |
 | fitness | **Workout** | ✓ start | ✓ | — | — | Personal | active "Planned" · done · cancelled "Skipped" | coral | — | — | 5 |
@@ -203,7 +204,7 @@ these, so the database enforces them.
 
 Shopping list: [ADR-0050](adr/0050-shopping-list.md) (Provisionally agreed), superseding ADR-0010's List and Shop.
 Recipe and Variation: [ADR-0011](adr/0011-recipe-and-variation.md) (Provisionally agreed).
-Ingredient: [ADR-0012](adr/0012-ingredients-and-shopping-lists.md) (Provisionally agreed).
+Ingredient lines and the Pantry: [ADR-0012](adr/0012-ingredients-and-shopping-lists.md), [ADR-0051](adr/0051-who-sees-food.md) (Provisionally agreed).
 
 **In-place conversions:** Thought → any Capturable Type (sorting the Inbox);
 Note → any other Capturable Type; Task ↔ Event. Everything else is "create from" + *became*
@@ -227,7 +228,7 @@ more than Labels).
 |---|---|---|
 | core | — (Thought, Note, Task use `core.items` only; where an Event's place is kept is decided with Stage 3's schema) | `subtasks(item_id, title, done, position)` — a Task's sub-tasks |
 | shopping | `shopping_list(place)` | `shopping_lines(text, ingredient_id?, qty, unit, section, checked, position, for_item_id?, generated, touched_at)` |
-| food | `recipe(photo, category, cuisine, default_variation)`, `variation(name, servings, prep_min, cook_min, sources, notes)`, `meal(servings, slot, leftovers_of?)`, `ingredient(aisle, default_unit, staple)` | `variation_ingredients(ingredient_id?, text?, qty, qty_max?, approx, unit, position)`, `variation_steps`, `cook_log(person, cooked_on, verdict, notes, servings, snapshot)`; the Recipe's tags, protein and carbs; reference data: categories, cuisines, tags, protein, carbs (all subject to the Stage 4 specs) |
+| food | `recipe(photo, category, cuisine, default_variation)`, `variation(name, servings, prep_min, cook_min, sources, notes)`, `meal(servings, leftovers_of?, typed_title?)` | `variation_ingredients(ingredient_id?, text?, qty, qty_max?, approx, unit, heading?, position)`, `variation_steps`, `cook_log(person, cooked_on, verdict, notes, servings, snapshot)`; the Recipe's tags, protein and carbs; reference data: categories, cuisines, tags, protein, carbs; the Pantry `pantry(name, kind: ingredient · household, aisle, default_unit, added_by)` and each Household's `staples(entry, out_of_stock)` (all subject to the Stage 4 specs) |
 | fitness | `exercise(muscle_groups, equipment, increment, target)`, `workout(actual_start, duration, readiness, stage)`, `cardio_activity(kind, distance_m, duration_s, avg_hr)` | `template_exercises(exercise_id, sets, reps, target)`, `workout_entries(exercise_id, snapshot)`, `workout_sets(entry_id, set_no, reps, weight, rpe)`; reference data: muscle groups, equipment, recovery settings per person |
 | goals | `goal(kind, measure_key, params, target, unit, period, start_on, deadline)` | — |
 | wardrobe | `garment(category, brand, colour, size, fit, photo, url, price)`, `outfit(photo)` | `outfit_worn_garments` (the snapshot); reference data: category, brand, colour, size, fit |
@@ -251,8 +252,8 @@ more than Labels).
 | **relates to** | any ↔ any | relates to | Hand — the catch-all |
 
 Child-row pointers that are not links: a list line's `for_item_id` (→ Meal or
-Event) and `ingredient_id` (→ Ingredient), a recipe line's `ingredient_id`
-(→ Ingredient), a cook log entry's `meal_id` (→ Meal), and a set's or
+Event) and `ingredient_id` (→ Pantry entry), a recipe line's `ingredient_id`
+(→ Pantry entry), a cook log entry's `meal_id` (→ Meal), and a set's or
 template line's `exercise_id` (→ Exercise). Goal measures find their Items by
 rule and create no links.
 
@@ -328,7 +329,7 @@ flowchart LR
     Recipe
     Variation
     Meal
-    Ingredient
+    Ingredient[Pantry entry]
   end
   subgraph SHOPPING[Shopping]
     Shop[Shopping list]
@@ -397,7 +398,7 @@ flowchart LR
   S["Big shop<br/>Shopping list · Sat 10:00 · H"]
   L(["Panko 100 g<br/>list line"])
   RL(["100 g panko<br/>recipe line"])
-  I["Panko breadcrumbs<br/>Ingredient · H"]
+  I["Panko breadcrumbs<br/>Pantry entry · everyone"]
   E1["Dinner at Dishoom<br/>Event · Fri 19:30 · H"]
   E2["Mum's birthday lunch<br/>Event · Sun 13:00 · H"]
   T["Card for Mum<br/>Task · do Fri · P"]
@@ -441,6 +442,6 @@ What it shows:
 - **A sorted Thought is the same Item:** Miso salmon was captured as a
   Thought and is now a Recipe in the *idea* status.
 - **Recipe to shopping list:** the Chicken katsu Variation's "100 g panko"
-  line and the Big shop's "Panko 100 g" line both point at one Ingredient,
+  line and the Big shop's "Panko 100 g" line both point at one Pantry entry,
   and the list line is *for* Thursday's Meal, which *uses* that Variation.
   Tofu katsu has its own lines (not drawn) and is still a Draft.

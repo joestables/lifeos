@@ -11,8 +11,8 @@ starts by writing the specs it needs, and no earlier.*
 | 1 | **Starts with its specs:** sign-in and Spaces, offline writes. Then foundation: pause v1; **new Supabase project** (London); repo; core schema and Spaces; auth; navigation drawer; **the design system** (shadcn themed with LifeOS tokens, and the shared components the first screens need); data layer and write queue; the activity log (items and links); **the ontology package** (constants and the lookup migration); **CI with database tests**; the `can_read` benchmark; `ops.events` and the nightly health check | A solid base, built only as far as Stage 2 needs |
 | 2 | **Starts with its specs:** capture, Thoughts and Inbox, Notes, Tasks (with repeats), Reminders. Then: the colours by Type and the app icon, designed with Joe; capture in the app (Thought by default); sorting Thoughts in Inbox; Notes with Labels and pins; Tasks with Labels, stars, sub-tasks and **repeating Tasks**; Inbox; Reminders by Web Push with Done/Snooze actions (Android and desktop), overdue nudges and the morning digest; Search; Playwright walks in CI (the nightly smoke walk deferred until the roadmap is complete). Until Stage 3, an event-shaped line is saved as a Thought or a Task. | **Replaces Google Tasks — start using it daily** |
 | 3 | **Starts with its specs:** Plan, Events, Google Calendar. Then: Plan, every Schedulable Type in a week (computer) or a day (phone), filtered by Type; Events (and repeating Events, with Labels), with the Task ↔ Event switch; Google Calendar, incoming only or two-way, always Personal | The one planning view |
-| 4 | **Starts with its specs:** Recipes, Meal plan, Ingredients. Then: the **Recipes** page (the recipe library and saved ideas, Variations, cook log, ideas shared from other apps on Android) and the **Meal plan** page (planning Meals, and the Ingredient database Recipes draw on); the shared AI service and food preferences; Contacts and Households, with sharing on | Shared with girlfriend |
-| 4b | **Shopping:** shopping lists made by hand, or from the meal plan with more added from the Ingredient database or typed; live updates. One Shopping list Type replaces List and Shop ([ADR-0050](20-architecture/adr/0050-shopping-list.md)) | Shopping together |
+| 4 | **Starts with its specs:** Recipes, the Meal plan and the Pantry, Shopping. Then: the **Recipes** page (the recipe library and saved ideas, Variations, cook log, ideas shared from other apps on Android) and the **Meal plan** page (planning Meals, and the Pantry of ingredients and household items); the shared AI service and food preferences; Contacts and Households, with sharing on | Shared with girlfriend |
+| 4b | **Shopping:** shopping lists made by hand, or from the meal plan with more added from the Pantry or typed; live updates. One Shopping list Type replaces List and Shop ([ADR-0050](20-architecture/adr/0050-shopping-list.md)) | Shopping together |
 | 5 | Gym (with v1's recovery model and snapshots), then Goals and the measures registry | The joined-up payoff |
 | 6 | Wardrobe and outfits | |
 | 7 | Android wrapper: exact-alarm Reminders, then Health Connect | Phone alarms can go |
@@ -74,7 +74,7 @@ Each is a later stage's decision; listed so nothing closes the door on them.
   on Plan and in Inbox.
 - **Weather** — an Integration that feeds outfit suggestions ("12°C, dry")
   and run planning.
-- **Nutrition** — the Ingredient catalogue can carry nutrition data later
+- **Nutrition** — the Pantry can carry nutrition data later
   (e.g. Open Food Facts), so meals have macros and a goal like "140 g protein
   a day" becomes measurable.
 - **Plan my week** — v1's "help me decide what to eat", widened: an AI that

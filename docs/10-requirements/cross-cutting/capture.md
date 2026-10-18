@@ -47,7 +47,7 @@ at the start of Stage 2, are at the end.*
     [RCP-003](../modules/recipes.md#rcp-003--save-an-idea-from-another-app)),
     and a widget for typing a Thought once the Android wrapper exists
     (Stage 7).
-- Capture's "buy oat milk" matches an Ingredient if one exists (Stage 4).
+- Capture's "buy oat milk" matches a Pantry entry if one exists (Stage 4).
 
 ## Requirements
 

@@ -17,6 +17,12 @@ are written then.*
   Household makes the shared Items you created Personal
   ([ADR-0016](../../20-architecture/adr/0016-sharing-and-visibility.md),
   Provisionally agreed).
+- **Food is shared its own way:** everyone in a Household sees each
+  other's Recipes, read-only, and may add their own Variations; the Pantry
+  is one for everyone; a shopping list with any Household Meal is the
+  Household's ([ADR-0051](../../20-architecture/adr/0051-who-sees-food.md),
+  Provisionally agreed; [recipes](../modules/recipes.md),
+  [meals](../modules/meals.md)).
 - **Enforcement** through one rule in `core_private`, benchmarked in Stage 1
   at a few milliseconds; goal
   progress read through the goal; only an Item's owner can link it to a

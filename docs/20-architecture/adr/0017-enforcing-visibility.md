@@ -2,7 +2,7 @@
 
 **Status:** Provisionally agreed · 2026-10-09
 
-**Amended:** 2026-10-09 by [ADR-0039](0039-accounts-contacts-households.md) (joining); 2026-10-09 by the Stage 1 core schema (`can_read` moved to `core_private`); 2026-10-10 by the `can_read` benchmark (policies use the rule as sets).
+**Amended:** 2026-10-09 by [ADR-0039](0039-accounts-contacts-households.md) (joining); 2026-10-09 by the Stage 1 core schema (`can_read` moved to `core_private`); 2026-10-10 by the `can_read` benchmark (policies use the rule as sets); 2026-10-18 by [ADR-0051](0051-who-sees-food.md) (the rule gains Recipes seen through their author's Household).
 
 ## Context
 

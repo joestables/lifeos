@@ -27,7 +27,7 @@ A collapsible drawer (no bottom bar) with these pages, in this order:
 | **Gym** | Workouts and templates. |
 | **Cardio** | Cardio activities. *A blank page until Stage 8.* |
 | **Recipes** | The recipe library and saved ideas, with their Variations and cooking. |
-| **Meal plan** | Where meals are planned, and the ingredient database Recipes draw on. |
+| **Meal plan** | Where meals are planned, and the Pantry of ingredients and household items. |
 | **Shopping** | Shopping lists: made by hand, or from the meal plan with more added. |
 | **Goals** | Goals, measured from the rest of the app. |
 | **Wardrobe** | Garments and outfits. |

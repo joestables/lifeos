@@ -38,8 +38,21 @@ Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-17
   the data model, glossary, capture spec and roadmap follow. The plan sets
   out three ways to share with Joe's girlfriend.
 
+- Joe's comments on the second draft folded in (third draft): recipes
+  RCP-001–018 (Draft · Complete · All; ideas need only a name; no way back
+  to Idea; Cooking's timers and wake lock; import from a video link; Joe's
+  recipe style in code; optional ingredient subheadings; Household members
+  see each other's Recipes and add their own Variations) and meals
+  MPL-001–004, PAN-001–004, SHP-001–004 (the Pantry of ingredients and
+  household items, one for everyone; staples and out of stock; three fixed
+  slots; typed Meals and leftovers; a Meal's lines protected on a list;
+  subheadings on lists by hand; a Thought split at commas into a list).
+  ADR-0051 (who sees and edits food); ADR-0011, 0012, 0016, 0017 and 0021
+  amended; the data model, glossary (Pantry, Slot), capture, Plan, sharing
+  spec, design tokens and roadmap follow.
+
 **Left for later**
-- Joe's rounds on both specs and his choice on Households; then the
+- Joe's further rounds on both specs and how his girlfriend joins; then the
   capture, Inbox, items, Search and Plan changes that step 1 also covers.
 
 ## [#13](https://github.com/joestables/lifeos/pull/13) — Stage 3: Plan, Events and Google Calendar

@@ -107,7 +107,7 @@ from every box are reported to `ops.events`
 | Part | Owns |
 |---|---|
 | **Core** | Identity, Spaces, Items and Links, Reminders and notifications, capture, search, the activity log, caching and sync; the Thought, Note, Task and Event Types; the shared AI service |
-| **Modules** | `shopping` (Shopping list), `food` (Recipe, Variation, Meal, Ingredient), `fitness` (Exercise, Workout template, Workout, Cardio activity), `goals` (Goal), `wardrobe` (Garment, Outfit, Outfit worn), later `health` and `finance` |
+| **Modules** | `shopping` (Shopping list), `food` (Recipe, Variation, Meal; the Pantry), `fitness` (Exercise, Workout template, Workout, Cardio activity), `goals` (Goal), `wardrobe` (Garment, Outfit, Outfit worn), later `health` and `finance` |
 | **Integrations** | Google Calendar, Oura, Health Connect, later banks |
 
 ## Moving parts

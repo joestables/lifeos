@@ -2,6 +2,8 @@
 
 **Status:** Provisionally agreed · 2026-10-09
 
+**Amended:** 2026-10-18 by [ADR-0051](0051-who-sees-food.md) (a Recipe is seen by its author's Household without being shared; the Pantry is everyone's).
+
 ## Context
 
 Joe wants the option for his girlfriend to see recipes, create shopping lists

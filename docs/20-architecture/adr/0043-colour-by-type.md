@@ -19,7 +19,7 @@ colours of its own.
   | **Blue** | Task, Event | Tasks |
   | **Yellow** | Thought, Note, Shopping list | Notes, Shopping |
   | **Coral** | Exercise, Workout template, Workout, Cardio activity | Gym, Cardio |
-  | **Green** | Recipe, Variation, Meal, Ingredient | Recipes, Meal plan |
+  | **Green** | Recipe, Variation, Meal; the Pantry | Recipes, Meal plan |
   | **Orange** | Garment, Outfit, Outfit worn | Wardrobe |
   | **Purple** | Goal | Goals |
   | *Chosen in Stage 9* | Account | Finance |

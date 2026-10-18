@@ -41,7 +41,7 @@ events and tasks ([ADR-0026](../../20-architecture/adr/0026-navigation-drawer.md
 - **Plan is neutral**: it mixes Types, so each Item shows its own Type's
   colour ([ADR-0043](../../20-architecture/adr/0043-colour-by-type.md),
   Provisionally agreed).
-- Meals use fixed slots: breakfast, lunch, dinner, snack (Stage 4).
+- Meals use fixed slots: breakfast, lunch, dinner (Stage 4).
 - The standard time fields hold the plan; detail tables hold what happened,
   enabling planned-vs-done ([ADR-0021](../../20-architecture/adr/0021-time.md)).
 - Planning is mostly creating occurrences of definitions, and the action
