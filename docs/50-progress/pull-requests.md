@@ -60,6 +60,11 @@ Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-17
   only by whoever added both; staples per Household; a default Space for
   new Meals in Settings and a Household filter; Copy week tucked away.
 
+- Joe's later answers: an owner can't leave a Household, only delete it
+  for everyone (HSH-004; ADR-0039); same-named Recipes from before joining
+  both stay; a list holding a Household Meal is seen whole by the
+  Household; the recipe style is in v1's code, to be pointed to later.
+
 **Left for later**
 - Joe's further rounds on the specs; then the
   capture, Inbox, items, Search and Plan changes that step 1 also covers.

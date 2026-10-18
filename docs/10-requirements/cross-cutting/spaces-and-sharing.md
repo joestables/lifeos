@@ -46,8 +46,8 @@ is shared is in [recipes](../modules/recipes.md) and
   a copy ([ADR-0016](../../20-architecture/adr/0016-sharing-and-visibility.md)).
   For food it is settled: a leaver keeps their Variations, under a copy of
   the Recipe's heading ([ADR-0051](../../20-architecture/adr/0051-who-sees-food.md)).
-- What happens to a Household when its owner leaves (HSH-004; Claude's
-  recommendation is written there).
+- What happens to a Household when its owner goes: settled — the owner
+  can't leave, only delete it, for everyone (Joe, 18 October; HSH-004).
 
 ## Requirements
 
@@ -153,8 +153,9 @@ Acceptance criteria
    ([ADR-0051](../../20-architecture/adr/0051-who-sees-food.md)).
 2. Given I own a Household, when I remove a member, then it is as if they
    had left.
-3. **(Recommended)** Given I own a Household with other members, then I
-   hand ownership to one of them before I can leave; as its only member,
-   leaving deletes it.
+3. Given I own a Household, then I can't leave it, only delete it (Joe, 18
+   October): after a warning naming its members, it is deleted for
+   everyone, and each person's shared Items become Personal to whoever
+   created them, as if all had left.
 4. Given I rejoin a Household I left, then what I kept stays mine and
    separate: nothing is merged back.

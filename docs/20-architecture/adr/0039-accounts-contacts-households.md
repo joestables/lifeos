@@ -35,4 +35,6 @@ only between people who have chosen each other.
 - Open sign-up means limits are shared by everyone who joins: Google's
   unverified-app limit (100 users) for Calendar, Oura's 10-user limit, the
   free tier's storage and the AI budget.
-- Open, for the spec: what happens to a Household when its owner leaves.
+- An owner can't leave a Household, only delete it, for every member
+  (Joe, 18 October;
+  [HSH-004](../../10-requirements/cross-cutting/spaces-and-sharing.md#hsh-004--leaving-and-removing)).

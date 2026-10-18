@@ -219,6 +219,15 @@ member changing them; a default Space for new Meals in Settings, and a
 Household filter on the Meal plan; Households as above; Copy week kept but
 tucked away; Android for sharing now, an iPhone later, which must follow.
 
+## Joe's answers (18 October, later)
+
+The owner can't leave a Household, only delete it, for every member;
+Recipes of the same name that two people had before joining both stay,
+each saying whose; a list from the meal plan takes Household and Personal
+Meals alike, and holding a Household Meal makes the whole list seen by the
+Household; Joe's recipe style is already in v1's code, and he'll say where
+when import is built.
+
 ## Done when
 
 - Every **Must** requirement in this stage's specs is *verified* (a test

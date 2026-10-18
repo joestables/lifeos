@@ -51,8 +51,11 @@ Provisionally agreed).
   the Recipe's heading that becomes mine. If I rejoin, the two Recipes stay
   separate and nothing is merged (Joe, 18 October).
 - **A Recipe's name is unique** among the Recipes I can see, mine and my
-  Households'. The one exception is a copy kept on leaving, seen beside the
-  original again after rejoining (Joe, 18 October).
+  Households'. Two exceptions: a copy kept on leaving, seen beside the
+  original again after rejoining; and Recipes of the same name that two
+  people already had before one joined the other's Household, each card
+  then saying whose it is. A new Recipe still can't take a name in use
+  (Joe, 18 October).
 - **A favourite is mine alone**, a per-person mark (heart), on anyone's
   Recipe.
 
@@ -123,8 +126,9 @@ Provisionally agreed).
   amended), so this brings the share target forward for recipes.
 - **Imported from a web page or a video's link**, as a Draft. A video is
   read from what its page says (description, captions). Every import is
-  rewritten in **Joe's recipe style**, which Joe gives Claude and is kept in
-  the code, not in Settings (Joe, 18 October).
+  rewritten in **Joe's recipe style**, kept in the code, not in Settings.
+  It is already written in v1's code; Joe will say where when import is
+  built (Joe, 18 October).
 - **A link I've saved before** is flagged before I save it again.
 - Import and filling ingredients from a method use the core's one AI
   service ([principles](../../00-foundation/principles.md), 11); without
@@ -442,9 +446,5 @@ nutrition; converting weight to volume; sharing a Recipe outside LifeOS.
 
 ## Open points for Joe
 
-1. **Joining with a name we both have:** if we each have a "Hummus" before
-   I join your Household, the rule above would clash. *Recommended:* both
-   stay, each card saying whose it is; a new Recipe still can't take a name
-   in use.
-2. **Joe's recipe style:** Joe to give Claude how imports should be written,
-   before import is built (step 8).
+1. **Joe's recipe style:** in v1's code; Joe will point Claude to it when
+   import is built (step 8).

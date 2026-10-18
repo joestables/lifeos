@@ -95,8 +95,11 @@ Provisionally agreed).
   I make, whether or not a Meal needs them (Joe, 18 October). **(Suggested)**
   Ticking one off on a list marks it in stock again.
 - **A list is the Household's** if it holds any Household Meal's lines, and
-  every member sees it, even if it also holds Personal Meals' lines
-  (ADR-0051). Shared lists update live
+  every member sees all of it, even its Personal Meals' lines (ADR-0051).
+  For example: Sam plans a Household dinner, I plan a Personal lunch, and
+  my list from the meal plan takes both; because it holds the Household
+  dinner, Sam sees the whole list (Joe, 18 October). *Claude's reading, to
+  confirm:* a list holding Meals of two of my Households is seen by both. Shared lists update live
   ([principles](../../00-foundation/principles.md), 9).
 - **Totals:** units of one kind add up (500 g + 1 kg = 1.5 kg; ml, l, tsp,
   tbsp together); weight and volume sit side by side; a range counts as its
@@ -329,8 +332,5 @@ macros; prices; ordering online; AI planning of the week (later).
 
 ## Open points for Joe
 
-1. **A shopping list from Meals in two Households:** a list holding any
-   Household Meal is that Household's, but the week might hold Meals of
-   two. *Recommended:* Make a shopping list takes the Meals the filter
-   shows, and if they span Households, makes one list per Household,
-   Personal Meals joining the one I pick.
+1. **A list holding Meals of two Households** (Shopping, above): seen by
+   both, as written, or kept to one Household per list?
