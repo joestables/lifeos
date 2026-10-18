@@ -164,6 +164,11 @@ Consequences**, to a page.
 | [0049](20-architecture/adr/0049-plans-read.md) | How Plan reads a week | Provisionally agreed |
 | [0050](20-architecture/adr/0050-shopping-list.md) | One Shopping list Type, in place of List and Shop | Provisionally agreed |
 | [0051](20-architecture/adr/0051-who-sees-food.md) | Who sees and edits Recipes, the Pantry, Meals and shopping lists | Provisionally agreed |
+| [0052](20-architecture/adr/0052-food-in-the-database.md) | Food in the database | Proposed |
+| [0053](20-architecture/adr/0053-quantities-and-units.md) | Quantities and units | Proposed |
+| [0054](20-architecture/adr/0054-the-ai-service-and-import.md) | The AI service and recipe import | Proposed |
+| [0055](20-architecture/adr/0055-sharing-into-lifeos.md) | Sharing into LifeOS from another app | Proposed |
+| [0056](20-architecture/adr/0056-cooking-on-the-device.md) | Cooking on the device | Proposed |
 
 ## Sources
 

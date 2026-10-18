@@ -70,8 +70,14 @@ Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-17
   Shopping list), Inbox (food puts nothing there, Joe), items (ITM-006),
   search (SRC-003) and Plan (PLN-008), all *proposed*.
 
+- Merged `master` (#14, CI's fewer minutes) into the branch.
+- Step 2's decisions, as Proposed ADRs for Joe: ADR-0052 (food in the
+  database), ADR-0053 (quantities and units), ADR-0054 (the AI service and
+  recipe import), ADR-0055 (sharing into LifeOS), ADR-0056 (Cooking on the
+  device), with the facts they rest on re-checked.
+
 **Left for later**
-- Joe's further rounds on the specs; then the
+- Joe's agreement to step 2's ADRs; Joe's further rounds on the specs; then the
   capture, Inbox, items, Search and Plan changes that step 1 also covers.
 
 ## [#14](https://github.com/joestables/lifeos/pull/14) — CI: fewer GitHub Actions minutes
