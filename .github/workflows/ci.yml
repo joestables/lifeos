@@ -1,8 +1,11 @@
 name: CI
 
+# Runs once per push to a pull request, and on master after a merge
+# (docs/40-operations/environments.md#ci). A branch without a pull request
+# gets no CI: open a draft one to have it checked.
 on:
   push:
-    branches: [master, 'claude/**']
+    branches: [master]
   pull_request:
 
 concurrency:
@@ -13,8 +16,24 @@ jobs:
   check:
     name: Typecheck, lint, format, unit tests, build
     runs-on: ubuntu-latest
+    outputs:
+      code: ${{ steps.changes.outputs.code }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      # Only documents changed → the database and browser tests are skipped.
+      - name: Anything besides documents changed?
+        id: changes
+        env:
+          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          if ! git cat-file -e "$BASE^{commit}" 2>/dev/null \
+            || git diff --name-only "$BASE" HEAD | grep -qvE '^(docs/|\.claude/|[^/]+\.md$)'; then
+            echo code=true >> "$GITHUB_OUTPUT"
+          else
+            echo code=false >> "$GITHUB_OUTPUT"
+          fi
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
@@ -26,6 +45,8 @@ jobs:
 
   database:
     name: Database tests (migrations from empty)
+    needs: check
+    if: needs.check.outputs.code == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -42,6 +63,9 @@ jobs:
 
   e2e:
     name: Browser tests (stand-in Supabase)
+    needs: check
+    # Pull requests only: master gets nothing a merge didn't already test.
+    if: github.event_name == 'pull_request' && needs.check.outputs.code == 'true'
     runs-on: ubuntu-latest
     # Playwright's own image, as scripts/e2e-docker.sh uses, so screenshots match.
     container:

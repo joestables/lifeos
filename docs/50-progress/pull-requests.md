@@ -2,6 +2,23 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#14](https://github.com/joestables/lifeos/pull/14) — CI: fewer GitHub Actions minutes
+
+Branch `claude/stoic-ramanujan-9attfe` · 2026-10-18
+
+**What it did**
+- GitHub warned that 90% of the month's 2,000 Actions minutes were used:
+  each push cost about 11 (three jobs, each rounded up; the browser tests
+  7), a push to a pull request ran CI twice, and document-only pushes ran
+  everything.
+- CI now runs once per push to a pull request and on `master` after a
+  merge; the database and browser tests wait for the checks and are skipped
+  when only documents change; the browser tests run on pull requests only
+  ([CI](../40-operations/environments.md#ci)).
+- A migration needs a pull request, a draft at least, before CI can pass
+  for it: ADR-0040 and ADR-0035 amended; migrations, environments and
+  CLAUDE.md follow. ADR-0035's `main` corrected to `master`.
+
 ## [#13](https://github.com/joestables/lifeos/pull/13) — Stage 3: Plan, Events and Google Calendar
 
 Branch `claude/kind-babbage-p00wl4` · 2026-10-14 to 2026-10-17
