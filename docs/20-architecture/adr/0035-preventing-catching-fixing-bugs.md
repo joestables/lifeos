@@ -2,7 +2,7 @@
 
 **Status:** Provisionally agreed · 2026-10-09
 
-**Amended:** 2026-10-10 by Joe (no backups for now; the health check notifies nobody).
+**Amended:** 2026-10-10 by Joe (no backups for now; the health check notifies nobody); 2026-10-18 by Joe (CI on pull requests; database and browser tests skipped when only documents change).
 
 ## Context
 
@@ -20,10 +20,11 @@ A layer at each stage a bug passes through:
    doesn't allow, RLS through `core_private.can_read`); TypeScript types generated
    from the database; zod checks on anything arriving from outside; one
    requirement or fix per pull request.
-2. **Catch them before they ship:** `main` is protected; CI runs typecheck
+2. **Catch them before they ship:** `master` is protected; CI runs typecheck
    and lint → unit tests → database tests on a local Supabase (every
    migration from empty, then pgTAP) → Playwright walks against the stand-in
-   (from Stage 2); a Vercel preview of every pull request; tests cite
+   (from Stage 2), on every pull request, the last two skipped when only
+   documents change ([CI](../../40-operations/environments.md#ci)); a Vercel preview of every pull request; tests cite
    requirement IDs and every bug fixed gets a test; Claude reviews its own
    pull requests (code-review, and security-review for RLS or the capture
    address); `get_advisors` after every migration; migrations

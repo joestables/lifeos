@@ -2,6 +2,8 @@
 
 **Status:** Provisionally agreed · 2026-10-09
 
+**Amended:** 2026-10-18 by Joe (CI runs on pull requests, not on every push).
+
 ## Context
 
 [ADR-0003](0003-new-supabase-project.md) asks for one owner of migrations:
@@ -27,6 +29,7 @@ available but direct connections to the project are not.
 
 - One tool writes to the live schema, so it can't drift from the repository.
 - A migration is applied only after CI has passed on the commit that adds
-  it.
+  it. CI runs on pull requests, so the branch needs one, a draft at least
+  ([CI](../../40-operations/environments.md#ci)).
 - If the MCP connector is unavailable, migrations wait; they are never pasted
   into the dashboard.
