@@ -226,7 +226,8 @@ Recipes of the same name that two people had before joining both stay,
 each saying whose; a list from the meal plan takes Household and Personal
 Meals alike, and holding a Household Meal makes the whole list seen by the
 Household; Joe's recipe style is already in v1's code, and he'll say where
-when import is built.
+when import is built. A list holding Meals of two Households is seen by
+both.
 
 ## Done when
 

@@ -98,8 +98,8 @@ Provisionally agreed).
   every member sees all of it, even its Personal Meals' lines (ADR-0051).
   For example: Sam plans a Household dinner, I plan a Personal lunch, and
   my list from the meal plan takes both; because it holds the Household
-  dinner, Sam sees the whole list (Joe, 18 October). *Claude's reading, to
-  confirm:* a list holding Meals of two of my Households is seen by both. Shared lists update live
+  dinner, Sam sees the whole list (Joe, 18 October). A list holding
+  Meals of two of my Households is seen by both (Joe, 18 October). Shared lists update live
   ([principles](../../00-foundation/principles.md), 9).
 - **Totals:** units of one kind add up (500 g + 1 kg = 1.5 kg; ml, l, tsp,
   tbsp together); weight and volume sit side by side; a range counts as its
@@ -332,5 +332,4 @@ macros; prices; ordering online; AI planning of the week (later).
 
 ## Open points for Joe
 
-1. **A list holding Meals of two Households** (Shopping, above): seen by
-   both, as written, or kept to one Household per list?
+None at present.

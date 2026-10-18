@@ -63,7 +63,8 @@ Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-17
 - Joe's later answers: an owner can't leave a Household, only delete it
   for everyone (HSH-004; ADR-0039); same-named Recipes from before joining
   both stay; a list holding a Household Meal is seen whole by the
-  Household; the recipe style is in v1's code, to be pointed to later.
+  Household; the recipe style is in v1's code, to be pointed to later; a list holding Meals of two
+  Households is seen by both.
 
 **Left for later**
 - Joe's further rounds on the specs; then the

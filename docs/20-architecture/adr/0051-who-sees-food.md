@@ -31,7 +31,8 @@ food should be shared instead (18 October).
   Variations.
 - **A Meal is Personal or the Household's.** A Shopping list holding any
   Household Meal's lines is the Household's, seen by every member, even if
-  it also holds Personal Meals' lines.
+  it also holds Personal Meals' lines; one holding Meals of two Households
+  is seen by both.
 
 ## Consequences
 
