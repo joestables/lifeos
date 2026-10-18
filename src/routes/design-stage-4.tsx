@@ -1112,7 +1112,6 @@ function Cooking({ scaled = false }: { scaled?: boolean }) {
             <Panel title="Ingredients">
               <IngredientList
                 cooking
-                ticked={['a', 'b', 'c', 'd']}
                 groups={
                   scaled
                     ? KATSU.map((g) => ({

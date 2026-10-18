@@ -24,7 +24,7 @@ ingredients should be collated onto a shopping list.
   A line kept as typed goes on a shopping list under *Other*.
 - **Adding Meals' ingredients to a Shopping list** creates one line per
   ingredient per Meal, pointing at its Ingredient and *for* its Meal.
-  - "Make a shopping list" on the Meal plan takes the days I choose into a
+  - "New shopping list" on the Meal plan takes the days I choose into a
     new Shopping list, or adds them to one I pick; then I add more, from the
     Ingredient database or typed.
   - **Collation is a display rule, not merged data:** lines with the same

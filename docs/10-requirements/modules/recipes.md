@@ -331,7 +331,9 @@ Priority: Must · Status: proposed
 Acceptance criteria
 1. Given a Draft or Complete Variation, when I press Start cooking, then the
    ingredients and method show large, without editing controls, and the
-   screen doesn't sleep until I finish.
+   screen doesn't sleep until I finish. Ingredients aren't ticked off; the
+   step I'm on is picked out, and the ones before it marked done (Joe, 18
+   October).
 2. Given Cooking, when I change the servings, then the ingredients scale
    (both ends of a range) and the method says its numbers aren't scaled.
 3. Given a step that names a time ("simmer for 20 minutes"), then it offers

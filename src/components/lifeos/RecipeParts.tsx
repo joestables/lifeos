@@ -14,7 +14,6 @@ import type { ReactNode } from 'react'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import {
   Select,
@@ -43,17 +42,15 @@ export interface IngredientGroup {
 
 /**
  * A Variation's ingredients, to read (RCP-005): each line its amount in
- * tabular figures, then the ingredient; optional subheadings. In Cooking,
- * each line has a checkbox to tick off.
+ * tabular figures, then the ingredient; optional subheadings. In Cooking
+ * the lines are larger; they aren't ticked off (Joe, 18 October).
  */
 export function IngredientList({
   groups,
   cooking = false,
-  ticked = [],
 }: {
   groups: IngredientGroup[]
   cooking?: boolean
-  ticked?: string[]
 }) {
   return (
     <div className="flex flex-col gap-4">
@@ -62,32 +59,17 @@ export function IngredientList({
           {g.heading && (
             <div className="pb-1 text-sm font-bold text-muted-foreground">{g.heading}</div>
           )}
-          {g.lines.map((l) => {
-            const done = ticked.includes(l.key)
-            return (
-              <label
-                key={l.key}
-                className={cn(
-                  'flex items-baseline gap-3 py-1.5',
-                  cooking && 'cursor-pointer items-center py-2 text-base',
-                )}
-              >
-                {cooking && <Checkbox colour="green" defaultChecked={done} aria-label={l.name} />}
-                <span
-                  className={cn(
-                    'w-16 shrink-0 font-semibold tabular-nums',
-                    cooking && 'w-20',
-                    done && 'text-muted-foreground line-through',
-                  )}
-                >
-                  {l.amount}
-                </span>
-                <span className={cn('min-w-0', done && 'text-muted-foreground line-through')}>
-                  {l.name}
-                </span>
-              </label>
-            )
-          })}
+          {g.lines.map((l) => (
+            <div
+              key={l.key}
+              className={cn('flex items-baseline gap-3 py-1.5', cooking && 'py-2 text-base')}
+            >
+              <span className={cn('w-16 shrink-0 font-semibold tabular-nums', cooking && 'w-20')}>
+                {l.amount}
+              </span>
+              <span className="min-w-0">{l.name}</span>
+            </div>
+          ))}
         </div>
       ))}
     </div>
@@ -326,7 +308,8 @@ const UNITS = ['', 'g', 'kg', 'ml', 'l', 'tsp', 'tbsp'] as const
  * An ingredient line being edited (RCP-007): a handle to reorder it, then
  * separate boxes for the amount, the unit and the ingredient (Joe, 18
  * October), then whether the ingredient is in the Pantry, and Remove. The
- * ingredient box suggests Pantry entries as I type.
+ * ingredient box suggests Pantry entries as I type. On a phone the
+ * ingredient takes a line of its own, under the amount and unit.
  */
 export function IngredientLineEditor({
   amount,
@@ -344,10 +327,10 @@ export function IngredientLineEditor({
   ingredientField?: ReactNode
 }) {
   return (
-    <div className="group/line flex items-center gap-2">
+    <div className="group/line flex flex-wrap items-center gap-2 sm:flex-nowrap">
       <GripVerticalIcon
         aria-hidden
-        className="size-4 shrink-0 cursor-grab text-muted-foreground opacity-0 group-hover/line:opacity-100"
+        className="size-4 shrink-0 cursor-grab text-muted-foreground opacity-0 group-hover/line:opacity-100 max-sm:hidden"
       />
       <Input
         aria-label="Amount"
@@ -370,7 +353,7 @@ export function IngredientLineEditor({
           ))}
         </SelectContent>
       </Select>
-      <div className="relative min-w-0 flex-1">
+      <div className="relative min-w-0 flex-1 max-sm:order-last max-sm:basis-full">
         {ingredientField ?? (
           <Input aria-label="Ingredient" defaultValue={ingredient} className="pr-9" />
         )}
@@ -391,7 +374,7 @@ export function IngredientLineEditor({
         variant="ghost"
         size="icon-sm"
         aria-label="Remove"
-        className="shrink-0 opacity-0 group-hover/line:opacity-100 focus-visible:opacity-100"
+        className="shrink-0 group-hover/line:opacity-100 focus-visible:opacity-100 sm:opacity-0"
       >
         <XIcon />
       </Button>
@@ -405,14 +388,14 @@ export function SubheadingEditor({ value }: { value: string }) {
     <div className="group/line flex items-center gap-2 pt-2">
       <GripVerticalIcon
         aria-hidden
-        className="size-4 shrink-0 cursor-grab text-muted-foreground opacity-0 group-hover/line:opacity-100"
+        className="size-4 shrink-0 cursor-grab text-muted-foreground opacity-0 group-hover/line:opacity-100 max-sm:hidden"
       />
       <Input aria-label="Subheading" defaultValue={value} className="flex-1 font-bold" />
       <Button
         variant="ghost"
         size="icon-sm"
         aria-label="Remove subheading"
-        className="shrink-0 opacity-0 group-hover/line:opacity-100 focus-visible:opacity-100"
+        className="shrink-0 group-hover/line:opacity-100 focus-visible:opacity-100 sm:opacity-0"
       >
         <XIcon />
       </Button>

@@ -73,7 +73,7 @@ export function FilterPanel({
           <Accordion multiple className={cn('gap-0', !bare && 'px-4 py-2')}>
             {collapsing.map((g) => (
               <AccordionItem key={g.name} value={g.name}>
-                <AccordionTrigger className="py-2 text-sm">
+                <AccordionTrigger size="sm">
                   {g.name}
                   {!!g.chosen?.length && (
                     <Badge variant="secondary" aria-label={`${g.chosen.length} chosen`}>

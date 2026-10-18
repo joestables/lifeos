@@ -111,7 +111,7 @@ Provisionally agreed).
 **Meal plan.** Two tabs. **Week**: Monday to Sunday — columns on a computer,
 days stacked on a phone — each day's Breakfast, Lunch and Dinner with their
 Meals (photo, name, servings; leftovers marked); ‹ Today › and a date, as on
-Plan; a filter for Personal, each Household or all; "Make a shopping list";
+Plan; a filter for Personal, each Household or all; "New shopping list";
 "Copy week" tucked in the week's menu. **Pantry**: ingredients by aisle, then
 household items, staples and out-of-stock marked, with a search.
 
@@ -282,7 +282,7 @@ I buy exactly what they need.
 Priority: Must · Status: proposed (Stage 4b)
 
 Acceptance criteria
-1. Given the Meal plan, when I choose Make a shopping list and pick days,
+1. Given the Meal plan, when I choose New shopping list and pick days,
    then each Meal's ingredients, scaled to its servings, go to a new list
    dated the day of the first Meal, or to a list I pick.
 2. Given the same ingredient for two Meals, then it shows as one line with

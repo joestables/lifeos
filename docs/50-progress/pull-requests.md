@@ -105,9 +105,18 @@ Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-17
   S / M / L and with Group beside Sort; the Pantry's recipe count hidden on
   a phone. RCP-001 and PAN-001 follow.
 
+- Joe agreed the design (Cooking's ingredients aren't ticked off). Into
+  the design spec: components.md gains the food components (RecipePhoto to
+  PantryRow), FilterPanel, SelectionBar and Accordion's `sm`; patterns.md
+  gains Recipes, the Meal plan, Settings' Households and Food, and the
+  drawer's icons for Meal plan and Shopping. `/design` shows them, its
+  screenshots refreshed. The Meal plan's action is "New shopping list"
+  everywhere (meals.md, ADR-0012).
+
 **Left for later**
-- Joe's agreement to the second design pass, then the design spec; Joe's further rounds on the specs; then the
-  capture, Inbox, items, Search and Plan changes that step 1 also covers.
+- Step 4 onwards (the `food` schema first); Joe's further rounds on the
+  specs; then the capture, Inbox, items, Search and Plan changes that step 1
+  also covers.
 
 ## [#14](https://github.com/joestables/lifeos/pull/14) — CI: fewer GitHub Actions minutes
 

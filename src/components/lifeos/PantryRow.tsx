@@ -61,7 +61,7 @@ export function PantryRow({
       className="flex min-h-12 items-center gap-3 rounded-control px-3 py-1.5 hover:bg-accent/50"
     >
       <div className="flex min-w-0 flex-1 flex-col sm:flex-row sm:items-baseline sm:gap-3">
-        <span className="truncate font-semibold">{name}</span>
+        <span className="truncate font-semibold sm:shrink-0">{name}</span>
         {(unit || !!recipes) && (
           <span className="truncate text-sm text-muted-foreground tabular-nums">
             {unit}

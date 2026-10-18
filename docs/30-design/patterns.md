@@ -38,8 +38,8 @@ AppShell
   opacity.
 - Each page's icon: Inbox `inbox`, Plan `calendar-days`, Tasks
   `square-check-big`, Notes `sticky-note`, Gym `dumbbell`, Cardio
-  `footprints`, Recipes `chef-hat`, Goals `target`, Wardrobe `shirt`, Finance
-  `wallet`; Meal plan and Shopping get theirs with their design in Stage 4.
+  `footprints`, Recipes `chef-hat`, Meal plan `utensils`, Shopping
+  `shopping-cart`, Goals `target`, Wardrobe `shirt`, Finance `wallet`.
 - The header holds the brand (the app icon at 24px, then "LifeOS" at 16px
   weight 750) and, on its right, Search: a muted ghost `search` button, with
   "Search /" in a Tooltip on a computer, 44px in a phone's drawer. Capture
@@ -268,6 +268,22 @@ DateField, TimeField, RepeatField, SubtaskList and AddRow in
   where the Card has no title and "New label" is the page's main action.
 - Renaming or making a Label is a small Dialog with one field and Save;
   deleting one asks first (AlertDialog), saying how many Items it comes off.
+- **Households** ([HSH-001–004](../10-requirements/cross-cutting/spaces-and-sharing.md)):
+  a titled Card with an outline "New household", then a CardRow per
+  Household (`house`, its name, "Owner · 2 members" muted, leading to its
+  page) and, for an invitation waiting for me, a CardRow with `mail`, "Sam
+  Carter invited you to Allotment" and a ghost Decline and an outline Join.
+  Invitations show here and nowhere else, never on Inbox.
+- **A Household's page** has a BackLink to Settings: a Members Card (an
+  outline `sm` "Invite" with `mail` for the owner; a CardRow per member
+  with an Avatar and "Owner" or "Member", the owner's "…" menu on the
+  others; a pending invitation with `mail`, "Invited Thu" and a ghost
+  Withdraw), then a Card with Rename and, for the owner, Delete (red). A
+  member's page has Leave instead. Invite is a small Dialog: "Google
+  email" and Invite.
+- **Food** (RCP-018, MPL-005): a titled Card: "New meals are for" with an
+  `sm` Select of Personal and my Households, then CardRows leading to
+  "Categories, cuisines and tags" and "Archived recipes" (with its count).
 - A Card of CardRows leads on: Recently deleted (with its count), then Sign
   out, which acts at once and so has no chevron.
 - **Google Calendar** ([GCL-001–006](../10-requirements/cross-cutting/integrations.md#google-calendar)):
@@ -343,6 +359,97 @@ DayColumn, PlanWeek, PlanDay, PlanToolbar, WeekStrip and AddToDay in
 - A phone has no Week / Day switch and no dragging: the WeekStrip chooses
   the day, and the Fab adds to it.
 
+## Recipes
+
+[RCP-001–018](../10-requirements/modules/recipes.md#requirements); the food
+components in [components](components.md), from RecipePhoto to
+StepEditor. Agreed with Joe on 18 October on the
+[Stage 4 design canvas](https://claude.ai/artifact/6GfJTp2G1BF6n573dqHxpy)
+(private to Joe), after three passes.
+
+- Recipes is green (TypeScope); so are its Dialogs and its Filters Sheet.
+  Tabs: **Recipes** and **Ideas**; the PageAction is "New recipe", a
+  DropdownMenu of New recipe, New idea and Import from a link.
+- **The library:** on a computer a 248px FilterPanel on the left (State and
+  Category open; Cuisine, Tags, Protein, Carbs, Created by — in a Household
+  only — and Favourites collapsed), and over the RecipeGrid a toolbar:
+  search, Sort and Group (`sm` Selects), S / M / L (a ToggleGroup) and a
+  ghost "Select" with `list-checks`. On a phone: search and an outline
+  "Filters" button (with a Badge counting what's chosen) on one line, Sort
+  and Group sharing the next; no S / M / L, cards two across; Filters open
+  in a right Sheet.
+- **Choosing several:** Select (a long press on a phone) puts a
+  SelectionBar in the toolbar's place, with Archive and Delete for Recipes
+  (Make drafts, Archive and Delete for Ideas); each card or row shows its
+  Checkbox; Undo follows in a toast.
+- **Ideas** are ItemRows, up to `max-w-3xl`: the Recipe's TypeTile, the
+  name, then source · when saved · the start of the note, muted; a "…" menu
+  (Make a draft, Import from its link, Archive, Delete). New idea is a
+  Dialog: Name, Links (any number, "Add a link"), Note, "Add a photo".
+- **Import** is a Dialog: Link, then its progress as three lines (done with
+  a filled check, the current one with a spinner, the next muted); it ends
+  on a Draft.
+- **A Recipe's page:** a BackLink to Recipes and the name as the title;
+  then the heading: the RecipePhoto (200px on a computer, full width on a
+  phone) beside "Variation" with a ghost Select of its Variations and its
+  state as an `outline` Badge, the RecipeFacts, a muted line of times,
+  servings and source (each with its 14px icon), "Cooked 6 times · last
+  Sat", then Start cooking (primary, `utensils`), Edit (outline), the heart
+  and a "…" menu (Compare variations, New variation, Edit heading,
+  Archive). A member's Recipe has "Add my variation" (outline, `copy`) for
+  Edit and "By Sam" first among its facts. Under it three Cards on a
+  computer — Ingredients (IngredientList), Method (MethodSteps), and Notes
+  over the Log (three LogEntries and a ghost "See all") — stacked on a
+  phone.
+- **Compare variations:** a BackLink to the Recipe, two `sm` Selects with
+  `git-compare-arrows` between, then a Card per Variation; lines that
+  differ are filled `--selected` with an `outline` "Differs" Badge.
+- **Editing a Variation:** a BackLink to the Recipe and "Edit variation";
+  a Card of fields in a row (Variation, State, Prep, Cook, Serves, each a
+  Label over a default-height field) ending in a primary Done; then
+  Ingredients (IngredientLineEditors and SubheadingEditors; ghost "Add an
+  ingredient", "Add a subheading"; a ghost "Fill from method" with
+  `sparkles` in its heading) beside Method (StepEditors, "Add a step"); then
+  "Notes and sources", a Textarea. **Edit heading** is a Dialog: the photo
+  (Change photo, Remove), Name, Category and Cuisine, then Tags, Protein
+  and Carbs as Badges with an "Add".
+- **Cooking:** a BackLink to the Recipe, "Cooking · Air fryer" (14px, the
+  Type's text colour) over the name, the ServingsStepper and a primary
+  Finish; then Ingredients beside Method (`cooking`), the method's numbers
+  marked "Not scaled" (an `outline` Badge) once the servings change. On a
+  phone it is one long page: the stepper in the Ingredients card's
+  heading, then the method. The screen stays awake. **Finish** opens a
+  Dialog, "How did it go?": a StarRating to set, a Textarea, then "Don't
+  log" (ghost) and Save.
+
+## Meal plan
+
+[MPL-001–005, PAN-001–004](../10-requirements/modules/meals.md#requirements);
+MealCard, MealSlot, AddMealButton, MealWeek, MealDay and PantryRow in
+[components](components.md). Agreed with the Recipes screens.
+
+- Green (TypeScope). Tabs: **Week** and **Pantry**; the PageAction is "New
+  shopping list" on the week, "New entry" on the Pantry.
+- **The week:** the PlanToolbar (no Day / Week), an `sm` Select of whose
+  Meals show ("All my meals", Personal, each Household) and a "…" menu
+  holding Copy week; then the MealWeek on a computer, MealDays down a
+  phone. Meals are dragged between slots on both, with Undo.
+- **Adding:** a slot's "+" opens a Popover (320px): an `sm` search, the
+  slot's category already chosen among LabelChips, "Planned lately" then
+  the rest, each a 40px line with the Recipe's small TypeTile, its name and
+  cuisine (and "· Sam") muted; a footer of ghost "Type a meal"
+  (`utensils`) and "Leftovers" (`rotate-ccw`).
+- **A Meal** opens in its ItemDialog: "Meal · Thu dinner", its Checkbox
+  (eaten) and name; an ItemRow for its Recipe ("Open recipe · Standard");
+  Servings and For (Personal or a Household) side by side; Leftovers, an
+  ItemRow per slot they fill.
+- **The Pantry:** search and a ToggleGroup of All, Staples and Out of
+  stock; then "Ingredients" (a SectionLabel) and a Card per aisle, in aisle
+  order (its name muted, 14px weight 600, then its PantryRows); then
+  household items apart. **New entry** is a Dialog: a ToggleGroup of
+  Ingredient and Household item, Name, Aisle (Cupboard to start) and
+  Default unit side by side, and a Switch "One of our staples".
+
 ## Forms
 
 - Label above, field below, 6px apart. No help text under fields, and no
@@ -411,6 +518,8 @@ sub-tasks `list-checks` with "2/5".
   AlertDialog actions stack, full width.
 - Row actions: the "…" menu is always visible; a Thought in Inbox can be
   swiped to make it a Task.
+- A long press starts choosing several where a computer has Select (the
+  library, Ideas).
 
 ## Dark and light
 
