@@ -1,6 +1,6 @@
 # ADR-0052: Food in the database
 
-**Status:** Proposed · 2026-10-18
+**Status:** Provisionally agreed · 2026-10-18
 
 ## Context
 

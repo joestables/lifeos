@@ -75,7 +75,7 @@ core.items     id (UUIDv7, made on the device), type, title, body, space_id,
                shopping.shopping_list(item_id, place)
 
 child rows     belong to one Item and are not Items themselves:
-               workout_sets, variation_ingredients, shopping_lines …
+               workout_sets, variation_lines, shopping lines …
 
 core.series    type, space, owner, the repeat rule (an RRULE), mode
                (schedule | after completion), starts_on, timezone, template
@@ -227,8 +227,8 @@ more than Labels).
 | Module | Detail tables (1:1 with an Item) | Child rows |
 |---|---|---|
 | core | — (Thought, Note, Task use `core.items` only; where an Event's place is kept is decided with Stage 3's schema) | `subtasks(item_id, title, done, position)` — a Task's sub-tasks |
-| shopping | `shopping_list(place)` | `shopping_lines(text, ingredient_id?, qty, unit, section, checked, position, for_item_id?, generated, touched_at)` |
-| food | `recipe(photo, category, cuisine, default_variation)`, `variation(name, servings, prep_min, cook_min, sources, notes)`, `meal(servings, leftovers_of?, typed_title?)` | `variation_ingredients(ingredient_id?, text?, qty, qty_max?, approx, unit, heading?, position)`, `variation_steps`, `cook_log(person, cooked_on, verdict, notes, servings, snapshot)`; the Recipe's tags, protein and carbs; reference data: categories, cuisines, tags, protein, carbs; the Pantry `pantry(name, kind: ingredient · household, aisle, default_unit, added_by)` and each Household's `staples(entry, out_of_stock)` (all subject to the Stage 4 specs) |
+| shopping | `shopping_list(place)` | `lines(text, pantry_id?, qty, unit, heading?, checked, position, for_item_id?, generated, touched_at)` — readable through any Meal a line is for ([ADR-0052](adr/0052-food-in-the-database.md)) |
+| food | `recipe(photo, category, cuisine, default_variation)`, `variation(name, servings, prep_min, cook_min, sources, notes)`, `meal(servings, leftovers_of?, typed_title?)` | `variation_lines(pantry_id?, text?, qty, qty_max?, approx, unit, heading?, position)`, `variation_steps`, `cooks(person, cooked_on, verdict, notes, servings, snapshot)`; the Recipe's tags, protein and carbs; each person's `values` (categories, cuisines, tags, protein, carbs); not Items: the Pantry `pantry(name, kind: ingredient · household, aisle, default_unit, added_by)` and each Space's `staples(entry, out_of_stock)` ([ADR-0052](adr/0052-food-in-the-database.md)) |
 | fitness | `exercise(muscle_groups, equipment, increment, target)`, `workout(actual_start, duration, readiness, stage)`, `cardio_activity(kind, distance_m, duration_s, avg_hr)` | `template_exercises(exercise_id, sets, reps, target)`, `workout_entries(exercise_id, snapshot)`, `workout_sets(entry_id, set_no, reps, weight, rpe)`; reference data: muscle groups, equipment, recovery settings per person |
 | goals | `goal(kind, measure_key, params, target, unit, period, start_on, deadline)` | — |
 | wardrobe | `garment(category, brand, colour, size, fit, photo, url, price)`, `outfit(photo)` | `outfit_worn_garments` (the snapshot); reference data: category, brand, colour, size, fit |

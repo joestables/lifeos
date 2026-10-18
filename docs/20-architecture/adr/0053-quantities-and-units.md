@@ -1,6 +1,6 @@
 # ADR-0053: Quantities and units
 
-**Status:** Proposed · 2026-10-18
+**Status:** Provisionally agreed · 2026-10-18
 
 ## Context
 

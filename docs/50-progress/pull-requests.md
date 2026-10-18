@@ -77,8 +77,12 @@ Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-17
   paid model, rewritten at Joe's word), ADR-0055 (sharing into LifeOS), ADR-0056 (Cooking on the
   device), with the facts they rest on re-checked.
 
+- Joe agreed ADR-0052, 0053, 0055 and 0056; ADR-0030, 0036 and 0044
+  amended to match; the data model's food rows follow. ADR-0054: the AI
+  is given the Pantry and judges each line's match or a new entry (Joe).
+
 **Left for later**
-- Joe's agreement to step 2's ADRs; Joe's further rounds on the specs; then the
+- Joe's agreement to ADR-0054; Joe's further rounds on the specs; then the
   capture, Inbox, items, Search and Plan changes that step 1 also covers.
 
 ## [#14](https://github.com/joestables/lifeos/pull/14) — CI: fewer GitHub Actions minutes

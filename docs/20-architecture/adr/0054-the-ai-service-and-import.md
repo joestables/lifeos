@@ -35,11 +35,15 @@ served well.
   code when built, Joe to say where), metric, imperial converted.
 - **Only what's needed is sent.** On the free tier, Google may use what is
   sent to improve its products, and people may read it. So `ai` sends a
-  public page or video and the Pantry's names, and never anyone's Items or
-  personal details.
-- **Matching to the Pantry happens after the model**, in code: each line's
-  name is matched by normalised name; the rest are marked new, in
-  Cupboard.
+  public page or video and the Pantry's entries (shared by everyone, so
+  nothing personal), and never anyone's Items or personal details.
+- **The AI matches lines to the Pantry** (Joe, 18 October): each task is
+  given the Pantry's entries, names and ids, and judges for each line
+  whether an existing entry is meant ("spring onions" for *Scallions*) or a
+  new one should be suggested. Code then checks every id it returns
+  exists; a suggested new entry starts in Cupboard. Nothing is added to the
+  Pantry until I keep the Draft, and on checking it I can change any
+  match.
 - **Nothing is saved by the AI.** The Draft goes back to the device to
   check; keeping it is one database function that writes the Recipe, its
   Variation, lines, steps and new Pantry entries together

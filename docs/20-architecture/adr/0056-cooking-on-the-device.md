@@ -1,6 +1,6 @@
 # ADR-0056: Cooking on the device
 
-**Status:** Proposed · 2026-10-18
+**Status:** Provisionally agreed · 2026-10-18
 
 ## Context
 
