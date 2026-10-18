@@ -166,7 +166,7 @@ Consequences**, to a page.
 | [0051](20-architecture/adr/0051-who-sees-food.md) | Who sees and edits Recipes, the Pantry, Meals and shopping lists | Provisionally agreed |
 | [0052](20-architecture/adr/0052-food-in-the-database.md) | Food in the database | Provisionally agreed |
 | [0053](20-architecture/adr/0053-quantities-and-units.md) | Quantities and units | Provisionally agreed |
-| [0054](20-architecture/adr/0054-the-ai-service-and-import.md) | The AI service and recipe import, on Gemini's free tier | Proposed |
+| [0054](20-architecture/adr/0054-the-ai-service-and-import.md) | The AI service and recipe import, on Gemini's free tier | Provisionally agreed |
 | [0055](20-architecture/adr/0055-sharing-into-lifeos.md) | Sharing into LifeOS from another app | Provisionally agreed |
 | [0056](20-architecture/adr/0056-cooking-on-the-device.md) | Cooking on the device | Provisionally agreed |
 

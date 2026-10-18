@@ -1,6 +1,6 @@
 import { Toggle as TogglePrimitive } from '@base-ui/react/toggle'
 import { ToggleGroup as ToggleGroupPrimitive } from '@base-ui/react/toggle-group'
-import { CheckIcon, TagIcon } from 'lucide-react'
+import { CheckIcon, TagIcon, type LucideIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 /**
@@ -14,6 +14,7 @@ export function LabelChips({
   chosen,
   onChange,
   'aria-label': ariaLabel = 'Filter by label',
+  icon: Icon = TagIcon,
   className,
 }: {
   /** Mine, A to Z. */
@@ -21,6 +22,8 @@ export function LabelChips({
   chosen: ReadonlySet<string>
   onChange: (chosen: string[]) => void
   'aria-label'?: string
+  /** The icon an unchosen chip shows; null for none (a Recipe's filters). */
+  icon?: LucideIcon | null
   className?: string
 }) {
   return (
@@ -43,7 +46,7 @@ export function LabelChips({
             value={l.id}
             className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-full px-3 text-sm font-semibold whitespace-nowrap text-muted-foreground shadow-[inset_0_0_0_1px_var(--border)] transition-colors outline-none not-data-pressed:hover:bg-accent not-data-pressed:hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring-soft data-pressed:bg-selected data-pressed:text-selected-foreground data-pressed:shadow-none [&_svg]:size-3.5"
           >
-            {on ? <CheckIcon aria-hidden className="stroke-3" /> : <TagIcon aria-hidden />}
+            {on ? <CheckIcon aria-hidden className="stroke-3" /> : Icon && <Icon aria-hidden />}
             {l.name}
           </TogglePrimitive>
         )

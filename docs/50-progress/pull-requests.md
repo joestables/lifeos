@@ -81,8 +81,16 @@ Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-17
   amended to match; the data model's food rows follow. ADR-0054: the AI
   is given the Pantry and judges each line's match or a new entry (Joe).
 
+- Joe agreed ADR-0054 (Gemini's free tier, the AI matching lines to the
+  Pantry). Step 3's first design pass: Stage 4's screens drawn from the real
+  components on `/design-stage-4`, on a [design canvas](https://claude.ai/artifact/6GfJTp2G1BF6n573dqHxpy)
+  for Joe, with the food components drafted in `@/components/lifeos`
+  (recipe cards and grid, ingredient list, method steps, timers, the log,
+  meal cards and the aligned week); `scripts/design-shots.mjs` takes any
+  stage's design page.
+
 **Left for later**
-- Joe's agreement to ADR-0054; Joe's further rounds on the specs; then the
+- Joe's comments on the first design pass, then the design spec; Joe's further rounds on the specs; then the
   capture, Inbox, items, Search and Plan changes that step 1 also covers.
 
 ## [#14](https://github.com/joestables/lifeos/pull/14) — CI: fewer GitHub Actions minutes

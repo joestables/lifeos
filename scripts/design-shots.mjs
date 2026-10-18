@@ -1,9 +1,12 @@
-// Screenshots of the Stage 3 design page (/design-stage-3), dark and light, for the
-// design canvas (plan step 3). Usage, with the dev server running:
+// Screenshots of a stage's design page (/design-stage-3, /design-stage-4), dark and
+// light, for the design canvas (each stage's plan, step 3). Usage, with the dev
+// server running:
 //   node scripts/design-shots.mjs http://localhost:5173 <out dir> week day m:m-day …
-// "m:" takes a screen at phone width.
+// "m:" takes a screen at phone width; DESIGN_PAGE=design-stage-4 picks the page
+// (design-stage-3 by default).
 import { chromium } from '@playwright/test'
 const [base, out, ...screens] = process.argv.slice(2)
+const designPage = process.env.DESIGN_PAGE ?? 'design-stage-3'
 const browser = await chromium.launch({
   args: ['--lang=en-GB'],
   env: { ...process.env, LANG: 'en_GB.UTF-8', LANGUAGE: 'en_GB' },
@@ -21,7 +24,7 @@ for (const entry of screens) {
     const errors = []
     page.on('pageerror', (e) => errors.push(e.message))
     page.on('console', (m) => m.type() === 'error' && errors.push(m.text()))
-    await page.goto(`${base}/design-stage-3?screen=${screen}`, { waitUntil: 'networkidle' })
+    await page.goto(`${base}/${designPage}?screen=${screen}`, { waitUntil: 'networkidle' })
     await page.evaluate(() => document.fonts.ready)
     await page.mouse.move(1, 1)
     await page.waitForTimeout(600)

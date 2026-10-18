@@ -44,7 +44,8 @@ export function PlanToolbar({
   day?: string
   onChooseDay?: (day: string) => void
   layout: 'week' | 'day'
-  onLayout: (layout: 'week' | 'day') => void
+  /** Without it there is no Day / Week switch (the Meal plan is always a week). */
+  onLayout?: (layout: 'week' | 'day') => void
   onToday: () => void
   onPrevious: () => void
   onNext: () => void
@@ -86,15 +87,17 @@ export function PlanToolbar({
         </Button>
         <Arrow label={`Next ${step}`} onClick={onNext} next />
       </div>
-      <ToggleGroup
-        aria-label="Layout"
-        className="hidden md:inline-flex"
-        value={[layout]}
-        onValueChange={(v) => v[0] && onLayout(v[0] as 'week' | 'day')}
-      >
-        <ToggleGroupItem value="day">Day</ToggleGroupItem>
-        <ToggleGroupItem value="week">Week</ToggleGroupItem>
-      </ToggleGroup>
+      {onLayout && (
+        <ToggleGroup
+          aria-label="Layout"
+          className="hidden md:inline-flex"
+          value={[layout]}
+          onValueChange={(v) => v[0] && onLayout(v[0] as 'week' | 'day')}
+        >
+          <ToggleGroupItem value="day">Day</ToggleGroupItem>
+          <ToggleGroupItem value="week">Week</ToggleGroupItem>
+        </ToggleGroup>
+      )}
       {action}
     </div>
   )

@@ -1,8 +1,11 @@
 import {
   CalendarIcon,
+  ChefHatIcon,
   FileTextIcon,
   LightbulbIcon,
+  ShoppingCartIcon,
   SquareCheckBigIcon,
+  UtensilsIcon,
   type LucideIcon,
 } from 'lucide-react'
 
@@ -19,4 +22,8 @@ export const TYPE_ICONS: Record<string, LucideIcon> = {
   note: FileTextIcon,
   task: SquareCheckBigIcon,
   event: CalendarIcon,
+  recipe: ChefHatIcon,
+  variation: ChefHatIcon,
+  meal: UtensilsIcon,
+  shopping_list: ShoppingCartIcon,
 }
