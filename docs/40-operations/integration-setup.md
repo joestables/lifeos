@@ -7,7 +7,7 @@
 | Where | Setting | State |
 |---|---|---|
 | Supabase → Project Settings → Data API → Exposed schemas | Add `core`, so the app can read its tables and call its write functions (`core_private` stays hidden) | Done (Joe), 10 October |
-| Supabase → Project Settings → Data API → Exposed schemas | Add `food` (Stage 4), for the same reason (`food_private` stays hidden); needed before the Recipes page reads its data (plan step 5) | **Joe** — to do |
+| Supabase → Project Settings → Data API → Exposed schemas | Add `food` (Stage 4), for the same reason (`food_private` stays hidden); needed before the Recipes page reads its data (plan step 5) | Done (Joe), 19 October |
 
 The local and CI databases expose it through `supabase/config.toml`.
 

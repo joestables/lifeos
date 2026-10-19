@@ -121,7 +121,7 @@ Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-17
   re-run.
 
 **Left for later**
-- Step 5 onwards (Joe exposes `food` in the Data API first); Joe's further rounds on the
+- Step 5 onwards (`food` is exposed in the Data API); Joe's further rounds on the
   specs; then the capture, Inbox, items, Search and Plan changes that step 1
   also covers.
 
