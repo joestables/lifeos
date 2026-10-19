@@ -369,7 +369,13 @@ StepEditor. Agreed with Joe on 18 October on the
 
 - Recipes is green (TypeScope); so are its Dialogs and its Filters Sheet.
   Tabs: **Recipes** and **Ideas**; the PageAction is "New recipe", a
-  DropdownMenu of New recipe, New idea and Import from a link.
+  DropdownMenu of New recipe, New idea and Import from a link (Import shows
+  once the AI service is there, plan step 8); on Ideas it is "New idea".
+  On a phone the Fab is New recipe, or New idea on Ideas. **New recipe** is
+  the Edit heading Dialog titled "New recipe", with Cancel and Save; Save
+  makes a Draft and opens its Variation to fill, and Done there shows the
+  new Recipe. A name a Recipe I can see has is refused under the field.
+  The library's filters, sort, group and card size are kept on the device.
 - **The library:** on a computer a 248px FilterPanel on the left (State and
   Category open; Cuisine, Tags, Protein, Carbs, Created by — in a Household
   only — and Favourites collapsed), and over the RecipeGrid a toolbar:
@@ -378,14 +384,15 @@ StepEditor. Agreed with Joe on 18 October on the
   "Filters" button (with a Badge counting what's chosen) on one line, Sort
   and Group sharing the next; no S / M / L, cards two across; Filters open
   in a right Sheet.
-- **Choosing several:** Select (a long press on a phone) puts a
+- **Choosing several:** Select (a long press on a card or row on a phone) puts a
   SelectionBar in the toolbar's place, with Archive and Delete for Recipes
   (Make drafts, Archive and Delete for Ideas); each card or row shows its
   Checkbox; Undo follows in a toast.
 - **Ideas** are ItemRows, up to `max-w-3xl`: the Recipe's TypeTile, the
   name, then source · when saved · the start of the note, muted; a "…" menu
-  (Make a draft, Import from its link, Archive, Delete). New idea is a
-  Dialog: Name, Links (any number, "Add a link"), Note, "Add a photo".
+  (Make it a draft, Archive, Delete; Import from its link with Import). New
+  idea is a Dialog: Name, Links (any number, "Add a link"), Note, "Add a
+  photo"; then Cancel and Save.
 - **Import** is a Dialog: Link, then its progress as three lines (done with
   a filled check, the current one with a spinner, the next muted); it ends
   on a Draft.
@@ -397,10 +404,18 @@ StepEditor. Agreed with Joe on 18 October on the
   Sat", then Start cooking (primary, `utensils`), Edit (outline), the heart
   and a "…" menu (Compare variations, New variation, Edit heading,
   Archive). A member's Recipe has "Add my variation" (outline, `copy`) for
-  Edit and "By Sam" first among its facts. Under it three Cards on a
+  Edit and "By Sam" first among its facts. The "…" menu as drawn: Edit
+  heading, Duplicate this variation, Compare variations (two or more), Log
+  a cook, Make it the default, then Archive and Delete variation (not the
+  last); a member's Recipe: Log a cook and Compare variations. An Idea has
+  "Make it a draft" (primary, `pencil`) in place of Start cooking and
+  Edit. Duplicate and Add my variation ask the copy's name in a small
+  Dialog, then open it to edit. Under it three Cards on a
   computer — Ingredients (IngredientList), Method (MethodSteps), and Notes
   over the Log (three LogEntries and a ghost "See all") — stacked on a
-  phone.
+  phone. "See all" opens a Dialog of the whole log with an `sm` Select of
+  Everything, Cooks or one Variation; a cook's "What I cooked" opens its
+  snapshot in a Dialog.
 - **Compare variations:** a BackLink to the Recipe, two `sm` Selects with
   `git-compare-arrows` between, then a Card per Variation; lines that
   differ are filled `--selected` with an `outline` "Differs" Badge.
@@ -409,10 +424,15 @@ StepEditor. Agreed with Joe on 18 October on the
   Label over a default-height field) ending in a primary Done; then
   Ingredients (IngredientLineEditors and SubheadingEditors; ghost "Add an
   ingredient", "Add a subheading"; a ghost "Fill from method" with
-  `sparkles` in its heading) beside Method (StepEditors, "Add a step"); then
-  "Notes and sources", a Textarea. **Edit heading** is a Dialog: the photo
-  (Change photo, Remove), Name, Category and Cuisine, then Tags, Protein
-  and Carbs as Badges with an "Add".
+  `sparkles` in its heading, once the AI service is there, plan step 8)
+  beside Method (StepEditors, "Add a step"); then "Notes and sources", a
+  Textarea and the links, each an Input, with "Add a link". Everything is
+  kept as it is left; there is nothing to save. Lines and steps reorder by
+  their handle or Alt+↑ / Alt+↓ on a computer. **Edit heading** is a Dialog: the photo
+  (Change photo, Remove), Name, Category and Cuisine (each a LabelPicker of
+  my list, opened from an outline Button showing the value), then Tags,
+  Protein and Carbs as Badges, each with an X, and an "Add" LabelPicker; a
+  new name is added to my list. Done keeps it.
 - **Cooking:** a BackLink to the Recipe, "Cooking · Air fryer" (14px, the
   Type's text colour) over the name, the ServingsStepper and a primary
   Finish; then Ingredients beside Method (`cooking`), the method's numbers
@@ -420,7 +440,8 @@ StepEditor. Agreed with Joe on 18 October on the
   phone it is one long page: the stepper in the Ingredients card's
   heading, then the method. The screen stays awake. **Finish** opens a
   Dialog, "How did it go?": a StarRating to set, a Textarea, then "Don't
-  log" (ghost) and Save.
+  log" (ghost) and Save. **Log a cook** is the same Dialog with "Cooked
+  on" (a DateField) first, and Cancel for "Don't log".
 
 ## Meal plan
 

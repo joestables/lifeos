@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Toggle } from '@/components/ui/toggle'
+import { useLongPress } from '@/hooks/use-long-press'
 import { cn } from '@/lib/utils'
 
 /**
@@ -53,6 +54,7 @@ export function RecipeCard({
   onOpen,
   onFavourite,
   onSelect,
+  onLongPress,
 }: {
   name: string
   photo?: string
@@ -67,9 +69,13 @@ export function RecipeCard({
   onOpen?: () => void
   onFavourite?: (on: boolean) => void
   onSelect?: (on: boolean) => void
+  /** A long press by touch: starts choosing several (RCP-004). */
+  onLongPress?: () => void
 }) {
+  const longPress = useLongPress(onLongPress)
   return (
     <div
+      {...longPress}
       data-slot="recipe-card"
       data-selected={selected || undefined}
       className="group/card relative flex min-w-0 flex-col overflow-hidden rounded-lg bg-card shadow-card data-selected:ring-2 data-selected:ring-ring"

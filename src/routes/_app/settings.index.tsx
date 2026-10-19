@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
-import { LogOutIcon, TagIcon, Trash2Icon } from 'lucide-react'
+import { ArchiveIcon, LogOutIcon, TagIcon, Trash2Icon } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { CardRow, PageHeader } from '@/components/lifeos'
 import {
@@ -12,12 +12,20 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { Card } from '@/components/ui/card'
+import { Card, CardTitle } from '@/components/ui/card'
 import { GoogleCalendarCard } from '@/app/google-calendar'
 import { LabelsCard } from '@/app/labels'
 import { toast } from '@/components/ui/sonner'
 import { NotificationsCard, RemindersCard } from '@/app/notification-settings'
-import { calendarAction, queue, signOut, unsentWrites, useDeletedItems, useLabels } from '@/data'
+import {
+  calendarAction,
+  queue,
+  signOut,
+  unsentWrites,
+  useDeletedItems,
+  useFood,
+  useLabels,
+} from '@/data'
 
 /**
  * Settings: notifications and Reminders, Google Calendar, Labels, Recently
@@ -78,6 +86,7 @@ function Settings() {
         <div className="hidden md:block">
           <LabelsCard />
         </div>
+        <FoodCard />
         <Card className="gap-0 px-2 py-1.5">
           <CardRow
             className="md:hidden"
@@ -120,5 +129,24 @@ function Settings() {
         </AlertDialogContent>
       </AlertDialog>
     </>
+  )
+}
+
+/** Food (RCP-018): Archived recipes for now; the lists and new meals' Space come later. */
+function FoodCard() {
+  const food = useFood(queue)
+  const archived = food.recipes.filter((r) => r.mine && r.state === 'cancelled').length
+  return (
+    <Card className="gap-0 px-2 py-1.5">
+      <div className="px-3 pt-2 pb-1">
+        <CardTitle>Food</CardTitle>
+      </div>
+      <CardRow
+        icon={<ArchiveIcon />}
+        label="Archived recipes"
+        value={archived}
+        render={<Link to="/settings/archived-recipes" />}
+      />
+    </Card>
   )
 }

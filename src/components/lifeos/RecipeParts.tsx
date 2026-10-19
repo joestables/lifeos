@@ -10,10 +10,11 @@ import {
   TimerIcon,
   XIcon,
 } from 'lucide-react'
-import type { ReactNode } from 'react'
+import type { KeyboardEvent, ReactNode } from 'react'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import {
   Select,
@@ -22,6 +23,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import type { Reorder } from '@/hooks/use-reorder'
+import { LINE_UNITS } from './recipe-fields'
 import { cn } from '@/lib/utils'
 
 /** A line of a Recipe's ingredients: its amount and unit, then the ingredient. */
@@ -76,20 +79,29 @@ export function IngredientList({
   )
 }
 
-/** A step's text, with any "@" references to other Recipes as buttons. */
-export type StepPart = string | { recipe: string }
+/** Text with "@" references to other Recipes: each a reference the Recipe opens from. */
+export type StepPart = string | { recipe: string; id?: string | null }
 
-function StepText({ parts, onRecipe }: { parts: StepPart[]; onRecipe?: (name: string) => void }) {
+/** A step's or the notes' text, with any "@" references to other Recipes as buttons. */
+export function RecipeText({
+  parts,
+  onRecipe,
+}: {
+  parts: StepPart[]
+  onRecipe?: (reference: { recipe: string; id?: string | null }) => void
+}) {
   return (
     <>
       {parts.map((p, i) =>
         typeof p === 'string' ? (
-          <span key={i}>{p}</span>
+          <span key={i} className="whitespace-pre-wrap">
+            {p}
+          </span>
         ) : (
           <button
             key={i}
             type="button"
-            onClick={() => onRecipe?.(p.recipe)}
+            onClick={() => onRecipe?.(p)}
             className="mx-0.5 inline-flex h-6 translate-y-[-1px] items-center gap-1 rounded-sm bg-selected px-1.5 align-middle text-sm font-semibold text-selected-foreground outline-none hover:brightness-110 focus-visible:ring-3 focus-visible:ring-ring-soft [&_svg]:size-3.5"
           >
             <ChefHatIcon aria-hidden />
@@ -112,18 +124,26 @@ export function MethodSteps({
   done = [],
   current,
   onRecipe,
+  onStep,
 }: {
   steps: { key: string; parts: StepPart[]; timer?: ReactNode }[]
   cooking?: boolean
   done?: string[]
   /** In Cooking: the step I'm on. */
   current?: string
-  onRecipe?: (name: string) => void
+  onRecipe?: (reference: { recipe: string; id?: string | null }) => void
+  /** In Cooking: choosing the step I'm on, by its number. */
+  onStep?: (key: string) => void
 }) {
   return (
     <ol className={cn('flex flex-col', cooking ? 'gap-2' : 'gap-4')}>
       {steps.map((s, i) => {
         const isDone = done.includes(s.key)
+        const number = cn(
+          'grid size-6 shrink-0 place-items-center rounded-full bg-muted text-xs font-bold tabular-nums',
+          cooking && 'mt-0.5 size-7 text-sm',
+          isDone && 'bg-selected text-selected-foreground',
+        )
         return (
           <li
             key={s.key}
@@ -133,15 +153,22 @@ export function MethodSteps({
               cooking && s.key === current && 'bg-accent',
             )}
           >
-            <span
-              className={cn(
-                'grid size-6 shrink-0 place-items-center rounded-full bg-muted text-xs font-bold tabular-nums',
-                cooking && 'mt-0.5 size-7 text-sm',
-                isDone && 'bg-selected text-selected-foreground',
-              )}
-            >
-              {i + 1}
-            </span>
+            {onStep ? (
+              <button
+                type="button"
+                aria-label={`I'm on step ${i + 1}`}
+                aria-current={s.key === current ? 'step' : undefined}
+                onClick={() => onStep(s.key)}
+                className={cn(
+                  number,
+                  'outline-none focus-visible:ring-3 focus-visible:ring-ring-soft',
+                )}
+              >
+                {i + 1}
+              </button>
+            ) : (
+              <span className={number}>{i + 1}</span>
+            )}
             <div className="flex min-w-0 flex-1 flex-col gap-2">
               <p
                 className={cn(
@@ -150,7 +177,7 @@ export function MethodSteps({
                   isDone && 'text-muted-foreground',
                 )}
               >
-                <StepText parts={s.parts} onRecipe={onRecipe} />
+                <RecipeText parts={s.parts} onRecipe={onRecipe} />
               </p>
               {s.timer}
             </div>
@@ -161,18 +188,71 @@ export function MethodSteps({
   )
 }
 
-/** A step being edited: its number, its text, a handle to reorder it. */
-export function StepEditor({ n, text }: { n: number; text: ReactNode }) {
+/** A row's grip: drags it to its place (useReorder); none on a phone. */
+function Handle({ reorder, className }: { reorder?: Reorder; className?: string }) {
   return (
-    <div className="group/step flex items-start gap-2">
-      <GripVerticalIcon
-        aria-hidden
-        className="mt-2.5 size-4 shrink-0 cursor-grab text-muted-foreground opacity-0 group-hover/step:opacity-100"
-      />
+    <span
+      {...reorder?.handle}
+      aria-hidden
+      className={cn(
+        'shrink-0 cursor-grab touch-none text-muted-foreground opacity-0 max-sm:hidden [&_svg]:size-4',
+        className,
+      )}
+    >
+      <GripVerticalIcon />
+    </span>
+  )
+}
+
+const rowState = (reorder?: Reorder) => ({
+  'data-reorder-id': reorder?.id,
+  'data-reorder': reorder?.state,
+})
+
+const ROW =
+  'rounded-control data-[reorder=dragging]:opacity-50 data-[reorder=over]:ring-2 data-[reorder=over]:ring-ring'
+
+/**
+ * A step being edited: a handle to reorder it, its number, its text in an
+ * `--input` box, and Remove. `field` replaces the box when it carries the
+ * "@" suggestions (a Popover's trigger).
+ */
+export function StepEditor({
+  n,
+  text,
+  field,
+  reorder,
+  onRemove,
+}: {
+  n: number
+  /** The text, to show (the design page). */
+  text?: ReactNode
+  field?: ReactNode
+  reorder?: Reorder
+  onRemove?: () => void
+}) {
+  return (
+    <div {...rowState(reorder)} className={cn('group/step flex items-start gap-2', ROW)}>
+      <Handle reorder={reorder} className="mt-2.5 group-hover/step:opacity-100" />
       <span className="mt-2 grid size-6 shrink-0 place-items-center rounded-full bg-muted text-xs font-bold tabular-nums">
         {n}
       </span>
-      <div className="min-w-0 flex-1 rounded-control bg-input px-3 py-2 leading-[1.6]">{text}</div>
+      {field ?? (
+        <div className="min-w-0 flex-1 rounded-control bg-input px-3 py-2 leading-[1.6]">
+          {text}
+        </div>
+      )}
+      {onRemove && (
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          aria-label={`Remove step ${n}`}
+          onClick={onRemove}
+          className="mt-1 shrink-0 group-hover/step:opacity-100 focus-visible:opacity-100 sm:opacity-0"
+        >
+          <XIcon />
+        </Button>
+      )}
     </div>
   )
 }
@@ -187,6 +267,8 @@ export function TimerChip({
   state = 'offered',
   onStart,
   onStop,
+  onPause,
+  onResume,
 }: {
   /** "Simmer" */
   label?: string
@@ -195,6 +277,8 @@ export function TimerChip({
   state?: 'offered' | 'running' | 'paused' | 'done'
   onStart?: () => void
   onStop?: () => void
+  onPause?: () => void
+  onResume?: () => void
 }) {
   if (state === 'offered')
     return (
@@ -217,6 +301,8 @@ export function TimerChip({
         size="icon-sm"
         className="size-7 rounded-full text-current hover:bg-foreground/10"
         aria-label={state === 'running' ? 'Pause' : 'Resume'}
+        disabled={state === 'done'}
+        onClick={state === 'running' ? onPause : onResume}
       >
         {state === 'running' ? <PauseIcon /> : <PlayIcon />}
       </Button>
@@ -234,16 +320,36 @@ export function TimerChip({
 }
 
 /** Servings in Cooking: − 4 +, scaling the ingredients. */
-export function ServingsStepper({ value }: { value: number }) {
+export function ServingsStepper({
+  value,
+  onChange,
+}: {
+  value: number
+  onChange?: (value: number) => void
+}) {
   return (
     <div className="inline-flex h-10 items-center gap-1 rounded-control bg-muted p-1">
-      <Button variant="ghost" size="icon-sm" aria-label="Fewer servings">
+      <Button
+        variant="ghost"
+        size="icon-sm"
+        aria-label="Fewer servings"
+        disabled={value <= 1}
+        onClick={() => onChange?.(value - 1)}
+      >
         <MinusIcon />
       </Button>
-      <span className="min-w-[88px] text-center text-sm font-semibold tabular-nums">
+      <span
+        className="min-w-[88px] text-center text-sm font-semibold tabular-nums"
+        aria-live="polite"
+      >
         Serves {value}
       </span>
-      <Button variant="ghost" size="icon-sm" aria-label="More servings">
+      <Button
+        variant="ghost"
+        size="icon-sm"
+        aria-label="More servings"
+        onClick={() => onChange?.(value + 1)}
+      >
         <PlusIcon />
       </Button>
     </div>
@@ -296,20 +402,80 @@ export function LogEntry({
   )
 }
 
+/** A Card of a Recipe's page: its heading (`text-h2`) and an action at its end. */
+export function RecipePanel({
+  title,
+  action,
+  children,
+}: {
+  title: string
+  action?: ReactNode
+  children: ReactNode
+}) {
+  return (
+    <Card className="gap-4">
+      <div className="flex min-h-8 items-center justify-between gap-2">
+        <h2 className="text-h2">{title}</h2>
+        {action}
+      </div>
+      {children}
+    </Card>
+  )
+}
+
+/**
+ * A Recipe's Cards side by side on a computer, stacked on a phone: to read
+ * (ingredients, a wider method, notes and log), Cooking (ingredients, a
+ * wider method) and editing (ingredients a little wider than the method).
+ */
+export function RecipeColumns({
+  layout,
+  children,
+}: {
+  layout: 'read' | 'cooking' | 'editing'
+  children: ReactNode
+}) {
+  return (
+    <div
+      className={cn(
+        'grid items-start gap-4',
+        layout === 'read' && 'lg:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)_minmax(0,1fr)]',
+        layout === 'cooking' && 'lg:grid-cols-[minmax(0,1fr)_minmax(0,1.7fr)]',
+        layout === 'editing' && 'lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]',
+      )}
+    >
+      {children}
+    </div>
+  )
+}
+
+/**
+ * A Variation's own fields being edited, in one Card: in a row on a
+ * computer (the name widest, then four, then Done), stacked on a phone.
+ */
+export function VariationFieldsCard({ children }: { children: ReactNode }) {
+  return (
+    <Card className="grid items-end gap-4 sm:grid-cols-[minmax(0,1.4fr)_repeat(4,minmax(0,1fr))_auto]">
+      {children}
+    </Card>
+  )
+}
+
 /** A fact about a Recipe in its heading: category, cuisine, a tag. */
 export function RecipeFact({ children }: { children: ReactNode }) {
   return <Badge variant="secondary">{children}</Badge>
 }
 
-/** The units a line may have (ADR-0053): none for a count or an unmeasured line. */
-const UNITS = ['', 'g', 'kg', 'ml', 'l', 'tsp', 'tbsp'] as const
+const UNITS = LINE_UNITS
 
 /**
  * An ingredient line being edited (RCP-007): a handle to reorder it, then
  * separate boxes for the amount, the unit and the ingredient (Joe, 18
  * October), then whether the ingredient is in the Pantry, and Remove. The
  * ingredient box suggests Pantry entries as I type. On a phone the
- * ingredient takes a line of its own, under the amount and unit.
+ * ingredient takes a line of its own, under the amount and unit. Given
+ * handlers, each box is kept as typed; without, it only shows (the design
+ * page).
  */
 export function IngredientLineEditor({
   amount,
@@ -317,6 +483,12 @@ export function IngredientLineEditor({
   ingredient,
   status = 'pantry',
   ingredientField,
+  reorder,
+  onAmount,
+  onAmountDone,
+  onUnit,
+  onRemove,
+  onKeyDown,
 }: {
   amount?: string
   unit?: (typeof UNITS)[number]
@@ -325,21 +497,40 @@ export function IngredientLineEditor({
   status?: 'pantry' | 'typed' | 'typing'
   /** The ingredient box, when it carries its suggestions (a Popover's trigger). */
   ingredientField?: ReactNode
+  reorder?: Reorder
+  onAmount?: (amount: string) => void
+  /** Leaving the amount: it is read and kept. */
+  onAmountDone?: () => void
+  onUnit?: (unit: (typeof UNITS)[number]) => void
+  onRemove?: () => void
+  /** On any of its boxes: Alt+↑ / Alt+↓ move the line. */
+  onKeyDown?: (e: KeyboardEvent) => void
 }) {
   return (
-    <div className="group/line flex flex-wrap items-center gap-2 sm:flex-nowrap">
-      <GripVerticalIcon
-        aria-hidden
-        className="size-4 shrink-0 cursor-grab text-muted-foreground opacity-0 group-hover/line:opacity-100 max-sm:hidden"
-      />
+    <div
+      {...rowState(reorder)}
+      onKeyDown={onKeyDown}
+      className={cn('group/line flex flex-wrap items-center gap-2 sm:flex-nowrap', ROW)}
+    >
+      <Handle reorder={reorder} className="group-hover/line:opacity-100" />
       <Input
         aria-label="Amount"
-        defaultValue={amount}
+        {...(onAmount
+          ? { value: amount ?? '', onChange: (e) => onAmount(e.target.value), onBlur: onAmountDone }
+          : { defaultValue: amount })}
         inputMode="decimal"
+        autoComplete="off"
         placeholder="—"
         className="w-[72px] shrink-0 text-right tabular-nums"
       />
-      <Select defaultValue={unit ?? ''}>
+      <Select
+        {...(onUnit
+          ? {
+              value: unit ?? '',
+              onValueChange: (v: string | null) => onUnit((v ?? '') as (typeof UNITS)[number]),
+            }
+          : { defaultValue: unit ?? '' })}
+      >
         <SelectTrigger aria-label="Unit" className="w-24 shrink-0">
           <SelectValue>
             {(v: string) => v || <span className="text-muted-foreground">—</span>}
@@ -373,7 +564,8 @@ export function IngredientLineEditor({
       <Button
         variant="ghost"
         size="icon-sm"
-        aria-label="Remove"
+        aria-label={ingredient ? `Remove ${ingredient}` : 'Remove'}
+        onClick={onRemove}
         className="shrink-0 group-hover/line:opacity-100 focus-visible:opacity-100 sm:opacity-0"
       >
         <XIcon />
@@ -383,18 +575,41 @@ export function IngredientLineEditor({
 }
 
 /** A subheading among the lines being edited ("For the sauce"). */
-export function SubheadingEditor({ value }: { value: string }) {
+export function SubheadingEditor({
+  value,
+  reorder,
+  onChange,
+  onDone,
+  onRemove,
+  onKeyDown,
+}: {
+  value: string
+  reorder?: Reorder
+  onChange?: (value: string) => void
+  onDone?: () => void
+  onRemove?: () => void
+  onKeyDown?: (e: KeyboardEvent) => void
+}) {
   return (
-    <div className="group/line flex items-center gap-2 pt-2">
-      <GripVerticalIcon
-        aria-hidden
-        className="size-4 shrink-0 cursor-grab text-muted-foreground opacity-0 group-hover/line:opacity-100 max-sm:hidden"
+    <div
+      {...rowState(reorder)}
+      onKeyDown={onKeyDown}
+      className={cn('group/line flex items-center gap-2 pt-2', ROW)}
+    >
+      <Handle reorder={reorder} className="group-hover/line:opacity-100" />
+      <Input
+        aria-label="Subheading"
+        autoComplete="off"
+        {...(onChange
+          ? { value, onChange: (e) => onChange(e.target.value), onBlur: onDone }
+          : { defaultValue: value })}
+        className="flex-1 font-bold"
       />
-      <Input aria-label="Subheading" defaultValue={value} className="flex-1 font-bold" />
       <Button
         variant="ghost"
         size="icon-sm"
         aria-label="Remove subheading"
+        onClick={onRemove}
         className="shrink-0 group-hover/line:opacity-100 focus-visible:opacity-100 sm:opacity-0"
       >
         <XIcon />

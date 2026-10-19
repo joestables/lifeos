@@ -163,7 +163,8 @@ export function applyPending(items: readonly ItemRow[], entries: readonly QueueE
         break
       case 'convert_item': {
         const { p_id, p_type } = entry.args as { p_id: string; p_type: string }
-        mark(p_id, { type: p_type })
+        // Sorted into a Recipe, it is an Idea (RCP-002 4).
+        mark(p_id, { type: p_type, ...(p_type === 'recipe' ? { status: 'idea' } : {}) })
         break
       }
       case 'set_repeat': {

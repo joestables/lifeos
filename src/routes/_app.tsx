@@ -16,6 +16,7 @@ import { useEffect } from 'react'
 import { AppShell, type DrawerPage } from '@/components/lifeos'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { CaptureProvider } from '@/app/capture'
+import { CookTimerAlerts } from '@/app/cooking-timers'
 import { useOpenCapture } from '@/app/open-capture'
 import { ItemPopup } from '@/app/items'
 import { useOpenSearch } from '@/app/open-search'
@@ -122,6 +123,7 @@ function Shell({
     >
       <Outlet />
       <ItemPopup id={item} isNew={isNew} />
+      <CookTimerAlerts />
     </AppShell>
   )
 }

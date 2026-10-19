@@ -156,7 +156,7 @@ saved, the start of the note). "New" offers *New recipe*, *New idea* and
 
 **As** Joe, **I want** my recipes as cards with photos, **so that** I
 recognise dishes at a glance.
-Priority: Must · Status: proposed
+Priority: Must · Status: verified (5 comes with Households, plan step 9)
 
 Acceptance criteria
 1. Given the Recipes tab, then every Draft and Complete Recipe I can see
@@ -180,7 +180,7 @@ Acceptance criteria
 
 **As** Joe, **I want** ideas saved with almost nothing and kept in a list,
 **so that** capturing is quick and I can scan them later.
-Priority: Must · Status: proposed
+Priority: Must · Status: verified (the photo comes with photos)
 
 Acceptance criteria
 1. Given New idea, then only the name is required; notes, links (any
@@ -212,7 +212,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to select several Recipes or Ideas, **so that** I can
 tidy them in one go.
-Priority: Should · Status: proposed
+Priority: Should · Status: verified
 
 Acceptance criteria
 1. Given Select on either tab (or a long press on a phone), then I can pick
@@ -223,7 +223,7 @@ Acceptance criteria
 
 **As** Joe, **I want** a clear page to read a recipe from, **so that** no
 editing controls get in the way.
-Priority: Must · Status: proposed
+Priority: Must · Status: verified
 
 Acceptance criteria
 1. Given a Recipe, then it opens on its default Variation: the heading
@@ -241,7 +241,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to edit the heading and a Variation separately, **so
 that** each edit is about one thing.
-Priority: Must · Status: proposed
+Priority: Must · Status: verified (3 comes with photos)
 
 Acceptance criteria
 1. Given Edit heading on my Recipe, then I change the name, photo,
@@ -261,7 +261,7 @@ Acceptance criteria
 
 **As** Joe, **I want** structured ingredient lines, **so that** quantities
 are consistent and can go on a shopping list.
-Priority: Must · Status: proposed
+Priority: Must · Status: verified (5 comes with the AI service, plan step 8)
 
 Acceptance criteria
 1. Given I type "200 g chorizo", then it is read as 200, g and Chorizo;
@@ -280,7 +280,7 @@ Acceptance criteria
 
 **As** Joe, **I want** numbered steps and notes that can name other recipes,
 **so that** I can reach a stock or sauce mid-recipe.
-Priority: Must · Status: proposed
+Priority: Must · Status: verified
 
 Acceptance criteria
 1. Given the method, then steps are numbered, and I add, edit, reorder and
@@ -294,7 +294,7 @@ Acceptance criteria
 
 **As** Joe, **I want** several ways of making one dish, **so that** I can
 experiment without losing what works.
-Priority: Must · Status: proposed
+Priority: Must · Status: verified
 
 Acceptance criteria
 1. Given a Variation, when I duplicate it and name the copy ("Air fryer"),
@@ -311,7 +311,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to move a Recipe from idea to finished, and archive
 it, **so that** I can see how far along each one is.
-Priority: Must · Status: proposed
+Priority: Must · Status: verified
 
 Acceptance criteria
 1. Given my Variation, then I set its state: Idea, Draft, Complete or
@@ -328,7 +328,7 @@ Acceptance criteria
 
 **As** Joe, **I want** a focused Cooking mode, **so that** I can follow a
 recipe while I cook.
-Priority: Must · Status: proposed
+Priority: Must · Status: verified (3: the alert sounds while LifeOS is open; the notification from the server when it is not is still to come)
 
 Acceptance criteria
 1. Given a Draft or Complete Variation, when I press Start cooking, then the
@@ -349,7 +349,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to record how a cook went, against what I cooked,
 **so that** I can improve the recipe over time.
-Priority: Must · Status: proposed
+Priority: Must · Status: verified
 
 Acceptance criteria
 1. Given I finish Cooking, then I'm asked for a verdict (stars) and notes,
@@ -363,7 +363,7 @@ Acceptance criteria
 
 **As** Joe, **I want** a Recipe's history in order, **so that** I can see how
 each Variation has changed.
-Priority: Must · Status: proposed
+Priority: Must · Status: verified
 
 Acceptance criteria
 1. Given a Recipe, then its log lists, newest first, its cooks (verdict,
@@ -399,7 +399,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to heart Recipes, **so that** I can find the ones I
 like.
-Priority: Must · Status: proposed
+Priority: Must · Status: verified
 
 Acceptance criteria
 1. Given a card or a Recipe's page, when I press the heart, then it is my
@@ -409,7 +409,7 @@ Acceptance criteria
 
 **As** Joe, **I want** recipes with no signal and in Search, **so that**
 they are there in the kitchen.
-Priority: Must · Status: proposed
+Priority: Must · Status: built (2 verified)
 
 Acceptance criteria
 1. Given no signal, then every Recipe opens, cooks and logs, and changes are
@@ -444,7 +444,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to keep my lists, **so that** filters follow how I
 organise food.
-Priority: Should · Status: proposed
+Priority: Should · Status: proposed (2 built)
 
 Acceptance criteria
 1. Given Settings → Recipes, then I rename, merge and delete categories,
@@ -459,3 +459,7 @@ nutrition; converting weight to volume; sharing a Recipe outside LifeOS.
 
 1. **Joe's recipe style:** in v1's code; Joe will point Claude to it when
    import is built (step 8).
+2. **Reordering lines and steps on a phone** (RCP-007 4, RCP-008 1): the
+   agreed design has no handle on a phone, so lines and steps reorder only
+   on a computer (by the handle, or Alt+↑ / Alt+↓). *Suggested:* a "…" on
+   each line and step on a phone with Move up and Move down.

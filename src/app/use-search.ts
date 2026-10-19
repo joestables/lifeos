@@ -1,7 +1,17 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { useEffect, useMemo, useState } from 'react'
-import { queue, searchItemIds, searchKey, useItems, useLabels, useOnline, type Item } from '@/data'
+import {
+  queue,
+  searchItemIds,
+  searchKey,
+  useFood,
+  useItems,
+  useLabels,
+  useOnline,
+  type Item,
+} from '@/data'
 import { isoDayOf } from '@/lib/dates'
+import { matches } from '@/lib/recipes'
 import { searchItems, searchWords } from '@/lib/search'
 import { currentOccurrences } from '@/lib/series'
 
@@ -21,7 +31,8 @@ function useSettled(value: string, ms = 150): string {
  * A search's results (SRC-001): the server's, best match first, shown as the
  * device has them. Offline, or with the server out of reach, the Items on
  * the device are searched instead (SRC-002). A repeating Task shows once,
- * as its lists show it.
+ * as its lists show it. Recipes and Ideas are found by name, tag or
+ * ingredient on the device too (RCP-016 2); a Variation is found as its Recipe.
  */
 export function useSearch(query: string): {
   results: Item[]
@@ -35,6 +46,7 @@ export function useSearch(query: string): {
   const online = useOnline()
   const { items } = useItems(queue)
   const { labels, itemLabels } = useLabels(queue)
+  const food = useFood(queue)
   const words = useMemo(() => searchWords(settled), [settled])
   const server = useQuery({
     queryKey: searchKey(settled),
@@ -56,11 +68,21 @@ export function useSearch(query: string): {
     }
     const of = (id: string) => labelsOf.get(id) ?? []
     const shown = currentOccurrences(items, isoDayOf(new Date())).filter(
-      (i) => i.status !== 'cancelled',
+      // An archived Recipe is found, marked so (SRC-003 1).
+      (i) => (i.status !== 'cancelled' || i.type === 'recipe') && i.type !== 'variation',
     )
+    // Recipes by tag or ingredient, which the server's search doesn't hold.
+    const withRecipes = (found: Item[]) => {
+      const ids = new Set(found.map((i) => i.id))
+      const recipes = food.recipes
+        .filter((r) => !ids.has(r.item.id))
+        .filter((r) => matches(r, settled, food.pantry))
+        .map((r) => r.item)
+      return [...found, ...recipes].slice(0, SHOWN)
+    }
 
     if (!online || server.isError) {
-      const results = searchItems(shown, of, settled, SHOWN)
+      const results = withRecipes(searchItems(shown, of, settled, SHOWN))
       return { results, words, onDevice: online ? 'unreachable' : 'offline', done: true }
     }
     if (!server.data) return { results: [], words, done: false }
@@ -73,7 +95,7 @@ export function useSearch(query: string): {
       settled,
     )
     return {
-      results: [...found, ...unsent].slice(0, SHOWN),
+      results: withRecipes([...found, ...unsent]),
       words,
       done: !server.isPlaceholderData,
     }
@@ -87,5 +109,7 @@ export function useSearch(query: string): {
     server.isError,
     server.data,
     server.isPlaceholderData,
+    food.recipes,
+    food.pantry,
   ])
 }

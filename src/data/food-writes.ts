@@ -118,6 +118,12 @@ export function foodWrites(queue: WriteQueue) {
       queue.enqueue('food.remove_cook', { p_id: id }, [])
     },
     /** A name added to my list as I type it (RCP-006 5). */
+    /** A new Pantry entry, an ingredient in the Cupboard until changed (RCP-007 2). */
+    addPantry(name: string): string {
+      const id = newId()
+      queue.enqueue('food.add_pantry', { p_id: id, p_fields: { name, kind: 'ingredient' } }, [])
+      return id
+    },
     addValue(kind: ValueKind, name: string): string {
       const id = newId()
       queue.enqueue('food.add_value', { p_id: id, p_kind: kind, p_name: name }, [])

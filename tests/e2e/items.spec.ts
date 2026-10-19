@@ -133,7 +133,7 @@ test('ITM-004: an Item converts only into Types the app has, keeping what it hol
   await expect(popup).toContainText('Thought')
   await popup.getByRole('button', { name: 'More' }).click()
   const menu = page.getByRole('menu')
-  await expect(menu.getByRole('menuitem')).toHaveText(['Event', 'Note', 'Task', 'Delete'])
+  await expect(menu.getByRole('menuitem')).toHaveText(['Event', 'Note', 'Recipe', 'Task', 'Delete'])
   await menu.getByRole('menuitem', { name: 'Task' }).click()
   await expect(page.getByText('Converted into a Task')).toBeVisible()
   await expect(popup).toContainText('Task')

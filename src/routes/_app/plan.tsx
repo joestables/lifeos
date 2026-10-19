@@ -26,7 +26,7 @@ import { NewTaskDialog } from '@/app/new-task'
 import { queue, updateItem, updateSettings, useItems, useSettings, type Item } from '@/data'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { dayName, fromIsoDay, shortDate } from '@/lib/dates'
-import { APP_STAGE, itemTitle, typeLook } from '@/lib/item-types'
+import { itemTitle, offered, typeLook } from '@/lib/item-types'
 import {
   cardLine,
   dayTitle,
@@ -51,7 +51,7 @@ export const Route = createFileRoute('/_app/plan')({
 })
 
 /** The Schedulable Types the app has yet: Plan's filter and what "+" adds (PLN-004, PLN-006). */
-const PLANNED = TYPES.filter((t) => hasTrait(t, 'schedulable') && t.stage <= APP_STAGE).map((t) =>
+const PLANNED = TYPES.filter((t) => hasTrait(t, 'schedulable') && offered(t.key)).map((t) =>
   typeLook(t.key),
 )
 const ADD: AddChoice[] = PLANNED.map((t) => ({

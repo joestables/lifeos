@@ -120,10 +120,21 @@ Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-17
   database tests for every path ADR-0052 names; the visibility benchmark
   re-run.
 
+- Step 5, Recipes: the library and Ideas, a Recipe's page with its
+  Variations and log, editing a Variation and its heading, comparing,
+  Cooking with timers and logging a cook, favourites, Archived recipes in
+  Settings, Recipes in Search, and a Thought or Note sorted into a Recipe.
+  New in the design spec, with the components: Suggestions, RecipePanel,
+  RecipeColumns, VariationFieldsCard and FilterLayout; PageHeader's
+  eyebrow and trailing controls; the editors kept as they are left and
+  reordered by their handle; a card's long press. `APP_STAGE` is 4,
+  offering Stage 4's Types only as they are built. The stand-in Supabase
+  knows the food schema.
+
 **Left for later**
-- Step 5 onwards (`food` is exposed in the Data API); Joe's further rounds on the
-  specs; then the capture, Inbox, items, Search and Plan changes that step 1
-  also covers.
+- Recipe photos (next in step 5); the timer's notification from the server;
+  reordering on a phone (an open point for Joe); steps 6 onwards; Joe's
+  further rounds on the specs.
 
 ## [#14](https://github.com/joestables/lifeos/pull/14) — CI: fewer GitHub Actions minutes
 

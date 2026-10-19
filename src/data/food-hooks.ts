@@ -11,7 +11,9 @@ import {
   applyPendingVariations,
   blankHeading,
   blankVariation,
+  activityKey,
   cooksKey,
+  fetchActivity,
   fetchCooks,
   fetchLines,
   fetchPantry,
@@ -25,6 +27,7 @@ import {
   stepsKey,
   valuesKey,
   variationsKey,
+  type Activity,
   type Cook,
   type FoodValue,
   type Line,
@@ -87,6 +90,17 @@ export function deriveState(variations: readonly { status: string }[]): FoodStat
   let best: FoodState = 'idea'
   for (const v of live) if ((RANK[v.status] ?? 0) > (RANK[best] ?? 0)) best = v.status as FoodState
   return best
+}
+
+/**
+ * A Recipe's state: archived when it is (its Variations follow on the
+ * server); brought back but not yet sent, as it was set; else worked out.
+ */
+function stateOf(item: Item, vs: readonly VariationView[]): FoodState {
+  if (item.status === 'cancelled') return 'cancelled'
+  const derived = deriveState(vs.map((v) => v.item))
+  if (derived === null || (derived === 'cancelled' && item.sync)) return item.status as FoodState
+  return derived
 }
 
 function group<T>(rows: readonly T[], key: (r: T) => string): Map<string, T[]> {
@@ -171,7 +185,7 @@ export function useFood(queue: WriteQueue): FoodData {
           ) ??
           live[0] ??
           vs[0],
-        state: deriveState(vs.map((v) => v.item)) ?? (item.status as FoodState),
+        state: stateOf(item, vs),
         mine: isMine(item),
         favourite: marks.has(item.id),
         cooks: vs.flatMap((v) => v.cooks).sort((a, b) => (a.cooked_at < b.cooked_at ? 1 : -1)),
@@ -189,7 +203,8 @@ export function useFood(queue: WriteQueue): FoodData {
         recipes.isLoading ||
         variations.isLoading ||
         lines.isLoading ||
-        steps.isLoading,
+        steps.isLoading ||
+        pantry.isLoading,
     }
   }, [
     entries,
@@ -208,6 +223,18 @@ export function useFood(queue: WriteQueue): FoodData {
     steps.isLoading,
     cooks.data,
     pantry.data,
+    pantry.isLoading,
     values.data,
   ])
+}
+
+/** What happened to a Recipe and its Variations, newest first (RCP-013). */
+export function useRecipeActivity(ids: readonly string[]): Activity[] {
+  const sorted = [...ids].sort()
+  const { data } = useQuery({
+    queryKey: activityKey(sorted),
+    queryFn: () => fetchActivity(sorted),
+    enabled: sorted.length > 0,
+  })
+  return data ?? []
 }

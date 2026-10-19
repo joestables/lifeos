@@ -23,12 +23,14 @@ import { applyPendingLinks, linksKey, type Link } from './links'
 import {
   applyPendingCooks,
   applyPendingLines,
+  applyPendingPantry,
   applyPendingRecipes,
   applyPendingSteps,
   applyPendingValues,
   applyPendingVariations,
   cooksKey,
   linesKey,
+  pantryKey,
   recipesKey,
   stepsKey,
   valuesKey,
@@ -36,6 +38,7 @@ import {
   type Cook,
   type FoodValue,
   type Line,
+  type PantryEntry,
   type RecipeHeading,
   type Step,
   type VariationFields,
@@ -156,6 +159,11 @@ const collections: {
     fold: (rows: Cook[], e: QueueEntry) => applyPendingCooks(rows, [e], ''),
   },
   {
+    key: pantryKey,
+    fns: ['food.add_pantry'],
+    fold: (rows: PantryEntry[], e: QueueEntry) => applyPendingPantry(rows, [e], ''),
+  },
+  {
     key: valuesKey,
     fns: ['food.add_value', 'food.rename_value', 'food.remove_value'],
     fold: (rows: FoodValue[], e: QueueEntry) => applyPendingValues(rows, [e], ''),
@@ -197,6 +205,9 @@ export const queue = new WriteQueue({
       queryClient.setQueryData(c.key, (old: never) => old && c.fold(old, entry))
       void queryClient.invalidateQueries({ queryKey: c.key })
     }
+    // A Recipe's log follows what was changed (RCP-013); only an open one refetches.
+    if (entry.fn.startsWith('food.') || entry.fn.endsWith('_item'))
+      void queryClient.invalidateQueries({ queryKey: ['core', 'activity'] })
   },
   // Recorded without the Item's content: only which function failed (OFF-004).
   onRejected: (entry, error) =>
@@ -253,6 +264,7 @@ export const {
   logCook,
   updateCook,
   removeCook,
+  addPantry,
   addValue,
 } = foodWrites(queue)
 
@@ -285,9 +297,10 @@ export {
   useSyncCounts,
 } from './hooks'
 export { googleEventUrl } from './calendar'
-export { useFood, type FoodData } from './food-hooks'
+export { useFood, useRecipeActivity, type FoodData } from './food-hooks'
 export { positionBetween, positionsFor } from './food-writes'
 export type {
+  Activity,
   Cook,
   FoodValue,
   HeadingPatch,

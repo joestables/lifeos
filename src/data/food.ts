@@ -40,8 +40,28 @@ export const stepsKey = ['food', 'variation_steps'] as const
 export const cooksKey = ['food', 'cooks'] as const
 export const pantryKey = ['food', 'pantry'] as const
 export const valuesKey = ['food', 'values'] as const
+/** A Recipe's log (RCP-013): the activity of it and its Variations. */
+export const activityKey = (ids: readonly string[]) => ['core', 'activity', ...ids] as const
 
 const food = () => supabase().schema('food')
+
+/** An entry of the activity log (ADR-0030), written only by triggers. */
+export type Activity = Omit<Database['core']['Tables']['activity']['Row'], 'changed'> & {
+  changed: Record<string, { from?: unknown; to?: unknown } | unknown>
+}
+
+/** What happened to these Items, newest first: the latest 200. */
+export async function fetchActivity(ids: readonly string[]): Promise<Activity[]> {
+  if (!ids.length) return []
+  const { data, error } = await supabase()
+    .from('activity')
+    .select('id, item_id, verb, changed, at, actor')
+    .in('item_id', [...ids])
+    .order('at', { ascending: false })
+    .limit(200)
+  if (error) throw error
+  return data as Activity[]
+}
 
 export async function fetchRecipes(): Promise<RecipeHeading[]> {
   const { data, error } = await food()

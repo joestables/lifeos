@@ -115,3 +115,17 @@ export function FilterSection({ title, children }: { title: string; children: Re
     </section>
   )
 }
+
+/**
+ * A page with its FilterPanel: a 248px column beside the content on a
+ * computer; on a phone the panel is left to a Sheet and the content takes
+ * the width.
+ */
+export function FilterLayout({ filters, children }: { filters: ReactNode; children: ReactNode }) {
+  return (
+    <div className="grid items-start gap-6 lg:grid-cols-[248px_minmax(0,1fr)]">
+      <div className="hidden lg:block">{filters}</div>
+      <div className="flex min-w-0 flex-col gap-4">{children}</div>
+    </div>
+  )
+}
