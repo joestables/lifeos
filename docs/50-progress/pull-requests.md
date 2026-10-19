@@ -113,8 +113,15 @@ Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-17
   screenshots refreshed. The Meal plan's action is "New shopping list"
   everywhere (meals.md, ADR-0012).
 
+- Step 4, the schema: the ontology's `food` Module (Recipe, Variation,
+  Meal; *uses*, *variation of*); the `food` schema with its rules and write
+  functions; Recipes and Variations seen through a Household, read-only;
+  the data model's Types table and metamodel generated from the ontology;
+  database tests for every path ADR-0052 names; the visibility benchmark
+  re-run.
+
 **Left for later**
-- Step 4 onwards (the `food` schema first); Joe's further rounds on the
+- Step 5 onwards (Joe exposes `food` in the Data API first); Joe's further rounds on the
   specs; then the capture, Inbox, items, Search and Plan changes that step 1
   also covers.
 

@@ -41,6 +41,24 @@ from (select id, row_number() over (order by id) r from core.items
       where type = 'task' and owner_id = '00000000-0000-4000-8000-00000000000a' limit 600) t
 join (select id, row_number() over (order by id) r from core.items where type = 'event') e using (r);
 
+-- Ann: 300 Recipes, each with two Variations (Stage 4), seen by Ben through
+-- the Household, not a link (ADR-0051).
+insert into core.items (id, type, title, space_id, owner_id)
+select ('00000000-0000-7000-9000-' || lpad(to_hex(g), 12, '0'))::uuid, 'recipe', 'Recipe ' || g,
+       p.space, p.id
+from people p, generate_series(1, 300) g
+where p.id = '00000000-0000-4000-8000-00000000000a';
+insert into core.items (id, type, title, space_id, owner_id, status)
+select ('00000000-0000-7000-a000-' || lpad(to_hex(g * 2 + v), 12, '0'))::uuid, 'variation', 'Way ' || v,
+       p.space, p.id, 'active'
+from people p, generate_series(1, 300) g, generate_series(0, 1) v
+where p.id = '00000000-0000-4000-8000-00000000000a';
+insert into core.links (from_item, to_item, link_type, created_by)
+select ('00000000-0000-7000-a000-' || lpad(to_hex(g * 2 + v), 12, '0'))::uuid,
+       ('00000000-0000-7000-9000-' || lpad(to_hex(g), 12, '0'))::uuid,
+       'variation_of', '00000000-0000-4000-8000-00000000000a'
+from generate_series(1, 300) g, generate_series(0, 1) v;
+
 analyze;
 
 select format('seeded: %s Items, %s links', (select count(*) from core.items), (select count(*) from core.links));

@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import {
   convertsTo,
+  dataModel,
+  metamodel,
+  typesTable,
   hasTrait,
   LINK_TYPES,
   lookupMigrationSql,
@@ -18,11 +21,12 @@ describe('ontology', () => {
     expect(new Set(linkKeys).size).toBe(linkKeys.length)
   })
 
-  it('uses statuses from the core set, and done only on Completable Types', () => {
-    for (const t of TYPES) {
+  it('uses statuses from the core set, and done only on Completable Types or under its own name', () => {
+    for (const t of TYPES as readonly TypeDefinition[]) {
       for (const s of t.statuses) expect(STATUSES).toContain(s)
-      const statuses: readonly string[] = t.statuses
-      expect(statuses.includes('done')).toBe(hasTrait(t, 'completable'))
+      if (hasTrait(t, 'completable')) expect(t.statuses).toContain('done')
+      // A Recipe's "Complete" is a state, not a tick.
+      else if (t.statuses.includes('done')) expect(t.statusLabels?.done).toBeDefined()
     }
   })
 
@@ -47,8 +51,8 @@ describe('ontology', () => {
   })
 
   it('converts in place as ADR-0018 says', () => {
-    expect(convertsTo(typeByKey('thought')!)).toEqual(['event', 'note', 'task'])
-    expect(convertsTo(typeByKey('note')!)).toEqual(['event', 'task'])
+    expect(convertsTo(typeByKey('thought')!)).toEqual(['event', 'note', 'recipe', 'task'])
+    expect(convertsTo(typeByKey('note')!)).toEqual(['event', 'recipe', 'task'])
     expect(convertsTo(typeByKey('task')!)).toEqual(['event'])
     expect(convertsTo(typeByKey('event')!)).toEqual(['task'])
   })
@@ -62,6 +66,9 @@ describe('ontology', () => {
     expect(look('note')).toEqual(['yellow', true, 'pinned', false, undefined, false])
     expect(look('task')).toEqual(['blue', true, 'starred', true, 'do_on', false])
     expect(look('event')).toEqual(['blue', true, undefined, false, 'starts_at', true])
+    expect(look('recipe')).toEqual(['green', false, 'favourited', false, undefined, false])
+    expect(look('variation')).toEqual(['green', false, undefined, false, undefined, false])
+    expect(look('meal')).toEqual(['green', false, undefined, false, undefined, false])
   })
 
   it('builds each Type in its roadmap stage (data-model.md#types)', () => {
@@ -70,7 +77,17 @@ describe('ontology', () => {
       ['note', 2],
       ['task', 2],
       ['event', 3],
+      ['recipe', 4],
+      ['variation', 4],
+      ['meal', 4],
     ])
+  })
+
+  it("keeps Recipes and Variations in their author's Space, and Meals in the Household (ADR-0051)", () => {
+    expect(typeByKey('recipe')!.defaultSpace).toBe('personal')
+    expect(typeByKey('variation')!.defaultSpace).toBe('personal')
+    expect(typeByKey('meal')!.defaultSpace).toBe('household')
+    expect(typeByKey('meal')!.timeFields).toEqual(['do_on', 'slot'])
   })
 
   it('has no idea status on Notes (ADR-0037)', () => {
@@ -84,7 +101,22 @@ describe('ontology', () => {
 
   it('generates the lookup migration with every Type and link type', () => {
     const sql = lookupMigrationSql()
-    for (const t of TYPES) expect(sql).toContain(`('${t.key}', 'core'`)
+    for (const t of TYPES) expect(sql).toContain(`('${t.key}', '${t.module}'`)
     for (const l of LINK_TYPES) expect(sql).toContain(`('${l.key}', `)
+  })
+  it("generates the data model's table and metamodel from the Types (ADR-0036)", () => {
+    const table = typesTable()
+    for (const t of TYPES) expect(table).toContain(`**${t.label}**`)
+    expect(metamodel()).toContain('Meal -- uses --> Variation')
+    const doc = [
+      '<!-- generated: types (npm run data-model) -->',
+      'stale',
+      '<!-- /generated: types -->',
+      '<!-- generated: metamodel (npm run data-model) -->',
+      '<!-- /generated: metamodel -->',
+    ].join('\n')
+    const once = dataModel(doc)
+    expect(once).not.toContain('stale')
+    expect(dataModel(once)).toBe(once)
   })
 })

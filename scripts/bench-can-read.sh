@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Benchmarks core_private.can_read on seeded data (Stage 1, step 11): a week of
-# Plan and the whole list of Items, read through row-level security as each
-# person. Uses the throwaway database of npm run db:test.
+# Plan, the whole list of Items and the Recipes (Stage 4), read through
+# row-level security as each person. Uses the throwaway database of npm run db:test.
 set -euo pipefail
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 KEEP_DB=1 "$ROOT/scripts/db-test.sh" >/dev/null
@@ -44,3 +44,6 @@ run $ANN "Ann: a week of Plan" "$WEEK"
 run $BEN "Ben: a week of Plan (with one-hop Items)" "$WEEK"
 run $ANN "Ann: every live Item" "$ALL"
 run $BEN "Ben: every live Item" "$ALL"
+RECIPES="select * from core.items where archived_at is null and type = 'recipe'"
+run $ANN "Ann: her Recipes" "$RECIPES"
+run $BEN "Ben: Ann's Recipes, through the Household" "$RECIPES"

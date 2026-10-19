@@ -21,7 +21,9 @@ Provisionally agreed).
   category, cuisine, tags, protein and carbs, and each person's favourite.
   Each Variation has its own name, state, ingredients, method, notes, prep
   and cook time, servings and sources. One Variation is the **default**,
-  the one that opens; a new Variation starts as a copy of another.
+  the one that opens; a new Variation starts as a copy of another. A new
+  Recipe's first Variation is called "Standard" until I rename it
+  (Suggested).
 - **Each Variation has a state**, which I set: **Idea** → **Draft** →
   **Complete**, or **Archived** (Joe, 17 October). I cook a Draft a few
   times, refining it, and mark it Complete once it's settled.
