@@ -1,0 +1,213 @@
+import { useQuery } from '@tanstack/react-query'
+import { useMemo } from 'react'
+import { useAuth } from './auth'
+import {
+  applyPendingCooks,
+  applyPendingLines,
+  applyPendingPantry,
+  applyPendingRecipes,
+  applyPendingSteps,
+  applyPendingValues,
+  applyPendingVariations,
+  blankHeading,
+  blankVariation,
+  cooksKey,
+  fetchCooks,
+  fetchLines,
+  fetchPantry,
+  fetchRecipes,
+  fetchSteps,
+  fetchValues,
+  fetchVariations,
+  linesKey,
+  pantryKey,
+  recipesKey,
+  stepsKey,
+  valuesKey,
+  variationsKey,
+  type Cook,
+  type FoodValue,
+  type Line,
+  type PantryEntry,
+  type RecipeHeading,
+  type Step,
+  type VariationFields,
+} from './food'
+import { useItems, useLinks, useMarks, useQueueEntries } from './hooks'
+import type { WriteQueue } from './queue/queue'
+import type { Item } from './types'
+
+export type FoodState = 'idea' | 'active' | 'done' | 'cancelled'
+
+export interface VariationView {
+  item: Item
+  fields: VariationFields
+  lines: Line[]
+  steps: Step[]
+  cooks: Cook[]
+  /** Whether I wrote it, so may edit it (ADR-0051). */
+  mine: boolean
+}
+
+export interface RecipeView {
+  item: Item
+  heading: RecipeHeading
+  /** The author's first, then members', each by when made. */
+  variations: VariationView[]
+  /** The one that opens: the chosen default, else the first live one. */
+  defaultVariation: VariationView | undefined
+  /**
+   * Worked out as the server does (ADR-0011): the highest live Variation's
+   * state, Archived only when all are; so an unsent change shows at once.
+   */
+  state: FoodState
+  mine: boolean
+  favourite: boolean
+  /** Every cook of any of its Variations, newest first. */
+  cooks: Cook[]
+}
+
+export interface FoodData {
+  recipes: RecipeView[]
+  byId: ReadonlyMap<string, RecipeView>
+  /** Which Recipe a Variation belongs to. */
+  recipeOf: ReadonlyMap<string, string>
+  pantry: ReadonlyMap<string, PantryEntry>
+  values: FoodValue[]
+  me: string
+  isLoading: boolean
+}
+
+const RANK: Record<string, number> = { done: 3, active: 2, idea: 1 }
+
+export function deriveState(variations: readonly { status: string }[]): FoodState | null {
+  if (!variations.length) return null
+  const live = variations.filter((v) => v.status !== 'cancelled')
+  if (!live.length) return 'cancelled'
+  let best: FoodState = 'idea'
+  for (const v of live) if ((RANK[v.status] ?? 0) > (RANK[best] ?? 0)) best = v.status as FoodState
+  return best
+}
+
+function group<T>(rows: readonly T[], key: (r: T) => string): Map<string, T[]> {
+  const out = new Map<string, T[]>()
+  for (const r of rows) {
+    const k = key(r)
+    const list = out.get(k)
+    if (list) list.push(r)
+    else out.set(k, [r])
+  }
+  return out
+}
+
+/** Recipes and everything under them, with unsent changes laid over (RCP-016 1). */
+export function useFood(queue: WriteQueue): FoodData {
+  const auth = useAuth()
+  const me = auth.status === 'signed-in' ? auth.me.id : ''
+  const entries = useQueueEntries(queue)
+  const { items, isLoading: itemsLoading } = useItems(queue)
+  const links = useLinks(queue)
+  const marks = useMarks(queue)
+  const recipes = useQuery({ queryKey: recipesKey, queryFn: fetchRecipes })
+  const variations = useQuery({ queryKey: variationsKey, queryFn: fetchVariations })
+  const lines = useQuery({ queryKey: linesKey, queryFn: fetchLines })
+  const steps = useQuery({ queryKey: stepsKey, queryFn: fetchSteps })
+  const cooks = useQuery({ queryKey: cooksKey, queryFn: fetchCooks })
+  const pantry = useQuery({ queryKey: pantryKey, queryFn: fetchPantry })
+  const values = useQuery({ queryKey: valuesKey, queryFn: fetchValues })
+
+  return useMemo(() => {
+    const headings = new Map(
+      applyPendingRecipes(recipes.data ?? [], entries).map((r) => [r.item_id, r]),
+    )
+    const fields = new Map(
+      applyPendingVariations(variations.data ?? [], entries).map((v) => [v.item_id, v]),
+    )
+    const linesBy = group(applyPendingLines(lines.data ?? [], entries), (l) => l.variation_id)
+    const stepsBy = group(applyPendingSteps(steps.data ?? [], entries), (s) => s.variation_id)
+    const cooksBy = group(applyPendingCooks(cooks.data ?? [], entries, me), (c) => c.variation_id)
+    const itemById = new Map(items.map((i) => [i.id, i]))
+    const recipeOf = new Map(
+      links.filter((l) => l.link_type === 'variation_of').map((l) => [l.from_item, l.to_item]),
+    )
+    // An unsent Item has no owner yet: it is mine.
+    const isMine = (i: Item) => i.owner_id === me || i.owner_id === ''
+
+    const under = group(
+      [...recipeOf.entries()].filter(([v]) => itemById.has(v)),
+      ([, r]) => r,
+    )
+    const views: RecipeView[] = []
+    for (const item of items) {
+      if (item.type !== 'recipe') continue
+      const vs: VariationView[] = (under.get(item.id) ?? [])
+        .map(([v]) => itemById.get(v)!)
+        .map((v) => ({
+          item: v,
+          fields: fields.get(v.id) ?? blankVariation(v.id),
+          lines: linesBy.get(v.id) ?? [],
+          steps: stepsBy.get(v.id) ?? [],
+          cooks: cooksBy.get(v.id) ?? [],
+          mine: isMine(v),
+        }))
+        .sort((a, b) =>
+          a.item.owner_id === item.owner_id && b.item.owner_id !== item.owner_id
+            ? -1
+            : b.item.owner_id === item.owner_id && a.item.owner_id !== item.owner_id
+              ? 1
+              : a.item.created_at < b.item.created_at
+                ? -1
+                : 1,
+        )
+      const heading = headings.get(item.id) ?? blankHeading(item.id)
+      const live = vs.filter((v) => v.item.status !== 'cancelled')
+      views.push({
+        item,
+        heading,
+        variations: vs,
+        defaultVariation:
+          vs.find(
+            (v) => v.item.id === heading.default_variation && v.item.status !== 'cancelled',
+          ) ??
+          live[0] ??
+          vs[0],
+        state: deriveState(vs.map((v) => v.item)) ?? (item.status as FoodState),
+        mine: isMine(item),
+        favourite: marks.has(item.id),
+        cooks: vs.flatMap((v) => v.cooks).sort((a, b) => (a.cooked_at < b.cooked_at ? 1 : -1)),
+      })
+    }
+    return {
+      recipes: views,
+      byId: new Map(views.map((v) => [v.item.id, v])),
+      recipeOf,
+      pantry: new Map(applyPendingPantry(pantry.data ?? [], entries, me).map((p) => [p.id, p])),
+      values: applyPendingValues(values.data ?? [], entries, me),
+      me,
+      isLoading:
+        itemsLoading ||
+        recipes.isLoading ||
+        variations.isLoading ||
+        lines.isLoading ||
+        steps.isLoading,
+    }
+  }, [
+    entries,
+    items,
+    itemsLoading,
+    links,
+    marks,
+    me,
+    recipes.data,
+    recipes.isLoading,
+    variations.data,
+    variations.isLoading,
+    lines.data,
+    lines.isLoading,
+    steps.data,
+    steps.isLoading,
+    cooks.data,
+    pantry.data,
+    values.data,
+  ])
+}

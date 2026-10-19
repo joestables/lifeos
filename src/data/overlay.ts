@@ -107,6 +107,49 @@ export function applyPending(items: readonly ItemRow[], entries: readonly QueueE
         }
         break
       }
+      // A Recipe comes with its first Variation; both are mine (ADR-0051).
+      case 'food.create_recipe': {
+        const a = entry.args as {
+          p_id: string
+          p_variation: string
+          p_name: string
+          p_status?: string
+          p_variation_name?: string
+        }
+        const status = a.p_status ?? 'idea'
+        if (!byId.has(a.p_id)) {
+          byId.set(a.p_id, {
+            ...blankItem(a.p_id, 'recipe', at),
+            title: a.p_name.trim(),
+            status,
+            sync,
+          })
+          order.push(a.p_id)
+        } else mark(a.p_id, {})
+        if (!byId.has(a.p_variation)) {
+          byId.set(a.p_variation, {
+            ...blankItem(a.p_variation, 'variation', at),
+            title: a.p_variation_name?.trim() || 'Standard',
+            status,
+            sync,
+          })
+          order.push(a.p_variation)
+        }
+        break
+      }
+      case 'food.add_variation': {
+        const a = entry.args as { p_id: string; p_name: string; p_from?: string | null }
+        if (!byId.has(a.p_id)) {
+          byId.set(a.p_id, {
+            ...blankItem(a.p_id, 'variation', at),
+            title: a.p_name.trim(),
+            status: a.p_from ? 'active' : 'idea',
+            sync,
+          })
+          order.push(a.p_id)
+        } else mark(a.p_id, {})
+        break
+      }
       case 'update_item': {
         const { p_id, p_patch } = entry.args as { p_id: string; p_patch: ItemFields }
         touch(p_id, p_patch)
