@@ -131,8 +131,14 @@ Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-17
   offering Stage 4's Types only as they are built. The stand-in Supabase
   knows the food schema.
 
+- Recipe photos: `core.attachments` and a private Storage bucket
+  (migration `stage4_photos`, applied; `photos_test`); a photo made WebP of
+  about 250 KB on the device, from a file, the camera or a link; shown on
+  cards and a Recipe's page, and kept for offline. `npm run db:test` makes
+  Storage's two tables on the bare image first.
+
 **Left for later**
-- Recipe photos (next in step 5); the timer's notification from the server;
+- Photos in Search's results; the timer's notification from the server;
   reordering on a phone (an open point for Joe); steps 6 onwards; Joe's
   further rounds on the specs.
 

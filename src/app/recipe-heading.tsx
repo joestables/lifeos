@@ -16,12 +16,15 @@ import {
   createRecipe,
   updateItem,
   updateRecipe,
+  usePhotoUrls,
   type FoodData,
   type HeadingPatch,
   type ValueKind,
 } from '@/data'
 import type { RecipeView } from '@/data/food-hooks'
 import { nameTaken, valueChoices } from '@/lib/recipes'
+import { keepPhoto, type PhotoChoice } from './keep-photo'
+import { PhotoField } from './photo-field'
 import { Field } from './task-details'
 
 type Heading = Required<Pick<HeadingPatch, 'category' | 'cuisine' | 'tags' | 'protein' | 'carbs'>>
@@ -61,6 +64,8 @@ export function HeadingDialog({
     carbs: recipe?.heading.carbs ?? [],
   })
   const [tried, setTried] = useState(false)
+  const [photo, setPhotoChoice] = useState<PhotoChoice>(null)
+  const current = usePhotoUrls([recipe?.photo?.path]).get(recipe?.photo?.path ?? '')
   const taken = name.trim() ? nameTaken(food.recipes, name, recipe?.item.id) : undefined
   const problem = !name.trim()
     ? 'A recipe needs a name'
@@ -88,9 +93,11 @@ export function HeadingDialog({
     if (recipe) {
       if (name.trim() !== recipe.item.title) updateItem(recipe.item.id, { title: name.trim() })
       if (Object.keys(patch).length) updateRecipe(recipe.item.id, patch)
+      keepPhoto(recipe.item.id, photo, recipe.photo)
     } else {
       const ids = createRecipe(name.trim(), 'active')
       if (Object.keys(patch).length) updateRecipe(ids.recipe, patch)
+      keepPhoto(ids.recipe, photo, undefined)
       onCreated?.(ids)
     }
     onClose()
@@ -141,6 +148,7 @@ export function HeadingDialog({
             save()
           }}
         >
+          <PhotoField current={current} choice={photo} onChoice={setPhotoChoice} />
           <Field label="Name" htmlFor={nameId}>
             <Input
               id={nameId}

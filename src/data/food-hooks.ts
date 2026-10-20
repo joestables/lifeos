@@ -37,6 +37,7 @@ import {
   type VariationFields,
 } from './food'
 import { useItems, useLinks, useMarks, useQueueEntries } from './hooks'
+import { applyPendingPhotos, fetchPhotos, photosKey, type Photo } from './photos'
 import type { WriteQueue } from './queue/queue'
 import type { Item } from './types'
 
@@ -66,6 +67,8 @@ export interface RecipeView {
   state: FoodState
   mine: boolean
   favourite: boolean
+  /** Its photo (ADR-0052), if it has one. */
+  photo: Photo | undefined
   /** Every cook of any of its Variations, newest first. */
   cooks: Cook[]
 }
@@ -129,6 +132,7 @@ export function useFood(queue: WriteQueue): FoodData {
   const cooks = useQuery({ queryKey: cooksKey, queryFn: fetchCooks })
   const pantry = useQuery({ queryKey: pantryKey, queryFn: fetchPantry })
   const values = useQuery({ queryKey: valuesKey, queryFn: fetchValues })
+  const photos = useQuery({ queryKey: photosKey, queryFn: fetchPhotos })
 
   return useMemo(() => {
     const headings = new Map(
@@ -141,6 +145,9 @@ export function useFood(queue: WriteQueue): FoodData {
     const stepsBy = group(applyPendingSteps(steps.data ?? [], entries), (s) => s.variation_id)
     const cooksBy = group(applyPendingCooks(cooks.data ?? [], entries, me), (c) => c.variation_id)
     const itemById = new Map(items.map((i) => [i.id, i]))
+    const photoOf = new Map(
+      applyPendingPhotos(photos.data ?? [], entries).map((p) => [p.item_id, p]),
+    )
     const recipeOf = new Map(
       links.filter((l) => l.link_type === 'variation_of').map((l) => [l.from_item, l.to_item]),
     )
@@ -188,6 +195,7 @@ export function useFood(queue: WriteQueue): FoodData {
         state: stateOf(item, vs),
         mine: isMine(item),
         favourite: marks.has(item.id),
+        photo: photoOf.get(item.id),
         cooks: vs.flatMap((v) => v.cooks).sort((a, b) => (a.cooked_at < b.cooked_at ? 1 : -1)),
       })
     }
@@ -225,6 +233,7 @@ export function useFood(queue: WriteQueue): FoodData {
     pantry.data,
     pantry.isLoading,
     values.data,
+    photos.data,
   ])
 }
 

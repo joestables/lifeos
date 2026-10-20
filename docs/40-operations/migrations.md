@@ -27,7 +27,10 @@
   draft at least ([CI](environments.md#ci)).
 - **In a cloud session**, `npm run db:test` does the same against the same
   Postgres image as the live project, run in Docker (the CLI's other images
-  can't be fetched there).
+  can't be fetched there). That image has no Storage tables, so
+  `scripts/db-storage-stand-in.sql` makes the two the migrations use
+  (`storage.buckets`, `storage.objects`) first; CI's Supabase has the real
+  ones.
 - **TypeScript types are generated** from the migrations
   (`npm run db:types`, into `src/data/database.types.ts`); CI fails if they
   are out of date ([ADR-0042](../20-architecture/adr/0042-data-layer.md)).

@@ -24,6 +24,9 @@ done
 sleep 3
 
 
+# Supabase Storage's tables, which the bare image hasn't (ADR-0052's photos).
+psql -q -U supabase_admin -v ON_ERROR_STOP=1 -f "$ROOT/scripts/db-storage-stand-in.sql"
+
 for f in "$ROOT"/supabase/migrations/*.sql; do
   echo "migrate  $(basename "$f")"
   psql -q -U postgres -v ON_ERROR_STOP=1 -f "$f"

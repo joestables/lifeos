@@ -39,6 +39,51 @@ export type Database = {
           },
         ]
       }
+      attachments: {
+        Row: {
+          bytes: number | null
+          created_at: string
+          created_by: string
+          height: number | null
+          id: string
+          item_id: string
+          kind: string
+          path: string
+          width: number | null
+        }
+        ComputedFields: never
+        Insert: {
+          bytes?: number | null
+          created_at?: string
+          created_by?: string
+          height?: number | null
+          id?: string
+          item_id: string
+          kind?: string
+          path: string
+          width?: number | null
+        }
+        Update: {
+          bytes?: number | null
+          created_at?: string
+          created_by?: string
+          height?: number | null
+          id?: string
+          item_id?: string
+          kind?: string
+          path?: string
+          width?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'attachments_item_id_fkey'
+            columns: ['item_id']
+            isOneToOne: false
+            referencedRelation: 'items'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       calendar_links: {
         Row: {
           calendar_id: string
@@ -1345,6 +1390,7 @@ export type Database = {
       }
       remove_device: { Args: { p_id: string }; Returns: undefined }
       remove_label: { Args: { p_item: string; p_label: string }; Returns: undefined }
+      remove_photo: { Args: { p_item: string }; Returns: undefined }
       remove_reminder: { Args: { p_id: string }; Returns: undefined }
       remove_subtask: { Args: { p_id: string }; Returns: undefined }
       rename_label: {
@@ -1525,6 +1571,26 @@ export type Database = {
         SetofOptions: {
           from: '*'
           to: 'calendar_links'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      set_photo: {
+        Args: { p_bytes: number; p_height: number; p_id: string; p_item: string; p_width: number }
+        Returns: {
+          bytes: number | null
+          created_at: string
+          created_by: string
+          height: number | null
+          id: string
+          item_id: string
+          kind: string
+          path: string
+          width: number | null
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'attachments'
           isOneToOne: true
           isSetofReturn: false
         }

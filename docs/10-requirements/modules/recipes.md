@@ -180,7 +180,7 @@ Acceptance criteria
 
 **As** Joe, **I want** ideas saved with almost nothing and kept in a list,
 **so that** capturing is quick and I can scan them later.
-Priority: Must · Status: verified (the photo comes with photos)
+Priority: Must · Status: verified
 
 Acceptance criteria
 1. Given New idea, then only the name is required; notes, links (any
@@ -241,7 +241,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to edit the heading and a Variation separately, **so
 that** each edit is about one thing.
-Priority: Must · Status: verified (3 comes with photos)
+Priority: Must · Status: verified
 
 Acceptance criteria
 1. Given Edit heading on my Recipe, then I change the name, photo,

@@ -37,6 +37,8 @@ export interface Rows {
   pantry?: Record<string, unknown>[]
   values?: Record<string, unknown>[]
   activity?: Record<string, unknown>[]
+  /** Photos (core.attachments) and their files in Storage's `photos` bucket. */
+  attachments?: Record<string, unknown>[]
   /** What connecting Google Calendar brings: its calendars and the main one's events. */
   google?: {
     account: string
@@ -156,6 +158,9 @@ export async function standIn(
     pantry: [...(rows.pantry ?? [])],
     values: [...(rows.values ?? [])],
     activity: [...(rows.activity ?? [])],
+    attachments: [...(rows.attachments ?? [])],
+    /** Storage's `photos` bucket: each file's bytes by its path. */
+    files: new Map<string, Buffer>(),
     /** The calendar chosen for each new Event (set_event_calendar). */
     event_calendars: [] as { item_id: string; calendar_link_id: string | null }[],
   }
@@ -801,6 +806,21 @@ export async function standIn(
         calendar_link_id: (a.p_link as string | null) ?? null,
       })
     },
+    set_photo: (a) => {
+      if (db.attachments.some((x) => x.id === a.p_id)) return
+      db.attachments = db.attachments.filter((x) => x.item_id !== a.p_item)
+      db.attachments.push({
+        id: a.p_id,
+        item_id: a.p_item,
+        kind: 'photo',
+        path: `${String(a.p_item)}/${String(a.p_id)}.webp`,
+        width: a.p_width,
+        height: a.p_height,
+      })
+    },
+    remove_photo: (a) => {
+      db.attachments = db.attachments.filter((x) => x.item_id !== a.p_item)
+    },
     set_mark: (a) => {
       db.marks = db.marks.filter((m) => m.item_id !== a.p_item)
       if (a.p_on) db.marks.push({ item_id: String(a.p_item) })
@@ -815,6 +835,37 @@ export async function standIn(
       } catch {
         return route.fulfill({ status: 410, json: { error: 'Expired' } })
       }
+    // Storage's `photos` bucket: upload, signed links, the files, removing.
+    const stored = url.pathname.match(/\/storage\/v1\/object\/(sign\/)?photos\/?(.*)$/)
+    if (stored) {
+      const [, sign, path] = stored
+      const method = route.request().method()
+      if (sign && !path) {
+        const { paths } = route.request().postDataJSON() as { paths: string[] }
+        return route.fulfill({
+          json: paths.map((p) => ({
+            path: p,
+            signedURL: `/object/sign/photos/${p}?token=stand-in`,
+            error: db.files.has(p) ? null : 'Not found',
+          })),
+        })
+      }
+      if (sign) {
+        const file = db.files.get(decodeURIComponent(path!))
+        return file
+          ? route.fulfill({ body: file, contentType: 'image/webp' })
+          : route.fulfill({ status: 404, json: {} })
+      }
+      if (method === 'POST') {
+        db.files.set(decodeURIComponent(path!), route.request().postDataBuffer() ?? Buffer.from(''))
+        return route.fulfill({ json: { Key: `photos/${path}`, Id: path } })
+      }
+      if (method === 'DELETE') {
+        const { prefixes } = route.request().postDataJSON() as { prefixes: string[] }
+        for (const p of prefixes) db.files.delete(p)
+        return route.fulfill({ json: [] })
+      }
+    }
     const rpc = url.pathname.match(/\/rest\/v1\/rpc\/(\w+)$/)
     if (rpc) {
       // The food schema's functions come with its profile (supabase.schema('food')).

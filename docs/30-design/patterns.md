@@ -392,7 +392,10 @@ StepEditor. Agreed with Joe on 18 October on the
   name, then source · when saved · the start of the note, muted; a "…" menu
   (Make it a draft, Archive, Delete; Import from its link with Import). New
   idea is a Dialog: Name, Links (any number, "Add a link"), Note, "Add a
-  photo"; then Cancel and Save.
+  photo" (as Edit heading's); then Cancel and Save. A photo is made WebP of
+  about 250 KB on the device as it is chosen, kept on Save or Done, and
+  sent once its Recipe has reached the server; with no signal it is
+  refused, saying so.
 - **Import** is a Dialog: Link, then its progress as three lines (done with
   a filled check, the current one with a spinner, the next muted); it ends
   on a Draft.
@@ -429,7 +432,10 @@ StepEditor. Agreed with Joe on 18 October on the
   Textarea and the links, each an Input, with "Add a link". Everything is
   kept as it is left; there is nothing to save. Lines and steps reorder by
   their handle or Alt+↑ / Alt+↓ on a computer. **Edit heading** is a Dialog: the photo
-  (Change photo, Remove), Name, Category and Cuisine (each a LabelPicker of
+  (112px wide; Change photo, or "Add a photo" with `plus` when there is
+  none, a DropdownMenu of "From a file or the camera" (`image`) and "From a
+  link" (`link`, which opens an Input with an outline Use under the photo);
+  then a ghost Remove), Name, Category and Cuisine (each a LabelPicker of
   my list, opened from an outline Button showing the value), then Tags,
   Protein and Carbs as Badges, each with an X, and an "Add" LabelPicker; a
   new name is added to my list. Done keeps it.

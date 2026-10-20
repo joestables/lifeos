@@ -53,7 +53,7 @@ import { useLibraryView } from '@/app/library-view'
 import { NewIdeaDialog } from '@/app/new-idea'
 import { archiveRecipes, deleteRecipes, makeDrafts } from '@/app/recipe-actions'
 import { HeadingDialog } from '@/app/recipe-heading'
-import { queue, setMark, useFood } from '@/data'
+import { queue, setMark, useFood, usePhotoUrls } from '@/data'
 import type { RecipeView } from '@/data/food-hooks'
 import { capturedWhen } from '@/lib/dates'
 import {
@@ -280,6 +280,7 @@ function Library({
   const choosing = useChoosing()
   const all = useMemo(() => food.recipes.filter(inLibrary), [food.recipes])
   const shown = libraryRecipes(food.recipes, view, food.pantry)
+  const photos = usePhotoUrls(shown.map((r) => r.photo?.path))
   const values = filterValues(all)
   const groups: FilterGroup[] = FILTERS.map((name) => {
     const chosen = view.chosen[name] ?? []
@@ -399,6 +400,7 @@ function Library({
                 <RecipeCard
                   key={r.item.id}
                   name={r.item.title}
+                  photo={r.photo && photos.get(r.photo.path)}
                   cuisine={r.heading.cuisine ?? undefined}
                   draft={r.state === 'active'}
                   favourite={r.favourite}

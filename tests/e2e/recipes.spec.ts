@@ -436,4 +436,83 @@ test.describe('Recipes', () => {
     await expect.poll(() => db.cooks[0]).toMatchObject({ verdict: 5, notes: 'Perfect' })
     await expect(page.getByText('Perfect')).toBeVisible()
   })
+
+  test('RCP-006: a photo, made small on the device, kept, shown and removed', async ({ page }) => {
+    const db = await start(page, `/recipes/${KATSU}`)
+    const editHeading = async () => {
+      await page.getByRole('button', { name: 'More' }).click()
+      await page.getByRole('menuitem', { name: 'Edit heading' }).click()
+    }
+    await editHeading()
+    // A large picture, as a camera makes one.
+    const png = await page.evaluate(() => {
+      const c = document.createElement('canvas')
+      c.width = 3000
+      c.height = 2000
+      const g = c.getContext('2d')!
+      for (let i = 0; i < 400; i++) {
+        g.fillStyle = `hsl(${i * 7}, 70%, ${30 + (i % 40)}%)`
+        g.fillRect((i * 97) % 3000, (i * 53) % 2000, 300, 200)
+      }
+      return c.toDataURL('image/png').split(',')[1]!
+    })
+    const dialog = page.getByRole('dialog', { name: 'Edit heading' })
+    await dialog.locator('input[type=file]').setInputFiles({
+      name: 'katsu.png',
+      mimeType: 'image/png',
+      buffer: Buffer.from(png, 'base64'),
+    })
+    await expect(dialog.getByRole('img', { name: 'Photo' })).toBeVisible()
+    await dialog.getByRole('button', { name: 'Done' }).click()
+    await expect.poll(() => db.attachments.length).toBe(1)
+    const photo = db.attachments[0]!
+    const file = db.files.get(String(photo.path))!
+    expect(file.subarray(8, 12).toString()).toBe('WEBP')
+    expect(file.length).toBeLessThanOrEqual(250 * 1024)
+    expect(Math.max(Number(photo.width), Number(photo.height))).toBeLessThanOrEqual(1600)
+    await expect(page.getByRole('img', { name: 'Katsu curry' })).toHaveAttribute('src', /token=/)
+    await page.goto('/recipes')
+    await expect(cards(page).filter({ hasText: 'Katsu curry' }).locator('img')).toHaveAttribute(
+      'src',
+      /token=/,
+    )
+
+    // Removed, it goes, and so does its file.
+    await page.goto(`/recipes/${KATSU}`)
+    await editHeading()
+    await page
+      .getByRole('dialog', { name: 'Edit heading' })
+      .getByRole('button', { name: 'Remove', exact: true })
+      .click()
+    await page
+      .getByRole('dialog', { name: 'Edit heading' })
+      .getByRole('button', { name: 'Done' })
+      .click()
+    await expect.poll(() => db.attachments.length).toBe(0)
+    await expect.poll(() => db.files.size).toBe(0)
+  })
+
+  test('RCP-002: a new Idea keeps its photo, sent once the Idea is', async ({ page }) => {
+    const db = await start(page, '/recipes?tab=ideas')
+    const png = await page.evaluate(() => {
+      const c = document.createElement('canvas')
+      c.width = 400
+      c.height = 300
+      c.getContext('2d')!.fillRect(0, 0, 200, 150)
+      return c.toDataURL('image/png').split(',')[1]!
+    })
+    await page.getByRole('button', { name: 'New idea' }).first().click()
+    const dialog = page.getByRole('dialog', { name: 'New idea' })
+    await dialog.getByLabel('Name').fill('Smash burgers')
+    await dialog.locator('input[type=file]').setInputFiles({
+      name: 'burger.png',
+      mimeType: 'image/png',
+      buffer: Buffer.from(png, 'base64'),
+    })
+    await expect(dialog.getByRole('img', { name: 'Photo' })).toBeVisible()
+    await dialog.getByRole('button', { name: 'Save' }).click()
+    await expect.poll(() => db.attachments.length).toBe(1)
+    const idea = db.items.find((i) => i.title === 'Smash burgers')!
+    expect(db.attachments[0]).toMatchObject({ item_id: idea.id, width: 400, height: 300 })
+  })
 })

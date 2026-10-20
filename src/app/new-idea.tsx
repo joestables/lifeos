@@ -13,6 +13,8 @@ import { toast } from '@/components/ui/sonner'
 import { Textarea } from '@/components/ui/textarea'
 import { archiveItem, createRecipe, updateVariation, type FoodData } from '@/data'
 import { nameTaken } from '@/lib/recipes'
+import { keepPhoto, type PhotoChoice } from './keep-photo'
+import { PhotoField } from './photo-field'
 import { Field } from './task-details'
 
 /**
@@ -25,6 +27,7 @@ export function NewIdeaDialog({ food, onClose }: { food: FoodData; onClose: () =
   const [links, setLinks] = useState([''])
   const [note, setNote] = useState('')
   const [tried, setTried] = useState(false)
+  const [photo, setPhotoChoice] = useState<PhotoChoice>(null)
   const taken = name.trim() ? nameTaken(food.recipes, name) : undefined
   const problem = taken
     ? taken.mine
@@ -36,6 +39,7 @@ export function NewIdeaDialog({ food, onClose }: { food: FoodData; onClose: () =
     setTried(true)
     if (!name.trim() || problem) return
     const { recipe, variation } = createRecipe(name.trim(), 'idea')
+    keepPhoto(recipe, photo, undefined)
     const sources = links.map((l) => l.trim()).filter(Boolean)
     if (sources.length || note.trim())
       updateVariation(variation, {
@@ -103,6 +107,7 @@ export function NewIdeaDialog({ food, onClose }: { food: FoodData; onClose: () =
               onChange={(e) => setNote(e.target.value)}
             />
           </Field>
+          <PhotoField choice={photo} onChoice={setPhotoChoice} />
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose}>
               Cancel

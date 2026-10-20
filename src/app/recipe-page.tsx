@@ -44,6 +44,7 @@ import {
   restoreItem,
   setMark,
   updateRecipe,
+  usePhotoUrls,
   useRecipeActivity,
   type Cook,
   type FoodData,
@@ -191,6 +192,7 @@ function Heading({
   go: RecipeGo
 }) {
   const [naming, setNaming] = useState<'duplicate' | 'mine' | null>(null)
+  const photo = usePhotoUrls([recipe.photo?.path]).get(recipe.photo?.path ?? '')
   const h = recipe.heading
   const facts = [h.category, h.cuisine, ...h.protein, ...h.carbs, ...h.tags].filter(
     (f): f is string => Boolean(f),
@@ -211,7 +213,11 @@ function Heading({
 
   return (
     <div className="flex flex-col gap-5 md:flex-row md:items-start">
-      <RecipePhoto className="w-full shrink-0 rounded-lg md:w-72" />
+      <RecipePhoto
+        src={photo}
+        alt={recipe.item.title}
+        className="w-full shrink-0 rounded-lg md:w-72"
+      />
       <div className="flex min-w-0 flex-1 flex-col gap-3">
         <VariationSwitcher recipe={recipe} variation={variation} onChange={go.variation} />
         {facts.length > 0 && (

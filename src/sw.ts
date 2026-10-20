@@ -1,9 +1,9 @@
 /// <reference lib="webworker" />
 /**
  * LifeOS's service worker (ADR-0044): the app's files kept for offline use,
- * as before, and now notifications — showing a push, opening its Item when
- * tapped (REM-006), and Done and Snooze from its buttons (REM-005), kept and
- * sent later with no signal.
+ * as before, photos once seen (ADR-0052), and notifications — showing a
+ * push, opening its Item when tapped (REM-006), and Done and Snooze from its
+ * buttons (REM-005), kept and sent later with no signal.
  */
 import { clientsClaim } from 'workbox-core'
 import {
@@ -11,7 +11,10 @@ import {
   createHandlerBoundToURL,
   precacheAndRoute,
 } from 'workbox-precaching'
+import { CacheableResponsePlugin } from 'workbox-cacheable-response'
+import { ExpirationPlugin } from 'workbox-expiration'
 import { NavigationRoute, registerRoute } from 'workbox-routing'
+import { CacheFirst } from 'workbox-strategies'
 import { notificationFor, type NotificationData } from './lib/notification'
 
 declare let self: ServiceWorkerGlobalScope
@@ -22,6 +25,17 @@ clientsClaim()
 precacheAndRoute(self.__WB_MANIFEST)
 cleanupOutdatedCaches()
 registerRoute(new NavigationRoute(createHandlerBoundToURL('/index.html')))
+// Photos seen before show offline (RCP-016 1): kept by their week-long link.
+registerRoute(
+  ({ url }) => url.pathname.includes('/storage/v1/object/sign/photos/'),
+  new CacheFirst({
+    cacheName: 'photos',
+    plugins: [
+      new CacheableResponsePlugin({ statuses: [200] }),
+      new ExpirationPlugin({ maxEntries: 500, maxAgeSeconds: 8 * 24 * 3600 }),
+    ],
+  }),
+)
 
 self.addEventListener('push', (event) => {
   const { title, options } = notificationFor(event.data?.text())

@@ -44,6 +44,7 @@ import {
   type VariationFields,
 } from './food'
 import { foodWrites } from './food-writes'
+import { applyPendingPhotos, photosKey, photoWrites, type Photo } from './photos'
 import { queryClient } from './queryClient'
 import { applyPendingReminders, remindersKey, type Reminder } from './reminders'
 import { applyPendingSeries, seriesKey, type Series } from './series'
@@ -159,6 +160,11 @@ const collections: {
     fold: (rows: Cook[], e: QueueEntry) => applyPendingCooks(rows, [e], ''),
   },
   {
+    key: photosKey,
+    fns: ['set_photo', 'remove_photo'],
+    fold: (rows: Photo[], e: QueueEntry) => applyPendingPhotos(rows, [e]),
+  },
+  {
     key: pantryKey,
     fns: ['food.add_pantry'],
     fold: (rows: PantryEntry[], e: QueueEntry) => applyPendingPantry(rows, [e], ''),
@@ -268,6 +274,8 @@ export const {
   addValue,
 } = foodWrites(queue)
 
+export const { setPhoto, removePhoto } = photoWrites(queue)
+
 export const { unsentWrites, signOut } = session(queue)
 
 /**
@@ -299,6 +307,7 @@ export {
 export { googleEventUrl } from './calendar'
 export { useFood, useRecipeActivity, type FoodData } from './food-hooks'
 export { positionBetween, positionsFor } from './food-writes'
+export { usePhotoUrls, type Photo } from './photos'
 export type {
   Activity,
   Cook,
