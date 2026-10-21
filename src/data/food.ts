@@ -16,6 +16,18 @@ export type Step = Omit<Food['variation_steps']['Row'], 'created_at' | 'updated_
 export type Cook = Omit<Food['cooks']['Row'], 'updated_at'>
 /** A Pantry entry (PAN-001). */
 export type PantryEntry = Omit<Food['pantry']['Row'], 'created_at' | 'updated_at'>
+/** A Meal's own fields beyond its Item (MPL-002): servings, and what it is leftovers of. */
+export type MealRow = Omit<Food['meal']['Row'], 'updated_at'>
+/** What a new Meal is made with (MPL-002). */
+export interface MealFields {
+  title: string
+  do_on: string
+  slot: 'breakfast' | 'lunch' | 'dinner'
+  space_id?: string
+  variation?: string
+  servings?: number | null
+  leftovers_of?: string
+}
 /** A staple of one of my Spaces, and whether it has run out (PAN-002). */
 export type Staple = Food['staples']['Row']
 /** What a Pantry entry is made or changed with (PAN-001). */
@@ -45,6 +57,7 @@ export const cooksKey = ['food', 'cooks'] as const
 export const pantryKey = ['food', 'pantry'] as const
 export const valuesKey = ['food', 'values'] as const
 export const staplesKey = ['food', 'staples'] as const
+export const mealsKey = ['food', 'meal'] as const
 /** My personal Space's id: where my staples are kept until Households (PAN-002 1). */
 export const personalSpaceKey = ['core', 'spaces', 'personal'] as const
 /** A Recipe's log (RCP-013): the activity of it and its Variations. */
@@ -151,6 +164,12 @@ export async function fetchPantry(): Promise<PantryEntry[]> {
     .from('pantry')
     .select('id, name, kind, aisle, default_unit, added_by')
     .order('name')
+  if (error) throw error
+  return data
+}
+
+export async function fetchMeals(): Promise<MealRow[]> {
+  const { data, error } = await food().from('meal').select('item_id, servings, leftovers_of')
   if (error) throw error
   return data
 }
@@ -522,6 +541,37 @@ export function applyPendingPantry(
     }
   }
   return out
+}
+
+/** Meals' servings and leftovers, with unsent Meals and changes laid over (MPL-002, MPL-003). */
+export function applyPendingMeals(
+  rows: readonly MealRow[],
+  entries: readonly QueueEntry[],
+): MealRow[] {
+  const byId = new Map(rows.map((r) => [r.item_id, r]))
+  for (const e of entries) {
+    const a = args(e)
+    if (e.fn === 'food.plan_meal') {
+      const id = String(a.p_id)
+      const f = (a.p_fields ?? {}) as Args
+      if (!byId.has(id))
+        byId.set(id, {
+          item_id: id,
+          servings: (f.servings as number) ?? null,
+          leftovers_of: (f.leftovers_of as string) ?? null,
+        })
+    } else if (e.fn === 'food.update_meal') {
+      const row = byId.get(String(a.p_id))
+      const p = (a.p_patch ?? {}) as Args
+      if (!row) continue
+      byId.set(row.item_id, {
+        ...row,
+        ...('servings' in p && { servings: (p.servings as number) ?? null }),
+        ...('leftovers_of' in p && { leftovers_of: (p.leftovers_of as string) ?? null }),
+      })
+    }
+  }
+  return [...byId.values()]
 }
 
 /** My staples, with unsent marks, merges and deletions laid over (PAN-002). */

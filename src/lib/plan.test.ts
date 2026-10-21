@@ -201,3 +201,39 @@ describe('dragging to another day (PLN-007)', () => {
     expect(moveTo(e, '2026-10-23', '2026-10-23', TZ)).toBeNull()
   })
 })
+
+describe('PLN-008: Meals on Plan', () => {
+  const meal = (id: string, slot: string, created = '2026-10-01T09:00:00Z') =>
+    item(id, { type: 'meal', do_on: '2026-10-15', slot, created_at: created })
+
+  it('shows Breakfast, Lunch and Dinner in that order among the untimed', () => {
+    const days = planDays(
+      [
+        meal('dinner', 'dinner', '2026-10-01T08:00:00Z'),
+        item('task', { do_on: '2026-10-15', created_at: '2026-10-01T10:00:00Z' }),
+        meal('breakfast', 'breakfast', '2026-10-01T11:00:00Z'),
+        meal('lunch', 'lunch'),
+      ],
+      '2026-10-15',
+      '2026-10-15',
+      TZ,
+    )
+    expect(days.get('2026-10-15')!.map((p) => p.item.id)).toEqual([
+      'task',
+      'breakfast',
+      'lunch',
+      'dinner',
+    ])
+  })
+
+  it('says its slot where a time would be', () => {
+    const p = placeOf(meal('m', 'dinner'), TZ)!
+    expect(cardLine(p, '2026-10-15', TZ)).toEqual({ time: 'Dinner' })
+  })
+
+  it('PLN-008 5: moved to another day, it keeps its slot', () => {
+    expect(moveTo(meal('m', 'lunch'), '2026-10-15', '2026-10-17', TZ)).toEqual({
+      do_on: '2026-10-17',
+    })
+  })
+})

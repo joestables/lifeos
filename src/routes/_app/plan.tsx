@@ -1,3 +1,4 @@
+import { AddMealDialog } from '@/app/add-meal'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { addDays, todayIn } from '@lifeos/recurrence'
 import { TYPES, hasTrait } from '@lifeos/ontology'
@@ -277,6 +278,9 @@ function Plan() {
       )}
       {adding?.type === 'event' && (
         <NewEventDialog day={adding.day} onClose={() => setAdding(null)} />
+      )}
+      {adding?.type === 'meal' && (
+        <AddMealDialog day={adding.day} onClose={() => setAdding(null)} />
       )}
     </>
   )

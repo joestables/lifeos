@@ -482,21 +482,52 @@ StepEditor. Agreed with Joe on 18 October on the
 MealCard, MealSlot, AddMealButton, MealWeek, MealDay and PantryRow in
 [components](components.md). Agreed with the Recipes screens.
 
-- Green (TypeScope). Tabs: **Week** and **Pantry**; the PageAction is "New
-  shopping list" on the week, "New entry" on the Pantry.
-- **The week:** the PlanToolbar (no Day / Week), an `sm` Select of whose
-  Meals show ("All my meals", Personal, each Household) and a "…" menu
-  holding Copy week; then the MealWeek on a computer, MealDays down a
-  phone. Meals are dragged between slots on both, with Undo.
-- **Adding:** a slot's "+" opens a Popover (320px): an `sm` search, the
-  slot's category already chosen among LabelChips, "Planned lately" then
-  the rest, each a 40px line with the Recipe's small TypeTile, its name and
-  cuisine (and "· Sam") muted; a footer of ghost "Type a meal"
-  (`utensils`) and "Leftovers" (`rotate-ccw`).
+- Green (TypeScope). Tabs: **Week** and **Pantry** (`?tab=pantry`); the
+  PageAction is "New shopping list" on the week (with Shopping, Stage 4b;
+  until then none), "New entry" on the Pantry.
+- **The week:** the PlanToolbar (no Day / Week; `?day=` names the week), an
+  `sm` Select of whose Meals show ("All my meals", Personal, each
+  Household; with Households, plan step 9) and a "…" menu holding Copy this
+  week…; then the MealWeek on a computer, the week's seven MealDays down a
+  phone, today's scrolled into view. A Meal's name is its Recipe's, a typed
+  Meal's what was typed; leftovers take the name of the Meal they are of.
+- **Moving:** on a computer a MealCard is dragged to any slot, as on Plan;
+  on a phone it is pressed and held until it lifts, then dragged, the slot
+  under the finger lit, and let go there. A slot can hold several Meals.
+  Moved, a toast says where ("Moved "Katsu curry" to Sat lunch") with Undo.
+- **Adding:** a slot's "+" opens a Popover (320px): an `sm` search, my
+  categories as LabelChips with the slot's chosen when I have one, then
+  "Planned lately" (the Recipes of my latest Meals, up to five) and "All
+  recipes" (Drafts and Completes, A–Z), each a 40px line with the Recipe's
+  small TypeTile, its name and cuisine (and "· Sam") muted; a footer of
+  ghost "Type a meal" (`utensils`) and "Leftovers" (`rotate-ccw`). A Recipe
+  with one Variation is planned at once; with more, the list becomes its
+  Variations under a ghost back button and the Recipe's name, the default
+  first. **Type a meal** becomes an `sm` Input ("Out: Dishoom") and Add.
+  **Leftovers** lists the Meals of the seven days before the slot, newest
+  first ("Katsu curry · Thu dinner"), leftovers themselves left out. A new
+  Meal serves what its Variation does, and is Personal until Households.
 - **A Meal** opens in its ItemDialog: "Meal · Thu dinner", its Checkbox
-  (eaten) and name; an ItemRow for its Recipe ("Open recipe · Standard");
-  Servings and For (Personal or a Household) side by side; Leftovers, an
-  ItemRow per slot they fill.
+  (eaten) and name; for a Recipe's Meal, an ItemRow for its Recipe ("Open
+  recipe · Standard") and, when the Recipe has more than one Variation, a
+  Variation Select; Servings (and, with Households, For: Personal or a
+  Household) side by side; for leftovers, an ItemRow for the Meal they are
+  of; Leftovers, an ItemRow per slot they fill, each with a "…" Remove.
+  Its "…" menu: Move to…, Add leftovers… (not on leftovers) and Remove
+  (red). **Move to…** and **Add leftovers…** are small Dialogs: Day (a
+  DateField) and Slot (a Select; for leftovers the next lunch or dinner to
+  start),
+  then Cancel and Move, or Add. **Remove** takes its leftovers with it, in
+  a toast with Undo.
+- **Copy this week…** is a small Dialog: "To the week of" (a DateField),
+  then Cancel and Copy. Each Meal is made again on the same weekday and
+  slot, leftovers still of their copied Meal; a toast says how many, with
+  Undo.
+- **On Plan** (PLN-008): a Meal's card says Meal, its name ("Leftovers:
+  Katsu curry" for leftovers) and its slot where a time would be. Plan's
+  "+" → Meal opens a Dialog, "Add a meal · Thu 15 Oct": a ToggleGroup of
+  Breakfast, Lunch and Dinner (Dinner to start), then the Popover's search
+  and list in its place.
 - **The Pantry:** search and a ToggleGroup of All, Staples and Out of
   stock; then "Ingredients" (a SectionLabel) and a Card per aisle, in aisle
   order (its name muted, 14px weight 600, then its PantryRows); then

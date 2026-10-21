@@ -35,6 +35,8 @@ export interface Rows {
   variation_steps?: Record<string, unknown>[]
   cooks?: Record<string, unknown>[]
   pantry?: Record<string, unknown>[]
+  /** Meals' own fields (food.meal): servings, leftovers_of. */
+  meal?: Record<string, unknown>[]
   /** My Spaces' staples (PAN-002); my personal Space is `s`. */
   staples?: Record<string, unknown>[]
   values?: Record<string, unknown>[]
@@ -160,6 +162,7 @@ export async function standIn(
     cooks: [...(rows.cooks ?? [])],
     pantry: [...(rows.pantry ?? [])],
     staples: [...(rows.staples ?? [])],
+    meal: [...(rows.meal ?? [])],
     spaces: [{ id: 's', kind: 'personal', name: '', created_by: ANN.id }],
     values: [...(rows.values ?? [])],
     activity: [...(rows.activity ?? [])],
@@ -521,6 +524,45 @@ export async function standIn(
         default_unit: f.default_unit ?? null,
         added_by: ANN.id,
       })
+    },
+    plan_meal: (a) => {
+      if (item(a.p_id)) return
+      const f = a.p_fields as Record<string, unknown>
+      const at = now()
+      db.items.push(
+        itemRow({
+          id: String(a.p_id),
+          type: 'meal',
+          title: String(f.title ?? '').trim(),
+          do_on: f.do_on ?? null,
+          slot: f.slot ?? null,
+          status: 'active',
+          created_at: at,
+          updated_at: at,
+        }),
+      )
+      db.meal.push({
+        item_id: a.p_id,
+        servings: f.servings ?? null,
+        leftovers_of: f.leftovers_of ?? null,
+      })
+      if (f.variation)
+        db.links.push({
+          from_item: String(a.p_id),
+          to_item: String(f.variation),
+          link_type: 'uses',
+        })
+    },
+    update_meal: (a) =>
+      db.meal.filter((m) => m.item_id === a.p_id).forEach((m) => Object.assign(m, a.p_patch)),
+    set_meal_variation: (a) => {
+      db.links = db.links.filter((l) => !(l.from_item === a.p_meal && l.link_type === 'uses'))
+      if (a.p_variation)
+        db.links.push({
+          from_item: String(a.p_meal),
+          to_item: String(a.p_variation),
+          link_type: 'uses',
+        })
     },
     update_pantry: (a) => {
       const p = db.pantry.find((x) => x.id === a.p_id)

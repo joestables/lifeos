@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   applyPendingCooks,
   applyPendingLines,
+  applyPendingMeals,
   applyPendingPantry,
   applyPendingRecipes,
   applyPendingStaples,
@@ -292,5 +293,56 @@ describe('PAN-002: staples and out of stock show at once', () => {
     expect(
       applyPendingStaples([staple('g')], [entry('food.remove_pantry', { p_id: 'g' })]),
     ).toEqual([])
+  })
+})
+
+describe('MPL-002, MPL-003: a Meal shows at once, offline too', () => {
+  const plan = entry('food.plan_meal', {
+    p_id: 'm',
+    p_fields: {
+      title: ' Katsu curry ',
+      do_on: '2026-10-15',
+      slot: 'dinner',
+      status: 'active',
+      variation: 'v',
+      servings: 4,
+    },
+  })
+
+  it('makes the Meal an Item on its day and slot, named as sent', () => {
+    const [m] = applyPending([], [plan])
+    expect([m?.type, m?.title, m?.do_on, m?.slot, m?.sync]).toEqual([
+      'meal',
+      'Katsu curry',
+      '2026-10-15',
+      'dinner',
+      'pending',
+    ])
+  })
+
+  it('keeps its servings, then a change to them', () => {
+    expect(applyPendingMeals([], [plan])).toEqual([
+      { item_id: 'm', servings: 4, leftovers_of: null },
+    ])
+    expect(
+      applyPendingMeals(
+        [],
+        [plan, entry('food.update_meal', { p_id: 'm', p_patch: { servings: 6 } })],
+      ),
+    ).toEqual([{ item_id: 'm', servings: 6, leftovers_of: null }])
+  })
+
+  it('uses its Variation, and another once changed', () => {
+    const uses = (links: { from_item: string; to_item: string; link_type: string }[]) =>
+      links.filter((l) => l.link_type === 'uses').map((l) => [l.from_item, l.to_item])
+    expect(uses(applyPendingLinks([], [plan]))).toEqual([['m', 'v']])
+    expect(
+      uses(
+        applyPendingLinks(
+          [],
+          [plan, entry('food.set_meal_variation', { p_meal: 'm', p_variation: 'v2' })],
+        ),
+      ),
+    ).toEqual([['m', 'v2']])
   })
 })

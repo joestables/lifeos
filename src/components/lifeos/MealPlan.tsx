@@ -85,10 +85,13 @@ export function MealSlot({
   adding = false,
   dropping = false,
   label = true,
+  drop,
 }: {
   slot: Slot
   /** False in the week, where the slots are named once, down the left. */
   label?: boolean
+  /** Where a Meal dragged here goes ("2026-10-15:dinner"). */
+  drop?: string
   children?: ReactNode
   /** The slot's "+": opens the search (MPL-002). */
   add?: ReactNode
@@ -97,7 +100,7 @@ export function MealSlot({
 }) {
   const empty = !children
   return (
-    <div className="group/slot flex min-w-0 flex-col gap-1">
+    <div data-drop={drop} className="group/slot flex min-w-0 flex-col gap-1">
       {label && (
         <div className="px-1 text-[11px] font-bold tracking-[0.06em] text-muted-foreground uppercase">
           {slot}
@@ -229,6 +232,7 @@ export function MealWeek({
               key={`${d.key}-${slot}`}
               role="gridcell"
               aria-label={`${d.name} ${slot.toLowerCase()}`}
+              data-drop={`${d.key}:${slot.toLowerCase()}`}
               className={cn(
                 'flex min-h-[78px] min-w-0 flex-col justify-start px-1.5 py-2',
                 d.today

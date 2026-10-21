@@ -8,7 +8,7 @@ import { TYPE_ICONS } from '@/components/lifeos/colours'
 export const APP_STAGE = 4
 
 /** The stage being built's Types the app has so far; the rest wait for their step. */
-const BUILT_NOW: readonly string[] = ['recipe', 'variation']
+const BUILT_NOW: readonly string[] = ['recipe', 'variation', 'meal']
 
 /** Whether the app offers a Type yet: an earlier stage's, or one built in this stage. */
 export function offered(key: string): boolean {
