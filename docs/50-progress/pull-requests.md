@@ -2,7 +2,7 @@
 
 Newest first. Each entry is added in its own pull request.
 
-## Stage 4, step 7: the Meal plan's week
+## [#17](https://github.com/joestables/lifeos/pull/17) — Stage 4, step 7: the Meal plan's week
 
 Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-21
 
