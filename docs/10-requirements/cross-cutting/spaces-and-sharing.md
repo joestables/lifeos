@@ -139,6 +139,8 @@ Acceptance criteria
    me, and each shared Item says which Household it belongs to.
 2. Given a choice of Space for an Item (a Meal, a shopping list), then it
    offers Personal and each of my Households.
+3. Given an Item someone else made in a Household, then I can't move it to
+   another Space; only its maker can (bug hunt, 21 October).
 
 ### HSH-004 — Leaving and removing
 
