@@ -42,27 +42,34 @@ export interface SettingsPatch {
   plan_hidden_types?: string[]
 }
 
-/** My row of core.people: the only one I can read. */
+/**
+ * My row of core.people. I read the people of my Households too (HSH-001),
+ * so it is asked for by my id.
+ */
 export async function fetchSettings(): Promise<Settings> {
+  const { data: auth } = await supabase().auth.getSession()
+  const me = auth.session?.user.id
+  if (!me) return DEFAULT_SETTINGS
   const { data, error } = await supabase()
     .from('people')
     .select(
       'timezone, default_reminder_time, reminder_defaults, digest_on, digest_time, plan_hidden_types',
     )
+    .eq('id', me)
     .limit(1)
   if (error) throw error
-  const me = data[0]
-  if (!me) return DEFAULT_SETTINGS
-  const defaults = (me.reminder_defaults ?? {}) as Record<string, boolean>
+  const mine = data[0]
+  if (!mine) return DEFAULT_SETTINGS
+  const defaults = (mine.reminder_defaults ?? {}) as Record<string, boolean>
   return {
-    timezone: me.timezone || DEFAULT_SETTINGS.timezone,
-    defaultReminderTime: me.default_reminder_time.slice(0, 5),
+    timezone: mine.timezone || DEFAULT_SETTINGS.timezone,
+    defaultReminderTime: mine.default_reminder_time.slice(0, 5),
     taskReminders: defaults.task !== false,
     thoughtReminders: defaults.thought !== false,
     eventReminders: defaults.event !== false,
-    digestOn: me.digest_on,
-    digestTime: me.digest_time.slice(0, 5),
-    planHiddenTypes: me.plan_hidden_types ?? [],
+    digestOn: mine.digest_on,
+    digestTime: mine.digest_time.slice(0, 5),
+    planHiddenTypes: mine.plan_hidden_types ?? [],
   }
 }
 
