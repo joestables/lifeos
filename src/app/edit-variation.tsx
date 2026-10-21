@@ -39,6 +39,7 @@ import {
   type PantryEntry,
 } from '@/data'
 import type { RecipeView, VariationView } from '@/data/food-hooks'
+import { useOnLeave } from '@/hooks/use-on-leave'
 import { useReorder } from '@/hooks/use-reorder'
 import {
   STATE_NAMES,
@@ -48,21 +49,15 @@ import {
   readAmount,
   storedText,
 } from '@/lib/recipe-parts'
+import { AISLES, type Aisle } from '@/lib/pantry'
 import { lineName } from '@/lib/recipes'
+import { AddToPantryDialog } from './add-to-pantry'
+import { LinksField } from './links-field'
 import { titlesOf } from './recipe-helpers'
 import { Field } from './task-details'
 import { ReferenceField } from './reference-field'
 
 type LineUnit = (typeof LINE_UNITS)[number]
-
-const AISLES: Record<string, string> = {
-  fruit_veg: 'Fruit & veg',
-  bakery: 'Bakery',
-  protein: 'Protein',
-  chilled: 'Chilled',
-  cupboard: 'Cupboard',
-  frozen: 'Frozen',
-}
 
 /** A row of the ingredients being edited: a line or a subheading, kept or not yet. */
 interface Row {
@@ -108,11 +103,18 @@ function IngredientRow({
   const [amount, setAmount] = useState(l ? amountText(l) : '')
   const [unit, setUnit] = useState<LineUnit>(((l?.unit as LineUnit | null) ?? '') as LineUnit)
   const [name, setName] = useState(l ? lineName(l, pantry) : '')
+  // Suggestions showing, and the name changed since it was kept: Escape
+  // closes the one and leaves the other.
   const [typing, setTyping] = useState(false)
+  const [changed, setChanged] = useState(false)
   const [active, setActive] = useState(0)
+  // Adding to the Pantry: its Dialog takes the focus, so the box's leaving waits for it.
+  const [adding, setAdding] = useState<{ name: string; extra: LineFields } | null>(null)
+  const addingRef = useRef(false)
+  const removed = useRef(false)
   const matches = typing ? pantryMatches(pantry, name) : []
   const exact = [...pantry.values()].find((p) => p.name.toLowerCase() === name.trim().toLowerCase())
-  const status = typing ? 'typing' : l?.pantry_id ? 'pantry' : 'typed'
+  const status = changed ? 'typing' : l?.pantry_id ? 'pantry' : 'typed'
 
   /** Keeps the line: a new one is added, a kept one changed by what differs. */
   const keep = (fields: LineFields) => {
@@ -120,24 +122,27 @@ function IngredientRow({
       updateLine(variation, row.id, fields)
     } else if (fields.pantry_id || fields.text) {
       const amt = readAmount(amount)
-      addLine(variation, {
-        position: row.position,
-        qty: amt?.qty ?? null,
-        qty_max: amt?.qty_max ?? null,
-        approx: amt?.approx ?? false,
-        unit: (amt?.unit ?? unit) || null,
-        ...fields,
-      })
+      addLine(
+        variation,
+        {
+          position: row.position,
+          qty: amt?.qty ?? null,
+          qty_max: amt?.qty_max ?? null,
+          approx: amt?.approx ?? false,
+          unit: (amt?.unit ?? unit) || null,
+          ...fields,
+        },
+        row.id,
+      )
     }
   }
 
-  /** The ingredient chosen: a Pantry entry, a new one, or as typed (RCP-007 1, 2). */
-  const choose = (how: { pantry: string } | 'add' | 'typed') => {
-    setTyping(false)
+  /** The name typed, and the amount and unit typed with it, read off. */
+  const prepare = (): { typed: string; extra: LineFields } | null => {
     let typed = name.trim()
     if (!typed) {
       if (l) setName(lineName(l, pantry))
-      return
+      return null
     }
     // "200 g chorizo" typed whole: its amount and unit go to their boxes.
     const parsed = parseLine(typed)
@@ -153,111 +158,157 @@ function IngredientRow({
         setUnit(parsed.unit)
       }
     }
-    const found = how === 'typed' ? undefined : how === 'add' ? undefined : pantry.get(how.pantry)
+    return { typed, extra }
+  }
+
+  /** The ingredient chosen: a Pantry entry, a new one, or as typed (RCP-007 1, 2). */
+  const choose = (how: { pantry: string } | 'add' | 'typed') => {
+    setTyping(false)
+    setChanged(false)
+    const ready = prepare()
+    if (!ready) return
+    const { typed, extra } = ready
+    const found = typeof how === 'object' ? pantry.get(how.pantry) : undefined
     if (found) {
       setName(found.name)
       keep({ ...extra, pantry_id: found.id, text: null })
     } else if (how === 'add') {
+      // Its aisle chosen first (Joe, 20 October).
+      addingRef.current = true
       setName(typed)
-      keep({ ...extra, pantry_id: addPantry(typed), text: null })
+      setAdding({ name: typed, extra })
     } else {
       setName(typed)
       keep({ ...extra, pantry_id: null, text: typed })
     }
   }
 
+  /** The amount as typed, read and kept when it differs. */
+  const keepAmount = () => {
+    const read = readAmount(amount)
+    if (!read) {
+      setAmount(l ? amountText(l) : '')
+      return
+    }
+    setAmount(amountText(read))
+    if (read.unit) setUnit(read.unit)
+    if (l && amountText(read) !== amountText(l)) keep(read)
+    else if (l && read.unit && read.unit !== l.unit) keep({ unit: read.unit })
+  }
+
+  // Swiped back or closed mid-line: what was typed is kept (RCP-006 4).
+  useOnLeave(() => {
+    if (removed.current || addingRef.current) return
+    if (changed) choose(exact ? { pantry: exact.id } : 'typed')
+    else if (l) keepAmount()
+  })
+
   return (
-    <IngredientLineEditor
-      reorder={reorder}
-      onKeyDown={onKeyDown}
-      amount={amount}
-      onAmount={setAmount}
-      onAmountDone={() => {
-        const read = readAmount(amount)
-        if (!read) {
-          setAmount(l ? amountText(l) : '')
-          return
-        }
-        setAmount(amountText(read))
-        if (read.unit) setUnit(read.unit)
-        if (l && amountText(read) !== amountText(l)) keep(read)
-        else if (l && read.unit && read.unit !== l.unit) keep({ unit: read.unit })
-      }}
-      unit={unit}
-      onUnit={(u) => {
-        setUnit(u)
-        if (l) keep({ unit: (u as Unit) || null })
-      }}
-      ingredient={name}
-      status={status}
-      onRemove={onRemove}
-      ingredientField={
-        <Suggestions
-          open={typing && name.trim() !== ''}
-          onDismiss={() => setTyping(false)}
-          title="Pantry"
-          query={name}
-          items={matches.map((p) => ({
-            key: p.id,
-            label: p.name,
-            meta: p.aisle ? AISLES[p.aisle] : undefined,
-          }))}
-          active={Math.min(active, Math.max(matches.length - 1, 0))}
-          onChoose={(id) => choose({ pantry: id })}
-          actions={[
-            ...(exact
-              ? []
-              : [
-                  {
-                    key: 'add',
-                    label: `Add "${name.trim()}" to the Pantry`,
-                    icon: <PlusIcon />,
-                    onClick: () => choose('add'),
-                  },
-                ]),
-            {
-              key: 'typed',
-              label: 'Keep as typed',
-              icon: <TypeIcon />,
-              onClick: () => choose('typed'),
-            },
-          ]}
-          field={
-            <Input
-              aria-label="Ingredient"
-              autoComplete="off"
-              autoFocus={autoFocus}
-              className="pr-9"
-              value={name}
-              onChange={(e) => {
-                setName(e.target.value)
-                setTyping(true)
-                setActive(0)
-              }}
-              onBlur={() => {
-                if (!typing) return
-                choose(exact ? { pantry: exact.id } : 'typed')
-              }}
-              onKeyDown={(e) => {
-                if (!typing) return
-                if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-                  e.preventDefault()
-                  if (!matches.length) return
-                  const step = e.key === 'ArrowDown' ? 1 : -1
-                  setActive((a) => (a + step + matches.length) % matches.length)
-                } else if (e.key === 'Enter') {
-                  e.preventDefault()
-                  const pick = matches[Math.min(active, matches.length - 1)]
-                  choose(pick ? { pantry: pick.id } : 'typed')
-                } else if (e.key === 'Escape') {
-                  setTyping(false)
-                }
-              }}
-            />
-          }
+    <>
+      {adding && (
+        <AddToPantryDialog
+          name={adding.name}
+          pantry={pantry}
+          onAdd={(n, aisle: Aisle) => {
+            setName(n)
+            keep({ ...adding.extra, pantry_id: addPantry(n, aisle), text: null })
+            addingRef.current = false
+            setAdding(null)
+          }}
+          onClose={() => {
+            // Not added: it stays as typed, so nothing typed is lost.
+            if (addingRef.current) keep({ ...adding.extra, pantry_id: null, text: adding.name })
+            addingRef.current = false
+            setAdding(null)
+          }}
         />
-      }
-    />
+      )}
+      <IngredientLineEditor
+        reorder={reorder}
+        onKeyDown={onKeyDown}
+        amount={amount}
+        onAmount={setAmount}
+        onAmountDone={keepAmount}
+        unit={unit}
+        onUnit={(u) => {
+          setUnit(u)
+          if (l) keep({ unit: (u as Unit) || null })
+        }}
+        ingredient={name}
+        status={status}
+        onRemove={() => {
+          removed.current = true
+          onRemove()
+        }}
+        ingredientField={
+          <Suggestions
+            open={typing && name.trim() !== ''}
+            onDismiss={() => setTyping(false)}
+            title="Pantry"
+            query={name}
+            items={matches.map((p) => ({
+              key: p.id,
+              label: p.name,
+              meta: p.aisle ? AISLES[p.aisle as Aisle] : undefined,
+            }))}
+            active={Math.min(active, Math.max(matches.length - 1, 0))}
+            onChoose={(id) => choose({ pantry: id })}
+            actions={[
+              ...(exact
+                ? []
+                : [
+                    {
+                      key: 'add',
+                      label: `Add "${name.trim()}" to the Pantry`,
+                      icon: <PlusIcon />,
+                      onClick: () => choose('add'),
+                    },
+                  ]),
+              {
+                key: 'typed',
+                label: 'Keep as typed',
+                icon: <TypeIcon />,
+                onClick: () => choose('typed'),
+              },
+            ]}
+            field={
+              <Input
+                aria-label="Ingredient"
+                autoComplete="off"
+                autoFocus={autoFocus}
+                className="pr-9"
+                value={name}
+                onChange={(e) => {
+                  setName(e.target.value)
+                  setTyping(true)
+                  setChanged(true)
+                  setActive(0)
+                }}
+                onBlur={() => {
+                  if (!changed || addingRef.current) return
+                  choose(exact ? { pantry: exact.id } : 'typed')
+                }}
+                onKeyDown={(e) => {
+                  if (!changed) return
+                  if (typing && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
+                    e.preventDefault()
+                    if (!matches.length) return
+                    const step = e.key === 'ArrowDown' ? 1 : -1
+                    setActive((a) => (a + step + matches.length) % matches.length)
+                  } else if (e.key === 'Enter') {
+                    e.preventDefault()
+                    const pick = matches[Math.min(active, matches.length - 1)]
+                    choose(pick ? { pantry: pick.id } : exact ? { pantry: exact.id } : 'typed')
+                  } else if (e.key === 'Escape') {
+                    setTyping(false)
+                  }
+                }}
+              />
+            }
+          />
+        }
+      />
+    </>
   )
 }
 
@@ -278,6 +329,17 @@ function SubheadingRow({
 }) {
   const [value, setValue] = useState(row.line?.heading ?? '')
   const ref = useRef<HTMLDivElement>(null)
+  const removed = useRef(false)
+  const done = () => {
+    const v = value.trim()
+    if (!v) {
+      if (row.line) setValue(row.line.heading ?? '')
+      return
+    }
+    if (!row.line) addLine(variation, { position: row.position, heading: v }, row.id)
+    else if (v !== row.line.heading) updateLine(variation, row.id, { heading: v })
+  }
+  useOnLeave(() => !removed.current && done())
   useEffect(() => {
     if (autoFocus) ref.current?.querySelector('input')?.focus()
   }, [autoFocus])
@@ -288,16 +350,11 @@ function SubheadingRow({
         reorder={reorder}
         onKeyDown={onKeyDown}
         onChange={setValue}
-        onDone={() => {
-          const v = value.trim()
-          if (!v) {
-            if (row.line) setValue(row.line.heading ?? '')
-            return
-          }
-          if (!row.line) addLine(variation, { position: row.position, heading: v })
-          else if (v !== row.line.heading) updateLine(variation, row.id, { heading: v })
+        onDone={done}
+        onRemove={() => {
+          removed.current = true
+          onRemove()
         }}
-        onRemove={onRemove}
       />
     </div>
   )
@@ -474,6 +531,10 @@ function Method({
       updateStep(v, r.id, { text })
   }
 
+  useOnLeave(() => {
+    for (const r of rows) commit(r)
+  })
+
   return (
     <RecipePanel title="Method">
       <div className="flex flex-col gap-2.5">
@@ -536,6 +597,14 @@ function NotesAndSources({
     if (JSON.stringify(next) !== JSON.stringify(variation.fields.sources))
       updateVariation(v, { sources: next })
   }
+  const keepNotes = () => {
+    const text = storedText(notes, initial.refs).trim()
+    if (text !== (variation.fields.notes ?? '')) updateVariation(v, { notes: text || null })
+  }
+  useOnLeave(() => {
+    keepNotes()
+    keepSources(sources)
+  })
   return (
     <RecipePanel title="Notes and sources">
       <ReferenceField
@@ -543,37 +612,50 @@ function NotesAndSources({
         placeholder="Notes"
         value={notes}
         onChange={setNotes}
-        onCommit={() => {
-          const text = storedText(notes, initial.refs).trim()
-          if (text !== (variation.fields.notes ?? '')) updateVariation(v, { notes: text || null })
-        }}
+        onCommit={keepNotes}
         refs={initial.refs}
         recipes={food.recipes}
         except={recipe.item.id}
       />
-      <div className="flex flex-col gap-2">
-        {sources.map((s, i) => (
-          <Input
-            key={i}
-            type="url"
-            inputMode="url"
-            aria-label={`Source ${i + 1}`}
-            placeholder="Link"
-            value={s}
-            onChange={(e) => setSources((l) => l.map((x, j) => (j === i ? e.target.value : x)))}
-            onBlur={() => keepSources(sources)}
-          />
-        ))}
-        <Button
-          variant="ghost"
-          size="sm"
-          className="self-start text-muted-foreground"
-          onClick={() => setSources((l) => [...l, ''])}
-        >
-          <PlusIcon /> Add a link
-        </Button>
-      </div>
+      <LinksField label="Source" links={sources} onChange={setSources} onLeave={keepSources} />
     </RecipePanel>
+  )
+}
+
+/** A Variation's time or servings, kept as it is left. */
+function NumberField({
+  id,
+  label,
+  value,
+  min,
+  max,
+  onKeep,
+}: {
+  id: string
+  label: string
+  value: number | null
+  min: number
+  max: number
+  onKeep: (value: number | null) => void
+}) {
+  const [text, setText] = useState(value?.toString() ?? '')
+  const keep = () => {
+    const read = readWhole(text, min, max)
+    if (read === undefined) setText(value?.toString() ?? '')
+    else if (read !== value) onKeep(read)
+  }
+  useOnLeave(keep)
+  return (
+    <Field label={label} htmlFor={id}>
+      <Input
+        id={id}
+        inputMode="numeric"
+        autoComplete="off"
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        onBlur={keep}
+      />
+    </Field>
   )
 }
 
@@ -604,11 +686,11 @@ export function EditVariation({
   const f = variation.fields
   const ids = useId()
   const [name, setName] = useState(variation.item.title)
-  const [numbers, setNumbers] = useState({
-    prep_min: f.prep_min?.toString() ?? '',
-    cook_min: f.cook_min?.toString() ?? '',
-    servings: f.servings?.toString() ?? '',
-  })
+  const keepName = () => {
+    if (!name.trim()) setName(variation.item.title)
+    else if (name.trim() !== variation.item.title) updateItem(v, { title: name.trim() })
+  }
+  useOnLeave(keepName)
   const hasContent =
     variation.lines.some((l) => l.heading === null) || variation.steps.some((s) => s.text.trim())
   // No way back to Idea once it has ingredients or a method (RCP-010 2).
@@ -616,48 +698,20 @@ export function EditVariation({
     (s) => s !== 'idea' || !hasContent || variation.item.status === 'idea',
   )
 
-  // Leaving the app mid-word keeps the word (RCP-006 4).
-  useEffect(() => {
-    const leave = () => (document.activeElement as HTMLElement | null)?.blur()
-    window.addEventListener('pagehide', leave)
-    return () => window.removeEventListener('pagehide', leave)
-  }, [])
-
-  const number = (key: keyof typeof numbers, label: string, min: number, max: number) => (
-    <Field label={label} htmlFor={`${ids}-${key}`}>
-      <Input
-        id={`${ids}-${key}`}
-        inputMode="numeric"
-        autoComplete="off"
-        value={numbers[key]}
-        onChange={(e) => setNumbers((n) => ({ ...n, [key]: e.target.value }))}
-        onBlur={() => {
-          const read = readWhole(numbers[key], min, max)
-          if (read === undefined) {
-            setNumbers((n) => ({ ...n, [key]: f[key]?.toString() ?? '' }))
-            return
-          }
-          if (read !== f[key]) updateVariation(v, { [key]: read })
-        }}
-      />
-    </Field>
-  )
-
   return (
     <div className="flex flex-col gap-5 px-5 pb-12 sm:px-9">
       <VariationFieldsCard>
-        <Field label="Variation" htmlFor={`${ids}-name`}>
-          <Input
-            id={`${ids}-name`}
-            autoComplete="off"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            onBlur={() => {
-              if (!name.trim()) setName(variation.item.title)
-              else if (name.trim() !== variation.item.title) updateItem(v, { title: name.trim() })
-            }}
-          />
-        </Field>
+        <div className="col-span-2 sm:col-span-1">
+          <Field label="Variation" htmlFor={`${ids}-name`}>
+            <Input
+              id={`${ids}-name`}
+              autoComplete="off"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              onBlur={keepName}
+            />
+          </Field>
+        </div>
         <Field label="State">
           <Select
             value={variation.item.status}
@@ -676,16 +730,44 @@ export function EditVariation({
             </SelectContent>
           </Select>
         </Field>
-        {number('prep_min', 'Prep (min)', 0, 10000)}
-        {number('cook_min', 'Cook (min)', 0, 10000)}
-        {number('servings', 'Serves', 1, 100)}
-        <Button onClick={onDone}>Done</Button>
+        {/* A phone: State and Serves, then Prep and Cook (Joe, 20 October). */}
+        <NumberField
+          id={`${ids}-servings`}
+          label="Serves"
+          value={f.servings}
+          min={1}
+          max={100}
+          onKeep={(n) => updateVariation(v, { servings: n })}
+        />
+        <NumberField
+          id={`${ids}-prep`}
+          label="Prep (min)"
+          value={f.prep_min}
+          min={0}
+          max={10000}
+          onKeep={(n) => updateVariation(v, { prep_min: n })}
+        />
+        <NumberField
+          id={`${ids}-cook`}
+          label="Cook (min)"
+          value={f.cook_min}
+          min={0}
+          max={10000}
+          onKeep={(n) => updateVariation(v, { cook_min: n })}
+        />
+        <Button className="max-sm:hidden" onClick={onDone}>
+          Done
+        </Button>
       </VariationFieldsCard>
       <RecipeColumns layout="editing">
         <Ingredients variation={variation} pantry={food.pantry} />
         <Method variation={variation} food={food} recipe={recipe} />
       </RecipeColumns>
       <NotesAndSources variation={variation} food={food} recipe={recipe} />
+      {/* On a phone Done is where the editing ends. */}
+      <Button className="sm:hidden" onClick={onDone}>
+        Done
+      </Button>
     </div>
   )
 }

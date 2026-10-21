@@ -402,6 +402,10 @@ function DesignPage() {
             <Button variant="destructive">
               <Trash2Icon /> Delete
             </Button>
+            <Button variant="ghost-destructive">
+              <Trash2Icon /> Delete
+            </Button>
+            <Button variant="link">Link</Button>
             <Button disabled>Disabled</Button>
           </Row>
           <Row>
@@ -428,6 +432,9 @@ function DesignPage() {
             <Badge>Errands</Badge>
             <Badge variant="outline">Someday</Badge>
             <Badge variant="destructive">Overdue</Badge>
+            <Badge removeLabel="Remove Quick" onRemove={() => undefined}>
+              Quick
+            </Badge>
             <TypeBadge colour="green">Last cooked Mon</TypeBadge>
             <TypeBadge colour="coral">Push</TypeBadge>
             <TypeBadge colour="purple">On track</TypeBadge>
@@ -908,14 +915,17 @@ function DesignPage() {
                 </FilterSection>
               </FilterPanel>
               <div className="flex min-w-0 flex-col gap-3">
-                <SelectionBar count={1} onDone={() => {}}>
-                  <Button variant="ghost" size="sm">
-                    <ArchiveIcon /> Archive
-                  </Button>
-                  <Button variant="ghost" size="sm" className="text-destructive">
-                    <Trash2Icon /> Delete
-                  </Button>
-                </SelectionBar>
+                {/* Transformed, so the phone's bar sits under its example, not on the screen's foot. */}
+                <div className="transform-gpu max-md:pb-16">
+                  <SelectionBar
+                    count={1}
+                    onDone={() => {}}
+                    actions={[
+                      { label: 'Archive', icon: ArchiveIcon, onClick: () => {} },
+                      { label: 'Delete', icon: Trash2Icon, onClick: () => {}, destructive: true },
+                    ]}
+                  />
+                </div>
                 <RecipeGrid size="S">
                   <RecipeCard name="Katsu curry" cuisine="Japanese" favourite />
                   <RecipeCard name="Gochujang noodles" cuisine="Korean" draft />

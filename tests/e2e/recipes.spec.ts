@@ -1,6 +1,7 @@
 import { expect, test, type Page } from '@playwright/test'
 import {
   BIRRIA,
+  BIRRIA_V,
   KATSU,
   KATSU_STD,
   PANKO,
@@ -10,7 +11,7 @@ import {
   id,
   rows,
 } from './recipe-rows'
-import { itemRow, standIn } from './stand-in'
+import { ANN, itemRow, standIn } from './stand-in'
 
 async function start(page: Page, path = '/recipes') {
   const db = await standIn(page, { signedIn: true, rows: rows() })
@@ -121,6 +122,12 @@ test.describe('Recipes', () => {
     await dialog.getByRole('button', { name: 'Save' }).click()
     await expect(dialog.getByText('You already have a recipe with this name')).toBeVisible()
     await dialog.getByLabel('Name').fill('Chicken shawarma')
+    // A Draft needs a category and a cuisine (RCP-010 6).
+    await dialog.getByRole('button', { name: 'Save' }).click()
+    await expect(dialog.getByText('A recipe needs a category and a cuisine')).toBeVisible()
+    await dialog.getByRole('button', { name: 'Category' }).click()
+    await page.getByRole('checkbox', { name: 'Dinner' }).click()
+    await page.keyboard.press('Escape')
     await dialog.getByRole('button', { name: 'Cuisine' }).click()
     await page.getByRole('textbox', { name: 'Cuisine' }).fill('Middle Eastern')
     await page.getByRole('textbox', { name: 'Cuisine' }).press('Enter')
@@ -160,15 +167,69 @@ test.describe('Recipes', () => {
     await expect
       .poll(() => db.items.find((i) => i.title === 'Crispy chilli beef')?.status)
       .toBe('idea')
-    // Make it a draft: it leaves Ideas for the library.
+    // Sorted A–Z, kept for next time.
+    await page.getByRole('combobox', { name: 'Sort' }).click()
+    await page.getByRole('option', { name: 'A–Z' }).click()
+    await expect(page.locator('[data-slot="item-row"]')).toContainText([
+      'Birria tacos',
+      'Crispy chilli beef',
+    ])
+    // Make it a draft: its category and cuisine first, then its Variation to fill.
     const row = page.locator('[data-slot="item-row"]').filter({ hasText: 'Birria tacos' })
     await row.getByRole('button', { name: 'More' }).click()
+    await expect(page.getByRole('menuitem', { name: 'Archive' })).toHaveCount(0)
     await page.getByRole('menuitem', { name: 'Make it a draft' }).click()
-    await expect(page.getByText('Birria tacos')).toHaveCount(0)
+    const drafting = page.getByRole('dialog', { name: 'Make it a draft' })
+    await drafting.getByRole('button', { name: 'Category' }).click()
+    await page.getByRole('checkbox', { name: 'Dinner' }).click()
+    await page.keyboard.press('Escape')
+    await drafting.getByRole('button', { name: 'Cuisine' }).click()
+    await page.getByRole('textbox', { name: 'Cuisine' }).fill('Mexican')
+    await page.getByRole('textbox', { name: 'Cuisine' }).press('Enter')
+    await page.keyboard.press('Escape')
+    await drafting.getByRole('button', { name: 'Make it a draft' }).click()
+    await expect(page.getByRole('heading', { name: 'Edit variation' })).toBeVisible()
     await expect.poll(() => db.items.find((i) => i.id === BIRRIA)?.status).toBe('active')
-    await page.getByRole('tab', { name: 'Recipes' }).click()
-    await expect(cards(page).filter({ hasText: 'Birria tacos' })).toBeVisible()
+    expect(db.recipe.find((r) => r.item_id === BIRRIA)).toMatchObject({
+      category: 'Dinner',
+      cuisine: 'Mexican',
+    })
     void isMobile
+  })
+
+  test('RCP-002: an Idea opens in a popup, notes only, and is deleted, not archived', async ({
+    page,
+    isMobile,
+  }) => {
+    const db = await start(page, '/recipes?tab=ideas')
+    await page.locator('[data-slot="item-row"]').filter({ hasText: 'Birria tacos' }).click()
+    const dialog = page.getByRole('dialog', { name: 'Idea' })
+    await expect(dialog.getByLabel('Note')).toHaveValue('Find one without the slow cooker')
+    await expect(dialog.getByText('Ingredients')).toHaveCount(0)
+    await dialog.getByLabel('Note').fill('A slow cooker one is fine')
+    await dialog.getByRole('button', { name: 'Remove link 1' }).click()
+    await dialog.getByRole('button', { name: 'Done' }).click()
+    await expect(dialog).toBeHidden()
+    await expect
+      .poll(() => db.variation.find((v) => v.item_id === BIRRIA_V))
+      .toMatchObject({ notes: 'A slow cooker one is fine', sources: [] })
+    // Its own link opens the popup too, never a page.
+    await page.goto(`/recipes/${BIRRIA}`)
+    await expect(page.getByRole('dialog', { name: 'Idea' })).toBeVisible()
+    await page.keyboard.press('Escape')
+    // Several chosen: Delete only.
+    if (isMobile) {
+      const r = page.locator('[data-slot="item-row"]').filter({ hasText: 'Birria tacos' })
+      await r.dispatchEvent('pointerdown', { pointerType: 'touch', isPrimary: true })
+      await page.waitForTimeout(700)
+      await r.dispatchEvent('pointerup', { pointerType: 'touch', isPrimary: true })
+    } else {
+      await page.getByRole('button', { name: 'Select' }).click()
+      await page.getByRole('checkbox', { name: 'Birria tacos' }).click()
+    }
+    await expect(page.getByRole('button', { name: 'Archive' })).toHaveCount(0)
+    await page.getByRole('button', { name: 'Delete' }).click()
+    await expect.poll(() => db.items.find((i) => i.id === BIRRIA)?.archived_at).toBeTruthy()
   })
 
   test('RCP-004, RCP-010: choose several and archive them, with Undo', async ({
@@ -237,6 +298,19 @@ test.describe('Recipes', () => {
     await expect(page.getByRole('option', { name: 'Panko breadcrumbs' })).toBeVisible()
     await page.getByRole('textbox', { name: 'Ingredient' }).last().press('Enter')
     await expect.poll(() => db.variation_lines.filter((l) => l.pantry_id === PANKO)).toHaveLength(2)
+    // A new name added to the Pantry, its aisle chosen (Joe, 20 October).
+    await page.getByRole('button', { name: 'Add an ingredient' }).click()
+    await page.getByRole('textbox', { name: 'Ingredient' }).last().fill('Gochujang')
+    await page.getByRole('button', { name: 'Add "Gochujang" to the Pantry' }).click()
+    const pantry = page.getByRole('dialog', { name: 'Add to the Pantry' })
+    await pantry.getByLabel('Aisle').click()
+    await page.getByRole('option', { name: 'Chilled' }).click()
+    await pantry.getByRole('button', { name: 'Add' }).click()
+    await expect
+      .poll(() => db.pantry.find((p) => p.name === 'Gochujang'))
+      .toMatchObject({ aisle: 'chilled' })
+    const gochujang = db.pantry.find((p) => p.name === 'Gochujang')!
+    await expect.poll(() => db.variation_lines.some((l) => l.pantry_id === gochujang.id)).toBe(true)
     // An amount changed.
     const honey = page
       .locator('[data-reorder-id]')
@@ -264,19 +338,21 @@ test.describe('Recipes', () => {
 
   test('RCP-009: a Variation duplicated, switched to and compared', async ({ page }) => {
     const db = await start(page, `/recipes/${KATSU}`)
-    await page.getByRole('button', { name: 'More' }).click()
+    const before = new Set(db.variation_lines.map((l) => String(l.id)))
+    await page.getByRole('button', { name: 'More' }).first().click()
     await page.getByRole('menuitem', { name: 'Duplicate this variation' }).click()
     const dialog = page.getByRole('dialog', { name: 'Duplicate variation' })
     await dialog.getByLabel('Name').fill('Air fryer')
     await dialog.getByRole('button', { name: 'Save' }).click()
     await expect(page.getByRole('heading', { name: 'Edit variation' })).toBeVisible()
+    // The copy's lines take the ids the app gave them, so edits reach them.
     await expect
       .poll(() =>
-        db.variation_lines.filter(
-          (l) => String(l.variation_id) !== KATSU_STD && String(l.id).endsWith(id(33)),
-        ),
+        db.variation_lines
+          .filter((l) => !before.has(String(l.id)))
+          .map((l) => /^[0-9a-f-]{36}$/.test(String(l.id))),
       )
-      .toHaveLength(1)
+      .toEqual([true, true, true, true])
     const honey = page
       .locator('[data-reorder-id]')
       .filter({ has: page.locator('input[value="Honey"]') })
@@ -284,7 +360,7 @@ test.describe('Recipes', () => {
     await honey.getByLabel('Amount').blur()
     await page.getByRole('button', { name: 'Done' }).click()
     await expect(page.getByRole('combobox', { name: 'Variation' })).toContainText('Air fryer')
-    await page.getByRole('button', { name: 'More' }).click()
+    await page.getByRole('button', { name: 'More' }).first().click()
     await page.getByRole('menuitem', { name: 'Compare variations' }).click()
     await expect(page.getByRole('heading', { name: 'Compare variations' })).toBeVisible()
     await expect(page.getByText('Differs')).toHaveCount(2)
@@ -333,12 +409,74 @@ test.describe('Recipes', () => {
     await expect(page.getByText('More honey next time')).toBeVisible()
   })
 
-  test('RCP-013: the log says what changed', async ({ page }) => {
-    await start(page, `/recipes/${KATSU}?edit=variation`)
+  test('RCP-006 4: swiped back mid-edit, what was typed is kept', async ({ page }) => {
+    const db = await start(page, `/recipes/${KATSU}`)
+    await page.getByRole('button', { name: 'Edit', exact: true }).click()
+    await page.getByLabel('Serves').fill('6')
+    const honey = page
+      .locator('[data-reorder-id]')
+      .filter({ has: page.locator('input[value="Honey"]') })
+    await honey.getByLabel('Amount').fill('3')
+    // Back without leaving the box: the browser's back, as a swipe does.
+    await page.goBack()
+    await expect(page.getByRole('heading', { name: 'Katsu curry', level: 1 })).toBeVisible()
+    await expect.poll(() => db.variation.find((v) => v.item_id === KATSU_STD)?.servings).toBe(6)
+    await expect.poll(() => db.variation_lines.find((l) => l.text === 'Honey')?.qty).toBe(3)
+  })
+
+  test('RCP-013: an edit says Edited, and I say what changed if I want to', async ({ page }) => {
+    const db = await start(page, `/recipes/${KATSU}?edit=variation`)
     await page.getByLabel('Serves').fill('6')
     await page.getByLabel('Serves').blur()
+    await page.getByLabel('Source 1', { exact: true }).fill('https://www.justonecookbook.com/katsu')
+    await page.getByLabel('Source 1', { exact: true }).blur()
+    await expect
+      .poll(() => db.variation.find((v) => v.item_id === KATSU_STD)?.sources)
+      .toEqual(['https://www.justonecookbook.com/katsu'])
+    await page.getByRole('button', { name: 'Remove source 1' }).click()
+    await expect.poll(() => db.variation.find((v) => v.item_id === KATSU_STD)?.sources).toEqual([])
     await page.getByRole('button', { name: 'Done' }).click()
-    await expect(page.getByText('Serves 4 → 6')).toBeVisible()
+    const log = page
+      .getByRole('heading', { name: 'Log' })
+      .locator('xpath=ancestor::*[@data-slot="card"][1]')
+    await expect(log.getByText('Edited', { exact: true })).toBeVisible()
+    await expect(log.getByText('Serves 4 → 6')).toHaveCount(0)
+    await log.getByRole('button', { name: 'More' }).first().click()
+    await page.getByRole('menuitem', { name: 'Say what changed' }).click()
+    await page
+      .getByRole('dialog', { name: 'What changed?' })
+      .getByLabel('What changed')
+      .fill('Serves six now')
+    await page
+      .getByRole('dialog', { name: 'What changed?' })
+      .getByRole('button', { name: 'Save' })
+      .click()
+    await expect(log.getByText('Serves six now')).toBeVisible()
+    await expect
+      .poll(() => db.change_notes)
+      .toEqual([expect.objectContaining({ note: 'Serves six now' })])
+  })
+
+  test('RCP-013: See all shows a long log twenty at a time', async ({ page }) => {
+    const cooks = Array.from({ length: 30 }, (_, i) => ({
+      id: id(60 + i),
+      variation_id: KATSU_STD,
+      person_id: ANN.id,
+      cooked_at: `2026-09-${String(i + 1).padStart(2, '0')}T19:00:00Z`,
+      verdict: 4,
+      notes: null,
+      servings: 4,
+      meal_id: null,
+      snapshot: {},
+    }))
+    await standIn(page, { signedIn: true, rows: { ...rows(), cooks } })
+    await page.goto(`/recipes/${KATSU}`)
+    await page.getByRole('button', { name: 'See all' }).click()
+    const dialog = page.getByRole('dialog', { name: 'Log' })
+    await expect(dialog.getByText('Cooked', { exact: true })).toHaveCount(20)
+    await dialog.getByRole('button', { name: 'Show more' }).click()
+    await expect(dialog.getByText('Cooked', { exact: true })).toHaveCount(30)
+    await expect(dialog.getByRole('button', { name: 'Show more' })).toHaveCount(0)
   })
 
   test('RCP-016, SRC-003: Search finds Recipes and Ideas by name, tag or ingredient', async ({
@@ -384,14 +522,16 @@ test.describe('Recipes', () => {
     await expect(row).toBeHidden()
     await expect.poll(() => db.items.find((i) => i.id === id(50))?.type).toBe('recipe')
     await page.getByRole('button', { name: 'Open' }).click()
-    await expect(page.getByRole('heading', { name: 'Crispy chilli beef', level: 1 })).toBeVisible()
+    await expect(page.getByRole('dialog', { name: 'Idea' }).getByLabel('Name')).toHaveValue(
+      'Crispy chilli beef',
+    )
   })
 
   test('RCP-010: an archived Recipe leaves both tabs and comes back as it was from Settings', async ({
     page,
   }) => {
     const db = await start(page, `/recipes/${KATSU}`)
-    await page.getByRole('button', { name: 'More' }).click()
+    await page.getByRole('button', { name: 'More' }).first().click()
     await page.getByRole('menuitem', { name: 'Archive' }).click()
     await expect(page.getByRole('heading', { name: 'Recipes', level: 1 })).toBeVisible()
     await expect(cardNames(page)).toHaveText(['Shakshuka', 'Gochujang noodles', 'Katsu sauce'])
@@ -415,7 +555,7 @@ test.describe('Recipes', () => {
     page,
   }) => {
     const db = await start(page, `/recipes/${KATSU}`)
-    await page.getByRole('button', { name: 'More' }).click()
+    await page.getByRole('button', { name: 'More' }).first().click()
     await page.getByRole('menuitem', { name: 'Log a cook' }).click()
     const dialog = page.getByRole('dialog', { name: 'Log a cook' })
     await expect(dialog.getByLabel('Cooked on')).toBeVisible()
@@ -428,7 +568,8 @@ test.describe('Recipes', () => {
     const snap = page.getByRole('dialog', { name: 'Standard · Serves 4' })
     await expect(snap.getByText('Panko breadcrumbs')).toBeVisible()
     await page.keyboard.press('Escape')
-    await page.getByRole('button', { name: 'Edit', exact: true }).last().click()
+    await page.getByRole('button', { name: 'More' }).last().click()
+    await page.getByRole('menuitem', { name: 'Change how it went' }).click()
     const edit = page.getByRole('dialog', { name: 'How did it go?' })
     await edit.getByRole('radio', { name: '5 out of 5' }).click()
     await edit.getByPlaceholder('Notes').fill('Perfect')
@@ -440,7 +581,7 @@ test.describe('Recipes', () => {
   test('RCP-006: a photo, made small on the device, kept, shown and removed', async ({ page }) => {
     const db = await start(page, `/recipes/${KATSU}`)
     const editHeading = async () => {
-      await page.getByRole('button', { name: 'More' }).click()
+      await page.getByRole('button', { name: 'More' }).first().click()
       await page.getByRole('menuitem', { name: 'Edit heading' }).click()
     }
     await editHeading()

@@ -186,10 +186,16 @@ Acceptance criteria
 1. Given New idea, then only the name is required; notes, links (any
    number) and a photo are optional.
 2. Given the Ideas tab, then Ideas show as a list: name, source, when saved
-   and the start of the note, newest first, with a search.
-3. Given an Idea, when I make it a Draft, then its name, links, notes and
-   photo stay, and its Variation's ingredients and method open to fill.
-4. Given a Thought in Inbox, when I sort it into a Recipe, then it becomes an
+   and the start of the note, newest first or A–Z (kept for next time), with
+   a search.
+3. Given an Idea, then it opens in a popup over Ideas, never a page of its
+   own: its name, links, note and photo, and no ingredients or method (Joe,
+   20 October).
+4. Given an Idea, when I make it a Draft, then I give its category and
+   cuisine first (RCP-010 6); its name, links, notes and photo stay, and its
+   Variation's ingredients and method open to fill.
+5. Given an Idea, then it can be deleted, not archived (Joe, 20 October).
+6. Given a Thought in Inbox, when I sort it into a Recipe, then it becomes an
    Idea, any link in it kept as a source.
 
 ### RCP-003 — Save an idea from another app
@@ -216,8 +222,9 @@ Priority: Should · Status: verified
 
 Acceptance criteria
 1. Given Select on either tab (or a long press on a phone), then I can pick
-   several of my own and Archive, Delete, or (Ideas) make them Drafts, with
-   Undo.
+   several of my own and Archive or Delete Recipes, or Delete Ideas, with
+   Undo. Ideas are made Drafts one at a time, each needing its category and
+   cuisine (RCP-010 6).
 
 ### RCP-005 — A Recipe's page, to read
 
@@ -249,9 +256,10 @@ Acceptance criteria
 2. Given Edit on my Variation, then I change its name, state, ingredients,
    method, notes, times, servings and sources, and nothing of the heading.
 3. Given a photo from a file, the camera or a link, then it is kept, reduced
-   in size.
-4. Given I leave the page, lose signal or close the app mid-edit, then
-   nothing typed is lost.
+   in size. A photo needs signal: without, I'm told at once it wasn't kept.
+4. Given I leave the page, close a Dialog, lose signal or close the app
+   mid-edit, then nothing typed is lost: Edit heading keeps as it goes, and
+   a name it can't take stays as it was.
 5. Given a new list value in a field ("Korean"), then it is added to my
    list as I type it.
 6. Given a name already used by a Recipe I can see, then it is refused, and
@@ -267,11 +275,16 @@ Acceptance criteria
 1. Given I type "200 g chorizo", then it is read as 200, g and Chorizo;
    suggestions from the Pantry appear as I type, the first chosen with
    Enter.
-2. Given a name not in the Pantry, then I choose Add to the Pantry (its
-   aisle Cupboard until I change it) or Keep as typed.
+2. Given a name not in the Pantry, then I choose Add to the Pantry, which
+   asks its name and aisle (Cupboard to start; Joe, 20 October), or Keep as
+   typed.
 3. Given "1-2 tsp", "~5 g" or a name alone, then each is kept as typed.
-4. Given lines, then I reorder and delete them, and may add subheadings
-   ("For the sauce") that group the lines below them.
+4. Given lines, then I reorder them by dragging (on a phone too; Joe, 20
+   October) and delete them, and may add subheadings ("For the sauce") that
+   group the lines below them.
+6. Given a line, then it reads ingredient, then amount, then unit, on one
+   line on a phone and a computer, when edited and when read (Joe, 20
+   October).
 5. Given a method and no ingredients, when I choose Fill from method, then
    the lines are suggested from the method, matched to the Pantry, for me
    to accept or change.
@@ -323,6 +336,10 @@ Acceptance criteria
    leaves both tabs, with Undo.
 5. Given Settings → Archived recipes, then my archived Recipes are listed,
    and one can be brought back as it was.
+6. Given a Draft or Complete Recipe, then it has a category and a cuisine:
+   New recipe and making an Idea a Draft ask for both, and Edit heading
+   won't take either away; a Recipe without them says so on its page (Joe,
+   20 October).
 
 ### RCP-011 — Cooking
 
@@ -367,10 +384,14 @@ Priority: Must · Status: verified
 
 Acceptance criteria
 1. Given a Recipe, then its log lists, newest first, its cooks (verdict,
-   notes, who), Variations made, changed or deleted, and heading changes,
-   each with who and when.
-2. Given a change entry, then it says what changed ("Salt 1 → 2 tsp; step 4
-   rewritten").
+   notes, who), Variations made, edited, marked or deleted, and the heading
+   edited, each with who and when; edits close together by one person are
+   one entry.
+2. Given an edit, then it says "Edited", as a new Recipe says "Added"; its
+   maker may say in their own words what changed, from the entry's "…"
+   (Joe, 20 October).
+5. Given See all, then the whole log opens twenty entries at a time, with
+   Show more.
 3. Given the log, then I can filter it to one Variation, or to cooks.
 4. Given my own cook entry, then I can change its verdict and notes.
 
@@ -413,7 +434,7 @@ Priority: Must · Status: built (2 verified)
 
 Acceptance criteria
 1. Given no signal, then every Recipe opens, cooks and logs, and changes are
-   sent later; photos I've seen before show.
+   sent later (a photo aside, RCP-006 3); photos I've seen before show.
 2. Given Search, then Recipes and Ideas are found by name, tag and
    ingredient.
 3. Given I delete my Recipe, then it goes to Recently deleted with its log,
@@ -459,7 +480,5 @@ nutrition; converting weight to volume; sharing a Recipe outside LifeOS.
 
 1. **Joe's recipe style:** in v1's code; Joe will point Claude to it when
    import is built (step 8).
-2. **Reordering lines and steps on a phone** (RCP-007 4, RCP-008 1): the
-   agreed design has no handle on a phone, so lines and steps reorder only
-   on a computer (by the handle, or Alt+↑ / Alt+↓). *Suggested:* a "…" on
-   each line and step on a phone with Move up and Move down.
+2. ~~Reordering on a phone~~: settled 20 October — ingredient lines are
+   dragged by their handle on a phone too; steps stay as they are.

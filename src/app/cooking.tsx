@@ -154,7 +154,7 @@ export function Cooking({
   const current = state.current ?? steps[0]?.key ?? null
   const at = steps.findIndex((s) => s.key === current)
   const finish = () => {
-    cooking.end()
+    cooking.end(variation.item.id)
     cookTimers.clear(recipe.item.id)
     onFinished()
   }

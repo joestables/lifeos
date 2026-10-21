@@ -58,9 +58,40 @@ export async function fetchActivity(ids: readonly string[]): Promise<Activity[]>
     .select('id, item_id, verb, changed, at, actor')
     .in('item_id', [...ids])
     .order('at', { ascending: false })
-    .limit(200)
+    .limit(500)
   if (error) throw error
   return data as Activity[]
+}
+
+/** Notes on changes (RCP-013): each change's own words, by its first activity entry. */
+export const changeNotesKey = (ids: readonly string[]) => ['food', 'change_notes', ...ids] as const
+
+export async function fetchChangeNotes(
+  ids: readonly string[],
+): Promise<{ activity_id: number; note: string }[]> {
+  if (!ids.length) return []
+  const { data, error } = await food()
+    .from('change_notes')
+    .select('activity_id, note')
+    .in('item_id', [...ids])
+  if (error) throw error
+  return data
+}
+
+/** Notes with unsent ones laid over. */
+export function applyPendingNotes(
+  rows: readonly { activity_id: number; note: string }[],
+  entries: readonly QueueEntry[],
+): Map<number, string> {
+  const out = new Map(rows.map((r) => [r.activity_id, r.note]))
+  for (const e of entries) {
+    if (e.fn !== 'food.note_change') continue
+    const a = args(e)
+    const note = String(a.p_note ?? '').trim()
+    if (note) out.set(Number(a.p_activity), note)
+    else out.delete(Number(a.p_activity))
+  }
+  return out
 }
 
 export async function fetchRecipes(): Promise<RecipeHeading[]> {
@@ -227,6 +258,10 @@ export function applyPendingVariations(
 const byPosition = <T extends { position: string; id: string }>(a: T, b: T) =>
   a.position < b.position ? -1 : a.position > b.position ? 1 : a.id < b.id ? -1 : 1
 
+/** A copied row's id: the one the app chose and sent (RCP-016 1). */
+const copiedId = (a: Args, id: string) =>
+  ((a.p_ids ?? {}) as Record<string, string>)[id] ?? `${String(a.p_id)}:${id}`
+
 /** Lines laid over, including those a new Variation copies from another. */
 export function applyPendingLines(rows: readonly Line[], entries: readonly QueueEntry[]): Line[] {
   let out = [...rows]
@@ -240,7 +275,7 @@ export function applyPendingLines(rows: readonly Line[], entries: readonly Queue
               .filter((l) => l.variation_id === a.p_from)
               .map((l) => ({
                 ...l,
-                id: `${String(a.p_id)}:${l.id}`,
+                id: copiedId(a, l.id),
                 variation_id: String(a.p_id),
               })),
           )
@@ -301,7 +336,7 @@ export function applyPendingSteps(rows: readonly Step[], entries: readonly Queue
               .filter((s) => s.variation_id === a.p_from)
               .map((s) => ({
                 ...s,
-                id: `${String(a.p_id)}:${s.id}`,
+                id: copiedId(a, s.id),
                 variation_id: String(a.p_id),
               })),
           )

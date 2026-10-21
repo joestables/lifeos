@@ -137,9 +137,27 @@ Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-17
   cards and a Recipe's page, and kept for offline. `npm run db:test` makes
   Storage's two tables on the bare image first.
 
+- Joe's round on a phone: an aisle for a new Pantry entry; ingredient
+  lines name first and on one line, dragged on a phone; subheadings as
+  they read; the editor's fields two across, Done at the foot, nothing
+  typed lost on a swipe back; a source's X; "Edited" in the log, with the
+  maker's own note (migration `stage4_change_notes`), and See all twenty
+  at a time; the phone's heading with a smaller photo; a bigger heart; an
+  Idea in a popup, notes only, deleted not archived, sorted; a category
+  and cuisine required from Draft; a refined selection bar on a phone;
+  Dialogs that scroll.
+
+- A production bug hunt after it: new lines saved once; a copied
+  Variation's rows keep the ids the app gave them (migration
+  `stage4_copy_ids_and_notes`, which also makes `note_change` the only
+  way to write a note); a name closed with Escape kept; Edit heading kept
+  as it goes; Make it the default, Ideas' Select and Reset fixed; a photo
+  with no signal says so; cooks in progress kept apart; Button `link` and
+  `ghost-destructive`, and Badge's X, for the hand-made buttons.
+
 **Left for later**
 - Photos in Search's results; the timer's notification from the server;
-  reordering on a phone (an open point for Joe); steps 6 onwards; Joe's
+  steps 6 onwards; Joe's
   further rounds on the specs.
 
 ## [#14](https://github.com/joestables/lifeos/pull/14) — CI: fewer GitHub Actions minutes

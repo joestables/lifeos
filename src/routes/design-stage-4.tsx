@@ -332,19 +332,6 @@ function StateFilter() {
   )
 }
 
-function RecipeBulkActions() {
-  return (
-    <>
-      <Button variant="ghost" size="sm">
-        <ArchiveIcon /> Archive
-      </Button>
-      <Button variant="ghost" size="sm" className="text-destructive">
-        <Trash2Icon /> Delete
-      </Button>
-    </>
-  )
-}
-
 function LibraryToolbar({
   size,
   phone = false,
@@ -356,9 +343,14 @@ function LibraryToolbar({
 }) {
   if (selecting)
     return (
-      <SelectionBar count={2} onDone={nothing}>
-        <RecipeBulkActions />
-      </SelectionBar>
+      <SelectionBar
+        count={2}
+        onDone={nothing}
+        actions={[
+          { label: 'Archive', icon: ArchiveIcon, onClick: nothing },
+          { label: 'Delete', icon: Trash2Icon, onClick: nothing, destructive: true },
+        ]}
+      />
     )
   if (phone)
     return (
@@ -489,17 +481,11 @@ function Ideas({ selecting = false }: { selecting?: boolean }) {
         <div className="flex max-w-3xl flex-col gap-4 px-5 pb-28 sm:px-9">
           <RecipesTabs tab="ideas" action={<PageAction label="New idea" onClick={nothing} />} />
           {selecting ? (
-            <SelectionBar count={2} onDone={nothing}>
-              <Button variant="ghost" size="sm">
-                <ChefHatIcon /> Make drafts
-              </Button>
-              <Button variant="ghost" size="sm">
-                <ArchiveIcon /> Archive
-              </Button>
-              <Button variant="ghost" size="sm" className="text-destructive">
-                <Trash2Icon /> Delete
-              </Button>
-            </SelectionBar>
+            <SelectionBar
+              count={2}
+              onDone={nothing}
+              actions={[{ label: 'Delete', icon: Trash2Icon, onClick: nothing, destructive: true }]}
+            />
           ) : (
             <div className="flex items-center gap-2">
               <div className="relative min-w-0 flex-1">

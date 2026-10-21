@@ -1817,6 +1817,31 @@ export type Database = {
   }
   food: {
     Tables: {
+      change_notes: {
+        Row: {
+          activity_id: number
+          item_id: string
+          note: string
+          person_id: string
+          updated_at: string
+        }
+        ComputedFields: never
+        Insert: {
+          activity_id: number
+          item_id: string
+          note: string
+          person_id?: string
+          updated_at?: string
+        }
+        Update: {
+          activity_id?: number
+          item_id?: string
+          note?: string
+          person_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       cooks: {
         Row: {
           cooked_at: string
@@ -2199,7 +2224,13 @@ export type Database = {
         }
       }
       add_variation: {
-        Args: { p_from?: string; p_id: string; p_name: string; p_recipe: string }
+        Args: {
+          p_from?: string
+          p_id: string
+          p_ids?: Json
+          p_name: string
+          p_recipe: string
+        }
         Returns: Database['core']['Tables']['items']['Row']
         SetofOptions: {
           from: '*'
@@ -2265,6 +2296,7 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      note_change: { Args: { p_activity: number; p_note: string }; Returns: undefined }
       plan_meal: {
         Args: { p_fields: Json; p_id: string }
         Returns: Database['core']['Tables']['items']['Row']

@@ -103,19 +103,25 @@ export interface Cooking {
   current: string | null
 }
 
+/** Each cook in progress, by Variation: starting one leaves another as it was. */
+const cooks = () => {
+  const kept = load<Record<string, Cooking> | Cooking | null>(COOKING, null)
+  // Kept before there could be more than one.
+  if (kept && 'variation' in kept && typeof kept.variation === 'string')
+    return { [kept.variation]: kept as Cooking }
+  return (kept ?? {}) as Record<string, Cooking>
+}
+
 export const cooking = {
   get(variation: string): Cooking | null {
-    const c = load<Cooking | null>(COOKING, null)
-    return c?.variation === variation ? c : null
+    return cooks()[variation] ?? null
   },
   set(c: Cooking) {
-    save(COOKING, c)
+    save(COOKING, { ...cooks(), [c.variation]: c })
   },
-  end() {
-    try {
-      localStorage.removeItem(COOKING)
-    } catch {
-      // Nothing kept.
-    }
+  end(variation: string) {
+    const rest = cooks()
+    delete rest[variation]
+    save(COOKING, rest)
   },
 }

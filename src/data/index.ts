@@ -214,6 +214,8 @@ export const queue = new WriteQueue({
     // A Recipe's log follows what was changed (RCP-013); only an open one refetches.
     if (entry.fn.startsWith('food.') || entry.fn.endsWith('_item'))
       void queryClient.invalidateQueries({ queryKey: ['core', 'activity'] })
+    if (entry.fn === 'food.note_change')
+      void queryClient.invalidateQueries({ queryKey: ['food', 'change_notes'] })
   },
   // Recorded without the Item's content: only which function failed (OFF-004).
   onRejected: (entry, error) =>
@@ -272,6 +274,7 @@ export const {
   removeCook,
   addPantry,
   addValue,
+  noteChange,
 } = foodWrites(queue)
 
 export const { setPhoto, removePhoto } = photoWrites(queue)

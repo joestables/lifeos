@@ -39,11 +39,12 @@ export function deleteRecipes(rs: readonly RecipeView[], noun = 'recipe') {
  * Makes Ideas Drafts (RCP-002 3): my Variations still Ideas become Drafts,
  * keeping their name, links and notes; the Recipe follows.
  */
-export function makeDrafts(rs: readonly RecipeView[]) {
+export function makeDrafts(rs: readonly RecipeView[], say = true) {
   const ids = rs.flatMap((r) =>
     r.variations.filter((v) => v.mine && v.item.status === 'idea').map((v) => v.item.id),
   )
   for (const id of ids) updateItem(id, { status: 'active' })
+  if (!say) return
   toast(rs.length === 1 ? `"${rs[0]!.item.title}" is a draft` : `${rs.length} drafts made`, {
     action: {
       label: 'Undo',

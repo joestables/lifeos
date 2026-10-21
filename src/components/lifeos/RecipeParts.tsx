@@ -44,9 +44,10 @@ export interface IngredientGroup {
 }
 
 /**
- * A Variation's ingredients, to read (RCP-005): each line its amount in
- * tabular figures, then the ingredient; optional subheadings. In Cooking
- * the lines are larger; they aren't ticked off (Joe, 18 October).
+ * A Variation's ingredients, to read (RCP-005): each line the ingredient,
+ * then its amount at the end in tabular figures (Joe, 20 October); optional
+ * subheadings. In Cooking the lines are larger; they aren't ticked off
+ * (Joe, 18 October).
  */
 export function IngredientList({
   groups,
@@ -67,10 +68,10 @@ export function IngredientList({
               key={l.key}
               className={cn('flex items-baseline gap-3 py-1.5', cooking && 'py-2 text-base')}
             >
-              <span className={cn('w-16 shrink-0 font-semibold tabular-nums', cooking && 'w-20')}>
-                {l.amount}
-              </span>
-              <span className="min-w-0">{l.name}</span>
+              <span className="min-w-0 flex-1">{l.name}</span>
+              {l.amount && (
+                <span className="shrink-0 text-right font-semibold tabular-nums">{l.amount}</span>
+              )}
             </div>
           ))}
         </div>
@@ -189,13 +190,23 @@ export function MethodSteps({
 }
 
 /** A row's grip: drags it to its place (useReorder); none on a phone. */
-function Handle({ reorder, className }: { reorder?: Reorder; className?: string }) {
+function Handle({
+  reorder,
+  className,
+  phone = false,
+}: {
+  reorder?: Reorder
+  className?: string
+  /** Shown on a phone too, where it is dragged by touch (ingredient lines). */
+  phone?: boolean
+}) {
   return (
     <span
       {...reorder?.handle}
       aria-hidden
       className={cn(
-        'shrink-0 cursor-grab touch-none text-muted-foreground opacity-0 max-sm:hidden [&_svg]:size-4',
+        'shrink-0 cursor-grab touch-none text-muted-foreground [&_svg]:size-4',
+        phone ? 'max-sm:opacity-100 sm:opacity-0' : 'opacity-0 max-sm:hidden',
         className,
       )}
     >
@@ -367,6 +378,7 @@ export function LogEntry({
   verdict,
   notes,
   children,
+  menu,
 }: {
   who: string
   /** "Cooked Air fryer", "Changed Air fryer" */
@@ -374,8 +386,10 @@ export function LogEntry({
   when: string
   verdict?: ReactNode
   notes?: string
-  /** "What I cooked", a change summary. */
+  /** "What I cooked", a note. */
   children?: ReactNode
+  /** My own entry's "…" (a note on an edit, how a cook went). */
+  menu?: ReactNode
 }) {
   return (
     <div className="flex gap-3">
@@ -398,6 +412,7 @@ export function LogEntry({
         {notes && <p className="text-sm leading-[1.5]">{notes}</p>}
         {children && <div className="text-sm text-muted-foreground">{children}</div>}
       </div>
+      {menu && <div className="-mt-1 shrink-0">{menu}</div>}
     </div>
   )
 }
@@ -451,13 +466,38 @@ export function RecipeColumns({
 
 /**
  * A Variation's own fields being edited, in one Card: in a row on a
- * computer (the name widest, then four, then Done), stacked on a phone.
+ * computer (the name widest, then four, then Done); on a phone two across,
+ * the name the whole width (Joe, 20 October).
  */
 export function VariationFieldsCard({ children }: { children: ReactNode }) {
   return (
-    <Card className="grid items-end gap-4 sm:grid-cols-[minmax(0,1.4fr)_repeat(4,minmax(0,1fr))_auto]">
+    <Card className="grid grid-cols-2 items-end gap-3 sm:grid-cols-[minmax(0,1.4fr)_repeat(4,minmax(0,1fr))_auto] sm:gap-4">
       {children}
     </Card>
+  )
+}
+
+/**
+ * A Recipe's heading laid out: on a computer the photo (288px) beside the
+ * details and, under them, the actions; on a phone the photo at about half
+ * the width beside the details, the actions the whole width under both
+ * (Joe, 20 October).
+ */
+export function RecipeHeadingLayout({
+  photo,
+  details,
+  actions,
+}: {
+  photo: ReactNode
+  details: ReactNode
+  actions: ReactNode
+}) {
+  return (
+    <div className="grid grid-cols-[minmax(0,44%)_minmax(0,1fr)] items-start gap-x-4 gap-y-4 [grid-template-areas:'photo_details''actions_actions'] md:grid-cols-[18rem_minmax(0,1fr)] md:gap-x-5 md:gap-y-3 md:[grid-template-areas:'photo_details''photo_actions']">
+      <div className="[grid-area:photo]">{photo}</div>
+      <div className="flex min-w-0 flex-col gap-2 [grid-area:details] md:gap-3">{details}</div>
+      <div className="flex flex-wrap items-center gap-2 [grid-area:actions]">{actions}</div>
+    </div>
   )
 }
 
@@ -469,13 +509,12 @@ export function RecipeFact({ children }: { children: ReactNode }) {
 const UNITS = LINE_UNITS
 
 /**
- * An ingredient line being edited (RCP-007): a handle to reorder it, then
- * separate boxes for the amount, the unit and the ingredient (Joe, 18
- * October), then whether the ingredient is in the Pantry, and Remove. The
- * ingredient box suggests Pantry entries as I type. On a phone the
- * ingredient takes a line of its own, under the amount and unit. Given
- * handlers, each box is kept as typed; without, it only shows (the design
- * page).
+ * An ingredient line being edited (RCP-007), on one line on a phone and a
+ * computer (Joe, 20 October): a handle to reorder it, the ingredient (with
+ * whether it is in the Pantry), then the amount and the unit, each its own
+ * box, and Remove. The ingredient box suggests Pantry entries as I type.
+ * Given handlers, each box is kept as typed; without, it only shows (the
+ * design page).
  */
 export function IngredientLineEditor({
   amount,
@@ -510,9 +549,26 @@ export function IngredientLineEditor({
     <div
       {...rowState(reorder)}
       onKeyDown={onKeyDown}
-      className={cn('group/line flex flex-wrap items-center gap-2 sm:flex-nowrap', ROW)}
+      className={cn('group/line flex items-center gap-1.5 sm:gap-2', ROW)}
     >
-      <Handle reorder={reorder} className="group-hover/line:opacity-100" />
+      <Handle phone reorder={reorder} className="group-hover/line:opacity-100" />
+      <div className="relative min-w-0 flex-1">
+        {ingredientField ?? (
+          <Input aria-label="Ingredient" defaultValue={ingredient} className="pr-8" />
+        )}
+        {status !== 'typing' && (
+          <span
+            title={status === 'pantry' ? 'In the Pantry' : 'Kept as typed'}
+            className="pointer-events-none absolute top-1/2 right-2.5 -translate-y-1/2 text-muted-foreground [&_svg]:size-4"
+          >
+            {status === 'pantry' ? (
+              <PackageCheckIcon aria-label="In the Pantry" />
+            ) : (
+              <TypeIcon aria-label="Kept as typed" />
+            )}
+          </span>
+        )}
+      </div>
       <Input
         aria-label="Amount"
         {...(onAmount
@@ -521,7 +577,7 @@ export function IngredientLineEditor({
         inputMode="decimal"
         autoComplete="off"
         placeholder="—"
-        className="w-[72px] shrink-0 text-right tabular-nums"
+        className="w-12 shrink-0 px-2 text-right tabular-nums sm:w-[72px] sm:px-3"
       />
       <Select
         {...(onUnit
@@ -531,7 +587,7 @@ export function IngredientLineEditor({
             }
           : { defaultValue: unit ?? '' })}
       >
-        <SelectTrigger aria-label="Unit" className="w-24 shrink-0">
+        <SelectTrigger aria-label="Unit" className="w-[78px] shrink-0 gap-1 px-2 sm:w-24 sm:px-3">
           <SelectValue>
             {(v: string) => v || <span className="text-muted-foreground">—</span>}
           </SelectValue>
@@ -544,23 +600,6 @@ export function IngredientLineEditor({
           ))}
         </SelectContent>
       </Select>
-      <div className="relative min-w-0 flex-1 max-sm:order-last max-sm:basis-full">
-        {ingredientField ?? (
-          <Input aria-label="Ingredient" defaultValue={ingredient} className="pr-9" />
-        )}
-        {status !== 'typing' && (
-          <span
-            title={status === 'pantry' ? 'In the Pantry' : 'Kept as typed'}
-            className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-muted-foreground [&_svg]:size-4"
-          >
-            {status === 'pantry' ? (
-              <PackageCheckIcon aria-label="In the Pantry" />
-            ) : (
-              <TypeIcon aria-label="Kept as typed" />
-            )}
-          </span>
-        )}
-      </div>
       <Button
         variant="ghost"
         size="icon-sm"
@@ -574,7 +613,11 @@ export function IngredientLineEditor({
   )
 }
 
-/** A subheading among the lines being edited ("For the sauce"). */
+/**
+ * A subheading among the lines being edited ("For the sauce"): set as it
+ * reads, a 14px bold muted heading over the lines that follow, with a line
+ * under it, typed into in place; a handle and Remove as a line's.
+ */
 export function SubheadingEditor({
   value,
   reorder,
@@ -594,21 +637,22 @@ export function SubheadingEditor({
     <div
       {...rowState(reorder)}
       onKeyDown={onKeyDown}
-      className={cn('group/line flex items-center gap-2 pt-2', ROW)}
+      className={cn('group/line flex items-center gap-1.5 pt-3 sm:gap-2', ROW)}
     >
-      <Handle reorder={reorder} className="group-hover/line:opacity-100" />
-      <Input
+      <Handle phone reorder={reorder} className="group-hover/line:opacity-100" />
+      <input
         aria-label="Subheading"
         autoComplete="off"
+        placeholder="Subheading"
         {...(onChange
           ? { value, onChange: (e) => onChange(e.target.value), onBlur: onDone }
           : { defaultValue: value })}
-        className="flex-1 font-bold"
+        className="h-9 min-w-0 flex-1 border-b border-border bg-transparent text-sm font-bold text-muted-foreground outline-none placeholder:font-semibold placeholder:text-muted-foreground/60 focus-visible:border-ring focus-visible:text-foreground"
       />
       <Button
         variant="ghost"
         size="icon-sm"
-        aria-label="Remove subheading"
+        aria-label={value ? `Remove ${value}` : 'Remove subheading'}
         onClick={onRemove}
         className="shrink-0 group-hover/line:opacity-100 focus-visible:opacity-100 sm:opacity-0"
       >

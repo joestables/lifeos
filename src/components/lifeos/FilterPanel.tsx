@@ -34,6 +34,7 @@ export function FilterPanel({
   onReset,
   children,
   bare = false,
+  active,
 }: {
   groups: FilterGroup[]
   /** In a Sheet (a phone): no Card and no heading; the Sheet has both, and Reset in its footer. */
@@ -42,8 +43,10 @@ export function FilterPanel({
   onReset: () => void
   /** Sections before the groups, each a FilterSection (State). */
   children?: ReactNode
+  /** Something chosen, counting those sections; else read off the groups. Shows Reset. */
+  active?: boolean
 }) {
-  const any = groups.some((g) => g.chosen?.length)
+  const any = active ?? groups.some((g) => g.chosen?.length)
   const chips = (g: FilterGroup) => (
     <LabelChips
       aria-label={g.name}

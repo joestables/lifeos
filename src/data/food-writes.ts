@@ -63,11 +63,23 @@ export function foodWrites(queue: WriteQueue) {
       queue.enqueue('food.update_recipe', { p_id: recipe, p_patch: patch }, [recipe])
     },
     /** My Variation of a Recipe I can see, a copy of another, or empty (RCP-009, RCP-017). */
-    addVariation(recipe: string, name: string, from?: string): string {
+    /** `copied`: the ids of the lines and steps `from` has, each given a new id here (RCP-016 1). */
+    addVariation(
+      recipe: string,
+      name: string,
+      from?: string,
+      copied: readonly string[] = [],
+    ): string {
       const id = newId()
+      const ids = Object.fromEntries(copied.map((c) => [c, newId()]))
       queue.enqueue(
         'food.add_variation',
-        { p_id: id, p_recipe: recipe, p_name: name, ...(from && { p_from: from }) },
+        {
+          p_id: id,
+          p_recipe: recipe,
+          p_name: name,
+          ...(from && { p_from: from, p_ids: ids }),
+        },
         [id],
       )
       return id
@@ -75,8 +87,8 @@ export function foodWrites(queue: WriteQueue) {
     updateVariation(variation: string, patch: VariationPatch): void {
       queue.enqueue('food.update_variation', { p_id: variation, p_patch: patch }, [variation])
     },
-    addLine(variation: string, fields: LineFields): string {
-      const id = newId()
+    /** `id`: the editor's own row, so the kept line takes its place. */
+    addLine(variation: string, fields: LineFields, id = newId()): string {
       queue.enqueue('food.add_line', { p_id: id, p_variation: variation, p_fields: fields }, [
         variation,
       ])
@@ -118,11 +130,19 @@ export function foodWrites(queue: WriteQueue) {
       queue.enqueue('food.remove_cook', { p_id: id }, [])
     },
     /** A name added to my list as I type it (RCP-006 5). */
-    /** A new Pantry entry, an ingredient in the Cupboard until changed (RCP-007 2). */
-    addPantry(name: string): string {
+    /** A new Pantry entry, an ingredient in the aisle chosen, Cupboard to start (RCP-007 2). */
+    addPantry(name: string, aisle = 'cupboard'): string {
       const id = newId()
-      queue.enqueue('food.add_pantry', { p_id: id, p_fields: { name, kind: 'ingredient' } }, [])
+      queue.enqueue(
+        'food.add_pantry',
+        { p_id: id, p_fields: { name, kind: 'ingredient', aisle } },
+        [],
+      )
       return id
+    },
+    /** My own words on my change (RCP-013); empty, the note goes. */
+    noteChange(activity: number, note: string): void {
+      queue.enqueue('food.note_change', { p_activity: activity, p_note: note }, [])
     },
     addValue(kind: ValueKind, name: string): string {
       const id = newId()

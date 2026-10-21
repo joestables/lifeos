@@ -39,6 +39,7 @@ export interface Rows {
   activity?: Record<string, unknown>[]
   /** Photos (core.attachments) and their files in Storage's `photos` bucket. */
   attachments?: Record<string, unknown>[]
+  change_notes?: Record<string, unknown>[]
   /** What connecting Google Calendar brings: its calendars and the main one's events. */
   google?: {
     account: string
@@ -159,6 +160,7 @@ export async function standIn(
     values: [...(rows.values ?? [])],
     activity: [...(rows.activity ?? [])],
     attachments: [...(rows.attachments ?? [])],
+    change_notes: [...(rows.change_notes ?? [])],
     /** Storage's `photos` bucket: each file's bytes by its path. */
     files: new Map<string, Buffer>(),
     /** The calendar chosen for each new Event (set_event_calendar). */
@@ -396,13 +398,17 @@ export async function standIn(
         for (const l of db.variation_lines.filter((x) => x.variation_id === a.p_from))
           db.variation_lines.push({
             ...l,
-            id: `${String(a.p_id)}:${String(l.id)}`,
+            id:
+              (a.p_ids as Record<string, string> | undefined)?.[String(l.id)] ??
+              crypto.randomUUID(),
             variation_id: a.p_id,
           })
         for (const st of db.variation_steps.filter((x) => x.variation_id === a.p_from))
           db.variation_steps.push({
             ...st,
-            id: `${String(a.p_id)}:${String(st.id)}`,
+            id:
+              (a.p_ids as Record<string, string> | undefined)?.[String(st.id)] ??
+              crypto.randomUUID(),
             variation_id: a.p_id,
           })
       }
@@ -511,6 +517,13 @@ export async function standIn(
         default_unit: f.default_unit ?? null,
         added_by: ANN.id,
       })
+    },
+    note_change: (a) => {
+      db.change_notes = db.change_notes.filter((n) => n.activity_id !== a.p_activity)
+      const note = String(a.p_note ?? '').trim()
+      const act = db.activity.find((x) => x.id === a.p_activity)
+      if (note && act)
+        db.change_notes.push({ activity_id: a.p_activity, item_id: act.item_id, note })
     },
     add_value: (a) => {
       if (!db.values.some((v) => v.id === a.p_id))

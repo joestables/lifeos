@@ -14,6 +14,7 @@ import {
   MethodSteps,
   RecipeColumns,
   RecipeFact,
+  RecipeHeadingLayout,
   RecipePanel,
   RecipePhoto,
   RecipeText,
@@ -37,6 +38,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Textarea } from '@/components/ui/textarea'
 import { Toggle } from '@/components/ui/toggle'
 import {
   addVariation,
@@ -44,6 +46,8 @@ import {
   restoreItem,
   setMark,
   updateRecipe,
+  noteChange,
+  queue,
   usePhotoUrls,
   useRecipeActivity,
   type Cook,
@@ -64,7 +68,7 @@ import {
 import { sourceHost } from '@/lib/recipes'
 import { CookDialog } from './cooking'
 import { MoreMenu } from './more-menu'
-import { archiveRecipes, makeDrafts } from './recipe-actions'
+import { archiveRecipes } from './recipe-actions'
 import { Field } from './task-details'
 import { titlesOf, useWho } from './recipe-helpers'
 
@@ -99,7 +103,7 @@ function VariationSwitcher({
       ? `${v.item.title} (not the author's)`
       : v.item.title
   return (
-    <div className="flex items-center gap-2 text-sm">
+    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
       <span className="font-semibold text-muted-foreground">Variation</span>
       {live.length > 1 ? (
         <Select
@@ -199,9 +203,14 @@ function Heading({
   )
   const times = timesLine(variation)
   const source = variation.fields.sources[0]
-  const isIdea = variation.item.status === 'idea'
   const live = recipe.variations.filter((v) => v.item.status !== 'cancelled')
-  const copy = (name: string) => go.editNew(addVariation(recipe.item.id, name, variation.item.id))
+  const copy = (name: string) =>
+    go.editNew(
+      addVariation(recipe.item.id, name, variation.item.id, [
+        ...variation.lines.map((l) => l.id),
+        ...variation.steps.map((st) => st.id),
+      ]),
+    )
   const deleteVariation = () => {
     const next = live.find((v) => v.item.id !== variation.item.id)
     archiveItem(variation.item.id)
@@ -211,127 +220,130 @@ function Heading({
     })
   }
 
+  const missing = recipe.mine && (!h.category || !h.cuisine)
+
   return (
-    <div className="flex flex-col gap-5 md:flex-row md:items-start">
-      <RecipePhoto
-        src={photo}
-        alt={recipe.item.title}
-        className="w-full shrink-0 rounded-lg md:w-72"
-      />
-      <div className="flex min-w-0 flex-1 flex-col gap-3">
-        <VariationSwitcher recipe={recipe} variation={variation} onChange={go.variation} />
-        {facts.length > 0 && (
-          <div className="flex flex-wrap gap-1.5">
-            {facts.map((f) => (
-              <RecipeFact key={f}>{f}</RecipeFact>
-            ))}
-          </div>
-        )}
-        {(times || variation.fields.servings || source) && (
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground [&_svg]:size-4">
-            {times && (
-              <span className="inline-flex items-center gap-1.5">
-                <ClockIcon /> {times}
-              </span>
+    <>
+      <RecipeHeadingLayout
+        photo={<RecipePhoto src={photo} alt={recipe.item.title} className="w-full rounded-lg" />}
+        details={
+          <>
+            <VariationSwitcher recipe={recipe} variation={variation} onChange={go.variation} />
+            {facts.length > 0 && (
+              <div className="flex flex-wrap gap-1.5">
+                {facts.map((f) => (
+                  <RecipeFact key={f}>{f}</RecipeFact>
+                ))}
+              </div>
             )}
-            {variation.fields.servings && (
-              <span className="inline-flex items-center gap-1.5">
-                <UsersIcon /> Serves {variation.fields.servings}
-              </span>
-            )}
-            {source && (
-              <a
-                href={source}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-1.5 hover:text-foreground"
-              >
-                <LinkIcon /> {sourceHost(source)}
-              </a>
-            )}
-          </div>
-        )}
-        {recipe.cooks.length > 0 && (
-          <div className="text-sm text-muted-foreground">
-            {cookedLine(recipe.cooks, (iso) => capturedWhen(iso))}
-          </div>
-        )}
-        <div className="flex flex-wrap items-center gap-2 pt-1">
-          {isIdea ? (
-            variation.mine && (
-              <Button
-                onClick={() => {
-                  makeDrafts([recipe])
-                  go.edit(variation.item.id)
-                }}
-              >
-                <PencilIcon /> Make it a draft
+            {missing && (
+              // A Draft or Complete Recipe has both (Joe, 20 October).
+              <Button variant="link" size="sm" className="self-start" onClick={go.editHeading}>
+                {!h.category && !h.cuisine
+                  ? 'Add a category and cuisine'
+                  : !h.category
+                    ? 'Add a category'
+                    : 'Add a cuisine'}
               </Button>
-            )
-          ) : (
+            )}
+            {(times || variation.fields.servings || source) && (
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground [&_svg]:size-4">
+                {times && (
+                  <span className="inline-flex items-center gap-1.5">
+                    <ClockIcon /> {times}
+                  </span>
+                )}
+                {variation.fields.servings && (
+                  <span className="inline-flex items-center gap-1.5">
+                    <UsersIcon /> Serves {variation.fields.servings}
+                  </span>
+                )}
+                {source && (
+                  <a
+                    href={source}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex min-w-0 items-center gap-1.5 hover:text-foreground"
+                  >
+                    <LinkIcon /> <span className="truncate">{sourceHost(source)}</span>
+                  </a>
+                )}
+              </div>
+            )}
+            {recipe.cooks.length > 0 && (
+              <div className="text-sm text-muted-foreground">
+                {cookedLine(recipe.cooks, (iso) => capturedWhen(iso))}
+              </div>
+            )}
+          </>
+        }
+        actions={
+          <>
             <Button onClick={() => go.cook(variation.item.id)}>
               <UtensilsIcon /> Start cooking
             </Button>
-          )}
-          {variation.mine ? (
-            !isIdea && (
+            {variation.mine ? (
               <Button variant="outline" onClick={() => go.edit(variation.item.id)}>
                 <PencilIcon /> Edit
               </Button>
-            )
-          ) : (
-            <Button variant="outline" onClick={() => setNaming('mine')}>
-              <CopyIcon /> Add my variation
-            </Button>
-          )}
-          <Toggle
-            aria-label="Favourite"
-            pressed={recipe.favourite}
-            onPressedChange={(on) => setMark(recipe.item.id, on)}
-          >
-            <HeartIcon />
-          </Toggle>
-          <MoreMenu>
-            {recipe.mine && (
-              <DropdownMenuItem onClick={go.editHeading}>Edit heading</DropdownMenuItem>
+            ) : (
+              <Button variant="outline" onClick={() => setNaming('mine')}>
+                <CopyIcon /> Add my variation
+              </Button>
             )}
-            {variation.mine && !isIdea && (
-              <DropdownMenuItem onClick={() => setNaming('duplicate')}>
-                Duplicate this variation
-              </DropdownMenuItem>
-            )}
-            {live.length > 1 && (
-              <DropdownMenuItem onClick={go.compare}>Compare variations</DropdownMenuItem>
-            )}
-            {!isIdea && <DropdownMenuItem onClick={go.logCook}>Log a cook</DropdownMenuItem>}
-            {recipe.mine && recipe.defaultVariation?.item.id !== variation.item.id && (
-              <DropdownMenuItem
-                onClick={() =>
-                  updateRecipe(recipe.item.id, { default_variation: variation.item.id })
-                }
-              >
-                Make it the default
-              </DropdownMenuItem>
-            )}
-            {(recipe.mine || (variation.mine && live.length > 1)) && <DropdownMenuSeparator />}
-            {recipe.mine && (
-              <DropdownMenuItem
-                onClick={() => {
-                  archiveRecipes([recipe], isIdea ? 'idea' : 'recipe')
-                  go.library()
-                }}
-              >
-                Archive
-              </DropdownMenuItem>
-            )}
-            {variation.mine && live.length > 1 && (
-              <DropdownMenuItem variant="destructive" onClick={deleteVariation}>
-                Delete variation
-              </DropdownMenuItem>
-            )}
-          </MoreMenu>
-        </div>
-      </div>
+            <Toggle
+              size="lg"
+              aria-label="Favourite"
+              pressed={recipe.favourite}
+              onPressedChange={(on) => setMark(recipe.item.id, on)}
+            >
+              <HeartIcon />
+            </Toggle>
+            <MoreMenu>
+              {recipe.mine && (
+                <DropdownMenuItem onClick={go.editHeading}>Edit heading</DropdownMenuItem>
+              )}
+              {variation.mine && (
+                <DropdownMenuItem onClick={() => setNaming('duplicate')}>
+                  Duplicate this variation
+                </DropdownMenuItem>
+              )}
+              {live.length > 1 && (
+                <DropdownMenuItem onClick={go.compare}>Compare variations</DropdownMenuItem>
+              )}
+              <DropdownMenuItem onClick={go.logCook}>Log a cook</DropdownMenuItem>
+              {recipe.mine &&
+                variation.mine &&
+                variation.item.status !== 'cancelled' &&
+                recipe.defaultVariation?.item.id !== variation.item.id && (
+                  <DropdownMenuItem
+                    onClick={() =>
+                      updateRecipe(recipe.item.id, { default_variation: variation.item.id })
+                    }
+                  >
+                    Make it the default
+                  </DropdownMenuItem>
+                )}
+              {(recipe.mine || (variation.mine && live.length > 1)) && <DropdownMenuSeparator />}
+              {recipe.mine && (
+                <DropdownMenuItem
+                  onClick={() => {
+                    archiveRecipes([recipe])
+                    go.library()
+                  }}
+                >
+                  Archive
+                </DropdownMenuItem>
+              )}
+              {variation.mine && live.length > 1 && (
+                <DropdownMenuItem variant="destructive" onClick={deleteVariation}>
+                  Delete variation
+                </DropdownMenuItem>
+              )}
+            </MoreMenu>
+          </>
+        }
+      />
       {naming && (
         <NameDialog
           title={naming === 'mine' ? 'Add my variation' : 'Duplicate variation'}
@@ -340,7 +352,7 @@ function Heading({
           onClose={() => setNaming(null)}
         />
       )}
-    </div>
+    </>
   )
 }
 
@@ -406,72 +418,141 @@ function LogLines({
   items,
   onSnapshot,
   onEdit,
+  onNote,
   me,
 }: {
   items: LogItem[]
   onSnapshot: (cook: Cook) => void
   /** My own cook's verdict and notes, to change (RCP-013 4). */
   onEdit: (cook: Cook) => void
+  /** My own edit's note, to write (Joe, 20 October). */
+  onNote: (item: LogItem) => void
   me: string
 }) {
   const who = useWho()
   return (
     <>
-      {items.map((l) => (
-        <LogEntry
-          key={l.key}
-          who={who(l.actor)}
-          what={l.what}
-          when={capturedWhen(l.at)}
-          verdict={l.cook?.verdict ? <StarRating value={l.cook.verdict} size="sm" /> : undefined}
-          notes={l.cook?.notes ?? undefined}
-        >
-          {l.cook ? (
-            <span className="inline-flex flex-wrap items-center gap-x-3">
-              <button
-                type="button"
-                className="font-semibold text-tc-text hover:underline"
-                onClick={() => onSnapshot(l.cook!)}
-              >
+      {items.map((l) => {
+        const mine = l.actor === me
+        return (
+          <LogEntry
+            key={l.key}
+            who={who(l.actor)}
+            what={l.what}
+            when={capturedWhen(l.at)}
+            verdict={l.cook?.verdict ? <StarRating value={l.cook.verdict} size="sm" /> : undefined}
+            notes={l.cook?.notes ?? undefined}
+            menu={
+              mine && (l.cook || l.activity !== undefined) ? (
+                <MoreMenu>
+                  {l.cook ? (
+                    <DropdownMenuItem onClick={() => onEdit(l.cook!)}>
+                      <PencilIcon /> Change how it went
+                    </DropdownMenuItem>
+                  ) : (
+                    <DropdownMenuItem onClick={() => onNote(l)}>
+                      <PencilIcon /> {l.detail ? 'Change the note' : 'Say what changed'}
+                    </DropdownMenuItem>
+                  )}
+                </MoreMenu>
+              ) : undefined
+            }
+          >
+            {l.cook ? (
+              <Button variant="link" size="sm" onClick={() => onSnapshot(l.cook!)}>
                 What I cooked{l.cook.servings ? ` · Serves ${l.cook.servings}` : ''}
-              </button>
-              {l.cook.person_id === me && (
-                <button type="button" className="hover:underline" onClick={() => onEdit(l.cook!)}>
-                  Edit
-                </button>
-              )}
-            </span>
-          ) : (
-            l.detail
-          )}
-        </LogEntry>
-      ))}
+              </Button>
+            ) : (
+              l.detail
+            )}
+          </LogEntry>
+        )
+      })}
     </>
   )
 }
 
+/** My own words on what an edit changed (RCP-013); emptied, the note goes. */
+function NoteDialog({ item, onClose }: { item: LogItem; onClose: () => void }) {
+  const [note, setNote] = useState(item.detail ?? '')
+  return (
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent data-colour="green">
+        <DialogHeader>
+          <DialogTitle>What changed?</DialogTitle>
+        </DialogHeader>
+        <form
+          className="flex flex-col gap-4"
+          onSubmit={(e) => {
+            e.preventDefault()
+            if (note.trim() !== (item.detail ?? '')) noteChange(item.activity!, note.trim())
+            onClose()
+          }}
+        >
+          <Textarea
+            autoFocus
+            aria-label="What changed"
+            placeholder="More honey; the sauce simmers longer"
+            maxLength={500}
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+          />
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button type="submit">Save</Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+/** How many of the log See all shows at a time. */
+const PAGE = 20
+
 /** The latest of a Recipe's log, and all of it, filtered, on See all (RCP-013). */
 function RecipeLog({ recipe, food }: { recipe: RecipeView; food: FoodData }) {
-  const activity = useRecipeActivity([recipe.item.id, ...recipe.variations.map((v) => v.item.id)])
-  const log = recipeLog(recipe, activity, food.pantry)
+  const { activity, notes } = useRecipeActivity(queue, [
+    recipe.item.id,
+    ...recipe.variations.map((v) => v.item.id),
+  ])
+  const log = recipeLog(recipe, activity, notes)
   const [all, setAll] = useState(false)
   const [filter, setFilter] = useState('all')
+  const [shown, setShown] = useState(PAGE)
   const [snapshot, setSnapshot] = useState<Cook | null>(null)
   const [editing, setEditing] = useState<Cook | null>(null)
+  const [noting, setNoting] = useState<LogItem | null>(null)
   const lines = (items: LogItem[]) => (
-    <LogLines items={items} onSnapshot={setSnapshot} onEdit={setEditing} me={food.me} />
+    <LogLines
+      items={items}
+      onSnapshot={setSnapshot}
+      onEdit={setEditing}
+      onNote={setNoting}
+      me={food.me}
+    />
   )
   const filters = [
     { value: 'all', label: 'Everything' },
     { value: 'cooks', label: 'Cooks' },
     ...recipe.variations.map((v) => ({ value: v.item.id, label: v.item.title })),
   ]
+  const filtered = filterLog(log, filter)
   return (
     <RecipePanel
       title="Log"
       action={
         log.length > 3 && (
-          <Button variant="ghost" size="sm" onClick={() => setAll(true)}>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              setShown(PAGE)
+              setAll(true)
+            }}
+          >
             See all
           </Button>
         )
@@ -488,7 +569,15 @@ function RecipeLog({ recipe, food }: { recipe: RecipeView; food: FoodData }) {
             <DialogHeader>
               <DialogTitle>Log</DialogTitle>
             </DialogHeader>
-            <Select value={filter} items={filters} onValueChange={(v) => v && setFilter(v)}>
+            <Select
+              value={filter}
+              items={filters}
+              onValueChange={(v) => {
+                if (!v) return
+                setFilter(v)
+                setShown(PAGE)
+              }}
+            >
               <SelectTrigger size="sm" aria-label="Show" className="w-auto self-start">
                 <SelectValue />
               </SelectTrigger>
@@ -500,11 +589,18 @@ function RecipeLog({ recipe, food }: { recipe: RecipeView; food: FoodData }) {
                 ))}
               </SelectContent>
             </Select>
-            <div className="flex flex-col gap-4">{lines(filterLog(log, filter))}</div>
+            <div className="flex flex-col gap-4">{lines(filtered.slice(0, shown))}</div>
+            {filtered.length > shown && (
+              // A long log comes twenty at a time (Joe, 20 October).
+              <Button variant="outline" onClick={() => setShown((n) => n + PAGE)}>
+                Show more
+              </Button>
+            )}
           </DialogContent>
         </Dialog>
       )}
       {snapshot && <SnapshotDialog cook={snapshot} onClose={() => setSnapshot(null)} />}
+      {noting && <NoteDialog item={noting} onClose={() => setNoting(null)} />}
       {editing && (
         <CookDialog
           cook={editing}

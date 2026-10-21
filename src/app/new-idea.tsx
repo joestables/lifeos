@@ -1,4 +1,3 @@
-import { PlusIcon } from 'lucide-react'
 import { useId, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import {
@@ -14,6 +13,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { archiveItem, createRecipe, updateVariation, type FoodData } from '@/data'
 import { nameTaken } from '@/lib/recipes'
 import { keepPhoto, type PhotoChoice } from './keep-photo'
+import { LinksField } from './links-field'
 import { PhotoField } from './photo-field'
 import { Field } from './task-details'
 
@@ -75,29 +75,7 @@ export function NewIdeaDialog({ food, onClose }: { food: FoodData; onClose: () =
             {tried && problem && <p className="text-sm text-destructive">{problem}</p>}
           </Field>
           <Field label="Links">
-            <div className="flex flex-col gap-2">
-              {links.map((l, i) => (
-                <Input
-                  key={i}
-                  type="url"
-                  inputMode="url"
-                  aria-label={`Link ${i + 1}`}
-                  value={l}
-                  onChange={(e) =>
-                    setLinks((ls) => ls.map((x, j) => (j === i ? e.target.value : x)))
-                  }
-                />
-              ))}
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="self-start text-muted-foreground"
-                onClick={() => setLinks((ls) => [...ls, ''])}
-              >
-                <PlusIcon /> Add a link
-              </Button>
-            </div>
+            <LinksField links={links} onChange={setLinks} />
           </Field>
           <Field label="Note" htmlFor={`${ids}-note`}>
             <Textarea

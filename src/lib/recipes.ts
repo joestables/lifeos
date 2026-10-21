@@ -203,8 +203,19 @@ export function sourceHost(link: string): string {
   }
 }
 
-/** Ideas newest first, matched by name or note (RCP-002 2). */
-export function ideaRecipes(recipes: readonly RecipeView[], search: string): RecipeView[] {
+export type IdeaSort = 'added' | 'name'
+
+export const IDEA_SORTS: { value: IdeaSort; label: string }[] = [
+  { value: 'added', label: 'Recently added' },
+  { value: 'name', label: 'A–Z' },
+]
+
+/** Ideas newest first or A–Z, matched by name or note (RCP-002 2). */
+export function ideaRecipes(
+  recipes: readonly RecipeView[],
+  search: string,
+  sort: IdeaSort = 'added',
+): RecipeView[] {
   const words = key(search).split(/\s+/).filter(Boolean)
   return recipes
     .filter(isIdea)
@@ -212,7 +223,11 @@ export function ideaRecipes(recipes: readonly RecipeView[], search: string): Rec
       const text = `${r.item.title} ${r.defaultVariation?.fields.notes ?? ''}`.toLowerCase()
       return words.every((w) => text.includes(w))
     })
-    .sort((a, b) => b.item.created_at.localeCompare(a.item.created_at))
+    .sort((a, b) =>
+      sort === 'name'
+        ? a.item.title.localeCompare(b.item.title)
+        : b.item.created_at.localeCompare(a.item.created_at),
+    )
 }
 
 /** A name a Recipe I can see already has, ignoring case and spaces (RCP-006 6). */

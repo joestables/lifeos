@@ -12,6 +12,9 @@ import {
   blankHeading,
   blankVariation,
   activityKey,
+  applyPendingNotes,
+  changeNotesKey,
+  fetchChangeNotes,
   cooksKey,
   fetchActivity,
   fetchCooks,
@@ -237,13 +240,28 @@ export function useFood(queue: WriteQueue): FoodData {
   ])
 }
 
-/** What happened to a Recipe and its Variations, newest first (RCP-013). */
-export function useRecipeActivity(ids: readonly string[]): Activity[] {
+/**
+ * What happened to a Recipe and its Variations, newest first, and the notes
+ * on its changes, unsent ones too (RCP-013).
+ */
+export function useRecipeActivity(
+  queue: WriteQueue,
+  ids: readonly string[],
+): { activity: Activity[]; notes: ReadonlyMap<number, string> } {
   const sorted = [...ids].sort()
+  const entries = useQueueEntries(queue)
   const { data } = useQuery({
     queryKey: activityKey(sorted),
     queryFn: () => fetchActivity(sorted),
     enabled: sorted.length > 0,
   })
-  return data ?? []
+  const { data: notes } = useQuery({
+    queryKey: changeNotesKey(sorted),
+    queryFn: () => fetchChangeNotes(sorted),
+    enabled: sorted.length > 0,
+  })
+  return useMemo(
+    () => ({ activity: data ?? [], notes: applyPendingNotes(notes ?? [], entries) }),
+    [data, notes, entries],
+  )
 }

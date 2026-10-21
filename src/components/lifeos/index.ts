@@ -54,6 +54,7 @@ export {
   MethodSteps,
   RecipeColumns,
   RecipeFact,
+  RecipeHeadingLayout,
   RecipePanel,
   RecipeText,
   ServingsStepper,

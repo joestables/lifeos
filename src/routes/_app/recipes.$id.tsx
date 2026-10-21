@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate, useRouter } from '@tanstack/react-router'
+import { createFileRoute, Navigate, useNavigate, useRouter } from '@tanstack/react-router'
 import { useState } from 'react'
 import { PageHeader, TypeScope } from '@/components/lifeos'
 import { Button } from '@/components/ui/button'
@@ -56,6 +56,10 @@ function RecipeRoute() {
       </TypeScope>
     )
   }
+
+  // An Idea opens in its popup over Ideas, never as a page (Joe, 20 October).
+  if (recipe.state === 'idea')
+    return <Navigate to="/recipes" search={{ tab: 'ideas', idea: id }} replace />
 
   const variation =
     recipe.variations.find((v) => v.item.id === search.variation) ?? recipe.defaultVariation
@@ -128,7 +132,7 @@ function RecipeRoute() {
     <TypeScope colour="green">
       <PageHeader title={recipe.item.title} back={{ label: 'Recipes', onClick: toLibrary }} />
       <RecipeRead recipe={recipe} variation={variation} food={food} go={go} />
-      {search.edit === 'heading' && recipe.mine && (
+      {search.edit === 'heading' && recipe.mine && !food.isLoading && (
         <HeadingDialog food={food} recipe={recipe} onClose={back} />
       )}
       {logging && (

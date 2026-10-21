@@ -22,10 +22,10 @@ function Row({ amount, text, differs }: { amount?: string; text: string; differs
         differs && 'bg-selected',
       )}
     >
-      {amount !== undefined && (
-        <span className="w-16 shrink-0 font-semibold tabular-nums">{amount}</span>
-      )}
       <span className="min-w-0 flex-1">{text}</span>
+      {amount !== undefined && (
+        <span className="shrink-0 text-right font-semibold tabular-nums">{amount}</span>
+      )}
       {differs && <Badge variant="outline">Differs</Badge>}
     </div>
   )

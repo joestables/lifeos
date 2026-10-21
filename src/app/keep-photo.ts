@@ -10,6 +10,11 @@ export function keepPhoto(item: string, choice: PhotoChoice, old: Photo | undefi
   if (choice === 'remove') {
     if (old) removePhoto(item, old)
   } else if (choice) {
+    // Offline it would wait in memory and could be lost unseen: said now.
+    if (!navigator.onLine) {
+      toast('Couldn’t keep the photo. It needs a connection; try again')
+      return
+    }
     setPhoto(item, choice, old).catch(() =>
       toast('Couldn’t keep the photo. It needs a connection; try again'),
     )

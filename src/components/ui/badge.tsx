@@ -1,4 +1,5 @@
 import { cva, type VariantProps } from 'class-variance-authority'
+import { XIcon } from 'lucide-react'
 import type * as React from 'react'
 import { cn } from '@/lib/utils'
 
@@ -21,9 +22,31 @@ const badgeVariants = cva(
 function Badge({
   className,
   variant,
+  onRemove,
+  removeLabel,
+  children,
   ...props
-}: React.ComponentProps<'span'> & VariantProps<typeof badgeVariants>) {
-  return <span data-slot="badge" className={cn(badgeVariants({ variant }), className)} {...props} />
+}: React.ComponentProps<'span'> &
+  VariantProps<typeof badgeVariants> & {
+    /** A value being chosen in a form: an X at its end takes it away. */
+    onRemove?: () => void
+    removeLabel?: string
+  }) {
+  return (
+    <span data-slot="badge" className={cn(badgeVariants({ variant }), className)} {...props}>
+      {children}
+      {onRemove && (
+        <button
+          type="button"
+          aria-label={removeLabel}
+          className="-mr-1 grid size-4 place-items-center rounded-full outline-none hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring"
+          onClick={onRemove}
+        >
+          <XIcon />
+        </button>
+      )}
+    </span>
+  )
 }
 
 export { Badge, badgeVariants }

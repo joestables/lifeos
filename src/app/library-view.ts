@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import type { CardSize } from '@/components/lifeos'
-import { DEFAULT_VIEW, type LibraryView } from '@/lib/recipes'
+import { DEFAULT_VIEW, type IdeaSort, type LibraryView } from '@/lib/recipes'
 
 const KEY = 'lifeos.recipes.library'
 
-type Kept = Omit<LibraryView, 'search'> & { size: CardSize }
+type Kept = Omit<LibraryView, 'search'> & { size: CardSize; ideaSort: IdeaSort }
 
-const DEFAULT: Kept = { ...DEFAULT_VIEW, size: 'M' }
+const DEFAULT: Kept = { ...DEFAULT_VIEW, size: 'M', ideaSort: 'added' }
 
 function read(): Kept {
   try {
@@ -18,8 +18,9 @@ function read(): Kept {
 }
 
 /**
- * The library's state, filters, sort, group and card size, kept for next
- * time on this device (RCP-001 4, 6, 7); the search is for this visit.
+ * The library's state, filters, sort, group and card size, and Ideas' sort,
+ * kept for next time on this device (RCP-001 4, 6, 7; RCP-002 2); the
+ * search is for this visit.
  */
 export function useLibraryView() {
   const [kept, setKept] = useState(read)
@@ -35,5 +36,5 @@ export function useLibraryView() {
       return next
     })
   const view: LibraryView = { ...kept, search }
-  return { view, size: kept.size, change, setSearch }
+  return { view, size: kept.size, ideaSort: kept.ideaSort, change, setSearch }
 }

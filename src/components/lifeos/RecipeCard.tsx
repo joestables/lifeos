@@ -82,11 +82,12 @@ export function RecipeCard({
     >
       <RecipePhoto src={photo} />
       {selecting ? (
-        <span className="pointer-events-none absolute top-2 right-2 z-10 grid size-8 place-items-center rounded-control bg-popover/85 shadow-card backdrop-blur-sm">
+        <span className="pointer-events-none absolute top-2 right-2 z-10 grid size-10 place-items-center rounded-control bg-popover/85 shadow-card backdrop-blur-sm">
           <Checkbox checked={selected} tabIndex={-1} aria-hidden />
         </span>
       ) : (
         <Toggle
+          size="lg"
           aria-label="Favourite"
           pressed={favourite}
           onPressedChange={onFavourite}

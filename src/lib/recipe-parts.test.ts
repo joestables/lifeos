@@ -148,19 +148,18 @@ describe('RCP-013: the log', () => {
     act(7, '2026-10-07T09:00:00Z', 'v', { status: { from: 'active', to: 'done' } }),
   ]
 
-  it('lists cooks and changes newest first, edits close together as one', () => {
-    expect(recipeLog(recipe, activity, pantry).map((l) => [l.what, l.detail])).toEqual([
-      ['Marked Complete', undefined],
-      ['Changed the heading', 'Cuisine — → Japanese'],
-      ['Cooked', undefined],
-      ['Changed', 'Honey 1 tbsp → 2 tbsp; a step rewritten'],
-      ['Added', undefined],
+  it('lists cooks and edits newest first; edits close together are one, with my note', () => {
+    const log = recipeLog(recipe, activity, new Map([[3, 'More honey']]))
+    expect(log.map((l) => [l.what, l.detail, l.activity])).toEqual([
+      ['Marked Complete', undefined, undefined],
+      ['Edited', undefined, 5],
+      ['Cooked', undefined, undefined],
+      ['Edited', 'More honey', 3],
+      ['Added', undefined, undefined],
     ])
   })
 
   it('narrows to cooks', () => {
-    expect(filterLog(recipeLog(recipe, activity, pantry), 'cooks').map((l) => l.what)).toEqual([
-      'Cooked',
-    ])
+    expect(filterLog(recipeLog(recipe, activity), 'cooks').map((l) => l.what)).toEqual(['Cooked'])
   })
 })

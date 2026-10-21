@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, useLocation, useNavigate, useRouter } from '@tanstack/react-router'
 import {
   ArchiveIcon,
   ChefHatIcon,
@@ -10,7 +10,7 @@ import {
   StickyNoteIcon,
   Trash2Icon,
 } from 'lucide-react'
-import { useMemo, useState, type ReactNode } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   EmptyState,
   FilterLayout,
@@ -51,13 +51,15 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { useLibraryView } from '@/app/library-view'
 import { NewIdeaDialog } from '@/app/new-idea'
-import { archiveRecipes, deleteRecipes, makeDrafts } from '@/app/recipe-actions'
+import { IdeaDialog } from '@/app/idea-dialog'
+import { archiveRecipes, deleteRecipes } from '@/app/recipe-actions'
 import { HeadingDialog } from '@/app/recipe-heading'
 import { queue, setMark, useFood, usePhotoUrls } from '@/data'
 import type { RecipeView } from '@/data/food-hooks'
 import { capturedWhen } from '@/lib/dates'
 import {
   FILTERS,
+  IDEA_SORTS,
   GROUPINGS,
   MINE,
   SORTS,
@@ -68,6 +70,7 @@ import {
   libraryRecipes,
   sourceHost,
   type Grouping,
+  type IdeaSort,
   type Sort,
   type StateFilter,
 } from '@/lib/recipes'
@@ -78,18 +81,41 @@ type Tab = 'recipes' | 'ideas'
 
 /** The Recipes library and the Ideas list (RCP-001, RCP-002, RCP-004). */
 export const Route = createFileRoute('/_app/recipes/')({
-  validateSearch: (s: Record<string, unknown>): { tab?: 'ideas' } =>
-    s.tab === 'ideas' ? { tab: 'ideas' } : {},
+  validateSearch: (s: Record<string, unknown>): { tab?: 'ideas'; idea?: string } => ({
+    ...(s.tab === 'ideas' ? { tab: 'ideas' as const } : {}),
+    // An Idea open in its popup (RCP-002, Joe, 20 October).
+    ...(typeof s.idea === 'string' ? { idea: s.idea } : {}),
+  }),
   component: Recipes,
 })
 
 function Recipes() {
-  const tab: Tab = Route.useSearch().tab ?? 'recipes'
+  const search = Route.useSearch()
+  const tab: Tab = search.tab ?? 'recipes'
   const navigate = useNavigate()
+  const router = useRouter()
+  const location = useLocation()
   const food = useFood(queue)
   const [making, setMaking] = useState<'recipe' | 'idea' | null>(null)
+  // By id, so it opens on the Idea as just kept, not as it was.
+  const [draftingId, setDraftingId] = useState<string | null>(null)
+  const drafting = draftingId ? food.byId.get(draftingId) : undefined
+  // While choosing several, the actions are the selection's: no Fab.
+  const [choosing, setChoosing] = useState(false)
   const open = (id: string, search: { edit?: 'variation' } = {}) =>
     void navigate({ to: '/recipes/$id', params: { id }, search })
+  /** A Recipe's page, then its Variation to fill, so Done lands on the page. */
+  const openToFill = (id: string) =>
+    void navigate({ to: '/recipes/$id', params: { id } }).then(() =>
+      open(id, { edit: 'variation' }),
+    )
+  const idea = search.idea ? food.byId.get(search.idea) : undefined
+  const openIdea = (id: string) =>
+    void navigate({ to: '.', search: { tab: 'ideas', idea: id }, state: { itemOpened: true } })
+  const closeIdea = () =>
+    location.state.itemOpened
+      ? router.history.back()
+      : void navigate({ to: '.', search: { tab: 'ideas' }, replace: true })
 
   const newRecipe = () => setMaking('recipe')
   const newIdea = () => setMaking('idea')
@@ -99,31 +125,42 @@ function Recipes() {
       <PageHeader
         title="Recipes"
         action={
-          tab === 'ideas'
-            ? { label: 'New idea', onClick: newIdea }
-            : { label: 'New recipe', onClick: newRecipe }
+          choosing
+            ? undefined
+            : tab === 'ideas'
+              ? { label: 'New idea', onClick: newIdea }
+              : { label: 'New recipe', onClick: newRecipe }
         }
       />
       {making === 'recipe' && (
         <HeadingDialog
           food={food}
           onClose={() => setMaking(null)}
-          // Its page first, so Done in editing lands on it.
-          onCreated={({ recipe }) =>
-            void navigate({ to: '/recipes/$id', params: { id: recipe } }).then(() =>
-              open(recipe, { edit: 'variation' }),
-            )
-          }
+          onCreated={({ recipe }) => openToFill(recipe)}
+        />
+      )}
+      {/* Once all is loaded: it starts from the Idea as kept. */}
+      {idea && idea.state === 'idea' && !drafting && !food.isLoading && (
+        <IdeaDialog
+          key={idea.item.id}
+          idea={idea}
+          food={food}
+          onClose={closeIdea}
+          onMakeDraft={() => setDraftingId(idea.item.id)}
+        />
+      )}
+      {drafting && (
+        <HeadingDialog
+          food={food}
+          recipe={drafting}
+          drafting
+          onClose={() => setDraftingId(null)}
+          onDrafted={() => openToFill(drafting.item.id)}
         />
       )}
       {making === 'idea' && <NewIdeaDialog food={food} onClose={() => setMaking(null)} />}
-      <div
-        className={
-          tab === 'ideas'
-            ? 'flex max-w-3xl flex-col gap-4 px-5 pb-28 sm:px-9 sm:pb-8'
-            : 'flex flex-col gap-5 px-5 pb-28 sm:px-9 sm:pb-8'
-        }
-      >
+      {/* Both tabs alike, so the search stays put between them (Joe, 20 October). */}
+      <div className="flex flex-col gap-5 px-5 pb-28 sm:px-9 sm:pb-8">
         <TabsRow>
           <Tabs
             value={tab}
@@ -147,9 +184,15 @@ function Recipes() {
           )}
         </TabsRow>
         {tab === 'ideas' ? (
-          <Ideas recipes={food.recipes} loading={food.isLoading} onOpen={(id) => open(id)} />
+          <Ideas
+            recipes={food.recipes}
+            loading={food.isLoading}
+            onOpen={openIdea}
+            onMakeDraft={(r) => setDraftingId(r.item.id)}
+            onChoosing={setChoosing}
+          />
         ) : (
-          <Library food={food} onOpen={(id) => open(id)} />
+          <Library food={food} onOpen={(id) => open(id)} onChoosing={setChoosing} />
         )}
       </div>
     </TypeScope>
@@ -234,21 +277,16 @@ function SmallSelect<T extends string>({
   )
 }
 
-const BULK = (onArchive: () => void, onDelete: () => void, extra?: ReactNode) => (
-  <>
-    {extra}
-    <Button variant="ghost" size="sm" onClick={onArchive}>
-      <ArchiveIcon /> Archive
-    </Button>
-    <Button variant="ghost" size="sm" className="text-destructive" onClick={onDelete}>
-      <Trash2Icon /> Delete
-    </Button>
-  </>
-)
-
-/** Choosing several of my own (RCP-004). */
-function useChoosing() {
-  const [choosing, setChoosing] = useState(false)
+/** Choosing several of my own (RCP-004); the page is told, to put away its Fab. */
+function useChoosing(onChoosing: (on: boolean) => void) {
+  const [choosing, setChoosingHere] = useState(false)
+  const setChoosing = (on: boolean) => {
+    setChoosingHere(on)
+    onChoosing(on)
+  }
+  // Another tab: the page's Fab comes back.
+  const told = useRef(onChoosing)
+  useEffect(() => () => told.current(false), [])
   const [chosen, setChosen] = useState<ReadonlySet<string>>(new Set())
   const choose = (id: string, on: boolean) =>
     setChosen((c) => {
@@ -271,13 +309,15 @@ function useChoosing() {
 function Library({
   food,
   onOpen,
+  onChoosing,
 }: {
   food: ReturnType<typeof useFood>
   onOpen: (id: string) => void
+  onChoosing: (on: boolean) => void
 }) {
   const { view, size, change, setSearch } = useLibraryView()
   const [sheet, setSheet] = useState(false)
-  const choosing = useChoosing()
+  const choosing = useChoosing(onChoosing)
   const all = useMemo(() => food.recipes.filter(inLibrary), [food.recipes])
   const shown = libraryRecipes(food.recipes, view, food.pantry)
   const photos = usePhotoUrls(shown.map((r) => r.photo?.path))
@@ -341,15 +381,25 @@ function Library({
     <>
       <FilterLayout
         filters={
-          <FilterPanel groups={groups} onChange={onChange} onReset={reset}>
+          <FilterPanel groups={groups} active={chosenCount > 0} onChange={onChange} onReset={reset}>
             {stateFilter}
           </FilterPanel>
         }
       >
         {choosing.choosing ? (
-          <SelectionBar count={picked.length} onDone={choosing.done}>
-            {BULK(act(archiveRecipes), act(deleteRecipes))}
-          </SelectionBar>
+          <SelectionBar
+            count={picked.length}
+            onDone={choosing.done}
+            actions={[
+              { label: 'Archive', icon: ArchiveIcon, onClick: act((rs) => archiveRecipes(rs)) },
+              {
+                label: 'Delete',
+                icon: Trash2Icon,
+                onClick: act((rs) => deleteRecipes(rs)),
+                destructive: true,
+              },
+            ]}
+          />
         ) : (
           <div className="flex flex-col gap-2 lg:flex-row lg:flex-wrap lg:items-center">
             <div className="flex items-center gap-2 lg:contents">
@@ -432,7 +482,13 @@ function Library({
             <SheetTitle>Filters</SheetTitle>
           </SheetHeader>
           <div>
-            <FilterPanel bare groups={groups} onChange={onChange} onReset={reset}>
+            <FilterPanel
+              bare
+              groups={groups}
+              active={chosenCount > 0}
+              onChange={onChange}
+              onReset={reset}
+            >
               {stateFilter}
             </FilterPanel>
           </div>
@@ -457,6 +513,7 @@ function IdeaRow({
   onChoose,
   onStart,
   onOpen,
+  onMakeDraft,
 }: {
   idea: RecipeView
   choosing: boolean
@@ -464,6 +521,7 @@ function IdeaRow({
   onChoose: (on: boolean) => void
   onStart?: () => void
   onOpen: () => void
+  onMakeDraft: () => void
 }) {
   const longPress = useLongPress(onStart)
   const fields = idea.defaultVariation?.fields
@@ -472,7 +530,7 @@ function IdeaRow({
     <div {...longPress}>
       <ItemRow
         leading={
-          choosing ? (
+          choosing && idea.mine ? (
             <Checkbox
               colour="green"
               checked={chosen}
@@ -497,11 +555,8 @@ function IdeaRow({
         menu={
           idea.mine && !choosing ? (
             <MoreMenu>
-              <DropdownMenuItem onClick={() => makeDrafts([idea])}>
+              <DropdownMenuItem onClick={onMakeDraft}>
                 <ChefHatIcon /> Make it a draft
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => archiveRecipes([idea], 'idea')}>
-                <ArchiveIcon /> Archive
               </DropdownMenuItem>
               <DropdownMenuItem variant="destructive" onClick={() => deleteRecipes([idea], 'idea')}>
                 <Trash2Icon /> Delete
@@ -519,14 +574,19 @@ function Ideas({
   recipes,
   loading,
   onOpen,
+  onMakeDraft,
+  onChoosing,
 }: {
   recipes: RecipeView[]
   loading: boolean
   onOpen: (id: string) => void
+  onMakeDraft: (idea: RecipeView) => void
+  onChoosing: (on: boolean) => void
 }) {
   const [search, setSearch] = useState('')
-  const choosing = useChoosing()
-  const ideas = ideaRecipes(recipes, search)
+  const { ideaSort, change } = useLibraryView()
+  const choosing = useChoosing(onChoosing)
+  const ideas = ideaRecipes(recipes, search, ideaSort)
   const any = recipes.some((r) => r.state === 'idea')
   const picked = ideas.filter((r) => choosing.chosen.has(r.item.id))
   const act = (fn: (rs: RecipeView[]) => void) => () => {
@@ -535,20 +595,30 @@ function Ideas({
   }
 
   return (
-    <>
+    <div className="flex max-w-3xl flex-col gap-4">
       {choosing.choosing ? (
-        <SelectionBar count={picked.length} onDone={choosing.done}>
-          {BULK(
-            act((rs) => archiveRecipes(rs, 'idea')),
-            act((rs) => deleteRecipes(rs, 'idea')),
-            <Button variant="ghost" size="sm" onClick={act(makeDrafts)}>
-              <ChefHatIcon /> Make drafts
-            </Button>,
-          )}
-        </SelectionBar>
+        // Ideas are deleted, never archived (Joe, 20 October).
+        <SelectionBar
+          count={picked.length}
+          onDone={choosing.done}
+          actions={[
+            {
+              label: 'Delete',
+              icon: Trash2Icon,
+              onClick: act((rs) => deleteRecipes(rs, 'idea')),
+              destructive: true,
+            },
+          ]}
+        />
       ) : (
         <div className="flex items-center gap-2">
           <SearchField label="Search ideas" value={search} onChange={setSearch} />
+          <SmallSelect<IdeaSort>
+            label="Sort"
+            value={ideaSort}
+            options={IDEA_SORTS}
+            onChange={(ideaSort) => change({ ideaSort })}
+          />
           <Button
             variant="ghost"
             size="sm"
@@ -571,9 +641,10 @@ function Ideas({
             onChoose={(on) => choosing.choose(i.item.id, on)}
             onStart={choosing.choosing || !i.mine ? undefined : () => choosing.start(i.item.id)}
             onOpen={() => onOpen(i.item.id)}
+            onMakeDraft={() => onMakeDraft(i)}
           />
         ))}
       </div>
-    </>
+    </div>
   )
 }
