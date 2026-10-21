@@ -915,8 +915,8 @@ function DesignPage() {
                 </FilterSection>
               </FilterPanel>
               <div className="flex min-w-0 flex-col gap-3">
-                {/* Transformed, so the phone's bar sits under its example, not on the screen's foot. */}
-                <div className="transform-gpu max-md:pb-16">
+                {/* Contained, so the phone's bar sits under its example, not on the screen's foot. */}
+                <div className="contain-layout max-md:pb-16">
                   <SelectionBar
                     count={1}
                     onDone={() => {}}
