@@ -117,7 +117,7 @@ function HouseholdPage() {
                   <AvatarFallback>{initials(m.name)}</AvatarFallback>
                 </Avatar>
               }
-              label={m.person_id === me ? `${m.name || 'You'} (you)` : m.name}
+              label={m.person_id !== me ? m.name : m.name ? `${m.name} (you)` : 'You'}
               value={m.role === 'owner' ? 'Owner' : 'Member'}
             >
               {owner && m.person_id !== me && (

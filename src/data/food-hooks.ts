@@ -284,6 +284,8 @@ export function useMeals(queue: WriteQueue): { meals: MealView[]; isLoading: boo
 
 /** Where food can go: Personal, or one of my Households (MPL-005, HSH-003 2). */
 export interface FoodSpaces {
+  /** My id. */
+  me: string
   /** My Personal Space. */
   personal: string | null
   /** Personal first, then my Households, each with what to call it. */
@@ -322,6 +324,7 @@ export function useFoodSpaces(queue: WriteQueue): FoodSpaces {
         if (m.name || !people.has(m.person_id)) people.set(m.person_id, m.name)
     const firstName = (person: string) => people.get(person)?.split(' ')[0] || 'Someone'
     return {
+      me,
       personal: personal ?? null,
       spaces: [
         ...(personal ? [{ id: personal, name: 'Personal' }] : []),

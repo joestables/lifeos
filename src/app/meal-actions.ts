@@ -47,6 +47,8 @@ export function useMealPlan(): MealPlanData {
       leftoversOf: v.leftoversOf,
       variation: v.variation,
       space: v.item.space_id,
+      // An unsent Meal has no owner yet: it is mine.
+      mine: !v.item.owner_id || v.item.owner_id === spaces.me,
     }))
     const byId = new Map(meals.map((m) => [m.id, m]))
     const recipeOf = (m: PlannedMeal) => {

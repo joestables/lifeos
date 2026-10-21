@@ -515,7 +515,7 @@ MealCard, MealSlot, AddMealButton, MealWeek, MealDay and PantryRow in
 - **A Meal** opens in its ItemDialog: "Meal · Thu dinner", its Checkbox
   (eaten) and name; for a Recipe's Meal, an ItemRow for its Recipe ("Open
   recipe · Standard") and, when the Recipe has more than one Variation, a
-  Variation Select; Servings (and, with a Household, For: Personal or a
+  Variation Select; Servings (and, with a Household, on a Meal I made, For: Personal or a
   Household, moving its leftovers with it) side by side; for leftovers, an ItemRow for the Meal they are
   of; Leftovers, an ItemRow per slot they fill, each with a "…" Remove.
   Its "…" menu: Move to…, Add leftovers… (not on leftovers) and Remove
