@@ -16,8 +16,10 @@ Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-21
   Pantry has refused), Recipes that use it, and Delete with Undo, refused
   for an entry in use with where it is used.
 - Staples and out of stock (PAN-002 1), kept in my personal Space until
-  Households; Merge with… for two entries I added (PAN-003), nothing
-  chosen to start.
+  Households; Out of stock in amber, a new `--warning` token: amber, like
+  red and green, keeps its usual meaning (ADR-0043 amended; Joe, 21
+  October). Merge with… for two entries I added (PAN-003), nothing chosen
+  to start.
 - From a Recipe (PAN-004): an entry added from a line takes its unit as
   default; names kept as typed in my Recipes are listed, added one at a
   time or all at once, their lines then using the entry.

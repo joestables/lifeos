@@ -29,8 +29,10 @@ colours of its own.
   Type (Search, Settings). Every Item shows its Type's colour wherever it
   appears.
 - **Red and green keep their usual meaning** (overdue, delete, error; saved,
-  done), and a state is **never shown by colour alone**: it also has a word or
-  an icon, so it can't be mistaken for Gym's coral or Recipes' green.
+  done), and so does **amber, a warning** (`--warning`: needs seeing to but
+  isn't wrong, as a staple out of stock; Joe, 21 October). A state is **never
+  shown by colour alone**: it also has a word or an icon, so it can't be
+  mistaken for Gym's coral, Recipes' green or Notes' yellow.
 - **No Module name at the top of a page**: the page's title and colour say
   where you are.
 - Everything else in [ADR-0041](0041-visual-direction.md) stands.

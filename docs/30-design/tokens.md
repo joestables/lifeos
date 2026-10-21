@@ -51,6 +51,7 @@ Never replaced by a Type colour.
 | `--destructive` | `oklch(0.57 0.19 27)` | same | Delete, overdue, errors |
 | `--destructive-foreground` | `oklch(0.99 0 0)` | same | |
 | `--success` † | `oklch(0.6 0.12 155)` | same | Saved, synced |
+| `--warning` † | `oklch(0.6 0.14 65)` | `oklch(0.8 0.14 70)` | Needs seeing to, not wrong: out of stock (Joe, 21 October) |
 
 ## Colour: Types
 

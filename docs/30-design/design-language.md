@@ -44,8 +44,8 @@ agreed)*
 - **No Module name above the page title:** the title and the colour say
   where you are.
 - **Red and green keep their usual meaning** — overdue, delete, error; saved,
-  done — on every page, and never by colour alone: a state always has a word
-  or an icon too.
+  done — and amber is a warning (out of stock), on every page, and never by
+  colour alone: a state always has a word or an icon too.
 - The colours were designed with Joe on the Stage 2 screens (11 October
   2026); their values are in the [tokens](tokens.md#colour-types).
 - **No hint text:** no keyboard hints in footers, no explanatory lines under

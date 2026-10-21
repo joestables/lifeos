@@ -96,6 +96,7 @@ used the same way on every screen.
 | Current drawer item | `--sidebar-accent` | `--sidebar-accent` |
 | Page background, cards, body text, meta | Never coloured | Never coloured |
 | Overdue, delete, error · saved, done | Red · green, with a word or icon | Same |
+| Needs seeing to: out of stock | Amber (`--warning`), with a word | Same |
 
 - An Item keeps its own colour on another page: the Goal a workout counts
   towards stays purple on the Gym page; a Task's checkbox is blue on Inbox.
