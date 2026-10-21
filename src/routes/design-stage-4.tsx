@@ -45,6 +45,7 @@ import {
   FilterSection,
   SelectionBar,
   IngredientLineEditor,
+  PantryAisle,
   PantryRow,
   SubheadingEditor,
   IngredientList,
@@ -1577,21 +1578,18 @@ function Pantry() {
           </div>
           <SectionLabel>Ingredients</SectionLabel>
           {AISLES.map((a) => (
-            <Card key={a.aisle} className="gap-0 px-2 py-1.5">
-              <div className="px-3 pt-2.5 pb-1 text-sm font-bold text-muted-foreground">
-                {a.aisle}
-              </div>
+            <PantryAisle key={a.aisle} label={a.aisle}>
               {a.entries.map(([n, u, used, staple, out]) => (
                 <Entry key={n} name={n} unit={u} used={used} staple={staple} out={out} />
               ))}
-            </Card>
+            </PantryAisle>
           ))}
           <SectionLabel>Household items</SectionLabel>
-          <Card className="gap-0 px-2 py-1.5">
+          <PantryAisle label="Household items" title={false}>
             <Entry name="Bin bags" unit="" used={0} staple out />
             <Entry name="Kitchen roll" unit="" used={0} staple />
             <Entry name="Washing-up liquid" unit="" used={0} />
-          </Card>
+          </PantryAisle>
         </div>
       </TypeScope>
     </Shell>

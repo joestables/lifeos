@@ -35,6 +35,8 @@ export interface Rows {
   variation_steps?: Record<string, unknown>[]
   cooks?: Record<string, unknown>[]
   pantry?: Record<string, unknown>[]
+  /** My Spaces' staples (PAN-002); my personal Space is `s`. */
+  staples?: Record<string, unknown>[]
   values?: Record<string, unknown>[]
   activity?: Record<string, unknown>[]
   /** Photos (core.attachments) and their files in Storage's `photos` bucket. */
@@ -157,6 +159,8 @@ export async function standIn(
     variation_steps: [...(rows.variation_steps ?? [])],
     cooks: [...(rows.cooks ?? [])],
     pantry: [...(rows.pantry ?? [])],
+    staples: [...(rows.staples ?? [])],
+    spaces: [{ id: 's', kind: 'personal', name: '', created_by: ANN.id }],
     values: [...(rows.values ?? [])],
     activity: [...(rows.activity ?? [])],
     attachments: [...(rows.attachments ?? [])],
@@ -517,6 +521,41 @@ export async function standIn(
         default_unit: f.default_unit ?? null,
         added_by: ANN.id,
       })
+    },
+    update_pantry: (a) => {
+      const p = db.pantry.find((x) => x.id === a.p_id)
+      if (!p) return
+      const f = a.p_patch as Record<string, unknown>
+      Object.assign(p, f)
+      if (p.kind === 'household') p.aisle = null
+      else p.aisle ??= 'cupboard'
+    },
+    remove_pantry: (a) => {
+      // Refused while any line uses it, as the foreign key does (PAN-001 4).
+      if (db.variation_lines.some((l) => l.pantry_id === a.p_id)) return 'in use'
+      db.pantry = db.pantry.filter((p) => p.id !== a.p_id)
+      db.staples = db.staples.filter((x) => x.pantry_id !== a.p_id)
+    },
+    merge_pantry: (a) => {
+      for (const l of db.variation_lines) if (l.pantry_id === a.p_merge) l.pantry_id = a.p_keep
+      for (const x of db.staples.filter((x) => x.pantry_id === a.p_merge)) {
+        const kept = db.staples.find((k) => k.space_id === x.space_id && k.pantry_id === a.p_keep)
+        if (kept) kept.out_of_stock = Boolean(kept.out_of_stock) || Boolean(x.out_of_stock)
+        else db.staples.push({ ...x, pantry_id: a.p_keep })
+      }
+      db.staples = db.staples.filter((x) => x.pantry_id !== a.p_merge)
+      db.pantry = db.pantry.filter((p) => p.id !== a.p_merge)
+    },
+    set_staple: (a) => {
+      db.staples = db.staples.filter(
+        (x) => !(x.space_id === a.p_space && x.pantry_id === a.p_pantry),
+      )
+      if (a.p_staple)
+        db.staples.push({
+          space_id: a.p_space,
+          pantry_id: a.p_pantry,
+          out_of_stock: Boolean(a.p_out_of_stock),
+        })
     },
     note_change: (a) => {
       db.change_notes = db.change_notes.filter((n) => n.activity_id !== a.p_activity)
@@ -884,12 +923,23 @@ export async function standIn(
       // The food schema's functions come with its profile (supabase.schema('food')).
       const food = route.request().headers()['content-profile'] === 'food'
       const result = (food ? foodWrite : write)[rpc[1]!]?.(route.request().postDataJSON() ?? {})
+      if (result === 'in use')
+        return route.fulfill({
+          status: 409,
+          json: { code: '23503', message: 'still referenced', details: null, hint: null },
+        })
       return route.fulfill({
         json: typeof result === 'string' || Array.isArray(result) ? result : null,
       })
     }
     const table = url.pathname.match(/\/rest\/v1\/(\w+)$/)?.[1]
-    if (table) return route.fulfill({ json: db[table as keyof typeof db] ?? [] })
+    if (table) {
+      const rows = db[table as keyof typeof db] ?? []
+      // .single() / .maybeSingle(): one row, as PostgREST sends it.
+      if (route.request().headers()['accept']?.includes('vnd.pgrst.object'))
+        return route.fulfill({ json: (Array.isArray(rows) ? rows[0] : rows) ?? null })
+      return route.fulfill({ json: rows })
+    }
     return route.fulfill({ status: 404, json: {} })
   })
   if (signedIn) {

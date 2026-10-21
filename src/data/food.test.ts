@@ -2,10 +2,13 @@ import { describe, expect, it } from 'vitest'
 import {
   applyPendingCooks,
   applyPendingLines,
+  applyPendingPantry,
   applyPendingRecipes,
+  applyPendingStaples,
   applyPendingSteps,
   applyPendingVariations,
   type Line,
+  type PantryEntry,
 } from './food'
 import { deriveState } from './food-hooks'
 import { positionBetween, positionsFor } from './food-writes'
@@ -152,5 +155,142 @@ describe('RCP-012: a cook shows at once', () => {
       'me',
     )
     expect(out[0]).toMatchObject({ person_id: 'me', verdict: 5, notes: 'More honey' })
+  })
+})
+
+describe('PAN-001–003: the Pantry shows what I change at once, offline too', () => {
+  const garlic: PantryEntry = {
+    id: 'g',
+    name: 'Garlic',
+    kind: 'ingredient',
+    aisle: 'fruit_veg',
+    default_unit: 'clove',
+    added_by: 'me',
+  }
+  const roll: PantryEntry = {
+    ...garlic,
+    id: 'k',
+    name: 'Kitchen roll',
+    kind: 'household',
+    aisle: null,
+  }
+
+  it('adds an entry trimmed, an ingredient in Cupboard to start, a household item in no aisle', () => {
+    const out = applyPendingPantry(
+      [],
+      [
+        entry('food.add_pantry', { p_id: 'a', p_fields: { name: '  Spring   onions ' } }),
+        entry('food.add_pantry', { p_id: 'b', p_fields: { name: 'Bin bags', kind: 'household' } }),
+      ],
+      'me',
+    )
+    expect(out.map((p) => [p.name, p.kind, p.aisle, p.added_by])).toEqual([
+      ['Spring onions', 'ingredient', 'cupboard', 'me'],
+      ['Bin bags', 'household', null, 'me'],
+    ])
+  })
+
+  it('renames, moves aisle and changes kind; a household item loses its aisle', () => {
+    const out = applyPendingPantry(
+      [garlic, roll],
+      [
+        entry('food.update_pantry', {
+          p_id: 'g',
+          p_patch: { name: 'Garlic cloves', aisle: 'cupboard' },
+        }),
+        entry('food.update_pantry', { p_id: 'g', p_patch: { kind: 'household' } }),
+        entry('food.update_pantry', { p_id: 'k', p_patch: { kind: 'ingredient' } }),
+      ],
+      'me',
+    )
+    expect(out.map((p) => [p.name, p.kind, p.aisle])).toEqual([
+      ['Garlic cloves', 'household', null],
+      ['Kitchen roll', 'ingredient', 'cupboard'],
+    ])
+  })
+
+  it('deletes an entry, and a merge leaves only the one kept', () => {
+    const deleted = applyPendingPantry(
+      [garlic, roll],
+      [entry('food.remove_pantry', { p_id: 'k' })],
+      'me',
+    )
+    expect(deleted.map((p) => p.id)).toEqual(['g'])
+    const merged = applyPendingPantry(
+      [garlic, roll],
+      [entry('food.merge_pantry', { p_keep: 'g', p_merge: 'k' })],
+      'me',
+    )
+    expect(merged.map((p) => p.id)).toEqual(['g'])
+  })
+
+  it('PAN-003 1: a merge moves every line to the entry kept', () => {
+    const line = (id: string, pantry_id: string): Line => ({
+      id,
+      variation_id: 'v',
+      position: id,
+      heading: null,
+      pantry_id,
+      text: null,
+      qty: null,
+      qty_max: null,
+      approx: false,
+      unit: null,
+    })
+    const out = applyPendingLines(
+      [line('a', 'k'), line('b', 'g')],
+      [entry('food.merge_pantry', { p_keep: 'g', p_merge: 'k' })],
+    )
+    expect(out.map((l) => l.pantry_id)).toEqual(['g', 'g'])
+  })
+})
+
+describe('PAN-002: staples and out of stock show at once', () => {
+  const staple = (pantry_id: string, out_of_stock = false) => ({
+    space_id: 's',
+    pantry_id,
+    out_of_stock,
+  })
+
+  it('marks a staple, then out of stock, then not a staple', () => {
+    const marked = applyPendingStaples(
+      [],
+      [
+        entry('food.set_staple', {
+          p_space: 's',
+          p_pantry: 'g',
+          p_staple: true,
+          p_out_of_stock: false,
+        }),
+        entry('food.set_staple', {
+          p_space: 's',
+          p_pantry: 'g',
+          p_staple: true,
+          p_out_of_stock: true,
+        }),
+      ],
+    )
+    expect(marked).toEqual([staple('g', true)])
+    expect(
+      applyPendingStaples(marked, [
+        entry('food.set_staple', { p_space: 's', p_pantry: 'g', p_staple: false }),
+      ]),
+    ).toEqual([])
+  })
+
+  it('a merge keeps one staple, out of stock if either was; a deletion drops it', () => {
+    const merged = applyPendingStaples(
+      [staple('g'), staple('k', true)],
+      [entry('food.merge_pantry', { p_keep: 'g', p_merge: 'k' })],
+    )
+    expect(merged).toEqual([staple('g', true)])
+    const moved = applyPendingStaples(
+      [staple('k')],
+      [entry('food.merge_pantry', { p_keep: 'g', p_merge: 'k' })],
+    )
+    expect(moved).toEqual([staple('g')])
+    expect(
+      applyPendingStaples([staple('g')], [entry('food.remove_pantry', { p_id: 'g' })]),
+    ).toEqual([])
   })
 })

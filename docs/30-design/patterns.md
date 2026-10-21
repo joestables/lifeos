@@ -453,7 +453,8 @@ StepEditor. Agreed with Joe on 18 October on the
   button says Done. Lines reorder by their handle (on a phone too) and
   steps by theirs on a computer, or Alt+↑ / Alt+↓. Add "…" to the Pantry
   opens a small Dialog, "Add to the Pantry": Name, Aisle (a Select, Cupboard
-  to start), Cancel and Add. **Edit heading** is a Dialog: the photo
+  to start), Cancel and Add; the entry takes the line's unit as its default
+  (PAN-004 1). **Edit heading** is a Dialog: the photo
   (112px wide; Change photo, or "Add a photo" with `plus` when there is
   none, a DropdownMenu of "From a file or the camera" (`image`) and "From a
   link" (`link`, which opens an Input with an outline Use under the photo);
@@ -498,9 +499,35 @@ MealCard, MealSlot, AddMealButton, MealWeek, MealDay and PantryRow in
 - **The Pantry:** search and a ToggleGroup of All, Staples and Out of
   stock; then "Ingredients" (a SectionLabel) and a Card per aisle, in aisle
   order (its name muted, 14px weight 600, then its PantryRows); then
-  household items apart. **New entry** is a Dialog: a ToggleGroup of
+  household items apart. Nothing matching: an EmptyState ("Nothing in the
+  Pantry", "No staples", "Nothing out of stock", or "Nothing matches").
+  **New entry** is a Dialog: a ToggleGroup of
   Ingredient and Household item, Name, Aisle (Cupboard to start) and
-  Default unit side by side, and a Switch "One of our staples".
+  Default unit side by side, and a Switch "One of our staples"; then Cancel
+  and Save. A household item's Aisle reads Household and can't be changed.
+  A name the Pantry has is refused under the field ("Already in the
+  Pantry").
+- **An entry's "…" menu:** Edit, Recipes that use it, Merge with… and
+  Delete (red) on one I added; Recipes that use it alone on anyone
+  else's. **Edit** is the New entry Dialog titled "Edit entry", without the
+  Switch. **Recipes that use it** is a Dialog titled with the entry's name:
+  an ItemRow per Recipe (its TypeTile and name), opening it, or "No recipes
+  use it". **Merge with…** is a Dialog, "Merge": "Merge with" (a Select of
+  the other entries I added of the same kind, A–Z, none chosen to start)
+  and Name (this entry's to start, the name kept); then Cancel and Merge,
+  which waits for a choice. **Delete** of an entry
+  no Recipe uses says so in a toast with Undo; one in use isn't deleted,
+  and a toast names where it is used ("Used in Katsu curry and 2 more").
+- **Kept as typed** (PAN-004 2): after the household items, when any of my
+  Recipes' lines were kept as typed, a SectionLabel and a Card of CardRows,
+  A–Z: the name as typed and, as its value, how many of my Recipes use it;
+  an outline `sm` "Add" opening the Add to the Pantry Dialog (as in a
+  Recipe's editor). The SectionLabel's line ends with an outline `sm` "Add
+  all", which adds each in Cupboard. Each line kept as typed in my Recipes then uses
+  the new entry.
+- **Until the week is built** (plan step 7), the page is the Pantry alone:
+  the title, then the Pantry, with no Tabs; on a computer its PageAction,
+  "New entry", ends the row of search and ToggleGroup.
 
 ## Forms
 

@@ -203,7 +203,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to search and manage the Pantry, **so that** it stays
 useful as my recipes grow.
-Priority: Must · Status: proposed
+Priority: Must · Status: built
 
 Acceptance criteria
 1. Given Meal plan → Pantry, then ingredients show under their aisles, in
@@ -214,15 +214,15 @@ Acceptance criteria
 3. Given an entry I added, then I change its name, aisle and default unit,
    and a rename shows in every Recipe at once; someone else's I can't
    change.
-4. Given an entry I added that nothing uses, then I can delete it; one in
-   use can't be deleted, and says where it is used.
+4. Given an entry I added that nothing uses, then I can delete it, with
+   Undo; one in use can't be deleted, and says where it is used.
 5. Given an entry, then I see which Recipes use it.
 
 ### PAN-002 — Staples and out of stock
 
 **As** Joe, **I want** to mark staples, and a staple that's run out, **so
 that** I buy it on the next shop.
-Priority: Must · Status: proposed
+Priority: Must · Status: built (1 as mine until Households, plan step 9; 2 and 3 with Shopping, Stage 4b)
 
 Acceptance criteria
 1. Given any entry, then any member of the Household ticks it as one of the
@@ -236,7 +236,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to merge two entries that are the same thing, **so
 that** the Pantry has one of each.
-Priority: Should · Status: proposed
+Priority: Should · Status: built
 
 Acceptance criteria
 1. Given two entries, when I merge them and choose the name, then one is
@@ -248,14 +248,15 @@ Acceptance criteria
 
 **As** Joe, **I want** to add to the Pantry from the line I'm typing, **so
 that** I don't stop writing the recipe.
-Priority: Must · Status: proposed
+Priority: Must · Status: built
 
 Acceptance criteria
 1. Given a recipe line naming something new, when I choose Add to the
    Pantry, then it is added in Cupboard with the line's unit as its
    default, and the line links to it ([RCP-007](recipes.md#rcp-007--ingredient-lines)).
-2. Given lines kept as typed, then the Pantry lists them, to add later in
-   one go.
+2. Given lines kept as typed in my Recipes, then the Pantry lists them by
+   name, to add one at a time or all at once (in Cupboard); each line then
+   uses the new entry.
 
 ### SHP-001 — Shopping lists
 

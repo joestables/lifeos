@@ -1,6 +1,7 @@
 import { Toggle as TogglePrimitive } from '@base-ui/react/toggle'
 import { CheckIcon } from 'lucide-react'
 import type { ReactNode } from 'react'
+import { Card } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 
 function Pill({
@@ -86,5 +87,29 @@ export function PantryRow({
         {menu}
       </div>
     </div>
+  )
+}
+
+/**
+ * A Card of PantryRows (PAN-001): an aisle, named at its top (muted, 14px,
+ * weight 600), or the household items or names kept as typed, unnamed.
+ */
+export function PantryAisle({
+  label,
+  title = true,
+  children,
+}: {
+  /** Its name, read out and, with `title`, shown. */
+  label: string
+  title?: boolean
+  children: ReactNode
+}) {
+  return (
+    <Card role="group" aria-label={label} className="gap-0 px-2 py-1.5">
+      {title && (
+        <div className="px-3 pt-2.5 pb-1 text-sm font-semibold text-muted-foreground">{label}</div>
+      )}
+      {children}
+    </Card>
   )
 }

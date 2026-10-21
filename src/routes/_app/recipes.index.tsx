@@ -38,7 +38,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Input } from '@/components/ui/input'
 import {
   Select,
   SelectContent,
@@ -54,6 +53,7 @@ import { NewIdeaDialog } from '@/app/new-idea'
 import { IdeaDialog } from '@/app/idea-dialog'
 import { archiveRecipes, deleteRecipes } from '@/app/recipe-actions'
 import { HeadingDialog } from '@/app/recipe-heading'
+import { SearchField } from '@/app/search-field'
 import { queue, setMark, useFood, usePhotoUrls } from '@/data'
 import type { RecipeView } from '@/data/food-hooks'
 import { capturedWhen } from '@/lib/dates'
@@ -215,31 +215,6 @@ function NewRecipeMenu({ onRecipe, onIdea }: { onRecipe: () => void; onIdea: () 
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
-  )
-}
-
-function SearchField({
-  value,
-  onChange,
-  label,
-}: {
-  value: string
-  onChange: (value: string) => void
-  label: string
-}) {
-  return (
-    <div className="relative min-w-0 flex-1">
-      <SearchIcon className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-      <Input
-        size="sm"
-        type="search"
-        aria-label={label}
-        placeholder={label}
-        className="pl-9"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-      />
-    </div>
   )
 }
 

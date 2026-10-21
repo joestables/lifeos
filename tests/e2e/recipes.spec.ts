@@ -300,15 +300,16 @@ test.describe('Recipes', () => {
     await expect.poll(() => db.variation_lines.filter((l) => l.pantry_id === PANKO)).toHaveLength(2)
     // A new name added to the Pantry, its aisle chosen (Joe, 20 October).
     await page.getByRole('button', { name: 'Add an ingredient' }).click()
-    await page.getByRole('textbox', { name: 'Ingredient' }).last().fill('Gochujang')
-    await page.getByRole('button', { name: 'Add "Gochujang" to the Pantry' }).click()
+    await page.getByRole('textbox', { name: 'Ingredient' }).last().fill('2 tbsp Gochujang')
+    await page.getByRole('button', { name: 'Add "2 tbsp Gochujang" to the Pantry' }).click()
     const pantry = page.getByRole('dialog', { name: 'Add to the Pantry' })
     await pantry.getByLabel('Aisle').click()
     await page.getByRole('option', { name: 'Chilled' }).click()
     await pantry.getByRole('button', { name: 'Add' }).click()
     await expect
       .poll(() => db.pantry.find((p) => p.name === 'Gochujang'))
-      .toMatchObject({ aisle: 'chilled' })
+      // PAN-004 1: the line's unit is the entry's default.
+      .toMatchObject({ aisle: 'chilled', default_unit: 'tbsp' })
     const gochujang = db.pantry.find((p) => p.name === 'Gochujang')!
     await expect.poll(() => db.variation_lines.some((l) => l.pantry_id === gochujang.id)).toBe(true)
     // An amount changed.

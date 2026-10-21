@@ -20,6 +20,7 @@ import { Route as AppCardioRouteImport } from './routes/_app/cardio'
 import { Route as AppGoalsRouteImport } from './routes/_app/goals'
 import { Route as AppGymRouteImport } from './routes/_app/gym'
 import { Route as AppInboxRouteImport } from './routes/_app/inbox'
+import { Route as AppMealPlanRouteImport } from './routes/_app/meal-plan'
 import { Route as AppNotesRouteImport } from './routes/_app/notes'
 import { Route as AppPlanRouteImport } from './routes/_app/plan'
 import { Route as AppTasksRouteImport } from './routes/_app/tasks'
@@ -84,6 +85,11 @@ const AppGymRoute = AppGymRouteImport.update({
 const AppInboxRoute = AppInboxRouteImport.update({
   id: '/inbox',
   path: '/inbox',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMealPlanRoute = AppMealPlanRouteImport.update({
+  id: '/meal-plan',
+  path: '/meal-plan',
   getParentRoute: () => AppRoute,
 } as any)
 const AppNotesRoute = AppNotesRouteImport.update({
@@ -154,6 +160,7 @@ export interface FileRoutesByFullPath {
   '/goals': typeof AppGoalsRoute
   '/gym': typeof AppGymRoute
   '/inbox': typeof AppInboxRoute
+  '/meal-plan': typeof AppMealPlanRoute
   '/notes': typeof AppNotesRoute
   '/plan': typeof AppPlanRoute
   '/tasks': typeof AppTasksRoute
@@ -177,6 +184,7 @@ export interface FileRoutesByTo {
   '/goals': typeof AppGoalsRoute
   '/gym': typeof AppGymRoute
   '/inbox': typeof AppInboxRoute
+  '/meal-plan': typeof AppMealPlanRoute
   '/notes': typeof AppNotesRoute
   '/plan': typeof AppPlanRoute
   '/tasks': typeof AppTasksRoute
@@ -202,6 +210,7 @@ export interface FileRoutesById {
   '/_app/goals': typeof AppGoalsRoute
   '/_app/gym': typeof AppGymRoute
   '/_app/inbox': typeof AppInboxRoute
+  '/_app/meal-plan': typeof AppMealPlanRoute
   '/_app/notes': typeof AppNotesRoute
   '/_app/plan': typeof AppPlanRoute
   '/_app/tasks': typeof AppTasksRoute
@@ -227,6 +236,7 @@ export interface FileRouteTypes {
     | '/goals'
     | '/gym'
     | '/inbox'
+    | '/meal-plan'
     | '/notes'
     | '/plan'
     | '/tasks'
@@ -250,6 +260,7 @@ export interface FileRouteTypes {
     | '/goals'
     | '/gym'
     | '/inbox'
+    | '/meal-plan'
     | '/notes'
     | '/plan'
     | '/tasks'
@@ -274,6 +285,7 @@ export interface FileRouteTypes {
     | '/_app/goals'
     | '/_app/gym'
     | '/_app/inbox'
+    | '/_app/meal-plan'
     | '/_app/notes'
     | '/_app/plan'
     | '/_app/tasks'
@@ -376,6 +388,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppInboxRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/meal-plan': {
+      id: '/_app/meal-plan'
+      path: '/meal-plan'
+      fullPath: '/meal-plan'
+      preLoaderRoute: typeof AppMealPlanRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/notes': {
       id: '/_app/notes'
       path: '/notes'
@@ -461,6 +480,7 @@ interface AppRouteChildren {
   AppGoalsRoute: typeof AppGoalsRoute
   AppGymRoute: typeof AppGymRoute
   AppInboxRoute: typeof AppInboxRoute
+  AppMealPlanRoute: typeof AppMealPlanRoute
   AppNotesRoute: typeof AppNotesRoute
   AppPlanRoute: typeof AppPlanRoute
   AppTasksRoute: typeof AppTasksRoute
@@ -479,6 +499,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppGoalsRoute: AppGoalsRoute,
   AppGymRoute: AppGymRoute,
   AppInboxRoute: AppInboxRoute,
+  AppMealPlanRoute: AppMealPlanRoute,
   AppNotesRoute: AppNotesRoute,
   AppPlanRoute: AppPlanRoute,
   AppTasksRoute: AppTasksRoute,
