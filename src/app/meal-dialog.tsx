@@ -177,7 +177,7 @@ function MealDetails({ plan, meal }: { plan: MealPlanData; meal: PlannedMeal }) 
             />
           </Field>
         )}
-        {!meal.leftoversOf && plan.spaces.spaces.length > 1 && (
+        {!meal.leftoversOf && meal.mine && plan.spaces.spaces.length > 1 && (
           <Field label="For">
             <SpaceSelect
               spaces={plan.spaces.spaces}

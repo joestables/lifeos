@@ -2,6 +2,19 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#21](https://github.com/joestables/lifeos/pull/21) — Bug hunt after Households: only its maker moves an Item to another Space
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-21
+
+**What it did**
+- A member could change the For of someone else's Household Meal to their
+  own Personal, and its maker lost it. The database now refuses moving
+  someone else's Item to another Space, except back to its maker's own
+  Personal Space, which leaving a Household does (migration
+  `stage4_space_moves`; `meal_space_test`, 9); a Meal's For shows only on
+  my own (HSH-003 3, new).
+- A Household made offline listed me as "You (you)": now "You".
+
 ## [#20](https://github.com/joestables/lifeos/pull/20) — Stage 4, step 8b: food shared through Households
 
 Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-21

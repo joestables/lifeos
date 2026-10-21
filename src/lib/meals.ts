@@ -31,6 +31,8 @@ export interface PlannedMeal {
   variation: string | null
   /** Its Space: Personal or one of my Households (MPL-002 2). */
   space?: string
+  /** Whether I made it: only its maker moves it to another Space (HSH-003 2). */
+  mine?: boolean
 }
 
 /** A Meal's name: leftovers take the name of the Meal they are of (MPL-001 4). */

@@ -4,7 +4,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = extensions, public;
-select plan(7);
+select plan(9);
 
 insert into auth.users (id, email) values
   ('00000000-0000-4000-8000-00000000000a', 'ann@example.com'),
@@ -17,6 +17,11 @@ insert into core.space_members (space_id, person_id, role) values
   ('00000000-0000-7000-8000-0000000000f1', '00000000-0000-4000-8000-00000000000a', 'owner'),
   ('00000000-0000-7000-8000-0000000000f1', '00000000-0000-4000-8000-00000000000b', 'member'),
   ('00000000-0000-7000-8000-0000000000f2', '00000000-0000-4000-8000-00000000000c', 'owner');
+
+select id as ben_space from core.spaces
+  where created_by = '00000000-0000-4000-8000-00000000000b' and kind = 'personal' \gset
+select id as ann_space from core.spaces
+  where created_by = '00000000-0000-4000-8000-00000000000a' and kind = 'personal' \gset
 
 create function pg_temp.sign_in(p_person uuid) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', p_person, 'role', 'authenticated')::text, true),
@@ -61,12 +66,26 @@ select is(
   2,
   'MPL-003: and any member changes it'
 );
+select throws_ok(
+  format($$select core.update_item('00000000-0000-7000-8000-000000000001', '{"space_id": "%s"}')$$, :'ben_space'),
+  '42501', null,
+  'HSH-003 2: a member can''t take someone else''s Meal into their own Space'
+);
 select food.set_staple('00000000-0000-7000-8000-0000000000f1', '00000000-0000-7000-8000-0000000000e1', true, true);
 select is(
   (select out_of_stock from food.staples where space_id = '00000000-0000-7000-8000-0000000000f1'),
   true,
   'PAN-002 1: any member marks the Household''s staple out of stock'
 );
+
+select pg_temp.sign_in('00000000-0000-4000-8000-00000000000a');
+select core.update_item('00000000-0000-7000-8000-000000000001', format('{"space_id": "%s"}', :'ann_space')::jsonb);
+select is(
+  (select space_id from core.items where id = '00000000-0000-7000-8000-000000000001'),
+  :'ann_space'::uuid,
+  'HSH-003 2: its maker makes it Personal'
+);
+select core.update_item('00000000-0000-7000-8000-000000000001', '{"space_id": "00000000-0000-7000-8000-0000000000f1"}');
 
 select pg_temp.sign_in('00000000-0000-4000-8000-00000000000c');
 select is(

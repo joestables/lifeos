@@ -146,6 +146,13 @@ test.describe('Food shared through a Household', () => {
     expect(db.items.find((i) => i.id === DISHOOM)?.space_id).toBe('s')
   })
 
+  test('HSH-003 2: someone else’s Meal can’t be moved to another Space', async ({ page }) => {
+    await start(page, '/meal-plan')
+    await cards(page, '2026-10-14:dinner').getByRole('button', { name: 'Out: Wagamama' }).click()
+    await expect(page.getByRole('dialog').getByText('Out: Wagamama').first()).toBeVisible()
+    await expect(page.getByRole('combobox', { name: 'For' })).toHaveCount(0)
+  })
+
   test('PAN-002 1: the Pantry shows the staples of where my Meals go', async ({ page }) => {
     const db = await start(page, '/meal-plan?tab=pantry', HOME)
     await expect(page.getByRole('button', { name: 'Bin bags out of stock' })).toHaveAttribute(
