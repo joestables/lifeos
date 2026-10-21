@@ -2,6 +2,16 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#19](https://github.com/joestables/lifeos/pull/19) — Settings read by my id, not the first person I can see
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-21
+
+**What it did**
+- My settings were read as the first row of `core.people`, right only while
+  I could read no one else's. Since Households (#18) I read the people of
+  my Households, so it could have been another member's timezone and
+  Reminder settings. They are now asked for by my id.
+
 ## [#18](https://github.com/joestables/lifeos/pull/18) — Stage 4, step 8a: Households
 
 Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-21
