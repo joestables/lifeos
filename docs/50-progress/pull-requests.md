@@ -2,7 +2,7 @@
 
 Newest first. Each entry is added in its own pull request.
 
-## Stage 4, step 6: the Pantry
+## [#16](https://github.com/joestables/lifeos/pull/16) — Stage 4, step 6: the Pantry
 
 Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-21
 
