@@ -20,10 +20,12 @@ import {
   planLeftovers,
   removeMeal,
   setEaten,
+  setMealSpace,
   useMealPlan,
   type MealPlanData,
 } from './meal-actions'
 import { SlotDialog } from './meal-dialogs'
+import { SpaceSelect } from './space-select'
 import { MoreMenu } from './more-menu'
 import { Field } from './task-details'
 
@@ -172,6 +174,18 @@ function MealDetails({ plan, meal }: { plan: MealPlanData; meal: PlannedMeal }) 
               value={servings}
               onChange={(e) => setServings(e.target.value)}
               onBlur={keepServings}
+            />
+          </Field>
+        )}
+        {!meal.leftoversOf && plan.spaces.spaces.length > 1 && (
+          <Field label="For">
+            <SpaceSelect
+              spaces={plan.spaces.spaces}
+              value={meal.space ?? plan.spaces.personal ?? ''}
+              onChange={(space) => setMealSpace(meal, space, plan.meals)}
+              label="For"
+              size="default"
+              className="w-full"
             />
           </Field>
         )}

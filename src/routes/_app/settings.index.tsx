@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
-import { ArchiveIcon, LogOutIcon, TagIcon, Trash2Icon } from 'lucide-react'
+import { ArchiveIcon, LogOutIcon, TagIcon, Trash2Icon, UtensilsIcon } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { CardRow, PageHeader } from '@/components/lifeos'
 import {
@@ -16,6 +16,7 @@ import { Card, CardTitle } from '@/components/ui/card'
 import { GoogleCalendarCard } from '@/app/google-calendar'
 import { HouseholdsCard } from '@/app/households'
 import { LabelsCard } from '@/app/labels'
+import { SpaceSelect } from '@/app/space-select'
 import { toast } from '@/components/ui/sonner'
 import { NotificationsCard, RemindersCard } from '@/app/notification-settings'
 import {
@@ -24,7 +25,9 @@ import {
   signOut,
   unsentWrites,
   useDeletedItems,
+  updateSettings,
   useFood,
+  useFoodSpaces,
   useLabels,
 } from '@/data'
 
@@ -134,15 +137,31 @@ function Settings() {
   )
 }
 
-/** Food (RCP-018): Archived recipes for now; the lists and new meals' Space come later. */
+/**
+ * Food (RCP-018, MPL-005): where new Meals go, with a Household; Archived
+ * recipes. The lists come later.
+ */
 function FoodCard() {
   const food = useFood(queue)
+  const spaces = useFoodSpaces(queue)
   const archived = food.recipes.filter((r) => r.mine && r.state === 'cancelled').length
   return (
     <Card className="gap-0 px-2 py-1.5">
       <div className="px-3 pt-2 pb-1">
         <CardTitle>Food</CardTitle>
       </div>
+      {spaces.spaces.length > 1 && (
+        <CardRow className="px-3" icon={<UtensilsIcon />} label="New meals are for">
+          <SpaceSelect
+            spaces={spaces.spaces}
+            value={spaces.home ?? ''}
+            onChange={(space) =>
+              updateSettings({ meal_space_id: space === spaces.personal ? null : space })
+            }
+            label="New meals are for"
+          />
+        </CardRow>
+      )}
       <CardRow
         icon={<ArchiveIcon />}
         label="Archived recipes"

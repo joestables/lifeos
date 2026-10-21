@@ -2,6 +2,28 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#20](https://github.com/joestables/lifeos/pull/20) — Stage 4, step 8b: food shared through Households
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-21
+
+**What it did**
+- Where my new Meals go (MPL-005): `core.people.meal_space_id`, set only to
+  one of my Spaces (migration `stage4_meal_space`; `meal_space_test`, 7),
+  chosen in Settings → Food with a Household. New Meals go there; leftovers
+  go where their Meal is.
+- The week's Show (MPL-001 5): All my meals, Personal or one Household,
+  kept on the device; a lock on Personal Meals among Household ones, and a
+  Household's name on its Meals among two or more (HSH-003 1).
+- A Meal's For (MPL-003 1, HSH-003 2), moving its leftovers with it.
+- The Pantry's staples are those of where new Meals go (PAN-002 1), so a
+  Household's staples are shared by its members.
+- Recipe authors: Created by in the library (RCP-001 5), "By Sam" first
+  among a member's Recipe's facts, "(Sam's)" on a member's Variation, and
+  "· Sam" in the Meal picker. On Plan, a Household's Item ends its line
+  with the Household's name.
+- New: `SpaceSelect` (Personal or a Household); MealCard's Household
+  name. Walks in `food-sharing.spec.ts`.
+
 ## [#19](https://github.com/joestables/lifeos/pull/19) — Settings read by my id, not the first person I can see
 
 Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-21

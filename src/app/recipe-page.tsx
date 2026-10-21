@@ -48,6 +48,7 @@ import {
   updateRecipe,
   noteChange,
   queue,
+  useFoodSpaces,
   usePhotoUrls,
   useRecipeActivity,
   type Cook,
@@ -98,9 +99,11 @@ function VariationSwitcher({
   const live = recipe.variations.filter(
     (v) => v.item.status !== 'cancelled' || v.item.id === variation.item.id,
   )
+  const { firstName } = useFoodSpaces(queue)
+  // Someone else's Variation of a Recipe says whose it is (ADR-0051).
   const name = (v: VariationView) =>
     v.item.owner_id && v.item.owner_id !== recipe.item.owner_id && !v.mine
-      ? `${v.item.title} (not the author's)`
+      ? `${v.item.title} (${firstName(v.item.owner_id)}'s)`
       : v.item.title
   return (
     <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
@@ -197,10 +200,17 @@ function Heading({
 }) {
   const [naming, setNaming] = useState<'duplicate' | 'mine' | null>(null)
   const photo = usePhotoUrls([recipe.photo?.path]).get(recipe.photo?.path ?? '')
+  const { firstName } = useFoodSpaces(queue)
   const h = recipe.heading
-  const facts = [h.category, h.cuisine, ...h.protein, ...h.carbs, ...h.tags].filter(
-    (f): f is string => Boolean(f),
-  )
+  // A member's Recipe says whose it is, first (patterns.md#recipes).
+  const facts = [
+    recipe.mine ? null : `By ${firstName(recipe.item.owner_id)}`,
+    h.category,
+    h.cuisine,
+    ...h.protein,
+    ...h.carbs,
+    ...h.tags,
+  ].filter((f): f is string => Boolean(f))
   const times = timesLine(variation)
   const source = variation.fields.sources[0]
   const live = recipe.variations.filter((v) => v.item.status !== 'cancelled')

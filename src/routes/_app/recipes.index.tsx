@@ -54,7 +54,7 @@ import { IdeaDialog } from '@/app/idea-dialog'
 import { archiveRecipes, deleteRecipes } from '@/app/recipe-actions'
 import { HeadingDialog } from '@/app/recipe-heading'
 import { SearchField } from '@/app/search-field'
-import { queue, setMark, useFood, usePhotoUrls } from '@/data'
+import { queue, setMark, useFood, useFoodSpaces, usePhotoUrls } from '@/data'
 import type { RecipeView } from '@/data/food-hooks'
 import { capturedWhen } from '@/lib/dates'
 import {
@@ -294,9 +294,17 @@ function Library({
   const [sheet, setSheet] = useState(false)
   const choosing = useChoosing(onChoosing)
   const all = useMemo(() => food.recipes.filter(inLibrary), [food.recipes])
-  const shown = libraryRecipes(food.recipes, view, food.pantry)
+  const spaces = useFoodSpaces(queue)
+  // Created by, in a Household only (RCP-001 5): me, then each member.
+  const shared = spaces.people.length > 1
+  const names = new Map(spaces.people.map((p) => [p.id, p.name]))
+  const author = shared
+    ? (r: RecipeView) => (r.mine ? 'Me' : (names.get(r.item.owner_id) ?? 'Someone'))
+    : undefined
+  const shown = libraryRecipes(food.recipes, view, food.pantry, author)
   const photos = usePhotoUrls(shown.map((r) => r.photo?.path))
-  const values = filterValues(all)
+  const values = filterValues(all, author)
+  if (shared) values['Created by'] = spaces.people.map((p) => p.name)
   const groups: FilterGroup[] = FILTERS.map((name) => {
     const chosen = view.chosen[name] ?? []
     // A chosen value no Recipe has now still shows, to be taken off.
@@ -307,10 +315,9 @@ function Library({
       chosen,
       open: name === 'Category',
     }
-  }).filter((g) => g.values.length > 0)
+  }).filter((g) => g.values.length > 0 && (g.name !== 'Created by' || shared))
   const chosenCount =
-    Object.values(view.chosen).reduce((n, vs) => n + (vs?.length ?? 0), 0) +
-    (view.state === 'all' ? 0 : 1)
+    groups.reduce((n, g) => n + (g.chosen?.length ?? 0), 0) + (view.state === 'all' ? 0 : 1)
   const onChange = (group: string, chosen: string[]) =>
     change({ chosen: { ...view.chosen, [group]: chosen } })
   const reset = () => change({ chosen: {}, state: 'all' })

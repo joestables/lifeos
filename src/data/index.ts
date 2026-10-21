@@ -397,10 +397,12 @@ export {
 export { googleEventUrl } from './calendar'
 export {
   useFood,
+  useFoodSpaces,
   useMeals,
   useRecipeActivity,
   useStaples,
   type FoodData,
+  type FoodSpaces,
   type MealView,
 } from './food-hooks'
 export { positionBetween, positionsFor } from './food-writes'

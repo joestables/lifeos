@@ -24,7 +24,15 @@ import { NewEventDialog } from '@/app/event-details'
 import { useGoogleLocked, useSyncOnOpen } from '@/app/google-source'
 import { useOpenItem } from '@/app/item-navigation'
 import { NewTaskDialog } from '@/app/new-task'
-import { queue, updateItem, updateSettings, useItems, useSettings, type Item } from '@/data'
+import {
+  queue,
+  updateItem,
+  updateSettings,
+  useHouseholds,
+  useItems,
+  useSettings,
+  type Item,
+} from '@/data'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { dayName, fromIsoDay, shortDate } from '@/lib/dates'
 import { itemTitle, offered, typeLook } from '@/lib/item-types'
@@ -92,6 +100,9 @@ function Plan() {
   const navigate = useNavigate()
   const isMobile = useIsMobile()
   const settings = useSettings(queue)
+  // A shared Item says which Household it is in (HSH-003 1).
+  const { households: mine } = useHouseholds(queue)
+  const households = new Map(mine.map((h) => [h.id, h.name]))
   const { items } = useItems(queue)
   const open = useOpenItem()
   const [chosenLayout, setLayout] = useLayout()
@@ -144,7 +155,9 @@ function Plan() {
         type={look.label}
         title={itemTitle(p.item)}
         time={line.time}
-        detail={line.detail}
+        detail={
+          [line.detail, households.get(p.item.space_id)].filter(Boolean).join(' · ') || undefined
+        }
         past={isPast(p.item, now)}
         done={p.item.status === 'done'}
         wide={wide}

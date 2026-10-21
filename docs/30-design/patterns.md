@@ -284,8 +284,9 @@ DateField, TimeField, RepeatField, SubtaskList and AddRow in
   Withdraw), then a Card with Rename and, for the owner, Delete (red). A
   member's page has Leave instead. Invite is a small Dialog: "Google
   email" and Invite.
-- **Food** (RCP-018, MPL-005): a titled Card: "New meals are for" with an
-  `sm` Select of Personal and my Households, then CardRows leading to
+- **Food** (RCP-018, MPL-005): a titled Card: with a Household, "New meals
+  are for" (`utensils`) with an `sm` Select of Personal and my Households,
+  which is also whose staples the Pantry shows; then CardRows leading to
   "Categories, cuisines and tags" and "Archived recipes" (with its count).
 - A Card of CardRows leads on: Recently deleted (with its count), then Sign
   out, which acts at once and so has no chevron.
@@ -415,7 +416,8 @@ StepEditor. Agreed with Joe on 18 October on the
 - **A Recipe's page:** a BackLink to Recipes and the name as the title;
   then the heading (RecipeHeadingLayout): the RecipePhoto (288px on a
   computer; on a phone about half the width, Joe, 20 October) beside
-  "Variation" with a ghost Select of its Variations and its state as an
+  "Variation" with a ghost Select of its Variations (a member's saying
+  whose, "Air fryer (Sam's)") and its state as an
   `outline` Badge, the RecipeFacts, "Add a category and cuisine" (a `link`
   Button, `sm`, opening Edit heading) when either is
   missing, a muted line of times, servings and source (each with its 14px
@@ -489,7 +491,7 @@ MealCard, MealSlot, AddMealButton, MealWeek, MealDay and PantryRow in
   until then none), "New entry" on the Pantry.
 - **The week:** the PlanToolbar (no Day / Week; `?day=` names the week), an
   `sm` Select of whose Meals show ("All my meals", Personal, each
-  Household; with Households, plan step 8) and a "…" menu holding Copy this
+  Household; only with a Household, kept on the device) and a "…" menu holding Copy this
   week…; then the MealWeek on a computer, the week's seven MealDays down a
   phone, today's scrolled into view. A Meal's name is its Recipe's, a typed
   Meal's what was typed; leftovers take the name of the Meal they are of.
@@ -508,12 +510,13 @@ MealCard, MealSlot, AddMealButton, MealWeek, MealDay and PantryRow in
   first. **Type a meal** becomes an `sm` Input ("Out: Dishoom") and Add.
   **Leftovers** lists the Meals of the seven days before the slot, newest
   first ("Katsu curry · Thu dinner"), leftovers themselves left out. A new
-  Meal serves what its Variation does, and is Personal until Households.
+  Meal serves what its Variation does, and goes where Settings → Food says
+  (Personal to start); leftovers go where their Meal is.
 - **A Meal** opens in its ItemDialog: "Meal · Thu dinner", its Checkbox
   (eaten) and name; for a Recipe's Meal, an ItemRow for its Recipe ("Open
   recipe · Standard") and, when the Recipe has more than one Variation, a
-  Variation Select; Servings (and, with Households, For: Personal or a
-  Household) side by side; for leftovers, an ItemRow for the Meal they are
+  Variation Select; Servings (and, with a Household, For: Personal or a
+  Household, moving its leftovers with it) side by side; for leftovers, an ItemRow for the Meal they are
   of; Leftovers, an ItemRow per slot they fill, each with a "…" Remove.
   Its "…" menu: Move to…, Add leftovers… (not on leftovers) and Remove
   (red). **Move to…** and **Add leftovers…** are small Dialogs: Day (a

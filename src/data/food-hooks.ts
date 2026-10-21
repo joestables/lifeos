@@ -47,7 +47,8 @@ import {
   type Step,
   type VariationFields,
 } from './food'
-import { useItems, useLinks, useMarks, useQueueEntries } from './hooks'
+import { useItems, useLinks, useMarks, useQueueEntries, useSettings } from './hooks'
+import { useHouseholds } from './households'
 import { applyPendingPhotos, fetchPhotos, photosKey, type Photo } from './photos'
 import type { WriteQueue } from './queue/queue'
 import type { Item } from './types'
@@ -281,28 +282,77 @@ export function useMeals(queue: WriteQueue): { meals: MealView[]; isLoading: boo
   }, [entries, items, itemsLoading, links, rows.data, rows.isLoading])
 }
 
+/** Where food can go: Personal, or one of my Households (MPL-005, HSH-003 2). */
+export interface FoodSpaces {
+  /** My Personal Space. */
+  personal: string | null
+  /** Personal first, then my Households, each with what to call it. */
+  spaces: { id: string; name: string }[]
+  /** Where my new Meals go, and whose staples the Pantry shows (PAN-002 1). */
+  home: string | null
+  /** A Household's name, for an Item in it; undefined for Personal. */
+  householdName: (space: string | null | undefined) => string | undefined
+  /** The first name of someone in my Households ("Sam"), for whose a Recipe is. */
+  firstName: (person: string) => string
+  /** Me, then everyone else in my Households, for Created by (RCP-001 5). */
+  people: { id: string; name: string }[]
+}
+
 /**
- * My staples, by Pantry entry, with unsent marks laid over, and the Space
- * they are kept in: mine until Households (PAN-002 1).
+ * My Spaces for food, and where new Meals go: my choice in Settings → Food
+ * while it is still one of mine, else Personal.
  */
-export function useStaples(queue: WriteQueue): {
-  space: string | null
-  staples: ReadonlyMap<string, { out: boolean }>
-} {
+export function useFoodSpaces(queue: WriteQueue): FoodSpaces {
   const auth = useAuth()
   const me = auth.status === 'signed-in' ? auth.me.id : ''
-  const entries = useQueueEntries(queue)
-  const { data: space } = useQuery({
+  const { data: personal } = useQuery({
     queryKey: personalSpaceKey,
     queryFn: () => fetchPersonalSpace(me),
     enabled: me !== '',
     staleTime: Infinity,
   })
+  const { households } = useHouseholds(queue)
+  const settings = useSettings(queue)
+  return useMemo(() => {
+    const names = new Map(households.map((h) => [h.id, h.name]))
+    const chosen = settings.mealSpaceId
+    const people = new Map<string, string>()
+    for (const h of households)
+      for (const m of h.members)
+        if (m.name || !people.has(m.person_id)) people.set(m.person_id, m.name)
+    const firstName = (person: string) => people.get(person)?.split(' ')[0] || 'Someone'
+    return {
+      personal: personal ?? null,
+      spaces: [
+        ...(personal ? [{ id: personal, name: 'Personal' }] : []),
+        ...households.map((h) => ({ id: h.id, name: h.name })),
+      ],
+      home: chosen && names.has(chosen) ? chosen : (personal ?? null),
+      householdName: (space) => (space ? names.get(space) : undefined),
+      firstName,
+      people: [
+        ...(me ? [{ id: me, name: 'Me' }] : []),
+        ...[...people.keys()]
+          .filter((id) => id !== me)
+          .map((id) => ({ id, name: people.get(id) || 'Someone' }))
+          .sort((a, b) => a.name.localeCompare(b.name)),
+      ],
+    }
+  }, [me, personal, households, settings.mealSpaceId])
+}
+
+/** The staples of where my new Meals go (PAN-002 1): a Household's, or mine. */
+export function useStaples(queue: WriteQueue): {
+  space: string | null
+  staples: ReadonlyMap<string, { out: boolean }>
+} {
+  const entries = useQueueEntries(queue)
+  const { home: space } = useFoodSpaces(queue)
   const { data } = useQuery({ queryKey: staplesKey, queryFn: fetchStaples })
   return useMemo(() => {
     const mine = applyPendingStaples(data ?? [], entries).filter((s) => s.space_id === space)
     return {
-      space: space ?? null,
+      space,
       staples: new Map(mine.map((s) => [s.pantry_id, { out: s.out_of_stock }])),
     }
   }, [data, entries, space])

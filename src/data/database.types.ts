@@ -639,6 +639,7 @@ export type Database = {
           digest_on: boolean
           digest_time: string
           id: string
+          meal_space_id: string | null
           name: string
           plan_hidden_types: string[]
           reminder_defaults: NonNullable<Json>
@@ -651,6 +652,7 @@ export type Database = {
           digest_on?: boolean
           digest_time?: string
           id: string
+          meal_space_id?: string | null
           name?: string
           plan_hidden_types?: string[]
           reminder_defaults?: NonNullable<Json>
@@ -662,12 +664,21 @@ export type Database = {
           digest_on?: boolean
           digest_time?: string
           id?: string
+          meal_space_id?: string | null
           name?: string
           plan_hidden_types?: string[]
           reminder_defaults?: NonNullable<Json>
           timezone?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: 'people_meal_space_id_fkey'
+            columns: ['meal_space_id']
+            isOneToOne: false
+            referencedRelation: 'spaces'
+            referencedColumns: ['id']
+          },
+        ]
       }
       push_devices: {
         Row: {
@@ -1867,6 +1878,7 @@ export type Database = {
           digest_on: boolean
           digest_time: string
           id: string
+          meal_space_id: string | null
           name: string
           plan_hidden_types: string[]
           reminder_defaults: NonNullable<Json>
