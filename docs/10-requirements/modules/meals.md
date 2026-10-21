@@ -127,7 +127,7 @@ done.
 
 **As** Joe, **I want** the week's meals on one page, **so that** I can plan
 what we eat.
-Priority: Must · Status: built (5 with Households, plan step 8)
+Priority: Must · Status: built
 
 Acceptance criteria
 1. Given Meal plan on a computer, then this week shows as Plan's week does,
@@ -146,7 +146,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to put a Recipe in a slot quickly, **so that**
 planning the week takes minutes.
-Priority: Must · Status: built (2's Space with Households, plan step 8)
+Priority: Must · Status: built
 
 Acceptance criteria
 1. Given a slot's "+", then a search opens, listing the Recipes I planned
@@ -182,7 +182,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to choose where new Meals go, **so that** I don't set
 it on every Meal.
-Priority: Should · Status: proposed (with Households, plan step 8)
+Priority: Should · Status: built
 
 Acceptance criteria
 1. Given Settings → Food, then I choose Personal or one of my Households as
@@ -222,11 +222,13 @@ Acceptance criteria
 
 **As** Joe, **I want** to mark staples, and a staple that's run out, **so
 that** I buy it on the next shop.
-Priority: Must · Status: built (1 as mine until Households, plan step 8; 2 and 3 with Shopping, Stage 4b)
+Priority: Must · Status: built (1; 2 and 3 with Shopping, Stage 4b)
 
 Acceptance criteria
 1. Given any entry, then any member of the Household ticks it as one of the
-   Household's staples, or unticks it; without a Household, as mine.
+   Household's staples, or unticks it; without a Household, as mine. In
+   two or more, the Pantry shows the staples of where my new Meals go
+   (Settings → Food; MPL-005).
 2. Given a staple, when I mark it out of stock, then it is added to the next
    shopping list I make, whether or not a Meal needs it.
 3. **(Suggested)** Given an out-of-stock staple on a list, when I tick it

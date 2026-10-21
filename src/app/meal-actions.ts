@@ -8,8 +8,10 @@ import {
   restoreItem,
   updateItem,
   useFood,
+  useFoodSpaces,
   useMeals,
   type FoodData,
+  type FoodSpaces,
 } from '@/data'
 import type { RecipeView, VariationView } from '@/data/food-hooks'
 import { copyWeek, mealName, slotName, type PlannedMeal, type SlotKey } from '@/lib/meals'
@@ -24,12 +26,15 @@ export interface MealPlanData {
   /** The Recipe a Meal plans, through its Variation. */
   recipeOf: (m: PlannedMeal) => RecipeView | undefined
   variationOf: (m: PlannedMeal) => VariationView | undefined
+  /** Personal and my Households, and where new Meals go (MPL-005). */
+  spaces: FoodSpaces
   isLoading: boolean
 }
 
 export function useMealPlan(): MealPlanData {
   const food = useFood(queue)
   const { meals: views, isLoading } = useMeals(queue)
+  const spaces = useFoodSpaces(queue)
   return useMemo(() => {
     const meals: PlannedMeal[] = views.map((v) => ({
       id: v.item.id,
@@ -41,6 +46,7 @@ export function useMealPlan(): MealPlanData {
       servings: v.servings,
       leftoversOf: v.leftoversOf,
       variation: v.variation,
+      space: v.item.space_id,
     }))
     const byId = new Map(meals.map((m) => [m.id, m]))
     const recipeOf = (m: PlannedMeal) => {
@@ -54,30 +60,56 @@ export function useMealPlan(): MealPlanData {
       name: (m) => mealName(m, byId),
       recipeOf,
       variationOf: (m) => recipeOf(m)?.variations.find((v) => v.item.id === m.variation),
+      spaces,
       isLoading: isLoading || food.isLoading,
     }
-  }, [food, views, isLoading])
+  }, [food, views, isLoading, spaces])
 }
 
+/** Where a new Meal goes: my default, Personal or a Household (MPL-002 2). */
+const inSpace = (space: string | null | undefined) => (space ? { space_id: space } : {})
+
 /** A Recipe's Meal in a slot, serving what its Variation does (MPL-002 1, 2). */
-export function planRecipe(day: string, slot: SlotKey, r: RecipeView, v: VariationView) {
+export function planRecipe(
+  day: string,
+  slot: SlotKey,
+  r: RecipeView,
+  v: VariationView,
+  space?: string | null,
+) {
   planMeal({
     title: r.item.title,
     do_on: day,
     slot,
     variation: v.item.id,
     servings: v.fields.servings,
+    ...inSpace(space),
   })
 }
 
 /** A Meal I type ("Out: Dishoom"; MPL-002 3). */
-export function planTyped(day: string, slot: SlotKey, title: string) {
-  planMeal({ title: title.trim(), do_on: day, slot })
+export function planTyped(day: string, slot: SlotKey, title: string, space?: string | null) {
+  planMeal({ title: title.trim(), do_on: day, slot, ...inSpace(space) })
 }
 
-/** Leftovers of a Meal, named so on Plan: "Leftovers: Katsu curry" (PLN-008 1). */
+/**
+ * Leftovers of a Meal, named so on Plan: "Leftovers: Katsu curry" (PLN-008
+ * 1), where the Meal is.
+ */
 export function planLeftovers(day: string, slot: SlotKey, of: PlannedMeal, name: string) {
-  planMeal({ title: `Leftovers: ${name}`, do_on: day, slot, leftovers_of: of.id })
+  planMeal({
+    title: `Leftovers: ${name}`,
+    do_on: day,
+    slot,
+    leftovers_of: of.id,
+    ...inSpace(of.space),
+  })
+}
+
+/** A Meal, and its leftovers, made Personal or a Household's (MPL-003 1, HSH-003 2). */
+export function setMealSpace(m: PlannedMeal, space: string, meals: readonly PlannedMeal[]) {
+  for (const x of [m, ...meals.filter((l) => l.leftoversOf === m.id)])
+    if (x.space !== space) updateItem(x.id, { space_id: space })
 }
 
 /** A Meal moved to another day or slot, with Undo (MPL-003 2). */
@@ -116,6 +148,7 @@ export function copyMeals(meals: readonly PlannedMeal[], from: string, to: strin
         ...(c.from.variation && { variation: c.from.variation }),
         servings: c.from.servings,
         ...(c.leftoversOf && { leftovers_of: c.leftoversOf }),
+        ...inSpace(c.from.space),
       },
       c.id,
     )

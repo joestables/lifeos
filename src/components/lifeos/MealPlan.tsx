@@ -20,6 +20,7 @@ export function MealCard({
   variation,
   kind = 'recipe',
   personal = false,
+  household,
   dragging = false,
   eaten = false,
   onOpen,
@@ -31,6 +32,8 @@ export function MealCard({
   kind?: 'recipe' | 'typed' | 'leftovers'
   /** Personal, among Household Meals: marked with a lock. */
   personal?: boolean
+  /** Its Household's name, among the Meals of several (HSH-003 1). */
+  household?: string
   dragging?: boolean
   eaten?: boolean
   onOpen?: () => void
@@ -38,6 +41,7 @@ export function MealCard({
   const parts = [
     kind === 'leftovers' ? 'Leftovers' : servings ? `Serves ${servings}` : null,
     variation,
+    household,
   ].filter(Boolean)
   return (
     <div

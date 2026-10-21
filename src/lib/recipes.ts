@@ -8,7 +8,15 @@ export type Sort = 'added' | 'cooked' | 'name'
 export type Grouping = 'none' | 'category' | 'cuisine' | 'state'
 
 /** The filters that narrow by a Recipe's heading, each any of its values. */
-export const FILTERS = ['Category', 'Cuisine', 'Tags', 'Protein', 'Carbs', 'Favourites'] as const
+export const FILTERS = [
+  'Category',
+  'Cuisine',
+  'Tags',
+  'Protein',
+  'Carbs',
+  'Created by',
+  'Favourites',
+] as const
 export type FilterName = (typeof FILTERS)[number]
 
 export interface LibraryView {
@@ -43,7 +51,10 @@ export const GROUPINGS: { value: Grouping; label: string }[] = [
 export const MINE = 'Mine'
 
 /** A Recipe's values for one filter. */
-function valuesOf(r: RecipeView, name: FilterName): string[] {
+/** Whose a Recipe is, by name ("Me", "Sam Carter"), for Created by (RCP-001 5). */
+export type Author = (r: RecipeView) => string
+
+function valuesOf(r: RecipeView, name: FilterName, author?: Author): string[] {
   const h = r.heading
   switch (name) {
     case 'Category':
@@ -56,6 +67,8 @@ function valuesOf(r: RecipeView, name: FilterName): string[] {
       return h.protein
     case 'Carbs':
       return h.carbs
+    case 'Created by':
+      return author ? [author(r)] : []
     case 'Favourites':
       return r.favourite ? [MINE] : []
   }
@@ -72,12 +85,15 @@ export const isIdea = (r: RecipeView) => r.state === 'idea'
  * Each filter's values among the Recipes shown, the same name counting once
  * whatever its case (RCP-017 5), A–Z.
  */
-export function filterValues(recipes: readonly RecipeView[]): Record<FilterName, string[]> {
+export function filterValues(
+  recipes: readonly RecipeView[],
+  author?: Author,
+): Record<FilterName, string[]> {
   const out = {} as Record<FilterName, string[]>
   for (const name of FILTERS) {
     const seen = new Map<string, string>()
     for (const r of recipes)
-      for (const v of valuesOf(r, name)) if (!seen.has(key(v))) seen.set(key(v), v)
+      for (const v of valuesOf(r, name, author)) if (!seen.has(key(v))) seen.set(key(v), v)
     out[name] = [...seen.values()].sort((a, b) => a.localeCompare(b))
   }
   return out
@@ -128,11 +144,12 @@ export function libraryRecipes(
   recipes: readonly RecipeView[],
   view: LibraryView,
   pantry: ReadonlyMap<string, PantryEntry>,
+  author?: Author,
 ): RecipeView[] {
-  const chosen = Object.entries(view.chosen).filter(([, vs]) => vs?.length) as [
-    FilterName,
-    string[],
-  ][]
+  // Created by counts only in a Household, when there is an author to ask.
+  const chosen = Object.entries(view.chosen).filter(
+    ([name, vs]) => vs?.length && (name !== 'Created by' || author),
+  ) as [FilterName, string[]][]
   return recipes
     .filter(inLibrary)
     .filter(
@@ -142,7 +159,7 @@ export function libraryRecipes(
     )
     .filter((r) =>
       chosen.every(([name, vs]) => {
-        const has = new Set(valuesOf(r, name).map(key))
+        const has = new Set(valuesOf(r, name, author).map(key))
         return vs.some((v) => has.has(key(v)))
       }),
     )

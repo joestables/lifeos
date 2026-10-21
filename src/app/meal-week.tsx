@@ -21,8 +21,31 @@ import { useOpenItem } from './item-navigation'
 import { copyMeals, moveMeal, useMealPlan } from './meal-actions'
 import { CopyWeekDialog } from './meal-dialogs'
 import { MoreMenu } from './more-menu'
+import { ALL, SpaceSelect } from './space-select'
 
 const month = new Intl.DateTimeFormat('en-GB', { month: 'short' })
+
+const SHOWN = 'lifeos.meals.show'
+
+/** Whose Meals the week shows, kept on this device (MPL-001 5). */
+function useShown(): [string, (space: string) => void] {
+  const [shown, setShown] = useState(() => {
+    try {
+      return localStorage.getItem(SHOWN) ?? ALL
+    } catch {
+      return ALL
+    }
+  })
+  const keep = (space: string) => {
+    setShown(space)
+    try {
+      localStorage.setItem(SHOWN, space)
+    } catch {
+      // Kept for this visit only.
+    }
+  }
+  return [shown, keep]
+}
 
 /**
  * The Meal plan's week (MPL-001–004, patterns.md#meal-plan): Monday to
@@ -42,7 +65,12 @@ export function WeekTab({
   const isMobile = useIsMobile()
   const open = useOpenItem()
   const week = weekOf(day)
-  const meals = weekMeals(plan.meals, week)
+  const { spaces, personal } = plan.spaces
+  const shared = spaces.length > 1
+  const [kept, keep] = useShown()
+  const show = kept === ALL || spaces.some((s) => s.id === kept) ? kept : ALL
+  const shown = show === ALL ? plan.meals : plan.meals.filter((m) => m.space === show)
+  const meals = weekMeals(shown, week)
   const [adding, setAdding] = useState<string | null>(null)
   const [copying, setCopying] = useState(false)
   const drag = useMealDrag((id, drop) => {
@@ -67,6 +95,10 @@ export function WeekTab({
     return (
       <div key={m.id} className="touch-manipulation select-none" {...drag.handle(m.id)}>
         <MealCard
+          personal={shared && show === ALL && m.space === personal}
+          household={
+            spaces.length > 2 && show === ALL ? plan.spaces.householdName(m.space) : undefined
+          }
           name={plan.name(m)}
           servings={m.servings ?? undefined}
           variation={several ? variation?.item.title : undefined}
@@ -118,17 +150,29 @@ export function WeekTab({
         onNext={() => onDay(addDays(day, 7))}
         step="week"
         action={
-          <MoreMenu>
-            <DropdownMenuItem onClick={() => setCopying(true)}>
-              <CopyIcon /> Copy this week…
-            </DropdownMenuItem>
-          </MoreMenu>
+          <>
+            {shared && (
+              <SpaceSelect
+                all
+                spaces={spaces}
+                value={show}
+                onChange={keep}
+                label="Show"
+                className="w-36"
+              />
+            )}
+            <MoreMenu>
+              <DropdownMenuItem onClick={() => setCopying(true)}>
+                <CopyIcon /> Copy this week…
+              </DropdownMenuItem>
+            </MoreMenu>
+          </>
         }
       />
       {copying && (
         <CopyWeekDialog
           day={addDays(week[0]!, 7)}
-          onCopy={(to) => copyMeals(plan.meals, week[0]!, to)}
+          onCopy={(to) => copyMeals(shown, week[0]!, to)}
           onClose={() => setCopying(false)}
         />
       )}

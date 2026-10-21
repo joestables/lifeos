@@ -19,6 +19,8 @@ export interface Settings {
   digestTime: string
   /** The Types I've hidden from Plan, on every device (PLN-004, ADR-0049). */
   planHiddenTypes: readonly string[]
+  /** Where my new Meals go, and whose staples the Pantry shows; null for Personal (MPL-005). */
+  mealSpaceId: string | null
 }
 
 /** Until my settings have loaded, or with no signal before they ever did. */
@@ -31,6 +33,7 @@ export const DEFAULT_SETTINGS: Settings = {
   digestOn: true,
   digestTime: '07:00',
   planHiddenTypes: [],
+  mealSpaceId: null,
 }
 
 /** What core.update_settings takes. */
@@ -40,20 +43,18 @@ export interface SettingsPatch {
   digest_on?: boolean
   digest_time?: string
   plan_hidden_types?: string[]
+  meal_space_id?: string | null
 }
 
 /**
  * My row of core.people. I read the people of my Households too (HSH-001),
  * so it is asked for by my id.
  */
-export async function fetchSettings(): Promise<Settings> {
-  const { data: auth } = await supabase().auth.getSession()
-  const me = auth.session?.user.id
-  if (!me) return DEFAULT_SETTINGS
+export async function fetchSettings(me: string): Promise<Settings> {
   const { data, error } = await supabase()
     .from('people')
     .select(
-      'timezone, default_reminder_time, reminder_defaults, digest_on, digest_time, plan_hidden_types',
+      'timezone, default_reminder_time, reminder_defaults, digest_on, digest_time, plan_hidden_types, meal_space_id',
     )
     .eq('id', me)
     .limit(1)
@@ -70,6 +71,7 @@ export async function fetchSettings(): Promise<Settings> {
     digestOn: mine.digest_on,
     digestTime: mine.digest_time.slice(0, 5),
     planHiddenTypes: mine.plan_hidden_types ?? [],
+    mealSpaceId: mine.meal_space_id,
   }
 }
 
@@ -92,6 +94,7 @@ export function applyPendingSettings(settings: Settings, entries: readonly Queue
       ...(p.digest_on !== undefined && { digestOn: p.digest_on }),
       ...(p.digest_time && { digestTime: p.digest_time.slice(0, 5) }),
       ...(p.plan_hidden_types && { planHiddenTypes: p.plan_hidden_types }),
+      ...(p.meal_space_id !== undefined && { mealSpaceId: p.meal_space_id }),
     }
   }
   return out

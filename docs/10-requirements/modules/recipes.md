@@ -156,7 +156,7 @@ saved, the start of the note). "New" offers *New recipe*, *New idea* and
 
 **As** Joe, **I want** my recipes as cards with photos, **so that** I
 recognise dishes at a glance.
-Priority: Must · Status: verified (5 comes with Households, plan step 8)
+Priority: Must · Status: verified (5 built with Households, plan step 8b; not yet verified)
 
 Acceptance criteria
 1. Given the Recipes tab, then every Draft and Complete Recipe I can see

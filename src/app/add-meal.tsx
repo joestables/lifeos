@@ -62,7 +62,7 @@ export function MealPicker({
     if (vs.length > 1) return setMode({ kind: 'variations', recipe: r })
     const v = r.defaultVariation ?? vs[0]
     if (!v) return
-    planRecipe(day, slot, r, v)
+    planRecipe(day, slot, r, v, plan.spaces.home)
     onDone()
   }
 
@@ -96,7 +96,7 @@ export function MealPicker({
               title={v.item.title}
               meta={v.item.id === r.defaultVariation?.item.id ? 'Default' : undefined}
               onClick={() => {
-                planRecipe(day, slot, r, v)
+                planRecipe(day, slot, r, v, plan.spaces.home)
                 onDone()
               }}
             />
@@ -109,7 +109,7 @@ export function MealPicker({
   if (mode.kind === 'typed') {
     const add = () => {
       if (!typed.trim()) return
-      planTyped(day, slot, typed)
+      planTyped(day, slot, typed, plan.spaces.home)
       onDone()
     }
     return (
@@ -188,7 +188,11 @@ export function MealPicker({
       key={r.item.id}
       leading={<TypeTile colour="green" icon={ChefHatIcon} size="sm" />}
       title={r.item.title}
-      meta={r.heading.cuisine ?? undefined}
+      meta={
+        [r.heading.cuisine, r.mine ? null : plan.spaces.firstName(r.item.owner_id)]
+          .filter(Boolean)
+          .join(' · ') || undefined
+      }
       onClick={() => choose(r)}
     />
   )

@@ -559,6 +559,7 @@ export async function standIn(
           do_on: f.do_on ?? null,
           slot: f.slot ?? null,
           status: 'active',
+          ...(f.space_id ? { space_id: f.space_id } : {}),
           created_at: at,
           updated_at: at,
         }),
@@ -1077,7 +1078,12 @@ export async function standIn(
     if (table === 'spaces' && url.searchParams.get('select')?.includes('space_members'))
       return route.fulfill({ json: households() })
     if (table) {
-      const rows = db[table as keyof typeof db] ?? []
+      let rows = db[table as keyof typeof db] ?? []
+      // Spaces are asked for by kind and maker (my Personal one): filtered as PostgREST would.
+      if (table === 'spaces' && Array.isArray(rows))
+        for (const [k, v] of url.searchParams)
+          if (v.startsWith('eq.'))
+            rows = (rows as Record<string, unknown>[]).filter((r) => String(r[k]) === v.slice(3))
       // .single() / .maybeSingle(): one row, as PostgREST sends it.
       if (route.request().headers()['accept']?.includes('vnd.pgrst.object'))
         return route.fulfill({ json: (Array.isArray(rows) ? rows[0] : rows) ?? null })

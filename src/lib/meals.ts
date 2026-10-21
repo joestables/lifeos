@@ -29,6 +29,8 @@ export interface PlannedMeal {
   servings: number | null
   leftoversOf: string | null
   variation: string | null
+  /** Its Space: Personal or one of my Households (MPL-002 2). */
+  space?: string
 }
 
 /** A Meal's name: leftovers take the name of the Meal they are of (MPL-001 4). */

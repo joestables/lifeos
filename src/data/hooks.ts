@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { useMemo, useSyncExternalStore } from 'react'
+import { useAuth } from './auth'
 import { fetchItems, itemsKey } from './items'
 import {
   applyPendingItemLabels,
@@ -154,7 +155,13 @@ export function useMarks(queue: WriteQueue): ReadonlySet<string> {
 
 /** My settings, with unsent changes laid over them, or the defaults until they have loaded. */
 export function useSettings(queue: WriteQueue): Settings {
-  const query = useQuery({ queryKey: settingsKey, queryFn: fetchSettings })
+  const auth = useAuth()
+  const me = auth.status === 'signed-in' ? auth.me.id : ''
+  const query = useQuery({
+    queryKey: settingsKey,
+    queryFn: () => fetchSettings(me),
+    enabled: me !== '',
+  })
   const entries = useQueueEntries(queue)
   return useMemo(
     () => applyPendingSettings(query.data ?? DEFAULT_SETTINGS, entries),
