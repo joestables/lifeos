@@ -139,3 +139,13 @@ export function zonedParts(iso: string, timeZone: string): { day: string; time: 
   const p = (type: string) => all.find((x) => x.type === type)?.value ?? ''
   return { day: `${p('year')}-${p('month')}-${p('day')}`, time: `${p('hour')}:${p('minute')}` }
 }
+
+/** When an invitation was sent: "Invited today", "Invited yesterday", "Invited Thu" this week, else "Invited Fri 9 Oct" (HSH-002). */
+export function invitedWhen(iso: string, now: Date = new Date()): string {
+  const then = new Date(iso)
+  const days = Math.round((startOfDay(now).getTime() - startOfDay(then).getTime()) / DAY)
+  if (days <= 0) return 'Invited today'
+  if (days === 1) return 'Invited yesterday'
+  if (days < 7) return `Invited ${weekday.format(then)}`
+  return `Invited ${shortDate(then)}`
+}

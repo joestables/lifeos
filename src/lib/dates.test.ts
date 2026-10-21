@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   zonedParts,
   capturedWhen,
+  invitedWhen,
   dayName,
   dueWhen,
   reminderWhen,
@@ -66,5 +67,15 @@ describe('a moment on the clock in my home timezone', () => {
       day: '2026-10-12',
       time: '19:30',
     })
+  })
+})
+
+describe('invitedWhen', () => {
+  const now = new Date(2026, 9, 22, 10, 0)
+  it('HSH-002: today, yesterday, a day this week, else a date', () => {
+    expect(invitedWhen(new Date(2026, 9, 22, 8, 0).toISOString(), now)).toBe('Invited today')
+    expect(invitedWhen(new Date(2026, 9, 21, 8, 0).toISOString(), now)).toBe('Invited yesterday')
+    expect(invitedWhen(new Date(2026, 9, 20, 8, 0).toISOString(), now)).toBe('Invited Tue')
+    expect(invitedWhen(new Date(2026, 9, 9, 8, 0).toISOString(), now)).toBe('Invited Fri 9 Oct')
   })
 })

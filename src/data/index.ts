@@ -57,6 +57,19 @@ import { applyPendingSeries, seriesKey, type Series } from './series'
 import { applyPendingSettings, settingsKey, type Settings } from './settings'
 import { applyPendingDevices, devicesKey, type Device } from './devices'
 import { applyPendingSubtasks, subtasksKey, type Subtask } from './subtasks'
+import {
+  applyPendingHouseholds,
+  applyPendingMyInvites,
+  applyPendingSentInvites,
+  householdsKey,
+  householdWrites,
+  myInvitesKey,
+  PARTING_FNS,
+  sentInvitesKey,
+  type Household,
+  type MyInvite,
+  type SentInvite,
+} from './households'
 import { indexedDbQueueStore, WriteQueue } from './queue'
 import type { QueueEntry } from './queue/store'
 import { session } from './session'
@@ -225,6 +238,29 @@ const collections: {
     fold: (rows: Device[], e: QueueEntry) => applyPendingDevices(rows, [e]),
   },
   {
+    key: householdsKey,
+    fns: [
+      'create_household',
+      'rename_household',
+      'join_household',
+      'leave_household',
+      'remove_member',
+      'delete_household',
+    ],
+    fold: (rows: Household[], e: QueueEntry) =>
+      applyPendingHouseholds(rows, [e], '', queryClient.getQueryData<MyInvite[]>(myInvitesKey)),
+  },
+  {
+    key: sentInvitesKey,
+    fns: ['invite', 'withdraw_invite', 'delete_household'],
+    fold: (rows: SentInvite[], e: QueueEntry) => applyPendingSentInvites(rows, [e]),
+  },
+  {
+    key: myInvitesKey,
+    fns: ['join_household', 'decline_invite'],
+    fold: (rows: MyInvite[], e: QueueEntry) => applyPendingMyInvites(rows, [e]),
+  },
+  {
     key: marksKey,
     fns: ['set_mark', 'convert_item'],
     fold: (rows: Parameters<typeof applyPendingMarks>[0], e: QueueEntry) =>
@@ -244,6 +280,8 @@ export const queue = new WriteQueue({
     // A Recipe's log follows what was changed (RCP-013); only an open one refetches.
     if (entry.fn.startsWith('food.') || entry.fn.endsWith('_item'))
       void queryClient.invalidateQueries({ queryKey: ['core', 'activity'] })
+    // Joining or parting moves what I see between Spaces (HSH-004): all of it is fetched again.
+    if (PARTING_FNS.includes(entry.fn)) void queryClient.invalidateQueries()
     if (entry.fn === 'food.note_change')
       void queryClient.invalidateQueries({ queryKey: ['food', 'change_notes'] })
   },
@@ -316,6 +354,18 @@ export const {
 
 export const { setPhoto, removePhoto } = photoWrites(queue)
 
+export const {
+  createHousehold,
+  renameHousehold,
+  invite,
+  withdrawInvite,
+  joinHousehold,
+  declineInvite,
+  leaveHousehold,
+  removeMember,
+  deleteHousehold,
+} = householdWrites(queue)
+
 export const { unsentWrites, signOut } = session(queue)
 
 /**
@@ -354,6 +404,14 @@ export {
   type MealView,
 } from './food-hooks'
 export { positionBetween, positionsFor } from './food-writes'
+export {
+  useHouseholds,
+  type Household,
+  type HouseholdsData,
+  type Member,
+  type MyInvite,
+  type SentInvite,
+} from './households'
 export { usePhotoUrls, type Photo } from './photos'
 export type {
   Activity,

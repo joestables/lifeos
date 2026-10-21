@@ -44,6 +44,19 @@ export interface Rows {
   /** Photos (core.attachments) and their files in Storage's `photos` bucket. */
   attachments?: Record<string, unknown>[]
   change_notes?: Record<string, unknown>[]
+  /** Households (HSH-001–004): their Spaces, members (with names), and invitations. */
+  spaces?: { id: string; name: string; created_by: string }[]
+  space_members?: {
+    space_id: string
+    person_id: string
+    role: 'owner' | 'member'
+    name: string
+    joined_at?: string
+  }[]
+  /** Invitations sent by the owners of Households I'm in. */
+  space_invites?: Record<string, unknown>[]
+  /** Invitations waiting for me, as core.my_invites() returns them. */
+  my_invites?: Record<string, unknown>[]
   /** What connecting Google Calendar brings: its calendars and the main one's events. */
   google?: {
     account: string
@@ -163,7 +176,16 @@ export async function standIn(
     pantry: [...(rows.pantry ?? [])],
     staples: [...(rows.staples ?? [])],
     meal: [...(rows.meal ?? [])],
-    spaces: [{ id: 's', kind: 'personal', name: '', created_by: ANN.id }],
+    spaces: [
+      { id: 's', kind: 'personal', name: '', created_by: ANN.id },
+      ...(rows.spaces ?? []).map((h) => ({ kind: 'household', ...h })),
+    ] as Record<string, unknown>[],
+    space_members: (rows.space_members ?? []).map((m) => ({
+      joined_at: '2026-10-01T09:00:00Z',
+      ...m,
+    })) as Record<string, unknown>[],
+    space_invites: [...(rows.space_invites ?? [])],
+    my_invites: [...(rows.my_invites ?? [])],
     values: [...(rows.values ?? [])],
     activity: [...(rows.activity ?? [])],
     attachments: [...(rows.attachments ?? [])],
@@ -919,7 +941,84 @@ export async function standIn(
       db.marks = db.marks.filter((m) => m.item_id !== a.p_item)
       if (a.p_on) db.marks.push({ item_id: String(a.p_item) })
     },
+    // Households (HSH-001–004): what the database's functions do, without parting Items.
+    create_household: (a) => {
+      if (db.spaces.some((s) => s.id === a.p_id)) return
+      db.spaces.push({ id: a.p_id, kind: 'household', name: a.p_name, created_by: ANN.id })
+      db.space_members.push({
+        space_id: a.p_id,
+        person_id: ANN.id,
+        role: 'owner',
+        name: ANN.name,
+        joined_at: now(),
+      })
+    },
+    rename_household: (a) =>
+      db.spaces.filter((s) => s.id === a.p_id).forEach((s) => (s.name = a.p_name)),
+    invite: (a) => {
+      if (db.space_invites.some((i) => i.space_id === a.p_space && i.email === a.p_email)) return
+      db.space_invites.push({
+        id: a.p_id,
+        space_id: a.p_space,
+        email: a.p_email,
+        created_at: now(),
+      })
+    },
+    withdraw_invite: (a) => {
+      db.space_invites = db.space_invites.filter((i) => i.id !== a.p_id)
+    },
+    my_invites: () => db.my_invites,
+    join_household: (a) => {
+      const inv = db.my_invites.find((i) => i.id === a.p_invite)
+      if (!inv) return
+      db.my_invites = db.my_invites.filter((i) => i.id !== a.p_invite)
+      if (!db.spaces.some((s) => s.id === inv.space_id))
+        db.spaces.push({ id: inv.space_id, kind: 'household', name: inv.space_name })
+      db.space_members.push({
+        space_id: inv.space_id,
+        person_id: ANN.id,
+        role: 'member',
+        name: ANN.name,
+        joined_at: now(),
+      })
+    },
+    decline_invite: (a) => {
+      db.my_invites = db.my_invites.filter((i) => i.id !== a.p_invite)
+    },
+    leave_household: (a) => {
+      db.space_members = db.space_members.filter(
+        (m) => !(m.space_id === a.p_id && m.person_id === ANN.id),
+      )
+      db.spaces = db.spaces.filter((s) => s.id !== a.p_id)
+    },
+    remove_member: (a) => {
+      db.space_members = db.space_members.filter(
+        (m) => !(m.space_id === a.p_space && m.person_id === a.p_person),
+      )
+    },
+    delete_household: (a) => {
+      db.space_members = db.space_members.filter((m) => m.space_id !== a.p_id)
+      db.space_invites = db.space_invites.filter((i) => i.space_id !== a.p_id)
+      db.spaces = db.spaces.filter((s) => s.id !== a.p_id)
+    },
   }
+  /** My Households, each with its members and their names, as PostgREST embeds them. */
+  const households = () =>
+    db.spaces
+      .filter((s) => s.kind === 'household')
+      .sort((x, y) => String(x.name).localeCompare(String(y.name)))
+      .map((s) => ({
+        id: s.id,
+        name: s.name,
+        space_members: db.space_members
+          .filter((m) => m.space_id === s.id)
+          .map((m) => ({
+            person_id: m.person_id,
+            role: m.role,
+            joined_at: m.joined_at,
+            people: { name: m.name },
+          })),
+      }))
   await page.route(`${STAND_IN_URL}/**`, (route) => {
     const url = new URL(route.request().url())
     if (url.pathname.includes('/auth/v1/logout')) return route.fulfill({ status: 204 })
@@ -975,6 +1074,8 @@ export async function standIn(
       })
     }
     const table = url.pathname.match(/\/rest\/v1\/(\w+)$/)?.[1]
+    if (table === 'spaces' && url.searchParams.get('select')?.includes('space_members'))
+      return route.fulfill({ json: households() })
     if (table) {
       const rows = db[table as keyof typeof db] ?? []
       // .single() / .maybeSingle(): one row, as PostgREST sends it.

@@ -32,6 +32,7 @@ import { Route as AppSettingsIndexRouteImport } from './routes/_app/settings.ind
 import { Route as AppSettingsArchivedRecipesRouteImport } from './routes/_app/settings.archived-recipes'
 import { Route as AppSettingsDeletedRouteImport } from './routes/_app/settings.deleted'
 import { Route as AppSettingsLabelsRouteImport } from './routes/_app/settings.labels'
+import { Route as AppSettingsHouseholdsIdRouteImport } from './routes/_app/settings.households.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -148,6 +149,11 @@ const AppSettingsLabelsRoute = AppSettingsLabelsRouteImport.update({
   path: '/settings/labels',
   getParentRoute: () => AppRoute,
 } as any)
+const AppSettingsHouseholdsIdRoute = AppSettingsHouseholdsIdRouteImport.update({
+  id: '/settings/households/$id',
+  path: '/settings/households/$id',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -172,6 +178,7 @@ export interface FileRoutesByFullPath {
   '/settings/labels': typeof AppSettingsLabelsRoute
   '/recipes/': typeof AppRecipesIndexRoute
   '/settings/': typeof AppSettingsIndexRoute
+  '/settings/households/$id': typeof AppSettingsHouseholdsIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -196,6 +203,7 @@ export interface FileRoutesByTo {
   '/settings/labels': typeof AppSettingsLabelsRoute
   '/recipes': typeof AppRecipesIndexRoute
   '/settings': typeof AppSettingsIndexRoute
+  '/settings/households/$id': typeof AppSettingsHouseholdsIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -222,6 +230,7 @@ export interface FileRoutesById {
   '/_app/settings/labels': typeof AppSettingsLabelsRoute
   '/_app/recipes/': typeof AppRecipesIndexRoute
   '/_app/settings/': typeof AppSettingsIndexRoute
+  '/_app/settings/households/$id': typeof AppSettingsHouseholdsIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -248,6 +257,7 @@ export interface FileRouteTypes {
     | '/settings/labels'
     | '/recipes/'
     | '/settings/'
+    | '/settings/households/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -272,6 +282,7 @@ export interface FileRouteTypes {
     | '/settings/labels'
     | '/recipes'
     | '/settings'
+    | '/settings/households/$id'
   id:
     | '__root__'
     | '/'
@@ -297,6 +308,7 @@ export interface FileRouteTypes {
     | '/_app/settings/labels'
     | '/_app/recipes/'
     | '/_app/settings/'
+    | '/_app/settings/households/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -472,6 +484,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppSettingsLabelsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/settings/households/$id': {
+      id: '/_app/settings/households/$id'
+      path: '/settings/households/$id'
+      fullPath: '/settings/households/$id'
+      preLoaderRoute: typeof AppSettingsHouseholdsIdRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
@@ -492,6 +511,7 @@ interface AppRouteChildren {
   AppSettingsLabelsRoute: typeof AppSettingsLabelsRoute
   AppRecipesIndexRoute: typeof AppRecipesIndexRoute
   AppSettingsIndexRoute: typeof AppSettingsIndexRoute
+  AppSettingsHouseholdsIdRoute: typeof AppSettingsHouseholdsIdRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
@@ -511,6 +531,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppSettingsLabelsRoute: AppSettingsLabelsRoute,
   AppRecipesIndexRoute: AppRecipesIndexRoute,
   AppSettingsIndexRoute: AppSettingsIndexRoute,
+  AppSettingsHouseholdsIdRoute: AppSettingsHouseholdsIdRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)

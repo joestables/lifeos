@@ -272,8 +272,10 @@ DateField, TimeField, RepeatField, SubtaskList and AddRow in
 - **Households** ([HSH-001–004](../10-requirements/cross-cutting/spaces-and-sharing.md)):
   a titled Card with an outline "New household", then a CardRow per
   Household (`house`, its name, "Owner · 2 members" muted, leading to its
-  page) and, for an invitation waiting for me, a CardRow with `mail`, "Sam
-  Carter invited you to Allotment" and a ghost Decline and an outline Join.
+  page) and, first, for an invitation waiting for me, a CardRow with `mail`,
+  the Household's name, "From Sam Carter" muted, and a ghost Decline and an
+  outline Join; on a phone they are `icon-sm` Buttons, `x` and `check`, so
+  the name has room.
   Invitations show here and nowhere else, never on Inbox.
 - **A Household's page** has a BackLink to Settings: a Members Card (an
   outline `sm` "Invite" with `mail` for the owner; a CardRow per member

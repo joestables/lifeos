@@ -7,7 +7,8 @@ import { cn } from '@/lib/utils'
 /**
  * A row inside a Card (Settings): an optional icon, a label, an optional
  * muted value, then a control. 44px; given `render` (a link), it is a 48px
- * row you choose, with a chevron when it leads to another page.
+ * row you choose, with a chevron when it leads to another page; red when
+ * it deletes.
  */
 export function CardRow({
   icon,
@@ -16,6 +17,7 @@ export function CardRow({
   children,
   render,
   chevron = true,
+  destructive = false,
   className,
   ...props
 }: Omit<useRender.ComponentProps<'div'>, 'children'> & {
@@ -25,6 +27,8 @@ export function CardRow({
   children?: React.ReactNode
   /** False for a row that acts here rather than leading somewhere (Sign out). */
   chevron?: boolean
+  /** Red, for a row that deletes (Delete household). */
+  destructive?: boolean
 }) {
   const link = render !== undefined
   return useRender({
@@ -37,6 +41,7 @@ export function CardRow({
           link
             ? 'h-12 rounded-control px-3 text-left outline-none hover:bg-accent focus-visible:ring-3 focus-visible:ring-ring-soft'
             : 'h-11',
+          destructive && 'text-destructive [&>svg]:text-destructive',
           className,
         ),
         children: (
