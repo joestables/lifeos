@@ -11,7 +11,7 @@ act on them.
 | Term | Meaning |
 |---|---|
 | **Item** | Any record that can be linked, scheduled, shared or searched. |
-| **Type** | What kind of Item: Thought, Note, Task, Event, List, Shop, Recipe, Meal, Workout, Outfit… ([data model](../20-architecture/data-model.md#types)). |
+| **Type** | What kind of Item: Thought, Note, Task, Event, Shopping list, Recipe, Meal, Workout, Outfit… ([data model](../20-architecture/data-model.md#types)). |
 | **Trait** | A capability a Type has: Schedulable, Completable, Shareable, Capturable. |
 | **Status** | Where an Item is in its life: *idea*, *active*, *done* or *cancelled*. Each Type uses a subset and gives it its own labels (a Task's *idea* is "Someday"). Only Completable Types use *done*, so *done* always means finished. |
 | **Idea** | An Item in the *idea* status. Not a Type. |
@@ -21,8 +21,8 @@ act on them.
 | **Module** | Code packaging only: a bundle of Types, Views, Screens, measures and link types (e.g. Fitness). Replaces "App" / "Domain". |
 | **Integration** | An outside source feeding Items in: Google Calendar, Oura, Health Connect, later banks. |
 | **Space** | Who can see an Item: **Personal** or **Household**. |
-| **Contact** | Someone you have connected with: you found them by their Google email and they accepted. Being Contacts shares nothing; it lets either of you invite the other into a Household. |
-| **Thought** | A Type: a raw, unsorted capture. What capture makes by default. It waits in Inbox until it is sorted — converted in place into a Note, Task, List or other Capturable Type — ticked off (*done*), or deleted. |
+| **Household** | A group of people who share: its **owner** made it and invites others by email; **members** joined by accepting. A person may be in several ([ADR-0039](../20-architecture/adr/0039-accounts-contacts-households.md)). |
+| **Thought** | A Type: a raw, unsorted capture. What capture makes by default. It waits in Inbox until it is sorted — converted in place into a Note, Task, Shopping list or other Capturable Type — ticked off (*done*), or deleted. |
 | **Note** | A Type: a note, kept, labelled and shown in the Notes View. A Thought can be turned into one, and a Note can be converted into other Types. Personal only. |
 | **Reminder** | A notification attached to an Item. Not a Type. |
 
@@ -45,13 +45,14 @@ templates, and starting a session opens the session-logging Screen.
 | Term | Meaning |
 |---|---|
 | **Child row** | Part of one Item, not an Item itself (a workout set, a recipe ingredient line, a list line). May *point at* an Item. |
-| **Definition / occurrence** | A pattern and a dated instance of it: Variation → Meal, Workout template → Workout, Outfit → Outfit worn, List template → List, series → each occurrence. |
+| **Definition / occurrence** | A pattern and a dated instance of it: Variation → Meal, Workout template → Workout, Outfit → Outfit worn, series → each occurrence. |
 | **Snapshot** | The values an occurrence copies from its definition when it starts or is created. |
 | **Series** | A repeat rule that generates occurrences. |
 | **Touched** | An occurrence that has been edited, ticked, logged or linked (`touched_at`). |
 | **Do-on** | When you intend to do a Task (a date, with an optional time). |
 | **Due** | A deadline (a date). Drives "overdue". |
-| **Slot** | A Meal's fixed time of day: breakfast, lunch, dinner, snack. |
+| **Slot** | A Meal's fixed time of day: breakfast, lunch, dinner. |
+| **Pantry** | The catalogue of ingredients and household items that recipes and shopping lists point at: one for everyone in LifeOS, each entry changed only by whoever added it ([ADR-0051](../20-architecture/adr/0051-who-sees-food.md)). Staples and out of stock are each Household's. |
 | **Rule** | A relationship that is calculated, not stored, e.g. a goal's measure. |
 | **Measure** | Something a goal can track; an SQL function named in code. |
 | **Conversion** | Changing an Item's Type in place; the Item keeps its id, links and history. |
@@ -64,7 +65,7 @@ templates, and starting a session opens the session-logging Screen.
 | **Mark** | A per-person flag a Type may have, under its own name: a Note is **pinned**, a Task **starred**, a Recipe **favourited**. Types without one have none. |
 | **Sub-task** | A line ticked inside a Task: a title and a tick, not a Task of its own. |
 | **Capture address** | A personal URL and secret that creates Items in its owner's Personal Space. |
-| **Cook log** | The record of each time a Variation was cooked. |
+| **Cook log** | The record of each time a Variation was cooked: who, when, a verdict and notes, and a snapshot of the Variation as cooked. |
 | **Ontology** | Types, Traits, statuses, link types, measures and reference data: the schema of the graph. |
 
 ## Not used

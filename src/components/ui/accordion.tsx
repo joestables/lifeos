@@ -23,14 +23,23 @@ function AccordionItem({ className, ...props }: AccordionPrimitive.Item.Props) {
   )
 }
 
-/** Put a TypeTile before the text when the group has one. */
-function AccordionTrigger({ className, children, ...props }: AccordionPrimitive.Trigger.Props) {
+/**
+ * Put a TypeTile before the text when the group has one. `sm`: 14px, 36px
+ * high, for a panel of filters.
+ */
+function AccordionTrigger({
+  className,
+  children,
+  size = 'default',
+  ...props
+}: AccordionPrimitive.Trigger.Props & { size?: 'default' | 'sm' }) {
   return (
     <AccordionPrimitive.Header className="flex">
       <AccordionPrimitive.Trigger
         data-slot="accordion-trigger"
         className={cn(
           'flex flex-1 items-center gap-2.5 rounded-sm py-1 text-left font-bold outline-none focus-visible:ring-3 focus-visible:ring-ring-soft [&[data-panel-open]>svg:last-child]:rotate-180',
+          size === 'sm' && 'min-h-9 py-2 text-sm',
           className,
         )}
         {...props}

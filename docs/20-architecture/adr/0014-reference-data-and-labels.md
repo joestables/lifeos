@@ -14,8 +14,8 @@ Areas such as Health, Home, Money).
 
 - **Reference data**: lookup tables in the Module's schema, edited in
   Settings, not linked or searched as Items — muscle groups, equipment and
-  recovery settings (Fitness); cuisines, categories, protein, carbs and units
-  (Food); category, brand, colour, size and fit (Wardrobe).
+  recovery settings (Fitness); cuisines, categories, tags, protein, carbs and units
+  (Food) — a Recipe's tags are these, not Labels; category, brand, colour, size and fit (Wardrobe).
 - **Labels** replace tags, per Space, on the Types that declare them — not
   every Type ([data model](../data-model.md#types)). One set serves them
   all:

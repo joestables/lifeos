@@ -28,6 +28,18 @@ export interface Rows {
   connections?: Record<string, unknown>[]
   calendar_links?: Record<string, unknown>[]
   external_refs?: Record<string, unknown>[]
+  /** The food schema's tables (ADR-0052), as PostgREST returns them. */
+  recipe?: Record<string, unknown>[]
+  variation?: Record<string, unknown>[]
+  variation_lines?: Record<string, unknown>[]
+  variation_steps?: Record<string, unknown>[]
+  cooks?: Record<string, unknown>[]
+  pantry?: Record<string, unknown>[]
+  values?: Record<string, unknown>[]
+  activity?: Record<string, unknown>[]
+  /** Photos (core.attachments) and their files in Storage's `photos` bucket. */
+  attachments?: Record<string, unknown>[]
+  change_notes?: Record<string, unknown>[]
   /** What connecting Google Calendar brings: its calendars and the main one's events. */
   google?: {
     account: string
@@ -114,6 +126,43 @@ export async function standIn(
     connections: [...(rows.connections ?? [])],
     calendar_links: [...(rows.calendar_links ?? [])],
     external_refs: [...(rows.external_refs ?? [])],
+    recipe: (rows.recipe ?? []).map((r): Record<string, unknown> => ({
+      category: null,
+      cuisine: null,
+      tags: [],
+      protein: [],
+      carbs: [],
+      default_variation: null,
+      ...r,
+    })),
+    variation: (rows.variation ?? []).map((v): Record<string, unknown> => ({
+      servings: null,
+      prep_min: null,
+      cook_min: null,
+      sources: [],
+      notes: null,
+      archived_from: null,
+      ...v,
+    })),
+    variation_lines: (rows.variation_lines ?? []).map((l): Record<string, unknown> => ({
+      heading: null,
+      pantry_id: null,
+      text: null,
+      qty: null,
+      qty_max: null,
+      approx: false,
+      unit: null,
+      ...l,
+    })),
+    variation_steps: [...(rows.variation_steps ?? [])],
+    cooks: [...(rows.cooks ?? [])],
+    pantry: [...(rows.pantry ?? [])],
+    values: [...(rows.values ?? [])],
+    activity: [...(rows.activity ?? [])],
+    attachments: [...(rows.attachments ?? [])],
+    change_notes: [...(rows.change_notes ?? [])],
+    /** Storage's `photos` bucket: each file's bytes by its path. */
+    files: new Map<string, Buffer>(),
     /** The calendar chosen for each new Event (set_event_calendar). */
     event_calendars: [] as { item_id: string; calendar_link_id: string | null }[],
   }
@@ -233,6 +282,260 @@ export async function standIn(
     )
     for (const label of t.label_ids ?? []) db.item_labels.push({ item_id: id, label_id: label })
   }
+  // Food, as the food schema's functions and triggers do it (ADR-0011, ADR-0052).
+  const recipeOf = (variation: unknown) =>
+    db.links.find((l) => l.from_item === variation && l.link_type === 'variation_of')?.to_item
+  const variationsOf = (recipe: unknown) =>
+    db.links
+      .filter((l) => l.to_item === recipe && l.link_type === 'variation_of')
+      .map((l) => item(l.from_item))
+      .filter((v): v is Record<string, unknown> => Boolean(v && !v.archived_at))
+  // The highest live Variation's state; Archived only when all are.
+  const derive = (recipe: unknown) => {
+    const r = item(recipe)
+    const vs = variationsOf(recipe)
+    if (!r || !vs.length) return
+    const has = (s: string) => vs.some((v) => v.status === s)
+    r.status = has('done') ? 'done' : has('active') ? 'active' : has('idea') ? 'idea' : 'cancelled'
+  }
+  let activityId = db.activity.length
+  const log = (item_id: unknown, changed: Record<string, unknown>, verb = 'updated') =>
+    db.activity.push({ id: ++activityId, item_id, verb, changed, at: now(), actor: ANN.id })
+  const changes = (row: Record<string, unknown>, patch: Record<string, unknown>) =>
+    Object.fromEntries(
+      Object.entries(patch)
+        .filter(([k, v]) => JSON.stringify(row[k] ?? null) !== JSON.stringify(v ?? null))
+        .map(([k, v]) => [k, { from: row[k] ?? null, to: v ?? null }]),
+    )
+  const lineRow = (l: Record<string, unknown>) => {
+    const rest = { ...l }
+    delete rest.variation_id
+    return rest
+  }
+  const foodWrite: Record<string, (a: Record<string, unknown>) => unknown> = {
+    create_recipe: (a) => {
+      if (item(a.p_id)) return
+      const at = now()
+      const status = String(a.p_status ?? 'idea')
+      db.items.push(
+        itemRow({
+          id: String(a.p_id),
+          type: 'recipe',
+          title: String(a.p_name).trim(),
+          status,
+          created_at: at,
+          updated_at: at,
+        }),
+        itemRow({
+          id: String(a.p_variation),
+          type: 'variation',
+          title: String(a.p_variation_name ?? 'Standard'),
+          status,
+          created_at: at,
+          updated_at: at,
+        }),
+      )
+      db.links.push({
+        from_item: String(a.p_variation),
+        to_item: String(a.p_id),
+        link_type: 'variation_of',
+      })
+      db.recipe.push({
+        item_id: a.p_id,
+        category: null,
+        cuisine: null,
+        tags: [],
+        protein: [],
+        carbs: [],
+        default_variation: a.p_variation,
+      })
+      db.variation.push({
+        item_id: a.p_variation,
+        servings: null,
+        prep_min: null,
+        cook_min: null,
+        sources: [],
+        notes: null,
+        archived_from: null,
+      })
+      log(a.p_id, { type: 'recipe' }, 'created')
+      log(a.p_variation, { type: 'variation' }, 'created')
+    },
+    update_recipe: (a) => {
+      const r = db.recipe.find((x) => x.item_id === a.p_id)
+      if (!r) return
+      const patch = a.p_patch as Record<string, unknown>
+      const c = changes(r, patch)
+      Object.assign(r, patch)
+      if (Object.keys(c).length) log(a.p_id, c)
+    },
+    add_variation: (a) => {
+      if (item(a.p_id)) return
+      const from = a.p_from ? item(a.p_from) : undefined
+      const at = now()
+      db.items.push(
+        itemRow({
+          id: String(a.p_id),
+          type: 'variation',
+          title: String(a.p_name),
+          status: from ? 'active' : 'idea',
+          created_at: at,
+          updated_at: at,
+        }),
+      )
+      db.links.push({
+        from_item: String(a.p_id),
+        to_item: String(a.p_recipe),
+        link_type: 'variation_of',
+      })
+      const fields = db.variation.find((v) => v.item_id === a.p_from)
+      db.variation.push({
+        ...(fields ?? { servings: null, prep_min: null, cook_min: null, sources: [], notes: null }),
+        item_id: a.p_id,
+        archived_from: null,
+      })
+      if (from) {
+        for (const l of db.variation_lines.filter((x) => x.variation_id === a.p_from))
+          db.variation_lines.push({
+            ...l,
+            id:
+              (a.p_ids as Record<string, string> | undefined)?.[String(l.id)] ??
+              crypto.randomUUID(),
+            variation_id: a.p_id,
+          })
+        for (const st of db.variation_steps.filter((x) => x.variation_id === a.p_from))
+          db.variation_steps.push({
+            ...st,
+            id:
+              (a.p_ids as Record<string, string> | undefined)?.[String(st.id)] ??
+              crypto.randomUUID(),
+            variation_id: a.p_id,
+          })
+      }
+      log(a.p_id, { type: 'variation' }, 'created')
+      derive(a.p_recipe)
+    },
+    update_variation: (a) => {
+      const v = db.variation.find((x) => x.item_id === a.p_id)
+      if (!v) return
+      const patch = a.p_patch as Record<string, unknown>
+      const c = changes(v, patch)
+      Object.assign(v, patch)
+      if (Object.keys(c).length) log(a.p_id, c)
+    },
+    add_line: (a) => {
+      if (db.variation_lines.some((l) => l.id === a.p_id)) return
+      const l = {
+        heading: null,
+        pantry_id: null,
+        text: null,
+        qty: null,
+        qty_max: null,
+        approx: false,
+        unit: null,
+        ...(a.p_fields as object),
+        id: a.p_id,
+        variation_id: a.p_variation,
+      }
+      db.variation_lines.push(l)
+      log(a.p_variation, { line: { from: null, to: lineRow(l) } })
+    },
+    update_line: (a) => {
+      const l = db.variation_lines.find((x) => x.id === a.p_id)
+      if (!l) return
+      const before = lineRow({ ...l })
+      Object.assign(l, a.p_patch)
+      log(l.variation_id, { line: { from: before, to: lineRow(l) } })
+    },
+    remove_line: (a) => {
+      const l = db.variation_lines.find((x) => x.id === a.p_id)
+      db.variation_lines = db.variation_lines.filter((x) => x.id !== a.p_id)
+      if (l) log(l.variation_id, { line: { from: lineRow(l), to: null } })
+    },
+    add_step: (a) => {
+      if (db.variation_steps.some((x) => x.id === a.p_id)) return
+      const st = { id: a.p_id, variation_id: a.p_variation, text: a.p_text, position: a.p_position }
+      db.variation_steps.push(st)
+      log(a.p_variation, { step: { from: null, to: lineRow(st) } })
+    },
+    update_step: (a) => {
+      const st = db.variation_steps.find((x) => x.id === a.p_id)
+      if (!st) return
+      const before = lineRow({ ...st })
+      Object.assign(st, a.p_patch)
+      log(st.variation_id, { step: { from: before, to: lineRow(st) } })
+    },
+    remove_step: (a) => {
+      const st = db.variation_steps.find((x) => x.id === a.p_id)
+      db.variation_steps = db.variation_steps.filter((x) => x.id !== a.p_id)
+      if (st) log(st.variation_id, { step: { from: lineRow(st), to: null } })
+    },
+    log_cook: (a) => {
+      if (db.cooks.some((c) => c.id === a.p_id)) return
+      const f = a.p_fields as Record<string, unknown>
+      const v = item(a.p_variation)
+      const fields = db.variation.find((x) => x.item_id === a.p_variation)
+      db.cooks.push({
+        id: a.p_id,
+        variation_id: a.p_variation,
+        person_id: ANN.id,
+        cooked_at: f.cooked_at ?? now(),
+        verdict: f.verdict ?? null,
+        notes: f.notes ?? null,
+        servings: f.servings ?? null,
+        meal_id: null,
+        created_at: now(),
+        snapshot: {
+          name: v?.title,
+          servings: fields?.servings ?? null,
+          lines: db.variation_lines
+            .filter((l) => l.variation_id === a.p_variation)
+            .map((l) => ({
+              ...l,
+              name: db.pantry.find((p) => p.id === l.pantry_id)?.name ?? l.text,
+            })),
+          steps: db.variation_steps
+            .filter((x) => x.variation_id === a.p_variation)
+            .map((x) => x.text),
+        },
+      })
+    },
+    update_cook: (a) =>
+      db.cooks.filter((c) => c.id === a.p_id).forEach((c) => Object.assign(c, a.p_patch)),
+    remove_cook: (a) => {
+      db.cooks = db.cooks.filter((c) => c.id !== a.p_id)
+    },
+    add_pantry: (a) => {
+      if (db.pantry.some((p) => p.id === a.p_id)) return
+      const f = a.p_fields as Record<string, unknown>
+      const kind = String(f.kind ?? 'ingredient')
+      db.pantry.push({
+        id: a.p_id,
+        name: f.name,
+        kind,
+        aisle: kind === 'ingredient' ? (f.aisle ?? 'cupboard') : null,
+        default_unit: f.default_unit ?? null,
+        added_by: ANN.id,
+      })
+    },
+    note_change: (a) => {
+      db.change_notes = db.change_notes.filter((n) => n.activity_id !== a.p_activity)
+      const note = String(a.p_note ?? '').trim()
+      const act = db.activity.find((x) => x.id === a.p_activity)
+      if (note && act)
+        db.change_notes.push({ activity_id: a.p_activity, item_id: act.item_id, note })
+    },
+    add_value: (a) => {
+      if (!db.values.some((v) => v.id === a.p_id))
+        db.values.push({
+          id: a.p_id,
+          person_id: ANN.id,
+          kind: a.p_kind,
+          name: a.p_name,
+          created_at: now(),
+        })
+    },
+  }
   const write: Record<string, (a: Record<string, unknown>) => unknown> = {
     // The sender's public key (a made-up one: nothing is really sent).
     vapid_public_key: () =>
@@ -301,7 +604,33 @@ export async function standIn(
     update_item: (a) => {
       const i = item(a.p_id)
       if (i?.series_id && !i.touched_at) i.touched_at = now()
-      Object.assign(i ?? {}, a.p_patch as object, { updated_at: now() })
+      const patch = a.p_patch as Record<string, unknown>
+      const was = i?.status
+      if (i && (i.type === 'recipe' || i.type === 'variation')) {
+        const c = changes(i, patch)
+        if (Object.keys(c).length) log(i.id, c)
+      }
+      Object.assign(i ?? {}, patch, { updated_at: now() })
+      if (!i || patch.status === undefined || patch.status === was) return
+      // Archiving a Recipe archives its Variations, remembering each; bringing it back restores them.
+      if (i.type === 'recipe' && patch.status === 'cancelled') {
+        for (const v of variationsOf(i.id)) {
+          const f = db.variation.find((x) => x.item_id === v.id)
+          if (v.status !== 'cancelled') {
+            if (f) f.archived_from = v.status
+            v.status = 'cancelled'
+          }
+        }
+      } else if (i.type === 'recipe' && was === 'cancelled') {
+        for (const v of variationsOf(i.id)) {
+          const f = db.variation.find((x) => x.item_id === v.id)
+          if (f?.archived_from) {
+            v.status = f.archived_from
+            f.archived_from = null
+          }
+        }
+        derive(i.id)
+      } else if (i.type === 'variation') derive(recipeOf(i.id))
     },
     set_repeat: (a) => {
       const i = item(a.p_item)
@@ -359,6 +688,32 @@ export async function standIn(
       const i = item(a.p_id)
       if (!i) return {}
       const keeps = (typeByKey(String(a.p_type))?.statuses as readonly string[]) ?? []
+      // Sorted into a Recipe, an Idea with a first Variation holding its text and links (RCP-002 4).
+      if (a.p_type === 'recipe' && i.type !== 'recipe') {
+        const v = `${String(i.id)}:v`
+        const text = `${String(i.title)} ${String(i.body ?? '')}`
+        db.items.push(itemRow({ id: v, type: 'variation', title: 'Standard', status: 'idea' }))
+        db.links.push({ from_item: v, to_item: String(i.id), link_type: 'variation_of' })
+        db.recipe.push({
+          item_id: i.id,
+          category: null,
+          cuisine: null,
+          tags: [],
+          protein: [],
+          carbs: [],
+          default_variation: v,
+        })
+        db.variation.push({
+          item_id: v,
+          servings: null,
+          prep_min: null,
+          cook_min: null,
+          sources: text.match(/https?:\/\/[^\s<>"]+/g) ?? [],
+          notes: i.body ?? null,
+          archived_from: null,
+        })
+        return Object.assign(i, { type: 'recipe', status: 'idea', body: null })
+      }
       return Object.assign(i, {
         type: a.p_type,
         status: keeps.includes(String(i.status)) ? i.status : 'active',
@@ -464,6 +819,21 @@ export async function standIn(
         calendar_link_id: (a.p_link as string | null) ?? null,
       })
     },
+    set_photo: (a) => {
+      if (db.attachments.some((x) => x.id === a.p_id)) return
+      db.attachments = db.attachments.filter((x) => x.item_id !== a.p_item)
+      db.attachments.push({
+        id: a.p_id,
+        item_id: a.p_item,
+        kind: 'photo',
+        path: `${String(a.p_item)}/${String(a.p_id)}.webp`,
+        width: a.p_width,
+        height: a.p_height,
+      })
+    },
+    remove_photo: (a) => {
+      db.attachments = db.attachments.filter((x) => x.item_id !== a.p_item)
+    },
     set_mark: (a) => {
       db.marks = db.marks.filter((m) => m.item_id !== a.p_item)
       if (a.p_on) db.marks.push({ item_id: String(a.p_item) })
@@ -478,9 +848,42 @@ export async function standIn(
       } catch {
         return route.fulfill({ status: 410, json: { error: 'Expired' } })
       }
+    // Storage's `photos` bucket: upload, signed links, the files, removing.
+    const stored = url.pathname.match(/\/storage\/v1\/object\/(sign\/)?photos\/?(.*)$/)
+    if (stored) {
+      const [, sign, path] = stored
+      const method = route.request().method()
+      if (sign && !path) {
+        const { paths } = route.request().postDataJSON() as { paths: string[] }
+        return route.fulfill({
+          json: paths.map((p) => ({
+            path: p,
+            signedURL: `/object/sign/photos/${p}?token=stand-in`,
+            error: db.files.has(p) ? null : 'Not found',
+          })),
+        })
+      }
+      if (sign) {
+        const file = db.files.get(decodeURIComponent(path!))
+        return file
+          ? route.fulfill({ body: file, contentType: 'image/webp' })
+          : route.fulfill({ status: 404, json: {} })
+      }
+      if (method === 'POST') {
+        db.files.set(decodeURIComponent(path!), route.request().postDataBuffer() ?? Buffer.from(''))
+        return route.fulfill({ json: { Key: `photos/${path}`, Id: path } })
+      }
+      if (method === 'DELETE') {
+        const { prefixes } = route.request().postDataJSON() as { prefixes: string[] }
+        for (const p of prefixes) db.files.delete(p)
+        return route.fulfill({ json: [] })
+      }
+    }
     const rpc = url.pathname.match(/\/rest\/v1\/rpc\/(\w+)$/)
     if (rpc) {
-      const result = write[rpc[1]!]?.(route.request().postDataJSON() ?? {})
+      // The food schema's functions come with its profile (supabase.schema('food')).
+      const food = route.request().headers()['content-profile'] === 'food'
+      const result = (food ? foodWrite : write)[rpc[1]!]?.(route.request().postDataJSON() ?? {})
       return route.fulfill({
         json: typeof result === 'string' || Array.isArray(result) ? result : null,
       })

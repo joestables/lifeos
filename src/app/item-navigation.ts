@@ -2,7 +2,7 @@ import { useLocation, useNavigate, useRouter } from '@tanstack/react-router'
 import { toast } from '@/components/ui/sonner'
 import { archiveItem, newId, restoreItem, type Item } from '@/data'
 import { useIsMobile } from '@/hooks/use-mobile'
-import { itemTitle, opensAsPage } from '@/lib/item-types'
+import { itemTitle, opensAsPage, RECIPE_TYPES } from '@/lib/item-types'
 
 declare module '@tanstack/react-router' {
   interface HistoryState {
@@ -20,7 +20,9 @@ export function useOpenItem() {
   const navigate = useNavigate()
   const isMobile = useIsMobile()
   return (item: Pick<Item, 'id' | 'type'>) => {
-    if (opensAsPage(item.type, isMobile)) {
+    if (item.type === 'recipe') {
+      void navigate({ to: '/recipes/$id', params: { id: item.id } })
+    } else if (opensAsPage(item.type, isMobile) || RECIPE_TYPES.includes(item.type)) {
       void navigate({ to: '/item/$id', params: { id: item.id } })
     } else {
       void navigate({

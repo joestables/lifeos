@@ -1,4 +1,5 @@
 import { parseCapture } from '@lifeos/capture'
+import { useNavigate } from '@tanstack/react-router'
 import { toast } from '@/components/ui/sonner'
 import {
   addReminder,
@@ -26,13 +27,25 @@ const withArticle = (label: string) => `${/^[aeiou]/i.test(label) ? 'an' : 'a'} 
  * default Reminder fires at the same moment. Becoming an Event, the date is
  * its start (INB-002 3). A Task and an Event swap their times (EVT-005): the
  * server maps them, and they are laid over here too so they show at once,
- * offline as well.
+ * offline as well. Sorted into a Recipe, it offers Open rather than Undo.
  */
 export function useConvert() {
   const settings = useSettings(queue)
   const reminders = useReminders(queue)
+  const navigate = useNavigate()
   return (item: Item, type: string) => {
     convertItem(item.id, type)
+    // Sorted into a Recipe it is an Idea, its text the Idea's notes (RCP-002 4): no way
+    // back that keeps the text, so it opens instead of undoing.
+    if (type === 'recipe') {
+      toast('Converted into a Recipe', {
+        action: {
+          label: 'Open',
+          onClick: () => void navigate({ to: '/recipes/$id', params: { id: item.id } }),
+        },
+      })
+      return
+    }
     const removed: Reminder[] = []
     let changed: ItemFields | null = null
     const swapped =

@@ -16,6 +16,7 @@ import { useEffect } from 'react'
 import { AppShell, type DrawerPage } from '@/components/lifeos'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { CaptureProvider } from '@/app/capture'
+import { CookTimerAlerts } from '@/app/cooking-timers'
 import { useOpenCapture } from '@/app/open-capture'
 import { ItemPopup } from '@/app/items'
 import { useOpenSearch } from '@/app/open-search'
@@ -29,11 +30,11 @@ const PAGES: DrawerPage[] = [
   { to: '/plan', label: 'Plan', colour: 'none', icon: CalendarDaysIcon },
   { to: '/tasks', label: 'Tasks', colour: 'blue', icon: SquareCheckBigIcon },
   { to: '/notes', label: 'Notes', colour: 'yellow', icon: StickyNoteIcon },
-  { to: '/recipes', label: 'Recipes', colour: 'green', icon: ChefHatIcon },
   { to: '/gym', label: 'Gym', colour: 'coral', icon: DumbbellIcon },
+  { to: '/cardio', label: 'Cardio', colour: 'coral', icon: FootprintsIcon },
+  { to: '/recipes', label: 'Recipes', colour: 'green', icon: ChefHatIcon },
   { to: '/goals', label: 'Goals', colour: 'purple', icon: TargetIcon },
   { to: '/wardrobe', label: 'Wardrobe', colour: 'orange', icon: ShirtIcon },
-  { to: '/cardio', label: 'Cardio', colour: 'coral', icon: FootprintsIcon, later: true },
   { to: '/finance', label: 'Finance', colour: 'none', icon: WalletIcon, later: true },
 ]
 
@@ -122,6 +123,7 @@ function Shell({
     >
       <Outlet />
       <ItemPopup id={item} isNew={isNew} />
+      <CookTimerAlerts />
     </AppShell>
   )
 }

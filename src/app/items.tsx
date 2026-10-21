@@ -22,7 +22,14 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Toggle } from '@/components/ui/toggle'
 import { googleEventUrl, queue, setMark, useItem, useMarks, type Item } from '@/data'
 import { useIsMobile } from '@/hooks/use-mobile'
-import { convertTargets, itemTitle, MARK_LABEL, opensAsPage, typeLook } from '@/lib/item-types'
+import {
+  convertTargets,
+  itemTitle,
+  MARK_LABEL,
+  opensAsPage,
+  RECIPE_TYPES,
+  typeLook,
+} from '@/lib/item-types'
 import { useConvert } from './convert'
 import { EventDetails, EventTitle, GoogleEventDetails } from './event-details'
 import { useGoogleSource } from './google-source'
@@ -133,7 +140,7 @@ export function ItemPopup({ id, isNew = false }: { id: string | undefined; isNew
     )
   }
   // Converted into a Type that opens on its own page here: that is where it is.
-  if (opensAsPage(item.type, isMobile)) return null
+  if (opensAsPage(item.type, isMobile) || RECIPE_TYPES.includes(item.type)) return null
 
   const look = typeLook(item.type)
   return (

@@ -154,6 +154,8 @@ test('EVT-003 3: an Event reminds me before it starts, or on a day before it at 
 }) => {
   const db = await start(page, `/plan?item=${LUNCH}`)
   const popup = page.getByRole('dialog', { name: "Mum's birthday lunch" })
+  // Opened: the popup takes the focus, which would close a Dialog opened sooner.
+  await expect(popup).toBeFocused()
   await popup.getByRole('button', { name: 'Add a reminder' }).click()
   let reminder = page.getByRole('dialog', { name: 'Reminder' })
   await expect(reminder.getByRole('combobox', { name: 'On', exact: true })).toContainText(

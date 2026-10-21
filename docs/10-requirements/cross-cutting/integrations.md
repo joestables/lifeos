@@ -41,7 +41,7 @@ of Stage 3 ([plan](../../50-progress/plans/stage-3.md)), are at the end.*
   land in my Personal Space and can't be shared.
 - **Only Events go out** (Joe, 14 October): on two-way, the Events I make or
   change in LifeOS go to Google — my Personal Events and, from Stage 4, the
-  Household's — never Tasks, Meals, Workouts or Shops.
+  Household's — never Tasks, Meals, Workouts or Shopping lists.
 - **An Event from an incoming-only calendar is Google's** (Joe, 14
   October): it can't be changed, moved or deleted in LifeOS, only opened in
   Google Calendar. Labels, Reminders and Tasks *for* it are LifeOS's own,

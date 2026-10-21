@@ -1,10 +1,11 @@
 # Data model
 
-*Written by hand until the ontology package generates it
-([ADR-0036](adr/0036-changing-the-model-over-time.md)). The core Types
-(Thought, Note, Task, Event), their link types and conversions are already
-declared in [`packages/ontology`](../../packages/ontology/src/), which is the
-authority for them; this document must agree with it. The shape is
+*The Types built so far, their link types and conversions are declared in
+[`packages/ontology`](../../packages/ontology/src/), which is the authority
+for them: the table of them and the metamodel below are generated from it
+(`npm run data-model`; `npm run check` fails when they are stale;
+[ADR-0036](adr/0036-changing-the-model-over-time.md)). The rest is written
+by hand and must agree with it. The shape is
 Provisionally agreed, through the ADRs it cites; column-level detail is a
 draft that each stage's spec confirms. Types for later stages are listed so
 the whole shape is visible; each is built only in its own stage.*
@@ -72,10 +73,10 @@ core.items     id (UUIDv7, made on the device), type, title, body, space_id,
 <type> detail  1:1 with items, per Type, in its Module's schema, e.g.
                fitness.workout(item_id, actual_start, duration, readiness …)
                food.meal(item_id, servings)
-               lists.shop(item_id, …)
+               shopping.shopping_list(item_id, place)
 
 child rows     belong to one Item and are not Items themselves:
-               workout_sets, variation_ingredients, list_lines …
+               workout_sets, variation_lines, shopping lines …
 
 core.series    type, space, owner, the repeat rule (an RRULE), mode
                (schedule | after completion), starts_on, timezone, template
@@ -105,7 +106,7 @@ core.activity  item_id, verb, changed (jsonb), at, actor — written by triggers
   SQL function, `core_private.uuidv7()`.
 - **`do_on` is a date with an optional time.** A Task is something *you do*,
   by or on a date; an Event is something that *happens* at a time. "Sat 10:00
-  Tesco" is a Shop with a do-on time; "Dishoom 19:30" is an Event.
+  Tesco" is a Shopping list with a do-on time; "Dishoom 19:30" is an Event.
 - **`touched_at`** is set the first time a person edits, ticks, labels,
   adds a sub-task to or links an occurrence; what the series itself writes
   doesn't count ([ADR-0022](adr/0022-repeating-items.md)).
@@ -133,15 +134,14 @@ use.
 |---|---|---|
 | Task | `do_on` + `do_at`, `due_on` | `do_on`, `due_on` |
 | Event | `starts_at`, `ends_at`, `all_day` | `starts_at` |
-| Shop | `do_on` + `do_at` | `do_on` |
+| Shopping list (when dated) | `do_on` + `do_at` | `do_on` |
 | Meal | `do_on` + `slot` | `do_on` |
 | Workout, Cardio activity | `starts_at` (planned; what happened is in the detail table) | `starts_at` |
 | Outfit worn | `do_on` | `do_on` |
 | Goal | none: its deadline is in `goals.goal`, so a Goal is not on Plan | — |
 
 Task ↔ Event maps `do_on` + `do_at` to `starts_at` (an hour long; all day
-when there is no time), in the owner's timezone, and back; List → Shop gains
-a `do_on`. **An all-day Event keeps its days as dates**: `starts_at` is
+when there is no time), in the owner's timezone, and back. **An all-day Event keeps its days as dates**: `starts_at` is
 midnight UTC of its first day and `ends_at` midnight UTC of the day after its
 last, as Google keeps them, so it is the same days in any timezone (EVT-001).
 Plan reads a date range through `core.plan_items` ([ADR-0049](adr/0049-plans-read.md)).
@@ -150,11 +150,13 @@ Plan reads a date range through `core.plan_items` ([ADR-0049](adr/0049-plans-rea
 
 An Item if it needs to be **linked, scheduled, shared or searched on its
 own**; otherwise a child row. A child row may *point at* an Item without being
-one: a set points at its Exercise; a recipe line points at its Ingredient; a
-list line can point at both the Ingredient it is and the Meal it is for
+one: a set points at its Exercise; a recipe line points at its Pantry entry; a
+list line can point at both the Pantry entry it is and the Meal it is for
 ("Panko · for Katsu, Thu"). Garments are Items, because outfits link to them.
-Ingredients are Items for the same reason Exercises are: many lines point at
-the same one.
+**The Pantry is neither:** a catalogue of ingredients and household items
+shared by everyone in LifeOS, each entry with whoever added it; many lines
+point at one entry, and staples are each Household's
+([ADR-0051](adr/0051-who-sees-food.md), Provisionally agreed).
 
 ## Definition → occurrence
 
@@ -165,7 +167,6 @@ the same one.
 | Variation (of a Recipe) | Meal | *uses* | Servings and, once added to a list, the scaled quantities on its list lines |
 | Workout template | Workout | *follows* | Each exercise's targets, at the start of the session |
 | Outfit | Outfit worn on a day | *wears* | The garments in the outfit on the day |
-| List template (packing) | A List for one trip | *from template* | The template's lines |
 | Series (repeat rule) | Each occurrence | `series_id` | The series' fields, when generated |
 
 Planning is mostly *creating occurrences of definitions*. History is read
@@ -182,18 +183,27 @@ default Reminder follows (a Task's do-on date; an Event's start, 30 minutes
 before) and which have a place (Event); the lookup table carries all of
 these, so the database enforces them.
 
+**Built so far**, generated from `packages/ontology`:
+
+<!-- generated: types (npm run data-model) -->
+
 | Module | Type | S | C | Sh | Cap | Default Space | Statuses used (labels) | Colour | Labels | Mark | Stage |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | core | **Thought** (raw, unsorted; waits in Inbox until sorted or ticked off) | — | ✓ | — | — | Personal | active · done | yellow | ✓ | — | 2 |
 | core | **Note** | — | — | — | ✓ | Personal | active | yellow | ✓ | pinned | 2 |
-| core | **Task** | ✓ do-on / due | ✓ | ✓ | ✓ | Personal | idea "Someday" · active · done · cancelled (a missed repeat: "Skipped") | blue | ✓ | starred | 2 |
+| core | **Task** | ✓ do-on / due | ✓ | ✓ | ✓ | Personal | idea "Someday" · active · done · cancelled — a missed repeat: "Skipped" | blue | ✓ | starred | 2 |
 | core | **Event** (a place; not captured, but a Thought can become one) | ✓ start / end | — | ✓ | ✓ | Personal ("with household" → Household); from Google Calendar always Personal | active · cancelled | blue | ✓ | — | 3 |
-| lists | **List** (can be marked as a template) | — | — | ✓ | ✓ | Personal | active | yellow | — | — | 4b |
-| lists | **Shop** | ✓ do-on, place | ✓ | ✓ | ✓ | Household | active · done · cancelled | yellow | — | — | 4b |
-| food | **Recipe** (the dish) | — | — | ✓ | ✓ | Household | idea "Backlog" · active | green | — | favourited | 4 |
-| food | **Variation** (a way of making it) | — | — | ✓ | — | Its Recipe's, always | active; *untried · attempted · final* calculated from the cook log | green | — | — | 4 |
-| food | **Meal** | ✓ do-on + slot | ✓ "eaten" | ✓ | — | Household | active "Planned" · done · cancelled | green | — | — | 4 |
-| food | **Ingredient** | — | — | ✓ | — | Household | active | green | — | — | 4 |
+| food | **Recipe** (the dish) | — | — | ✓ | ✓ | Its author's Personal, seen read-only by their Households ([ADR-0051](adr/0051-who-sees-food.md)) | idea "Idea" · active "Draft" · done "Complete" · cancelled "Archived" — the highest of its Variations', worked out | green | — | favourited | 4 |
+| food | **Variation** (a way of making it) | — | — | ✓ | — | Its own author's: the Recipe's, or a Household member's added to it (ADR-0051) | idea "Idea" · active "Draft" · done "Complete" · cancelled "Archived" — set by hand; never back to Idea once it has ingredients or a method | green | — | — | 4 |
+| food | **Meal** (from a Variation, typed, or leftovers of another) | ✓ do-on / slot | ✓ "eaten" | ✓ | — | Household when in one, else Personal | active "Planned" · done "Eaten" · cancelled — ticking it eaten logs no cook | green | — | — | 4 |
+
+<!-- /generated: types -->
+
+**To come**, each declared in the ontology in its own stage:
+
+| Module | Type | S | C | Sh | Cap | Default Space | Statuses used (labels) | Colour | Labels | Mark | Stage |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| shopping | **Shopping list** (a date is optional; a standing list has none) | ✓ do-on, place (optional) | ✓ | ✓ | ✓ | Household | active · done · cancelled | yellow | — | — | 4b |
 | fitness | **Exercise** | — | — | — | — | Personal | active | coral | — | — | 5 |
 | fitness | **Workout template** | — | — | — | — | Personal | active | coral | — | — | 5 |
 | fitness | **Workout** | ✓ start | ✓ | — | — | Personal | active "Planned" · done · cancelled "Skipped" | coral | — | — | 5 |
@@ -204,12 +214,12 @@ these, so the database enforces them.
 | wardrobe | **Outfit worn** | ✓ do-on | ✓ "worn" | — | — | Personal | active "Planned" · done · cancelled | orange | — | — | 6 |
 | finance | **Account** | — | — | ✓ | — | Personal | active · cancelled "Closed" | Stage 9 | — | — | 9 |
 
-Shop and List: [ADR-0010](adr/0010-shop-is-its-own-type.md) (Provisionally agreed).
+Shopping list: [ADR-0050](adr/0050-shopping-list.md) (Provisionally agreed), superseding ADR-0010's List and Shop.
 Recipe and Variation: [ADR-0011](adr/0011-recipe-and-variation.md) (Provisionally agreed).
-Ingredient: [ADR-0012](adr/0012-ingredients-and-shopping-lists.md) (Provisionally agreed).
+Ingredient lines and the Pantry: [ADR-0012](adr/0012-ingredients-and-shopping-lists.md), [ADR-0051](adr/0051-who-sees-food.md) (Provisionally agreed).
 
 **In-place conversions:** Thought → any Capturable Type (sorting the Inbox);
-Note → any other Capturable Type; Task ↔ Event; List ↔ Shop. Everything else is "create from" + *became*
+Note → any other Capturable Type; Task ↔ Event. Everything else is "create from" + *became*
 ([ADR-0018](adr/0018-changing-an-items-type.md), Provisionally agreed).
 Thoughts and Notes: [ADR-0037](adr/0037-thoughts.md) (Provisionally agreed).
 
@@ -229,8 +239,8 @@ more than Labels).
 | Module | Detail tables (1:1 with an Item) | Child rows |
 |---|---|---|
 | core | — (Thought, Note, Task use `core.items` only; where an Event's place is kept is decided with Stage 3's schema) | `subtasks(item_id, title, done, position)` — a Task's sub-tasks |
-| lists | `shop(place)` | `list_lines(text, ingredient_id?, qty, unit, section, checked, position, for_item_id?, generated, touched_at)` — used by List and Shop |
-| food | `recipe(photo, cuisine, category, protein, carbs)`, `variation(servings, prep_min, cook_min, source_url, notes, final)`, `meal(servings)`, `ingredient(section, default_unit, staple)` | `variation_ingredients(ingredient_id, qty, unit, prep_note, group, position)`, `variation_steps`, `cook_log(person, cooked_on, rating, notes, meal_id?)`; reference data: cuisines, categories, protein, carbs, units |
+| shopping | `shopping_list(place)` | `lines(text, pantry_id?, qty, unit, heading?, checked, position, for_item_id?, generated, touched_at)` — readable through any Meal a line is for ([ADR-0052](adr/0052-food-in-the-database.md)) |
+| food | `recipe(category, cuisine, tags, protein, carbs, default_variation)` (its name is the Item's title; its photo is in `core.attachments`), `variation(servings, prep_min, cook_min, sources, notes, archived_from)` (its name and state are the Item's title and status; `archived_from` keeps its state while its Recipe is archived), `meal(servings, leftovers_of?)` (a typed Meal is one with no *uses* link, named by its title) | `variation_lines(position, heading?, pantry_id?, text?, qty?, qty_max?, approx, unit?)` (a row with a heading is a subheading and nothing else), `variation_steps(position, text)` (an "@" reference to a Recipe kept in the text, and in a Variation's notes, as `@[Name](recipe id)`: shown under the Recipe's name now, plain once it is gone; RCP-008), `cooks(person, cooked_at, verdict?, notes?, servings?, meal_id?, snapshot)`; each person's `values` (kind: category · cuisine · tag · protein · carb); `change_notes(activity_id, item_id, note, person_id)`, the words of whoever made a change on what it changed, by the activity entry it starts with (RCP-013; written only through `food.note_change`, by its maker); not Items: the Pantry `pantry(name, kind: ingredient · household, aisle?, default_unit?, added_by)` — one name once, ignoring case; an ingredient has an aisle (fruit_veg · bakery · protein · chilled · cupboard · frozen), a household item none — and each Space's `staples(pantry_id, out_of_stock)` ([ADR-0052](adr/0052-food-in-the-database.md)) |
 | fitness | `exercise(muscle_groups, equipment, increment, target)`, `workout(actual_start, duration, readiness, stage)`, `cardio_activity(kind, distance_m, duration_s, avg_hr)` | `template_exercises(exercise_id, sets, reps, target)`, `workout_entries(exercise_id, snapshot)`, `workout_sets(entry_id, set_no, reps, weight, rpe)`; reference data: muscle groups, equipment, recovery settings per person |
 | goals | `goal(kind, measure_key, params, target, unit, period, start_on, deadline)` | — |
 | wardrobe | `garment(category, brand, colour, size, fit, photo, url, price)`, `outfit(photo)` | `outfit_worn_garments` (the snapshot); reference data: category, brand, colour, size, fit |
@@ -246,17 +256,17 @@ more than Labels).
 | **wears** | Outfit worn → Outfit | worn on | Planning an outfit |
 | **includes** | Outfit → Garment | in outfit | Building an outfit |
 | **worn to** | Outfit worn → Event | outfit | Picking an outfit for an event |
-| **for** | Task / Shop → Event | to do for | Hand, or capture ("card for mum's lunch") |
-| **contributes to** | Task / Event / Shop / Workout / Cardio activity → Goal | contributors | Hand (counted only by milestone goals) |
+| **for** | Task / Shopping list → Event | to do for | Hand, or capture ("card for mum's lunch") |
+| **contributes to** | Task / Event / Shopping list / Workout / Cardio activity → Goal | contributors | Hand (counted only by milestone goals) |
 | **sub-goal of** | Goal → Goal | sub-goals | Hand (one level) |
 | **became** | any → any | came from | "Create from" |
 | **variation of** | Variation → Recipe | variations | Creating a Recipe (its first Variation) or "Make a variation"; exactly one per Variation ([ADR-0011](adr/0011-recipe-and-variation.md), Provisionally agreed) |
-| **from template** | List → List | made from it | "New list from template" |
 | **relates to** | any ↔ any | relates to | Hand — the catch-all |
 
 Child-row pointers that are not links: a list line's `for_item_id` (→ Meal or
-Event) and `ingredient_id` (→ Ingredient), a recipe line's `ingredient_id`
-(→ Ingredient), a cook log entry's `meal_id` (→ Meal), and a set's or
+Event) and `pantry_id` (→ Pantry entry), a recipe line's `pantry_id`
+(→ Pantry entry), a Meal's `leftovers_of` (→ Meal), a cook log entry's
+`meal_id` (→ Meal), and a set's or
 template line's `exercise_id` (→ Exercise). Goal measures find their Items by
 rule and create no links.
 
@@ -280,8 +290,7 @@ rule and create no links.
 | Table | Holds |
 |---|---|
 | `core.people` | A person: name, home timezone, default Reminder time (09:00), whether each Type's default Reminder is on, the morning digest and its time (07:00), the Types hidden on Plan (PLN-004); later, food preferences |
-| `core.contacts` | Contact requests between people, and whether they were accepted |
-| `core.spaces` · `core.space_members` · `core.space_invites` | Personal and Household Spaces, membership, invitations to a Household |
+| `core.spaces` · `core.space_members` · `core.space_invites` | Personal and Household Spaces; membership, each member owner or member (a person may be in several Households); invitations by email, waiting for that address to sign in ([ADR-0039](adr/0039-accounts-contacts-households.md)) |
 | `core.items` | Every Item |
 | `core.series` | Repeat rules for generated occurrences |
 | `core.links` | Every link |
@@ -294,7 +303,7 @@ rule and create no links.
 | `core.marks` | Per-person marks: pinned Notes, starred Tasks, favourited Recipes. A converted Item keeps its mark if the new Type has one (a pinned Note becomes a starred Task), and its Labels if the new Type uses them |
 | `core.subtasks` | A Task's sub-tasks: title, done, position |
 | `core.capture_tokens` | Each person's capture-address secrets (hashed), revocable (Stage 10) |
-| `core.attachments` | Photos and files on Items (Supabase Storage) |
+| `core.attachments` | Photos on Items: one per Item, `kind` photo, its `path` in Storage's private `photos` bucket (`{item id}/{id}.webp`, WebP only, at most 2 MB), its width, height and size. Read by whoever can read the Item, a Household member's Recipe too; added (`core.set_photo`, in place of the old one) and removed (`core.remove_photo`) by whoever can write it; Storage's policies follow the Item the folder names (ADR-0052) |
 | `core.connections` | Integration connections; tokens in Vault. A disconnected one is kept, emptied (`disconnected_at`), so reconnecting finds its calendars and outside ids again |
 | `core_private.oauth_states` | One-time states for connecting an Integration: whose, where the app was, when used; then the token waiting in Vault and the one-time code the person who began finishes with (Stage 3) |
 | `core.external_refs` | Integration ids and raw payloads per Item: its connection and calendar, the outside id and `etag`, the raw payload and the mapping's version, and whether the Item was made in LifeOS and sent out (`made_in_lifeos`: it stays mine when the calendar goes) |
@@ -318,7 +327,45 @@ maintained.
 (`rule`)** = a goal measure, calculated, nothing stored · **thick** = a Thought
 converting in place (same Item, so not a link).
 
-### The metamodel: Types and the links allowed between them
+### The metamodel so far
+
+Generated from `packages/ontology`: the Types built so far, how they convert
+in place, and the links allowed between them (*became* and *relates to*,
+which join any two, aren't drawn).
+
+<!-- generated: metamodel (npm run data-model) -->
+
+```mermaid
+flowchart LR
+  subgraph CORE[Core]
+    Thought[Thought]
+    Note[Note]
+    Task[Task]
+    Event[Event]
+  end
+  subgraph FOOD[Food]
+    Recipe[Recipe]
+    Variation[Variation]
+    Meal[Meal]
+  end
+
+  Thought == converts in place ==> Event
+  Thought == converts in place ==> Note
+  Thought == converts in place ==> Recipe
+  Thought == converts in place ==> Task
+  Note == converts in place ==> Event
+  Note == converts in place ==> Recipe
+  Note == converts in place ==> Task
+  Event -. converts .- Task
+
+  Task -- for --> Event
+  Meal -- uses --> Variation
+  Variation -- variation of --> Recipe
+```
+
+<!-- /generated: metamodel -->
+
+### The whole metamodel, as planned: Types and the links allowed between them
 
 ```mermaid
 flowchart LR
@@ -332,11 +379,10 @@ flowchart LR
     Recipe
     Variation
     Meal
-    Ingredient
+    Ingredient[Pantry entry]
   end
-  subgraph LISTS[Lists]
-    List
-    Shop
+  subgraph SHOPPING[Shopping]
+    Shop[Shopping list]
   end
   subgraph WARDROBE[Wardrobe]
     Garment
@@ -357,7 +403,6 @@ flowchart LR
   Thought == converts in place ==> Task
   Thought == converts in place ==> Recipe
   Task -. converts .- Event
-  List -. converts .- Shop
 
   Meal -- uses --> Variation
   Variation -- variation of --> Recipe
@@ -381,11 +426,11 @@ flowchart LR
   Goal -. "rule: measured by" .-> Cardio
 ```
 
-Drawn selectively to stay readable: a Thought also converts to Event, List,
-Shop, Goal and Garment (every Capturable Type), and a Note to any other
-Capturable Type; *contributes to* also comes from Shops,
-Workouts and Cardio; Lists have lines too, and a line can point at an Event as
-well as a Meal; measures also exist for Meals and Tasks. Two link types
+Drawn selectively to stay readable: a Thought also converts to Event,
+Shopping list, Goal and Garment (every Capturable Type), and a Note to any other
+Capturable Type; *contributes to* also comes from Shopping lists,
+Workouts and Cardio; a Shopping list's line can point at an Event as well as
+a Meal; measures also exist for Meals and Tasks. Two link types
 connect any pair of Types and are not drawn: *became* and *relates to*.
 Finance's Account (Stage 9) is not shown.
 
@@ -397,13 +442,13 @@ H = Household Space, P = Personal.
 flowchart LR
   RD["Katsu curry<br/>Recipe · H"]
   R1["Chicken katsu<br/>Variation · cooked 6× · H"]
-  R2["Tofu katsu<br/>Variation · untried · H"]
+  R2["Tofu katsu<br/>Variation · Draft · H"]
   R3["Miso salmon traybake<br/>Recipe · idea · H<br/>(captured as a Thought)"]
   M["Katsu curry<br/>Meal · Thu dinner · H"]
-  S["Big shop<br/>Shop · Sat 10:00 · H"]
+  S["Big shop<br/>Shopping list · Sat 10:00 · H"]
   L(["Panko 100 g<br/>list line"])
   RL(["100 g panko<br/>recipe line"])
-  I["Panko breadcrumbs<br/>Ingredient · H"]
+  I["Panko breadcrumbs<br/>Pantry entry · everyone"]
   E1["Dinner at Dishoom<br/>Event · Fri 19:30 · H"]
   E2["Mum's birthday lunch<br/>Event · Sun 13:00 · H"]
   T["Card for Mum<br/>Task · do Fri · P"]
@@ -435,7 +480,7 @@ flowchart LR
 What it shows:
 
 - **Views are queries, not links:** Plan is every dated Item in the week
-  (Meal, Shop, both Events, the Task, Outfit worn, Workout); nothing links to
+  (Meal, Shopping list, both Events, the Task, Outfit worn, Workout); nothing links to
   Plan.
 - **The action creates the link:** planning the meal made *uses*; picking an
   outfit for Dishoom made *worn to*.
@@ -447,7 +492,6 @@ What it shows:
 - **A sorted Thought is the same Item:** Miso salmon was captured as a
   Thought and is now a Recipe in the *idea* status.
 - **Recipe to shopping list:** the Chicken katsu Variation's "100 g panko"
-  line and the Big shop's "Panko 100 g" line both point at one Ingredient,
+  line and the Big shop's "Panko 100 g" line both point at one Pantry entry,
   and the list line is *for* Thursday's Meal, which *uses* that Variation.
-  Tofu katsu has its own lines (not drawn) and is untried, calculated from its
-  empty cook log.
+  Tofu katsu has its own lines (not drawn) and is still a Draft.

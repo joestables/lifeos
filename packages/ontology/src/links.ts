@@ -28,6 +28,22 @@ export const LINK_TYPES = [
     symmetric: false,
   },
   {
+    key: 'uses',
+    label: 'uses',
+    inverseLabel: 'used in',
+    from: ['meal'],
+    to: ['variation'],
+    symmetric: false,
+  },
+  {
+    key: 'variation_of',
+    label: 'variation of',
+    inverseLabel: 'variations',
+    from: ['variation'],
+    to: ['recipe'],
+    symmetric: false,
+  },
+  {
     key: 'became',
     label: 'became',
     inverseLabel: 'came from',

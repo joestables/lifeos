@@ -57,7 +57,7 @@ TanStack DB collections, whose core is still pre-1.0.
 - A few hundred lines of queue code that LifeOS owns, tested with unit tests
   citing OFF-001–005.
 - Each new action needs a database function, in a migration.
-- No live updates in Stage 1; shared Lists add them in Stage 4b.
+- No live updates in Stage 1; shared Shopping lists add them in Stage 4b.
 - If the queue proves not enough, TanStack DB with its offline outbox (or
   PowerSync) replaces it behind the same hooks
   ([ADR-0031](0031-offline-and-concurrent-edits.md)).

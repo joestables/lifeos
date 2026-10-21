@@ -20,6 +20,31 @@ import {
   type Calendar,
 } from './calendar'
 import { applyPendingLinks, linksKey, type Link } from './links'
+import {
+  applyPendingCooks,
+  applyPendingLines,
+  applyPendingPantry,
+  applyPendingRecipes,
+  applyPendingSteps,
+  applyPendingValues,
+  applyPendingVariations,
+  cooksKey,
+  linesKey,
+  pantryKey,
+  recipesKey,
+  stepsKey,
+  valuesKey,
+  variationsKey,
+  type Cook,
+  type FoodValue,
+  type Line,
+  type PantryEntry,
+  type RecipeHeading,
+  type Step,
+  type VariationFields,
+} from './food'
+import { foodWrites } from './food-writes'
+import { applyPendingPhotos, photosKey, photoWrites, type Photo } from './photos'
 import { queryClient } from './queryClient'
 import { applyPendingReminders, remindersKey, type Reminder } from './reminders'
 import { applyPendingSeries, seriesKey, type Series } from './series'
@@ -63,6 +88,9 @@ const collections: {
       'complete_occurrence',
       // A calendar turned off takes its Events off Plan (GCL-002 3).
       'set_calendar_level',
+      // A Recipe's state is worked out by the server from its Variations'.
+      'food.create_recipe',
+      'food.add_variation',
     ],
     fold: (rows: ItemRow[], e: QueueEntry) => foldSent(rows, e),
   },
@@ -107,8 +135,48 @@ const collections: {
     fold: (rows: Reminder[], e: QueueEntry) => applyPendingReminders(rows, [e]),
   },
   {
+    key: recipesKey,
+    fns: ['food.create_recipe', 'food.update_recipe'],
+    fold: (rows: RecipeHeading[], e: QueueEntry) => applyPendingRecipes(rows, [e]),
+  },
+  {
+    key: variationsKey,
+    fns: ['food.create_recipe', 'food.add_variation', 'food.update_variation'],
+    fold: (rows: VariationFields[], e: QueueEntry) => applyPendingVariations(rows, [e]),
+  },
+  {
+    key: linesKey,
+    fns: ['food.add_variation', 'food.add_line', 'food.update_line', 'food.remove_line'],
+    fold: (rows: Line[], e: QueueEntry) => applyPendingLines(rows, [e]),
+  },
+  {
+    key: stepsKey,
+    fns: ['food.add_variation', 'food.add_step', 'food.update_step', 'food.remove_step'],
+    fold: (rows: Step[], e: QueueEntry) => applyPendingSteps(rows, [e]),
+  },
+  {
+    key: cooksKey,
+    fns: ['food.log_cook', 'food.update_cook', 'food.remove_cook'],
+    fold: (rows: Cook[], e: QueueEntry) => applyPendingCooks(rows, [e], ''),
+  },
+  {
+    key: photosKey,
+    fns: ['set_photo', 'remove_photo'],
+    fold: (rows: Photo[], e: QueueEntry) => applyPendingPhotos(rows, [e]),
+  },
+  {
+    key: pantryKey,
+    fns: ['food.add_pantry'],
+    fold: (rows: PantryEntry[], e: QueueEntry) => applyPendingPantry(rows, [e], ''),
+  },
+  {
+    key: valuesKey,
+    fns: ['food.add_value', 'food.rename_value', 'food.remove_value'],
+    fold: (rows: FoodValue[], e: QueueEntry) => applyPendingValues(rows, [e], ''),
+  },
+  {
     key: linksKey,
-    fns: ['link_items', 'unlink_items'],
+    fns: ['link_items', 'unlink_items', 'food.create_recipe', 'food.add_variation'],
     fold: (rows: Link[], e: QueueEntry) => applyPendingLinks(rows, [e]),
   },
   {
@@ -143,6 +211,11 @@ export const queue = new WriteQueue({
       queryClient.setQueryData(c.key, (old: never) => old && c.fold(old, entry))
       void queryClient.invalidateQueries({ queryKey: c.key })
     }
+    // A Recipe's log follows what was changed (RCP-013); only an open one refetches.
+    if (entry.fn.startsWith('food.') || entry.fn.endsWith('_item'))
+      void queryClient.invalidateQueries({ queryKey: ['core', 'activity'] })
+    if (entry.fn === 'food.note_change')
+      void queryClient.invalidateQueries({ queryKey: ['food', 'change_notes'] })
   },
   // Recorded without the Item's content: only which function failed (OFF-004).
   onRejected: (entry, error) =>
@@ -185,6 +258,27 @@ export const {
   completeOccurrence,
 } = writes(queue, labelsNow)
 
+export const {
+  createRecipe,
+  updateRecipe,
+  addVariation,
+  updateVariation,
+  addLine,
+  updateLine,
+  removeLine,
+  addStep,
+  updateStep,
+  removeStep,
+  logCook,
+  updateCook,
+  removeCook,
+  addPantry,
+  addValue,
+  noteChange,
+} = foodWrites(queue)
+
+export const { setPhoto, removePhoto } = photoWrites(queue)
+
 export const { unsentWrites, signOut } = session(queue)
 
 /**
@@ -214,6 +308,23 @@ export {
   useSyncCounts,
 } from './hooks'
 export { googleEventUrl } from './calendar'
+export { useFood, useRecipeActivity, type FoodData } from './food-hooks'
+export { positionBetween, positionsFor } from './food-writes'
+export { usePhotoUrls, type Photo } from './photos'
+export type {
+  Activity,
+  Cook,
+  FoodValue,
+  HeadingPatch,
+  Line,
+  LineFields,
+  PantryEntry,
+  RecipeHeading,
+  Step,
+  ValueKind,
+  VariationFields,
+  VariationPatch,
+} from './food'
 export type { Calendar, CalendarLink, Connection, ExternalRef } from './calendar'
 export { newId } from './ids'
 export { searchItemIds, searchKey } from './search'

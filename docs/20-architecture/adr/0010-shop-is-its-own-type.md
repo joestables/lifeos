@@ -1,6 +1,6 @@
 # ADR-0010: Shop is its own Type
 
-**Status:** Provisionally agreed · 2026-10-09
+**Status:** Superseded by [ADR-0050](0050-shopping-list.md) · 2026-10-17 (first agreed 2026-10-09)
 
 ## Context
 

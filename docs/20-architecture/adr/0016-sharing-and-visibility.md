@@ -2,6 +2,8 @@
 
 **Status:** Provisionally agreed · 2026-10-09
 
+**Amended:** 2026-10-18 by [ADR-0051](0051-who-sees-food.md) (a Recipe is seen by its author's Household without being shared; the Pantry is everyone's).
+
 ## Context
 
 Joe wants the option for his girlfriend to see recipes, create shopping lists
@@ -32,7 +34,7 @@ and add events, while most of his life stays personal.
 
 ## Consequences
 
-- To confirm: "created by" decides ownership, so a shared List one person
+- To confirm: "created by" decides ownership, so a shared Shopping list one person
   started and the other filled — or a Recipe one added that the other has
   cooked six times, cook log included — leaves with its creator. The
   alternative: the leaver takes a **copy** of the shared Items they created,

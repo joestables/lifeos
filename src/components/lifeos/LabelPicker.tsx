@@ -17,6 +17,8 @@ export function LabelPicker({
   chosen,
   onToggle,
   onCreate,
+  name = 'Label',
+  names = `${name}s`,
 }: {
   trigger: ReactElement
   /** Mine, A to Z. */
@@ -25,6 +27,9 @@ export function LabelPicker({
   onToggle: (id: string, on: boolean) => void
   /** Makes the Label and gives it to the Item. */
   onCreate: (name: string) => void
+  /** What is chosen, singular: a Label, or a Recipe's tag or cuisine (RCP-006 5). */
+  name?: string
+  names?: string
 }) {
   const [query, setQuery] = useState('')
   const shown = labels.filter((l) =>
@@ -48,7 +53,7 @@ export function LabelPicker({
           <Input
             size="sm"
             className="pl-8"
-            aria-label="Label"
+            aria-label={name}
             autoComplete="off"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
@@ -61,7 +66,7 @@ export function LabelPicker({
           />
         </div>
         <ScrollArea className="max-h-64">
-          <div role="group" aria-label="Labels" className="flex flex-col">
+          <div role="group" aria-label={names} className="flex flex-col">
             {canCreate && (
               <button
                 type="button"
@@ -82,7 +87,7 @@ export function LabelPicker({
             ))}
             {shown.length === 0 && !canCreate && (
               <span className="flex h-9 items-center gap-2.5 px-2.5 text-sm text-muted-foreground [&_svg]:size-4">
-                <TagIcon /> No labels yet
+                <TagIcon /> No {names.toLocaleLowerCase()} yet
               </span>
             )}
           </div>

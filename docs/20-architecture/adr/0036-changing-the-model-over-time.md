@@ -2,7 +2,7 @@
 
 **Status:** Provisionally agreed · 2026-10-09
 
-**Amended:** 2026-10-14 by the Stage 3 plan (the first Module, `lists`,
+**Amended:** 2026-10-14 by the Stage 3 plan (the first Module, `lists`,; 2026-10-18 by [ADR-0052](0052-food-in-the-database.md) (the generated data-model tables and diagrams arrive with `food`, checked by `npm run check`).
 moved to Stage 4b, so the first Module is now `food` in Stage 4).
 
 ## Context

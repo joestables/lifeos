@@ -18,7 +18,7 @@ options on 9 October 2026, all built from shadcn/ui
 - **True neutral greys** with an ink primary, and a **faint hairline edge** on
   cards, rows and the drawer.
 - **Colour means Type** ([ADR-0043](0043-colour-by-type.md)): every Type
-  has a colour (Tasks and Events blue; Thoughts, Notes, Lists and Shops
+  has a colour (Tasks and Events blue; Thoughts, Notes and Shopping lists
   yellow; Gym and Cardio coral; Recipes green; Wardrobe orange; Goals
   purple). A page takes the colour of its Types, where it becomes shadcn's
   primary and ring; Inbox and Plan are neutral. Red and green keep their

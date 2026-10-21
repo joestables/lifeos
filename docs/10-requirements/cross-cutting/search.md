@@ -51,5 +51,21 @@ Acceptance criteria
 1. Given I have no connection, when I search, then the Items held on the
    device are searched, and I'm told the results may be incomplete.
 
+### SRC-003 — Find recipes and shopping lists
+
+**As** Joe, **I want** Search to find my recipes and lists, **so that**
+food is found like everything else.
+Priority: Must · Status: built for Recipes (1 verified, without photos until they come; tags and ingredients are searched on the device, beside the server's results); 2 in Stage 4b
+
+Acceptance criteria
+1. Given I search, then Recipes and Ideas I can see (mine and my
+   Households') are found by name, tag or ingredient, each with its photo
+   and state; an Archived one is marked so.
+2. Given I search, then Shopping lists I can see are found by name or by a
+   line on them.
+3. Given Meals, then they aren't results of their own: their Recipe is.
+4. Given Pantry entries, then they aren't in Search; the Pantry has its own
+   search ([PAN-001](../modules/meals.md#pan-001--the-pantry)).
+
 Non-goals (Stage 2): "find things like this" (pgvector, later); Recent
 Items; searching inside attachments; filters by Type or date.

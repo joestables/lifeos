@@ -57,7 +57,7 @@ jobs:
       - run: supabase test db
       - name: Generated database types are up to date
         run: |
-          supabase gen types typescript --local --schema core > /tmp/database.types.ts
+          supabase gen types typescript --local --schema core,food > /tmp/database.types.ts
           npx --yes prettier@3.9.9 --config .prettierrc.json --stdin-filepath src/data/database.types.ts < /tmp/database.types.ts > /tmp/formatted.ts
           diff -u src/data/database.types.ts /tmp/formatted.ts
 

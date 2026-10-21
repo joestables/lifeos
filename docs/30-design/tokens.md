@@ -62,9 +62,9 @@ neutral. Inbox, Plan, Search and Settings are neutral.
 | Token | Light | Dark | Types · pages |
 |---|---|---|---|
 | `--t-blue` † | `oklch(0.55 0.14 255)` | `oklch(0.72 0.12 250)` | Task, Event · Tasks |
-| `--t-yellow` † | `oklch(0.8 0.15 88)` | `oklch(0.86 0.13 90)` | Thought, Note, List, Shop · Notes |
+| `--t-yellow` † | `oklch(0.8 0.15 88)` | `oklch(0.86 0.13 90)` | Thought, Note, Shopping list · Notes, Shopping |
 | `--t-coral` † | `oklch(0.66 0.15 35)` | `oklch(0.74 0.12 35)` | Exercise, Workout template, Workout, Cardio activity · Gym, Cardio |
-| `--t-green` † | `oklch(0.6 0.14 150)` | `oklch(0.76 0.12 150)` | Recipe, Variation, Meal, Ingredient · Recipes |
+| `--t-green` † | `oklch(0.6 0.14 150)` | `oklch(0.76 0.12 150)` | Recipe, Variation, Meal, the Pantry · Recipes, Meal plan |
 | `--t-orange` † | `oklch(0.7 0.15 60)` | `oklch(0.8 0.12 62)` | Garment, Outfit, Outfit worn · Wardrobe |
 | `--t-purple` † | `oklch(0.55 0.15 298)` | `oklch(0.74 0.12 300)` | Goal · Goals |
 

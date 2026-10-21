@@ -15,6 +15,10 @@ const buttonVariants = cva(
         ghost: 'hover:bg-accent hover:text-accent-foreground aria-expanded:bg-accent',
         destructive:
           'bg-destructive text-destructive-foreground hover:bg-[color-mix(in_oklch,var(--destructive)_88%,var(--background))]',
+        // Delete where it sits among other actions, quietly: red text, no fill.
+        'ghost-destructive': 'text-destructive hover:bg-accent aria-expanded:bg-accent',
+        // An action that reads as part of a line: the Type's text colour.
+        link: 'text-tc-text underline-offset-4 hover:underline',
       },
       size: {
         default: 'h-10 px-4',
@@ -23,6 +27,8 @@ const buttonVariants = cva(
         'icon-sm': 'size-8',
       },
     },
+    // A link sits in its line: no height or padding of its own.
+    compoundVariants: [{ variant: 'link', className: 'h-auto px-0' }],
     defaultVariants: { variant: 'primary', size: 'default' },
   },
 )

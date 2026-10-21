@@ -10,7 +10,7 @@ dashboard cards ([ADR-0026](../../20-architecture/adr/0026-navigation-drawer.md)
 ## Decisions
 
 - **Thoughts wait here to be sorted.** Capture makes a Thought by default;
-  it leaves Inbox when it is converted into another Type (a Note, Task, List…),
+  it leaves Inbox when it is converted into another Type (a Note, Task, Shopping list…),
   ticked off (done: it no longer matters) or deleted
   ([ADR-0037](../../20-architecture/adr/0037-thoughts.md), Provisionally
   agreed).
@@ -31,6 +31,9 @@ dashboard cards ([ADR-0026](../../20-architecture/adr/0026-navigation-drawer.md)
 - **Inbox is neutral**: it mixes Types, so each Item shows its own Type's
   colour ([ADR-0043](../../20-architecture/adr/0043-colour-by-type.md),
   Provisionally agreed).
+- **Food puts nothing in Inbox** (Joe, 18 October): no Recipes, Ideas,
+  Meals, shopping lists or staples appear here. A Thought can still be
+  sorted into a Recipe Idea or a Shopping list.
 - Later: readiness-aware gym suggestions
   ([roadmap](../../roadmap.md#later-opportunities)).
 
@@ -87,7 +90,8 @@ Acceptance criteria
 3. Given a Thought, when I choose another Type, then only the Types a
    Thought can become that exist are offered (Note and Task in Stage 2;
    Event from Stage 3, its date understood as for a Task and kept as its
-   start).
+   start; Recipe and Shopping list from Stage 4, as
+   [ITM-006](../cross-cutting/items.md#itm-006--food-items) sets).
 4. Given a Thought, when I delete it, then it leaves Inbox, and I can undo
    that at once or recover it later from Settings
    ([ITM-002, ITM-003](../cross-cutting/items.md#requirements)).

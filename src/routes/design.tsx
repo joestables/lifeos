@@ -1,5 +1,6 @@
 import { createFileRoute, notFound } from '@tanstack/react-router'
 import {
+  ArchiveIcon,
   BellIcon,
   CalendarIcon,
   ChefHatIcon,
@@ -28,7 +29,25 @@ import {
 import { useState, type ReactNode } from 'react'
 import {
   AddRow,
+  AddMealButton,
   AddToDay,
+  FilterPanel,
+  FilterSection,
+  IngredientLineEditor,
+  IngredientList,
+  LogEntry,
+  MealCard,
+  MealDay,
+  MealSlot,
+  MethodSteps,
+  PantryRow,
+  RecipeCard,
+  RecipeFact,
+  RecipeGrid,
+  SelectionBar,
+  ServingsStepper,
+  StarRating,
+  TimerChip,
   DropSlot,
   PageAction,
   PlanDay,
@@ -383,6 +402,10 @@ function DesignPage() {
             <Button variant="destructive">
               <Trash2Icon /> Delete
             </Button>
+            <Button variant="ghost-destructive">
+              <Trash2Icon /> Delete
+            </Button>
+            <Button variant="link">Link</Button>
             <Button disabled>Disabled</Button>
           </Row>
           <Row>
@@ -409,6 +432,9 @@ function DesignPage() {
             <Badge>Errands</Badge>
             <Badge variant="outline">Someday</Badge>
             <Badge variant="destructive">Overdue</Badge>
+            <Badge removeLabel="Remove Quick" onRemove={() => undefined}>
+              Quick
+            </Badge>
             <TypeBadge colour="green">Last cooked Mon</TypeBadge>
             <TypeBadge colour="coral">Push</TypeBadge>
             <TypeBadge colour="purple">On track</TypeBadge>
@@ -861,6 +887,140 @@ function DesignPage() {
               }
             />
           </div>
+        </Section>
+
+        <Section title="Recipes">
+          <TypeScope colour="green" className="flex flex-col gap-4">
+            <div className="grid items-start gap-4 lg:grid-cols-[248px_minmax(0,1fr)]">
+              <FilterPanel
+                groups={[
+                  {
+                    name: 'Category',
+                    open: true,
+                    values: ['Breakfast', 'Lunch', 'Dinner'],
+                    chosen: ['Dinner'],
+                  },
+                  { name: 'Cuisine', values: ['British', 'Japanese', 'Korean'] },
+                  { name: 'Protein', values: ['Beef', 'Chicken', 'Fish'], chosen: ['Chicken'] },
+                ]}
+                onChange={() => {}}
+                onReset={() => {}}
+              >
+                <FilterSection title="State">
+                  <ToggleGroup aria-label="State" defaultValue={['all']} className="self-start">
+                    <ToggleGroupItem value="draft">Draft</ToggleGroupItem>
+                    <ToggleGroupItem value="complete">Complete</ToggleGroupItem>
+                    <ToggleGroupItem value="all">All</ToggleGroupItem>
+                  </ToggleGroup>
+                </FilterSection>
+              </FilterPanel>
+              <div className="flex min-w-0 flex-col gap-3">
+                {/* Contained, so the phone's bar sits under its example, not on the screen's foot. */}
+                <div className="contain-layout max-md:pb-16">
+                  <SelectionBar
+                    count={1}
+                    onDone={() => {}}
+                    actions={[
+                      { label: 'Archive', icon: ArchiveIcon, onClick: () => {} },
+                      { label: 'Delete', icon: Trash2Icon, onClick: () => {}, destructive: true },
+                    ]}
+                  />
+                </div>
+                <RecipeGrid size="S">
+                  <RecipeCard name="Katsu curry" cuisine="Japanese" favourite />
+                  <RecipeCard name="Gochujang noodles" cuisine="Korean" draft />
+                  <RecipeCard
+                    name="Shakshuka"
+                    cuisine="North African"
+                    by="Sam"
+                    selecting
+                    selected
+                  />
+                </RecipeGrid>
+              </div>
+            </div>
+            <div className="grid max-w-3xl gap-4 sm:grid-cols-2">
+              <Card>
+                <div className="flex items-center justify-between">
+                  <CardTitle>Ingredients</CardTitle>
+                  <ServingsStepper value={4} />
+                </div>
+                <IngredientList
+                  groups={[
+                    {
+                      lines: [
+                        { key: 'a', amount: '4', name: 'Chicken thighs' },
+                        { key: 'b', amount: '100 g', name: 'Panko breadcrumbs' },
+                      ],
+                    },
+                    {
+                      heading: 'For the sauce',
+                      lines: [{ key: 'c', amount: '1–2 tbsp', name: 'Honey' }],
+                    },
+                  ]}
+                />
+                <div className="flex flex-wrap gap-1.5">
+                  <RecipeFact>Dinner</RecipeFact>
+                  <RecipeFact>Japanese</RecipeFact>
+                </div>
+              </Card>
+              <Card>
+                <CardTitle>Method</CardTitle>
+                <MethodSteps
+                  cooking
+                  done={['1']}
+                  current="2"
+                  steps={[
+                    { key: '1', parts: ['Make the ', { recipe: 'Katsu sauce' }, '.'] },
+                    {
+                      key: '2',
+                      parts: ['Air fry for 12 minutes.'],
+                      timer: <TimerChip label="Air fry" time="08:42" state="running" />,
+                    },
+                    { key: '3', parts: ['Rest for 2 minutes.'], timer: <TimerChip time="2:00" /> },
+                  ]}
+                />
+              </Card>
+            </div>
+            <div className="flex max-w-3xl flex-col gap-3">
+              <IngredientLineEditor amount="100" unit="g" ingredient="Panko breadcrumbs" />
+              <IngredientLineEditor ingredient="Pinch of shichimi" status="typed" />
+              <LogEntry
+                who="Joe Stables"
+                what="Cooked"
+                when="Sat"
+                verdict={<StarRating value={4} size="sm" />}
+                notes="More honey next time."
+              >
+                What I cooked · Serves 4
+              </LogEntry>
+              <StarRating value={3} onChange={() => {}} />
+            </div>
+          </TypeScope>
+        </Section>
+
+        <Section title="Meal plan, Pantry">
+          <TypeScope colour="green" className="grid max-w-3xl gap-4 sm:grid-cols-2">
+            <MealDay name="Thu" date="15 Oct" today>
+              <MealSlot slot="Breakfast">
+                <MealCard name="Berry smoothie" servings={1} personal />
+              </MealSlot>
+              <MealSlot slot="Lunch">
+                <MealCard name="Katsu curry" kind="leftovers" />
+              </MealSlot>
+              <MealSlot slot="Dinner" />
+            </MealDay>
+            <div className="flex flex-col gap-2">
+              <MealCard name="Out: Dishoom" kind="typed" />
+              <MealCard name="Overnight oats" servings={1} eaten />
+              <AddMealButton slot="Dinner" dropping />
+              <Card className="gap-1 px-2 py-2">
+                <PantryRow name="Carrots" recipes={6} />
+                <PantryRow name="Garlic" unit="clove" recipes={14} staple />
+                <PantryRow name="Onion" recipes={18} staple out />
+              </Card>
+            </div>
+          </TypeScope>
         </Section>
 
         <Section title="Cards, table, progress">

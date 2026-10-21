@@ -1,3 +1,4 @@
+import { typeByKey } from '@lifeos/ontology'
 import type { Item } from '@/data'
 import { eventTimes, eventWhen } from './events'
 import { capturedWhen, dateName, doneWhen, dueWhen, isoDayOf } from './dates'
@@ -148,6 +149,11 @@ export function resultLine(
     return text ? { text } : undefined
   }
   if (item.type === 'thought') return { text: capturedWhen(item.created_at, now) }
+  // A Recipe's state: Idea, Draft, Complete or Archived (SRC-003 1).
+  if (item.type === 'recipe') {
+    const labels = typeByKey('recipe')?.statusLabels as Record<string, string> | undefined
+    return { text: labels?.[item.status] ?? item.status }
+  }
   return rest[0] ? { text: rest[0] } : undefined
 }
 

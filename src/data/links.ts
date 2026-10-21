@@ -23,6 +23,17 @@ export async function fetchLinks(): Promise<Link[]> {
 export function applyPendingLinks(rows: readonly Link[], entries: readonly QueueEntry[]): Link[] {
   let out = [...rows]
   for (const entry of entries) {
+    // A new Variation is a Variation of its Recipe (ADR-0011).
+    if (entry.fn === 'food.create_recipe' || entry.fn === 'food.add_variation') {
+      const a = entry.args as { p_id: string; p_variation?: string; p_recipe?: string }
+      const link =
+        entry.fn === 'food.create_recipe'
+          ? { from_item: String(a.p_variation), to_item: a.p_id, link_type: 'variation_of' }
+          : { from_item: a.p_id, to_item: String(a.p_recipe), link_type: 'variation_of' }
+      if (!out.some((l) => l.from_item === link.from_item && l.link_type === 'variation_of'))
+        out.push(link)
+      continue
+    }
     if (entry.fn !== 'link_items' && entry.fn !== 'unlink_items') continue
     const a = entry.args as { p_from: string; p_to: string; p_link_type: string }
     const same = (l: Link) =>

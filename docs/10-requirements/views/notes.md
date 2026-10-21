@@ -1,11 +1,12 @@
 # Notes
 
 *Stage 2. The decisions come first; the requirements, drafted at the start of
-Stage 2, are at the end. Lists join this page in Stage 4b.*
+Stage 2, are at the end.*
 
-**In one line:** Notes, **Lists and Ideas** together
+**In one line:** Notes, like Google Keep
 ([ADR-0026](../../20-architecture/adr/0026-navigation-drawer.md),
-Provisionally agreed) — in Stage 2, Notes, like Google Keep.
+Provisionally agreed). Shopping lists have their own page, Shopping, and
+Recipe ideas live in Recipes.
 
 ## Decisions
 
@@ -14,14 +15,15 @@ Provisionally agreed) — in Stage 2, Notes, like Google Keep.
   ([ADR-0037](../../20-architecture/adr/0037-thoughts.md), Provisionally
   agreed).
 - **Notes are Personal only**; something to share becomes a Shareable Type,
-  such as a List.
+  such as a Shopping list. A packing or DIY list is a Note
+  with a checklist ([ADR-0050](../../20-architecture/adr/0050-shopping-list.md)).
 - **Labels filter the page**, as in Google Keep; a Note's own title is its
   heading. Thoughts, Notes, Tasks and Events share one set of Labels
   ([ADR-0014](../../20-architecture/adr/0014-reference-data-and-labels.md),
   Provisionally agreed).
 - **Notes are pinned**, not starred: pinning is the Note's mark, kept at the
   top of the page.
-- **Notes are yellow**, with Thoughts, Lists and Shops; the page takes that
+- **Notes are yellow**, with Thoughts and Shopping lists; the page takes that
   colour, and a Note has no colour of its own
   ([ADR-0043](../../20-architecture/adr/0043-colour-by-type.md),
   Provisionally agreed).
@@ -95,5 +97,5 @@ Acceptance criteria
    ticked.
 
 Non-goals (Stage 2): a colour per Note; an *idea* state; images and
-attachments; sharing a Note; Lists (Stage 4b); other Types' ideas on this
-page, decided when those Types arrive.
+attachments; sharing a Note; shopping lists (the Shopping page); other
+Types' ideas on this page.

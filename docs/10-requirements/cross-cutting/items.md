@@ -16,7 +16,7 @@ Stage 2, are at the end.*
   Provisionally agreed).
 - **Conversion changes an Item's Type in place**: it keeps its id, links,
   Reminders and history. Thought → any Capturable Type; Note → any other
-  Capturable Type; Task ↔ Event; List ↔ Shop. Everything else is "create
+  Capturable Type; Task ↔ Event. Everything else is "create
   from" + *became* ([ADR-0018](../../20-architecture/adr/0018-changing-an-items-type.md),
   [ADR-0019](../../20-architecture/adr/0019-conversion-keeps-space-and-status.md),
   Provisionally agreed). The ontology package decides which conversions
@@ -26,8 +26,17 @@ Stage 2, are at the end.*
     don't use them ([ADR-0014](../../20-architecture/adr/0014-reference-data-and-labels.md),
     Provisionally agreed).
   - **A mark, under its own name** — Notes are *pinned*, Tasks *starred*,
-    Recipes *favourited* (Stage 4); a Type without one has none. Marks are
-    per person ([data model](../../20-architecture/data-model.md#types)).
+    Recipes *favourited* (Stage 4, on anyone's Recipe I can see); a Type
+    without one has none. Marks are per person
+    ([data model](../../20-architecture/data-model.md#types)).
+- **Food Items (Stage 4)**: a Recipe opens on its own page; a Meal in a
+  popup over the page; a Shopping list on its own page. Recipes, Meals and
+  Shopping lists take no Labels. A Recipe's *Archived* state is not
+  deleted: it is kept, out of the way, and listed from Settings; deleting
+  goes to Recently deleted ([recipes](../modules/recipes.md)).
+- **Pantry entries aren't Items** ([ADR-0051](../../20-architecture/adr/0051-who-sees-food.md)):
+  they aren't in Recently deleted; deleting an unused one is final, with
+  Undo at once.
 
 ## Requirements
 
@@ -112,3 +121,27 @@ Acceptance criteria
 Non-goals (Stage 2): Recent Items; one Starred list across Types; links
 between Items made by hand, beyond Tasks *for* an Event (Stage 3, [EVT-006](events.md#evt-006--tasks-for-an-event)); attachments; an Item's
 history shown on it; exporting.
+
+### ITM-006 — Food Items
+
+**As** Joe, **I want** Recipes, Meals and Shopping lists to open, delete,
+recover and convert like everything else, **so that** food works the way
+the rest of LifeOS does.
+Priority: Must · Status: built for Recipes (1 and 4 verified, 2 and 6 built; a link of its own, `/item/…`, opens the Recipe's page, a Variation's on it); Meals and Shopping lists to come
+
+Acceptance criteria
+1. Given a Recipe, a Meal or a Shopping list, then it opens as set above,
+   and has a link of its own.
+2. Given I delete my Recipe, then it goes to Recently deleted with its
+   Variations and log, and recovering it brings them all back; a Variation
+   deleted alone is recovered the same way.
+3. Given I delete a Meal or a Shopping list, then it goes to Recently
+   deleted, with Undo; removing a Meal takes its leftovers with it.
+4. Given a Thought, when I make it a Recipe, then it becomes an Idea: its
+   text is the name, and any link in it becomes a source.
+5. Given a Thought, when I make it a Shopping list, then its text is split
+   at the commas into lines ("buy milk, bread, eggs" → Milk, Bread, Eggs),
+   "buy" dropped, each line matched to the Pantry where it can be.
+6. Given a Note, when I make it a Recipe, then it becomes an Idea: its
+   title is the name and its body the notes; made a Shopping list, each line
+   or checklist item of its body becomes a line.

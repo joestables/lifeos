@@ -7,6 +7,7 @@
 | Where | Setting | State |
 |---|---|---|
 | Supabase → Project Settings → Data API → Exposed schemas | Add `core`, so the app can read its tables and call its write functions (`core_private` stays hidden) | Done (Joe), 10 October |
+| Supabase → Project Settings → Data API → Exposed schemas | Add `food` (Stage 4), for the same reason (`food_private` stays hidden); needed before the Recipes page reads its data (plan step 5) | Done (Joe), 19 October |
 
 The local and CI databases expose it through `supabase/config.toml`.
 
@@ -68,6 +69,21 @@ every device turns notifications on again.
 | … Google Auth Platform → Audience | Stays **In production** (unverified); nothing to change | Done |
 | … Clients → the existing web client → Authorized redirect URIs | Add `https://nxydbufwuvsacayqoakh.supabase.co/functions/v1/calendar-callback`, exactly, beside the sign-in one | Done (Joe, 16 October) |
 | Supabase → Edge Functions → Secrets | `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`: the same web client's ID and secret | Done (Joe, 16 October); Claude never sees the secret. The client ID was checked as set from the function itself |
+
+## Gemini (Stage 4)
+
+- Gemini's **free tier only**: LifeOS never pays for AI
+  ([ADR-0054](../20-architecture/adr/0054-the-ai-service-and-import.md)).
+  The key's project must have **no billing linked**, or all of its use is
+  charged.
+- Only the `ai` Edge Function holds the key; the browser never sees it.
+- On the free tier Google may use what is sent to improve its products, so
+  `ai` sends public recipe pages and Pantry names only.
+
+| Where | Setting | State |
+|---|---|---|
+| Google AI Studio → Get API key | A key in a project with no billing | To do (Joe, before step 8) |
+| Supabase → Edge Functions → Secrets | `GEMINI_API_KEY`: that key | To do (Joe, before step 8); Claude never sees it |
 
 ## Capture address email (after Stage 9)
 

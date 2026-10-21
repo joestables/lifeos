@@ -12,10 +12,13 @@ decisions known so far.*
   per row had cost 150–430 ms for every Item, so the policies work the rule
   out as sets, once per query
   ([ADR-0017](../20-architecture/adr/0017-enforcing-visibility.md)). Re-run
-  it when the rule or the data grows.
+  on 18 October with Recipes seen through a Household (ADR-0052; 8,500
+  Items, 1,200 links): a week of Plan 4–6 ms; every live Item 8–9 ms; a
+  member reading 300 of my Recipes through the Household 5 ms. Re-run it
+  when the rule or the data grows.
 - Capture must be faster than Google Tasks or setting a phone alarm
   ([vision](../00-foundation/vision.md)).
-- Shared Lists and Shops update live; elsewhere, data refreshes on focus.
+- Shared Shopping lists update live; elsewhere, data refreshes on focus.
 
 ## Offline
 
@@ -23,8 +26,8 @@ See [offline](cross-cutting/offline.md).
 
 ## Privacy
 
-- Anyone can sign up, but nobody sees another person's Items until they are
-  Contacts and have both joined a Household
+- Anyone can sign up, but nobody sees another person's Items until one has
+  invited the other into a Household and the invitation is accepted
   ([ADR-0039](../20-architecture/adr/0039-accounts-contacts-households.md)).
 - Everything is personal data: if backups are taken, they go to private,
   encrypted storage ([backups](../40-operations/backups.md)).

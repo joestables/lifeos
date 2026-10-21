@@ -26,7 +26,13 @@ export function supabase(): LifeosClient {
 export const rpcTransport: Transport = async (fn, args) => {
   let result: { error: { message: string } | null; status: number }
   try {
-    result = await supabase().rpc(fn, args as never)
+    // A Module's function names its schema: "food.create_recipe".
+    const [schema, name] = fn.includes('.') ? (fn.split('.') as ['food', string]) : [null, fn]
+    result = schema
+      ? await supabase()
+          .schema(schema)
+          .rpc(name as never, args as never)
+      : await supabase().rpc(fn as never, args as never)
   } catch (cause) {
     throw new WriteError(String(cause), false)
   }

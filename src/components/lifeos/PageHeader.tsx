@@ -17,23 +17,33 @@ export function PageHeader({
   title,
   action,
   back,
+  eyebrow,
+  trailing,
 }: {
   title: ReactNode
   /** The page's main action: its Fab on a phone. */
   action?: { label: string; onClick: () => void }
   /** A page reached from another (Recently deleted, from Settings): back to it. */
   back?: { label: string; onClick: () => void }
+  /** A line over the title in the Type's text colour ("Cooking · Air fryer"). */
+  eyebrow?: ReactNode
+  /** Controls at the title's end (Cooking's servings and Finish). */
+  trailing?: ReactNode
 }) {
   const capture = useContext(ShellCapture)
   return (
     <header className="flex items-end gap-3 px-5 pt-3 pb-5 sm:px-9 sm:pt-[30px] sm:pb-[18px]">
       <div className="flex min-w-0 flex-1 flex-col gap-1">
         {back && <BackLink label={back.label} onClick={back.onClick} />}
+        {eyebrow && <span className="pt-1 text-sm font-semibold text-tc-text">{eyebrow}</span>}
         <h1 className="truncate text-[22px] leading-[1.2] font-[750] tracking-[-0.025em] sm:text-h1">
           {title}
         </h1>
       </div>
-      {capture && <CaptureButton className="hidden md:inline-flex" onClick={capture} />}
+      {trailing}
+      {capture && !trailing && (
+        <CaptureButton className="hidden md:inline-flex" onClick={capture} />
+      )}
       {action && <Fab label={action.label} onClick={action.onClick} />}
     </header>
   )

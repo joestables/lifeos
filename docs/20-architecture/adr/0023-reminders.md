@@ -18,7 +18,7 @@ Capturing a reminder must be faster than setting a phone alarm (goal 2).
     Thought, Note or recipe idea.
   - The delivery job reads a calculated `fires_at`.
 - **Defaults per Type**, set once in Settings (e.g. Events 1 h before, Gym 30
-  min before, Tasks on the do-on date, Shops none).
+  min before, Tasks on the do-on date, Shopping lists none).
 - **On a Task, the default Reminder follows the do-on date.** A Task with a
   date but no time is reminded at a **default time per person** (09:00
   unless changed).

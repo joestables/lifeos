@@ -4,7 +4,7 @@
 specs that detail each one are written at the start of its stage. Items
 marked "candidate" are candidate requirements for that spec, not designs.*
 
-Owner: **core**, a **Module** (`lists`, `food`, `fitness`, `goals`,
+Owner: **core**, a **Module** (`shopping`, `food`, `fitness`, `goals`,
 `wardrobe`, `health`, `finance`) or an **Integration**. Page: the drawer page
 (View) or Screen it lives on.
 
@@ -26,18 +26,18 @@ Owner: **core**, a **Module** (`lists`, `food`, `fitness`, `goals`,
 | Plan: every Schedulable Type, a week or a day, filtered by Type | core | Plan | 3 | [plan](views/plan.md) |
 | Events, repeating Events, Tasks for an Event | core | Plan | 3 | [events](cross-cutting/events.md) |
 | Google Calendar: incoming only or two-way per calendar, always Personal | Integration | Settings | 3 | [integrations](cross-cutting/integrations.md#google-calendar) |
-| Recipes, Variations, ideas, cook log | `food` | Recipes | 4 | — |
-| Meal planning | `food` | Plan | 4 | — |
+| Recipes, Variations, ideas, cook log | `food` | Recipes | 4 | [recipes](modules/recipes.md) |
+| Meal planning; the Pantry | `food` | Meal plan (Meals on Plan too) | 4 | [meals](modules/meals.md) |
 | Shared AI service; food preferences | core | — | 4 | — |
-| Contacts and Households: connect by Google email, invite, accept; sharing on | core | — | 4 | [spaces-and-sharing](cross-cutting/spaces-and-sharing.md) |
-| Lists, Shops, list templates, live updates | `lists` | Notes (Lists) | 4b | — |
-| Ingredients to shopping lists | `food`, `lists` | Recipes, Notes (Lists) | 4b | — |
+| Households: create, invite by email, accept, owner and members, several per person; sharing on | core | Settings | 4 | [spaces-and-sharing](cross-cutting/spaces-and-sharing.md) |
+| Shopping lists, made by hand or from the meal plan, live updates | `shopping` | Shopping | 4b | [meals](modules/meals.md#shopping) |
+| Ingredients to shopping lists | `food`, `shopping` | Meal plan, Shopping | 4b | [meals](modules/meals.md#shopping) |
 | Gym, with v1's recovery model and snapshots | `fitness` | Gym | 5 | — |
 | Goals and the measures registry | `goals` | Goals | 5 | — |
 | Wardrobe and outfits | `wardrobe` | Wardrobe | 6 | — |
 | Exact-alarm Reminders (Android wrapper) | core | — | 7 | [reminders](cross-cutting/reminders.md) |
 | Health Connect | Integration | — | 7–8 | [integrations](cross-cutting/integrations.md) |
-| Cardio, with Oura and Health Connect | `fitness`, Integration | Cardio | 8 | — |
+| Cardio, with Oura and Health Connect (a blank page in the drawer until then) | `fitness`, Integration | Cardio | 8 | — |
 | Finance | `finance` | Finance | 9 | — |
 | Capture from outside the app: capture address, Siri, email, Android shortcut, share and widget | core | Settings (address) | 10 | [capture](cross-cutting/capture.md#deferred-to-stage-10) |
 | Export of everything you can see, as JSON | core | — | — | — |

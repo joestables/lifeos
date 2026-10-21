@@ -2,6 +2,164 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#15](https://github.com/joestables/lifeos/pull/15) — Stage 4: Recipes — specs, decisions, design, the food schema and the Recipes page
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-17 to 2026-10-21
+
+**What it did**
+- Wrote [Stage 4's plan](plans/stage-4.md) from Joe's brief: Recipes (the
+  library and saved ideas) and Meal plan (planning Meals, and the Ingredient
+  database) as their own pages, with Shopping — shopping lists made by hand
+  or from the meal plan — as a third, in Stage 4b. Its first step is the
+  specs, with eleven questions for Joe, among them shopping lists replacing
+  the List and Shop Types.
+- The drawer's new order: Inbox, Plan, Tasks, Notes, Gym, Cardio, Recipes,
+  Goals, Wardrobe, then Finance under "Later". Cardio moved out of "Later"
+  as a blank coral page (`/cardio`); Meal plan and Shopping join when built.
+  ADR-0026 amended (the pages and their order), ADR-0043 (Meal plan green,
+  Shopping yellow), the drawer pattern, the Notes spec (no longer "Notes,
+  Lists and Ideas"), the capability map, roadmap, docs index and
+  `CLAUDE.md` follow; the drawer's Playwright walk checks the new order.
+
+- Joe agreed all eleven recommendations. ADR-0050: one Shopping list Type,
+  in place of List and Shop (ADR-0010 superseded; ADR-0012 and ADR-0013
+  amended); the `lists` Module becomes `shopping`; the glossary, data
+  model, capability map, Modules list, design system, specs and other ADRs
+  follow.
+- A first draft of the food spec drew partly on v1's Recipes documents; Joe
+  wanted first principles instead, so it was withdrawn. The second draft,
+  from Joe's notes with Claude's suggestions marked, is two specs:
+  [recipes](../10-requirements/modules/recipes.md) (RCP-001–017) and
+  [meals](../10-requirements/modules/meals.md) (MPL-001–004, ING-001–002,
+  SHP-001–004), all *proposed*. ADR-0011 (states Idea, Draft, Complete,
+  Archived, set on each Variation; a cook keeps a snapshot), ADR-0012 (a
+  line is an amount, a unit and an ingredient; six aisles), ADR-0014
+  (Recipes' tags) and ADR-0028 (Android's share target in Stage 4) amended;
+  the data model, glossary, capture spec and roadmap follow. The plan sets
+  out three ways to share with Joe's girlfriend.
+
+- Joe's comments on the second draft folded in (third draft): recipes
+  RCP-001–018 (Draft · Complete · All; ideas need only a name; no way back
+  to Idea; Cooking's timers and wake lock; import from a video link; Joe's
+  recipe style in code; optional ingredient subheadings; Household members
+  see each other's Recipes and add their own Variations) and meals
+  MPL-001–004, PAN-001–004, SHP-001–004 (the Pantry of ingredients and
+  household items, one for everyone; staples and out of stock; three fixed
+  slots; typed Meals and leftovers; a Meal's lines protected on a list;
+  subheadings on lists by hand; a Thought split at commas into a list).
+  ADR-0051 (who sees and edits food); ADR-0011, 0012, 0016, 0017 and 0021
+  amended; the data model, glossary (Pantry, Slot), capture, Plan, sharing
+  spec, design tokens and roadmap follow.
+
+- Joe's answers to the third draft: Households settled — no Contacts; an
+  owner invites by email; members can't invite; several Households per
+  person; core, for every Module (HSH-001–004 in spaces and sharing;
+  ADR-0039 amended). Recipes: unique names but for copies kept on leaving,
+  a Created by filter and pooled lists in a Household, iPhone sharing to
+  follow. Meals: a Household aisle for household items, kept apart; merging
+  only by whoever added both; staples per Household; a default Space for
+  new Meals in Settings and a Household filter; Copy week tucked away.
+
+- Joe's later answers: an owner can't leave a Household, only delete it
+  for everyone (HSH-004; ADR-0039); same-named Recipes from before joining
+  both stay; a list holding a Household Meal is seen whole by the
+  Household; the recipe style is in v1's code, to be pointed to later; a list holding Meals of two
+  Households is seen by both.
+
+- The rest of step 1: capture (sorting a Thought into a Recipe Idea or a
+  Shopping list), Inbox (food puts nothing there, Joe), items (ITM-006),
+  search (SRC-003) and Plan (PLN-008), all *proposed*.
+
+- Merged `master` (#14, CI's fewer minutes) into the branch.
+- Step 2's decisions, as Proposed ADRs for Joe: ADR-0052 (food in the
+  database), ADR-0053 (quantities and units), ADR-0054 (the AI service and
+  recipe import, on Gemini's free tier, never billed — first written for a
+  paid model, rewritten at Joe's word), ADR-0055 (sharing into LifeOS), ADR-0056 (Cooking on the
+  device), with the facts they rest on re-checked.
+
+- Joe agreed ADR-0052, 0053, 0055 and 0056; ADR-0030, 0036 and 0044
+  amended to match; the data model's food rows follow. ADR-0054: the AI
+  is given the Pantry and judges each line's match or a new entry (Joe).
+
+- Joe agreed ADR-0054 (Gemini's free tier, the AI matching lines to the
+  Pantry). Step 3's first design pass: Stage 4's screens drawn from the real
+  components on `/design-stage-4`, on a [design canvas](https://claude.ai/artifact/6GfJTp2G1BF6n573dqHxpy)
+  for Joe, with the food components drafted in `@/components/lifeos`
+  (recipe cards and grid, ingredient list, method steps, timers, the log,
+  meal cards and the aligned week); `scripts/design-shots.mjs` takes any
+  stage's design page.
+
+- Step 3's second pass, on Joe's answers: S / M / L card sizes; Filters
+  always showing in a column on the left (FilterPanel); separate amount,
+  unit and ingredient boxes (IngredientLineEditor, SubheadingEditor);
+  Cooking on a phone as one long page; a tap-to-toggle Staple (and Out of
+  stock) on every Pantry row (PantryRow); an invitation only in Settings →
+  Households. Then a polish pass over every screen: back links, the phone
+  recipe's title, slot names once down the week, a lock for the Personal
+  exception, form-height selects, a dash for no unit, Settings rows aligned.
+
+- Third pass, on Joe's notes: the filters in one Card (State and Category
+  open, the rest an Accordion, collapsed, with a count), and on a phone in
+  a Sheet; selecting several Recipes (Select on a computer, a long press on
+  a phone) with a shared SelectionBar, Ideas too; the phone toolbar without
+  S / M / L and with Group beside Sort; the Pantry's recipe count hidden on
+  a phone. RCP-001 and PAN-001 follow.
+
+- Joe agreed the design (Cooking's ingredients aren't ticked off). Into
+  the design spec: components.md gains the food components (RecipePhoto to
+  PantryRow), FilterPanel, SelectionBar and Accordion's `sm`; patterns.md
+  gains Recipes, the Meal plan, Settings' Households and Food, and the
+  drawer's icons for Meal plan and Shopping. `/design` shows them, its
+  screenshots refreshed. The Meal plan's action is "New shopping list"
+  everywhere (meals.md, ADR-0012).
+
+- Step 4, the schema: the ontology's `food` Module (Recipe, Variation,
+  Meal; *uses*, *variation of*); the `food` schema with its rules and write
+  functions; Recipes and Variations seen through a Household, read-only;
+  the data model's Types table and metamodel generated from the ontology;
+  database tests for every path ADR-0052 names; the visibility benchmark
+  re-run.
+
+- Step 5, Recipes: the library and Ideas, a Recipe's page with its
+  Variations and log, editing a Variation and its heading, comparing,
+  Cooking with timers and logging a cook, favourites, Archived recipes in
+  Settings, Recipes in Search, and a Thought or Note sorted into a Recipe.
+  New in the design spec, with the components: Suggestions, RecipePanel,
+  RecipeColumns, VariationFieldsCard and FilterLayout; PageHeader's
+  eyebrow and trailing controls; the editors kept as they are left and
+  reordered by their handle; a card's long press. `APP_STAGE` is 4,
+  offering Stage 4's Types only as they are built. The stand-in Supabase
+  knows the food schema.
+
+- Recipe photos: `core.attachments` and a private Storage bucket
+  (migration `stage4_photos`, applied; `photos_test`); a photo made WebP of
+  about 250 KB on the device, from a file, the camera or a link; shown on
+  cards and a Recipe's page, and kept for offline. `npm run db:test` makes
+  Storage's two tables on the bare image first.
+
+- Joe's round on a phone: an aisle for a new Pantry entry; ingredient
+  lines name first and on one line, dragged on a phone; subheadings as
+  they read; the editor's fields two across, Done at the foot, nothing
+  typed lost on a swipe back; a source's X; "Edited" in the log, with the
+  maker's own note (migration `stage4_change_notes`), and See all twenty
+  at a time; the phone's heading with a smaller photo; a bigger heart; an
+  Idea in a popup, notes only, deleted not archived, sorted; a category
+  and cuisine required from Draft; a refined selection bar on a phone;
+  Dialogs that scroll.
+
+- A production bug hunt after it: new lines saved once; a copied
+  Variation's rows keep the ids the app gave them (migration
+  `stage4_copy_ids_and_notes`, which also makes `note_change` the only
+  way to write a note); a name closed with Escape kept; Edit heading kept
+  as it goes; Make it the default, Ideas' Select and Reset fixed; a photo
+  with no signal says so; cooks in progress kept apart; Button `link` and
+  `ghost-destructive`, and Badge's X, for the hand-made buttons.
+
+**Left for later**
+- Photos in Search's results; the timer's notification from the server;
+  steps 6 onwards; Joe's
+  further rounds on the specs.
+
 ## [#14](https://github.com/joestables/lifeos/pull/14) — CI: fewer GitHub Actions minutes
 
 Branch `claude/stoic-ramanujan-9attfe` · 2026-10-18

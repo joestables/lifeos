@@ -3,7 +3,10 @@
 **Status:** Provisionally agreed · 2026-10-09
 
 **Amended:** 2026-10-09 by [ADR-0032](0032-delete-means-archive.md) (recovery in Settings);
-2026-10-11 by the Stage 2 design agreed with Joe (Settings from your row).
+2026-10-11 by the Stage 2 design agreed with Joe (Settings from your row);
+2026-10-17 by Joe's brief for [Stage 4](../../50-progress/plans/stage-4.md)
+(Recipes, Meal plan and Shopping as three pages; Cardio moves up beside
+Gym, a blank page until Stage 8).
 
 ## Context
 
@@ -20,14 +23,18 @@ A collapsible drawer (no bottom bar) with these pages, in this order:
 | **Inbox** | One feed of what needs you, drawn from everything — not dashboard cards. |
 | **Plan** | The one place to plan meals, outfits, shops, gym, cardio, events and tasks. |
 | **Tasks** | Tasks and their Reminders. |
-| **Notes** | Notes, **Lists and Ideas** together. |
-| **Recipes** | Recipes, their Variations and cooking. |
+| **Notes** | Notes. |
 | **Gym** | Workouts and templates. |
+| **Cardio** | Cardio activities. *A blank page until Stage 8.* |
+| **Recipes** | The recipe library and saved ideas, with their Variations and cooking. |
+| **Meal plan** | Where meals are planned, and the Pantry of ingredients and household items. |
+| **Shopping** | Shopping lists: made by hand, or from the meal plan with more added. |
 | **Goals** | Goals, measured from the rest of the app. |
 | **Wardrobe** | Garments and outfits. |
-| **Cardio** | *Later.* |
 | **Finance** | *Later.* |
 
+- A page joins the drawer when its stage builds it (Meal plan and Shopping
+  with Stage 4); Cardio is there already, empty.
 - **No Trash page and no Timeline** in the drawer, for now. Deleted Items are
   recovered from Settings ([ADR-0032](0032-delete-means-archive.md)).
 - **Search** is reached from the drawer header and **Settings** from your

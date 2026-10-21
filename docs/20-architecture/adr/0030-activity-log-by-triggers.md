@@ -2,6 +2,8 @@
 
 **Status:** Provisionally agreed · 2026-10-09
 
+**Amended:** 2026-10-18 by [ADR-0052](0052-food-in-the-database.md) (food's detail tables and child rows are logged, from Stage 4).
+
 ## Context
 
 History: an activity log only, or full version history? Goals, Inbox, AI and

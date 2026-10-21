@@ -5,9 +5,9 @@ import { Button } from '@/components/ui/button'
 import { deleteItem, draftNote } from '@/app/item-navigation'
 import { NoteBody } from '@/app/note-body'
 import { ItemActions, ItemContent } from '@/app/items'
-import { queue, useItem } from '@/data'
+import { queue, useItem, useLinks } from '@/data'
 import { useIsMobile } from '@/hooks/use-mobile'
-import { itemTitle, opensAsPage, typeLook } from '@/lib/item-types'
+import { itemTitle, opensAsPage, RECIPE_TYPES, typeLook } from '@/lib/item-types'
 
 /**
  * An Item's own link (ITM-001): its own page where its Type opens as one (a
@@ -28,15 +28,30 @@ function ItemRoute() {
   const draft = isNew === 'note' && !found
   const item = found ?? (draft ? draftNote(id) : undefined)
   const asPage = item !== undefined && opensAsPage(item.type, isMobile)
+  const links = useLinks(queue)
+  // A Recipe's own page; a Variation's, its Recipe's, open on it (RCP-005).
+  const recipe =
+    item?.type === 'recipe'
+      ? item.id
+      : item?.type === 'variation'
+        ? links.find((l) => l.from_item === item.id && l.link_type === 'variation_of')?.to_item
+        : undefined
 
   useEffect(() => {
-    if (item && !asPage)
+    if (recipe)
+      void navigate({
+        to: '/recipes/$id',
+        params: { id: recipe },
+        search: item?.type === 'variation' ? { variation: item.id } : {},
+        replace: true,
+      })
+    else if (item && !asPage && !RECIPE_TYPES.includes(item.type))
       void navigate({
         to: typeLook(item.type).home,
         search: { item: item.id, ...(draft ? { new: 'note' as const } : {}) },
         replace: true,
       })
-  }, [item, asPage, draft, navigate])
+  }, [item, asPage, draft, navigate, recipe])
 
   if (status === 'loading' && !draft) return null
   if (!item) {
@@ -49,7 +64,7 @@ function ItemRoute() {
       </>
     )
   }
-  if (!asPage) return null
+  if (!asPage || RECIPE_TYPES.includes(item.type)) return null
 
   const look = typeLook(item.type)
   const back = () =>
