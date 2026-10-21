@@ -5,7 +5,7 @@ import { standIn } from './stand-in'
 
 async function start(page: Page) {
   const db = await standIn(page, { signedIn: true, rows: pantryRows() })
-  await page.goto('/meal-plan')
+  await page.goto('/meal-plan?tab=pantry')
   await expect(page.getByRole('heading', { name: 'Meal plan', level: 1 })).toBeVisible()
   return db
 }
@@ -33,6 +33,7 @@ test.describe('The Pantry', () => {
     if (isMobile) await page.getByRole('button', { name: 'Menu' }).click()
     await page.getByRole('link', { name: 'Meal plan' }).click()
     await expect(page.getByRole('heading', { name: 'Meal plan', level: 1 })).toBeVisible()
+    await page.getByRole('tab', { name: 'Pantry' }).click()
 
     await expect(names(page, 'Fruit & Veg')).toHaveText([
       'Garlic',

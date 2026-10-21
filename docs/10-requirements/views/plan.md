@@ -189,7 +189,7 @@ Acceptance criteria
 
 **As** Joe, **I want** Meals and dated shopping lists on Plan with
 everything else, **so that** Plan stays the one view of my days.
-Priority: Must · Status: proposed (Stage 4)
+Priority: Must · Status: built for Meals (2, 4's Shopping list and 5's with Shopping, Stage 4b)
 
 Acceptance criteria
 1. Given Meals I can see, then each shows on its day as a card: Meal, its

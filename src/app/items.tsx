@@ -31,6 +31,7 @@ import {
   typeLook,
 } from '@/lib/item-types'
 import { useConvert } from './convert'
+import { MealPopup } from './meal-dialog'
 import { EventDetails, EventTitle, GoogleEventDetails } from './event-details'
 import { useGoogleSource } from './google-source'
 import { deleteItem, draftNote, useCloseItem } from './item-navigation'
@@ -141,6 +142,7 @@ export function ItemPopup({ id, isNew = false }: { id: string | undefined; isNew
   }
   // Converted into a Type that opens on its own page here: that is where it is.
   if (opensAsPage(item.type, isMobile) || RECIPE_TYPES.includes(item.type)) return null
+  if (item.type === 'meal') return <MealPopup id={item.id} onClose={close} />
 
   const look = typeLook(item.type)
   return (

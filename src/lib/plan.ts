@@ -79,6 +79,8 @@ export function planDays(
       const at = (p: Placed) => (p.first < day ? '' : p.time)
       return (
         at(a).localeCompare(at(b)) ||
+        // Meals in slot order, among the untimed (PLN-008 1).
+        slotRank(a.item) - slotRank(b.item) ||
         (a.item.position ?? '').localeCompare(b.item.position ?? '') ||
         a.item.created_at.localeCompare(b.item.created_at) ||
         a.item.id.localeCompare(b.item.id)
@@ -86,6 +88,9 @@ export function planDays(
     })
   return days
 }
+
+const SLOT_ORDER = ['breakfast', 'lunch', 'dinner']
+const slotRank = (item: Item) => (item.slot ? SLOT_ORDER.indexOf(item.slot) + 1 : 0)
 
 /**
  * What a card says on a day (patterns.md#plan): its time ("18:00", in a
@@ -115,6 +120,8 @@ export function cardLine(
     const time = long && p.last === day ? `${t.startTime}–${t.endTime}` : t.startTime
     return { time, detail: until ?? place }
   }
+  // A Meal's slot stands where a time would (PLN-008 1).
+  if (item.slot) return { time: item.slot[0]!.toUpperCase() + item.slot.slice(1) }
   const due = item.due_on && (item.do_on !== null || item.due_on === day)
   return {
     time: item.do_on && item.do_at ? item.do_at.slice(0, 5) : undefined,
@@ -144,7 +151,8 @@ export function moveTo(
     const t = eventTimes(item, timezone)!
     return eventFields(moveStart(t, addDays(t.startDay, daysBetween(from, to))), timezone)
   }
-  if (item.type === 'task') return { do_on: to }
+  // A Meal keeps its slot (PLN-008 5).
+  if (item.type === 'task' || item.type === 'meal') return { do_on: to }
   return null
 }
 

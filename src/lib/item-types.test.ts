@@ -15,8 +15,10 @@ describe('Types in the app', () => {
       true,
       true,
       true,
-      false,
+      true,
     ])
+    // Not yet in the ontology: Stage 4b's.
+    expect(offered('shopping_list')).toBe(false)
   })
 
   it('ITM-001: a Task opens in a popup everywhere; a Note on its own page on a phone', () => {

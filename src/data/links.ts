@@ -34,6 +34,21 @@ export function applyPendingLinks(rows: readonly Link[], entries: readonly Queue
         out.push(link)
       continue
     }
+    // A Meal uses the Variation it plans (MPL-002); one at most.
+    if (entry.fn === 'food.plan_meal' || entry.fn === 'food.set_meal_variation') {
+      const a = entry.args as {
+        p_id?: string
+        p_meal?: string
+        p_variation?: string | null
+        p_fields?: { variation?: string }
+      }
+      const meal = String(a.p_id ?? a.p_meal)
+      const variation = entry.fn === 'food.plan_meal' ? a.p_fields?.variation : a.p_variation
+      if (entry.fn === 'food.plan_meal' && out.some((l) => l.from_item === meal)) continue
+      out = out.filter((l) => !(l.from_item === meal && l.link_type === 'uses'))
+      if (variation) out.push({ from_item: meal, to_item: variation, link_type: 'uses' })
+      continue
+    }
     if (entry.fn !== 'link_items' && entry.fn !== 'unlink_items') continue
     const a = entry.args as { p_from: string; p_to: string; p_link_type: string }
     const same = (l: Link) =>

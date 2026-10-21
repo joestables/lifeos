@@ -4,6 +4,7 @@ import { useAuth } from './auth'
 import {
   applyPendingCooks,
   applyPendingLines,
+  applyPendingMeals,
   applyPendingPantry,
   applyPendingStaples,
   applyPendingRecipes,
@@ -20,6 +21,7 @@ import {
   fetchActivity,
   fetchCooks,
   fetchLines,
+  fetchMeals,
   fetchPantry,
   fetchPersonalSpace,
   fetchRecipes,
@@ -28,6 +30,7 @@ import {
   fetchValues,
   fetchVariations,
   linesKey,
+  mealsKey,
   pantryKey,
   personalSpaceKey,
   recipesKey,
@@ -243,6 +246,39 @@ export function useFood(queue: WriteQueue): FoodData {
     values.data,
     photos.data,
   ])
+}
+
+/** A Meal on the plan (MPL-001): its Item, servings, and what it plans or is leftovers of. */
+export interface MealView {
+  item: Item
+  servings: number | null
+  /** The Meal it is leftovers of. */
+  leftoversOf: string | null
+  /** The Variation it uses; none for a typed Meal or leftovers. */
+  variation: string | null
+}
+
+/** The Meals I can see, not removed, with unsent ones and changes laid over. */
+export function useMeals(queue: WriteQueue): { meals: MealView[]; isLoading: boolean } {
+  const entries = useQueueEntries(queue)
+  const { items, isLoading: itemsLoading } = useItems(queue)
+  const links = useLinks(queue)
+  const rows = useQuery({ queryKey: mealsKey, queryFn: fetchMeals })
+  return useMemo(() => {
+    const fields = new Map(applyPendingMeals(rows.data ?? [], entries).map((r) => [r.item_id, r]))
+    const uses = new Map(
+      links.filter((l) => l.link_type === 'uses').map((l) => [l.from_item, l.to_item]),
+    )
+    const meals = items
+      .filter((i) => i.type === 'meal' && i.archived_at === null && i.status !== 'cancelled')
+      .map((item) => ({
+        item,
+        servings: fields.get(item.id)?.servings ?? null,
+        leftoversOf: fields.get(item.id)?.leftovers_of ?? null,
+        variation: uses.get(item.id) ?? null,
+      }))
+    return { meals, isLoading: itemsLoading || rows.isLoading }
+  }, [entries, items, itemsLoading, links, rows.data, rows.isLoading])
 }
 
 /**

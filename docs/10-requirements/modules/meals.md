@@ -121,13 +121,13 @@ done.
 
 ## Requirements
 
-*Statuses: proposed → agreed → built → verified. All proposed.*
+*Statuses: proposed → agreed → built → verified.*
 
 ### MPL-001 — The week
 
 **As** Joe, **I want** the week's meals on one page, **so that** I can plan
 what we eat.
-Priority: Must · Status: proposed
+Priority: Must · Status: built (5 with Households, plan step 9)
 
 Acceptance criteria
 1. Given Meal plan on a computer, then this week shows as Plan's week does,
@@ -146,7 +146,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to put a Recipe in a slot quickly, **so that**
 planning the week takes minutes.
-Priority: Must · Status: proposed
+Priority: Must · Status: built (2's Space with Households, plan step 9)
 
 Acceptance criteria
 1. Given a slot's "+", then a search opens, listing the Recipes I planned
@@ -165,7 +165,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to move, rescale or remove a Meal, **so that** the
 plan follows the week as it really goes.
-Priority: Must · Status: proposed
+Priority: Must · Status: built (4 with Shopping, Stage 4b)
 
 Acceptance criteria
 1. Given a Meal, when I press it, then it opens: its Recipe (the Variation
@@ -182,7 +182,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to choose where new Meals go, **so that** I don't set
 it on every Meal.
-Priority: Should · Status: proposed
+Priority: Should · Status: proposed (with Households, plan step 9)
 
 Acceptance criteria
 1. Given Settings → Food, then I choose Personal or one of my Households as
@@ -192,7 +192,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to start a week from an earlier one, **so that** a
 good week is quick to repeat.
-Priority: Could · Status: proposed
+Priority: Could · Status: built
 
 Acceptance criteria
 1. Given Copy week in the week's menu (not on the page itself), when I

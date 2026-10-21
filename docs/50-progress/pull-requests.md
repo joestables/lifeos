@@ -2,6 +2,32 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## Stage 4, step 7: the Meal plan's week
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-21
+
+**What it did**
+- The Meal plan has Week and Pantry tabs. The week runs Monday to Sunday:
+  MealWeek on a computer, MealDays down a phone opening on today; other
+  weeks by ‹, ›, Today or a date (MPL-001).
+- A slot's "+" plans a Meal (MPL-002): my Recipes, planned lately first,
+  narrowed by a search and my categories (the slot's chosen), a Recipe's
+  Variations when it has several; a Meal typed; or leftovers of the week
+  before. A new Meal serves what its Variation does.
+- A Meal opens over the page (MPL-003): eaten (no cook logged), its Recipe
+  and Variation, servings, what it is leftovers of and its own leftovers;
+  Move to…, Add leftovers… and Remove, which takes its leftovers, with
+  Undo. Meals drag between slots with a mouse, or by pressing and holding
+  on a phone, with Undo. Copy this week… makes a week's Meals again in
+  another (MPL-004).
+- On Plan (PLN-008): Meals in slot order, their slot where a time would
+  be; Plan's "+" → Meal; dragging to another day keeps the slot.
+- The data layer reads Meals and lays unsent ones, their servings and the
+  Variation they use over what is shown. New: `PickRow`, and MealSlot and
+  MealWeek as places to let a dragged Meal go. No migration.
+- Spec first: the week's gaps (moving on a phone, the picker's modes, the
+  Meal popup's menu, Copy this week, Plan's Add a meal) in `patterns.md`.
+
 ## [#16](https://github.com/joestables/lifeos/pull/16) — Stage 4, step 6: the Pantry
 
 Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-21

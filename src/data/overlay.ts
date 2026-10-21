@@ -150,6 +150,23 @@ export function applyPending(items: readonly ItemRow[], entries: readonly QueueE
         } else mark(a.p_id, {})
         break
       }
+      // A Meal is an Item on a day and in a slot (MPL-002); the app sends its name.
+      case 'food.plan_meal': {
+        const a = entry.args as { p_id: string; p_fields: Record<string, unknown> }
+        const f = a.p_fields
+        if (!byId.has(a.p_id)) {
+          byId.set(a.p_id, {
+            ...blankItem(a.p_id, 'meal', at),
+            title: String(f.title ?? '').trim(),
+            do_on: (f.do_on as string) ?? null,
+            slot: (f.slot as string) ?? null,
+            ...(typeof f.space_id === 'string' && { space_id: f.space_id }),
+            sync,
+          })
+          order.push(a.p_id)
+        } else mark(a.p_id, {})
+        break
+      }
       case 'update_item': {
         const { p_id, p_patch } = entry.args as { p_id: string; p_patch: ItemFields }
         touch(p_id, p_patch)

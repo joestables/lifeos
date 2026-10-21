@@ -23,6 +23,7 @@ import { applyPendingLinks, linksKey, type Link } from './links'
 import {
   applyPendingCooks,
   applyPendingLines,
+  applyPendingMeals,
   applyPendingPantry,
   applyPendingStaples,
   applyPendingRecipes,
@@ -31,6 +32,7 @@ import {
   applyPendingVariations,
   cooksKey,
   linesKey,
+  mealsKey,
   pantryKey,
   recipesKey,
   staplesKey,
@@ -40,6 +42,7 @@ import {
   type Cook,
   type FoodValue,
   type Line,
+  type MealRow,
   type PantryEntry,
   type RecipeHeading,
   type Staple,
@@ -94,6 +97,7 @@ const collections: {
       // A Recipe's state is worked out by the server from its Variations'.
       'food.create_recipe',
       'food.add_variation',
+      'food.plan_meal',
     ],
     fold: (rows: ItemRow[], e: QueueEntry) => foldSent(rows, e),
   },
@@ -179,6 +183,11 @@ const collections: {
     fold: (rows: PantryEntry[], e: QueueEntry) => applyPendingPantry(rows, [e], ''),
   },
   {
+    key: mealsKey,
+    fns: ['food.plan_meal', 'food.update_meal'],
+    fold: (rows: MealRow[], e: QueueEntry) => applyPendingMeals(rows, [e]),
+  },
+  {
     key: staplesKey,
     fns: ['food.set_staple', 'food.remove_pantry', 'food.merge_pantry'],
     fold: (rows: Staple[], e: QueueEntry) => applyPendingStaples(rows, [e]),
@@ -190,7 +199,14 @@ const collections: {
   },
   {
     key: linksKey,
-    fns: ['link_items', 'unlink_items', 'food.create_recipe', 'food.add_variation'],
+    fns: [
+      'link_items',
+      'unlink_items',
+      'food.create_recipe',
+      'food.add_variation',
+      'food.plan_meal',
+      'food.set_meal_variation',
+    ],
     fold: (rows: Link[], e: QueueEntry) => applyPendingLinks(rows, [e]),
   },
   {
@@ -291,6 +307,9 @@ export const {
   removePantry,
   mergePantry,
   setStaple,
+  planMeal,
+  updateMeal,
+  setMealVariation,
   addValue,
   noteChange,
 } = foodWrites(queue)
@@ -326,7 +345,14 @@ export {
   useSyncCounts,
 } from './hooks'
 export { googleEventUrl } from './calendar'
-export { useFood, useRecipeActivity, useStaples, type FoodData } from './food-hooks'
+export {
+  useFood,
+  useMeals,
+  useRecipeActivity,
+  useStaples,
+  type FoodData,
+  type MealView,
+} from './food-hooks'
 export { positionBetween, positionsFor } from './food-writes'
 export { usePhotoUrls, type Photo } from './photos'
 export type {
@@ -336,6 +362,7 @@ export type {
   HeadingPatch,
   Line,
   LineFields,
+  MealFields,
   PantryEntry,
   PantryFields,
   RecipeHeading,

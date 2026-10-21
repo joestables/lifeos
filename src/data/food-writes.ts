@@ -3,6 +3,7 @@ import type {
   CookFields,
   HeadingPatch,
   LineFields,
+  MealFields,
   PantryFields,
   ValueKind,
   VariationPatch,
@@ -177,6 +178,37 @@ export function foodWrites(queue: WriteQueue) {
         { p_space: space, p_pantry: pantry, p_staple: staple, p_out_of_stock: outOfStock },
         [],
       )
+    },
+    /**
+     * A Meal in a slot (MPL-002): of a Variation, typed, or leftovers of
+     * another. Its name is sent: the Recipe's, what was typed, or the
+     * Meal it is leftovers of.
+     */
+    planMeal(fields: MealFields, id = newId()): string {
+      const { variation, servings, leftovers_of, ...item } = fields
+      queue.enqueue(
+        'food.plan_meal',
+        {
+          p_id: id,
+          p_fields: {
+            ...item,
+            status: 'active',
+            ...(variation && { variation }),
+            ...(servings && { servings }),
+            ...(leftovers_of && { leftovers_of }),
+          },
+        },
+        [id],
+      )
+      return id
+    },
+    /** A Meal's servings (MPL-003). */
+    updateMeal(id: string, patch: { servings?: number | null }): void {
+      queue.enqueue('food.update_meal', { p_id: id, p_patch: patch }, [id])
+    },
+    /** Which Variation a Meal uses (MPL-003 1). */
+    setMealVariation(meal: string, variation: string): void {
+      queue.enqueue('food.set_meal_variation', { p_meal: meal, p_variation: variation }, [meal])
     },
     /** My own words on my change (RCP-013); empty, the note goes. */
     noteChange(activity: number, note: string): void {
