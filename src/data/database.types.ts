@@ -2224,13 +2224,7 @@ export type Database = {
         }
       }
       add_variation: {
-        Args: {
-          p_from?: string
-          p_id: string
-          p_ids?: Json
-          p_name: string
-          p_recipe: string
-        }
+        Args: { p_from?: string; p_id: string; p_ids?: Json; p_name: string; p_recipe: string }
         Returns: Database['core']['Tables']['items']['Row']
         SetofOptions: {
           from: '*'
