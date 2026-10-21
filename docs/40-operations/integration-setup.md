@@ -82,8 +82,8 @@ every device turns notifications on again.
 
 | Where | Setting | State |
 |---|---|---|
-| Google AI Studio → Get API key | A key in a project with no billing | To do (Joe, before step 8) |
-| Supabase → Edge Functions → Secrets | `GEMINI_API_KEY`: that key | To do (Joe, before step 8); Claude never sees it |
+| Google AI Studio → Get API key | A key in a project with no billing | To do (Joe, before step 9) |
+| Supabase → Edge Functions → Secrets | `GEMINI_API_KEY`: that key | To do (Joe, before step 9); Claude never sees it |
 
 ## Capture address email (after Stage 9)
 

@@ -102,7 +102,7 @@ providers; deleting an account (open, above).
 
 **As** Joe, **I want** to create a Household, **so that** I can share with
 the people I live with.
-Priority: Must · Status: proposed
+Priority: Must · Status: built (Settings → Households and a Household's page; plan step 8a)
 
 Acceptance criteria
 1. Given Settings → Households, when I create one and name it ("Home"),
@@ -115,7 +115,7 @@ Acceptance criteria
 
 **As** a Household's owner, **I want** to invite someone by email, **so
 that** they can join.
-Priority: Must · Status: proposed
+Priority: Must · Status: built (Settings → Households and a Household's page; plan step 8a)
 
 Acceptance criteria
 1. Given a Household I own, when I invite a Google email address, then the
@@ -132,7 +132,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to be in more than one Household, **so that** I can
 share different things with different people.
-Priority: Should · Status: proposed
+Priority: Should · Status: proposed (with food shared, plan step 8b)
 
 Acceptance criteria
 1. Given I'm in two Households, then everything shared in each is shown to
@@ -144,7 +144,7 @@ Acceptance criteria
 
 **As** a member, **I want** to leave a Household, **so that** I stop
 sharing; **as** the owner, I want to remove someone.
-Priority: Must · Status: proposed
+Priority: Must · Status: built (Settings → Households and a Household's page; plan step 8a)
 
 Acceptance criteria
 1. Given I'm a member, when I leave, then the shared Items I created become

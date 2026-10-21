@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Card, CardTitle } from '@/components/ui/card'
 import { GoogleCalendarCard } from '@/app/google-calendar'
+import { HouseholdsCard } from '@/app/households'
 import { LabelsCard } from '@/app/labels'
 import { toast } from '@/components/ui/sonner'
 import { NotificationsCard, RemindersCard } from '@/app/notification-settings'
@@ -28,9 +29,9 @@ import {
 } from '@/data'
 
 /**
- * Settings: notifications and Reminders, Google Calendar, Labels, Recently
- * deleted and signing out (REM-001, REM-007, REM-008, GCL-001, GCL-002,
- * ITM-003, ITM-005, ACC-003).
+ * Settings: notifications and Reminders, Google Calendar, Labels,
+ * Households, Recently deleted and signing out (REM-001, REM-007, REM-008,
+ * GCL-001, GCL-002, ITM-003, ITM-005, HSH-001, HSH-002, ACC-003).
  */
 export const Route = createFileRoute('/_app/settings/')({
   // Where Google sends me back after connecting (GCL-001): to finish, with
@@ -86,6 +87,7 @@ function Settings() {
         <div className="hidden md:block">
           <LabelsCard />
         </div>
+        <HouseholdsCard />
         <FoodCard />
         <Card className="gap-0 px-2 py-1.5">
           <CardRow

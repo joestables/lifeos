@@ -199,7 +199,7 @@ function Recipes() {
   )
 }
 
-/** New recipe, New idea; Import from a link waits for its step (plan step 8). */
+/** New recipe, New idea; Import from a link waits for its step (plan step 9). */
 function NewRecipeMenu({ onRecipe, onIdea }: { onRecipe: () => void; onIdea: () => void }) {
   return (
     <DropdownMenu>

@@ -41,7 +41,13 @@
   `apply_migration` waits for a confirmation it can't show when a statement
   looks destructive (`drop policy`, for one), and times out without running
   anything (`delete`, even inside a function body, does it too).
-  `alter policy … using (…)` changes a policy in place.
+  `alter policy … using (…)` changes a policy in place. Where a `delete` is
+  needed, the migration is split so the rest applies through the tool, and
+  Joe runs the remainder once in the SQL editor, the file with an `insert`
+  into `supabase_migrations.schema_migrations` at its end so the history
+  matches: the confirmation reaches him, but his approval never gets back
+  to the tool (21 October, `stage4_household_invites` and
+  `stage4_household_leaving`).
 - **Every function is granted to the roles that call it, and to no one
   else.** Nothing is executable by PUBLIC (functions made by `postgres` start
   with no grant), so a migration that adds a function grants it to

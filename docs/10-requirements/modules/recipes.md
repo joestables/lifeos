@@ -156,7 +156,7 @@ saved, the start of the note). "New" offers *New recipe*, *New idea* and
 
 **As** Joe, **I want** my recipes as cards with photos, **so that** I
 recognise dishes at a glance.
-Priority: Must · Status: verified (5 comes with Households, plan step 9)
+Priority: Must · Status: verified (5 comes with Households, plan step 8)
 
 Acceptance criteria
 1. Given the Recipes tab, then every Draft and Complete Recipe I can see
@@ -269,7 +269,7 @@ Acceptance criteria
 
 **As** Joe, **I want** structured ingredient lines, **so that** quantities
 are consistent and can go on a shopping list.
-Priority: Must · Status: verified (5 comes with the AI service, plan step 8)
+Priority: Must · Status: verified (5 comes with the AI service, plan step 9)
 
 Acceptance criteria
 1. Given I type "200 g chorizo", then it is read as 200, g and Chorizo;
@@ -479,6 +479,6 @@ nutrition; converting weight to volume; sharing a Recipe outside LifeOS.
 ## Open points for Joe
 
 1. **Joe's recipe style:** in v1's code; Joe will point Claude to it when
-   import is built (step 8).
+   import is built (step 9).
 2. ~~Reordering on a phone~~: settled 20 October — ingredient lines are
    dragged by their handle on a phone too; steps stay as they are.

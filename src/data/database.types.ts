@@ -942,21 +942,64 @@ export type Database = {
           },
         ]
       }
+      space_invites: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          invited_by: string
+          space_id: string
+        }
+        ComputedFields: never
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          invited_by: string
+          space_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          invited_by?: string
+          space_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'space_invites_invited_by_fkey'
+            columns: ['invited_by']
+            isOneToOne: false
+            referencedRelation: 'people'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'space_invites_space_id_fkey'
+            columns: ['space_id']
+            isOneToOne: false
+            referencedRelation: 'spaces'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       space_members: {
         Row: {
           joined_at: string
           person_id: string
+          role: string
           space_id: string
         }
         ComputedFields: never
         Insert: {
           joined_at?: string
           person_id: string
+          role?: string
           space_id: string
         }
         Update: {
           joined_at?: string
           person_id?: string
+          role?: string
           space_id?: string
         }
         Relationships: [
@@ -1269,6 +1312,22 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      create_household: {
+        Args: { p_id: string; p_name: string }
+        Returns: {
+          created_at: string
+          created_by: string
+          id: string
+          kind: string
+          name: string
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'spaces'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       create_item: {
         Args: { p_fields?: Json; p_id: string; p_type: string }
         Returns: {
@@ -1320,6 +1379,8 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      decline_invite: { Args: { p_invite: string }; Returns: undefined }
+      delete_household: { Args: { p_id: string }; Returns: undefined }
       delete_label: { Args: { p_id: string }; Returns: undefined }
       delivery_for_action: {
         Args: { p_delivery: number; p_token: string }
@@ -1336,9 +1397,22 @@ export type Database = {
         Returns: undefined
       }
       finish_series_run: { Args: { p_details?: Json; p_ok: boolean }; Returns: number }
+      invite: { Args: { p_email: string; p_id: string; p_space: string }; Returns: undefined }
+      join_household: { Args: { p_invite: string }; Returns: undefined }
+      leave_household: { Args: { p_id: string }; Returns: undefined }
       link_items: {
         Args: { p_from: string; p_id: string; p_link_type: string; p_to: string }
         Returns: undefined
+      }
+      my_invites: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          created_at: string
+          from_name: string
+          id: string
+          space_id: string
+          space_name: string
+        }[]
       }
       plan_items: {
         Args: { p_from: string; p_to: string }
@@ -1390,9 +1464,26 @@ export type Database = {
       }
       remove_device: { Args: { p_id: string }; Returns: undefined }
       remove_label: { Args: { p_item: string; p_label: string }; Returns: undefined }
+      remove_member: { Args: { p_person: string; p_space: string }; Returns: undefined }
       remove_photo: { Args: { p_item: string }; Returns: undefined }
       remove_reminder: { Args: { p_id: string }; Returns: undefined }
       remove_subtask: { Args: { p_id: string }; Returns: undefined }
+      rename_household: {
+        Args: { p_id: string; p_name: string }
+        Returns: {
+          created_at: string
+          created_by: string
+          id: string
+          kind: string
+          name: string
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'spaces'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       rename_label: {
         Args: { p_id: string; p_name: string }
         Returns: {
@@ -1807,6 +1898,7 @@ export type Database = {
         }
       }
       vapid_public_key: { Args: Record<PropertyKey, never>; Returns: string }
+      withdraw_invite: { Args: { p_id: string }; Returns: undefined }
     }
     Enums: {
       [_ in never]: never

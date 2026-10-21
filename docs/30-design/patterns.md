@@ -272,8 +272,10 @@ DateField, TimeField, RepeatField, SubtaskList and AddRow in
 - **Households** ([HSH-001–004](../10-requirements/cross-cutting/spaces-and-sharing.md)):
   a titled Card with an outline "New household", then a CardRow per
   Household (`house`, its name, "Owner · 2 members" muted, leading to its
-  page) and, for an invitation waiting for me, a CardRow with `mail`, "Sam
-  Carter invited you to Allotment" and a ghost Decline and an outline Join.
+  page) and, first, for an invitation waiting for me, a CardRow with `mail`,
+  the Household's name, "From Sam Carter" muted, and a ghost Decline and an
+  outline Join; on a phone they are `icon-sm` Buttons, `x` and `check`, so
+  the name has room.
   Invitations show here and nowhere else, never on Inbox.
 - **A Household's page** has a BackLink to Settings: a Members Card (an
   outline `sm` "Invite" with `mail` for the owner; a CardRow per member
@@ -371,7 +373,7 @@ StepEditor. Agreed with Joe on 18 October on the
 - Recipes is green (TypeScope); so are its Dialogs and its Filters Sheet.
   Tabs: **Recipes** and **Ideas**; the PageAction is "New recipe", a
   DropdownMenu of New recipe, New idea and Import from a link (Import shows
-  once the AI service is there, plan step 8); on Ideas it is "New idea".
+  once the AI service is there, plan step 9); on Ideas it is "New idea".
   On a phone the Fab is New recipe, or New idea on Ideas. **New recipe** is
   the Edit heading Dialog titled "New recipe", with Cancel and Save; Save
   makes a Draft and opens its Variation to fill, and Done there shows the
@@ -446,7 +448,7 @@ StepEditor. Agreed with Joe on 18 October on the
   the editing ends (Joe, 20 October); then
   Ingredients (IngredientLineEditors and SubheadingEditors; ghost "Add an
   ingredient", "Add a subheading"; a ghost "Fill from method" with
-  `sparkles` in its heading, once the AI service is there, plan step 8)
+  `sparkles` in its heading, once the AI service is there, plan step 9)
   beside Method (StepEditors, "Add a step"); then "Notes and sources", a
   Textarea and the links, each an Input with a ghost X, and "Add a link".
   Everything is kept as it is left, and also when the page goes some other
@@ -487,7 +489,7 @@ MealCard, MealSlot, AddMealButton, MealWeek, MealDay and PantryRow in
   until then none), "New entry" on the Pantry.
 - **The week:** the PlanToolbar (no Day / Week; `?day=` names the week), an
   `sm` Select of whose Meals show ("All my meals", Personal, each
-  Household; with Households, plan step 9) and a "…" menu holding Copy this
+  Household; with Households, plan step 8) and a "…" menu holding Copy this
   week…; then the MealWeek on a computer, the week's seven MealDays down a
   phone, today's scrolled into view. A Meal's name is its Recipe's, a typed
   Meal's what was typed; leftovers take the name of the Meal they are of.

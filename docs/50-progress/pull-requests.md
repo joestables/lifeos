@@ -2,6 +2,33 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#18](https://github.com/joestables/lifeos/pull/18) — Stage 4, step 8a: Households
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-21
+
+**What it did**
+- Steps 8 and 9 swapped in the plan (Joe, 21 October): Households before
+  the AI.
+- The database (HSH-001, HSH-002, HSH-004; ADR-0016, ADR-0039, ADR-0051):
+  members are owners or members; invitations by email wait for that
+  address to sign in; I see the people of my Households by name. Making
+  a Household (my first takes a copy of my staples), renaming, inviting,
+  withdrawing, joining, declining, leaving, removing and deleting, each
+  a function that checks who may. Parting makes the shared Items someone
+  made theirs, and moves a Variation whose author no longer shares a
+  Household with its Recipe's author onto their own copy of its heading.
+  Four migrations, two run by Joe in the SQL editor because their
+  `delete`s wait on a confirmation the tool never receives.
+- Settings → Households: invitations first, with the Household's name,
+  who sent it, Decline and Join (icons on a phone), then each Household
+  I'm in. A Household's page: Members (Invite, pending invitations with
+  Withdraw, Remove for the owner), Rename and Delete for the owner, Leave
+  for a member, each asking first and saying what happens.
+- The data layer reads Households, members and invitations, lays unsent
+  Household writes over them, and fetches everything again after joining
+  or parting. CardRow gains `destructive`.
+- Database tests `households_test` (33); walks in `households.spec.ts`.
+
 ## [#17](https://github.com/joestables/lifeos/pull/17) — Stage 4, step 7: the Meal plan's week
 
 Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-21
