@@ -2,9 +2,9 @@
 
 Newest first. Each entry is added in its own pull request.
 
-## Stage 4: Recipes — the plan, the drawer's new order, and the first draft of the specs
+## [#15](https://github.com/joestables/lifeos/pull/15) — Stage 4: Recipes — specs, decisions, design, the food schema and the Recipes page
 
-Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-17
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-17 to 2026-10-21
 
 **What it did**
 - Wrote [Stage 4's plan](plans/stage-4.md) from Joe's brief: Recipes (the
