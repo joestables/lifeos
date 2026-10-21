@@ -16,6 +16,10 @@ export type Step = Omit<Food['variation_steps']['Row'], 'created_at' | 'updated_
 export type Cook = Omit<Food['cooks']['Row'], 'updated_at'>
 /** A Pantry entry (PAN-001). */
 export type PantryEntry = Omit<Food['pantry']['Row'], 'created_at' | 'updated_at'>
+/** A staple of one of my Spaces, and whether it has run out (PAN-002). */
+export type Staple = Food['staples']['Row']
+/** What a Pantry entry is made or changed with (PAN-001). */
+export type PantryFields = Partial<Pick<PantryEntry, 'name' | 'kind' | 'aisle' | 'default_unit'>>
 /** A name in someone's list of categories, cuisines, tags, protein or carbs. */
 export type FoodValue = Food['values']['Row']
 export type ValueKind = 'category' | 'cuisine' | 'tag' | 'protein' | 'carb'
@@ -40,6 +44,9 @@ export const stepsKey = ['food', 'variation_steps'] as const
 export const cooksKey = ['food', 'cooks'] as const
 export const pantryKey = ['food', 'pantry'] as const
 export const valuesKey = ['food', 'values'] as const
+export const staplesKey = ['food', 'staples'] as const
+/** My personal Space's id: where my staples are kept until Households (PAN-002 1). */
+export const personalSpaceKey = ['core', 'spaces', 'personal'] as const
 /** A Recipe's log (RCP-013): the activity of it and its Variations. */
 export const activityKey = (ids: readonly string[]) => ['core', 'activity', ...ids] as const
 
@@ -148,6 +155,23 @@ export async function fetchPantry(): Promise<PantryEntry[]> {
   return data
 }
 
+export async function fetchStaples(): Promise<Staple[]> {
+  const { data, error } = await food().from('staples').select('space_id, pantry_id, out_of_stock')
+  if (error) throw error
+  return data
+}
+
+export async function fetchPersonalSpace(me: string): Promise<string | null> {
+  const { data, error } = await supabase()
+    .from('spaces')
+    .select('id')
+    .eq('kind', 'personal')
+    .eq('created_by', me)
+    .maybeSingle()
+  if (error) throw error
+  return data?.id ?? null
+}
+
 export async function fetchValues(): Promise<FoodValue[]> {
   const { data, error } = await food()
     .from('values')
@@ -162,6 +186,11 @@ export async function fetchValues(): Promise<FoodValue[]> {
 
 type Args = Record<string, unknown>
 const args = (e: QueueEntry) => e.args as Args
+/** A name as the server keeps it: trimmed, its spaces single. */
+const spaced = (v: unknown) =>
+  String(v ?? '')
+    .trim()
+    .replace(/\s+/g, ' ')
 
 export const blankHeading = (id: string): RecipeHeading => ({
   item_id: id,
@@ -319,6 +348,11 @@ export function applyPendingLines(rows: readonly Line[], entries: readonly Queue
       case 'food.remove_line':
         out = out.filter((l) => l.id !== a.p_id)
         break
+      case 'food.merge_pantry':
+        out = out.map((l) =>
+          l.pantry_id === a.p_merge ? { ...l, pantry_id: String(a.p_keep) } : l,
+        )
+        break
     }
   }
   return out.sort(byPosition)
@@ -442,12 +476,13 @@ export function applyPendingValues(
   return out
 }
 
+/** The Pantry with unsent entries, changes, merges and deletions laid over. */
 export function applyPendingPantry(
   rows: readonly PantryEntry[],
   entries: readonly QueueEntry[],
   me: string,
 ): PantryEntry[] {
-  const out = [...rows]
+  let out = [...rows]
   for (const e of entries) {
     const a = args(e)
     if (e.fn === 'food.add_pantry') {
@@ -456,14 +491,67 @@ export function applyPendingPantry(
       const kind = String(f.kind ?? 'ingredient')
       out.push({
         id: String(a.p_id),
-        name: String(f.name ?? '')
-          .trim()
-          .replace(/\s+/g, ' '),
+        name: spaced(f.name),
         kind,
         aisle: kind === 'ingredient' ? String(f.aisle ?? 'cupboard') : null,
         default_unit: (f.default_unit as string) ?? null,
         added_by: me,
       })
+    } else if (e.fn === 'food.update_pantry') {
+      const f = (a.p_patch ?? {}) as Args
+      out = out.map((p) => {
+        if (p.id !== a.p_id) return p
+        const kind = 'kind' in f ? String(f.kind) : p.kind
+        return {
+          ...p,
+          ...('name' in f && { name: spaced(f.name) }),
+          ...('default_unit' in f && { default_unit: (f.default_unit as string) ?? null }),
+          kind,
+          aisle:
+            kind === 'household'
+              ? null
+              : 'aisle' in f
+                ? String(f.aisle ?? 'cupboard')
+                : (p.aisle ?? 'cupboard'),
+        }
+      })
+    } else if (e.fn === 'food.remove_pantry') {
+      out = out.filter((p) => p.id !== a.p_id)
+    } else if (e.fn === 'food.merge_pantry') {
+      out = out.filter((p) => p.id !== a.p_merge)
+    }
+  }
+  return out
+}
+
+/** My staples, with unsent marks, merges and deletions laid over (PAN-002). */
+export function applyPendingStaples(
+  rows: readonly Staple[],
+  entries: readonly QueueEntry[],
+): Staple[] {
+  let out = [...rows]
+  for (const e of entries) {
+    const a = args(e)
+    if (e.fn === 'food.set_staple') {
+      const same = (s: Staple) => s.space_id === a.p_space && s.pantry_id === a.p_pantry
+      out = out.filter((s) => !same(s))
+      if (a.p_staple)
+        out.push({
+          space_id: String(a.p_space),
+          pantry_id: String(a.p_pantry),
+          out_of_stock: Boolean(a.p_out_of_stock),
+        })
+    } else if (e.fn === 'food.remove_pantry') {
+      out = out.filter((s) => s.pantry_id !== a.p_id)
+    } else if (e.fn === 'food.merge_pantry') {
+      const moved = out.filter((s) => s.pantry_id === a.p_merge)
+      out = out.filter((s) => s.pantry_id !== a.p_merge)
+      for (const m of moved) {
+        const kept = (s: Staple) => s.space_id === m.space_id && s.pantry_id === a.p_keep
+        out = out.some(kept)
+          ? out.map((s) => (kept(s) ? { ...s, out_of_stock: s.out_of_stock || m.out_of_stock } : s))
+          : [...out, { ...m, pantry_id: String(a.p_keep) }]
+      }
     }
   }
   return out

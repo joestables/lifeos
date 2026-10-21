@@ -10,6 +10,7 @@ import {
   SquareCheckBigIcon,
   StickyNoteIcon,
   TargetIcon,
+  UtensilsIcon,
   WalletIcon,
 } from 'lucide-react'
 import { useEffect } from 'react'
@@ -33,6 +34,7 @@ const PAGES: DrawerPage[] = [
   { to: '/gym', label: 'Gym', colour: 'coral', icon: DumbbellIcon },
   { to: '/cardio', label: 'Cardio', colour: 'coral', icon: FootprintsIcon },
   { to: '/recipes', label: 'Recipes', colour: 'green', icon: ChefHatIcon },
+  { to: '/meal-plan', label: 'Meal plan', colour: 'green', icon: UtensilsIcon },
   { to: '/goals', label: 'Goals', colour: 'purple', icon: TargetIcon },
   { to: '/wardrobe', label: 'Wardrobe', colour: 'orange', icon: ShirtIcon },
   { to: '/finance', label: 'Finance', colour: 'none', icon: WalletIcon, later: true },

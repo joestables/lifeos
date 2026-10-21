@@ -1,5 +1,12 @@
 import { newId } from './ids'
-import type { CookFields, HeadingPatch, LineFields, ValueKind, VariationPatch } from './food'
+import type {
+  CookFields,
+  HeadingPatch,
+  LineFields,
+  PantryFields,
+  ValueKind,
+  VariationPatch,
+} from './food'
 import type { WriteQueue } from './queue/queue'
 
 const DIGITS = '0123456789abcdefghijklmnopqrstuvwxyz'
@@ -130,15 +137,46 @@ export function foodWrites(queue: WriteQueue) {
       queue.enqueue('food.remove_cook', { p_id: id }, [])
     },
     /** A name added to my list as I type it (RCP-006 5). */
-    /** A new Pantry entry, an ingredient in the aisle chosen, Cupboard to start (RCP-007 2). */
-    addPantry(name: string, aisle = 'cupboard'): string {
-      const id = newId()
+    /**
+     * A new Pantry entry (PAN-001 2): an ingredient in the aisle chosen,
+     * Cupboard to start; from a Recipe's line, with its unit (PAN-004 1).
+     */
+    addPantry(fields: PantryFields & { name: string }, id = newId()): string {
+      const kind = fields.kind ?? 'ingredient'
       queue.enqueue(
         'food.add_pantry',
-        { p_id: id, p_fields: { name, kind: 'ingredient', aisle } },
+        {
+          p_id: id,
+          p_fields: {
+            name: fields.name,
+            kind,
+            ...(kind === 'ingredient' && { aisle: fields.aisle ?? 'cupboard' }),
+            ...(fields.default_unit && { default_unit: fields.default_unit }),
+          },
+        },
         [],
       )
       return id
+    },
+    /** An entry I added, changed (PAN-001 3): a rename shows in every Recipe. */
+    updatePantry(id: string, patch: PantryFields): void {
+      queue.enqueue('food.update_pantry', { p_id: id, p_patch: patch }, [])
+    },
+    /** An entry I added that nothing uses (PAN-001 4). */
+    removePantry(id: string): void {
+      queue.enqueue('food.remove_pantry', { p_id: id }, [])
+    },
+    /** Two entries I added made one (PAN-003): `merge`'s lines and staples move to `keep`. */
+    mergePantry(keep: string, merge: string): void {
+      queue.enqueue('food.merge_pantry', { p_keep: keep, p_merge: merge }, [])
+    },
+    /** One of a Space's staples, and whether it has run out; or not a staple (PAN-002). */
+    setStaple(space: string, pantry: string, staple: boolean, outOfStock = false): void {
+      queue.enqueue(
+        'food.set_staple',
+        { p_space: space, p_pantry: pantry, p_staple: staple, p_out_of_stock: outOfStock },
+        [],
+      )
     },
     /** My own words on my change (RCP-013); empty, the note goes. */
     noteChange(activity: number, note: string): void {

@@ -5,6 +5,7 @@ import {
   applyPendingCooks,
   applyPendingLines,
   applyPendingPantry,
+  applyPendingStaples,
   applyPendingRecipes,
   applyPendingSteps,
   applyPendingValues,
@@ -20,13 +21,17 @@ import {
   fetchCooks,
   fetchLines,
   fetchPantry,
+  fetchPersonalSpace,
   fetchRecipes,
+  fetchStaples,
   fetchSteps,
   fetchValues,
   fetchVariations,
   linesKey,
   pantryKey,
+  personalSpaceKey,
   recipesKey,
+  staplesKey,
   stepsKey,
   valuesKey,
   variationsKey,
@@ -238,6 +243,33 @@ export function useFood(queue: WriteQueue): FoodData {
     values.data,
     photos.data,
   ])
+}
+
+/**
+ * My staples, by Pantry entry, with unsent marks laid over, and the Space
+ * they are kept in: mine until Households (PAN-002 1).
+ */
+export function useStaples(queue: WriteQueue): {
+  space: string | null
+  staples: ReadonlyMap<string, { out: boolean }>
+} {
+  const auth = useAuth()
+  const me = auth.status === 'signed-in' ? auth.me.id : ''
+  const entries = useQueueEntries(queue)
+  const { data: space } = useQuery({
+    queryKey: personalSpaceKey,
+    queryFn: () => fetchPersonalSpace(me),
+    enabled: me !== '',
+    staleTime: Infinity,
+  })
+  const { data } = useQuery({ queryKey: staplesKey, queryFn: fetchStaples })
+  return useMemo(() => {
+    const mine = applyPendingStaples(data ?? [], entries).filter((s) => s.space_id === space)
+    return {
+      space: space ?? null,
+      staples: new Map(mine.map((s) => [s.pantry_id, { out: s.out_of_stock }])),
+    }
+  }, [data, entries, space])
 }
 
 /**

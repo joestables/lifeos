@@ -2,6 +2,32 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#16](https://github.com/joestables/lifeos/pull/16) — Stage 4, step 6: the Pantry
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-21
+
+**What it did**
+- Meal plan joins the drawer after Recipes; until the week (step 7) it is
+  the Pantry alone, with "New entry" ending its toolbar on a computer.
+- The Pantry (PAN-001): ingredients in a Card per aisle, in aisle order,
+  then household items, each with how many Recipes use it on a computer;
+  a search and All, Staples and Out of stock. New entry and Edit entry
+  (an ingredient or household item, name, aisle, default unit; a name the
+  Pantry has refused), Recipes that use it, and Delete with Undo, refused
+  for an entry in use with where it is used.
+- Staples and out of stock (PAN-002 1), kept in my personal Space until
+  Households; Out of stock in amber, a new `--warning` token: amber, like
+  red and green, keeps its usual meaning (ADR-0043 amended; Joe, 21
+  October). Merge with… for two entries I added (PAN-003), nothing chosen
+  to start.
+- From a Recipe (PAN-004): an entry added from a line takes its unit as
+  default; names kept as typed in my Recipes are listed, added one at a
+  time or all at once, their lines then using the entry.
+- The data layer reads staples and my Space, and lays unsent changes,
+  deletions, merges and staples over what is shown. No migration.
+- Spec first: the Pantry's menus, dialogs and kept-as-typed list in
+  `patterns.md`; PAN-001 4 and PAN-004 2 made exact in `meals.md`.
+
 ## [#15](https://github.com/joestables/lifeos/pull/15) — Stage 4: Recipes — specs, decisions, design, the food schema and the Recipes page
 
 Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-17 to 2026-10-21

@@ -211,7 +211,10 @@ function IngredientRow({
           pantry={pantry}
           onAdd={(n, aisle: Aisle) => {
             setName(n)
-            keep({ ...adding.extra, pantry_id: addPantry(n, aisle), text: null })
+            // The line's unit becomes the entry's default (PAN-004 1).
+            const lineUnit = adding.extra.unit ?? (unit || null)
+            const id = addPantry({ name: n, aisle, default_unit: lineUnit })
+            keep({ ...adding.extra, pantry_id: id, text: null })
             addingRef.current = false
             setAdding(null)
           }}

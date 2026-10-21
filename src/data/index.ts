@@ -24,6 +24,7 @@ import {
   applyPendingCooks,
   applyPendingLines,
   applyPendingPantry,
+  applyPendingStaples,
   applyPendingRecipes,
   applyPendingSteps,
   applyPendingValues,
@@ -32,6 +33,7 @@ import {
   linesKey,
   pantryKey,
   recipesKey,
+  staplesKey,
   stepsKey,
   valuesKey,
   variationsKey,
@@ -40,6 +42,7 @@ import {
   type Line,
   type PantryEntry,
   type RecipeHeading,
+  type Staple,
   type Step,
   type VariationFields,
 } from './food'
@@ -146,7 +149,13 @@ const collections: {
   },
   {
     key: linesKey,
-    fns: ['food.add_variation', 'food.add_line', 'food.update_line', 'food.remove_line'],
+    fns: [
+      'food.add_variation',
+      'food.add_line',
+      'food.update_line',
+      'food.remove_line',
+      'food.merge_pantry',
+    ],
     fold: (rows: Line[], e: QueueEntry) => applyPendingLines(rows, [e]),
   },
   {
@@ -166,8 +175,13 @@ const collections: {
   },
   {
     key: pantryKey,
-    fns: ['food.add_pantry'],
+    fns: ['food.add_pantry', 'food.update_pantry', 'food.remove_pantry', 'food.merge_pantry'],
     fold: (rows: PantryEntry[], e: QueueEntry) => applyPendingPantry(rows, [e], ''),
+  },
+  {
+    key: staplesKey,
+    fns: ['food.set_staple', 'food.remove_pantry', 'food.merge_pantry'],
+    fold: (rows: Staple[], e: QueueEntry) => applyPendingStaples(rows, [e]),
   },
   {
     key: valuesKey,
@@ -273,6 +287,10 @@ export const {
   updateCook,
   removeCook,
   addPantry,
+  updatePantry,
+  removePantry,
+  mergePantry,
+  setStaple,
   addValue,
   noteChange,
 } = foodWrites(queue)
@@ -308,7 +326,7 @@ export {
   useSyncCounts,
 } from './hooks'
 export { googleEventUrl } from './calendar'
-export { useFood, useRecipeActivity, type FoodData } from './food-hooks'
+export { useFood, useRecipeActivity, useStaples, type FoodData } from './food-hooks'
 export { positionBetween, positionsFor } from './food-writes'
 export { usePhotoUrls, type Photo } from './photos'
 export type {
@@ -319,7 +337,9 @@ export type {
   Line,
   LineFields,
   PantryEntry,
+  PantryFields,
   RecipeHeading,
+  Staple,
   Step,
   ValueKind,
   VariationFields,
