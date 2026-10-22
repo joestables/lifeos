@@ -32,7 +32,7 @@ Owner: **core**, a **Module** (`shopping`, `food`, `fitness`, `goals`,
 | Households: create, invite by email, accept, owner and members, several per person; sharing on | core | Settings | 4 | [spaces-and-sharing](cross-cutting/spaces-and-sharing.md) |
 | Shopping lists, made by hand or from the meal plan, live updates | `shopping` | Shopping | 4b | [meals](modules/meals.md#shopping) |
 | Ingredients to shopping lists | `food`, `shopping` | Meal plan, Shopping | 4b | [meals](modules/meals.md#shopping) |
-| Gym, with v1's recovery model and snapshots | `fitness` | Gym | 5 | — |
+| Gym, with v1's recovery model and snapshots | `fitness` | Gym | 5 | [gym](modules/gym.md) (a first draft) |
 | Goals and the measures registry | `goals` | Goals | 5 | — |
 | Wardrobe and outfits | `wardrobe` | Wardrobe | 6 | — |
 | Exact-alarm Reminders (Android wrapper) | core | — | 7 | [reminders](cross-cutting/reminders.md) |
