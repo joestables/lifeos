@@ -4,6 +4,7 @@ import type {
   HeadingPatch,
   LineFields,
   MealFields,
+  MealLineFields,
   PantryFields,
   ValueKind,
   VariationPatch,
@@ -185,7 +186,7 @@ export function foodWrites(queue: WriteQueue) {
      * Meal it is leftovers of.
      */
     planMeal(fields: MealFields, id = newId()): string {
-      const { variation, servings, leftovers_of, ...item } = fields
+      const { variation, servings, leftovers_of, source, ...item } = fields
       queue.enqueue(
         'food.plan_meal',
         {
@@ -196,6 +197,7 @@ export function foodWrites(queue: WriteQueue) {
             ...(variation && { variation }),
             ...(servings && { servings }),
             ...(leftovers_of && { leftovers_of }),
+            ...(source && { source }),
           },
         },
         [id],
@@ -203,8 +205,19 @@ export function foodWrites(queue: WriteQueue) {
       return id
     },
     /** A Meal's servings (MPL-003). */
-    updateMeal(id: string, patch: { servings?: number | null }): void {
+    updateMeal(id: string, patch: { servings?: number | null; source?: string | null }): void {
       queue.enqueue('food.update_meal', { p_id: id, p_patch: patch }, [id])
+    },
+    /** A Meal's own lines (MPL-006 1). */
+    addMealLine(meal: string, fields: MealLineFields, id = newId()): string {
+      queue.enqueue('food.add_meal_line', { p_id: id, p_meal: meal, p_fields: fields }, [meal])
+      return id
+    },
+    updateMealLine(meal: string, id: string, patch: MealLineFields): void {
+      queue.enqueue('food.update_meal_line', { p_id: id, p_patch: patch }, [meal])
+    },
+    removeMealLine(meal: string, id: string): void {
+      queue.enqueue('food.remove_meal_line', { p_id: id }, [meal])
     },
     /** Which Variation a Meal uses (MPL-003 1). */
     setMealVariation(meal: string, variation: string): void {

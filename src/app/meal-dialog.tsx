@@ -26,6 +26,7 @@ import {
 } from './meal-actions'
 import { SlotDialog } from './meal-dialogs'
 import { SpaceSelect } from './space-select'
+import { MealIngredients } from './meal-ingredients'
 import { MoreMenu } from './more-menu'
 import { Field } from './task-details'
 
@@ -190,6 +191,7 @@ function MealDetails({ plan, meal }: { plan: MealPlanData; meal: PlannedMeal }) 
           </Field>
         )}
       </div>
+      {!meal.leftoversOf && <MealIngredients meal={meal} pantry={plan.food.pantry} />}
       {leftovers.length > 0 && (
         <Field label="Leftovers">
           <div className="-mx-3 flex flex-col">

@@ -17,6 +17,7 @@ export {
   type Aisle,
   type FillAnswer,
   type ImportAnswer,
+  type MealAnswer,
   type ImportedLine,
   type ImportedRecipe,
 } from './imported.ts'

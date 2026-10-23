@@ -63,5 +63,10 @@ export type ImportAnswer =
 export type FillAnswer =
   { ok: true; lines: ImportedLine[]; left: number } | { ok: false; reason: AiRefusal }
 
+/** What `meal.ingredients` answers (MPL-006 2): a page's lines and servings only. */
+export type MealAnswer =
+  | { ok: true; lines: ImportedLine[]; servings: number | null; left: number }
+  | { ok: false; reason: AiRefusal }
+
 /** What `status` answers: whether the AI can be used, and how much is left today. */
 export type AiStatus = { available: true; left: number } | { available: false; reason: AiRefusal }

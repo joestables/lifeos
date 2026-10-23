@@ -6,18 +6,22 @@ import type {
   AiRefusal,
   FillAnswer,
   ImportAnswer,
+  MealAnswer,
   ImportedRecipe,
 } from '../../../packages/food/src/imported.ts'
 import {
   fillInput,
   importInput,
+  mealInput,
   PROMPT_VERSION,
   SYSTEM_INSTRUCTION,
   type Vocabulary,
 } from './rules.ts'
 import {
   LINES_SCHEMA,
+  MEAL_SCHEMA,
   parseLines,
+  parseMealLines,
   parseRecipes,
   RESPONSE_SCHEMA,
   ValidationError,
@@ -469,4 +473,29 @@ export async function fillLines(deps: ImportDeps, steps: unknown): Promise<FillA
     ),
   )
   return { ok: true, lines: parseLines(text, pantry), left }
+}
+
+/**
+ * `meal.ingredients` (MPL-006 2): a link's ingredients and servings for a
+ * typed Meal, nothing else; of a page of several recipes, the first.
+ */
+export async function mealIngredients(deps: ImportDeps, link: string): Promise<MealAnswer> {
+  const source = await readSource(deps.fetch, link)
+  const { pantry } = await deps.vocabulary()
+  const left = await deps.take('meal.ingredients', { prompt: PROMPT_VERSION })
+  if (left === null) throw new Refused('allowance')
+  const text = await askGemini(
+    deps.fetch,
+    deps.gemini,
+    geminiBody(
+      mealInput(
+        pantry.map((p) => p.name),
+        source.text,
+      ),
+      source.video,
+      MEAL_SCHEMA,
+    ),
+  )
+  const read = parseMealLines(text, pantry)
+  return read ? { ok: true, ...read, left } : { ok: false, reason: 'not_recipe' }
 }

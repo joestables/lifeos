@@ -22,8 +22,9 @@ served well.
   makes all of its use chargeable. LifeOS has no paid fallback: when the
   free quota is used up, AI is unavailable until it resets.
 - **One Edge Function, `ai`,** runs named tasks, each with its prompt and
-  output schema in code: `recipe.import` (a whole recipe, or only its
-  ingredients for a Meal's link) and `recipe.fill_lines` now. The
+  output schema in code: `recipe.import` (a whole recipe),
+  `recipe.fill_lines` and `meal.ingredients` (only a link's ingredients
+  and servings, for a Meal) now. The
   browser never calls a model; the key is an Edge Function secret.
 - **The model is a free Flash model, named in one place.** Google changes
   which models are free and their limits often, so the name and its

@@ -2003,6 +2003,7 @@ export type Database = {
           item_id: string
           leftovers_of: string | null
           servings: number | null
+          source: string | null
           updated_at: string
         }
         ComputedFields: never
@@ -2010,15 +2011,68 @@ export type Database = {
           item_id: string
           leftovers_of?: string | null
           servings?: number | null
+          source?: string | null
           updated_at?: string
         }
         Update: {
           item_id?: string
           leftovers_of?: string | null
           servings?: number | null
+          source?: string | null
           updated_at?: string
         }
         Relationships: []
+      }
+      meal_lines: {
+        Row: {
+          approx: boolean
+          created_at: string
+          id: string
+          meal_id: string
+          pantry_id: string | null
+          position: string
+          qty: number | null
+          qty_max: number | null
+          text: string | null
+          unit: string | null
+          updated_at: string
+        }
+        ComputedFields: never
+        Insert: {
+          approx?: boolean
+          created_at?: string
+          id?: string
+          meal_id: string
+          pantry_id?: string | null
+          position: string
+          qty?: number | null
+          qty_max?: number | null
+          text?: string | null
+          unit?: string | null
+          updated_at?: string
+        }
+        Update: {
+          approx?: boolean
+          created_at?: string
+          id?: string
+          meal_id?: string
+          pantry_id?: string | null
+          position?: string
+          qty?: number | null
+          qty_max?: number | null
+          text?: string | null
+          unit?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'meal_lines_pantry_id_fkey'
+            columns: ['pantry_id']
+            isOneToOne: false
+            referencedRelation: 'pantry'
+            referencedColumns: ['id']
+          },
+        ]
       }
       pantry: {
         Row: {
@@ -2284,6 +2338,28 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      add_meal_line: {
+        Args: { p_fields: Json; p_id: string; p_meal: string }
+        Returns: {
+          approx: boolean
+          created_at: string
+          id: string
+          meal_id: string
+          pantry_id: string | null
+          position: string
+          qty: number | null
+          qty_max: number | null
+          text: string | null
+          unit: string | null
+          updated_at: string
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'meal_lines'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       add_pantry: {
         Args: { p_fields: Json; p_id: string }
         Returns: {
@@ -2426,6 +2502,7 @@ export type Database = {
       }
       remove_cook: { Args: { p_id: string }; Returns: undefined }
       remove_line: { Args: { p_id: string }; Returns: undefined }
+      remove_meal_line: { Args: { p_id: string }; Returns: undefined }
       remove_pantry: { Args: { p_id: string }; Returns: undefined }
       remove_step: { Args: { p_id: string }; Returns: undefined }
       remove_value: { Args: { p_id: string }; Returns: undefined }
@@ -2501,11 +2578,34 @@ export type Database = {
           item_id: string
           leftovers_of: string | null
           servings: number | null
+          source: string | null
           updated_at: string
         }
         SetofOptions: {
           from: '*'
           to: 'meal'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      update_meal_line: {
+        Args: { p_id: string; p_patch: Json }
+        Returns: {
+          approx: boolean
+          created_at: string
+          id: string
+          meal_id: string
+          pantry_id: string | null
+          position: string
+          qty: number | null
+          qty_max: number | null
+          text: string | null
+          unit: string | null
+          updated_at: string
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'meal_lines'
           isOneToOne: true
           isSetofReturn: false
         }

@@ -27,7 +27,14 @@ export interface MealFields {
   variation?: string
   servings?: number | null
   leftovers_of?: string
+  /** A typed Meal's recipe link (MPL-006 2). */
+  source?: string
 }
+/** A Meal's own ingredient line (MPL-006): no subheadings. */
+export type MealLine = Omit<Food['meal_lines']['Row'], 'created_at' | 'updated_at'>
+export type MealLineFields = Partial<
+  Pick<MealLine, 'position' | 'pantry_id' | 'text' | 'qty' | 'qty_max' | 'approx' | 'unit'>
+>
 /** A staple of one of my Spaces, and whether it has run out (PAN-002). */
 export type Staple = Food['staples']['Row']
 /** What a Pantry entry is made or changed with (PAN-001). */
@@ -58,6 +65,7 @@ export const pantryKey = ['food', 'pantry'] as const
 export const valuesKey = ['food', 'values'] as const
 export const staplesKey = ['food', 'staples'] as const
 export const mealsKey = ['food', 'meal'] as const
+export const mealLinesKey = ['food', 'meal_lines'] as const
 /** My personal Space's id: where my staples are kept until Households (PAN-002 1). */
 export const personalSpaceKey = ['core', 'spaces', 'personal'] as const
 /** A Recipe's log (RCP-013): the activity of it and its Variations. */
@@ -169,7 +177,18 @@ export async function fetchPantry(): Promise<PantryEntry[]> {
 }
 
 export async function fetchMeals(): Promise<MealRow[]> {
-  const { data, error } = await food().from('meal').select('item_id, servings, leftovers_of')
+  const { data, error } = await food()
+    .from('meal')
+    .select('item_id, servings, leftovers_of, source')
+  if (error) throw error
+  return data
+}
+
+export async function fetchMealLines(): Promise<MealLine[]> {
+  const { data, error } = await food()
+    .from('meal_lines')
+    .select('id, meal_id, position, pantry_id, text, qty, qty_max, approx, unit')
+    .order('position')
   if (error) throw error
   return data
 }
@@ -559,6 +578,7 @@ export function applyPendingMeals(
           item_id: id,
           servings: (f.servings as number) ?? null,
           leftovers_of: (f.leftovers_of as string) ?? null,
+          source: trimmed(f.source),
         })
     } else if (e.fn === 'food.update_meal') {
       const row = byId.get(String(a.p_id))
@@ -568,10 +588,67 @@ export function applyPendingMeals(
         ...row,
         ...('servings' in p && { servings: (p.servings as number) ?? null }),
         ...('leftovers_of' in p && { leftovers_of: (p.leftovers_of as string) ?? null }),
+        ...('source' in p && { source: trimmed(p.source) }),
       })
     }
   }
   return [...byId.values()]
+}
+
+/** Meals' own lines, with unsent changes and merges laid over (MPL-006). */
+export function applyPendingMealLines(
+  rows: readonly MealLine[],
+  entries: readonly QueueEntry[],
+): MealLine[] {
+  let out = [...rows]
+  for (const e of entries) {
+    const a = args(e)
+    switch (e.fn) {
+      case 'food.add_meal_line': {
+        if (out.some((l) => l.id === a.p_id)) break
+        const f = (a.p_fields ?? {}) as Args
+        out.push({
+          id: String(a.p_id),
+          meal_id: String(a.p_meal),
+          position: String(f.position ?? ''),
+          pantry_id: (f.pantry_id as string) ?? null,
+          text: trimmed(f.text),
+          qty: (f.qty as number) ?? null,
+          qty_max: (f.qty_max as number) ?? null,
+          approx: Boolean(f.approx),
+          unit: (f.unit as string) ?? null,
+        })
+        break
+      }
+      case 'food.update_meal_line': {
+        const p = (a.p_patch ?? {}) as Args
+        out = out.map((l) =>
+          l.id !== a.p_id
+            ? l
+            : {
+                ...l,
+                ...('position' in p && { position: String(p.position) }),
+                ...('pantry_id' in p && { pantry_id: (p.pantry_id as string) ?? null }),
+                ...('text' in p && { text: trimmed(p.text) }),
+                ...('qty' in p && { qty: (p.qty as number) ?? null }),
+                ...('qty_max' in p && { qty_max: (p.qty_max as number) ?? null }),
+                ...('approx' in p && { approx: Boolean(p.approx) }),
+                ...('unit' in p && { unit: (p.unit as string) ?? null }),
+              },
+        )
+        break
+      }
+      case 'food.remove_meal_line':
+        out = out.filter((l) => l.id !== a.p_id)
+        break
+      case 'food.merge_pantry':
+        out = out.map((l) =>
+          l.pantry_id === a.p_merge ? { ...l, pantry_id: String(a.p_keep) } : l,
+        )
+        break
+    }
+  }
+  return out.sort(byPosition)
 }
 
 /** My staples, with unsent marks, merges and deletions laid over (PAN-002). */

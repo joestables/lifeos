@@ -1,4 +1,4 @@
-import type { AiRefusal, AiStatus, FillAnswer, ImportAnswer } from '@lifeos/food'
+import type { AiRefusal, AiStatus, FillAnswer, ImportAnswer, MealAnswer } from '@lifeos/food'
 import { useQuery } from '@tanstack/react-query'
 import { queryClient } from './queryClient'
 import { supabase } from './supabase'
@@ -62,6 +62,17 @@ export async function fillFromMethod(steps: string[]): Promise<FillAnswer> {
   const started = Date.now()
   const answer = await ask<FillAnswer>({ task: 'recipe.fill_lines', steps }).catch(
     (e): FillAnswer => ({ ok: false, reason: refusal(e, started) }),
+  )
+  void queryClient.invalidateQueries({ queryKey: aiStatusKey })
+  return answer
+}
+
+/** `meal.ingredients` (MPL-006 2): a link's ingredients and servings for a typed Meal. */
+export async function mealIngredients(link: string): Promise<MealAnswer> {
+  if (!navigator.onLine) return { ok: false, reason: 'unreachable' }
+  const started = Date.now()
+  const answer = await ask<MealAnswer>({ task: 'meal.ingredients', link }).catch(
+    (e): MealAnswer => ({ ok: false, reason: refusal(e, started) }),
   )
   void queryClient.invalidateQueries({ queryKey: aiStatusKey })
   return answer

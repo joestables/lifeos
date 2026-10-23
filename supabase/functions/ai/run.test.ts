@@ -3,6 +3,7 @@ import {
   askGemini,
   fillLines,
   importRecipe,
+  mealIngredients,
   linkKind,
   publicUrl,
   readPage,
@@ -355,5 +356,56 @@ describe('recipe.fill_lines (RCP-007 5)', () => {
     )
     expect(result).toEqual({ ok: false, reason: 'not_recipe' })
     expect(taken).toBe(0)
+  })
+})
+
+describe('meal.ingredients (MPL-006 2)', () => {
+  const page = `<html><body><h1>Pancakes</h1><p>${'Whisk the flour, eggs and milk. '.repeat(12)}</p></body></html>`
+  const answering =
+    (body: unknown): Fetch =>
+    async (url) =>
+      url.includes('generativelanguage')
+        ? Response.json({ candidates: [{ content: { parts: [{ text: JSON.stringify(body) }] } }] })
+        : new Response(page)
+  const deps = (fetch: Fetch): ImportDeps => ({
+    fetch,
+    gemini: { key: 'k', models: ['flash'] },
+    vocabulary: async () => ({
+      pantry: PANTRY,
+      lists: { categories: [], cuisines: [], proteins: [], carbs: [] },
+    }),
+    take: async () => 27,
+  })
+
+  it('answers the first recipe’s lines and servings only', async () => {
+    const result = await mealIngredients(
+      deps(
+        answering({
+          isRecipe: true,
+          recipes: [
+            {
+              name: 'Pancakes',
+              servings: 4,
+              ingredients: [
+                ingredient({ name: 'Plain Flour', aisle: 'cupboard', amount: '100', unit: 'g' }),
+              ],
+            },
+            { name: 'Syrup', servings: 2, ingredients: [ingredient({ name: 'Sugar' })] },
+          ],
+        }),
+      ),
+      'https://example.com/pancakes',
+    )
+    expect(result).toMatchObject({ ok: true, servings: 4, left: 27 })
+    expect(result.ok && result.lines.map((l) => l.name)).toEqual(['Plain Flour'])
+  })
+
+  it('a page that isn’t a recipe gives nothing', async () => {
+    expect(
+      await mealIngredients(
+        deps(answering({ isRecipe: false, recipes: [] })),
+        'https://example.com/x',
+      ),
+    ).toEqual({ ok: false, reason: 'not_recipe' })
   })
 })

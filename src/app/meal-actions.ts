@@ -3,6 +3,7 @@ import { toast } from '@/components/ui/sonner'
 import {
   archiveItem,
   newId,
+  addMealLine,
   planMeal,
   queue,
   restoreItem,
@@ -49,6 +50,8 @@ export function useMealPlan(): MealPlanData {
       space: v.item.space_id,
       // An unsent Meal has no owner yet: it is mine.
       mine: !v.item.owner_id || v.item.owner_id === spaces.me,
+      source: v.source,
+      lines: v.lines,
     }))
     const byId = new Map(meals.map((m) => [m.id, m]))
     const recipeOf = (m: PlannedMeal) => {
@@ -150,10 +153,24 @@ export function copyMeals(meals: readonly PlannedMeal[], from: string, to: strin
         ...(c.from.variation && { variation: c.from.variation }),
         servings: c.from.servings,
         ...(c.leftoversOf && { leftovers_of: c.leftoversOf }),
+        ...(c.from.source && { source: c.from.source }),
         ...inSpace(c.from.space),
       },
       c.id,
     )
+  // A Meal's own lines go with it (MPL-006 5).
+  for (const c of copies)
+    if (!c.leftoversOf)
+      for (const l of c.from.lines ?? [])
+        addMealLine(c.id, {
+          position: l.position,
+          pantry_id: l.pantry_id,
+          text: l.text,
+          qty: l.qty,
+          qty_max: l.qty_max,
+          approx: l.approx,
+          unit: l.unit,
+        })
   toast(copies.length === 1 ? 'Copied 1 meal' : `Copied ${copies.length} meals`, {
     action: { label: 'Undo', onClick: () => copies.forEach((c) => archiveItem(c.id)) },
   })

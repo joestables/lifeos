@@ -1,15 +1,11 @@
-import { parseLine, type Unit } from '@lifeos/food'
-import { PlusIcon, SparklesIcon, TypeIcon } from 'lucide-react'
+import { PlusIcon, SparklesIcon } from 'lucide-react'
 import { useEffect, useId, useRef, useState } from 'react'
 import {
-  IngredientLineEditor,
-  LINE_UNITS,
   RecipeColumns,
   RecipePanel,
   STEP_FIELD,
   StepEditor,
   SubheadingEditor,
-  Suggestions,
   VariationFieldsCard,
 } from '@/components/lifeos'
 import {
@@ -34,7 +30,6 @@ import {
 } from '@/components/ui/select'
 import {
   addLine,
-  addPantry,
   addStep,
   fillFromMethod,
   newId,
@@ -47,23 +42,12 @@ import {
   updateVariation,
   type FoodData,
   type Line,
-  type LineFields,
-  type PantryEntry,
 } from '@/data'
 import type { RecipeView, VariationView } from '@/data/food-hooks'
 import { useOnLeave } from '@/hooks/use-on-leave'
 import { useReorder } from '@/hooks/use-reorder'
-import {
-  STATE_NAMES,
-  amountText,
-  byPosition,
-  editableText,
-  readAmount,
-  storedText,
-} from '@/lib/recipe-parts'
-import { AISLES, type Aisle } from '@/lib/pantry'
-import { lineName } from '@/lib/recipes'
-import { AddToPantryDialog } from './add-to-pantry'
+import { STATE_NAMES, byPosition, editableText, storedText } from '@/lib/recipe-parts'
+import { IngredientRow } from './ingredient-row'
 import { AI_REFUSALS } from './ai-words'
 import { ImportDialog } from './import-dialog'
 import { importInto, linesFrom, replaceLines } from './variation-ai'
@@ -72,8 +56,6 @@ import { titlesOf } from './recipe-helpers'
 import { Field } from './task-details'
 import { ReferenceField } from './reference-field'
 
-type LineUnit = (typeof LINE_UNITS)[number]
-
 /** A row of the ingredients being edited: a line or a subheading, kept or not yet. */
 interface Row {
   id: string
@@ -81,253 +63,6 @@ interface Row {
   heading: boolean
   /** Kept: on the server or queued. */
   line?: Line
-}
-
-/** Pantry entries for a typed name: names starting with it first, up to six. */
-function pantryMatches(pantry: ReadonlyMap<string, PantryEntry>, query: string): PantryEntry[] {
-  const q = query.trim().toLowerCase()
-  if (!q) return []
-  return [...pantry.values()]
-    .filter((p) => p.name.toLowerCase().includes(q))
-    .sort((a, b) => {
-      const x = a.name.toLowerCase().startsWith(q) ? 0 : 1
-      const y = b.name.toLowerCase().startsWith(q) ? 0 : 1
-      return x - y || a.name.localeCompare(b.name)
-    })
-    .slice(0, 6)
-}
-
-function IngredientRow({
-  row,
-  variation,
-  pantry,
-  reorder,
-  onKeyDown,
-  onRemove,
-  autoFocus,
-}: {
-  row: Row
-  variation: string
-  pantry: ReadonlyMap<string, PantryEntry>
-  reorder: ReturnType<ReturnType<typeof useReorder>['row']>
-  onKeyDown: (e: React.KeyboardEvent) => void
-  onRemove: () => void
-  autoFocus: boolean
-}) {
-  const l = row.line
-  const [amount, setAmount] = useState(l ? amountText(l) : '')
-  const [unit, setUnit] = useState<LineUnit>(((l?.unit as LineUnit | null) ?? '') as LineUnit)
-  const [name, setName] = useState(l ? lineName(l, pantry) : '')
-  // Suggestions showing, and the name changed since it was kept: Escape
-  // closes the one and leaves the other.
-  const [typing, setTyping] = useState(false)
-  const [changed, setChanged] = useState(false)
-  const [active, setActive] = useState(0)
-  // Adding to the Pantry: its Dialog takes the focus, so the box's leaving waits for it.
-  const [adding, setAdding] = useState<{ name: string; extra: LineFields } | null>(null)
-  const addingRef = useRef(false)
-  const removed = useRef(false)
-  const matches = typing ? pantryMatches(pantry, name) : []
-  const exact = [...pantry.values()].find((p) => p.name.toLowerCase() === name.trim().toLowerCase())
-  const status = changed ? 'typing' : l?.pantry_id ? 'pantry' : 'typed'
-
-  /** Keeps the line: a new one is added, a kept one changed by what differs. */
-  const keep = (fields: LineFields) => {
-    if (l) {
-      updateLine(variation, row.id, fields)
-    } else if (fields.pantry_id || fields.text) {
-      const amt = readAmount(amount)
-      addLine(
-        variation,
-        {
-          position: row.position,
-          qty: amt?.qty ?? null,
-          qty_max: amt?.qty_max ?? null,
-          approx: amt?.approx ?? false,
-          unit: (amt?.unit ?? unit) || null,
-          ...fields,
-        },
-        row.id,
-      )
-    }
-  }
-
-  /** The name typed, and the amount and unit typed with it, read off. */
-  const prepare = (): { typed: string; extra: LineFields } | null => {
-    let typed = name.trim()
-    if (!typed) {
-      if (l) setName(lineName(l, pantry))
-      return null
-    }
-    // "200 g chorizo" typed whole: its amount and unit go to their boxes.
-    const parsed = parseLine(typed)
-    const extra: LineFields = {}
-    if (parsed.qty !== null && !amount.trim() && parsed.name) {
-      typed = parsed.name
-      extra.qty = parsed.qty
-      extra.qty_max = parsed.qtyMax
-      extra.approx = parsed.approx
-      setAmount(amountText({ qty: parsed.qty, qty_max: parsed.qtyMax, approx: parsed.approx }))
-      if (parsed.unit) {
-        extra.unit = parsed.unit
-        setUnit(parsed.unit)
-      }
-    }
-    return { typed, extra }
-  }
-
-  /** The ingredient chosen: a Pantry entry, a new one, or as typed (RCP-007 1, 2). */
-  const choose = (how: { pantry: string } | 'add' | 'typed') => {
-    setTyping(false)
-    setChanged(false)
-    const ready = prepare()
-    if (!ready) return
-    const { typed, extra } = ready
-    const found = typeof how === 'object' ? pantry.get(how.pantry) : undefined
-    if (found) {
-      setName(found.name)
-      keep({ ...extra, pantry_id: found.id, text: null })
-    } else if (how === 'add') {
-      // Its aisle chosen first (Joe, 20 October).
-      addingRef.current = true
-      setName(typed)
-      setAdding({ name: typed, extra })
-    } else {
-      setName(typed)
-      keep({ ...extra, pantry_id: null, text: typed })
-    }
-  }
-
-  /** The amount as typed, read and kept when it differs. */
-  const keepAmount = () => {
-    const read = readAmount(amount)
-    if (!read) {
-      setAmount(l ? amountText(l) : '')
-      return
-    }
-    setAmount(amountText(read))
-    if (read.unit) setUnit(read.unit)
-    if (l && amountText(read) !== amountText(l)) keep(read)
-    else if (l && read.unit && read.unit !== l.unit) keep({ unit: read.unit })
-  }
-
-  // Swiped back or closed mid-line: what was typed is kept (RCP-006 4).
-  useOnLeave(() => {
-    if (removed.current || addingRef.current) return
-    if (changed) choose(exact ? { pantry: exact.id } : 'typed')
-    else if (l) keepAmount()
-  })
-
-  return (
-    <>
-      {adding && (
-        <AddToPantryDialog
-          name={adding.name}
-          pantry={pantry}
-          onAdd={(n, aisle: Aisle) => {
-            setName(n)
-            // The line's unit becomes the entry's default (PAN-004 1).
-            const lineUnit = adding.extra.unit ?? (unit || null)
-            const id = addPantry({ name: n, aisle, default_unit: lineUnit })
-            keep({ ...adding.extra, pantry_id: id, text: null })
-            addingRef.current = false
-            setAdding(null)
-          }}
-          onClose={() => {
-            // Not added: it stays as typed, so nothing typed is lost.
-            if (addingRef.current) keep({ ...adding.extra, pantry_id: null, text: adding.name })
-            addingRef.current = false
-            setAdding(null)
-          }}
-        />
-      )}
-      <IngredientLineEditor
-        reorder={reorder}
-        onKeyDown={onKeyDown}
-        amount={amount}
-        onAmount={setAmount}
-        onAmountDone={keepAmount}
-        unit={unit}
-        onUnit={(u) => {
-          setUnit(u)
-          if (l) keep({ unit: (u as Unit) || null })
-        }}
-        ingredient={name}
-        status={status}
-        onRemove={() => {
-          removed.current = true
-          onRemove()
-        }}
-        ingredientField={
-          <Suggestions
-            open={typing && name.trim() !== ''}
-            onDismiss={() => setTyping(false)}
-            title="Pantry"
-            query={name}
-            items={matches.map((p) => ({
-              key: p.id,
-              label: p.name,
-              meta: p.aisle ? AISLES[p.aisle as Aisle] : undefined,
-            }))}
-            active={Math.min(active, Math.max(matches.length - 1, 0))}
-            onChoose={(id) => choose({ pantry: id })}
-            actions={[
-              ...(exact
-                ? []
-                : [
-                    {
-                      key: 'add',
-                      label: `Add "${name.trim()}" to the Pantry`,
-                      icon: <PlusIcon />,
-                      onClick: () => choose('add'),
-                    },
-                  ]),
-              {
-                key: 'typed',
-                label: 'Keep as typed',
-                icon: <TypeIcon />,
-                onClick: () => choose('typed'),
-              },
-            ]}
-            field={
-              <Input
-                aria-label="Ingredient"
-                autoComplete="off"
-                autoFocus={autoFocus}
-                className="pr-9"
-                value={name}
-                onChange={(e) => {
-                  setName(e.target.value)
-                  setTyping(true)
-                  setChanged(true)
-                  setActive(0)
-                }}
-                onBlur={() => {
-                  if (!changed || addingRef.current) return
-                  choose(exact ? { pantry: exact.id } : 'typed')
-                }}
-                onKeyDown={(e) => {
-                  if (!changed) return
-                  if (typing && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
-                    e.preventDefault()
-                    if (!matches.length) return
-                    const step = e.key === 'ArrowDown' ? 1 : -1
-                    setActive((a) => (a + step + matches.length) % matches.length)
-                  } else if (e.key === 'Enter') {
-                    e.preventDefault()
-                    const pick = matches[Math.min(active, matches.length - 1)]
-                    choose(pick ? { pantry: pick.id } : exact ? { pantry: exact.id } : 'typed')
-                  } else if (e.key === 'Escape') {
-                    setTyping(false)
-                  }
-                }}
-              />
-            }
-          />
-        }
-      />
-    </>
-  )
 }
 
 function SubheadingRow({
@@ -497,9 +232,12 @@ function Ingredients({
             ) : (
               <IngredientRow
                 key={r.id}
-                row={r}
-                variation={v}
+                id={r.id}
+                position={r.position}
+                line={r.line}
                 pantry={pantry}
+                onAdd={(fields, id) => addLine(v, fields, id)}
+                onUpdate={(fields) => updateLine(v, r.id, fields)}
                 reorder={reorder.row(r.id)}
                 onKeyDown={reorder.keys(r.id)}
                 onRemove={() => remove(r.id)}

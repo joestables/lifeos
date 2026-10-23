@@ -100,7 +100,10 @@ export function filterValues(
 }
 
 /** The name of a line's ingredient: its Pantry entry's, or as typed. */
-export function lineName(line: Line, pantry: ReadonlyMap<string, PantryEntry>): string {
+export function lineName(
+  line: Pick<Line, 'pantry_id' | 'text'>,
+  pantry: ReadonlyMap<string, PantryEntry>,
+): string {
   return (line.pantry_id && pantry.get(line.pantry_id)?.name) || line.text || ''
 }
 

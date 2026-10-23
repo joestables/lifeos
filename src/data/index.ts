@@ -24,6 +24,7 @@ import {
   applyPendingCooks,
   applyPendingLines,
   applyPendingMeals,
+  applyPendingMealLines,
   applyPendingPantry,
   applyPendingStaples,
   applyPendingRecipes,
@@ -33,6 +34,7 @@ import {
   cooksKey,
   linesKey,
   mealsKey,
+  mealLinesKey,
   pantryKey,
   recipesKey,
   staplesKey,
@@ -43,6 +45,7 @@ import {
   type FoodValue,
   type Line,
   type MealRow,
+  type MealLine,
   type PantryEntry,
   type RecipeHeading,
   type Staple,
@@ -201,6 +204,16 @@ const collections: {
     fold: (rows: MealRow[], e: QueueEntry) => applyPendingMeals(rows, [e]),
   },
   {
+    key: mealLinesKey,
+    fns: [
+      'food.add_meal_line',
+      'food.update_meal_line',
+      'food.remove_meal_line',
+      'food.merge_pantry',
+    ],
+    fold: (rows: MealLine[], e: QueueEntry) => applyPendingMealLines(rows, [e]),
+  },
+  {
     key: staplesKey,
     fns: ['food.set_staple', 'food.remove_pantry', 'food.merge_pantry'],
     fold: (rows: Staple[], e: QueueEntry) => applyPendingStaples(rows, [e]),
@@ -347,6 +360,9 @@ export const {
   setStaple,
   planMeal,
   updateMeal,
+  addMealLine,
+  updateMealLine,
+  removeMealLine,
   setMealVariation,
   addValue,
   noteChange,
@@ -395,7 +411,14 @@ export {
   useSyncCounts,
 } from './hooks'
 export { googleEventUrl } from './calendar'
-export { fillFromMethod, importRecipe, keepImport, useAiStatus, type KeptImport } from './ai'
+export {
+  fillFromMethod,
+  importRecipe,
+  mealIngredients,
+  keepImport,
+  useAiStatus,
+  type KeptImport,
+} from './ai'
 export {
   useFood,
   useFoodSpaces,
@@ -424,6 +447,8 @@ export type {
   Line,
   LineFields,
   MealFields,
+  MealLine,
+  MealLineFields,
   PantryEntry,
   PantryFields,
   RecipeHeading,

@@ -5,6 +5,7 @@ import {
   applyPendingCooks,
   applyPendingLines,
   applyPendingMeals,
+  applyPendingMealLines,
   applyPendingPantry,
   applyPendingStaples,
   applyPendingRecipes,
@@ -22,6 +23,7 @@ import {
   fetchCooks,
   fetchLines,
   fetchMeals,
+  fetchMealLines,
   fetchPantry,
   fetchPersonalSpace,
   fetchRecipes,
@@ -31,6 +33,7 @@ import {
   fetchVariations,
   linesKey,
   mealsKey,
+  mealLinesKey,
   pantryKey,
   personalSpaceKey,
   recipesKey,
@@ -42,6 +45,7 @@ import {
   type Cook,
   type FoodValue,
   type Line,
+  type MealLine,
   type PantryEntry,
   type RecipeHeading,
   type Step,
@@ -257,6 +261,10 @@ export interface MealView {
   leftoversOf: string | null
   /** The Variation it uses; none for a typed Meal or leftovers. */
   variation: string | null
+  /** A typed Meal's recipe link (MPL-006 2). */
+  source: string | null
+  /** Its own ingredient lines, in order (MPL-006 1). */
+  lines: MealLine[]
 }
 
 /** The Meals I can see, not removed, with unsent ones and changes laid over. */
@@ -265,8 +273,10 @@ export function useMeals(queue: WriteQueue): { meals: MealView[]; isLoading: boo
   const { items, isLoading: itemsLoading } = useItems(queue)
   const links = useLinks(queue)
   const rows = useQuery({ queryKey: mealsKey, queryFn: fetchMeals })
+  const lineRows = useQuery({ queryKey: mealLinesKey, queryFn: fetchMealLines })
   return useMemo(() => {
     const fields = new Map(applyPendingMeals(rows.data ?? [], entries).map((r) => [r.item_id, r]))
+    const linesBy = group(applyPendingMealLines(lineRows.data ?? [], entries), (l) => l.meal_id)
     const uses = new Map(
       links.filter((l) => l.link_type === 'uses').map((l) => [l.from_item, l.to_item]),
     )
@@ -277,9 +287,11 @@ export function useMeals(queue: WriteQueue): { meals: MealView[]; isLoading: boo
         servings: fields.get(item.id)?.servings ?? null,
         leftoversOf: fields.get(item.id)?.leftovers_of ?? null,
         variation: uses.get(item.id) ?? null,
+        source: fields.get(item.id)?.source ?? null,
+        lines: linesBy.get(item.id) ?? [],
       }))
     return { meals, isLoading: itemsLoading || rows.isLoading }
-  }, [entries, items, itemsLoading, links, rows.data, rows.isLoading])
+  }, [entries, items, itemsLoading, links, rows.data, rows.isLoading, lineRows.data])
 }
 
 /** Where food can go: Personal, or one of my Households (MPL-005, HSH-003 2). */
