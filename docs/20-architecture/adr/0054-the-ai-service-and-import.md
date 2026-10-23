@@ -81,7 +81,9 @@ served well.
 - **Link previews aren't AI:** a separate Edge Function, `link-preview`,
   reads oEmbed (TikTok's and, since June 2026, Instagram's without a token;
   Instagram gives no thumbnail) or a page's Open Graph tags, for Ideas
-  saved from a link ([ADR-0055](0055-sharing-into-lifeos.md)).
+  saved from a link ([ADR-0055](0055-sharing-into-lifeos.md)). Built 23
+  October for a typed Meal's picture from its link (MPL-006 6): it answers
+  the picture as a data URL, and counts nothing against the allowance.
 
 ## Consequences
 

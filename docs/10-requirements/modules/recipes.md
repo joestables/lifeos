@@ -280,10 +280,12 @@ Priority: Must · Status: verified (5 built)
 Acceptance criteria
 1. Given I type "200 g chorizo", then it is read as 200, g and Chorizo;
    suggestions from the Pantry appear as I type, the first chosen with
-   Enter.
+   Enter. A Pantry entry chosen for a line with no unit gives it the
+   entry's default unit (Joe, 23 October).
 2. Given a name not in the Pantry, then I choose Add to the Pantry, which
-   asks its name and aisle (Cupboard to start; Joe, 20 October), or Keep as
-   typed.
+   asks its name, aisle (Cupboard to start; Joe, 20 October) and default
+   unit (the line's to start), or Keep as typed; a line kept as typed
+   offers Add to the Pantry again from its mark (Joe, 23 October).
 3. Given "1-2 tsp", "~5 g" or a name alone, then each is kept as typed.
 4. Given lines, then I reorder them by dragging (on a phone too; Joe, 20
    October) and delete them, and may add subheadings ("For the sauce") that
@@ -434,7 +436,9 @@ Acceptance criteria
     page's, and its servings, times and notes filled where empty; the link
     joins its sources; the Recipe's heading is not changed. When it had
     ingredients or a method, I'm asked first, and Undo puts them back (Joe,
-    23 October).
+    23 October). Closing the Dialog while it works doesn't stop it: the
+    ingredients and method show as loading until it is kept, and a page of
+    several asks which when it is read (Joe, 23 October).
 11. Given lines brought in by Import from a link or Fill from method that
     match no Pantry entry, then they are kept as typed, to add to the
     Pantry as any typed line is ([PAN-004](meals.md#pan-004--entries-from-a-recipe)).

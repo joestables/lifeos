@@ -2,6 +2,7 @@ import {
   ChefHatIcon,
   GripVerticalIcon,
   PackageCheckIcon,
+  PackagePlusIcon,
   TypeIcon,
   MinusIcon,
   PauseIcon,
@@ -521,6 +522,7 @@ export function IngredientLineEditor({
   onUnit,
   onRemove,
   onKeyDown,
+  onAddToPantry,
 }: {
   amount?: string
   unit?: (typeof UNITS)[number]
@@ -540,6 +542,8 @@ export function IngredientLineEditor({
   onRemove?: () => void
   /** On any of its boxes: Alt+↑ / Alt+↓ move the line. */
   onKeyDown?: (e: KeyboardEvent) => void
+  /** Kept as typed: its mark is a button adding it to the Pantry (PAN-004 1). */
+  onAddToPantry?: () => void
 }) {
   return (
     <div
@@ -560,7 +564,19 @@ export function IngredientLineEditor({
             New
           </Badge>
         )}
-        {status !== 'typing' && status !== 'new' && (
+        {status === 'typed' && onAddToPantry && (
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            aria-label={`Add ${ingredient} to the Pantry`}
+            title="Kept as typed: add to the Pantry"
+            onClick={onAddToPantry}
+            className="absolute top-1/2 right-1 size-7 -translate-y-1/2 text-muted-foreground"
+          >
+            <PackagePlusIcon />
+          </Button>
+        )}
+        {status !== 'typing' && status !== 'new' && !(status === 'typed' && onAddToPantry) && (
           <span
             title={status === 'pantry' ? 'In the Pantry' : 'Kept as typed'}
             className="pointer-events-none absolute top-1/2 right-2.5 -translate-y-1/2 text-muted-foreground [&_svg]:size-4"

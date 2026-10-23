@@ -136,7 +136,7 @@ export function PantryTab({
             </DropdownMenuItem>
             {mine && mergeable(e, food.pantry, food.me).length > 0 && (
               <DropdownMenuItem onClick={() => setOpen({ kind: 'merge', entry: e })}>
-                Merge with…
+                Merge into…
               </DropdownMenuItem>
             )}
             {mine && (
@@ -174,7 +174,9 @@ export function PantryTab({
         <AddToPantryDialog
           name={open.typed.name}
           pantry={food.pantry}
-          onAdd={(name, aisle) => link(open.typed, addPantry({ name, aisle }))}
+          onAdd={(name, aisle, default_unit) =>
+            link(open.typed, addPantry({ name, aisle, default_unit }))
+          }
           onClose={close}
         />
       )}

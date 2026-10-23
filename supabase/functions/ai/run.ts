@@ -499,3 +499,39 @@ export async function mealIngredients(deps: ImportDeps, link: string): Promise<M
   const read = parseMealLines(text, pantry)
   return read ? { ok: true, ...read, left } : { ok: false, reason: 'not_recipe' }
 }
+
+// ---------------------------------------------------------------------------
+// Link previews (ADR-0054's link-preview): no AI, nothing counted
+
+/**
+ * A link's picture, as a data URL, for a typed Meal (MPL-006 6): a
+ * YouTube video's thumbnail, a TikTok's, or a page's Open Graph or
+ * recipe picture. Nothing, when there is none or it can't be read.
+ */
+export async function linkPicture(fetch: Fetch, link: string): Promise<string | null> {
+  const url = publicUrl(link)
+  if (!url) return null
+  const kind = linkKind(url)
+  let image: string | null
+  try {
+    if (kind === 'youtube') {
+      const id = youtubeId(url)
+      image = id ? `https://i.ytimg.com/vi/${id}/hqdefault.jpg` : null
+    } else if (kind === 'tiktok') {
+      const embed = JSON.parse(
+        await fetchText(
+          fetch,
+          `https://www.tiktok.com/oembed?url=${encodeURIComponent(url.href)}`,
+          'application/json',
+        ),
+      ) as { thumbnail_url?: string }
+      image = embed.thumbnail_url ?? null
+    } else {
+      const html = await fetchText(fetch, url.href)
+      image = kind === 'instagram' ? meta(html, 'og:image') : readPage(html).image
+    }
+  } catch {
+    return null
+  }
+  return pictureOf(fetch, image, url.href)
+}

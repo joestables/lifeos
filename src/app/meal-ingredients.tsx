@@ -16,6 +16,7 @@ import { Input } from '@/components/ui/input'
 import { toast } from '@/components/ui/sonner'
 import {
   addMealLine,
+  linkPicture,
   mealIngredients,
   newId,
   positionBetween,
@@ -27,7 +28,9 @@ import {
   type PantryEntry,
 } from '@/data'
 import type { PlannedMeal } from '@/lib/meals'
+import { resizePhoto } from '@/lib/photo-resize'
 import { AI_REFUSALS } from './ai-words'
+import { keepPhoto } from './keep-photo'
 import { IngredientRow } from './ingredient-row'
 
 /** The lines the AI read, as a Meal's: no subheadings; unmatched kept as typed. */
@@ -59,6 +62,22 @@ function replaceMealLines(meal: PlannedMeal, lines: readonly MealLineFields[]): 
   return () => {
     for (const id of made) removeMealLine(meal.id, id)
     for (const f of old) addMealLine(meal.id, f)
+  }
+}
+
+/**
+ * A typed Meal's picture from its link (MPL-006 6), when it has none:
+ * fetched by link-preview, made small on the device as any photo is.
+ * Quietly nothing when the page has none.
+ */
+async function pictureFromLink(meal: PlannedMeal, link: string) {
+  const data = await linkPicture(link)
+  if (!data) return
+  try {
+    const made = await resizePhoto(await (await fetch(data)).blob())
+    keepPhoto(meal.id, { ...made, url: '' }, undefined)
+  } catch {
+    // A picture the browser can't read: the Meal goes without.
   }
 }
 
@@ -102,7 +121,9 @@ export function MealIngredients({
   const keepLink = () => {
     const next = link.trim()
     if (next && !isLink(next)) return
-    if (next !== (meal.source ?? '')) updateMeal(meal.id, { source: next || null })
+    if (next === (meal.source ?? '')) return
+    updateMeal(meal.id, { source: next || null })
+    if (next && !meal.photo) void pictureFromLink(meal, next)
   }
 
   const get = async () => {

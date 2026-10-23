@@ -210,6 +210,10 @@ Acceptance criteria
 4. Given a Recipe's Meal, then its own lines are extras beside the
    Recipe's, not part of it.
 5. Given Copy week, then a Meal's own lines and link are copied with it.
+6. Given a typed Meal without a picture, when I give it a link, then the
+   page's picture becomes its photo; a Recipe's Meal shows its Recipe's
+   photo, and leftovers the photo of the Meal they are of, on the plan
+   (Joe, 23 October).
 
 ### MPL-005 — My default for new Meals
 
@@ -275,8 +279,9 @@ that** the Pantry has one of each.
 Priority: Should · Status: built
 
 Acceptance criteria
-1. Given two entries, when I merge them and choose the name, then one is
-   kept, with that name, and every recipe and list line points at it.
+1. Given an entry, when I merge it into another I choose, then the one
+   chosen is kept, with its name and aisle, and every recipe, Meal and list
+   line points at it (Joe, 23 October).
 2. Given more than two selected, or one I didn't add, then Merge isn't
    offered.
 
@@ -287,12 +292,15 @@ that** I don't stop writing the recipe.
 Priority: Must · Status: built
 
 Acceptance criteria
-1. Given a recipe line naming something new, when I choose Add to the
-   Pantry, then it is added in Cupboard with the line's unit as its
-   default, and the line links to it ([RCP-007](recipes.md#rcp-007--ingredient-lines)).
+1. Given a recipe or Meal line naming something new, when I choose Add to
+   the Pantry, then I choose its aisle (Cupboard to start) and default unit
+   (the line's to start), and the line links to it ([RCP-007](recipes.md#rcp-007--ingredient-lines)).
+   A line kept as typed offers the same from its mark (Joe, 23 October).
 2. Given lines kept as typed in my Recipes, then the Pantry lists them by
    name, to add one at a time or all at once (in Cupboard); each line then
    uses the new entry.
+3. Given an entry with no default unit, when a line using it is given a
+   unit, then that unit becomes its default (Joe, 23 October).
 
 ### SHP-001 — Shopping lists
 

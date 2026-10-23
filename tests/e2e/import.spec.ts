@@ -292,6 +292,29 @@ test.describe('The AI in a Variation', () => {
       .toBe(0)
   })
 
+  test('RCP-014 10: closed while it works, the import goes on', async ({ page }) => {
+    const db = await standIn(page, {
+      signedIn: true,
+      rows: rows(),
+      ai: { import: { ok: true, recipes: [paella()], photo: null, left: 29 }, delay: 1500 },
+    })
+    await page.goto(`/recipes/${NOODLES}?edit=variation`)
+    await page.getByRole('button', { name: 'Import from a link' }).click()
+    const dialog = page.getByRole('dialog', { name: 'Import from a link' })
+    await dialog.getByLabel('Link').fill(LINK)
+    await dialog.getByRole('button', { name: 'Import' }).click()
+    await expect(dialog.getByLabel('Progress')).toBeVisible()
+    await page.keyboard.press('Escape')
+    await expect(dialog).toBeHidden()
+    // The cards wait for it, then take it.
+    await expect(page.locator('[aria-busy="true"]')).toHaveCount(2)
+    await expect(page.getByLabel('Ingredient')).toHaveCount(3)
+    await expect
+      .poll(() => db.variation.find((v) => v.item_id === NOODLES_STD))
+      .toMatchObject({ sources: [LINK] })
+    await expect(page.getByText('Imported the ingredients and method')).toBeVisible()
+  })
+
   test('RCP-014 10: only a Draft offers it', async ({ page }) => {
     await standIn(page, { signedIn: true, rows: rows() })
     await page.goto(`/recipes/${KATSU}?edit=variation`)

@@ -68,6 +68,10 @@ export interface Rows {
     import?: Record<string, unknown>
     fill?: Record<string, unknown>
     meal?: Record<string, unknown>
+    /** link-preview's picture, a data URL (MPL-006 6). */
+    picture?: string | null
+    /** How long an import takes to answer, in ms. */
+    delay?: number
   }
   /** What connecting Google Calendar brings: its calendars and the main one's events. */
   google?: {
@@ -1132,12 +1136,14 @@ export async function standIn(
             people: { name: m.name },
           })),
       }))
-  await page.route(`${STAND_IN_URL}/**`, (route) => {
+  await page.route(`${STAND_IN_URL}/**`, async (route) => {
     const url = new URL(route.request().url())
     if (url.pathname.includes('/auth/v1/logout')) return route.fulfill({ status: 204 })
     if (url.pathname.endsWith('/functions/v1/ai')) {
       const body = (route.request().postDataJSON() ?? {}) as Record<string, unknown>
       db.ai_asked.push(body)
+      if (body.task === 'recipe.import' && ai?.delay)
+        await new Promise((r) => setTimeout(r, ai.delay))
       return route.fulfill({
         json:
           body.task === 'status'
@@ -1149,6 +1155,8 @@ export async function standIn(
                 : (ai?.import ?? { ok: false, reason: 'not_recipe' }),
       })
     }
+    if (url.pathname.endsWith('/functions/v1/link-preview'))
+      return route.fulfill({ json: { photo: ai?.picture ?? null } })
     if (url.pathname.endsWith('/functions/v1/calendar-connect'))
       try {
         return route.fulfill({ json: calendar(route.request().postDataJSON() ?? {}) })

@@ -11,6 +11,7 @@ import {
 } from '@/components/lifeos'
 import { DropdownMenuItem } from '@/components/ui/dropdown-menu'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { usePhotoUrls } from '@/data'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { useMealDrag } from '@/hooks/use-meal-drag'
 import { fromIsoDay, shortDate } from '@/lib/dates'
@@ -71,6 +72,7 @@ export function WeekTab({
   const show = kept === ALL || spaces.some((s) => s.id === kept) ? kept : ALL
   const shown = show === ALL ? plan.meals : plan.meals.filter((m) => m.space === show)
   const meals = weekMeals(shown, week)
+  const photos = usePhotoUrls([...meals.values()].flat().map((m) => m.picture))
   const [adding, setAdding] = useState<string | null>(null)
   const [copying, setCopying] = useState(false)
   const drag = useMealDrag((id, drop) => {
@@ -100,6 +102,7 @@ export function WeekTab({
             spaces.length > 2 && show === ALL ? plan.spaces.householdName(m.space) : undefined
           }
           name={plan.name(m)}
+          photo={m.picture && photos.get(m.picture)}
           servings={m.servings ?? undefined}
           variation={several ? variation?.item.title : undefined}
           kind={m.leftoversOf ? 'leftovers' : m.variation ? 'recipe' : 'typed'}

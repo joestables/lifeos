@@ -53,6 +53,7 @@ export function useMealPlan(): MealPlanData {
       mine: !v.item.owner_id || v.item.owner_id === spaces.me,
       source: v.source,
       lines: v.lines,
+      photo: v.photo,
     }))
     const recipeOf = (m: PlannedMeal) => {
       const r = m.variation ? food.recipeOf.get(m.variation) : undefined
@@ -64,7 +65,10 @@ export function useMealPlan(): MealPlanData {
       if (m.servings === null && m.variation)
         m.servings =
           recipeOf(m)?.variations.find((x) => x.item.id === m.variation)?.fields.servings ?? null
+    for (const m of meals) m.picture = m.photo?.path ?? recipeOf(m)?.photo?.path
     const byId = new Map(meals.map((m) => [m.id, m]))
+    for (const m of meals)
+      if (m.leftoversOf) m.picture = byId.get(m.leftoversOf)?.picture ?? m.picture
     return {
       food,
       meals,

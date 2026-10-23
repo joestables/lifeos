@@ -155,6 +155,11 @@ JWT checks (it asks Auth who the token is), with `rules.ts`, `schema.ts`,
   model's default thinking.
 - **A bad import** is traced to its prompt by the version in its `ai` row
   (`PROMPT_VERSION` in `rules.ts`).
+- **`link-preview`** (not AI, nothing counted): a link's picture as a data
+  URL, for a typed Meal (MPL-006 6). Deployed by Claude through the
+  Supabase MCP without JWT checks (it asks Auth who the token is), with
+  the `ai` function's `run.ts`, `rules.ts` and `schema.ts` and
+  `packages/food`'s `imported.ts` and `units.ts`.
 
 ## The nightly series run
 

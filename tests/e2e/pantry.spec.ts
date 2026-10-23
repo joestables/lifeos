@@ -160,16 +160,15 @@ test.describe('The Pantry', () => {
     await expect(page.getByRole('button', { name: 'Garlic out of stock' })).toBeHidden()
   })
 
-  test('PAN-003: two of my entries merged, under the name I choose', async ({ page }) => {
+  test('PAN-003: one of my entries merged into another, which keeps its name', async ({ page }) => {
     const db = await start(page)
-    await menu(page, 'Spring onions', 'Merge with…')
-    const dialog = page.getByRole('dialog', { name: 'Merge' })
+    await menu(page, 'Green onions', 'Merge into…')
+    const dialog = page.getByRole('dialog', { name: 'Merge "Green onions"' })
     await expect(dialog.getByRole('button', { name: 'Merge' })).toBeDisabled()
-    await dialog.getByLabel('Merge with').click()
+    await dialog.getByLabel('Merge into').click()
     // Only entries I added: Sam's Scallions aren't offered.
     await expect(page.getByRole('option', { name: 'Scallions' })).toHaveCount(0)
-    await page.getByRole('option', { name: 'Green onions' }).click()
-    await dialog.getByLabel('Name').fill('Spring onions')
+    await page.getByRole('option', { name: 'Spring onions' }).click()
     await dialog.getByRole('button', { name: 'Merge' }).click()
     await expect.poll(() => db.pantry.some((p) => p.id === GREEN)).toBe(false)
     expect(db.variation_lines.find((l) => l.id === id(65))?.pantry_id).toBe(SPRING)

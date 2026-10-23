@@ -39,6 +39,8 @@ export function ImportDialog({
   onChecked,
   onOpen,
   into,
+  onContinue,
+  choice,
 }: {
   food: FoodData
   /** My Idea, imported from its link (RCP-014 4). */
@@ -52,11 +54,21 @@ export function ImportDialog({
   onChecked: (pending: PendingImport) => void
   /** Opens a Recipe or Idea the link was saved in. */
   onOpen?: (recipe: RecipeView) => void
+  /**
+   * Closed while it works: the import goes on without the Dialog (Joe, 23
+   * October), its answer handed over to be kept when it comes.
+   */
+  onContinue?: (work: Promise<ImportAnswer>, link: string) => void
+  /** A page of several, read while the Dialog was closed: choosing one. */
+  choice?: { link: string; answer: Extract<ImportAnswer, { ok: true }> }
 }) {
   const linkId = useId()
-  const [link, setLink] = useState(idea?.defaultVariation?.fields.sources[0] ?? '')
-  const [step, setStep] = useState<Step>({ at: 'link' })
+  const [link, setLink] = useState(choice?.link ?? idea?.defaultVariation?.fields.sources[0] ?? '')
+  const [step, setStep] = useState<Step>(
+    choice ? { at: 'choose', answer: choice.answer } : { at: 'link' },
+  )
   const [chosen, setChosen] = useState(0)
+  const work = useRef<Promise<ImportAnswer> | null>(null)
   const live = useRef(true)
   useEffect(() => () => void (live.current = false), [])
 
@@ -68,7 +80,8 @@ export function ImportDialog({
     // The page is read, then written up: one request, so the first line
     // gives way after a moment.
     const next = setTimeout(() => live.current && setStep({ at: 'working', stage: 1 }), 2500)
-    const answer = await importRecipe(link.trim())
+    work.current = importRecipe(link.trim())
+    const answer = await work.current
     clearTimeout(next)
     if (!live.current) return
     if (!answer.ok) {
@@ -90,7 +103,15 @@ export function ImportDialog({
   }
 
   return (
-    <Dialog open onOpenChange={(open) => !open && onClose()}>
+    <Dialog
+      open
+      onOpenChange={(open) => {
+        if (open) return
+        if (step.at === 'working' && work.current && onContinue)
+          onContinue(work.current, link.trim())
+        onClose()
+      }}
+    >
       <DialogContent data-colour="green">
         <DialogHeader>
           <DialogTitle>

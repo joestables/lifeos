@@ -1,7 +1,7 @@
 import { addDays, daysBetween } from '@lifeos/recurrence'
 import { fromIsoDay } from './dates'
 import { mondayOf } from './plan'
-import type { MealLine } from '@/data'
+import type { MealLine, Photo } from '@/data'
 
 /** A Meal's slot as kept: breakfast, lunch, dinner (Joe, 18 October). */
 export type SlotKey = 'breakfast' | 'lunch' | 'dinner'
@@ -41,6 +41,10 @@ export interface PlannedMeal {
   source?: string | null
   /** Its own ingredient lines (MPL-006 1). */
   lines?: readonly MealLine[]
+  /** Its own photo: a typed Meal's, from its link (MPL-006 6). */
+  photo?: Photo
+  /** The picture it shows: its own, its Recipe's, or that of the Meal it is leftovers of. */
+  picture?: string
 }
 
 /** A Meal's name: leftovers take the name of the Meal they are of (MPL-001 4). */

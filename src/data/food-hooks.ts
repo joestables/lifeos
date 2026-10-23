@@ -265,6 +265,8 @@ export interface MealView {
   source: string | null
   /** Its own ingredient lines, in order (MPL-006 1). */
   lines: MealLine[]
+  /** Its own photo: a typed Meal's, from its link (MPL-006 6). */
+  photo?: Photo
 }
 
 /** The Meals I can see, not removed, with unsent ones and changes laid over. */
@@ -274,7 +276,11 @@ export function useMeals(queue: WriteQueue): { meals: MealView[]; isLoading: boo
   const links = useLinks(queue)
   const rows = useQuery({ queryKey: mealsKey, queryFn: fetchMeals })
   const lineRows = useQuery({ queryKey: mealLinesKey, queryFn: fetchMealLines })
+  const photos = useQuery({ queryKey: photosKey, queryFn: fetchPhotos })
   return useMemo(() => {
+    const photoOf = new Map(
+      applyPendingPhotos(photos.data ?? [], entries).map((p) => [p.item_id, p]),
+    )
     const fields = new Map(applyPendingMeals(rows.data ?? [], entries).map((r) => [r.item_id, r]))
     const linesBy = group(applyPendingMealLines(lineRows.data ?? [], entries), (l) => l.meal_id)
     const uses = new Map(
@@ -289,9 +295,10 @@ export function useMeals(queue: WriteQueue): { meals: MealView[]; isLoading: boo
         variation: uses.get(item.id) ?? null,
         source: fields.get(item.id)?.source ?? null,
         lines: linesBy.get(item.id) ?? [],
+        photo: photoOf.get(item.id),
       }))
     return { meals, isLoading: itemsLoading || rows.isLoading }
-  }, [entries, items, itemsLoading, links, rows.data, rows.isLoading, lineRows.data])
+  }, [entries, items, itemsLoading, links, rows.data, rows.isLoading, lineRows.data, photos.data])
 }
 
 /** Where food can go: Personal, or one of my Households (MPL-005, HSH-003 2). */

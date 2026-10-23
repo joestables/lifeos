@@ -12,10 +12,13 @@ export type Slot = 'Breakfast' | 'Lunch' | 'Dinner'
  * Variation when its Recipe has more than one, and a lock when it's
  * Personal while the plan shows Household meals too: only the exception is
  * marked, so a week of shared dinners isn't a row of icons. A typed Meal or leftovers sit lighter, with no card shadow.
- * Eaten, it fades and is struck through; being dragged, it lifts.
+ * Eaten, it fades and is struck through; being dragged, it lifts. Its
+ * picture, when it has one (its Recipe's photo, or a typed Meal's from its
+ * link), heads it (Joe, 23 October).
  */
 export function MealCard({
   name,
+  photo,
   servings,
   variation,
   kind = 'recipe',
@@ -26,6 +29,8 @@ export function MealCard({
   onOpen,
 }: {
   name: string
+  /** Its picture's address. */
+  photo?: string
   servings?: number
   /** When its Recipe has more than one. */
   variation?: string
@@ -55,6 +60,9 @@ export function MealCard({
         dragging && 'z-10 rotate-[1.5deg] cursor-grabbing opacity-100 shadow-pop',
       )}
     >
+      {photo && (
+        <img src={photo} alt="" draggable={false} className="h-14 w-full rounded-xs object-cover" />
+      )}
       <button
         type="button"
         onClick={onOpen}

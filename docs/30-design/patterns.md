@@ -487,11 +487,15 @@ StepEditor. Agreed with Joe on 18 October on the
   ingredients?" (Cancel, Replace). **Import from a link** opens a small
   Dialog, "Import from a link": Link, then Cancel and Import, the same
   progress lines, and, over an existing method or lines, "This replaces
-  the ingredients and method" muted above the buttons. Either ends in a
-  toast with Undo. Add "…" to the Pantry
-  opens a small Dialog, "Add to the Pantry": Name, Aisle (a Select, Cupboard
-  to start), Cancel and Add; the entry takes the line's unit as its default
-  (PAN-004 1). **Edit heading** is a Dialog: the photo
+  the ingredients and method" muted above the buttons; closed while it
+  works, it goes on, the Ingredients' and Method's Cards Skeletons until
+  it is kept (a page of several then opens the Dialog at its choice).
+  Either ends in a toast with Undo. Add "…" to the Pantry
+  opens a small Dialog, "Add to the Pantry": Name, then Aisle (a Select,
+  Cupboard to start) beside Default unit (a Select, the line's unit to
+  start), Cancel and Add (PAN-004 1); a line kept as typed opens it from
+  its mark. A Pantry entry chosen for a line with no unit gives it the
+  entry's default unit. **Edit heading** is a Dialog: the photo
   (112px wide; Change photo, or "Add a photo" with `plus` when there is
   none, a DropdownMenu of "From a file or the camera" (`image`) and "From a
   link" (`link`, which opens an Input with an outline Use under the photo);
@@ -585,15 +589,15 @@ MealCard, MealSlot, AddMealButton, MealWeek, MealDay and PantryRow in
   and Save. A household item's Aisle reads Household and can't be changed.
   A name the Pantry has is refused under the field ("Already in the
   Pantry").
-- **An entry's "…" menu:** Edit, Recipes that use it, Merge with… and
+- **An entry's "…" menu:** Edit, Recipes that use it, Merge into… and
   Delete (red) on one I added; Recipes that use it alone on anyone
   else's. **Edit** is the New entry Dialog titled "Edit entry", without the
   Switch. **Recipes that use it** is a Dialog titled with the entry's name:
   an ItemRow per Recipe (its TypeTile and name), opening it, or "No recipes
-  use it". **Merge with…** is a Dialog, "Merge": "Merge with" (a Select of
-  the other entries I added of the same kind, A–Z, none chosen to start)
-  and Name (this entry's to start, the name kept); then Cancel and Merge,
-  which waits for a choice. **Delete** of an entry
+  use it". **Merge into…** is a Dialog, 'Merge "Green onions"': "Merge
+  into" (a Select of the other entries I added of the same kind, A–Z, none
+  chosen to start); then Cancel and Merge, which waits for a choice and
+  ends in a toast, 'Merged "Green onions" into "Spring onions"'. **Delete** of an entry
   nothing uses says so in a toast with Undo; one a Recipe or a Meal's own
   lines use isn't deleted, and a toast names where it is used, Recipes
   first ("Used in Katsu curry and 2 more").
