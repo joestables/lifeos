@@ -2,6 +2,20 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#25](https://github.com/joestables/lifeos/pull/25) — The AI answers sooner, and says when it took too long
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-23
+
+**What it did**
+- Joe's first imports stuck on "Writing it up", then said "The AI needs a
+  connection": Gemini, thinking at its default, ran past the function's
+  two minutes. The `ai` function (version 3) now asks for little thinking
+  in whichever form the model takes, sends less of a page that has
+  structured recipe data, gives up after 100 seconds as "took too long",
+  and logs each call's time.
+- The app says "The AI took too long" for a long wait cut off, and "needs
+  a connection" only with no signal.
+
 ## [#24](https://github.com/joestables/lifeos/pull/24) — Stage 4, step 9c: Fill from method, and Import into a Draft
 
 Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-23

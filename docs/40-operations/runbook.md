@@ -144,6 +144,13 @@ JWT checks (it asks Auth who the token is), with `rules.ts`, `schema.ts`,
   group by 1, 2`. Many `ai_failed` with 429 mean the free quota is used
   up; Google's limits change, so set `AI_DAILY_ALLOWANCE` from what AI
   Studio shows.
+- **Speed:** each answer is asked for with little thinking (Gemini 3's
+  `thinkingLevel: low`, else 2.5's `thinkingBudget: 0`, else the model's
+  default) and may take 100 seconds at most, so the function answers
+  before its own limit; too slow is said as "took too long". Each call's
+  model, thinking and time are in the function's logs (`ai: gemini …`).
+  The first live imports (23 October) timed out at two minutes with the
+  model's default thinking.
 - **A bad import** is traced to its prompt by the version in its `ai` row
   (`PROMPT_VERSION` in `rules.ts`).
 

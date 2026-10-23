@@ -1,4 +1,4 @@
-import type { AiStatus, FillAnswer, ImportAnswer } from '@lifeos/food'
+import type { AiRefusal, AiStatus, FillAnswer, ImportAnswer } from '@lifeos/food'
 import { useQuery } from '@tanstack/react-query'
 import { queryClient } from './queryClient'
 import { supabase } from './supabase'
@@ -11,6 +11,18 @@ async function ask<T>(body: Record<string, unknown>): Promise<T> {
   const { data, error } = await supabase().functions.invoke('ai', { body })
   if (error) throw error
   return data as T
+}
+
+/**
+ * Why a call failed, as the app can tell: no signal; a long wait cut off
+ * (the function's time limit, 504 or 546, or the connection dropped after
+ * it); or anything else.
+ */
+function refusal(e: unknown, started: number): AiRefusal {
+  if (!navigator.onLine) return 'unreachable'
+  const status = (e as { context?: { status?: number } }).context?.status
+  if (status === 504 || status === 546 || Date.now() - started > 60_000) return 'slow'
+  return 'failed'
 }
 
 export const aiStatusKey = ['ai', 'status'] as const
@@ -36,8 +48,9 @@ export function useAiStatus(enabled: boolean): AiStatus | undefined {
 /** `recipe.import` (RCP-014): a link written up as recipes to check. */
 export async function importRecipe(link: string): Promise<ImportAnswer> {
   if (!navigator.onLine) return { ok: false, reason: 'unreachable' }
+  const started = Date.now()
   const answer = await ask<ImportAnswer>({ task: 'recipe.import', link }).catch(
-    (): ImportAnswer => ({ ok: false, reason: 'unreachable' }),
+    (e): ImportAnswer => ({ ok: false, reason: refusal(e, started) }),
   )
   void queryClient.invalidateQueries({ queryKey: aiStatusKey })
   return answer
@@ -46,8 +59,9 @@ export async function importRecipe(link: string): Promise<ImportAnswer> {
 /** `recipe.fill_lines` (RCP-007 5): the lines a method uses. Only the method is sent. */
 export async function fillFromMethod(steps: string[]): Promise<FillAnswer> {
   if (!navigator.onLine) return { ok: false, reason: 'unreachable' }
+  const started = Date.now()
   const answer = await ask<FillAnswer>({ task: 'recipe.fill_lines', steps }).catch(
-    (): FillAnswer => ({ ok: false, reason: 'unreachable' }),
+    (e): FillAnswer => ({ ok: false, reason: refusal(e, started) }),
   )
   void queryClient.invalidateQueries({ queryKey: aiStatusKey })
   return answer

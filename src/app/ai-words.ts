@@ -9,5 +9,6 @@ export const AI_REFUSALS: Record<AiRefusal, string> = {
   not_recipe: 'That link isn’t a recipe',
   too_little: 'That post says too little to make a recipe',
   bad_link: 'That isn’t a link to a web page',
+  slow: 'The AI took too long. Try again in a moment',
   failed: 'The import didn’t work. Try again',
 }
