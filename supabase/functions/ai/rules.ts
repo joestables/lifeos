@@ -10,7 +10,7 @@
  * goes with every use to ops.events, so a bad import can be traced to the
  * words that made it.
  */
-export const PROMPT_VERSION = '2026-10-23.1'
+export const PROMPT_VERSION = '2026-10-23.2'
 
 export const SYSTEM_INSTRUCTION = `
 You are an experienced chef turning a recipe into structured data for one
@@ -480,6 +480,26 @@ If it contains SEVERAL distinct recipes, return each one separately in
 \`recipes\`. Do not merge them and do not pick one.
 `.trim()
 
+/** Fill from method (RCP-007 5): the lines a method uses, and nothing else. */
+export const FILL_RULES = `
+## The task: the ingredients a method uses
+
+You are given only a recipe's method, its steps in order. List the
+ingredients it uses, as ingredient lines following every rule below. The
+method itself is not yours to change and is not returned.
+
+- **Every ingredient the method names, once.** Where it is used in parts
+  ("half the butter", "the rest of the stock") and the method gives the
+  amounts, add them up; where it gives one amount, use it; where it gives
+  none, leave the amount out.
+- **Never invent.** No ingredient the method does not name, no amount it
+  does not give. Equipment is not an ingredient, and nor is tap water.
+- **Keep the method's order**: each ingredient where it is first used.
+- \`group\` is null unless the method plainly makes a part of the dish
+  separately ("For the sauce, whisk..."), and then the part's name as a
+  short phrase ("For the sauce").
+`.trim()
+
 /** Worked examples for the lines, against a Pantry of four. */
 export const LINE_EXAMPLES = `
 ## Worked examples
@@ -532,6 +552,19 @@ export function pantryList(pantry: readonly string[]): string {
         .map((name, i) => `- P${i + 1} ${name}`)
         .join('\n')}`
     : 'The Pantry: (empty — every ingredient is new)'
+}
+
+/** The user turn for Fill from method: the rules, the Pantry, then the steps. */
+export function fillInput(pantry: readonly string[], steps: readonly string[]): string {
+  return [
+    FILL_RULES,
+    LINE_RULES,
+    LINE_EXAMPLES,
+    '# This cook',
+    pantryList(pantry),
+    '# The method',
+    steps.map((s, i) => `${i + 1}. ${s}`).join('\n'),
+  ].join('\n\n')
 }
 
 /** The user turn for an import: the rules, the cook's vocabulary, then the source. */

@@ -1,4 +1,4 @@
-import type { AiStatus, ImportAnswer } from '@lifeos/food'
+import type { AiStatus, FillAnswer, ImportAnswer } from '@lifeos/food'
 import { useQuery } from '@tanstack/react-query'
 import { queryClient } from './queryClient'
 import { supabase } from './supabase'
@@ -38,6 +38,16 @@ export async function importRecipe(link: string): Promise<ImportAnswer> {
   if (!navigator.onLine) return { ok: false, reason: 'unreachable' }
   const answer = await ask<ImportAnswer>({ task: 'recipe.import', link }).catch(
     (): ImportAnswer => ({ ok: false, reason: 'unreachable' }),
+  )
+  void queryClient.invalidateQueries({ queryKey: aiStatusKey })
+  return answer
+}
+
+/** `recipe.fill_lines` (RCP-007 5): the lines a method uses. Only the method is sent. */
+export async function fillFromMethod(steps: string[]): Promise<FillAnswer> {
+  if (!navigator.onLine) return { ok: false, reason: 'unreachable' }
+  const answer = await ask<FillAnswer>({ task: 'recipe.fill_lines', steps }).catch(
+    (): FillAnswer => ({ ok: false, reason: 'unreachable' }),
   )
   void queryClient.invalidateQueries({ queryKey: aiStatusKey })
   return answer

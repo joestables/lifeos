@@ -58,5 +58,9 @@ export type ImportAnswer =
     }
   | { ok: false; reason: AiRefusal }
 
+/** What `recipe.fill_lines` answers (RCP-007 5). */
+export type FillAnswer =
+  { ok: true; lines: ImportedLine[]; left: number } | { ok: false; reason: AiRefusal }
+
 /** What `status` answers: whether the AI can be used, and how much is left today. */
 export type AiStatus = { available: true; left: number } | { available: false; reason: AiRefusal }

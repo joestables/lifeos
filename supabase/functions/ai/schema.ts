@@ -119,6 +119,14 @@ export const RESPONSE_SCHEMA = {
   },
 }
 
+/** Fill from method's answer: the lines only. */
+export const LINES_SCHEMA = {
+  type: 'object',
+  additionalProperties: false,
+  required: ['ingredients'],
+  properties: { ingredients: { type: 'array', items: INGREDIENT } },
+}
+
 export class ValidationError extends Error {}
 
 export interface PantryEntry {
@@ -174,6 +182,23 @@ export function parseRecipes(text: string, pantry: readonly PantryEntry[]): Impo
     .filter((r): r is Record<string, unknown> => !!r && typeof r === 'object')
     .map((r) => parseRecipe(r, pantry, byName))
     .filter((r) => r.name && (r.lines.length > 0 || r.steps.length > 0))
+}
+
+/** Fill from method's JSON as lines, checked against the Pantry as an import's are. */
+export function parseLines(text: string, pantry: readonly PantryEntry[]): ImportedLine[] {
+  let raw: unknown
+  try {
+    raw = JSON.parse(text)
+  } catch {
+    throw new ValidationError('The AI answered something that wasn’t JSON')
+  }
+  const ingredients = (raw as { ingredients?: unknown } | null)?.ingredients
+  if (!Array.isArray(ingredients)) throw new ValidationError('The AI’s answer had no ingredients')
+  const byName = new Map(pantry.map((p) => [key(p.name), p]))
+  return ingredients
+    .filter((i): i is Record<string, unknown> => !!i && typeof i === 'object')
+    .map((i) => parseLine(i, pantry, byName))
+    .filter((l): l is ImportedLine => l !== null)
 }
 
 function parseRecipe(

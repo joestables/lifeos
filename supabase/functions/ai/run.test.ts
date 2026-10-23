@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   askGemini,
+  fillLines,
   importRecipe,
   linkKind,
   publicUrl,
@@ -252,5 +253,74 @@ describe('recipe.import (RCP-014)', () => {
     await expect(importRecipe(deps({ take }), 'https://example.com/paella')).rejects.toEqual(
       new Refused('allowance'),
     )
+  })
+})
+
+describe('recipe.fill_lines (RCP-007 5)', () => {
+  it('sends the method, references as their names, and answers its lines', async () => {
+    const sent: string[] = []
+    const fetch: Fetch = async (_url, init) => {
+      sent.push(String(init?.body))
+      return Response.json({
+        candidates: [
+          {
+            content: {
+              parts: [
+                {
+                  text: JSON.stringify({
+                    ingredients: [
+                      ingredient({
+                        outcome: 'matched',
+                        pantryRef: 'P2',
+                        name: 'Onion',
+                        amount: '1',
+                      }),
+                      ingredient({ name: 'Katsu Sauce', aisle: 'cupboard' }),
+                    ],
+                  }),
+                },
+              ],
+            },
+          },
+        ],
+      })
+    }
+    const result = await fillLines(
+      {
+        fetch,
+        gemini: { key: 'k', models: ['flash'] },
+        vocabulary: async () => ({
+          pantry: PANTRY,
+          lists: { categories: [], cuisines: [], proteins: [], carbs: [] },
+        }),
+        take: async () => 28,
+      },
+      ['Fry 1 onion.', 'Pour over the @[Katsu sauce](01990000-0000-7000-8000-000000000411).'],
+    )
+    expect(sent[0]).toContain('1. Fry 1 onion.\\n2. Pour over the Katsu sauce.')
+    expect(sent[0]).not.toContain('01990000')
+    expect(result).toMatchObject({ ok: true, left: 28 })
+    expect(result.ok && result.lines.map((l) => [l.name, l.pantryId])).toEqual([
+      ['Onion', 'p-onion'],
+      ['Katsu Sauce', null],
+    ])
+  })
+
+  it('an empty method asks nothing', async () => {
+    let taken = 0
+    const result = await fillLines(
+      {
+        fetch: async () => new Response(''),
+        gemini: { key: 'k', models: ['flash'] },
+        vocabulary: async () => ({
+          pantry: [],
+          lists: { categories: [], cuisines: [], proteins: [], carbs: [] },
+        }),
+        take: async () => (taken++, 1),
+      },
+      ['  '],
+    )
+    expect(result).toEqual({ ok: false, reason: 'not_recipe' })
+    expect(taken).toBe(0)
   })
 })

@@ -1,5 +1,14 @@
 import { expect, test, type Page } from '@playwright/test'
-import { BIRRIA, BIRRIA_V, CHICKEN, rows } from './recipe-rows'
+import {
+  BIRRIA,
+  BIRRIA_V,
+  CHICKEN,
+  KATSU,
+  KATSU_STD,
+  NOODLES,
+  NOODLES_STD,
+  rows,
+} from './recipe-rows'
 import { standIn } from './stand-in'
 
 /** A recipe as the `ai` function writes it up (ADR-0054), never from Gemini here. */
@@ -188,5 +197,105 @@ test.describe('Import a recipe', () => {
     expect(db.variation.find((v) => v.item_id === BIRRIA_V)?.notes).toContain(
       'Find one without the slow cooker',
     )
+  })
+})
+
+test.describe('The AI in a Variation', () => {
+  const line = (fields: Record<string, unknown>) => ({
+    group: null,
+    pantryId: null,
+    aisle: 'cupboard',
+    defaultUnit: null,
+    qty: null,
+    qtyMax: null,
+    approx: false,
+    unit: null,
+    ...fields,
+  })
+
+  test('RCP-007 5: Fill from method replaces the lines, asked first, with Undo', async ({
+    page,
+  }) => {
+    const db = await standIn(page, {
+      signedIn: true,
+      rows: rows(),
+      ai: {
+        fill: {
+          ok: true,
+          left: 28,
+          lines: [
+            line({ name: 'Chicken thighs', pantryId: CHICKEN, aisle: null, qty: 4 }),
+            line({ name: 'Rice', qty: 300, unit: 'g' }),
+          ],
+        },
+      },
+    })
+    await page.goto(`/recipes/${KATSU}?edit=variation`)
+    await page.getByRole('button', { name: 'Fill from method' }).click()
+    await page
+      .getByRole('alertdialog', { name: 'Replace the ingredients?' })
+      .getByRole('button', { name: 'Replace' })
+      .click()
+    await expect(page.getByLabel('Ingredient')).toHaveCount(2)
+    await expect
+      .poll(() =>
+        db.variation_lines
+          .filter((l) => l.variation_id === KATSU_STD)
+          .map((l) => l.text ?? l.pantry_id),
+      )
+      .toEqual([CHICKEN, 'Rice'])
+    // Only the method went.
+    const asked = db.ai_asked.find((a) => a.task === 'recipe.fill_lines')!
+    expect(asked.steps).toContain('Rinse the rice and cook it.')
+    // The method is untouched.
+    expect(db.variation_steps.filter((s) => s.variation_id === KATSU_STD)).toHaveLength(3)
+
+    await page.getByRole('button', { name: 'Undo' }).click()
+    await expect
+      .poll(() => db.variation_lines.filter((l) => l.variation_id === KATSU_STD).length)
+      .toBe(4)
+  })
+
+  test('RCP-007 5: with no method, there is nothing to fill from', async ({ page }) => {
+    await standIn(page, { signedIn: true, rows: rows() })
+    await page.goto(`/recipes/${NOODLES}?edit=variation`)
+    await expect(page.getByRole('button', { name: 'Fill from method' })).toBeDisabled()
+  })
+
+  test('RCP-014 10: a Draft imports its ingredients and method from a link, with Undo', async ({
+    page,
+  }) => {
+    const db = await standIn(page, {
+      signedIn: true,
+      rows: rows(),
+      ai: { import: { ok: true, recipes: [paella()], photo: null, left: 29 } },
+    })
+    await page.goto(`/recipes/${NOODLES}?edit=variation`)
+    await page.getByRole('button', { name: 'Import from a link' }).click()
+    const dialog = page.getByRole('dialog', { name: 'Import from a link' })
+    await expect(dialog.getByText('This replaces the ingredients and method')).toHaveCount(0)
+    await dialog.getByLabel('Link').fill(LINK)
+    await dialog.getByRole('button', { name: 'Import' }).click()
+    await expect(page.getByLabel('Ingredient')).toHaveCount(3)
+    await expect(page.getByRole('textbox', { name: 'Step 2' })).toHaveValue(
+      'Fry 4 chicken thighs for 5 minutes.',
+    )
+    await expect
+      .poll(() => db.variation.find((v) => v.item_id === NOODLES_STD))
+      .toMatchObject({ servings: 4, sources: [LINK] })
+    // The heading is the Recipe's still.
+    expect(db.items.find((i) => i.id === NOODLES)?.title).toBe('Gochujang noodles')
+
+    await page.getByRole('button', { name: 'Undo' }).click()
+    await expect
+      .poll(() => db.variation_steps.filter((s) => s.variation_id === NOODLES_STD).length)
+      .toBe(0)
+  })
+
+  test('RCP-014 10: only a Draft offers it', async ({ page }) => {
+    await standIn(page, { signedIn: true, rows: rows() })
+    await page.goto(`/recipes/${KATSU}?edit=variation`)
+    await expect(page.getByRole('heading', { name: 'Edit variation' })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Import from a link' })).toHaveCount(0)
   })
 })

@@ -275,7 +275,7 @@ Acceptance criteria
 
 **As** Joe, **I want** structured ingredient lines, **so that** quantities
 are consistent and can go on a shopping list.
-Priority: Must · Status: verified (5 agreed, with the AI service, plan step 9)
+Priority: Must · Status: verified (5 built)
 
 Acceptance criteria
 1. Given I type "200 g chorizo", then it is read as 200, g and Chorizo;
@@ -407,7 +407,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to import a recipe from a web page or a video in my
 style, **so that** I don't copy it out and can trust what I get.
-Priority: Should · Status: built (1–9, 11; 10 with plan step 9c)
+Priority: Should · Status: built
 
 Acceptance criteria
 1. Given New → Import and a link to a web page or a video, then I see its
