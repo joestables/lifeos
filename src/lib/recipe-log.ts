@@ -29,7 +29,11 @@ function content(row: unknown): string {
   if (!row || typeof row !== 'object') return ''
   const rest: Record<string, unknown> = { ...(row as Record<string, unknown>) }
   for (const k of ['id', 'position', 'created_at', 'updated_at', 'variation_id']) delete rest[k]
-  return JSON.stringify(Object.keys(rest).sort().map((k) => [k, rest[k]]))
+  return JSON.stringify(
+    Object.keys(rest)
+      .sort()
+      .map((k) => [k, rest[k]]),
+  )
 }
 
 /**

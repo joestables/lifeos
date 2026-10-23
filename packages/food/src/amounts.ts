@@ -75,10 +75,7 @@ export function formatNumber(n: number): string {
 export function formatAmount(amount: Amount): string {
   if (amount.qty === null) return ''
   const lo = formatNumber(roundFor(amount.unit, amount.qty))
-  const hi =
-    amount.qtyMax === null
-      ? ''
-      : `–${formatNumber(roundFor(amount.unit, amount.qtyMax))}`
+  const hi = amount.qtyMax === null ? '' : `–${formatNumber(roundFor(amount.unit, amount.qtyMax))}`
   return `${amount.approx ? '~' : ''}${lo}${hi}${amount.unit ? ` ${amount.unit}` : ''}`
 }
 

@@ -146,13 +146,7 @@ export function MethodSteps({
           isDone && 'bg-selected text-selected-foreground',
         )
         return (
-          <li
-            key={s.key}
-            className={cn(
-              'flex gap-3',
-              cooking && 'rounded-row px-3 py-3',
-            )}
-          >
+          <li key={s.key} className={cn('flex gap-3', cooking && 'rounded-row px-3 py-3')}>
             {onStep ? (
               <button
                 type="button"
