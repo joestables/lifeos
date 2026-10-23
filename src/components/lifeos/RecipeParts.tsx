@@ -532,8 +532,11 @@ export function IngredientLineEditor({
   amount?: string
   unit?: (typeof UNITS)[number]
   ingredient: string
-  /** In the Pantry, kept as typed, or still being typed. */
-  status?: 'pantry' | 'typed' | 'typing'
+  /**
+   * In the Pantry, kept as typed, still being typed, or to be added to the
+   * Pantry when kept (an import being checked, RCP-014).
+   */
+  status?: 'pantry' | 'typed' | 'typing' | 'new'
   /** The ingredient box, when it carries its suggestions (a Popover's trigger). */
   ingredientField?: ReactNode
   reorder?: Reorder
@@ -556,7 +559,15 @@ export function IngredientLineEditor({
         {ingredientField ?? (
           <Input aria-label="Ingredient" defaultValue={ingredient} className="pr-8" />
         )}
-        {status !== 'typing' && (
+        {status === 'new' && (
+          <Badge
+            variant="outline"
+            className="pointer-events-none absolute top-1/2 right-2 -translate-y-1/2"
+          >
+            New
+          </Badge>
+        )}
+        {status !== 'typing' && status !== 'new' && (
           <span
             title={status === 'pantry' ? 'In the Pantry' : 'Kept as typed'}
             className="pointer-events-none absolute top-1/2 right-2.5 -translate-y-1/2 text-muted-foreground [&_svg]:size-4"

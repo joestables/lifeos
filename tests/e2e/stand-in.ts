@@ -57,6 +57,11 @@ export interface Rows {
   space_invites?: Record<string, unknown>[]
   /** Invitations waiting for me, as core.my_invites() returns them. */
   my_invites?: Record<string, unknown>[]
+  /**
+   * What the `ai` Edge Function answers (ADR-0054): whether it can be used,
+   * and an import's answer. Never Gemini: walks don't call the AI.
+   */
+  ai?: { status?: Record<string, unknown>; import?: Record<string, unknown> }
   /** What connecting Google Calendar brings: its calendars and the main one's events. */
   google?: {
     account: string
@@ -98,7 +103,7 @@ export const itemRow = (fields: Record<string, unknown> & { id: string; type: st
  */
 export async function standIn(
   page: Page,
-  { signedIn = false, rows = {} }: { signedIn?: boolean; rows?: Rows } = {},
+  { signedIn = false, rows = {}, ai }: { signedIn?: boolean; rows?: Rows; ai?: Rows['ai'] } = {},
 ) {
   const db = {
     items: [...(rows.items ?? [])],
@@ -194,6 +199,8 @@ export async function standIn(
     files: new Map<string, Buffer>(),
     /** The calendar chosen for each new Event (set_event_calendar). */
     event_calendars: [] as { item_id: string; calendar_link_id: string | null }[],
+    /** What was asked of the `ai` Edge Function. */
+    ai_asked: [] as Record<string, unknown>[],
   }
   /** What the Edge Function calendar-connect does, without Google (GCL-001). */
   const calendar = (body: { action?: string; code?: string }) => {
@@ -629,6 +636,74 @@ export async function standIn(
       if (note && act)
         db.change_notes.push({ activity_id: a.p_activity, item_id: act.item_id, note })
     },
+    // An import kept all together (RCP-014 3, 4), from the writes above.
+    keep_import: (a) => {
+      const d = a.p_draft as Record<string, unknown>
+      const recipe = String(a.p_recipe)
+      const v = String(a.p_variation)
+      const idea = item(recipe)
+      if (idea && idea.status !== 'idea') return
+      if (!idea)
+        foodWrite.create_recipe!({
+          p_id: recipe,
+          p_variation: v,
+          p_name: d.name,
+          p_status: 'active',
+        })
+      foodWrite.update_recipe!({
+        p_id: recipe,
+        p_patch: { category: d.category, cuisine: d.cuisine, protein: d.protein, carbs: d.carbs },
+      })
+      for (const [kind, names] of [
+        ['category', [d.category]],
+        ['cuisine', [d.cuisine]],
+        ['protein', d.protein],
+        ['carb', d.carbs],
+      ] as [string, string[]][])
+        for (const name of names)
+          if (
+            !db.values.some(
+              (x) => x.kind === kind && String(x.name).toLowerCase() === name.toLowerCase(),
+            )
+          )
+            foodWrite.add_value!({ p_id: `value-${kind}-${name}`, p_kind: kind, p_name: name })
+      const was = db.variation.find((x) => x.item_id === v)
+      foodWrite.update_variation!({
+        p_id: v,
+        p_patch: {
+          servings: d.servings,
+          prep_min: d.prep_min,
+          cook_min: d.cook_min,
+          notes: [was?.notes, d.notes].filter(Boolean).join('\n\n') || null,
+          sources: [
+            ...new Set([...((was?.sources as string[]) ?? []), ...(d.sources as string[])]),
+          ],
+        },
+      })
+      for (const [i, l] of (d.lines as Record<string, unknown>[]).entries()) {
+        const { new_pantry: added, ...fields } = l as { new_pantry?: Record<string, unknown> }
+        if (added) {
+          const found = db.pantry.find(
+            (p) => String(p.name).toLowerCase() === String(added.name).toLowerCase(),
+          )
+          if (!found) foodWrite.add_pantry!({ p_id: added.id, p_fields: added })
+          Object.assign(fields, { pantry_id: found?.id ?? added.id })
+        }
+        foodWrite.add_line!({ p_id: `${v}-line-${i}`, p_variation: v, p_fields: fields })
+      }
+      for (const [i, st] of (d.steps as { position: string; text: string }[]).entries())
+        foodWrite.add_step!({
+          p_id: `${v}-step-${i}`,
+          p_variation: v,
+          p_text: st.text,
+          p_position: st.position,
+        })
+      if (idea) {
+        item(v)!.status = 'active'
+        idea.status = 'active'
+      }
+      return item(recipe)
+    },
     add_value: (a) => {
       if (!db.values.some((v) => v.id === a.p_id))
         db.values.push({
@@ -1023,6 +1098,16 @@ export async function standIn(
   await page.route(`${STAND_IN_URL}/**`, (route) => {
     const url = new URL(route.request().url())
     if (url.pathname.includes('/auth/v1/logout')) return route.fulfill({ status: 204 })
+    if (url.pathname.endsWith('/functions/v1/ai')) {
+      const body = (route.request().postDataJSON() ?? {}) as Record<string, unknown>
+      db.ai_asked.push(body)
+      return route.fulfill({
+        json:
+          body.task === 'status'
+            ? (ai?.status ?? { available: true, left: 30 })
+            : (ai?.import ?? { ok: false, reason: 'not_recipe' }),
+      })
+    }
     if (url.pathname.endsWith('/functions/v1/calendar-connect'))
       try {
         return route.fulfill({ json: calendar(route.request().postDataJSON() ?? {}) })

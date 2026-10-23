@@ -28,6 +28,7 @@ import { Route as AppWardrobeRouteImport } from './routes/_app/wardrobe'
 import { Route as AppItemIdRouteImport } from './routes/_app/item.$id'
 import { Route as AppRecipesIndexRouteImport } from './routes/_app/recipes.index'
 import { Route as AppRecipesIdRouteImport } from './routes/_app/recipes.$id'
+import { Route as AppRecipesImportRouteImport } from './routes/_app/recipes.import'
 import { Route as AppSettingsIndexRouteImport } from './routes/_app/settings.index'
 import { Route as AppSettingsArchivedRecipesRouteImport } from './routes/_app/settings.archived-recipes'
 import { Route as AppSettingsDeletedRouteImport } from './routes/_app/settings.deleted'
@@ -128,6 +129,11 @@ const AppRecipesIdRoute = AppRecipesIdRouteImport.update({
   path: '/recipes/$id',
   getParentRoute: () => AppRoute,
 } as any)
+const AppRecipesImportRoute = AppRecipesImportRouteImport.update({
+  id: '/recipes/import',
+  path: '/recipes/import',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppSettingsIndexRoute = AppSettingsIndexRouteImport.update({
   id: '/settings/',
   path: '/settings/',
@@ -173,6 +179,7 @@ export interface FileRoutesByFullPath {
   '/wardrobe': typeof AppWardrobeRoute
   '/item/$id': typeof AppItemIdRoute
   '/recipes/$id': typeof AppRecipesIdRoute
+  '/recipes/import': typeof AppRecipesImportRoute
   '/settings/archived-recipes': typeof AppSettingsArchivedRecipesRoute
   '/settings/deleted': typeof AppSettingsDeletedRoute
   '/settings/labels': typeof AppSettingsLabelsRoute
@@ -198,6 +205,7 @@ export interface FileRoutesByTo {
   '/wardrobe': typeof AppWardrobeRoute
   '/item/$id': typeof AppItemIdRoute
   '/recipes/$id': typeof AppRecipesIdRoute
+  '/recipes/import': typeof AppRecipesImportRoute
   '/settings/archived-recipes': typeof AppSettingsArchivedRecipesRoute
   '/settings/deleted': typeof AppSettingsDeletedRoute
   '/settings/labels': typeof AppSettingsLabelsRoute
@@ -225,6 +233,7 @@ export interface FileRoutesById {
   '/_app/wardrobe': typeof AppWardrobeRoute
   '/_app/item/$id': typeof AppItemIdRoute
   '/_app/recipes/$id': typeof AppRecipesIdRoute
+  '/_app/recipes/import': typeof AppRecipesImportRoute
   '/_app/settings/archived-recipes': typeof AppSettingsArchivedRecipesRoute
   '/_app/settings/deleted': typeof AppSettingsDeletedRoute
   '/_app/settings/labels': typeof AppSettingsLabelsRoute
@@ -252,6 +261,7 @@ export interface FileRouteTypes {
     | '/wardrobe'
     | '/item/$id'
     | '/recipes/$id'
+    | '/recipes/import'
     | '/settings/archived-recipes'
     | '/settings/deleted'
     | '/settings/labels'
@@ -277,6 +287,7 @@ export interface FileRouteTypes {
     | '/wardrobe'
     | '/item/$id'
     | '/recipes/$id'
+    | '/recipes/import'
     | '/settings/archived-recipes'
     | '/settings/deleted'
     | '/settings/labels'
@@ -303,6 +314,7 @@ export interface FileRouteTypes {
     | '/_app/wardrobe'
     | '/_app/item/$id'
     | '/_app/recipes/$id'
+    | '/_app/recipes/import'
     | '/_app/settings/archived-recipes'
     | '/_app/settings/deleted'
     | '/_app/settings/labels'
@@ -456,6 +468,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppRecipesIdRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/recipes/import': {
+      id: '/_app/recipes/import'
+      path: '/recipes/import'
+      fullPath: '/recipes/import'
+      preLoaderRoute: typeof AppRecipesImportRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/settings/': {
       id: '/_app/settings/'
       path: '/settings'
@@ -506,6 +525,7 @@ interface AppRouteChildren {
   AppWardrobeRoute: typeof AppWardrobeRoute
   AppItemIdRoute: typeof AppItemIdRoute
   AppRecipesIdRoute: typeof AppRecipesIdRoute
+  AppRecipesImportRoute: typeof AppRecipesImportRoute
   AppSettingsArchivedRecipesRoute: typeof AppSettingsArchivedRecipesRoute
   AppSettingsDeletedRoute: typeof AppSettingsDeletedRoute
   AppSettingsLabelsRoute: typeof AppSettingsLabelsRoute
@@ -526,6 +546,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppWardrobeRoute: AppWardrobeRoute,
   AppItemIdRoute: AppItemIdRoute,
   AppRecipesIdRoute: AppRecipesIdRoute,
+  AppRecipesImportRoute: AppRecipesImportRoute,
   AppSettingsArchivedRecipesRoute: AppSettingsArchivedRecipesRoute,
   AppSettingsDeletedRoute: AppSettingsDeletedRoute,
   AppSettingsLabelsRoute: AppSettingsLabelsRoute,

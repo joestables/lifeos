@@ -285,3 +285,27 @@ export function valueChoices(
   }
   return [...seen.values()].sort((a, b) => a.localeCompare(b))
 }
+
+/** A link as compared for "saved before": no scheme, www, fragment, tracking or trailing slash. */
+export function linkKey(link: string): string {
+  try {
+    const url = new URL(link.trim())
+    for (const k of [...url.searchParams.keys()])
+      if (/^(utm_|fbclid|gclid|igsh|si$)/.test(k)) url.searchParams.delete(k)
+    const search = url.searchParams.toString()
+    return `${url.hostname.replace(/^(www|m)\./, '')}${url.pathname.replace(/\/+$/, '')}${search ? `?${search}` : ''}`.toLowerCase()
+  } catch {
+    return link.trim().toLowerCase()
+  }
+}
+
+/** The Recipe or Idea I can see that already has this link as a source (RCP-014 5). */
+export function savedWith<R extends { variations: { fields: { sources: string[] } }[] }>(
+  recipes: readonly R[],
+  link: string,
+): R | undefined {
+  const key = linkKey(link)
+  return recipes.find((r) =>
+    r.variations.some((v) => v.fields.sources.some((s) => linkKey(s) === key)),
+  )
+}

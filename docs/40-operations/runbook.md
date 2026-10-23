@@ -122,6 +122,29 @@ Edge Functions deployed by Claude through the Supabase MCP, sharing
   (`GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, entered by Joe); each refresh
   token, and `calendar_secret`, are in Vault.
 
+## The AI service
+
+`ai`, an Edge Function deployed by Claude through the Supabase MCP without
+JWT checks (it asks Auth who the token is), with `rules.ts`, `schema.ts`,
+`run.ts` and `packages/food`'s `imported.ts` and `units.ts`
+([ADR-0054](../20-architecture/adr/0054-the-ai-service-and-import.md)):
+
+- **Tasks:** `status` (can the AI be used, and how much of today's
+  allowance is left) and `recipe.import` (RCP-014). Gemini's free tier
+  only: the key and the optional settings are in
+  [integration setup](integration-setup.md#gemini-stage-4).
+- **The allowance:** each use is an `ai` row in `ops.events`
+  (`core.ai_take`, as the service role), with the prompt's version and never
+  what was sent; a day is a UTC day. A failure is an `ai_failed` row with
+  why.
+- **Checking it:** `select kind, message, count(*) from ops.events where
+  source = 'edge' and kind like 'ai%' and at > now() - interval '1 day'
+  group by 1, 2`. Many `ai_failed` with 429 mean the free quota is used
+  up; Google's limits change, so set `AI_DAILY_ALLOWANCE` from what AI
+  Studio shows.
+- **A bad import** is traced to its prompt by the version in its `ai` row
+  (`PROMPT_VERSION` in `rules.ts`).
+
 ## The nightly series run
 
 Repeating Tasks are made ahead by the `extend-series` Edge Function

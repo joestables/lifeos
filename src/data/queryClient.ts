@@ -31,9 +31,12 @@ export const persister = createAsyncStoragePersister({
 export const persistOptions = {
   persister,
   maxAge: WEEK,
-  // Searches are asked afresh (SRC-001); offline, the device's Items are searched (SRC-002).
+  // Searches are asked afresh (SRC-001); offline, the device's Items are
+  // searched (SRC-002). Whether the AI can be used is only true now.
   dehydrateOptions: {
     shouldDehydrateQuery: (query: Parameters<typeof defaultShouldDehydrateQuery>[0]) =>
-      query.queryKey[0] !== 'search' && defaultShouldDehydrateQuery(query),
+      query.queryKey[0] !== 'search' &&
+      query.queryKey[0] !== 'ai' &&
+      defaultShouldDehydrateQuery(query),
   },
 }

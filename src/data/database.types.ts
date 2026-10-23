@@ -1161,6 +1161,15 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      ai_failed: {
+        Args: { p_message: string; p_person: string; p_task: string }
+        Returns: undefined
+      }
+      ai_left: { Args: { p_allowance: number; p_person: string }; Returns: number }
+      ai_take: {
+        Args: { p_allowance: number; p_details?: Json; p_person: string; p_task: string }
+        Returns: boolean
+      }
       archive_item: {
         Args: { p_id: string }
         Returns: {
@@ -2345,6 +2354,16 @@ export type Database = {
           p_variation: string
           p_variation_name?: string
         }
+        Returns: Database['core']['Tables']['items']['Row']
+        SetofOptions: {
+          from: '*'
+          to: 'items'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      keep_import: {
+        Args: { p_draft: Json; p_recipe: string; p_variation: string }
         Returns: Database['core']['Tables']['items']['Row']
         SetofOptions: {
           from: '*'

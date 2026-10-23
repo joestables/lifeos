@@ -84,7 +84,8 @@ every device turns notifications on again.
 | Where | Setting | State |
 |---|---|---|
 | Google AI Studio → Get API key | A key in a project with no billing | To do (Joe, before step 9) |
-| Supabase → Edge Functions → Secrets | `GEMINI_API_KEY`: that key | To do (Joe, before step 9b); Claude never sees it |
+| Supabase → Edge Functions → Secrets | `GEMINI_API_KEY`: that key | Done (Joe, 23 October); Claude never sees it |
+| Supabase → Edge Functions → Secrets (optional) | `AI_MODEL` and `AI_FALLBACK_MODEL` (Google's `gemini-flash-latest` and `gemini-flash-lite-latest` aliases when unset); `AI_DAILY_ALLOWANCE` (30 uses per person a day when unset); `AI_OFF=1` turns the AI off | Unset: the defaults hold |
 
 ## Capture address email (after Stage 9)
 

@@ -48,7 +48,7 @@ export function scale(amount: Amount, factor: number): Amount {
 
 /**
  * Display rounding (ADR-0053): whole grams and millilitres up to 100, then
- * to 5; kg and l to two decimals; spoons to quarters; counts to halves;
+ * to 5; kg and l to two decimals; spoons and cups to quarters; counts to halves;
  * never rounded to nothing.
  */
 export function roundFor(unit: Unit | null, n: number): number {
@@ -56,13 +56,13 @@ export function roundFor(unit: Unit | null, n: number): number {
   let r: number
   if (unit === 'g' || unit === 'ml') r = n < 100 ? Math.round(n) : Math.round(n / 5) * 5
   else if (unit === 'kg' || unit === 'l') r = Math.round(n * 100) / 100
-  else if (unit === 'tsp' || unit === 'tbsp') r = Math.round(n * 4) / 4
+  else if (unit === 'tsp' || unit === 'tbsp' || unit === 'cup') r = Math.round(n * 4) / 4
   else r = Math.round(n * 2) / 2
   if (r > 0) return r
   // Never rounded to nothing: the smallest step of its kind.
   if (unit === 'g' || unit === 'ml') return 1
   if (unit === 'kg' || unit === 'l') return 0.01
-  if (unit === 'tsp' || unit === 'tbsp') return 0.25
+  if (unit === 'tsp' || unit === 'tbsp' || unit === 'cup') return 0.25
   return 0.5
 }
 
@@ -72,7 +72,7 @@ const SHOWN: Record<number, string> = { 0.25: '¼', 0.5: '½', 0.75: '¾' }
 export function formatNumber(n: number, unit: Unit | null): string {
   const whole = Math.floor(n)
   const part = Math.round((n - whole) * 100) / 100
-  if ((unit === null || unit === 'tsp' || unit === 'tbsp') && SHOWN[part]) {
+  if ((unit === null || unit === 'tsp' || unit === 'tbsp' || unit === 'cup') && SHOWN[part]) {
     return `${whole || ''}${SHOWN[part]}`
   }
   return String(Math.round(n * 100) / 100)

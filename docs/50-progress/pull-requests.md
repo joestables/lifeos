@@ -2,6 +2,23 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#23](https://github.com/joestables/lifeos/pull/23) — Stage 4, step 9b: the AI service and Import
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-23
+
+**What it did**
+- Migrations `stage4_ai` and `stage4_cup`, applied: a daily AI allowance
+  per person counted in `ops.events`; `food.keep_import`, which keeps an
+  imported Draft (or my Idea imported into) with its new Pantry entries
+  and list names, all together; cup as a unit (250 ml). `ai_test` (14).
+- The `ai` Edge Function on Gemini's free tier: `status` and
+  `recipe.import`, reading a page, a YouTube video or a TikTok or Instagram
+  caption, written in Joe's style (v1's rules adapted, `rules.ts`), the
+  reply checked before use. Unit tests (12).
+- New (New recipe, New idea, Import) on both tabs; the Import Dialog;
+  Check the import; an Idea's Import from its link (RCP-014 1–9, 11).
+  Walks in `import.spec.ts`; the Recipes walks use the New menu.
+
 ## [#22](https://github.com/joestables/lifeos/pull/22) — Stage 4, step 9a: specs for the AI features
 
 Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-23
