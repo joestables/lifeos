@@ -15,6 +15,7 @@ export {
   type AiRefusal,
   type AiStatus,
   type Aisle,
+  type FillAnswer,
   type ImportAnswer,
   type ImportedLine,
   type ImportedRecipe,

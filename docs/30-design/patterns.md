@@ -473,17 +473,16 @@ StepEditor. Agreed with Joe on 18 October on the
   the editing ends (Joe, 20 October); then
   Ingredients (IngredientLineEditors and SubheadingEditors; ghost "Add an
   ingredient", "Add a subheading"; a ghost `sm` "Fill from method" with
-  `sparkles` at the right of its heading, disabled with no method; plan
-  step 9c)
+  `sparkles` at the right of its heading, disabled with no method)
   beside Method (StepEditors, "Add a step"; on a Draft, a ghost `sm`
   "Import from a link" with `sparkles` at the right of its heading, Joe,
-  23 October; plan step 9c); then "Notes and sources", a
+  23 October); then "Notes and sources", a
   Textarea and the links, each an Input with a ghost X, and "Add a link".
   Everything is kept as it is left, and also when the page goes some other
   way (swiped back, the app closed); there is nothing to save, so the
   button says Done. Lines reorder by their handle (on a phone too) and
   steps by theirs on a computer, or Alt+↑ / Alt+↓. **Fill from method**
-  works in place, the card's lines replaced by a skeleton while it runs;
+  works in place, the card's lines replaced by Skeletons while it runs;
   over existing lines it asks first, an AlertDialog "Replace the
   ingredients?" (Cancel, Replace). **Import from a link** opens a small
   Dialog, "Import from a link": Link, then Cancel and Import, the same

@@ -1,5 +1,5 @@
 import { parseLine, type Unit } from '@lifeos/food'
-import { PlusIcon, TypeIcon } from 'lucide-react'
+import { PlusIcon, SparklesIcon, TypeIcon } from 'lucide-react'
 import { useEffect, useId, useRef, useState } from 'react'
 import {
   IngredientLineEditor,
@@ -12,8 +12,19 @@ import {
   Suggestions,
   VariationFieldsCard,
 } from '@/components/lifeos'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Skeleton } from '@/components/ui/skeleton'
+import { toast } from '@/components/ui/sonner'
 import {
   Select,
   SelectContent,
@@ -25,6 +36,7 @@ import {
   addLine,
   addPantry,
   addStep,
+  fillFromMethod,
   newId,
   positionBetween,
   removeLine,
@@ -52,6 +64,9 @@ import {
 import { AISLES, type Aisle } from '@/lib/pantry'
 import { lineName } from '@/lib/recipes'
 import { AddToPantryDialog } from './add-to-pantry'
+import { AI_REFUSALS } from './ai-words'
+import { ImportDialog } from './import-dialog'
+import { importInto, linesFrom, replaceLines } from './variation-ai'
 import { LinksField } from './links-field'
 import { titlesOf } from './recipe-helpers'
 import { Field } from './task-details'
@@ -369,6 +384,37 @@ function movedPosition(rows: readonly { id: string; position: string }[], id: st
   return positionBetween(rest[to - 1]?.position ?? null, rest[to]?.position ?? null)
 }
 
+/**
+ * Fill from method (RCP-007 5): the lines the method uses, in place of the
+ * lines there are, asked first when there are some; Undo puts them back.
+ */
+function useFill(variation: VariationView) {
+  const [asking, setAsking] = useState(false)
+  const [filling, setFilling] = useState(false)
+  const steps = variation.steps
+    .slice()
+    .sort(byPosition)
+    .map((s) => s.text)
+    .filter((t) => t.trim())
+  const fill = async () => {
+    setAsking(false)
+    setFilling(true)
+    const answer = await fillFromMethod(steps)
+    setFilling(false)
+    if (!answer.ok) {
+      toast(AI_REFUSALS[answer.reason])
+      return
+    }
+    const undo = replaceLines(variation, linesFrom(answer.lines))
+    toast('Ingredients filled from the method', { action: { label: 'Undo', onClick: undo } })
+  }
+  const start = () => {
+    if (variation.lines.length) setAsking(true)
+    else void fill()
+  }
+  return { asking, setAsking, filling, start, fill, empty: steps.length === 0 }
+}
+
 function Ingredients({
   variation,
   pantry,
@@ -377,6 +423,7 @@ function Ingredients({
   pantry: FoodData['pantry']
 }) {
   const v = variation.item.id
+  const filler = useFill(variation)
   const [fresh, setFresh] = useState<Row[]>([])
   const [focus, setFocus] = useState<string | null>(null)
   const kept = new Set(variation.lines.map((l) => l.id))
@@ -409,32 +456,57 @@ function Ingredients({
   }
 
   return (
-    <RecipePanel title="Ingredients">
-      <div className="flex flex-col gap-2">
-        {rows.map((r) =>
-          r.heading ? (
-            <SubheadingRow
-              key={r.id}
-              row={r}
-              variation={v}
-              reorder={reorder.row(r.id)}
-              onKeyDown={reorder.keys(r.id)}
-              onRemove={() => remove(r.id)}
-              autoFocus={focus === r.id}
-            />
-          ) : (
-            <IngredientRow
-              key={r.id}
-              row={r}
-              variation={v}
-              pantry={pantry}
-              reorder={reorder.row(r.id)}
-              onKeyDown={reorder.keys(r.id)}
-              onRemove={() => remove(r.id)}
-              autoFocus={focus === r.id}
-            />
-          ),
-        )}
+    <RecipePanel
+      title="Ingredients"
+      action={
+        <Button
+          variant="ghost"
+          size="sm"
+          disabled={filler.empty || filler.filling}
+          onClick={filler.start}
+        >
+          <SparklesIcon /> Fill from method
+        </Button>
+      }
+    >
+      <AlertDialog open={filler.asking} onOpenChange={filler.setAsking}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Replace the ingredients?</AlertDialogTitle>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => void filler.fill()}>Replace</AlertDialogAction>
+            <AlertDialogCancel />
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      <div className="flex flex-col gap-2" aria-busy={filler.filling || undefined}>
+        {filler.filling && [0, 1, 2, 3].map((i) => <Skeleton key={i} className="h-10" />)}
+        {!filler.filling &&
+          rows.map((r) =>
+            r.heading ? (
+              <SubheadingRow
+                key={r.id}
+                row={r}
+                variation={v}
+                reorder={reorder.row(r.id)}
+                onKeyDown={reorder.keys(r.id)}
+                onRemove={() => remove(r.id)}
+                autoFocus={focus === r.id}
+              />
+            ) : (
+              <IngredientRow
+                key={r.id}
+                row={r}
+                variation={v}
+                pantry={pantry}
+                reorder={reorder.row(r.id)}
+                onKeyDown={reorder.keys(r.id)}
+                onRemove={() => remove(r.id)}
+                autoFocus={focus === r.id}
+              />
+            ),
+          )}
         <div className="flex flex-wrap gap-1 pt-1">
           <Button
             variant="ghost"
@@ -476,6 +548,7 @@ function Method({
 }) {
   const v = variation.item.id
   const titles = titlesOf(food)
+  const [importing, setImporting] = useState(false)
   // What each step's "@Name"s stand for, as typed and chosen.
   const [refs] = useState(() => new Map<string, Map<string, string>>())
   const refsOf = (id: string) => {
@@ -539,7 +612,36 @@ function Method({
   })
 
   return (
-    <RecipePanel title="Method">
+    <RecipePanel
+      title="Method"
+      action={
+        // A Draft only (Joe, 23 October).
+        variation.item.status === 'active' ? (
+          <Button variant="ghost" size="sm" onClick={() => setImporting(true)}>
+            <SparklesIcon /> Import from a link
+          </Button>
+        ) : undefined
+      }
+    >
+      {importing && (
+        <ImportDialog
+          food={food}
+          into={{
+            replacing:
+              variation.lines.length > 0 || variation.steps.some((s) => s.text.trim() !== ''),
+          }}
+          onClose={() => setImporting(false)}
+          onChecked={({ recipe: imported, link }) => {
+            setImporting(false)
+            setDrafts({})
+            setFresh([])
+            const undo = importInto(variation, imported, link)
+            toast('Imported the ingredients and method', {
+              action: { label: 'Undo', onClick: undo },
+            })
+          }}
+        />
+      )}
       <div className="flex flex-col gap-2.5">
         {rows.map((r, i) => (
           <StepEditor
@@ -595,6 +697,26 @@ function NotesAndSources({
   const [sources, setSources] = useState(
     variation.fields.sources.length ? variation.fields.sources : [''],
   )
+  // Changed elsewhere (an import, RCP-014 10) and not here: shown.
+  const now = { notes: variation.fields.notes, sources: variation.fields.sources }
+  const [seen, setSeen] = useState(now)
+  if (JSON.stringify(now) !== JSON.stringify(seen)) {
+    setSeen(now)
+    if (now.notes !== seen.notes) {
+      const was = editableText(seen.notes ?? '', titlesOf(food))
+      if (notes === was.text) {
+        const next = editableText(variation.fields.notes ?? '', titlesOf(food))
+        for (const [name, id] of next.refs) initial.refs.set(name, id)
+        setNotes(next.text)
+      }
+    }
+    const listed = sources.map((x) => x.trim()).filter(Boolean)
+    if (
+      JSON.stringify(variation.fields.sources) !== JSON.stringify(seen.sources) &&
+      JSON.stringify(listed) === JSON.stringify(seen.sources)
+    )
+      setSources(variation.fields.sources.length ? variation.fields.sources : [''])
+  }
   const keepSources = (list: string[]) => {
     const next = list.map((s) => s.trim()).filter(Boolean)
     if (JSON.stringify(next) !== JSON.stringify(variation.fields.sources))
@@ -642,6 +764,12 @@ function NumberField({
   onKeep: (value: number | null) => void
 }) {
   const [text, setText] = useState(value?.toString() ?? '')
+  // Changed elsewhere (an import, RCP-014 10) and not here: shown.
+  const [seen, setSeen] = useState(value)
+  if (value !== seen) {
+    setSeen(value)
+    if (text === (seen?.toString() ?? '')) setText(value?.toString() ?? '')
+  }
   const keep = () => {
     const read = readWhole(text, min, max)
     if (read === undefined) setText(value?.toString() ?? '')

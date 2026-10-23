@@ -130,7 +130,9 @@ JWT checks (it asks Auth who the token is), with `rules.ts`, `schema.ts`,
 ([ADR-0054](../20-architecture/adr/0054-the-ai-service-and-import.md)):
 
 - **Tasks:** `status` (can the AI be used, and how much of today's
-  allowance is left) and `recipe.import` (RCP-014). Gemini's free tier
+  allowance is left), `recipe.import` (RCP-014; also what Import from a
+  link in a Draft Variation uses) and `recipe.fill_lines` (RCP-007 5: the
+  Variation's method is sent, and only then). Gemini's free tier
   only: the key and the optional settings are in
   [integration setup](integration-setup.md#gemini-stage-4).
 - **The allowance:** each use is an `ai` row in `ops.events`

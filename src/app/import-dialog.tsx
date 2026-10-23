@@ -38,10 +38,16 @@ export function ImportDialog({
   onClose,
   onChecked,
   onOpen,
+  into,
 }: {
   food: FoodData
   /** My Idea, imported from its link (RCP-014 4). */
   idea?: RecipeView
+  /**
+   * Importing into a Draft Variation (RCP-014 10): titled so, and saying it
+   * replaces what is there when something is.
+   */
+  into?: { replacing: boolean }
   onClose: () => void
   onChecked: (pending: PendingImport) => void
   /** Opens a Recipe or Idea the link was saved in. */
@@ -78,7 +84,7 @@ export function ImportDialog({
 
   const start = () => {
     if (!link.trim()) return
-    const saved = idea ? undefined : savedWith(food.recipes, link)
+    const saved = idea || into ? undefined : savedWith(food.recipes, link)
     if (saved) setStep({ at: 'saved', recipe: saved })
     else void run()
   }
@@ -87,7 +93,9 @@ export function ImportDialog({
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent data-colour="green">
         <DialogHeader>
-          <DialogTitle>{idea ? 'Import from its link' : 'Import'}</DialogTitle>
+          <DialogTitle>
+            {into ? 'Import from a link' : idea ? 'Import from its link' : 'Import'}
+          </DialogTitle>
         </DialogHeader>
         {step.at === 'link' && (
           <form
@@ -109,6 +117,11 @@ export function ImportDialog({
                 onChange={(e) => setLink(e.target.value)}
               />
             </Field>
+            {into?.replacing && (
+              <p className="text-sm text-muted-foreground">
+                This replaces the ingredients and method
+              </p>
+            )}
             <DialogFooter>
               <Button type="button" variant="outline" onClick={onClose}>
                 Cancel

@@ -2,6 +2,20 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#24](https://github.com/joestables/lifeos/pull/24) — Stage 4, step 9c: Fill from method, and Import into a Draft
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-23
+
+**What it did**
+- `recipe.fill_lines` in the `ai` Edge Function: the lines a Variation's
+  method uses, in Joe's line rules, checked against the Pantry.
+- Edit variation: Fill from method in Ingredients (RCP-007 5) and, on a
+  Draft, Import from a link in Method (RCP-014 10), each replacing what is
+  there after asking, with Undo; lines matching no Pantry entry kept as
+  typed (RCP-014 11).
+- The editor's servings, times, notes and sources follow changes made
+  elsewhere. Walks in `import.spec.ts`.
+
 ## [#23](https://github.com/joestables/lifeos/pull/23) — Stage 4, step 9b: the AI service and Import
 
 Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-23

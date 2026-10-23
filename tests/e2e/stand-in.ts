@@ -61,7 +61,11 @@ export interface Rows {
    * What the `ai` Edge Function answers (ADR-0054): whether it can be used,
    * and an import's answer. Never Gemini: walks don't call the AI.
    */
-  ai?: { status?: Record<string, unknown>; import?: Record<string, unknown> }
+  ai?: {
+    status?: Record<string, unknown>
+    import?: Record<string, unknown>
+    fill?: Record<string, unknown>
+  }
   /** What connecting Google Calendar brings: its calendars and the main one's events. */
   google?: {
     account: string
@@ -1105,7 +1109,9 @@ export async function standIn(
         json:
           body.task === 'status'
             ? (ai?.status ?? { available: true, left: 30 })
-            : (ai?.import ?? { ok: false, reason: 'not_recipe' }),
+            : body.task === 'recipe.fill_lines'
+              ? (ai?.fill ?? { ok: false, reason: 'not_recipe' })
+              : (ai?.import ?? { ok: false, reason: 'not_recipe' }),
       })
     }
     if (url.pathname.endsWith('/functions/v1/calendar-connect'))

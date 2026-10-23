@@ -4,11 +4,25 @@
  */
 import type {
   AiRefusal,
+  FillAnswer,
   ImportAnswer,
   ImportedRecipe,
 } from '../../../packages/food/src/imported.ts'
-import { importInput, PROMPT_VERSION, SYSTEM_INSTRUCTION, type Vocabulary } from './rules.ts'
-import { parseRecipes, RESPONSE_SCHEMA, ValidationError, type PantryEntry } from './schema.ts'
+import {
+  fillInput,
+  importInput,
+  PROMPT_VERSION,
+  SYSTEM_INSTRUCTION,
+  type Vocabulary,
+} from './rules.ts'
+import {
+  LINES_SCHEMA,
+  parseLines,
+  parseRecipes,
+  RESPONSE_SCHEMA,
+  ValidationError,
+  type PantryEntry,
+} from './schema.ts'
 
 export type Fetch = (input: string, init?: RequestInit) => Promise<Response>
 
@@ -377,4 +391,34 @@ export async function importRecipe(deps: ImportDeps, link: string): Promise<Impo
   const recipes: ImportedRecipe[] = parseRecipes(text, pantry)
   if (recipes.length === 0) return { ok: false, reason: 'not_recipe' }
   return { ok: true, recipes, photo, left }
+}
+
+/**
+ * `recipe.fill_lines` (RCP-007 5): the ingredients a method uses. The
+ * method is sent, and only when I ask (ADR-0054, Joe, 23 October); "@"
+ * references go as the names they show.
+ */
+export async function fillLines(deps: ImportDeps, steps: unknown): Promise<FillAnswer> {
+  const method = (Array.isArray(steps) ? steps : [])
+    .filter((s): s is string => typeof s === 'string')
+    .map((s) => s.replace(/@\[([^\]]+)\]\([^)]*\)/g, '$1').trim())
+    .filter(Boolean)
+    .slice(0, 100)
+  if (method.length === 0) return { ok: false, reason: 'not_recipe' }
+  const { pantry } = await deps.vocabulary()
+  const left = await deps.take('recipe.fill_lines', { prompt: PROMPT_VERSION })
+  if (left === null) throw new Refused('allowance')
+  const text = await askGemini(
+    deps.fetch,
+    deps.gemini,
+    geminiBody(
+      fillInput(
+        pantry.map((p) => p.name),
+        method,
+      ),
+      null,
+      LINES_SCHEMA,
+    ),
+  )
+  return { ok: true, lines: parseLines(text, pantry), left }
 }
