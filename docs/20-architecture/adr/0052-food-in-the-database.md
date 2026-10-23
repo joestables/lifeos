@@ -1,6 +1,7 @@
 # ADR-0052: Food in the database
 
 **Status:** Provisionally agreed · 2026-10-18
+**Amended:** 2026-10-23 by Joe's answers for step 9 (a Meal's own lines and link).
 
 ## Context
 
@@ -15,11 +16,14 @@ how the schema holds it and how the database enforces it
 
 - **Recipe, Variation, Meal and Shopping list are Items** (`core.items`),
   declared in `packages/ontology` under the `food` and `shopping` Modules,
-  with detail tables `food.recipe`, `food.variation`, `food.meal`,
+  with detail tables `food.recipe`, `food.variation`, `food.meal` (with an
+  optional `source` link for a typed Meal),
   `shopping.shopping_list`.
 - **Child rows:** `food.variation_lines` (amount, top of a range,
   approximate, unit, a Pantry entry or typed text, an optional subheading,
-  position), `food.variation_steps`, `food.cooks` (who, when, verdict,
+  position), `food.variation_steps`, `food.meal_lines` (a Meal's own
+  lines, shaped as a Variation's but with no subheadings; written by
+  whoever may edit the Meal), `food.cooks` (who, when, verdict,
   notes, servings, and a JSON **snapshot** of the Variation as cooked),
   `shopping.lines` (with the Meal each is *for*).
 - **Recipes seen through a Household:** `readable_item_ids()` gains one

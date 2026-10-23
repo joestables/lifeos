@@ -29,8 +29,16 @@ Provisionally agreed).
   ([ADR-0011](../../20-architecture/adr/0011-recipe-and-variation.md),
   Provisionally agreed). Quantities scale by the Meal's servings ÷ the
   Variation's.
-- **A Meal I type** — "Out: Dishoom", "Takeaway" — needs no Recipe, and adds
-  nothing to a shopping list (Joe, 18 October).
+- **A Meal I type** — "Out: Dishoom", "Takeaway" — needs no Recipe (Joe,
+  18 October).
+- **A Meal can have its own ingredients** (Joe, 23 October): lines, as a
+  Variation's are, chosen from the Pantry or kept as typed — Milk for a
+  typed "Cornflakes", or garlic bread beside a Recipe's Meal. A typed Meal
+  can also take **a link** to a recipe I want to try before it's one of
+  mine: the AI reads the page's ingredients into the Meal's lines, and
+  nothing else (no method, no Recipe). A Meal's own lines go to a shopping
+  list as written, not scaled; a link sets the Meal's servings to the
+  page's (Suggested).
 - **Leftovers of a Meal** fill a later slot, marked as leftovers and named
   after the Meal they come from; they add nothing to a shopping list.
   Removing the first Meal removes its leftovers (Joe, 18 October).
@@ -76,8 +84,8 @@ Provisionally agreed).
   Provisionally agreed). It may have a date (then it's on Plan, and ticked
   done when the shop is done) or none (a standing list).
 - **Made from the meal plan**, for the days I choose: their Meals'
-  ingredients, scaled to each Meal's servings, go into a new list or one I
-  pick. A new list is dated the day of its first Meal, and can be dragged on
+  ingredients, a Recipe's scaled to each Meal's servings and a Meal's own
+  as written, go into a new list or one I pick. A new list is dated the day of its first Meal, and can be dragged on
   Plan (Joe, 18 October). Lines for the same ingredient show as one,
   totalled where the units allow ("Chicken thighs 1.2 kg · Katsu Thu, Curry
   Sat") ([ADR-0012](../../20-architecture/adr/0012-ingredients-and-shopping-lists.md),
@@ -169,7 +177,8 @@ Priority: Must · Status: built (4 with Shopping, Stage 4b)
 
 Acceptance criteria
 1. Given a Meal, when I press it, then it opens: its Recipe (the Variation
-   it planned), servings, Personal or Household, eaten, Remove.
+   it planned), servings, Personal or Household, eaten, its own
+   ingredients, Remove.
 2. Given a computer or a phone, when I drag a Meal to another day or slot,
    then it moves, with Undo.
 3. Given a Meal with leftovers, when I remove it, then its leftovers go too,
@@ -177,6 +186,29 @@ Acceptance criteria
 4. Given a Meal on a shopping list, when I change its servings, then what it
    needs on the list changes with it.
 5. Given I tick a Meal eaten, then it shows eaten, and no cook is logged.
+
+### MPL-006 — A Meal's own ingredients
+
+**As** Joe, **I want** to give any Meal ingredients, or read them from a
+recipe's link, **so that** what I'll shop for includes Meals that aren't
+Recipes (Joe, 23 October).
+Priority: Should · Status: agreed
+
+Acceptance criteria
+1. Given a Meal that isn't leftovers, then I add, change, reorder and
+   delete its own ingredient lines, as a Variation's
+   ([RCP-007](recipes.md#rcp-007--ingredient-lines)) but with no
+   subheadings: Cornflakes, then Milk from the Pantry.
+2. Given a typed Meal, when I give it a link to a recipe and choose Get
+   ingredients, then the page's ingredients, with their amounts and units,
+   become the Meal's lines, matched to the Pantry or kept as typed, and its
+   servings the page's; the link stays on the Meal, to open. When it had
+   lines, I'm asked first, and Undo puts them back.
+3. Given a page that isn't a recipe, or the AI unavailable, then I'm told
+   so and the lines are unchanged.
+4. Given a Recipe's Meal, then its own lines are extras beside the
+   Recipe's, not part of it.
+5. Given Copy week, then a Meal's own lines and link are copied with it.
 
 ### MPL-005 — My default for new Meals
 
@@ -286,8 +318,9 @@ Priority: Must · Status: proposed (Stage 4b)
 
 Acceptance criteria
 1. Given the Meal plan, when I choose New shopping list and pick days,
-   then each Meal's ingredients, scaled to its servings, go to a new list
-   dated the day of the first Meal, or to a list I pick.
+   then each Meal's ingredients — its Recipe's, scaled to its servings, and
+   its own as written (MPL-006) — go to a new list dated the day of the
+   first Meal, or to a list I pick.
 2. Given the same ingredient for two Meals, then it shows as one line with
    its total and the Meals it's for, grouped by aisle; lines kept as typed
    in a recipe go under Other.
@@ -331,7 +364,8 @@ Acceptance criteria
    returns.
 
 Non-goals: tracking stock beyond staples' out of stock; nutrition and
-macros; prices; ordering online; AI planning of the week (later).
+macros; prices; ordering online; AI planning of the week (later); a
+Meal's method, or turning a Meal's link into a Recipe (Joe, 23 October).
 
 ## Open points for Joe
 

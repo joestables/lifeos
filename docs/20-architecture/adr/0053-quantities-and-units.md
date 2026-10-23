@@ -1,6 +1,7 @@
 # ADR-0053: Quantities and units
 
 **Status:** Provisionally agreed · 2026-10-18
+**Amended:** 2026-10-23 by Joe's answers for step 9 (cup, 250 ml).
 
 ## Context
 
@@ -13,10 +14,11 @@ work offline on the device and be checked in the database.
 ## Decision
 
 - **A line keeps what was typed:** an amount, an optional top of a range,
-  an *approximate* flag, and one unit — g, kg, ml, l, tsp, tbsp, or none (a
-  count, or unmeasured). Nothing is stored converted.
+  an *approximate* flag, and one unit — g, kg, ml, l, tsp, tbsp, cup, or
+  none (a count, or unmeasured). Cup is kept for what a page measures in
+  cups and can't be weighed without guessing (Joe, 23 October). Nothing is stored converted.
 - **One package, `packages/food`,** holds the only conversion factors
-  (kg = 1000 g; l = 1000 ml; tsp = 5 ml; tbsp = 15 ml), the parser ("200 g
+  (kg = 1000 g; l = 1000 ml; tsp = 5 ml; tbsp = 15 ml; cup = 250 ml), the parser ("200 g
   chorizo", "1-2 tsp", "~5 g", "½" as 0.5), scaling (both ends of a range),
   display rounding, totals, and the timer parser for Cooking
   ([ADR-0056](0056-cooking-on-the-device.md)). Pure TypeScript with unit
@@ -30,7 +32,7 @@ work offline on the device and be checked in the database.
   of cases is run by both the unit tests and the database tests, so the two
   can't drift.
 - **Display rounding:** whole grams and millilitres up to 100, then to 5;
-  kg and l to two decimals; spoons to quarters; counts to halves; never
+  kg and l to two decimals; spoons and cups to quarters; counts to halves; never
   rounded to nothing.
 
 ## Consequences

@@ -86,8 +86,8 @@ Provisionally agreed).
 - **Optional subheadings** group the lines ("For the marinade", "For the
   sauce"); most Recipes won't have any (Joe, 18 October).
 - **Amounts** may be left out ("salt"), a range ("1–2") or approximate
-  ("~5"). **Units** are metric: g, kg, ml, l, tsp, tbsp, or none for a count
-  ("2 onions").
+  ("~5"). **Units** are metric: g, kg, ml, l, tsp, tbsp, cup (250 ml; Joe,
+  23 October; from plan step 9b), or none for a count ("2 onions").
 - **The method is numbered steps; notes are free text.** In either, typing
   "@" names another Recipe — a stock, a sauce — from a short list of
   suggestions; outside editing it is a button that opens it.
@@ -126,11 +126,17 @@ Provisionally agreed).
   app was Stage 10
   ([ADR-0028](../../20-architecture/adr/0028-capture-from-outside-the-app.md),
   amended), so this brings the share target forward for recipes.
-- **Imported from a web page or a video's link**, as a Draft. A video is
-  read from what its page says (description, captions). Every import is
-  rewritten in **Joe's recipe style**, kept in the code, not in Settings.
-  It is already written in v1's code; Joe will say where when import is
-  built (Joe, 18 October).
+- **Imported from a web page or a video's link**, as a Draft. A YouTube
+  video is watched; another video is read from what its page says
+  (description, captions). Every import is rewritten in **Joe's recipe
+  style**, kept in the code, not in Settings: v1's rules, which Joe gave on
+  23 October, adapted to LifeOS.
+- **Imported into a Draft Variation** I already have: Import from a link
+  in its Method brings in the ingredients and method, leaving the Recipe's
+  heading as it is (Joe, 23 October).
+- **Ingredients filled from the method**: Fill from method replaces the
+  Variation's ingredient lines with those its method names, and never
+  changes the method (Joe, 23 October).
 - **A link I've saved before** is flagged before I save it again.
 - Import and filling ingredients from a method use the core's one AI
   service ([principles](../../00-foundation/principles.md), 11); without
@@ -146,7 +152,7 @@ Complete · All) and Category always open, the other filters collapsed
 until opened; on a phone they open from a Filters button (Joe, 18
 October). **Ideas** tab: Ideas as a list (name, source, when
 saved, the start of the note). "New" offers *New recipe*, *New idea* and
-*Import*. A Recipe opens on its own page.
+*Import*, on both tabs (Joe, 23 October). A Recipe opens on its own page.
 
 ## Requirements
 
@@ -269,7 +275,7 @@ Acceptance criteria
 
 **As** Joe, **I want** structured ingredient lines, **so that** quantities
 are consistent and can go on a shopping list.
-Priority: Must · Status: verified (5 comes with the AI service, plan step 9)
+Priority: Must · Status: verified (5 agreed, with the AI service, plan step 9)
 
 Acceptance criteria
 1. Given I type "200 g chorizo", then it is read as 200, g and Chorizo;
@@ -285,9 +291,11 @@ Acceptance criteria
 6. Given a line, then it reads ingredient, then amount, then unit, on one
    line on a phone and a computer, when edited and when read (Joe, 20
    October).
-5. Given a method and no ingredients, when I choose Fill from method, then
-   the lines are suggested from the method, matched to the Pantry, for me
-   to accept or change.
+5. Given a method, when I choose Fill from method, then the ingredient
+   lines are replaced by those the method names, with their amounts and
+   units, matched to the Pantry, for me to change; the method is not
+   changed. When there were lines already, I'm asked first, and Undo puts
+   them back (Joe, 23 October).
 
 ### RCP-008 — Method, notes and references
 
@@ -399,10 +407,10 @@ Acceptance criteria
 
 **As** Joe, **I want** to import a recipe from a web page or a video in my
 style, **so that** I don't copy it out and can trust what I get.
-Priority: Should · Status: proposed
+Priority: Should · Status: agreed
 
 Acceptance criteria
-1. Given Import and a link to a web page or a video, then I see its
+1. Given New → Import and a link to a web page or a video, then I see its
    progress, then a new Draft, not yet kept, to check: name, photo, facts,
    times, servings, ingredient lines matched to the Pantry, method and
    source.
@@ -412,9 +420,22 @@ Acceptance criteria
 4. Given an Idea with a link, when I import from it, then the Idea becomes a
    Draft, keeping its name, notes and photo.
 5. Given the link was saved before, then I'm told before importing.
-6. Given a video whose page says too little to make a recipe, then I'm told
-   so, and nothing is made.
+6. Given a video whose page says too little to make a recipe, or a page
+   that isn't a recipe, then I'm told so, and nothing is made.
 7. Given the AI is unavailable, then Import says so before I start.
+8. Given a category, cuisine, protein or carb not on my lists, then the
+   import suggests one, marked new, added to my list only when I keep the
+   Draft.
+9. Given a page with several recipes, then I choose which to import.
+10. Given a Draft Variation, when I choose Import from a link in its Method
+    and give a link, then its ingredients and method are replaced by the
+    page's, and its servings, times and notes filled where empty; the link
+    joins its sources; the Recipe's heading is not changed. When it had
+    ingredients or a method, I'm asked first, and Undo puts them back (Joe,
+    23 October).
+11. Given lines brought in by Import from a link or Fill from method that
+    match no Pantry entry, then they are kept as typed, to add to the
+    Pantry as any typed line is ([PAN-004](meals.md#pan-004--entries-from-a-recipe)).
 
 ### RCP-015 — Favourites
 
@@ -474,11 +495,12 @@ Acceptance criteria
 2. Given Settings → Recipes, then Archived recipes opens (RCP-010).
 
 Non-goals (Stage 4): AI that suggests what to cook; import from a photo;
-nutrition; converting weight to volume; sharing a Recipe outside LifeOS.
+nutrition; converting weight to volume; sharing a Recipe outside LifeOS;
+turning a Meal's link into a Recipe (Joe, 23 October).
 
 ## Open points for Joe
 
-1. **Joe's recipe style:** in v1's code; Joe will point Claude to it when
-   import is built (step 9).
+1. ~~Joe's recipe style~~: settled 23 October — Joe gave v1's rules,
+   adapted for LifeOS in [ADR-0054](../../20-architecture/adr/0054-the-ai-service-and-import.md).
 2. ~~Reordering on a phone~~: settled 20 October — ingredient lines are
    dragged by their handle on a phone too; steps stay as they are.
