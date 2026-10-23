@@ -45,6 +45,7 @@ export type AiRefusal =
   | 'not_recipe'
   | 'too_little'
   | 'bad_link'
+  | 'slow'
   | 'failed'
 
 /** What `recipe.import` answers. */

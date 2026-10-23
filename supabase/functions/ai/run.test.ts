@@ -200,10 +200,43 @@ describe('asking Gemini (ADR-0054)', () => {
         : new Response('quota', { status: 429 })
     }
     const gemini = { key: 'k', models: ['flash', 'flash-lite'] }
-    expect(await askGemini(fetch, gemini, {})).toBe('{"ok":1}')
+    expect(await askGemini(fetch, gemini, { generationConfig: {} })).toBe('{"ok":1}')
     expect(asked).toHaveLength(2)
     const none: Fetch = async () => new Response('quota', { status: 429 })
-    await expect(askGemini(none, gemini, {})).rejects.toEqual(new Refused('quota'))
+    await expect(askGemini(none, gemini, { generationConfig: {} })).rejects.toEqual(
+      new Refused('quota'),
+    )
+  })
+})
+
+describe('thinking little, and not too long (ADR-0054)', () => {
+  it('asks for little thinking in whichever words the model takes', async () => {
+    const sent: unknown[] = []
+    const fetch: Fetch = async (_url, init) => {
+      const body = JSON.parse(String(init?.body)) as { generationConfig: Record<string, unknown> }
+      sent.push(body.generationConfig.thinkingConfig)
+      return 'thinkingLevel' in (body.generationConfig.thinkingConfig as object)
+        ? new Response('thinking_level is not supported by this model', { status: 400 })
+        : Response.json({
+            candidates: [
+              { content: { parts: [{ text: 'thought', thought: true }, { text: '{}' }] } },
+            ],
+          })
+    }
+    expect(await askGemini(fetch, { key: 'k', models: ['flash'] }, { generationConfig: {} })).toBe(
+      '{}',
+    )
+    expect(sent).toEqual([{ thinkingLevel: 'low' }, { thinkingBudget: 0 }])
+  })
+
+  it('says it was too slow rather than waiting past the function’s limit', async () => {
+    const fetch: Fetch = (_url, init) =>
+      new Promise((_resolve, reject) =>
+        init?.signal?.addEventListener('abort', () => reject(init.signal!.reason)),
+      )
+    await expect(
+      askGemini(fetch, { key: 'k', models: ['flash'] }, { generationConfig: {} }, 20),
+    ).rejects.toEqual(new Refused('slow'))
   })
 })
 

@@ -189,9 +189,11 @@ export function readPage(html: string): { text: string; image: string | null; ha
   const parts = [
     title ? `Title: ${decodeEntities(title)}` : '',
     recipes.length > 0
-      ? `Structured recipe data:\n${JSON.stringify(recipes).slice(0, 30_000)}`
+      ? `Structured recipe data:\n${JSON.stringify(recipes).slice(0, 20_000)}`
       : '',
-    `The page's text:\n${readableText(html).slice(0, 40_000)}`,
+    // With structured data the text only adds notes and tips: less of it,
+    // so the model answers sooner.
+    `The page's text:\n${readableText(html).slice(0, recipes.length > 0 ? 12_000 : 30_000)}`,
   ]
   return {
     text: parts.filter(Boolean).join('\n\n'),
@@ -333,32 +335,78 @@ export function geminiBody(input: string, video: string | null, schema: unknown)
 }
 
 /**
- * Asks each model in turn until one answers: out of quota (429) or busy
- * (503), the next is tried; all out of quota is `quota`.
+ * How little to think, in each model family's words: Gemini 3's level, then
+ * 2.5's budget, then the model's own default. A model refusing one (400,
+ * naming thinking) is asked with the next. Thinking is most of the wait.
  */
-export async function askGemini(fetch: Fetch, gemini: Gemini, body: unknown): Promise<string> {
+const THINKING: readonly (Record<string, unknown> | null)[] = [
+  { thinkingLevel: 'low' },
+  { thinkingBudget: 0 },
+  null,
+]
+
+/** The longest one answer may take: the function must reply before its own limit. */
+export const GEMINI_TIMEOUT = 100_000
+
+/**
+ * Asks each model in turn until one answers: out of quota (429) or busy
+ * (503), the next is tried; all out of quota is `quota`, too slow is `slow`.
+ */
+export async function askGemini(
+  fetch: Fetch,
+  gemini: Gemini,
+  body: { generationConfig: Record<string, unknown> },
+  timeout = GEMINI_TIMEOUT,
+): Promise<string> {
+  const until = Date.now() + timeout
   let lastStatus = 0
   for (const model of gemini.models) {
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': gemini.key },
-        body: JSON.stringify(body),
-        signal: AbortSignal.timeout(120_000),
-      },
-    )
-    if (res.ok) {
-      const data = (await res.json()) as {
-        candidates?: { content?: { parts?: { text?: string }[] } }[]
+    for (const thinking of THINKING) {
+      const started = Date.now()
+      const generationConfig = thinking
+        ? { ...body.generationConfig, thinkingConfig: thinking }
+        : body.generationConfig
+      let res: Response
+      try {
+        res = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-goog-api-key': gemini.key },
+            body: JSON.stringify({ ...body, generationConfig }),
+            signal: AbortSignal.timeout(Math.max(1, until - Date.now())),
+          },
+        )
+      } catch (e) {
+        if (e instanceof Error && (e.name === 'TimeoutError' || e.name === 'AbortError'))
+          throw new Refused('slow')
+        throw e
       }
-      const text = data.candidates?.[0]?.content?.parts?.map((p) => p.text ?? '').join('') ?? ''
-      if (!text) throw new ValidationError('The AI gave no answer')
-      return text
-    }
-    lastStatus = res.status
-    if (res.status !== 429 && res.status !== 503 && res.status !== 404) {
-      throw new Error(`Gemini ${model}: ${res.status} ${(await res.text()).slice(0, 300)}`)
+      console.log(
+        'ai: gemini',
+        model,
+        JSON.stringify(thinking),
+        res.status,
+        Date.now() - started,
+        'ms',
+      )
+      if (res.ok) {
+        const data = (await res.json()) as {
+          candidates?: { content?: { parts?: { text?: string; thought?: boolean }[] } }[]
+        }
+        const text =
+          data.candidates?.[0]?.content?.parts
+            ?.filter((p) => !p.thought)
+            .map((p) => p.text ?? '')
+            .join('') ?? ''
+        if (!text) throw new ValidationError('The AI gave no answer')
+        return text
+      }
+      lastStatus = res.status
+      const said = await res.text()
+      if (res.status === 400 && /think/i.test(said)) continue
+      if (res.status === 429 || res.status === 503 || res.status === 404) break
+      throw new Error(`Gemini ${model}: ${res.status} ${said.slice(0, 300)}`)
     }
   }
   if (lastStatus === 429) throw new Refused('quota')
