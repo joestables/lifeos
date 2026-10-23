@@ -2,6 +2,21 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#22](https://github.com/joestables/lifeos/pull/22) — Stage 4, step 9a: specs for the AI features
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-23
+
+**What it did**
+- Wrote in Joe's answers of 23 October: "New" (New recipe, New idea,
+  Import) on both tabs; Import from a link into a Draft Variation
+  (RCP-014 10–11); Fill from method replacing the lines (RCP-007 5); a
+  Meal's own ingredients, and a typed Meal's link read for its ingredients
+  (MPL-006, new); cups kept; v1's style rules adapted.
+- Amended ADR-0054 (tasks, the rules, the method sent, unmatched lines),
+  ADR-0053 (cup), ADR-0052 (`food.meal_lines`, a Meal's link) and ADR-0012;
+  the design spec's Import, Check the import, the card buttons and the
+  Meal's Ingredients; the plan's step 9 split into 9a–9d.
+
 ## [#21](https://github.com/joestables/lifeos/pull/21) — Bug hunt after Households: only its maker moves an Item to another Space
 
 Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-21
