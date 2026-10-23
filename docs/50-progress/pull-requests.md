@@ -13,6 +13,7 @@ Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-23
   merges move Meals' lines too. `meal_lines_test` (11).
 - `meal.ingredients` in the `ai` Edge Function: a link's ingredient lines
   and servings only.
+- The AI asks Flash-Lite first, then Flash (Joe, 23 October).
 - The Meal's popup: Ingredients ("Extra ingredients" on a Recipe's Meal),
   a typed Meal's Link with Get ingredients and Undo, lines from the Pantry;
   Copy week copies them (MPL-006). The ingredient row is shared with

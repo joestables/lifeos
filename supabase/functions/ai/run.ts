@@ -316,7 +316,7 @@ export async function pictureOf(
 
 export interface Gemini {
   key: string
-  /** The free Flash model, then its fallback when the first is out of quota. */
+  /** The free Flash-Lite model, then its fallback when the first is busy or out of quota. */
   models: readonly string[]
 }
 

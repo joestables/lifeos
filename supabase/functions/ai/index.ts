@@ -32,8 +32,8 @@ const anon =
 const gemini: Gemini = {
   key: Deno.env.get('GEMINI_API_KEY') ?? '',
   models: [
-    Deno.env.get('AI_MODEL') || 'gemini-flash-latest',
-    Deno.env.get('AI_FALLBACK_MODEL') || 'gemini-flash-lite-latest',
+    Deno.env.get('AI_MODEL') || 'gemini-flash-lite-latest',
+    Deno.env.get('AI_FALLBACK_MODEL') || 'gemini-flash-latest',
   ],
 }
 const allowance = Number(Deno.env.get('AI_DAILY_ALLOWANCE') ?? '') || 30

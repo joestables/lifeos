@@ -26,10 +26,11 @@ served well.
   `recipe.fill_lines` and `meal.ingredients` (only a link's ingredients
   and servings, for a Meal) now. The
   browser never calls a model; the key is an Edge Function secret.
-- **The model is a free Flash model, named in one place.** Google changes
-  which models are free and their limits often, so the name and its
-  fallback (a Flash-Lite model, when the first is out of quota) are
-  configuration, not code. Each call asks for JSON matching the task's
+- **The model is a free Flash-Lite model, named in one place** (Joe, 23
+  October: quick, and enough for reading recipes). Google changes which
+  models are free and their limits often, so the name and its fallback (a
+  Flash model, when the first is busy or out of quota) are configuration,
+  not code. Each call asks for JSON matching the task's
   schema, and the reply is checked against it before use.
 - **Import:** a web page is fetched by the Edge Function, giving its
   schema.org Recipe data if it has some, otherwise its readable text. A

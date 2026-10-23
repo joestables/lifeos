@@ -145,7 +145,8 @@ JWT checks (it asks Auth who the token is), with `rules.ts`, `schema.ts`,
   group by 1, 2`. Many `ai_failed` with 429 mean the free quota is used
   up; Google's limits change, so set `AI_DAILY_ALLOWANCE` from what AI
   Studio shows.
-- **Speed:** each answer is asked for with little thinking (Gemini 3's
+- **Speed:** the model is Flash-Lite, then Flash when it is busy or out
+  of quota. Each answer is asked for with little thinking (Gemini 3's
   `thinkingLevel: low`, else 2.5's `thinkingBudget: 0`, else the model's
   default) and may take 100 seconds at most, so the function answers
   before its own limit; too slow is said as "took too long". Each call's
