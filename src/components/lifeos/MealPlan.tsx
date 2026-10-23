@@ -1,6 +1,6 @@
 import { LockIcon, PlusIcon, RotateCcwIcon, UtensilsIcon } from 'lucide-react'
 import type * as React from 'react'
-import type { ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import { cn } from '@/lib/utils'
 
 /** The three slots, in order (Joe, 18 October). */
@@ -43,6 +43,7 @@ export function MealCard({
   eaten?: boolean
   onOpen?: () => void
 }) {
+  const [broken, setBroken] = useState<string>()
   const parts = [
     kind === 'leftovers' ? 'Leftovers' : servings ? `Serves ${servings}` : null,
     variation,
@@ -60,8 +61,15 @@ export function MealCard({
         dragging && 'z-10 rotate-[1.5deg] cursor-grabbing opacity-100 shadow-pop',
       )}
     >
-      {photo && (
-        <img src={photo} alt="" draggable={false} className="h-14 w-full rounded-xs object-cover" />
+      {photo && photo !== broken && (
+        <img
+          src={photo}
+          alt=""
+          draggable={false}
+          // A picture that can't be shown (offline, not kept yet) leaves no gap.
+          onError={() => setBroken(photo)}
+          className="h-14 w-full rounded-xs object-cover"
+        />
       )}
       <button
         type="button"

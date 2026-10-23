@@ -25,7 +25,11 @@ Done 9 October 2026.
     (`src/data/report.ts`). A report that can't be sent waits for the next
     try;
   - Edge Functions, `pg_cron` jobs and Integration syncs report failures to
-    the same table.
+    the same table;
+  - not reported: the browser's "ResizeObserver loop" notice (harmless),
+    and a page's code gone with a new deploy, which reloads instead;
+  - a write sent twice (a reload while the first was on its way) whose own
+    id is then taken was already applied, so it isn't refused.
 - It is queryable by Claude through the Supabase MCP, so "what broke this
   week?" is one question.
 - **No in-app bug reporting.** Joe reports a problem by telling Claude, which

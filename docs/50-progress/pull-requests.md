@@ -2,6 +2,49 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#27](https://github.com/joestables/lifeos/pull/27) — Stage 4: fixes from Joe's first use, and a bug hunt
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-23
+
+**What it did**
+- Joe's list (23 October):
+  - deleting a Pantry entry names the Meals that use it too;
+  - Import is never greyed while the AI is asked;
+  - Import from a link goes on when its Dialog is closed, the Cards
+    loading until it is kept;
+  - Dialogs scroll: ScrollArea's viewport is a flex child, so a Dialog's
+    body no longer grows past it; with a mouse the scrollbar always shows;
+  - the log's "Edited" is for ingredients and method only;
+  - a Recipe's Meal follows its Variation's servings;
+  - Meals show their Recipe's photo, or a typed Meal's picture from its
+    link (`link-preview`, new: not AI);
+  - Merge into…, keeping the chosen entry's name and aisle;
+  - editing's columns equally wide;
+  - a typed line's mark adds it to the Pantry, with a default unit;
+  - an entry's default unit is learnt from its first line with one
+    (migration `stage4_default_units`, `default_units_test` (5)) and
+    fills a new line;
+  - decimals, never fractions;
+  - steps aren't dragged;
+  - no units in the Pantry list;
+  - Cooking picks out no step.
+- The bug hunt, of production and the code:
+  - a write sent again by a reload, whose own id was then taken, was
+    refused (seen once, `create_recipe`); now it counts as sent;
+  - a page's code gone with a deploy crashed the page; it reloads once
+    instead;
+  - the browser's ResizeObserver notice is no longer reported;
+  - a Pantry entry used only by a deleted Recipe or Meal was queued for
+    deleting and refused; now it says so instead;
+  - the Meal's popup put its old servings back on closing after Get
+    ingredients.
+- Checked and clean:
+  - every function the app calls exists in production, with its
+    arguments and permission;
+  - every column it selects exists;
+  - food data has no orphans, and no photo without its file;
+  - no new security advisories.
+
 ## [#26](https://github.com/joestables/lifeos/pull/26) — Stage 4, step 9d: a Meal's own ingredients and link
 
 Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-23

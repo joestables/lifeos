@@ -434,6 +434,7 @@ export {
   useFood,
   useFoodSpaces,
   useMeals,
+  usePantryInUse,
   useRecipeActivity,
   useStaples,
   type FoodData,

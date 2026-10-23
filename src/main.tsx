@@ -2,6 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { createRouter, RouterProvider } from '@tanstack/react-router'
 import { listenToServiceWorker } from '@/app/notifications'
+import { reloadForNewCode } from '@/app/reload'
 import { RouteError } from '@/app/RouteError'
 import { noteAction, startReporting } from '@/data'
 import { DataProvider } from '@/data/DataProvider'
@@ -19,6 +20,10 @@ const router = createRouter({
 })
 
 startReporting()
+// A page's code from before a deploy: the new code is loaded instead.
+window.addEventListener('vite:preloadError', (e) => {
+  if (reloadForNewCode()) e.preventDefault()
+})
 router.subscribe('onResolved', ({ toLocation }) => noteAction(`navigate ${toLocation.pathname}`))
 // A tapped notification opens its Item here (REM-006).
 listenToServiceWorker((url) => void router.navigate({ href: url }))

@@ -551,7 +551,7 @@ export function IngredientLineEditor({
       onKeyDown={onKeyDown}
       className={cn('group/line flex items-center gap-1.5 sm:gap-2', ROW)}
     >
-      <Handle phone reorder={reorder} className="group-hover/line:opacity-100" />
+      {reorder && <Handle phone reorder={reorder} className="group-hover/line:opacity-100" />}
       <div className="relative min-w-0 flex-1">
         {ingredientField ?? (
           <Input aria-label="Ingredient" defaultValue={ingredient} className="pr-8" />

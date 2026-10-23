@@ -18,6 +18,7 @@ import {
   updateLine,
   useFood,
   useMeals,
+  usePantryInUse,
   useStaples,
   type PantryEntry,
 } from '@/data'
@@ -76,6 +77,7 @@ export function PantryTab({
   const entries = useMemo(() => [...food.pantry.values()], [food.pantry])
   const using = useMemo(() => recipesUsing(recipes), [recipes])
   const { meals } = useMeals(queue)
+  const inUse = usePantryInUse(queue)
   const mealUses = useMemo(
     () => mealsUsing(meals.map((m) => ({ id: m.item.id, name: m.item.title, lines: m.lines }))),
     [meals],
@@ -88,6 +90,11 @@ export function PantryTab({
     const used = [...(using.get(entry.id) ?? []), ...(mealUses.get(entry.id) ?? [])]
     if (used.length) {
       toast(usedIn(used))
+      return
+    }
+    // Only a deleted Recipe or Meal uses it (Settings → Deleted).
+    if (inUse.has(entry.id)) {
+      toast('Used in something deleted')
       return
     }
     const staple = staples.get(entry.id)

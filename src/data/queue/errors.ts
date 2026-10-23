@@ -23,3 +23,12 @@ export function isTransient(status: number): boolean {
     status >= 500
   )
 }
+
+/**
+ * A write refused because its own id is taken: an earlier send of it was
+ * applied (a reload sent it again while the first was still on its way).
+ * Every write's ids are made on the device, so nothing else takes them.
+ */
+export function alreadyApplied(error: { code?: string; message: string }): boolean {
+  return error.code === '23505' && /_pkey"/.test(error.message)
+}

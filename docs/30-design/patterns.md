@@ -600,7 +600,8 @@ MealCard, MealSlot, AddMealButton, MealWeek, MealDay and PantryRow in
   ends in a toast, 'Merged "Green onions" into "Spring onions"'. **Delete** of an entry
   nothing uses says so in a toast with Undo; one a Recipe or a Meal's own
   lines use isn't deleted, and a toast names where it is used, Recipes
-  first ("Used in Katsu curry and 2 more").
+  first ("Used in Katsu curry and 2 more"), or says "Used in something
+  deleted" when only a deleted one does.
 - **Kept as typed** (PAN-004 2): after the household items, when any of my
   Recipes' lines were kept as typed, a SectionLabel and a Card of CardRows,
   A–Z: the name as typed and, as its value, how many of my Recipes use it;
@@ -637,7 +638,7 @@ MealCard, MealSlot, AddMealButton, MealWeek, MealDay and PantryRow in
 | Notifications off | On Inbox, while none of my devices has notifications: an Alert with `bell`, "Notifications are off", "Reminders can't reach you" (or "Add LifeOS to your Home Screen first" in an iPhone's browser), and "Not now" (ghost) and "Turn on" (outline) on the right, under the text on a phone. "Not now" puts it away on this device ([REM-001](../10-requirements/cross-cutting/reminders.md#rem-001--turn-on-notifications-for-a-device)) |
 | Offline | An Alert at the top of every page, with `cloud-off`: "Offline" (or "Can't refresh" when the server can't be reached) and "These may be out of date". What was loaded still shows (OFF-005) |
 | Error | Red text under the field, or a toast that says what went wrong and what to do |
-| A screen that crashes | Its PageHeader title says "Something went wrong", with one primary button, "Reload", under it. The crash is recorded in `ops.events` ([runbook](../40-operations/runbook.md#noticing-problems)) |
+| A screen that crashes | Its PageHeader title says "Something went wrong", with one primary button, "Reload", under it. The crash is recorded in `ops.events` ([runbook](../40-operations/runbook.md#noticing-problems)). A page whose code went with a new deploy reloads by itself instead, once a minute at most |
 | Empty | `EmptyState`: centred in the content, about a third of the way down, a 48px muted tile with the page's icon and a `text-h2` line saying so ("Nothing needs you", "Nothing deleted"). No paragraph, no button unless there's one obvious thing to do |
 
 ## Icons

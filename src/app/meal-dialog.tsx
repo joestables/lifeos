@@ -115,6 +115,14 @@ function MealDetails({ plan, meal }: { plan: MealPlanData; meal: PlannedMeal }) 
   const source = meal.leftoversOf ? plan.byId.get(meal.leftoversOf) : undefined
   const leftovers = plan.meals.filter((m) => m.leftoversOf === meal.id)
   const [servings, setServings] = useState(meal.servings ? String(meal.servings) : '')
+  // Changed elsewhere (Get ingredients, its Variation) and not here: shown,
+  // so leaving doesn't put the old number back.
+  const [seen, setSeen] = useState(meal.servings)
+  if (meal.servings !== seen) {
+    setSeen(meal.servings)
+    if (servings === (seen ? String(seen) : ''))
+      setServings(meal.servings ? String(meal.servings) : '')
+  }
   const keepServings = () => {
     const n = Number(servings)
     const next = servings.trim() && Number.isInteger(n) && n >= 1 && n <= 100 ? n : null
