@@ -23,6 +23,16 @@ async function start(page: Page, path = '/recipes') {
 const cards = (page: Page) => page.locator('[data-slot="recipe-card"]')
 const cardNames = (page: Page) => cards(page).locator('button:not([aria-label])')
 
+/** New → one of its choices (Joe, 23 October): the PageAction on a computer, the Fab on a phone. */
+async function fromNew(page: Page, choice: 'New recipe' | 'New idea') {
+  await page
+    .getByRole('button', { name: 'New', exact: true })
+    .and(page.locator('[aria-haspopup="menu"]'))
+    .filter({ visible: true })
+    .click()
+  await page.getByRole('menuitem', { name: choice }).click()
+}
+
 /** On a phone the filters are in a Sheet. */
 async function openFilters(page: Page, isMobile: boolean) {
   if (isMobile) await page.getByRole('button', { name: /^Filters/ }).click()
@@ -107,16 +117,9 @@ test.describe('Recipes', () => {
     await expect(cardNames(page)).toHaveText(['Shakshuka'])
   })
 
-  test('RCP-006: a new Recipe needs a name no Recipe has, then opens to fill', async ({
-    page,
-    isMobile,
-  }) => {
+  test('RCP-006: a new Recipe needs a name no Recipe has, then opens to fill', async ({ page }) => {
     const db = await start(page)
-    if (isMobile) await page.getByRole('button', { name: 'New recipe' }).click()
-    else {
-      await page.getByRole('button', { name: 'New recipe' }).click()
-      await page.getByRole('menuitem', { name: 'New recipe' }).click()
-    }
+    await fromNew(page, 'New recipe')
     const dialog = page.getByRole('dialog', { name: 'New recipe' })
     await dialog.getByLabel('Name').fill('katsu  CURRY')
     await dialog.getByRole('button', { name: 'Save' }).click()
@@ -156,7 +159,7 @@ test.describe('Recipes', () => {
     const db = await start(page, '/recipes?tab=ideas')
     await expect(page.getByText('Birria tacos')).toBeVisible()
     await expect(page.getByText('youtube.com')).toBeVisible()
-    await page.getByRole('button', { name: 'New idea' }).first().click()
+    await fromNew(page, 'New idea')
     const dialog = page.getByRole('dialog', { name: 'New idea' })
     await dialog.getByLabel('Name').fill('Crispy chilli beef')
     await dialog.getByLabel('Link 1').fill('https://www.tiktok.com/@kian/video/7')
@@ -643,7 +646,7 @@ test.describe('Recipes', () => {
       c.getContext('2d')!.fillRect(0, 0, 200, 150)
       return c.toDataURL('image/png').split(',')[1]!
     })
-    await page.getByRole('button', { name: 'New idea' }).first().click()
+    await fromNew(page, 'New idea')
     const dialog = page.getByRole('dialog', { name: 'New idea' })
     await dialog.getByLabel('Name').fill('Smash burgers')
     await dialog.locator('input[type=file]').setInputFiles({

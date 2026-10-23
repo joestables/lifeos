@@ -395,6 +395,7 @@ export {
   useSyncCounts,
 } from './hooks'
 export { googleEventUrl } from './calendar'
+export { importRecipe, keepImport, useAiStatus, type KeptImport } from './ai'
 export {
   useFood,
   useFoodSpaces,

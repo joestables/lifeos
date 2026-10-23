@@ -4,9 +4,9 @@ import {
   ChefHatIcon,
   LinkIcon,
   ListChecksIcon,
-  PlusIcon,
   SearchIcon,
   SlidersHorizontalIcon,
+  SparklesIcon,
   StickyNoteIcon,
   Trash2Icon,
 } from 'lucide-react'
@@ -17,7 +17,6 @@ import {
   FilterPanel,
   FilterSection,
   ItemRow,
-  PageAction,
   PageHeader,
   RecipeCard,
   RecipeGrid,
@@ -32,12 +31,7 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+import { DropdownMenuItem } from '@/components/ui/dropdown-menu'
 import {
   Select,
   SelectContent,
@@ -49,7 +43,10 @@ import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from '@/com
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { useLibraryView } from '@/app/library-view'
+import { ImportDialog } from '@/app/import-dialog'
+import { setPendingImport, type PendingImport } from '@/app/import-store'
 import { NewIdeaDialog } from '@/app/new-idea'
+import { NewRecipeMenu } from '@/app/new-recipe-menu'
 import { IdeaDialog } from '@/app/idea-dialog'
 import { archiveRecipes, deleteRecipes } from '@/app/recipe-actions'
 import { HeadingDialog } from '@/app/recipe-heading'
@@ -119,19 +116,39 @@ function Recipes() {
 
   const newRecipe = () => setMaking('recipe')
   const newIdea = () => setMaking('idea')
+  // Import, or an Idea imported from its link (RCP-014).
+  const [importing, setImporting] = useState<{ idea?: RecipeView } | null>(null)
+  const checkImport = (pending: PendingImport) => {
+    setPendingImport(pending)
+    setImporting(null)
+    void navigate({ to: '/recipes/import' })
+  }
+  const menu = (fab: boolean) => (
+    <NewRecipeMenu
+      fab={fab}
+      onRecipe={newRecipe}
+      onIdea={newIdea}
+      onImport={() => setImporting({})}
+    />
+  )
 
   return (
     <TypeScope colour="green">
-      <PageHeader
-        title="Recipes"
-        action={
-          choosing
-            ? undefined
-            : tab === 'ideas'
-              ? { label: 'New idea', onClick: newIdea }
-              : { label: 'New recipe', onClick: newRecipe }
-        }
-      />
+      <PageHeader title="Recipes" />
+      {!choosing && menu(true)}
+      {importing && (
+        <ImportDialog
+          food={food}
+          idea={importing.idea}
+          onClose={() => setImporting(null)}
+          onChecked={checkImport}
+          onOpen={(r) => {
+            setImporting(null)
+            if (r.state === 'idea') openIdea(r.item.id)
+            else open(r.item.id)
+          }}
+        />
+      )}
       {making === 'recipe' && (
         <HeadingDialog
           food={food}
@@ -177,11 +194,7 @@ function Recipes() {
               <TabsTrigger value="ideas">Ideas</TabsTrigger>
             </TabsList>
           </Tabs>
-          {tab === 'ideas' ? (
-            <PageAction label="New idea" onClick={newIdea} />
-          ) : (
-            <NewRecipeMenu onRecipe={newRecipe} onIdea={newIdea} />
-          )}
+          {menu(false)}
         </TabsRow>
         {tab === 'ideas' ? (
           <Ideas
@@ -189,6 +202,7 @@ function Recipes() {
             loading={food.isLoading}
             onOpen={openIdea}
             onMakeDraft={(r) => setDraftingId(r.item.id)}
+            onImport={(r) => setImporting({ idea: r })}
             onChoosing={setChoosing}
           />
         ) : (
@@ -196,25 +210,6 @@ function Recipes() {
         )}
       </div>
     </TypeScope>
-  )
-}
-
-/** New recipe, New idea; Import from a link waits for its step (plan step 9). */
-function NewRecipeMenu({ onRecipe, onIdea }: { onRecipe: () => void; onIdea: () => void }) {
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger render={<Button size="sm" className="hidden md:inline-flex" />}>
-        <PlusIcon /> New recipe
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="start">
-        <DropdownMenuItem onClick={onRecipe}>
-          <ChefHatIcon /> New recipe
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={onIdea}>
-          <StickyNoteIcon /> New idea
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
   )
 }
 
@@ -496,6 +491,7 @@ function IdeaRow({
   onStart,
   onOpen,
   onMakeDraft,
+  onImport,
 }: {
   idea: RecipeView
   choosing: boolean
@@ -504,6 +500,7 @@ function IdeaRow({
   onStart?: () => void
   onOpen: () => void
   onMakeDraft: () => void
+  onImport: () => void
 }) {
   const longPress = useLongPress(onStart)
   const fields = idea.defaultVariation?.fields
@@ -540,6 +537,11 @@ function IdeaRow({
               <DropdownMenuItem onClick={onMakeDraft}>
                 <ChefHatIcon /> Make it a draft
               </DropdownMenuItem>
+              {source && (
+                <DropdownMenuItem onClick={onImport}>
+                  <SparklesIcon /> Import from its link
+                </DropdownMenuItem>
+              )}
               <DropdownMenuItem variant="destructive" onClick={() => deleteRecipes([idea], 'idea')}>
                 <Trash2Icon /> Delete
               </DropdownMenuItem>
@@ -557,12 +559,14 @@ function Ideas({
   loading,
   onOpen,
   onMakeDraft,
+  onImport,
   onChoosing,
 }: {
   recipes: RecipeView[]
   loading: boolean
   onOpen: (id: string) => void
   onMakeDraft: (idea: RecipeView) => void
+  onImport: (idea: RecipeView) => void
   onChoosing: (on: boolean) => void
 }) {
   const [search, setSearch] = useState('')
@@ -624,6 +628,7 @@ function Ideas({
             onStart={choosing.choosing || !i.mine ? undefined : () => choosing.start(i.item.id)}
             onOpen={() => onOpen(i.item.id)}
             onMakeDraft={() => onMakeDraft(i)}
+            onImport={() => onImport(i)}
           />
         ))}
       </div>

@@ -87,7 +87,7 @@ Provisionally agreed).
   sauce"); most Recipes won't have any (Joe, 18 October).
 - **Amounts** may be left out ("salt"), a range ("1–2") or approximate
   ("~5"). **Units** are metric: g, kg, ml, l, tsp, tbsp, cup (250 ml; Joe,
-  23 October; from plan step 9b), or none for a count ("2 onions").
+  23 October), or none for a count ("2 onions").
 - **The method is numbered steps; notes are free text.** In either, typing
   "@" names another Recipe — a stock, a sauce — from a short list of
   suggestions; outside editing it is a button that opens it.
@@ -407,7 +407,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to import a recipe from a web page or a video in my
 style, **so that** I don't copy it out and can trust what I get.
-Priority: Should · Status: agreed
+Priority: Should · Status: built (1–9, 11; 10 with plan step 9c)
 
 Acceptance criteria
 1. Given New → Import and a link to a web page or a video, then I see its

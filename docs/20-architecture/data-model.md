@@ -311,7 +311,7 @@ rule and create no links.
 | `core_private.calendar_outbox` | Events and repeating Events waiting to go to Google on a two-way calendar: one waiting row each, when it was queued, its tries and when to try next, when sent and why it failed (Stage 3, [ADR-0048](adr/0048-google-calendar-two-way.md), Provisionally agreed) |
 | `core_private.event_calendars` | The calendar chosen for a new Event as it was made, or none (GCL-005 1, ADR-0048) |
 | `core_private.series_refs` | Which Google repeating event each series sent to Google is, with its `etag` (ADR-0048) |
-| `ops.events` | Errors and failures from the app, Edge Functions, cron jobs and Integrations: what, where (screen), the last few actions, never Items' content |
+| `ops.events` | Errors and failures from the app, Edge Functions, cron jobs and Integrations: what, where (screen), the last few actions, never Items' content; and each use of the AI service (`ai`, its task and prompt version; [ADR-0054](adr/0054-the-ai-service-and-import.md)), counted for the daily allowance |
 | `ops.health_runs` · `ops.heartbeats` | The nightly health check's findings; when jobs outside the database last ran: Reminder sending and the nightly series run ([ADR-0044](adr/0044-reminder-delivery.md), [ADR-0045](adr/0045-extending-series.md)) |
 
 ## The knowledge graph, drawn

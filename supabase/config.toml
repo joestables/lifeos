@@ -426,3 +426,7 @@ verify_jwt = false
 # Called by the service worker with a delivery's token, not a session (ADR-0044).
 [functions.notification-action]
 verify_jwt = false
+
+# Asks Auth who the token is itself, so the browser's preflight isn't refused.
+[functions.ai]
+verify_jwt = false

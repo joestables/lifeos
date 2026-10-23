@@ -374,8 +374,7 @@ StepEditor. Agreed with Joe on 18 October on the
 - Recipes is green (TypeScope); so are its Dialogs and its Filters Sheet.
   Tabs: **Recipes** and **Ideas**; on both, the PageAction is "New", a
   DropdownMenu of New recipe, New idea and Import (`sparkles`; Joe, 23
-  October), and on a phone the Fab opens the same menu (built with Import,
-  plan step 9b; until then "New recipe", or "New idea" on Ideas). **New recipe** is
+  October), and on a phone the Fab opens the same menu. **New recipe** is
   the Edit heading Dialog titled "New recipe", with Cancel and Save; Save
   makes a Draft and opens its Variation to fill, and Done there shows the
   new Recipe. A name a Recipe I can see has is refused under the field, and
@@ -414,17 +413,29 @@ StepEditor. Agreed with Joe on 18 October on the
   three lines (Reading the page, Writing it up, Matching the Pantry; done
   with a filled check, the current one with a spinner, the next muted). A
   link saved before says which Recipe or Idea has it first, with Open and
-  Import anyway. A page of several recipes lists them, as RadioGroup rows,
-  to choose one. A page that isn't a recipe, or a video that says too
+  Import anyway. A page of several recipes lists them as RadioCards (its
+  name, then how many ingredients and steps), to choose one with "Check
+  it". A page that isn't a recipe, or a video that says too
   little, ends in the Dialog on a line saying so and Close. The AI
   unavailable (off, out of allowance, unreachable), Import is disabled in
-  the menu, saying why under it. It ends on **Check the import**, a page
-  laid out as Editing a Variation under the Edit heading Dialog's fields
-  (photo, Name, Category, Cuisine, Protein, Carbs): a value not on my lists
-  and a line's Pantry entry not yet in the Pantry each carry an `outline`
-  "New" Badge; Cancel (outline) and Keep (primary) at the top on a
-  computer, at the foot on a phone. Keep saves it all and opens the
-  Recipe; Cancel, or leaving, asks first and keeps nothing.
+  the menu, saying why under it (12px, muted). It ends on **Check the
+  import** (its PageHeader title), a page laid out as Editing a Variation:
+  a Card of the Edit heading Dialog's fields (the photo, from the page's
+  picture made small on the device, beside Name, Category, Cuisine,
+  Protein and Carbs), the VariationFieldsCard's Serves, Prep and Cook,
+  then Ingredients (IngredientLineEditors, with the page's groups as
+  SubheadingEditors) beside Method (StepEditors), then Notes (a Textarea
+  and "From" the link, muted). A name on none of my lists carries an
+  `outline` "New" Badge (" · New" in a Protein or Carbs Badge), and a
+  line whose entry isn't in the Pantry the IngredientLineEditor's "New";
+  renaming a line matches it to the Pantry entry of that name. Cancel
+  (outline) and Keep (primary) at the top right on a computer, at the
+  foot on a phone, sharing the width. Keep saves it all and opens the
+  Recipe, or says it couldn't, keeping the page; Cancel, or leaving, asks
+  first in an AlertDialog ("Leave without keeping it?", Leave, Cancel) and
+  keeps nothing. An Idea's "…" menu has **Import from its link**, the same
+  Dialog titled so with its link filled in; kept, the Idea keeps its
+  name, photo and notes.
 - **A Recipe's page:** a BackLink to Recipes and the name as the title;
   then the heading (RecipeHeadingLayout): the RecipePhoto (288px on a
   computer; on a phone about half the width, Joe, 20 October) beside
