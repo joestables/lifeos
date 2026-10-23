@@ -1,13 +1,21 @@
 // ai: the AI service (ADR-0054), as the person signed in. Gemini's free tier
 // only; the key is this function's secret. Its tasks: `status` (can the AI
 // be used, and how much of today's allowance is left), `recipe.import`
-// (RCP-014) and `recipe.fill_lines` (RCP-007 5). Each use is counted
+// (RCP-014), `recipe.fill_lines` (RCP-007 5) and `meal.ingredients`
+// (MPL-006 2). Each use is counted
 // against a daily allowance per person (AI_DAILY_ALLOWANCE, 30 to start),
 // and AI_OFF=1 turns it off. The models are configuration: AI_MODEL, then
 // AI_FALLBACK_MODEL. Deployed by Claude through the Supabase MCP with
 // rules.ts, schema.ts, run.ts and packages/food's files.
 import type { AiStatus } from '../../../packages/food/src/imported.ts'
-import { fillLines, importRecipe, Refused, type Gemini, type ImportDeps } from './run.ts'
+import {
+  fillLines,
+  importRecipe,
+  mealIngredients,
+  Refused,
+  type Gemini,
+  type ImportDeps,
+} from './run.ts'
 import type { PantryEntry } from './schema.ts'
 
 const url = Deno.env.get('SUPABASE_URL')!
@@ -24,8 +32,8 @@ const anon =
 const gemini: Gemini = {
   key: Deno.env.get('GEMINI_API_KEY') ?? '',
   models: [
-    Deno.env.get('AI_MODEL') || 'gemini-flash-latest',
-    Deno.env.get('AI_FALLBACK_MODEL') || 'gemini-flash-lite-latest',
+    Deno.env.get('AI_MODEL') || 'gemini-flash-lite-latest',
+    Deno.env.get('AI_FALLBACK_MODEL') || 'gemini-flash-latest',
   ],
 }
 const allowance = Number(Deno.env.get('AI_DAILY_ALLOWANCE') ?? '') || 30
@@ -93,9 +101,9 @@ Deno.serve(async (req) => {
     )
   }
 
-  if (task === 'recipe.import' || task === 'recipe.fill_lines') {
+  if (task === 'recipe.import' || task === 'recipe.fill_lines' || task === 'meal.ingredients') {
     if (off || !gemini.key) return answer({ ok: false, reason: 'off' })
-    if (task === 'recipe.import' && typeof link !== 'string')
+    if (task !== 'recipe.fill_lines' && typeof link !== 'string')
       return answer({ ok: false, reason: 'bad_link' })
     const asMe = { apikey: anon, Authorization: `Bearer ${token}` }
     try {
@@ -135,7 +143,11 @@ Deno.serve(async (req) => {
         },
       }
       return answer(
-        task === 'recipe.import' ? await importRecipe(deps, link!) : await fillLines(deps, steps),
+        task === 'recipe.import'
+          ? await importRecipe(deps, link!)
+          : task === 'meal.ingredients'
+            ? await mealIngredients(deps, link!)
+            : await fillLines(deps, steps),
       )
     } catch (e) {
       if (e instanceof Refused) return answer({ ok: false, reason: e.reason })

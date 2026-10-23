@@ -2,6 +2,23 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#26](https://github.com/joestables/lifeos/pull/26) — Stage 4, step 9d: a Meal's own ingredients and link
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-23
+
+**What it did**
+- Migrations `stage4_meal_lines` (applied by the tool) and
+  `stage4_meal_lines_removing` (run by Joe, its deletes): a typed Meal's
+  link, `food.meal_lines` with RLS as the Meal's, never on leftovers;
+  merges move Meals' lines too. `meal_lines_test` (11).
+- `meal.ingredients` in the `ai` Edge Function: a link's ingredient lines
+  and servings only.
+- The AI asks Flash-Lite first, then Flash (Joe, 23 October).
+- The Meal's popup: Ingredients ("Extra ingredients" on a Recipe's Meal),
+  a typed Meal's Link with Get ingredients and Undo, lines from the Pantry;
+  Copy week copies them (MPL-006). The ingredient row is shared with
+  editing a Variation.
+
 ## [#25](https://github.com/joestables/lifeos/pull/25) — The AI answers sooner, and says when it took too long
 
 Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-23

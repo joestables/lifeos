@@ -558,7 +558,7 @@ MealCard, MealSlot, AddMealButton, MealWeek, MealDay and PantryRow in
   Get ingredients shows a spinner in its button, asks first over existing
   lines ("Replace the ingredients?"), and ends in a toast with Undo; a
   page that isn't a recipe says so under the Link (MPL-006; Joe, 23
-  October; plan step 9d).
+  October). On a phone Get ingredients wraps under the Link.
   Its "…" menu: Move to…, Add leftovers… (not on leftovers) and Remove
   (red). **Move to…** and **Add leftovers…** are small Dialogs: Day (a
   DateField) and Slot (a Select; for leftovers the next lunch or dinner to

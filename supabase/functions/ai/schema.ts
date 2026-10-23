@@ -127,6 +127,29 @@ export const LINES_SCHEMA = {
   properties: { ingredients: { type: 'array', items: INGREDIENT } },
 }
 
+/** A Meal's ingredients from a link: each recipe's name, servings and lines. */
+export const MEAL_SCHEMA = {
+  type: 'object',
+  additionalProperties: false,
+  required: ['isRecipe', 'recipes'],
+  properties: {
+    isRecipe: { type: 'boolean' },
+    recipes: {
+      type: 'array',
+      items: {
+        type: 'object',
+        additionalProperties: false,
+        required: ['name', 'servings', 'ingredients'],
+        properties: {
+          name: { type: 'string' },
+          servings: nullable('integer'),
+          ingredients: { type: 'array', items: INGREDIENT },
+        },
+      },
+    },
+  },
+}
+
 export class ValidationError extends Error {}
 
 export interface PantryEntry {
@@ -182,6 +205,25 @@ export function parseRecipes(text: string, pantry: readonly PantryEntry[]): Impo
     .filter((r): r is Record<string, unknown> => !!r && typeof r === 'object')
     .map((r) => parseRecipe(r, pantry, byName))
     .filter((r) => r.name && (r.lines.length > 0 || r.steps.length > 0))
+}
+
+/** A Meal's ingredients: the first recipe's lines and servings, or none. */
+export function parseMealLines(
+  text: string,
+  pantry: readonly PantryEntry[],
+): { lines: ImportedLine[]; servings: number | null } | null {
+  let raw: unknown
+  try {
+    raw = JSON.parse(text)
+  } catch {
+    throw new ValidationError('The AI answered something that wasn’t JSON')
+  }
+  const obj = (raw ?? {}) as { isRecipe?: unknown; recipes?: unknown }
+  if (obj.isRecipe === false || !Array.isArray(obj.recipes)) return null
+  const first = obj.recipes.find((r): r is Record<string, unknown> => !!r && typeof r === 'object')
+  if (!first) return null
+  const lines = parseLines(JSON.stringify({ ingredients: first.ingredients ?? [] }), pantry)
+  return lines.length ? { lines, servings: int(first.servings) } : null
 }
 
 /** Fill from method's JSON as lines, checked against the Pantry as an import's are. */

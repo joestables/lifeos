@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  applyPendingMealLines,
   applyPendingCooks,
   applyPendingLines,
   applyPendingMeals,
@@ -322,14 +323,50 @@ describe('MPL-002, MPL-003: a Meal shows at once, offline too', () => {
 
   it('keeps its servings, then a change to them', () => {
     expect(applyPendingMeals([], [plan])).toEqual([
-      { item_id: 'm', servings: 4, leftovers_of: null },
+      { item_id: 'm', servings: 4, leftovers_of: null, source: null },
     ])
     expect(
       applyPendingMeals(
         [],
         [plan, entry('food.update_meal', { p_id: 'm', p_patch: { servings: 6 } })],
       ),
-    ).toEqual([{ item_id: 'm', servings: 6, leftovers_of: null }])
+    ).toEqual([{ item_id: 'm', servings: 6, leftovers_of: null, source: null }])
+  })
+
+  it('MPL-006: keeps its link, and its own lines added, changed and removed', () => {
+    expect(
+      applyPendingMeals(
+        [],
+        [
+          plan,
+          entry('food.update_meal', { p_id: 'm', p_patch: { source: ' https://x.example/a ' } }),
+        ],
+      )[0]?.source,
+    ).toBe('https://x.example/a')
+    const lines = applyPendingMealLines(
+      [],
+      [
+        entry('food.add_meal_line', {
+          p_id: 'b',
+          p_meal: 'm',
+          p_fields: { position: 'b', text: 'Milk' },
+        }),
+        entry('food.add_meal_line', {
+          p_id: 'a',
+          p_meal: 'm',
+          p_fields: { position: 'a', pantry_id: 'p1', qty: 1, unit: 'cup' },
+        }),
+        entry('food.update_meal_line', { p_id: 'b', p_patch: { qty: 2 } }),
+        entry('food.merge_pantry', { p_keep: 'p2', p_merge: 'p1' }),
+      ],
+    )
+    expect(lines.map((l) => [l.id, l.pantry_id ?? l.text, l.qty])).toEqual([
+      ['a', 'p2', 1],
+      ['b', 'Milk', 2],
+    ])
+    expect(
+      applyPendingMealLines(lines, [entry('food.remove_meal_line', { p_id: 'a' })]),
+    ).toHaveLength(1)
   })
 
   it('uses its Variation, and another once changed', () => {

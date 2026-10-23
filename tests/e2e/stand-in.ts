@@ -35,8 +35,10 @@ export interface Rows {
   variation_steps?: Record<string, unknown>[]
   cooks?: Record<string, unknown>[]
   pantry?: Record<string, unknown>[]
-  /** Meals' own fields (food.meal): servings, leftovers_of. */
+  /** Meals' own fields (food.meal): servings, leftovers_of, source. */
   meal?: Record<string, unknown>[]
+  /** Meals' own lines (MPL-006). */
+  meal_lines?: Record<string, unknown>[]
   /** My Spaces' staples (PAN-002); my personal Space is `s`. */
   staples?: Record<string, unknown>[]
   values?: Record<string, unknown>[]
@@ -65,6 +67,7 @@ export interface Rows {
     status?: Record<string, unknown>
     import?: Record<string, unknown>
     fill?: Record<string, unknown>
+    meal?: Record<string, unknown>
   }
   /** What connecting Google Calendar brings: its calendars and the main one's events. */
   google?: {
@@ -184,7 +187,16 @@ export async function standIn(
     cooks: [...(rows.cooks ?? [])],
     pantry: [...(rows.pantry ?? [])],
     staples: [...(rows.staples ?? [])],
-    meal: [...(rows.meal ?? [])],
+    meal: [...(rows.meal ?? [])].map((m): Record<string, unknown> => ({ source: null, ...m })),
+    meal_lines: (rows.meal_lines ?? []).map((l): Record<string, unknown> => ({
+      pantry_id: null,
+      text: null,
+      qty: null,
+      qty_max: null,
+      approx: false,
+      unit: null,
+      ...l,
+    })),
     spaces: [
       { id: 's', kind: 'personal', name: '', created_by: ANN.id },
       ...(rows.spaces ?? []).map((h) => ({ kind: 'household', ...h })),
@@ -579,6 +591,7 @@ export async function standIn(
         item_id: a.p_id,
         servings: f.servings ?? null,
         leftovers_of: f.leftovers_of ?? null,
+        source: f.source ?? null,
       })
       if (f.variation)
         db.links.push({
@@ -589,6 +602,25 @@ export async function standIn(
     },
     update_meal: (a) =>
       db.meal.filter((m) => m.item_id === a.p_id).forEach((m) => Object.assign(m, a.p_patch)),
+    add_meal_line: (a) => {
+      if (db.meal_lines.some((l) => l.id === a.p_id)) return
+      db.meal_lines.push({
+        pantry_id: null,
+        text: null,
+        qty: null,
+        qty_max: null,
+        approx: false,
+        unit: null,
+        ...(a.p_fields as object),
+        id: a.p_id,
+        meal_id: a.p_meal,
+      })
+    },
+    update_meal_line: (a) =>
+      db.meal_lines.filter((l) => l.id === a.p_id).forEach((l) => Object.assign(l, a.p_patch)),
+    remove_meal_line: (a) => {
+      db.meal_lines = db.meal_lines.filter((l) => l.id !== a.p_id)
+    },
     set_meal_variation: (a) => {
       db.links = db.links.filter((l) => !(l.from_item === a.p_meal && l.link_type === 'uses'))
       if (a.p_variation)
@@ -608,7 +640,8 @@ export async function standIn(
     },
     remove_pantry: (a) => {
       // Refused while any line uses it, as the foreign key does (PAN-001 4).
-      if (db.variation_lines.some((l) => l.pantry_id === a.p_id)) return 'in use'
+      if ([...db.variation_lines, ...db.meal_lines].some((l) => l.pantry_id === a.p_id))
+        return 'in use'
       db.pantry = db.pantry.filter((p) => p.id !== a.p_id)
       db.staples = db.staples.filter((x) => x.pantry_id !== a.p_id)
     },
@@ -1111,7 +1144,9 @@ export async function standIn(
             ? (ai?.status ?? { available: true, left: 30 })
             : body.task === 'recipe.fill_lines'
               ? (ai?.fill ?? { ok: false, reason: 'not_recipe' })
-              : (ai?.import ?? { ok: false, reason: 'not_recipe' }),
+              : body.task === 'meal.ingredients'
+                ? (ai?.meal ?? { ok: false, reason: 'not_recipe' })
+                : (ai?.import ?? { ok: false, reason: 'not_recipe' }),
       })
     }
     if (url.pathname.endsWith('/functions/v1/calendar-connect'))

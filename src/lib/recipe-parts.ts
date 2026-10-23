@@ -230,8 +230,8 @@ const exact = (n: number) => String(Math.round(n * 1000) / 1000)
 
 /** A line's amount as it was typed, without its unit: "1–2", "~5", "". */
 export function amountText(l: Pick<Line, 'qty' | 'qty_max' | 'approx'>): string {
-  if (l.qty === null) return ''
-  return `${l.approx ? '~' : ''}${exact(l.qty)}${l.qty_max === null ? '' : `–${exact(l.qty_max)}`}`
+  if (l.qty == null) return ''
+  return `${l.approx ? '~' : ''}${exact(l.qty)}${l.qty_max == null ? '' : `–${exact(l.qty_max)}`}`
 }
 
 /**

@@ -10,7 +10,7 @@
  * goes with every use to ops.events, so a bad import can be traced to the
  * words that made it.
  */
-export const PROMPT_VERSION = '2026-10-23.2'
+export const PROMPT_VERSION = '2026-10-23.3'
 
 export const SYSTEM_INSTRUCTION = `
 You are an experienced chef turning a recipe into structured data for one
@@ -500,6 +500,16 @@ method itself is not yours to change and is not returned.
   short phrase ("For the sauce").
 `.trim()
 
+/** A Meal's ingredients from a link (MPL-006 2): the lines and servings only. */
+export const MEAL_RULES = `
+## The task: only the ingredients
+
+The cook wants to try this recipe before keeping it, so they need only its
+ingredients, for shopping. Return each recipe's name, how many it serves,
+and its ingredient lines following every rule below. There is no method,
+no notes and no category to write.
+`.trim()
+
 /** Worked examples for the lines, against a Pantry of four. */
 export const LINE_EXAMPLES = `
 ## Worked examples
@@ -564,6 +574,20 @@ export function fillInput(pantry: readonly string[], steps: readonly string[]): 
     pantryList(pantry),
     '# The method',
     steps.map((s, i) => `${i + 1}. ${s}`).join('\n'),
+  ].join('\n\n')
+}
+
+/** The user turn for a Meal's ingredients: the rules, the Pantry, then the source. */
+export function mealInput(pantry: readonly string[], source: string): string {
+  return [
+    MEAL_RULES,
+    LINE_RULES,
+    PAGE_RULES,
+    LINE_EXAMPLES,
+    '# This cook',
+    pantryList(pantry),
+    '# The source',
+    source,
   ].join('\n\n')
 }
 

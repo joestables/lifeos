@@ -192,7 +192,7 @@ Acceptance criteria
 **As** Joe, **I want** to give any Meal ingredients, or read them from a
 recipe's link, **so that** what I'll shop for includes Meals that aren't
 Recipes (Joe, 23 October).
-Priority: Should · Status: agreed
+Priority: Should · Status: built (lines going to a shopping list with Shopping, Stage 4b)
 
 Acceptance criteria
 1. Given a Meal that isn't leftovers, then I add, change, reorder and
