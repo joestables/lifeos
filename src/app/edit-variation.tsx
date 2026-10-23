@@ -306,14 +306,6 @@ function Method({
     }),
     ...fresh.filter((r) => !kept.has(r.id)),
   ].sort(byPosition)
-  const reorder = useReorder(
-    rows.map((r) => r.id),
-    (id, to) => {
-      const position = movedPosition(rows, id, to)
-      if (kept.has(id)) updateStep(v, id, { position })
-      else setFresh((f) => f.map((r) => (r.id === id ? { ...r, position } : r)))
-    },
-  )
   const addAfter = (after?: StepRow) => {
     const i = after ? rows.indexOf(after) : rows.length - 1
     const id = newId()
@@ -385,7 +377,6 @@ function Method({
           <StepEditor
             key={r.id}
             n={i + 1}
-            reorder={reorder.row(r.id)}
             onRemove={() => {
               if (r.kept) removeStep(v, r.id)
               setFresh((f) => f.filter((x) => x.id !== r.id))
@@ -399,7 +390,6 @@ function Method({
                 onChange={(text) => setDrafts((d) => ({ ...d, [r.id]: text }))}
                 onCommit={() => commit(r)}
                 onEnter={() => addAfter(r)}
-                onKeyDown={reorder.keys(r.id)}
                 refs={refsOf(r.id)}
                 recipes={food.recipes}
                 except={recipe.item.id}

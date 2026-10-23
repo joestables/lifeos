@@ -66,26 +66,19 @@ export function roundFor(unit: Unit | null, n: number): number {
   return 0.5
 }
 
-const SHOWN: Record<number, string> = { 0.25: '¼', 0.5: '½', 0.75: '¾' }
-
-/** 1.5 → "1½", 0.25 → "¼" for spoons and counts; decimals elsewhere. */
-export function formatNumber(n: number, unit: Unit | null): string {
-  const whole = Math.floor(n)
-  const part = Math.round((n - whole) * 100) / 100
-  if ((unit === null || unit === 'tsp' || unit === 'tbsp' || unit === 'cup') && SHOWN[part]) {
-    return `${whole || ''}${SHOWN[part]}`
-  }
+/** Always decimal (Joe, 23 October): 1.5, 0.75, never "1½". */
+export function formatNumber(n: number): string {
   return String(Math.round(n * 100) / 100)
 }
 
 /** "200 g", "1–2 tbsp", "~5 g", "2", or "" with no amount. */
 export function formatAmount(amount: Amount): string {
   if (amount.qty === null) return ''
-  const lo = formatNumber(roundFor(amount.unit, amount.qty), amount.unit)
+  const lo = formatNumber(roundFor(amount.unit, amount.qty))
   const hi =
     amount.qtyMax === null
       ? ''
-      : `–${formatNumber(roundFor(amount.unit, amount.qtyMax), amount.unit)}`
+      : `–${formatNumber(roundFor(amount.unit, amount.qtyMax))}`
   return `${amount.approx ? '~' : ''}${lo}${hi}${amount.unit ? ` ${amount.unit}` : ''}`
 }
 

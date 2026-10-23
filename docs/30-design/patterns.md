@@ -456,7 +456,7 @@ StepEditor. Agreed with Joe on 18 October on the
   over the Log (three LogEntries and a ghost "See all") — stacked on a
   phone. An ingredient reads name first, its amount at the end. In the Log
   an edit says "Edited" (with the Variation's name when there are several)
-  and, under it, its note; my own entries carry a "…": "Say what changed"
+  only when its ingredients or method changed, and, under it, its note; my own entries carry a "…": "Say what changed"
   (or "Change the note") on an edit, a small Dialog "What changed?" with a
   Textarea, Cancel and Save; "Change how it went" on a cook. "See all"
   opens a Dialog of the whole log, twenty entries at a time with an outline
@@ -480,8 +480,8 @@ StepEditor. Agreed with Joe on 18 October on the
   Textarea and the links, each an Input with a ghost X, and "Add a link".
   Everything is kept as it is left, and also when the page goes some other
   way (swiped back, the app closed); there is nothing to save, so the
-  button says Done. Lines reorder by their handle (on a phone too) and
-  steps by theirs on a computer, or Alt+↑ / Alt+↓. **Fill from method**
+  button says Done. Lines reorder by their handle (on a phone too), or
+  Alt+↑ / Alt+↓; steps don't reorder (Joe, 23 October). **Fill from method**
   works in place, the card's lines replaced by Skeletons while it runs;
   over existing lines it asks first, an AlertDialog "Replace the
   ingredients?" (Cancel, Replace). **Import from a link** opens a small
@@ -594,8 +594,9 @@ MealCard, MealSlot, AddMealButton, MealWeek, MealDay and PantryRow in
   the other entries I added of the same kind, A–Z, none chosen to start)
   and Name (this entry's to start, the name kept); then Cancel and Merge,
   which waits for a choice. **Delete** of an entry
-  no Recipe uses says so in a toast with Undo; one in use isn't deleted,
-  and a toast names where it is used ("Used in Katsu curry and 2 more").
+  nothing uses says so in a toast with Undo; one a Recipe or a Meal's own
+  lines use isn't deleted, and a toast names where it is used, Recipes
+  first ("Used in Katsu curry and 2 more").
 - **Kept as typed** (PAN-004 2): after the household items, when any of my
   Recipes' lines were kept as typed, a SectionLabel and a Card of CardRows,
   A–Z: the name as typed and, as its value, how many of my Recipes use it;

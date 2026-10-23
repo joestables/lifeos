@@ -151,7 +151,6 @@ export function MethodSteps({
             className={cn(
               'flex gap-3',
               cooking && 'rounded-row px-3 py-3',
-              cooking && s.key === current && 'bg-accent',
             )}
           >
             {onStep ? (
@@ -224,7 +223,7 @@ const ROW =
   'rounded-control data-[reorder=dragging]:opacity-50 data-[reorder=over]:ring-2 data-[reorder=over]:ring-ring'
 
 /**
- * A step being edited: a handle to reorder it, its number, its text in an
+ * A step being edited: its number, its text in an
  * `--input` box, and Remove. `field` replaces the box when it carries the
  * "@" suggestions (a Popover's trigger).
  */
@@ -244,7 +243,7 @@ export function StepEditor({
 }) {
   return (
     <div {...rowState(reorder)} className={cn('group/step flex items-start gap-2', ROW)}>
-      <Handle reorder={reorder} className="mt-2.5 group-hover/step:opacity-100" />
+      {reorder && <Handle reorder={reorder} className="mt-2.5 group-hover/step:opacity-100" />}
       <span className="mt-2 grid size-6 shrink-0 place-items-center rounded-full bg-muted text-xs font-bold tabular-nums">
         {n}
       </span>
@@ -456,7 +455,7 @@ export function RecipeColumns({
         'grid items-start gap-4',
         layout === 'read' && 'lg:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)_minmax(0,1fr)]',
         layout === 'cooking' && 'lg:grid-cols-[minmax(0,1fr)_minmax(0,1.7fr)]',
-        layout === 'editing' && 'lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]',
+        layout === 'editing' && 'lg:grid-cols-2',
       )}
     >
       {children}

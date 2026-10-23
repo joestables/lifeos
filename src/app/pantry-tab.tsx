@@ -17,10 +17,12 @@ import {
   setStaple,
   updateLine,
   useFood,
+  useMeals,
   useStaples,
   type PantryEntry,
 } from '@/data'
 import {
+  mealsUsing,
   mergeable,
   pantryGroups,
   recipesUsing,
@@ -73,12 +75,17 @@ export function PantryTab({
   )
   const entries = useMemo(() => [...food.pantry.values()], [food.pantry])
   const using = useMemo(() => recipesUsing(recipes), [recipes])
+  const { meals } = useMeals(queue)
+  const mealUses = useMemo(
+    () => mealsUsing(meals.map((m) => ({ id: m.item.id, name: m.item.title, lines: m.lines }))),
+    [meals],
+  )
   const typed = useMemo(() => typedNames(recipes, entries), [recipes, entries])
   const { aisles, household } = pantryGroups(entries, staples, show, search)
   const shown = aisles.length > 0 || household.length > 0
 
   const remove = (entry: PantryEntry) => {
-    const used = using.get(entry.id) ?? []
+    const used = [...(using.get(entry.id) ?? []), ...(mealUses.get(entry.id) ?? [])]
     if (used.length) {
       toast(usedIn(used))
       return
@@ -112,7 +119,6 @@ export function PantryTab({
       <PantryRow
         key={e.id}
         name={e.name}
-        unit={e.default_unit ?? undefined}
         recipes={using.get(e.id)?.length}
         staple={staple !== undefined}
         out={staple?.out ?? false}

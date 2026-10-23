@@ -33,7 +33,8 @@ work offline on the device and be checked in the database.
   can't drift.
 - **Display rounding:** whole grams and millilitres up to 100, then to 5;
   kg and l to two decimals; spoons and cups to quarters; counts to halves; never
-  rounded to nothing.
+  rounded to nothing. Always shown as decimals, "0.75 tsp" and never "¾ tsp"
+  (Joe, 23 October); a fraction is still read when typed.
 
 ## Consequences
 

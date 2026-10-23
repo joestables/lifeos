@@ -52,7 +52,7 @@ describe('scaling and showing amounts (RCP-011 2; ADR-0053)', () => {
 
   it('scales both ends of a range', () => {
     expect(scale(honey, 1.5)).toEqual({ ...honey, qty: 1.5, qtyMax: 3 })
-    expect(formatAmount(scale(honey, 1.5))).toBe('1½–3 tbsp')
+    expect(formatAmount(scale(honey, 1.5))).toBe('1.5–3 tbsp')
   })
 
   it('leaves an amount-less line alone', () => {
@@ -73,7 +73,7 @@ describe('scaling and showing amounts (RCP-011 2; ADR-0053)', () => {
 
   it('shows approximate amounts and counts', () => {
     expect(formatAmount({ qty: 5, qtyMax: null, approx: true, unit: 'g' })).toBe('~5 g')
-    expect(formatAmount({ qty: 1.5, qtyMax: null, approx: false, unit: null })).toBe('1½')
+    expect(formatAmount({ qty: 1.5, qtyMax: null, approx: false, unit: null })).toBe('1.5')
     expect(formatAmount({ qty: 1.5, qtyMax: null, approx: false, unit: 'kg' })).toBe('1.5 kg')
   })
 
@@ -92,7 +92,7 @@ describe('scaling and showing amounts (RCP-011 2; ADR-0053)', () => {
       kind: 'volume',
       value: 375,
     })
-    expect(formatAmount({ qty: 0.75, qtyMax: null, approx: false, unit: 'cup' })).toBe('¾ cup')
+    expect(formatAmount({ qty: 0.75, qtyMax: null, approx: false, unit: 'cup' })).toBe('0.75 cup')
   })
 })
 

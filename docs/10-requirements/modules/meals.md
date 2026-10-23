@@ -162,7 +162,8 @@ Acceptance criteria
    choosing one adds a Meal of its default Variation, or offers its
    Variations when it has more than one.
 2. Given a new Meal, then its servings are the Variation's until I change
-   them, and its Space is my default from Settings → Food (Personal or one
+   them on the Meal, a change to the Variation's showing on the plan too
+   (Joe, 23 October); cleared, they are the Variation's again. Its Space is my default from Settings → Food (Personal or one
    of my Households) until I change it.
 3. Given the "+", then I can instead type a Meal ("Out: Dishoom"), or
    choose Leftovers of an earlier Meal.
@@ -247,7 +248,8 @@ Acceptance criteria
    and a rename shows in every Recipe at once; someone else's I can't
    change.
 4. Given an entry I added that nothing uses, then I can delete it, with
-   Undo; one in use can't be deleted, and says where it is used.
+   Undo; one in use can't be deleted, and says where it is used: the
+   Recipes, then the Meals whose own lines use it (MPL-006).
 5. Given an entry, then I see which Recipes use it.
 
 ### PAN-002 — Staples and out of stock

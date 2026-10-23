@@ -45,6 +45,7 @@ export function useMealPlan(): MealPlanData {
       status: v.item.status,
       created_at: v.item.created_at,
       servings: v.servings,
+      ownServings: v.servings,
       leftoversOf: v.leftoversOf,
       variation: v.variation,
       space: v.item.space_id,
@@ -53,11 +54,17 @@ export function useMealPlan(): MealPlanData {
       source: v.source,
       lines: v.lines,
     }))
-    const byId = new Map(meals.map((m) => [m.id, m]))
     const recipeOf = (m: PlannedMeal) => {
       const r = m.variation ? food.recipeOf.get(m.variation) : undefined
       return r ? food.byId.get(r) : undefined
     }
+    // A Recipe's Meal serves what its Variation does until I change it
+    // there (MPL-002 2): a change to the Variation shows on the plan.
+    for (const m of meals)
+      if (m.servings === null && m.variation)
+        m.servings =
+          recipeOf(m)?.variations.find((x) => x.item.id === m.variation)?.fields.servings ?? null
+    const byId = new Map(meals.map((m) => [m.id, m]))
     return {
       food,
       meals,
@@ -74,7 +81,10 @@ export function useMealPlan(): MealPlanData {
 /** Where a new Meal goes: my default, Personal or a Household (MPL-002 2). */
 const inSpace = (space: string | null | undefined) => (space ? { space_id: space } : {})
 
-/** A Recipe's Meal in a slot, serving what its Variation does (MPL-002 1, 2). */
+/**
+ * A Recipe's Meal in a slot (MPL-002 1, 2): with no servings of its own, it
+ * serves what its Variation does, now and after the Variation changes.
+ */
 export function planRecipe(
   day: string,
   slot: SlotKey,
@@ -87,7 +97,6 @@ export function planRecipe(
     do_on: day,
     slot,
     variation: v.item.id,
-    servings: v.fields.servings,
     ...inSpace(space),
   })
 }
@@ -151,7 +160,7 @@ export function copyMeals(meals: readonly PlannedMeal[], from: string, to: strin
         do_on: c.day,
         slot: c.from.slot as SlotKey,
         ...(c.from.variation && { variation: c.from.variation }),
-        servings: c.from.servings,
+        servings: c.from.ownServings ?? null,
         ...(c.leftoversOf && { leftovers_of: c.leftoversOf }),
         ...(c.from.source && { source: c.from.source }),
         ...inSpace(c.from.space),

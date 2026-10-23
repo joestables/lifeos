@@ -27,7 +27,10 @@ export interface PlannedMeal {
   slot: string | null
   status: string
   created_at: string
+  /** What it serves: its own, else its Variation's (MPL-002 2). */
   servings: number | null
+  /** Its own servings, set on the Meal; null follows its Variation. */
+  ownServings?: number | null
   leftoversOf: string | null
   variation: string | null
   /** Its Space: Personal or one of my Households (MPL-002 2). */

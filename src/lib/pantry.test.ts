@@ -3,6 +3,7 @@ import {
   mergeable,
   nameKey,
   pantryGroups,
+  mealsUsing,
   recipesUsing,
   typedNames,
   usedIn,
@@ -98,6 +99,17 @@ describe('PAN-001 1, 4, 5: which Recipes use an entry', () => {
     expect(usedIn(used.get('o') ?? [])).toBe('Used in Bibimbap and 1 more')
     expect(usedIn(used.get('s') ?? [])).toBe('Used in Katsu curry')
     expect(usedIn([])).toBe('')
+  })
+
+  it('says a Meal’s own lines use an entry, after Recipes', () => {
+    const meals = mealsUsing([
+      { id: 'm', name: 'Cornflakes', lines: [{ pantry_id: 'milk' }, { pantry_id: 'milk' }] },
+      { id: 'n', name: 'Porridge', lines: [{ pantry_id: null }] },
+    ])
+    expect(meals.get('milk')?.map((m) => m.name)).toEqual(['Cornflakes'])
+    expect(usedIn([...(recipesUsing(recipes).get('s') ?? []), ...(meals.get('milk') ?? [])])).toBe(
+      'Used in Katsu curry and 1 more',
+    )
   })
 })
 

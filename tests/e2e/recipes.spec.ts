@@ -380,7 +380,7 @@ test.describe('Recipes', () => {
     await page.getByRole('button', { name: 'More servings' }).first().click()
     await expect(page.getByText('Serves 6').filter({ visible: true }).first()).toBeVisible()
     await expect(page.getByText('150 g')).toBeVisible()
-    await expect(page.getByText('1½–3 tbsp')).toBeVisible()
+    await expect(page.getByText('1.5–3 tbsp')).toBeVisible()
     await expect(page.getByText('Not scaled')).toBeVisible()
     await page.getByRole('button', { name: "I'm on step 3" }).click()
     await expect(page.getByRole('button', { name: "I'm on step 3" })).toHaveAttribute(

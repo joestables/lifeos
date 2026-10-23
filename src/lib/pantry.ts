@@ -53,9 +53,28 @@ export function recipesUsing(recipes: readonly PantryRecipe[]): Map<string, Pant
   return out
 }
 
-/** "Used in Katsu curry", "Used in Katsu curry and 2 more" (PAN-001 4). */
-export function usedIn(recipes: readonly PantryRecipe[]): string {
-  const [first, ...rest] = recipes
+/** Which Meals' own lines use each entry (MPL-006 1), each once, A–Z. */
+export function mealsUsing(
+  meals: readonly { id: string; name: string; lines: readonly { pantry_id: string | null }[] }[],
+): Map<string, { id: string; name: string }[]> {
+  const out = new Map<string, { id: string; name: string }[]>()
+  for (const m of [...meals].sort((a, b) => a.name.localeCompare(b.name))) {
+    for (const id of new Set(m.lines.map((l) => l.pantry_id))) {
+      if (!id) continue
+      const list = out.get(id)
+      if (list) list.push(m)
+      else out.set(id, [m])
+    }
+  }
+  return out
+}
+
+/**
+ * "Used in Katsu curry", "Used in Katsu curry and 2 more" (PAN-001 4):
+ * Recipes first, then Meals.
+ */
+export function usedIn(uses: readonly { name: string }[]): string {
+  const [first, ...rest] = uses
   if (!first) return ''
   return rest.length ? `Used in ${first.name} and ${rest.length} more` : `Used in ${first.name}`
 }
