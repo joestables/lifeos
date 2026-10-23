@@ -24,9 +24,34 @@ const GROUP_MS = 60 * 60 * 1000
 
 type Change = { from?: unknown; to?: unknown }
 
+/** What a line or step says, without where it sits or when it was saved. */
+function content(row: unknown): string {
+  if (!row || typeof row !== 'object') return ''
+  const rest: Record<string, unknown> = { ...(row as Record<string, unknown>) }
+  for (const k of ['id', 'position', 'created_at', 'updated_at', 'variation_id']) delete rest[k]
+  return JSON.stringify(
+    Object.keys(rest)
+      .sort()
+      .map((k) => [k, rest[k]]),
+  )
+}
+
+/**
+ * Whether an update changed a Variation's ingredients or method (Joe, 23
+ * October): a line or step added, removed or reworded, not moved, and not
+ * its name, times, notes or the heading.
+ */
+export function changesRecipe(changed: Activity['changed']): boolean {
+  return (['line', 'step'] as const).some((k) => {
+    const c = changed[k] as Change | undefined
+    return c !== undefined && content(c.from) !== content(c.to)
+  })
+}
+
 /**
  * A Recipe's log, newest first (RCP-013 1, 2): its cooks; Variations made,
- * edited, marked or deleted; the heading edited; archiving. An edit says
+ * edited, marked or deleted; archiving. An edit is a change to a
+ * Variation's ingredients or method only (Joe, 23 October), and says
  * "Edited", with the note its maker gave it, if any (Joe, 20 October); edits
  * by one person to one thing close together are one entry. The Recipe's
  * state, worked out by the server, isn't an entry of its own.
@@ -77,8 +102,8 @@ export function recipeLog(
           ? 'Archived'
           : 'Brought back'
       items.push({ ...base, key: `a:${a.id}`, what })
-    } else if (a.verb === 'updated' && Object.keys(a.changed).some((k) => k !== 'status')) {
-      const what = variation ? `Edited${label(variation)}` : 'Edited'
+    } else if (a.verb === 'updated' && variation && changesRecipe(a.changed)) {
+      const what = `Edited${label(variation)}`
       // Newest first: the open entry is a later edit of the same thing, and
       // this earlier one is where it starts.
       if (

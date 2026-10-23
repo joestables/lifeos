@@ -195,7 +195,17 @@ const collections: {
   },
   {
     key: pantryKey,
-    fns: ['food.add_pantry', 'food.update_pantry', 'food.remove_pantry', 'food.merge_pantry'],
+    // A line's unit may become its entry's default (PAN-004 3): refetched after.
+    fns: [
+      'food.add_pantry',
+      'food.update_pantry',
+      'food.remove_pantry',
+      'food.merge_pantry',
+      'food.add_line',
+      'food.update_line',
+      'food.add_meal_line',
+      'food.update_meal_line',
+    ],
     fold: (rows: PantryEntry[], e: QueueEntry) => applyPendingPantry(rows, [e], ''),
   },
   {
@@ -415,6 +425,7 @@ export {
   fillFromMethod,
   importRecipe,
   mealIngredients,
+  linkPicture,
   keepImport,
   useAiStatus,
   type KeptImport,
@@ -423,6 +434,7 @@ export {
   useFood,
   useFoodSpaces,
   useMeals,
+  usePantryInUse,
   useRecipeActivity,
   useStaples,
   type FoodData,

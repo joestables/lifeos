@@ -50,7 +50,14 @@ import { STATE_NAMES, byPosition, editableText, storedText } from '@/lib/recipe-
 import { IngredientRow } from './ingredient-row'
 import { AI_REFUSALS } from './ai-words'
 import { ImportDialog } from './import-dialog'
-import { importInto, linesFrom, replaceLines } from './variation-ai'
+import {
+  clearBackgroundImport,
+  continueImport,
+  keepImportInto,
+  linesFrom,
+  replaceLines,
+  useBackgroundImport,
+} from './variation-ai'
 import { LinksField } from './links-field'
 import { titlesOf } from './recipe-helpers'
 import { Field } from './task-details'
@@ -159,6 +166,9 @@ function Ingredients({
 }) {
   const v = variation.item.id
   const filler = useFill(variation)
+  // An import going on with its Dialog closed (Joe, 23 October).
+  const background = useBackgroundImport(variation)
+  const busy = filler.filling || background?.state === 'working'
   const [fresh, setFresh] = useState<Row[]>([])
   const [focus, setFocus] = useState<string | null>(null)
   const kept = new Set(variation.lines.map((l) => l.id))
@@ -194,12 +204,7 @@ function Ingredients({
     <RecipePanel
       title="Ingredients"
       action={
-        <Button
-          variant="ghost"
-          size="sm"
-          disabled={filler.empty || filler.filling}
-          onClick={filler.start}
-        >
+        <Button variant="ghost" size="sm" disabled={filler.empty || busy} onClick={filler.start}>
           <SparklesIcon /> Fill from method
         </Button>
       }
@@ -215,9 +220,9 @@ function Ingredients({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-      <div className="flex flex-col gap-2" aria-busy={filler.filling || undefined}>
-        {filler.filling && [0, 1, 2, 3].map((i) => <Skeleton key={i} className="h-10" />)}
-        {!filler.filling &&
+      <div className="flex flex-col gap-2" aria-busy={busy || undefined}>
+        {busy && [0, 1, 2, 3].map((i) => <Skeleton key={i} className="h-10" />)}
+        {!busy &&
           rows.map((r) =>
             r.heading ? (
               <SubheadingRow
@@ -287,6 +292,7 @@ function Method({
   const v = variation.item.id
   const titles = titlesOf(food)
   const [importing, setImporting] = useState(false)
+  const background = useBackgroundImport(variation)
   // What each step's "@Name"s stand for, as typed and chosen.
   const [refs] = useState(() => new Map<string, Map<string, string>>())
   const refsOf = (id: string) => {
@@ -306,14 +312,6 @@ function Method({
     }),
     ...fresh.filter((r) => !kept.has(r.id)),
   ].sort(byPosition)
-  const reorder = useReorder(
-    rows.map((r) => r.id),
-    (id, to) => {
-      const position = movedPosition(rows, id, to)
-      if (kept.has(id)) updateStep(v, id, { position })
-      else setFresh((f) => f.map((r) => (r.id === id ? { ...r, position } : r)))
-    },
-  )
   const addAfter = (after?: StepRow) => {
     const i = after ? rows.indexOf(after) : rows.length - 1
     const id = newId()
@@ -355,7 +353,12 @@ function Method({
       action={
         // A Draft only (Joe, 23 October).
         variation.item.status === 'active' ? (
-          <Button variant="ghost" size="sm" onClick={() => setImporting(true)}>
+          <Button
+            variant="ghost"
+            size="sm"
+            disabled={background !== undefined}
+            onClick={() => setImporting(true)}
+          >
             <SparklesIcon /> Import from a link
           </Button>
         ) : undefined
@@ -369,44 +372,62 @@ function Method({
               variation.lines.length > 0 || variation.steps.some((s) => s.text.trim() !== ''),
           }}
           onClose={() => setImporting(false)}
+          onContinue={(work, link) => {
+            setDrafts({})
+            setFresh([])
+            continueImport(v, work, link)
+          }}
           onChecked={({ recipe: imported, link }) => {
             setImporting(false)
             setDrafts({})
             setFresh([])
-            const undo = importInto(variation, imported, link)
-            toast('Imported the ingredients and method', {
-              action: { label: 'Undo', onClick: undo },
-            })
+            keepImportInto(v, imported, link)
           }}
         />
       )}
-      <div className="flex flex-col gap-2.5">
-        {rows.map((r, i) => (
-          <StepEditor
-            key={r.id}
-            n={i + 1}
-            reorder={reorder.row(r.id)}
-            onRemove={() => {
-              if (r.kept) removeStep(v, r.id)
-              setFresh((f) => f.filter((x) => x.id !== r.id))
-            }}
-            field={
-              <ReferenceField
-                label={`Step ${i + 1}`}
-                className={STEP_FIELD}
-                autoFocus={focus === r.id}
-                value={drafts[r.id] ?? r.text}
-                onChange={(text) => setDrafts((d) => ({ ...d, [r.id]: text }))}
-                onCommit={() => commit(r)}
-                onEnter={() => addAfter(r)}
-                onKeyDown={reorder.keys(r.id)}
-                refs={refsOf(r.id)}
-                recipes={food.recipes}
-                except={recipe.item.id}
-              />
-            }
-          />
-        ))}
+      {background?.state === 'choose' && (
+        <ImportDialog
+          food={food}
+          into={{ replacing: true }}
+          choice={background}
+          onClose={() => clearBackgroundImport(v)}
+          onChecked={({ recipe: imported, link }) => {
+            clearBackgroundImport(v)
+            keepImportInto(v, imported, link)
+          }}
+        />
+      )}
+      <div
+        className="flex flex-col gap-2.5"
+        aria-busy={background?.state === 'working' || undefined}
+      >
+        {background?.state === 'working' &&
+          [0, 1, 2].map((i) => <Skeleton key={i} className="h-16" />)}
+        {background?.state !== 'working' &&
+          rows.map((r, i) => (
+            <StepEditor
+              key={r.id}
+              n={i + 1}
+              onRemove={() => {
+                if (r.kept) removeStep(v, r.id)
+                setFresh((f) => f.filter((x) => x.id !== r.id))
+              }}
+              field={
+                <ReferenceField
+                  label={`Step ${i + 1}`}
+                  className={STEP_FIELD}
+                  autoFocus={focus === r.id}
+                  value={drafts[r.id] ?? r.text}
+                  onChange={(text) => setDrafts((d) => ({ ...d, [r.id]: text }))}
+                  onCommit={() => commit(r)}
+                  onEnter={() => addAfter(r)}
+                  refs={refsOf(r.id)}
+                  recipes={food.recipes}
+                  except={recipe.item.id}
+                />
+              }
+            />
+          ))}
         <Button
           variant="ghost"
           size="sm"

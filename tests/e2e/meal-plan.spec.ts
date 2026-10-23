@@ -64,7 +64,8 @@ test.describe('The Meal plan', () => {
       .toMatchObject({ do_on: '2026-10-14', slot: 'dinner' })
     const meal = db.items.find((i) => i.type === 'meal' && i.title === 'Gochujang noodles')!
     await expect.poll(() => uses(db, String(meal.id))).toBe(NOODLES_STD)
-    expect(db.meal.find((m) => m.item_id === meal.id)).toMatchObject({ servings: 4 })
+    // Its servings are its Variation's, kept on the Variation (MPL-002 2).
+    expect(db.meal.find((m) => m.item_id === meal.id)).toMatchObject({ servings: null })
 
     // A Recipe with more than one Variation asks which.
     await add(page, '2026-10-13:dinner')

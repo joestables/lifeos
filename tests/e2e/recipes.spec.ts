@@ -380,7 +380,7 @@ test.describe('Recipes', () => {
     await page.getByRole('button', { name: 'More servings' }).first().click()
     await expect(page.getByText('Serves 6').filter({ visible: true }).first()).toBeVisible()
     await expect(page.getByText('150 g')).toBeVisible()
-    await expect(page.getByText('1½–3 tbsp')).toBeVisible()
+    await expect(page.getByText('1.5–3 tbsp')).toBeVisible()
     await expect(page.getByText('Not scaled')).toBeVisible()
     await page.getByRole('button', { name: "I'm on step 3" }).click()
     await expect(page.getByRole('button', { name: "I'm on step 3" })).toHaveAttribute(
@@ -439,10 +439,20 @@ test.describe('Recipes', () => {
       .toEqual(['https://www.justonecookbook.com/katsu'])
     await page.getByRole('button', { name: 'Remove source 1' }).click()
     await expect.poll(() => db.variation.find((v) => v.item_id === KATSU_STD)?.sources).toEqual([])
+    // Servings and sources aren't an edit (Joe, 23 October); an amount is.
     await page.getByRole('button', { name: 'Done' }).click()
     const log = page
       .getByRole('heading', { name: 'Log' })
       .locator('xpath=ancestor::*[@data-slot="card"][1]')
+    await expect(log.getByText('Edited', { exact: true })).toHaveCount(0)
+    await page.getByRole('button', { name: 'Edit', exact: true }).click()
+    const honey = page
+      .locator('[data-reorder-id]')
+      .filter({ has: page.locator('input[value="Honey"]') })
+    await honey.getByLabel('Amount').fill('3')
+    await honey.getByLabel('Amount').blur()
+    await expect.poll(() => db.variation_lines.find((l) => l.text === 'Honey')?.qty).toBe(3)
+    await page.getByRole('button', { name: 'Done' }).click()
     await expect(log.getByText('Edited', { exact: true })).toBeVisible()
     await expect(log.getByText('Serves 4 → 6')).toHaveCount(0)
     await log.getByRole('button', { name: 'More' }).first().click()

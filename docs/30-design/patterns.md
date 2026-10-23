@@ -456,7 +456,7 @@ StepEditor. Agreed with Joe on 18 October on the
   over the Log (three LogEntries and a ghost "See all") — stacked on a
   phone. An ingredient reads name first, its amount at the end. In the Log
   an edit says "Edited" (with the Variation's name when there are several)
-  and, under it, its note; my own entries carry a "…": "Say what changed"
+  only when its ingredients or method changed, and, under it, its note; my own entries carry a "…": "Say what changed"
   (or "Change the note") on an edit, a small Dialog "What changed?" with a
   Textarea, Cancel and Save; "Change how it went" on a cook. "See all"
   opens a Dialog of the whole log, twenty entries at a time with an outline
@@ -480,18 +480,22 @@ StepEditor. Agreed with Joe on 18 October on the
   Textarea and the links, each an Input with a ghost X, and "Add a link".
   Everything is kept as it is left, and also when the page goes some other
   way (swiped back, the app closed); there is nothing to save, so the
-  button says Done. Lines reorder by their handle (on a phone too) and
-  steps by theirs on a computer, or Alt+↑ / Alt+↓. **Fill from method**
+  button says Done. Lines reorder by their handle (on a phone too), or
+  Alt+↑ / Alt+↓; steps don't reorder (Joe, 23 October). **Fill from method**
   works in place, the card's lines replaced by Skeletons while it runs;
   over existing lines it asks first, an AlertDialog "Replace the
   ingredients?" (Cancel, Replace). **Import from a link** opens a small
   Dialog, "Import from a link": Link, then Cancel and Import, the same
   progress lines, and, over an existing method or lines, "This replaces
-  the ingredients and method" muted above the buttons. Either ends in a
-  toast with Undo. Add "…" to the Pantry
-  opens a small Dialog, "Add to the Pantry": Name, Aisle (a Select, Cupboard
-  to start), Cancel and Add; the entry takes the line's unit as its default
-  (PAN-004 1). **Edit heading** is a Dialog: the photo
+  the ingredients and method" muted above the buttons; closed while it
+  works, it goes on, the Ingredients' and Method's Cards Skeletons until
+  it is kept (a page of several then opens the Dialog at its choice).
+  Either ends in a toast with Undo. Add "…" to the Pantry
+  opens a small Dialog, "Add to the Pantry": Name, then Aisle (a Select,
+  Cupboard to start) beside Default unit (a Select, the line's unit to
+  start), Cancel and Add (PAN-004 1); a line kept as typed opens it from
+  its mark. A Pantry entry chosen for a line with no unit gives it the
+  entry's default unit. **Edit heading** is a Dialog: the photo
   (112px wide; Change photo, or "Add a photo" with `plus` when there is
   none, a DropdownMenu of "From a file or the camera" (`image`) and "From a
   link" (`link`, which opens an Input with an outline Use under the photo);
@@ -585,17 +589,19 @@ MealCard, MealSlot, AddMealButton, MealWeek, MealDay and PantryRow in
   and Save. A household item's Aisle reads Household and can't be changed.
   A name the Pantry has is refused under the field ("Already in the
   Pantry").
-- **An entry's "…" menu:** Edit, Recipes that use it, Merge with… and
+- **An entry's "…" menu:** Edit, Recipes that use it, Merge into… and
   Delete (red) on one I added; Recipes that use it alone on anyone
   else's. **Edit** is the New entry Dialog titled "Edit entry", without the
   Switch. **Recipes that use it** is a Dialog titled with the entry's name:
   an ItemRow per Recipe (its TypeTile and name), opening it, or "No recipes
-  use it". **Merge with…** is a Dialog, "Merge": "Merge with" (a Select of
-  the other entries I added of the same kind, A–Z, none chosen to start)
-  and Name (this entry's to start, the name kept); then Cancel and Merge,
-  which waits for a choice. **Delete** of an entry
-  no Recipe uses says so in a toast with Undo; one in use isn't deleted,
-  and a toast names where it is used ("Used in Katsu curry and 2 more").
+  use it". **Merge into…** is a Dialog, 'Merge "Green onions"': "Merge
+  into" (a Select of the other entries I added of the same kind, A–Z, none
+  chosen to start); then Cancel and Merge, which waits for a choice and
+  ends in a toast, 'Merged "Green onions" into "Spring onions"'. **Delete** of an entry
+  nothing uses says so in a toast with Undo; one a Recipe or a Meal's own
+  lines use isn't deleted, and a toast names where it is used, Recipes
+  first ("Used in Katsu curry and 2 more"), or says "Used in something
+  deleted" when only a deleted one does.
 - **Kept as typed** (PAN-004 2): after the household items, when any of my
   Recipes' lines were kept as typed, a SectionLabel and a Card of CardRows,
   A–Z: the name as typed and, as its value, how many of my Recipes use it;
@@ -632,7 +638,7 @@ MealCard, MealSlot, AddMealButton, MealWeek, MealDay and PantryRow in
 | Notifications off | On Inbox, while none of my devices has notifications: an Alert with `bell`, "Notifications are off", "Reminders can't reach you" (or "Add LifeOS to your Home Screen first" in an iPhone's browser), and "Not now" (ghost) and "Turn on" (outline) on the right, under the text on a phone. "Not now" puts it away on this device ([REM-001](../10-requirements/cross-cutting/reminders.md#rem-001--turn-on-notifications-for-a-device)) |
 | Offline | An Alert at the top of every page, with `cloud-off`: "Offline" (or "Can't refresh" when the server can't be reached) and "These may be out of date". What was loaded still shows (OFF-005) |
 | Error | Red text under the field, or a toast that says what went wrong and what to do |
-| A screen that crashes | Its PageHeader title says "Something went wrong", with one primary button, "Reload", under it. The crash is recorded in `ops.events` ([runbook](../40-operations/runbook.md#noticing-problems)) |
+| A screen that crashes | Its PageHeader title says "Something went wrong", with one primary button, "Reload", under it. The crash is recorded in `ops.events` ([runbook](../40-operations/runbook.md#noticing-problems)). A page whose code went with a new deploy reloads by itself instead, once a minute at most |
 | Empty | `EmptyState`: centred in the content, about a third of the way down, a 48px muted tile with the page's icon and a `text-h2` line saying so ("Nothing needs you", "Nothing deleted"). No paragraph, no button unless there's one obvious thing to do |
 
 ## Icons

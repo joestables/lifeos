@@ -1016,7 +1016,7 @@ function DesignPage() {
               <AddMealButton slot="Dinner" dropping />
               <Card className="gap-1 px-2 py-2">
                 <PantryRow name="Carrots" recipes={6} />
-                <PantryRow name="Garlic" unit="clove" recipes={14} staple />
+                <PantryRow name="Garlic" recipes={14} staple />
                 <PantryRow name="Onion" recipes={18} staple out />
               </Card>
             </div>

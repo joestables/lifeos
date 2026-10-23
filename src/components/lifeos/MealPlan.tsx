@@ -1,6 +1,6 @@
 import { LockIcon, PlusIcon, RotateCcwIcon, UtensilsIcon } from 'lucide-react'
 import type * as React from 'react'
-import type { ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import { cn } from '@/lib/utils'
 
 /** The three slots, in order (Joe, 18 October). */
@@ -12,10 +12,13 @@ export type Slot = 'Breakfast' | 'Lunch' | 'Dinner'
  * Variation when its Recipe has more than one, and a lock when it's
  * Personal while the plan shows Household meals too: only the exception is
  * marked, so a week of shared dinners isn't a row of icons. A typed Meal or leftovers sit lighter, with no card shadow.
- * Eaten, it fades and is struck through; being dragged, it lifts.
+ * Eaten, it fades and is struck through; being dragged, it lifts. Its
+ * picture, when it has one (its Recipe's photo, or a typed Meal's from its
+ * link), heads it (Joe, 23 October).
  */
 export function MealCard({
   name,
+  photo,
   servings,
   variation,
   kind = 'recipe',
@@ -26,6 +29,8 @@ export function MealCard({
   onOpen,
 }: {
   name: string
+  /** Its picture's address. */
+  photo?: string
   servings?: number
   /** When its Recipe has more than one. */
   variation?: string
@@ -38,6 +43,7 @@ export function MealCard({
   eaten?: boolean
   onOpen?: () => void
 }) {
+  const [broken, setBroken] = useState<string>()
   const parts = [
     kind === 'leftovers' ? 'Leftovers' : servings ? `Serves ${servings}` : null,
     variation,
@@ -55,6 +61,16 @@ export function MealCard({
         dragging && 'z-10 rotate-[1.5deg] cursor-grabbing opacity-100 shadow-pop',
       )}
     >
+      {photo && photo !== broken && (
+        <img
+          src={photo}
+          alt=""
+          draggable={false}
+          // A picture that can't be shown (offline, not kept yet) leaves no gap.
+          onError={() => setBroken(photo)}
+          className="h-14 w-full rounded-xs object-cover"
+        />
+      )}
       <button
         type="button"
         onClick={onOpen}

@@ -4,6 +4,9 @@ import { CHICKEN, PANKO } from './recipe-rows'
 import { standIn, type Rows } from './stand-in'
 
 const LINK = 'https://www.example.com/recipes/pancakes'
+/** A picture, as link-preview answers it. */
+const PIXEL =
+  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='
 
 async function start(page: Page, rows: Rows = mealRows(), ai: Rows['ai'] = {}) {
   await page.clock.setFixedTime(NOW)
@@ -97,6 +100,10 @@ test.describe('A Meal’s own ingredients', () => {
       .toEqual([PANKO, 'Buttermilk'])
     expect(db.meal.find((m) => m.item_id === DISHOOM)).toMatchObject({ servings: 4, source: LINK })
     await expect(dialog.getByRole('link', { name: 'Open the link' })).toHaveAttribute('href', LINK)
+    // Closed, the popup doesn't put the old servings back.
+    await page.keyboard.press('Escape')
+    await expect(dialog).toBeHidden()
+    expect(db.meal.find((m) => m.item_id === DISHOOM)).toMatchObject({ servings: 4 })
 
     await page.getByRole('button', { name: 'Undo' }).click()
     await expect.poll(() => db.meal_lines.filter((l) => l.meal_id === DISHOOM)).toHaveLength(0)
@@ -145,5 +152,51 @@ test.describe('A Meal’s own ingredients', () => {
       .toMatchObject({ text: 'Naan', qty: 2 })
     expect(db.meal.find((m) => m.item_id === copy()!.id)).toMatchObject({ source: LINK })
     expect(KATSU_MEAL).toBeTruthy()
+  })
+
+  test('MPL-006 6: a typed Meal’s link brings its picture to the plan', async ({ page }) => {
+    const db = await start(page, mealRows(), { picture: PIXEL })
+    await open(page, '2026-10-17:dinner', 'Out: Dishoom')
+    const dialog = page.getByRole('dialog')
+    await dialog.getByLabel('Link').fill(LINK)
+    await dialog.getByLabel('Link').blur()
+    await expect.poll(() => db.attachments.find((a) => a.item_id === DISHOOM)).toBeTruthy()
+    await page.keyboard.press('Escape')
+    await expect(
+      slot(page, '2026-10-17:dinner').locator('[data-slot="meal-card"] img'),
+    ).toHaveCount(1)
+  })
+
+  test('PAN-004 3, RCP-007 1: an entry’s default unit fills a new line', async ({ page }) => {
+    const db = await start(page)
+    await open(page, '2026-10-17:dinner', 'Out: Dishoom')
+    const dialog = page.getByRole('dialog')
+    await dialog.getByRole('button', { name: 'Add an ingredient' }).click()
+    await dialog.getByLabel('Ingredient', { exact: true }).fill('Panko')
+    await page.keyboard.press('Enter')
+    await expect
+      .poll(() => db.meal_lines.find((l) => l.meal_id === DISHOOM))
+      .toMatchObject({ pantry_id: PANKO, unit: 'g' })
+  })
+
+  test('PAN-004 1: a line kept as typed is added to the Pantry from its mark', async ({ page }) => {
+    const rows = mealRows()
+    const db = await start(page, {
+      ...rows,
+      meal_lines: [{ id: 'l1', meal_id: DISHOOM, position: 'a', text: 'Naan', qty: 2 }],
+    })
+    await open(page, '2026-10-17:dinner', 'Out: Dishoom')
+    await page.getByRole('button', { name: 'Add Naan to the Pantry' }).click()
+    const add = page.getByRole('dialog', { name: 'Add to the Pantry' })
+    await add.getByLabel('Aisle').click()
+    await page.getByRole('option', { name: 'Bakery' }).click()
+    await add.getByRole('button', { name: 'Add' }).click()
+    await expect
+      .poll(() => db.pantry.find((p) => p.name === 'Naan'))
+      .toMatchObject({ aisle: 'bakery' })
+    const naan = db.pantry.find((p) => p.name === 'Naan')!
+    await expect
+      .poll(() => db.meal_lines.find((l) => l.id === 'l1'))
+      .toMatchObject({ pantry_id: naan.id, text: null })
   })
 })

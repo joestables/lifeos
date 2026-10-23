@@ -1,4 +1,6 @@
-import type { ImportedLine, ImportedRecipe } from '@lifeos/food'
+import type { ImportAnswer, ImportedLine, ImportedRecipe } from '@lifeos/food'
+import { useSyncExternalStore } from 'react'
+import { toast } from '@/components/ui/sonner'
 import {
   addLine,
   addStep,
@@ -9,6 +11,7 @@ import {
   type LineFields,
 } from '@/data'
 import type { VariationView } from '@/data/food-hooks'
+import { AI_REFUSALS } from './ai-words'
 
 /** A line's fields, to make again. */
 const fieldsOf = (l: VariationView['lines'][number]): LineFields => ({
@@ -104,4 +107,59 @@ export function importInto(
     undoSteps()
     updateVariation(variation.item.id, was)
   }
+}
+
+/**
+ * An import into a Draft that goes on after its Dialog is closed (Joe, 23
+ * October): working, then applied with Undo, or a page of several waiting
+ * for a choice. Kept in memory, by Variation.
+ */
+export type BackgroundImport =
+  | { state: 'working'; link: string }
+  | { state: 'choose'; link: string; answer: Extract<ImportAnswer, { ok: true }> }
+
+const background = new Map<string, BackgroundImport>()
+/** Each Variation as last shown, for an import that ends after its page is left. */
+const latest = new Map<string, VariationView>()
+const listeners = new Set<() => void>()
+const changed = () => listeners.forEach((l) => l())
+
+function setBackground(v: string, next: BackgroundImport | null) {
+  if (next) background.set(v, next)
+  else background.delete(v)
+  changed()
+}
+
+export function useBackgroundImport(variation: VariationView): BackgroundImport | undefined {
+  latest.set(variation.item.id, variation)
+  return useSyncExternalStore(
+    (l) => (listeners.add(l), () => listeners.delete(l)),
+    () => background.get(variation.item.id),
+  )
+}
+
+export function clearBackgroundImport(v: string) {
+  setBackground(v, null)
+}
+
+/** The import kept in a Draft, with Undo (RCP-014 10). */
+export function keepImportInto(v: string, recipe: ImportedRecipe, link: string) {
+  const variation = latest.get(v)
+  if (!variation) return
+  const undo = importInto(variation, recipe, link)
+  toast('Imported the ingredients and method', { action: { label: 'Undo', onClick: undo } })
+}
+
+/** The Dialog closed while it worked: the answer is kept when it comes. */
+export function continueImport(v: string, work: Promise<ImportAnswer>, link: string) {
+  setBackground(v, { state: 'working', link })
+  void work.then((answer) => {
+    if (!answer.ok) {
+      setBackground(v, null)
+      toast(AI_REFUSALS[answer.reason])
+    } else if (answer.recipes.length === 1) {
+      setBackground(v, null)
+      keepImportInto(v, answer.recipes[0]!, link)
+    } else setBackground(v, { state: 'choose', link, answer })
+  })
 }

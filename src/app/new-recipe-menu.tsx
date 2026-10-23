@@ -14,8 +14,8 @@ import { AI_REFUSALS } from './ai-words'
 /**
  * "New" on both of Recipes' tabs (patterns.md#recipes, Joe, 23 October):
  * New recipe, New idea and Import; on a phone the Fab opens the same menu.
- * Import is offered only when the AI can be used, saying why when not
- * (RCP-014 7).
+ * Import is greyed only once the AI is known not to be usable, saying why
+ * (RCP-014 7): asked as the page opens, never making me wait on the menu.
  */
 export function NewRecipeMenu({
   onRecipe,
@@ -30,7 +30,7 @@ export function NewRecipeMenu({
   fab?: boolean
 }) {
   const [open, setOpen] = useState(false)
-  const status = useAiStatus(open)
+  const status = useAiStatus(true)
   const why = status && !status.available ? AI_REFUSALS[status.reason] : null
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
@@ -50,7 +50,7 @@ export function NewRecipeMenu({
         <DropdownMenuItem onClick={onIdea}>
           <StickyNoteIcon /> New idea
         </DropdownMenuItem>
-        <DropdownMenuItem disabled={!status?.available} onClick={onImport}>
+        <DropdownMenuItem disabled={status?.available === false} onClick={onImport}>
           <SparklesIcon />
           <span className="flex flex-col">
             Import

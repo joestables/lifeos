@@ -69,7 +69,12 @@ export function IngredientRow({
   const [changed, setChanged] = useState(false)
   const [active, setActive] = useState(0)
   // Adding to the Pantry: its Dialog takes the focus, so the box's leaving waits for it.
-  const [adding, setAdding] = useState<{ name: string; extra: LineFields } | null>(null)
+  // `kept`: a line already kept as typed, from its mark; closing changes nothing.
+  const [adding, setAdding] = useState<{
+    name: string
+    extra: LineFields
+    kept?: boolean
+  } | null>(null)
   const addingRef = useRef(false)
   const removed = useRef(false)
   const matches = typing ? pantryMatches(pantry, name) : []
@@ -130,6 +135,11 @@ export function IngredientRow({
     const found = typeof how === 'object' ? pantry.get(how.pantry) : undefined
     if (found) {
       setName(found.name)
+      // A line with no unit takes the entry's default (Joe, 23 October).
+      if (!extra.unit && !unit && found.default_unit) {
+        extra.unit = found.default_unit as Unit
+        setUnit(found.default_unit as LineUnit)
+      }
       keep({ ...extra, pantry_id: found.id, text: null })
     } else if (how === 'add') {
       // Its aisle chosen first (Joe, 20 October).
@@ -167,19 +177,20 @@ export function IngredientRow({
       {adding && (
         <AddToPantryDialog
           name={adding.name}
+          // The line's unit, the entry's default to start (PAN-004 1).
+          unit={adding.extra.unit ?? (unit || null)}
           pantry={pantry}
-          onAdd={(n, aisle: Aisle) => {
+          onAdd={(n, aisle: Aisle, defaultUnit) => {
             setName(n)
-            // The line's unit becomes the entry's default (PAN-004 1).
-            const lineUnit = adding.extra.unit ?? (unit || null)
-            const id = addPantry({ name: n, aisle, default_unit: lineUnit })
+            const id = addPantry({ name: n, aisle, default_unit: defaultUnit })
             keep({ ...adding.extra, pantry_id: id, text: null })
             addingRef.current = false
             setAdding(null)
           }}
           onClose={() => {
             // Not added: it stays as typed, so nothing typed is lost.
-            if (addingRef.current) keep({ ...adding.extra, pantry_id: null, text: adding.name })
+            if (addingRef.current && !adding.kept)
+              keep({ ...adding.extra, pantry_id: null, text: adding.name })
             addingRef.current = false
             setAdding(null)
           }}
@@ -198,6 +209,14 @@ export function IngredientRow({
         }}
         ingredient={name}
         status={status}
+        onAddToPantry={
+          status === 'typed' && l && name.trim()
+            ? () => {
+                addingRef.current = true
+                setAdding({ name: name.trim(), extra: {}, kept: true })
+              }
+            : undefined
+        }
         onRemove={() => {
           removed.current = true
           onRemove()

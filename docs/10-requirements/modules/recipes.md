@@ -280,10 +280,12 @@ Priority: Must · Status: verified (5 built)
 Acceptance criteria
 1. Given I type "200 g chorizo", then it is read as 200, g and Chorizo;
    suggestions from the Pantry appear as I type, the first chosen with
-   Enter.
+   Enter. A Pantry entry chosen for a line with no unit gives it the
+   entry's default unit (Joe, 23 October).
 2. Given a name not in the Pantry, then I choose Add to the Pantry, which
-   asks its name and aisle (Cupboard to start; Joe, 20 October), or Keep as
-   typed.
+   asks its name, aisle (Cupboard to start; Joe, 20 October) and default
+   unit (the line's to start), or Keep as typed; a line kept as typed
+   offers Add to the Pantry again from its mark (Joe, 23 October).
 3. Given "1-2 tsp", "~5 g" or a name alone, then each is kept as typed.
 4. Given lines, then I reorder them by dragging (on a phone too; Joe, 20
    October) and delete them, and may add subheadings ("For the sauce") that
@@ -304,8 +306,8 @@ Acceptance criteria
 Priority: Must · Status: verified
 
 Acceptance criteria
-1. Given the method, then steps are numbered, and I add, edit, reorder and
-   delete them.
+1. Given the method, then steps are numbered, and I add, edit and delete
+   them; they aren't dragged to reorder (Joe, 23 October).
 2. Given I type "@" in a step or the notes, then up to three of my Recipes
    are suggested, the first highlighted; choosing one makes a reference.
 3. Given a referenced Recipe is renamed, then the reference shows its new
@@ -358,9 +360,9 @@ Priority: Must · Status: verified (3: the alert sounds while LifeOS is open; th
 Acceptance criteria
 1. Given a Draft or Complete Variation, when I press Start cooking, then the
    ingredients and method show large, without editing controls, and the
-   screen doesn't sleep until I finish. Ingredients aren't ticked off; the
-   step I'm on is picked out, and the ones before it marked done (Joe, 18
-   October).
+   screen doesn't sleep until I finish. Ingredients aren't ticked off; no
+   step is picked out (Joe, 23 October), and choosing a step's number marks
+   the ones before it done.
 2. Given Cooking, when I change the servings, then the ingredients scale
    (both ends of a range) and the method says its numbers aren't scaled.
 3. Given a step that names a time ("simmer for 20 minutes"), then it offers
@@ -392,9 +394,11 @@ Priority: Must · Status: verified
 
 Acceptance criteria
 1. Given a Recipe, then its log lists, newest first, its cooks (verdict,
-   notes, who), Variations made, edited, marked or deleted, and the heading
-   edited, each with who and when; edits close together by one person are
-   one entry.
+   notes, who), and Variations made, edited, marked or deleted, each with
+   who and when; edits close together by one person are one entry. An edit
+   is a change to a Variation's ingredients or method only: a line or step
+   added, removed or changed, not moved; not its name, times, servings,
+   notes or the heading (Joe, 23 October).
 2. Given an edit, then it says "Edited", as a new Recipe says "Added"; its
    maker may say in their own words what changed, from the entry's "…"
    (Joe, 20 October).
@@ -432,7 +436,9 @@ Acceptance criteria
     page's, and its servings, times and notes filled where empty; the link
     joins its sources; the Recipe's heading is not changed. When it had
     ingredients or a method, I'm asked first, and Undo puts them back (Joe,
-    23 October).
+    23 October). Closing the Dialog while it works doesn't stop it: the
+    ingredients and method show as loading until it is kept, and a page of
+    several asks which when it is read (Joe, 23 October).
 11. Given lines brought in by Import from a link or Fill from method that
     match no Pantry entry, then they are kept as typed, to add to the
     Pantry as any typed line is ([PAN-004](meals.md#pan-004--entries-from-a-recipe)).
@@ -503,4 +509,5 @@ turning a Meal's link into a Recipe (Joe, 23 October).
 1. ~~Joe's recipe style~~: settled 23 October — Joe gave v1's rules,
    adapted for LifeOS in [ADR-0054](../../20-architecture/adr/0054-the-ai-service-and-import.md).
 2. ~~Reordering on a phone~~: settled 20 October — ingredient lines are
-   dragged by their handle on a phone too; steps stay as they are.
+   dragged by their handle on a phone too; steps aren't dragged at all
+   (Joe, 23 October).

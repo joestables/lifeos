@@ -17,10 +17,13 @@ import {
   setStaple,
   updateLine,
   useFood,
+  useMeals,
+  usePantryInUse,
   useStaples,
   type PantryEntry,
 } from '@/data'
 import {
+  mealsUsing,
   mergeable,
   pantryGroups,
   recipesUsing,
@@ -73,14 +76,25 @@ export function PantryTab({
   )
   const entries = useMemo(() => [...food.pantry.values()], [food.pantry])
   const using = useMemo(() => recipesUsing(recipes), [recipes])
+  const { meals } = useMeals(queue)
+  const inUse = usePantryInUse(queue)
+  const mealUses = useMemo(
+    () => mealsUsing(meals.map((m) => ({ id: m.item.id, name: m.item.title, lines: m.lines }))),
+    [meals],
+  )
   const typed = useMemo(() => typedNames(recipes, entries), [recipes, entries])
   const { aisles, household } = pantryGroups(entries, staples, show, search)
   const shown = aisles.length > 0 || household.length > 0
 
   const remove = (entry: PantryEntry) => {
-    const used = using.get(entry.id) ?? []
+    const used = [...(using.get(entry.id) ?? []), ...(mealUses.get(entry.id) ?? [])]
     if (used.length) {
       toast(usedIn(used))
+      return
+    }
+    // Only a deleted Recipe or Meal uses it (Settings → Deleted).
+    if (inUse.has(entry.id)) {
+      toast('Used in something deleted')
       return
     }
     const staple = staples.get(entry.id)
@@ -112,7 +126,6 @@ export function PantryTab({
       <PantryRow
         key={e.id}
         name={e.name}
-        unit={e.default_unit ?? undefined}
         recipes={using.get(e.id)?.length}
         staple={staple !== undefined}
         out={staple?.out ?? false}
@@ -130,7 +143,7 @@ export function PantryTab({
             </DropdownMenuItem>
             {mine && mergeable(e, food.pantry, food.me).length > 0 && (
               <DropdownMenuItem onClick={() => setOpen({ kind: 'merge', entry: e })}>
-                Merge with…
+                Merge into…
               </DropdownMenuItem>
             )}
             {mine && (
@@ -168,7 +181,9 @@ export function PantryTab({
         <AddToPantryDialog
           name={open.typed.name}
           pantry={food.pantry}
-          onAdd={(name, aisle) => link(open.typed, addPantry({ name, aisle }))}
+          onAdd={(name, aisle, default_unit) =>
+            link(open.typed, addPantry({ name, aisle, default_unit }))
+          }
           onClose={close}
         />
       )}

@@ -5,6 +5,7 @@ import {
   importRecipe,
   mealIngredients,
   linkKind,
+  linkPicture,
   publicUrl,
   readPage,
   readSource,
@@ -407,5 +408,27 @@ describe('meal.ingredients (MPL-006 2)', () => {
         'https://example.com/x',
       ),
     ).toEqual({ ok: false, reason: 'not_recipe' })
+  })
+})
+
+describe('link previews (MPL-006 6)', () => {
+  const png = new Uint8Array([137, 80, 78, 71])
+  const site =
+    (html: string): Fetch =>
+    async (url) =>
+      url.endsWith('.png')
+        ? new Response(png, { headers: { 'content-type': 'image/png' } })
+        : new Response(html)
+
+  it('a page’s picture, as a data URL', async () => {
+    const html = '<html><head><meta property="og:image" content="/pancakes.png"></head></html>'
+    expect(await linkPicture(site(html), 'https://example.com/pancakes')).toBe(
+      'data:image/png;base64,iVBORw==',
+    )
+  })
+
+  it('nothing for a page without one, or a link that isn’t public', async () => {
+    expect(await linkPicture(site('<html></html>'), 'https://example.com/x')).toBeNull()
+    expect(await linkPicture(site(''), 'http://localhost/x')).toBeNull()
   })
 })
