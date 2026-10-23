@@ -21,6 +21,7 @@ describe('reading a typed line (RCP-007 1, 3; ADR-0053)', () => {
     ['½ lemon', { qty: 0.5, qtyMax: null, approx: false, unit: null, name: 'Lemon' }],
     ['1½ tbsp oil', { qty: 1.5, qtyMax: null, approx: false, unit: 'tbsp', name: 'Oil' }],
     ['1 1/2 l stock', { qty: 1.5, qtyMax: null, approx: false, unit: 'l', name: 'Stock' }],
+    ['½ cup oats', { qty: 0.5, qtyMax: null, approx: false, unit: 'cup', name: 'Oats' }],
     [
       '600 ml of chicken stock',
       { qty: 600, qtyMax: null, approx: false, unit: 'ml', name: 'Chicken stock' },
@@ -86,6 +87,12 @@ describe('scaling and showing amounts (RCP-011 2; ADR-0053)', () => {
       value: 1500,
     })
     expect(inBase({ qty: 2, qtyMax: null, approx: false, unit: null })).toBeNull()
+    // A cup is 250 ml (Joe, 23 October).
+    expect(inBase({ qty: 1.5, qtyMax: null, approx: false, unit: 'cup' })).toEqual({
+      kind: 'volume',
+      value: 375,
+    })
+    expect(formatAmount({ qty: 0.75, qtyMax: null, approx: false, unit: 'cup' })).toBe('¾ cup')
   })
 })
 
