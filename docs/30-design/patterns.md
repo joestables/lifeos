@@ -372,10 +372,10 @@ StepEditor. Agreed with Joe on 18 October on the
 (private to Joe), after three passes.
 
 - Recipes is green (TypeScope); so are its Dialogs and its Filters Sheet.
-  Tabs: **Recipes** and **Ideas**; the PageAction is "New recipe", a
-  DropdownMenu of New recipe, New idea and Import from a link (Import shows
-  once the AI service is there, plan step 9); on Ideas it is "New idea".
-  On a phone the Fab is New recipe, or New idea on Ideas. **New recipe** is
+  Tabs: **Recipes** and **Ideas**; on both, the PageAction is "New", a
+  DropdownMenu of New recipe, New idea and Import (`sparkles`; Joe, 23
+  October), and on a phone the Fab opens the same menu (built with Import,
+  plan step 9b; until then "New recipe", or "New idea" on Ideas). **New recipe** is
   the Edit heading Dialog titled "New recipe", with Cancel and Save; Save
   makes a Draft and opens its Variation to fill, and Done there shows the
   new Recipe. A name a Recipe I can see has is refused under the field, and
@@ -410,9 +410,21 @@ StepEditor. Agreed with Joe on 18 October on the
   about 250 KB on the device as it is chosen, kept on Save or Done, and
   sent once its Recipe has reached the server; with no signal it is
   refused, saying so.
-- **Import** is a Dialog: Link, then its progress as three lines (done with
-  a filled check, the current one with a spinner, the next muted); it ends
-  on a Draft.
+- **Import** is a Dialog: Link and an outline Import, then its progress as
+  three lines (Reading the page, Writing it up, Matching the Pantry; done
+  with a filled check, the current one with a spinner, the next muted). A
+  link saved before says which Recipe or Idea has it first, with Open and
+  Import anyway. A page of several recipes lists them, as RadioGroup rows,
+  to choose one. A page that isn't a recipe, or a video that says too
+  little, ends in the Dialog on a line saying so and Close. The AI
+  unavailable (off, out of allowance, unreachable), Import is disabled in
+  the menu, saying why under it. It ends on **Check the import**, a page
+  laid out as Editing a Variation under the Edit heading Dialog's fields
+  (photo, Name, Category, Cuisine, Protein, Carbs): a value not on my lists
+  and a line's Pantry entry not yet in the Pantry each carry an `outline`
+  "New" Badge; Cancel (outline) and Keep (primary) at the top on a
+  computer, at the foot on a phone. Keep saves it all and opens the
+  Recipe; Cancel, or leaving, asks first and keeps nothing.
 - **A Recipe's page:** a BackLink to Recipes and the name as the title;
   then the heading (RecipeHeadingLayout): the RecipePhoto (288px on a
   computer; on a phone about half the width, Joe, 20 October) beside
@@ -449,14 +461,24 @@ StepEditor. Agreed with Joe on 18 October on the
   then Prep and Cook, two across, and Done at the foot of the page, where
   the editing ends (Joe, 20 October); then
   Ingredients (IngredientLineEditors and SubheadingEditors; ghost "Add an
-  ingredient", "Add a subheading"; a ghost "Fill from method" with
-  `sparkles` in its heading, once the AI service is there, plan step 9)
-  beside Method (StepEditors, "Add a step"); then "Notes and sources", a
+  ingredient", "Add a subheading"; a ghost `sm` "Fill from method" with
+  `sparkles` at the right of its heading, disabled with no method; plan
+  step 9c)
+  beside Method (StepEditors, "Add a step"; on a Draft, a ghost `sm`
+  "Import from a link" with `sparkles` at the right of its heading, Joe,
+  23 October; plan step 9c); then "Notes and sources", a
   Textarea and the links, each an Input with a ghost X, and "Add a link".
   Everything is kept as it is left, and also when the page goes some other
   way (swiped back, the app closed); there is nothing to save, so the
   button says Done. Lines reorder by their handle (on a phone too) and
-  steps by theirs on a computer, or Alt+↑ / Alt+↓. Add "…" to the Pantry
+  steps by theirs on a computer, or Alt+↑ / Alt+↓. **Fill from method**
+  works in place, the card's lines replaced by a skeleton while it runs;
+  over existing lines it asks first, an AlertDialog "Replace the
+  ingredients?" (Cancel, Replace). **Import from a link** opens a small
+  Dialog, "Import from a link": Link, then Cancel and Import, the same
+  progress lines, and, over an existing method or lines, "This replaces
+  the ingredients and method" muted above the buttons. Either ends in a
+  toast with Undo. Add "…" to the Pantry
   opens a small Dialog, "Add to the Pantry": Name, Aisle (a Select, Cupboard
   to start), Cancel and Add; the entry takes the line's unit as its default
   (PAN-004 1). **Edit heading** is a Dialog: the photo
@@ -482,7 +504,7 @@ StepEditor. Agreed with Joe on 18 October on the
 
 ## Meal plan
 
-[MPL-001–005, PAN-001–004](../10-requirements/modules/meals.md#requirements);
+[MPL-001–006, PAN-001–004](../10-requirements/modules/meals.md#requirements);
 MealCard, MealSlot, AddMealButton, MealWeek, MealDay and PantryRow in
 [components](components.md). Agreed with the Recipes screens.
 
@@ -517,7 +539,16 @@ MealCard, MealSlot, AddMealButton, MealWeek, MealDay and PantryRow in
   recipe · Standard") and, when the Recipe has more than one Variation, a
   Variation Select; Servings (and, with a Household, on a Meal I made, For: Personal or a
   Household, moving its leftovers with it) side by side; for leftovers, an ItemRow for the Meal they are
-  of; Leftovers, an ItemRow per slot they fill, each with a "…" Remove.
+  of; Leftovers, an ItemRow per slot they fill, each with a "…" Remove;
+  then, not on leftovers, **Ingredients** (a SectionLabel; "Extra
+  ingredients" on a Recipe's Meal): on a typed Meal first a Link Input with
+  an outline `sm` "Get ingredients" (`sparkles`) beside it, the link
+  opening from an `external-link` ghost icon button once kept; then
+  IngredientLineEditors (no subheadings) and a ghost "Add an ingredient".
+  Get ingredients shows a spinner in its button, asks first over existing
+  lines ("Replace the ingredients?"), and ends in a toast with Undo; a
+  page that isn't a recipe says so under the Link (MPL-006; Joe, 23
+  October; plan step 9d).
   Its "…" menu: Move to…, Add leftovers… (not on leftovers) and Remove
   (red). **Move to…** and **Add leftovers…** are small Dialogs: Day (a
   DateField) and Slot (a Select; for leftovers the next lunch or dinner to

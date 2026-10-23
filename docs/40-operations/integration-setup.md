@@ -78,12 +78,13 @@ every device turns notifications on again.
   charged.
 - Only the `ai` Edge Function holds the key; the browser never sees it.
 - On the free tier Google may use what is sent to improve its products, so
-  `ai` sends public recipe pages and Pantry names only.
+  `ai` sends public recipe pages, Pantry names and my lists' names, and a
+  Variation's method only when I choose Fill from method.
 
 | Where | Setting | State |
 |---|---|---|
 | Google AI Studio → Get API key | A key in a project with no billing | To do (Joe, before step 9) |
-| Supabase → Edge Functions → Secrets | `GEMINI_API_KEY`: that key | To do (Joe, before step 9); Claude never sees it |
+| Supabase → Edge Functions → Secrets | `GEMINI_API_KEY`: that key | To do (Joe, before step 9b); Claude never sees it |
 
 ## Capture address email (after Stage 9)
 

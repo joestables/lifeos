@@ -2,7 +2,7 @@
 
 **Status:** Provisionally agreed · 2026-10-09
 
-**Amended:** 2026-10-17 by [ADR-0050](0050-shopping-list.md) (one Shopping list Type) and Joe's answers and notes for Stage 4 (a shopping list made from the days I choose; a line is an amount, a unit and an ingredient, and may stay unlinked; six fixed aisles); 2026-10-18 by Joe's comments on the Stage 4 specs (optional subheadings; a Meal's lines protected) and [ADR-0051](0051-who-sees-food.md) (the Pantry, one catalogue for everyone; staples ours).
+**Amended:** 2026-10-17 by [ADR-0050](0050-shopping-list.md) (one Shopping list Type) and Joe's answers and notes for Stage 4 (a shopping list made from the days I choose; a line is an amount, a unit and an ingredient, and may stay unlinked; six fixed aisles); 2026-10-18 by Joe's comments on the Stage 4 specs (optional subheadings; a Meal's lines protected) and [ADR-0051](0051-who-sees-food.md) (the Pantry, one catalogue for everyone; staples ours); 2026-10-23 by Joe's answers for step 9 (a Meal's own lines).
 
 ## Context
 
@@ -17,7 +17,8 @@ ingredients should be collated onto a shopping list.
   because many lines point at it, and because it is worth searching and
   linking ("which recipes use chickpeas?", a pantry later, AI suggestions).
   Same pattern as Exercise in Fitness.
-- **Ingredient lines** are child rows of a Variation: an amount, a unit and
+- **Ingredient lines** are child rows of a Variation (and, without
+  subheadings, of a Meal, its own beside its Recipe's; Joe, 23 October): an amount, a unit and
   an ingredient — no prep note — under optional subheadings ("For the
   sauce"). The ingredient is linked to an
   Ingredient (a Pantry entry), chosen or added as the line is typed, or kept as typed text.
