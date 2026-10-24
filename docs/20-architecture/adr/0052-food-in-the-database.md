@@ -46,8 +46,8 @@ how the schema holds it and how the database enforces it
   merger added both, then repoints every line, everyone's.
 - **Staples:** `food.staples` (Space, entry, out of stock), changed by
   anyone who can read the Space; from Stage 4b,
-  `food.space_entries` (Space, entry, kind: staple or Essential, needed)
-  in its place ([ADR-0057](0057-shopping-in-the-database.md)).
+  a `kind` on it, staple or Essential, its out of stock meaning Required for
+  an Essential ([ADR-0057](0057-shopping-in-the-database.md)).
 - **Lists of values** (categories, cuisines, tags, protein, carbs) are each
   person's, in `food.values`; browsing pools those of everyone in my
   Households, the same name counting once.

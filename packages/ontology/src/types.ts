@@ -24,7 +24,7 @@ export interface TypeDefinition {
   place: boolean
   /** The time field its default Reminder follows (ADR-0023), if it has one. */
   defaultReminder?: TimeField
-  /** The roadmap stage that builds it: the app offers a Type only from then. */
+  /** The roadmap stage that builds it: the app offers a Type only from then. 4.5 is Stage 4b. */
   stage: number
   /** For the data model's generated table: a few words after its name. */
   about?: string
@@ -165,6 +165,24 @@ export const TYPES = [
     subtasks: false,
     place: false,
     stage: 4,
+  },
+  {
+    // A food shop or a list (ADR-0050): a date and nothing more (no time or
+    // place); on Plan when dated, and done when the shop is.
+    key: 'shopping_list',
+    module: 'shopping',
+    label: 'Shopping list',
+    about: 'a food shop or a list; a date is optional',
+    spaceNote: 'Household when in one, else Personal; a food shop the Space chosen for it',
+    traits: ['schedulable', 'completable', 'shareable', 'capturable'],
+    statuses: ['active', 'done', 'cancelled'],
+    defaultSpace: 'household',
+    timeFields: ['do_on'],
+    colour: 'yellow',
+    labels: false,
+    subtasks: false,
+    place: false,
+    stage: 4.5,
   },
 ] as const satisfies readonly TypeDefinition[]
 

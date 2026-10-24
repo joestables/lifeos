@@ -51,8 +51,14 @@ describe('ontology', () => {
   })
 
   it('converts in place as ADR-0018 says', () => {
-    expect(convertsTo(typeByKey('thought')!)).toEqual(['event', 'note', 'recipe', 'task'])
-    expect(convertsTo(typeByKey('note')!)).toEqual(['event', 'recipe', 'task'])
+    expect(convertsTo(typeByKey('thought')!)).toEqual([
+      'event',
+      'note',
+      'recipe',
+      'shopping_list',
+      'task',
+    ])
+    expect(convertsTo(typeByKey('note')!)).toEqual(['event', 'recipe', 'shopping_list', 'task'])
     expect(convertsTo(typeByKey('task')!)).toEqual(['event'])
     expect(convertsTo(typeByKey('event')!)).toEqual(['task'])
   })
@@ -69,6 +75,7 @@ describe('ontology', () => {
     expect(look('recipe')).toEqual(['green', false, 'favourited', false, undefined, false])
     expect(look('variation')).toEqual(['green', false, undefined, false, undefined, false])
     expect(look('meal')).toEqual(['green', false, undefined, false, undefined, false])
+    expect(look('shopping_list')).toEqual(['yellow', false, undefined, false, undefined, false])
   })
 
   it('builds each Type in its roadmap stage (data-model.md#types)', () => {
@@ -80,6 +87,7 @@ describe('ontology', () => {
       ['recipe', 4],
       ['variation', 4],
       ['meal', 4],
+      ['shopping_list', 4.5],
     ])
   })
 
@@ -88,6 +96,8 @@ describe('ontology', () => {
     expect(typeByKey('variation')!.defaultSpace).toBe('personal')
     expect(typeByKey('meal')!.defaultSpace).toBe('household')
     expect(typeByKey('meal')!.timeFields).toEqual(['do_on', 'slot'])
+    // A date and no time: a Shopping list has no time or place (ADR-0050, 24 October).
+    expect(typeByKey('shopping_list')!.timeFields).toEqual(['do_on'])
   })
 
   it('has no idea status on Notes (ADR-0037)', () => {

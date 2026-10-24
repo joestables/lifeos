@@ -23,7 +23,7 @@ export const LINK_TYPES = [
     key: 'for',
     label: 'for',
     inverseLabel: 'to do for',
-    from: ['task'],
+    from: ['task', 'shopping_list'],
     to: ['event'],
     symmetric: false,
   },
