@@ -2,6 +2,24 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#34](https://github.com/joestables/lifeos/pull/34) — Stage 4b, step 3: the Shopping design, first pass
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-24
+
+**What it did**
+- ADR-0057 agreed by Joe; step 2 done.
+- `/design-stage-4b` (development and preview builds only): Shopping's Food
+  and Lists tabs, New shop, a shop's All, Meals and Extra, everything
+  ticked, Complete list, a list, the Meal plan's Select and Add to shop,
+  and "Saved as an idea", drawn from the real components; screenshots on a
+  [design canvas](https://claude.ai/artifact/KZyE2VPa3jTsVZ4mjxanGk) for
+  Joe.
+- Drafted components, in components.md as Stage 4b drafts: ShoppingLine,
+  OfferRow, KeptRow, MealCard's choosing, Badge's `warning`.
+
+**Left for later:** Joe's comments on the design, then the design spec
+(patterns) and the screenshot tests.
+
 ## [#33](https://github.com/joestables/lifeos/pull/33) — Stage 4b, step 2: Shopping in the database
 
 Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-24

@@ -1,6 +1,7 @@
 import { LockIcon, PlusIcon, RotateCcwIcon, UtensilsIcon } from 'lucide-react'
 import type * as React from 'react'
 import { useState, type ReactNode } from 'react'
+import { Checkbox } from '@/components/ui/checkbox'
 import { cn } from '@/lib/utils'
 
 /** The three slots, in order (Joe, 18 October). */
@@ -14,7 +15,9 @@ export type Slot = 'Breakfast' | 'Lunch' | 'Dinner'
  * marked, so a week of shared dinners isn't a row of icons. A typed Meal or leftovers sit lighter, with no card shadow.
  * Eaten, it fades and is struck through; being dragged, it lifts. Its
  * picture, when it has one (its Recipe's photo, or a typed Meal's from its
- * link), heads it (Joe, 23 October).
+ * link), heads it (Joe, 23 October). While choosing Meals for a food shop
+ * (SHP-002 1), a checkbox sits at its top right, the whole card chooses it,
+ * and a chosen card is ringed, as a RecipeCard is.
  */
 export function MealCard({
   name,
@@ -26,7 +29,10 @@ export function MealCard({
   household,
   dragging = false,
   eaten = false,
+  selecting = false,
+  selected = false,
   onOpen,
+  onSelect,
 }: {
   name: string
   /** Its picture's address. */
@@ -41,7 +47,11 @@ export function MealCard({
   household?: string
   dragging?: boolean
   eaten?: boolean
+  /** Choosing Meals for a food shop: Select on the week (SHP-002 1). */
+  selecting?: boolean
+  selected?: boolean
   onOpen?: () => void
+  onSelect?: (on: boolean) => void
 }) {
   const [broken, setBroken] = useState<string>()
   const parts = [
@@ -52,6 +62,7 @@ export function MealCard({
   return (
     <div
       data-slot="meal-card"
+      data-selected={selected || undefined}
       className={cn(
         'relative flex min-w-0 flex-col gap-1 rounded-control px-2.5 py-2 transition-[box-shadow,opacity]',
         kind === 'recipe'
@@ -59,8 +70,15 @@ export function MealCard({
           : 'bg-[color-mix(in_oklch,var(--card)_50%,transparent)] shadow-[inset_0_0_0_1px_var(--border)]',
         eaten && 'opacity-50 shadow-none',
         dragging && 'z-10 rotate-[1.5deg] cursor-grabbing opacity-100 shadow-pop',
+        'data-selected:ring-2 data-selected:ring-ring',
+        selecting && 'pr-10',
       )}
     >
+      {selecting && (
+        <span className="pointer-events-none absolute top-1.5 right-1.5 z-10 grid size-7 place-items-center rounded-sm bg-popover/85 shadow-card backdrop-blur-sm">
+          <Checkbox checked={selected} tabIndex={-1} aria-hidden />
+        </span>
+      )}
       {photo && photo !== broken && (
         <img
           src={photo}
@@ -73,7 +91,9 @@ export function MealCard({
       )}
       <button
         type="button"
-        onClick={onOpen}
+        role={selecting ? 'checkbox' : undefined}
+        aria-checked={selecting ? selected : undefined}
+        onClick={selecting ? () => onSelect?.(!selected) : onOpen}
         className={cn(
           'line-clamp-2 text-left text-sm leading-[1.3] font-[650] break-words outline-none after:absolute after:inset-0 after:rounded-control focus-visible:after:ring-3 focus-visible:after:ring-ring-soft',
           eaten && 'line-through',
