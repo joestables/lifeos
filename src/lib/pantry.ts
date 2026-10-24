@@ -147,3 +147,20 @@ export function mergeable<T extends PantryLine>(
     .filter((p) => p.id !== entry.id && p.added_by === me && p.kind === entry.kind)
     .sort((a, b) => a.name.localeCompare(b.name))
 }
+
+/** Pantry entries for a typed name: names starting with it first, up to six. */
+export function pantryMatches<P extends PantryLine>(
+  pantry: ReadonlyMap<string, P>,
+  query: string,
+): P[] {
+  const q = query.trim().toLowerCase()
+  if (!q) return []
+  return [...pantry.values()]
+    .filter((p) => p.name.toLowerCase().includes(q))
+    .sort((a, b) => {
+      const x = a.name.toLowerCase().startsWith(q) ? 0 : 1
+      const y = b.name.toLowerCase().startsWith(q) ? 0 : 1
+      return x - y || a.name.localeCompare(b.name)
+    })
+    .slice(0, 6)
+}

@@ -44,10 +44,11 @@ how the schema holds it and how the database enforces it
   and adds; only whoever added an entry changes or deletes it; a delete is
   refused while any line points at it. `food.merge_pantry()` checks the
   merger added both, then repoints every line, everyone's.
-- **Staples:** `food.staples` (Space, entry, out of stock), changed by
-  anyone who can read the Space; from Stage 4b,
-  a `kind` on it, staple or Essential, its out of stock meaning Required for
-  an Essential ([ADR-0057](0057-shopping-in-the-database.md)).
+- **Staples:** `food.space_entries` (Space, entry, kind, needed), changed by
+  anyone who can read the Space; first `food.staples` (Space, entry, out of
+  stock), given a `kind`, staple or Essential, in Stage 4b, and renamed, its
+  out of stock now `needed`, meaning Required for an Essential
+  ([ADR-0057](0057-shopping-in-the-database.md)).
 - **Lists of values** (categories, cuisines, tags, protein, carbs) are each
   person's, in `food.values`; browsing pools those of everyone in my
   Households, the same name counting once.

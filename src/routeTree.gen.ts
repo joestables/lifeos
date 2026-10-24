@@ -34,6 +34,8 @@ import { Route as AppSettingsIndexRouteImport } from './routes/_app/settings.ind
 import { Route as AppSettingsArchivedRecipesRouteImport } from './routes/_app/settings.archived-recipes'
 import { Route as AppSettingsDeletedRouteImport } from './routes/_app/settings.deleted'
 import { Route as AppSettingsLabelsRouteImport } from './routes/_app/settings.labels'
+import { Route as AppShoppingIndexRouteImport } from './routes/_app/shopping.index'
+import { Route as AppShoppingIdRouteImport } from './routes/_app/shopping.$id'
 import { Route as AppSettingsHouseholdsIdRouteImport } from './routes/_app/settings.households.$id'
 
 const IndexRoute = IndexRouteImport.update({
@@ -161,6 +163,16 @@ const AppSettingsLabelsRoute = AppSettingsLabelsRouteImport.update({
   path: '/settings/labels',
   getParentRoute: () => AppRoute,
 } as any)
+const AppShoppingIndexRoute = AppShoppingIndexRouteImport.update({
+  id: '/shopping/',
+  path: '/shopping/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppShoppingIdRoute = AppShoppingIdRouteImport.update({
+  id: '/shopping/$id',
+  path: '/shopping/$id',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppSettingsHouseholdsIdRoute = AppSettingsHouseholdsIdRouteImport.update({
   id: '/settings/households/$id',
   path: '/settings/households/$id',
@@ -190,8 +202,10 @@ export interface FileRoutesByFullPath {
   '/settings/archived-recipes': typeof AppSettingsArchivedRecipesRoute
   '/settings/deleted': typeof AppSettingsDeletedRoute
   '/settings/labels': typeof AppSettingsLabelsRoute
+  '/shopping/$id': typeof AppShoppingIdRoute
   '/recipes/': typeof AppRecipesIndexRoute
   '/settings/': typeof AppSettingsIndexRoute
+  '/shopping/': typeof AppShoppingIndexRoute
   '/settings/households/$id': typeof AppSettingsHouseholdsIdRoute
 }
 export interface FileRoutesByTo {
@@ -217,8 +231,10 @@ export interface FileRoutesByTo {
   '/settings/archived-recipes': typeof AppSettingsArchivedRecipesRoute
   '/settings/deleted': typeof AppSettingsDeletedRoute
   '/settings/labels': typeof AppSettingsLabelsRoute
+  '/shopping/$id': typeof AppShoppingIdRoute
   '/recipes': typeof AppRecipesIndexRoute
   '/settings': typeof AppSettingsIndexRoute
+  '/shopping': typeof AppShoppingIndexRoute
   '/settings/households/$id': typeof AppSettingsHouseholdsIdRoute
 }
 export interface FileRoutesById {
@@ -246,8 +262,10 @@ export interface FileRoutesById {
   '/_app/settings/archived-recipes': typeof AppSettingsArchivedRecipesRoute
   '/_app/settings/deleted': typeof AppSettingsDeletedRoute
   '/_app/settings/labels': typeof AppSettingsLabelsRoute
+  '/_app/shopping/$id': typeof AppShoppingIdRoute
   '/_app/recipes/': typeof AppRecipesIndexRoute
   '/_app/settings/': typeof AppSettingsIndexRoute
+  '/_app/shopping/': typeof AppShoppingIndexRoute
   '/_app/settings/households/$id': typeof AppSettingsHouseholdsIdRoute
 }
 export interface FileRouteTypes {
@@ -275,8 +293,10 @@ export interface FileRouteTypes {
     | '/settings/archived-recipes'
     | '/settings/deleted'
     | '/settings/labels'
+    | '/shopping/$id'
     | '/recipes/'
     | '/settings/'
+    | '/shopping/'
     | '/settings/households/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -302,8 +322,10 @@ export interface FileRouteTypes {
     | '/settings/archived-recipes'
     | '/settings/deleted'
     | '/settings/labels'
+    | '/shopping/$id'
     | '/recipes'
     | '/settings'
+    | '/shopping'
     | '/settings/households/$id'
   id:
     | '__root__'
@@ -330,8 +352,10 @@ export interface FileRouteTypes {
     | '/_app/settings/archived-recipes'
     | '/_app/settings/deleted'
     | '/_app/settings/labels'
+    | '/_app/shopping/$id'
     | '/_app/recipes/'
     | '/_app/settings/'
+    | '/_app/shopping/'
     | '/_app/settings/households/$id'
   fileRoutesById: FileRoutesById
 }
@@ -523,6 +547,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppSettingsLabelsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/shopping/': {
+      id: '/_app/shopping/'
+      path: '/shopping'
+      fullPath: '/shopping/'
+      preLoaderRoute: typeof AppShoppingIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/shopping/$id': {
+      id: '/_app/shopping/$id'
+      path: '/shopping/$id'
+      fullPath: '/shopping/$id'
+      preLoaderRoute: typeof AppShoppingIdRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/settings/households/$id': {
       id: '/_app/settings/households/$id'
       path: '/settings/households/$id'
@@ -549,8 +587,10 @@ interface AppRouteChildren {
   AppSettingsArchivedRecipesRoute: typeof AppSettingsArchivedRecipesRoute
   AppSettingsDeletedRoute: typeof AppSettingsDeletedRoute
   AppSettingsLabelsRoute: typeof AppSettingsLabelsRoute
+  AppShoppingIdRoute: typeof AppShoppingIdRoute
   AppRecipesIndexRoute: typeof AppRecipesIndexRoute
   AppSettingsIndexRoute: typeof AppSettingsIndexRoute
+  AppShoppingIndexRoute: typeof AppShoppingIndexRoute
   AppSettingsHouseholdsIdRoute: typeof AppSettingsHouseholdsIdRoute
 }
 
@@ -570,8 +610,10 @@ const AppRouteChildren: AppRouteChildren = {
   AppSettingsArchivedRecipesRoute: AppSettingsArchivedRecipesRoute,
   AppSettingsDeletedRoute: AppSettingsDeletedRoute,
   AppSettingsLabelsRoute: AppSettingsLabelsRoute,
+  AppShoppingIdRoute: AppShoppingIdRoute,
   AppRecipesIndexRoute: AppRecipesIndexRoute,
   AppSettingsIndexRoute: AppSettingsIndexRoute,
+  AppShoppingIndexRoute: AppShoppingIndexRoute,
   AppSettingsHouseholdsIdRoute: AppSettingsHouseholdsIdRoute,
 }
 

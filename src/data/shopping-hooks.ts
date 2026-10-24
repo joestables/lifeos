@@ -45,6 +45,11 @@ export interface ShoppingList {
   /** A food shop's Meals (SHP-002). */
   meals: string[]
   lines: ShopLine[]
+  /**
+   * The lines to tick: not its subheadings, nor the staples of its Space a
+   * Meal needs, which are checked on Extra instead (SHP-003 3).
+   */
+  toBuy: ShopLine[]
 }
 
 export interface ShoppingData {
@@ -129,17 +134,6 @@ export function useShopping(queue: WriteQueue): ShoppingData {
     const mealsBy = new Map<string, string[]>()
     for (const m of onList) mealsBy.set(m.list_id, [...(mealsBy.get(m.list_id) ?? []), m.meal_id])
 
-    const out: ShoppingList[] = items
-      .filter((i) => i.type === 'shopping_list')
-      .map((item) => ({
-        item,
-        kind: kinds.get(item.id)?.kind === 'list' ? 'list' : 'food',
-        meals: mealsBy.get(item.id) ?? [],
-        lines: linesBy.get(item.id) ?? [],
-      }))
-    const shopOf = new Map<string, string>()
-    for (const l of out) if (open(l.item)) for (const m of l.meals) shopOf.set(m, l.item.id)
-
     // A tick clears needed where the line came from, else in the shop's own Space.
     const lineById = new Map(shopLines.map((l) => [l.id, l]))
     const itemById = new Map(items.map((i) => [i.id, i]))
@@ -149,12 +143,35 @@ export function useShopping(queue: WriteQueue): ShoppingData {
         const space = l && (l.needed_space_id ?? itemById.get(l.list_id)?.space_id)
         return l?.pantry_id && space ? [{ space_id: space, pantry_id: l.pantry_id }] : []
       })
+    const kept = applyPendingEntries(entries.data ?? [], queued, ticked)
+    const staples = new Set(
+      kept.filter((e) => e.kind === 'staple').map((e) => `${e.space_id}:${e.pantry_id}`),
+    )
+
+    const out: ShoppingList[] = items
+      .filter((i) => i.type === 'shopping_list')
+      .map((item) => {
+        const mine = linesBy.get(item.id) ?? []
+        return {
+          item,
+          kind: kinds.get(item.id)?.kind === 'list' ? 'list' : 'food',
+          meals: mealsBy.get(item.id) ?? [],
+          lines: mine,
+          toBuy: mine.filter(
+            (l) =>
+              l.heading === null &&
+              !(l.meal_id && l.pantry_id && staples.has(`${item.space_id}:${l.pantry_id}`)),
+          ),
+        }
+      })
+    const shopOf = new Map<string, string>()
+    for (const l of out) if (open(l.item)) for (const m of l.meals) shopOf.set(m, l.item.id)
 
     return {
       lists: out,
       byId: new Map(out.map((l) => [l.item.id, l])),
       shopOf,
-      entries: applyPendingEntries(entries.data ?? [], queued, ticked),
+      entries: kept,
       isLoading: isLoading || lists.isLoading,
     }
   }, [

@@ -1293,6 +1293,8 @@ export async function standIn(
             people: { name: m.name },
           })),
       }))
+  // The shops' Meals' lines, as the database would have them already.
+  refreshShops()
   await page.route(`${STAND_IN_URL}/**`, async (route) => {
     const url = new URL(route.request().url())
     if (url.pathname.includes('/auth/v1/logout')) return route.fulfill({ status: 204 })
