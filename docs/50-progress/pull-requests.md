@@ -2,6 +2,16 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#29](https://github.com/joestables/lifeos/pull/29) — Stage 4, step 10 closed
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-24
+
+**What it did**
+- The Import Dialog's Import is primary, beside Cancel at the bottom right.
+- Add to the Pantry opens with the Dialog itself focused, so a phone's
+  keyboard stays down.
+- Step 10 closed: Joe is happy with Recipes and the Meal plan for now.
+
 ## [#28](https://github.com/joestables/lifeos/pull/28) — Stage 4: Joe's second list
 
 Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-24

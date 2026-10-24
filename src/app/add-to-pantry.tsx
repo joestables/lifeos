@@ -1,4 +1,4 @@
-import { useId, useState } from 'react'
+import { useId, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -47,6 +47,7 @@ export function AddToPantryDialog({
   onClose: () => void
 }) {
   const ids = useId()
+  const popup = useRef<HTMLDivElement>(null)
   const [name, setName] = useState(typed)
   const [aisle, setAisle] = useState<Aisle>(suggested ?? 'cupboard')
   const [unit, setUnit] = useState(lineUnit || NONE)
@@ -60,7 +61,9 @@ export function AddToPantryDialog({
   }
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
-      <DialogContent data-colour="green">
+      {/* The popup takes the focus, not the name: no keyboard as it opens
+          on a phone (Joe, 24 October). */}
+      <DialogContent data-colour="green" initialFocus={popup} ref={popup}>
         <DialogHeader>
           <DialogTitle>Add to the Pantry</DialogTitle>
         </DialogHeader>
