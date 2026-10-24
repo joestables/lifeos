@@ -475,7 +475,7 @@ Acceptance criteria
 **As** Joe, **I want** to see the Recipes of the person I live with, and
 make my own version of one, **so that** we draw on one collection without
 changing each other's.
-Priority: Must · Status: proposed
+Priority: Must · Status: built (plan step 8: Households, then food shared through them)
 
 Acceptance criteria
 1. Given we are in a Household, then each of us sees all the other's

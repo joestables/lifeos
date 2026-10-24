@@ -31,9 +31,11 @@ Each stage's working plan, and a record of every pull request, live in
 ([Stage 2's plan](50-progress/plans/stage-2.md); its nightly smoke walk is
 deferred until the roadmap is complete). Stage 3 is done (Joe, 17 October;
 [its plan](50-progress/plans/stage-3.md)): Plan, Events and Google
-Calendar, incoming and two-way. **Stage 4 (Recipes) has started**:
-[its plan](50-progress/plans/stage-4.md) is written, and its specs come
-first. Lists and Shops moved from Stage 3 to Stage 4b, after Recipes (Joe,
+Calendar, incoming and two-way. Stage 4 is done (Joe, 24 October;
+[its plan](50-progress/plans/stage-4.md)): Recipes, the Meal plan and the
+Pantry, Households, and import with the AI. **Stage 4b (Shopping) has
+started**: [its plan](50-progress/plans/stage-4b.md) is written, and its
+specs, drafted with Stage 4's, come first. Lists and Shops moved from Stage 3 to Stage 4b, after Recipes (Joe,
 14 October); on 17 October Joe set out Recipes, Meal plan and Shopping as
 three pages, with one Shopping list Type taking the place of List and Shop
 ([ADR-0050](20-architecture/adr/0050-shopping-list.md)), and moved Cardio
@@ -49,7 +51,7 @@ agrees before anything is built.
 |---|---|
 | Leaving the Household: does "created by" decide ownership, or does the leaver take a copy? ([ADR-0016](20-architecture/adr/0016-sharing-and-visibility.md)) | To confirm |
 | The inbound-email service for the capture address: Cloudflare Email Routing or Postmark ([integration setup](40-operations/integration-setup.md#capture-address-email-after-stage-9)) | Stage 10 |
-| On a repeating shopping list, do unticked lines carry over to the next occurrence? | Shopping spec (Stage 4b) |
+| On a repeating shopping list, do unticked lines carry over to the next occurrence? ([Stage 4b plan](50-progress/plans/stage-4b.md#questions-for-the-specs), question 1: recommended no repeats in 4b) | Shopping spec (Stage 4b) |
 | The open points in [recipes](10-requirements/modules/recipes.md#open-points-for-joe) and [meals](10-requirements/modules/meals.md#open-points-for-joe) | Stage 4 specs |
 | A Project Type, if grouping Tasks needs more than Labels | When needed |
 | Stage 3's as-built choices: Google Calendar's ([ADR-0047](20-architecture/adr/0047-google-calendar-sync.md#as-built-16-october-plan-step-9)); two-way, where the later change wins for the whole event rather than field by field ([ADR-0048](20-architecture/adr/0048-google-calendar-two-way.md#as-built-16-october-plan-step-10)); Plan placing Items from what the device holds ([ADR-0049](20-architecture/adr/0049-plans-read.md)) | To confirm |
