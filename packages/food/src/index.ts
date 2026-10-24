@@ -9,6 +9,7 @@ export {
   type Amount,
 } from './amounts.ts'
 export { parseLine, type ParsedLine } from './lines.ts'
+export { total } from './totals.ts'
 export { findTimer, formatTimer, type StepTimer } from './timers.ts'
 export {
   AISLES,

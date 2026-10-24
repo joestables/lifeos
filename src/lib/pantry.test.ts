@@ -48,10 +48,8 @@ const recipe = (
 ): PantryRecipe => ({ id, name, mine, variations: [{ id: `${id}v`, mine, lines }] })
 
 describe('PAN-001 1: the Pantry by aisle, in aisle order, household items apart', () => {
-  const none = new Map<string, { out: boolean }>()
-
   it('puts ingredients under their aisles in shopping order, each A–Z', () => {
-    const { aisles, household } = pantryGroups(ENTRIES, none, 'all', '')
+    const { aisles, household } = pantryGroups(ENTRIES, '')
     expect(aisles.map((a) => [a.label, a.entries.map((e) => e.name)])).toEqual([
       ['Fruit & Veg', ['Garlic', 'Onion']],
       ['Protein', ['Eggs']],
@@ -61,23 +59,9 @@ describe('PAN-001 1: the Pantry by aisle, in aisle order, household items apart'
   })
 
   it('narrows by a search, in any case and spacing', () => {
-    const { aisles, household } = pantryGroups(ENTRIES, none, 'all', '  SOY ')
+    const { aisles, household } = pantryGroups(ENTRIES, '  SOY ')
     expect(aisles.flatMap((a) => a.entries.map((e) => e.name))).toEqual(['Soy sauce'])
     expect(household).toEqual([])
-  })
-
-  it('PAN-002: shows my staples, or only those run out', () => {
-    const staples = new Map([
-      ['o', { out: true }],
-      ['s', { out: false }],
-      ['b', { out: true }],
-    ])
-    const names = (show: 'staples' | 'out') => {
-      const g = pantryGroups(ENTRIES, staples, show, '')
-      return [...g.aisles.flatMap((a) => a.entries), ...g.household].map((e) => e.name)
-    }
-    expect(names('staples')).toEqual(['Onion', 'Soy sauce', 'Bin bags'])
-    expect(names('out')).toEqual(['Onion', 'Bin bags'])
   })
 })
 

@@ -6,7 +6,7 @@ import {
   applyPendingMeals,
   applyPendingPantry,
   applyPendingRecipes,
-  applyPendingStaples,
+  applyPendingEntries,
   applyPendingSteps,
   applyPendingVariations,
   type Line,
@@ -247,53 +247,61 @@ describe('PAN-001–003: the Pantry shows what I change at once, offline too', (
   })
 })
 
-describe('PAN-002: staples and out of stock show at once', () => {
-  const staple = (pantry_id: string, out_of_stock = false) => ({
+describe('SHP-005: staples and Essentials show at once', () => {
+  const kept = (pantry_id: string, kind = 'staple', needed = false) => ({
     space_id: 's',
     pantry_id,
-    out_of_stock,
+    kind,
+    needed,
   })
 
-  it('marks a staple, then out of stock, then not a staple', () => {
-    const marked = applyPendingStaples(
+  it('keeps one, marks it needed, makes it an Essential, and takes it off', () => {
+    const marked = applyPendingEntries(
       [],
       [
-        entry('food.set_staple', {
+        entry('food.keep_entry', {
           p_space: 's',
           p_pantry: 'g',
-          p_staple: true,
-          p_out_of_stock: false,
+          p_kind: 'staple',
+          p_needed: false,
         }),
-        entry('food.set_staple', {
-          p_space: 's',
-          p_pantry: 'g',
-          p_staple: true,
-          p_out_of_stock: true,
-        }),
+        entry('food.keep_entry', { p_space: 's', p_pantry: 'g', p_kind: 'staple', p_needed: true }),
       ],
     )
-    expect(marked).toEqual([staple('g', true)])
+    expect(marked).toEqual([kept('g', 'staple', true)])
     expect(
-      applyPendingStaples(marked, [
-        entry('food.set_staple', { p_space: 's', p_pantry: 'g', p_staple: false }),
+      applyPendingEntries(marked, [
+        entry('food.keep_entry', { p_space: 's', p_pantry: 'g', p_kind: 'essential' }),
       ]),
+    ).toEqual([kept('g', 'essential')])
+    expect(
+      applyPendingEntries(marked, [entry('food.remove_entry', { p_space: 's', p_pantry: 'g' })]),
     ).toEqual([])
   })
 
-  it('a merge keeps one staple, out of stock if either was; a deletion drops it', () => {
-    const merged = applyPendingStaples(
-      [staple('g'), staple('k', true)],
+  it('SHP-003 4: a tick clears what it names', () => {
+    const cleared = applyPendingEntries(
+      [kept('g', 'staple', true), kept('m', 'essential', true)],
+      [entry('shopping.tick', { p_ids: ['l'], p_checked: true })],
+      () => [{ space_id: 's', pantry_id: 'g' }],
+    )
+    expect(cleared).toEqual([kept('g', 'staple'), kept('m', 'essential', true)])
+  })
+
+  it('a merge keeps one, needed if either was; a deletion drops it', () => {
+    const merged = applyPendingEntries(
+      [kept('g'), kept('k', 'staple', true)],
       [entry('food.merge_pantry', { p_keep: 'g', p_merge: 'k' })],
     )
-    expect(merged).toEqual([staple('g', true)])
-    const moved = applyPendingStaples(
-      [staple('k')],
+    expect(merged).toEqual([kept('g', 'staple', true)])
+    const moved = applyPendingEntries(
+      [kept('k')],
       [entry('food.merge_pantry', { p_keep: 'g', p_merge: 'k' })],
     )
-    expect(moved).toEqual([staple('g')])
-    expect(
-      applyPendingStaples([staple('g')], [entry('food.remove_pantry', { p_id: 'g' })]),
-    ).toEqual([])
+    expect(moved).toEqual([kept('g')])
+    expect(applyPendingEntries([kept('g')], [entry('food.remove_pantry', { p_id: 'g' })])).toEqual(
+      [],
+    )
   })
 })
 

@@ -10,9 +10,6 @@ export const AISLES = {
 
 export type Aisle = keyof typeof AISLES
 
-/** What the Pantry shows (PAN-001 1): everything, my staples, or those run out. */
-export type PantryShow = 'all' | 'staples' | 'out'
-
 /** A Pantry entry as the Pantry needs it. */
 export interface PantryLine {
   id: string
@@ -81,20 +78,15 @@ export function usedIn(uses: readonly { name: string }[]): string {
 
 /**
  * The Pantry as shown (PAN-001 1): ingredients by aisle, in aisle order,
- * then household items, each A–Z; narrowed by what is shown and the search.
+ * then household items, each A–Z; narrowed by the search.
  */
 export function pantryGroups(
   entries: readonly PantryLine[],
-  staples: ReadonlyMap<string, { out: boolean }>,
-  show: PantryShow,
   search: string,
 ): { aisles: { aisle: Aisle; label: string; entries: PantryLine[] }[]; household: PantryLine[] } {
   const q = nameKey(search)
   const shown = entries
     .filter((e) => !q || nameKey(e.name).includes(q))
-    .filter((e) =>
-      show === 'all' ? true : show === 'staples' ? staples.has(e.id) : staples.get(e.id)?.out,
-    )
     .sort((a, b) => a.name.localeCompare(b.name))
   const aisles = (Object.keys(AISLES) as Aisle[])
     .map((aisle) => ({

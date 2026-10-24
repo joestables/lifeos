@@ -16,9 +16,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Switch } from '@/components/ui/switch'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
-import { addPantry, setStaple, updatePantry, type PantryEntry, type PantryFields } from '@/data'
+import { addPantry, updatePantry, type PantryEntry, type PantryFields } from '@/data'
 import { AISLES, nameKey, type Aisle } from '@/lib/pantry'
 import { Field } from './task-details'
 
@@ -29,20 +28,17 @@ const AISLE_ITEMS = Object.entries(AISLES).map(([value, label]) => ({ value, lab
 /**
  * New entry, or Edit entry on one I added (PAN-001 2, 3): an ingredient or
  * a household item, its name, aisle (Cupboard to start; a household item's
- * is Household) and default unit; a new one may be one of my staples. A name
+ * is Household) and default unit. A name
  * the Pantry has is refused.
  */
 export function PantryEntryDialog({
   entry,
   pantry,
-  space,
   onClose,
 }: {
   /** The entry to edit; without one, a new entry. */
   entry?: PantryEntry
   pantry: ReadonlyMap<string, PantryEntry>
-  /** Where my staples are kept. */
-  space: string | null
   onClose: () => void
 }) {
   const ids = useId()
@@ -50,7 +46,6 @@ export function PantryEntryDialog({
   const [name, setName] = useState(entry?.name ?? '')
   const [aisle, setAisle] = useState<Aisle>((entry?.aisle as Aisle | null) ?? 'cupboard')
   const [unit, setUnit] = useState(entry?.default_unit ?? NONE)
-  const [staple, setStapleOn] = useState(false)
   const [tried, setTried] = useState(false)
   const key = nameKey(name)
   const taken = [...pantry.values()].some((p) => p.id !== entry?.id && nameKey(p.name) === key)
@@ -71,8 +66,7 @@ export function PantryEntryDialog({
       ) as PantryFields
       if (Object.keys(patch).length) updatePantry(entry.id, patch)
     } else {
-      const id = addPantry({ ...fields, name: fields.name! })
-      if (staple && space) setStaple(space, id, true)
+      addPantry({ ...fields, name: fields.name! })
     }
     onClose()
   }
@@ -148,11 +142,6 @@ export function PantryEntryDialog({
               </Select>
             </Field>
           </div>
-          {!entry && (
-            <label className="flex items-center gap-3 text-sm font-semibold">
-              <Switch checked={staple} onCheckedChange={setStapleOn} /> One of our staples
-            </label>
-          )}
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose}>
               Cancel

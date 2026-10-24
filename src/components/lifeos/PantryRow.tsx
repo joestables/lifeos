@@ -15,7 +15,7 @@ export function Pill({
   onPressedChange?: (on: boolean) => void
   children: ReactNode
   label: string
-  /** On, in amber rather than the page's colour: out of stock (Joe, 21 October). */
+  /** On, in amber rather than the page's colour: out of stock or Required (Joe, 21 October). */
   warning?: boolean
 }) {
   return (
@@ -36,28 +36,18 @@ export function Pill({
 }
 
 /**
- * A Pantry entry (PAN-001, PAN-002): its name, then how many Recipes use
- * it, muted (no unit: Joe, 23 October) (the count only on a computer: a phone's row has
- * no room beside both pills; Joe, 18 October); on the right, Staple as a tap-to-toggle pill on
- * every row (Joe, 18 October) and, for a staple, Out of stock beside it;
- * then the entry's "…" menu.
+ * A Pantry entry (PAN-001): its name, then how many Recipes use it, muted
+ * (no unit: Joe, 23 October; the count only on a computer), then its "…"
+ * menu. Staples and Essentials are kept on Shopping (SHP-005).
  */
 export function PantryRow({
   name,
   recipes,
-  staple = false,
-  out = false,
-  onStaple,
-  onOut,
   menu,
 }: {
   name: string
   /** How many Recipes use it. */
   recipes?: number
-  staple?: boolean
-  out?: boolean
-  onStaple?: (on: boolean) => void
-  onOut?: (on: boolean) => void
   menu?: ReactNode
 }) {
   return (
@@ -73,17 +63,7 @@ export function PantryRow({
           </span>
         )}
       </div>
-      <div className="flex items-center gap-1.5">
-        <span className={cn(!staple && 'invisible')}>
-          <Pill label={`${name} out of stock`} pressed={out} onPressedChange={onOut} warning>
-            Out of stock
-          </Pill>
-        </span>
-        <Pill label={`${name} is a staple`} pressed={staple} onPressedChange={onStaple}>
-          Staple
-        </Pill>
-        {menu}
-      </div>
+      {menu}
     </div>
   )
 }

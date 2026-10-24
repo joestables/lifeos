@@ -39,8 +39,12 @@ export interface Rows {
   meal?: Record<string, unknown>[]
   /** Meals' own lines (MPL-006). */
   meal_lines?: Record<string, unknown>[]
-  /** My Spaces' staples (PAN-002); my personal Space is `s`. */
-  staples?: Record<string, unknown>[]
+  /** My Spaces' staples and Essentials (SHP-005); my personal Space is `s`. */
+  space_entries?: Record<string, unknown>[]
+  /** The shopping schema (ADR-0057): lists' kinds, a food shop's Meals, and lines. */
+  shopping_list?: Record<string, unknown>[]
+  list_meals?: Record<string, unknown>[]
+  lines?: Record<string, unknown>[]
   values?: Record<string, unknown>[]
   activity?: Record<string, unknown>[]
   /** Photos (core.attachments) and their files in Storage's `photos` bucket. */
@@ -190,7 +194,24 @@ export async function standIn(
     variation_steps: [...(rows.variation_steps ?? [])],
     cooks: [...(rows.cooks ?? [])],
     pantry: [...(rows.pantry ?? [])],
-    staples: [...(rows.staples ?? [])],
+    space_entries: [...(rows.space_entries ?? [])],
+    shopping_list: [...(rows.shopping_list ?? [])],
+    list_meals: [...(rows.list_meals ?? [])],
+    lines: (rows.lines ?? []).map((l): Record<string, unknown> => ({
+      position: '',
+      heading: null,
+      pantry_id: null,
+      text: null,
+      qty: null,
+      qty_max: null,
+      approx: false,
+      unit: null,
+      checked: false,
+      meal_id: null,
+      source_id: null,
+      needed_space_id: null,
+      ...l,
+    })),
     meal: [...(rows.meal ?? [])].map((m): Record<string, unknown> => ({ source: null, ...m })),
     meal_lines: (rows.meal_lines ?? []).map((l): Record<string, unknown> => ({
       pantry_id: null,
@@ -646,29 +667,41 @@ export async function standIn(
       // Refused while any line uses it, as the foreign key does (PAN-001 4).
       if ([...db.variation_lines, ...db.meal_lines].some((l) => l.pantry_id === a.p_id))
         return 'in use'
+      const gone = db.pantry.find((p) => p.id === a.p_id)
+      // Its shopping lines are left as typed, with its name (PAN-001 4).
+      for (const l of db.lines)
+        if (l.pantry_id === a.p_id) Object.assign(l, { pantry_id: null, text: gone?.name })
       db.pantry = db.pantry.filter((p) => p.id !== a.p_id)
-      db.staples = db.staples.filter((x) => x.pantry_id !== a.p_id)
+      db.space_entries = db.space_entries.filter((x) => x.pantry_id !== a.p_id)
     },
     merge_pantry: (a) => {
-      for (const l of db.variation_lines) if (l.pantry_id === a.p_merge) l.pantry_id = a.p_keep
-      for (const x of db.staples.filter((x) => x.pantry_id === a.p_merge)) {
-        const kept = db.staples.find((k) => k.space_id === x.space_id && k.pantry_id === a.p_keep)
-        if (kept) kept.out_of_stock = Boolean(kept.out_of_stock) || Boolean(x.out_of_stock)
-        else db.staples.push({ ...x, pantry_id: a.p_keep })
+      for (const l of [...db.variation_lines, ...db.meal_lines, ...db.lines])
+        if (l.pantry_id === a.p_merge) l.pantry_id = a.p_keep
+      for (const x of db.space_entries.filter((x) => x.pantry_id === a.p_merge)) {
+        const kept = db.space_entries.find(
+          (k) => k.space_id === x.space_id && k.pantry_id === a.p_keep,
+        )
+        if (kept) kept.needed = Boolean(kept.needed) || Boolean(x.needed)
+        else db.space_entries.push({ ...x, pantry_id: a.p_keep })
       }
-      db.staples = db.staples.filter((x) => x.pantry_id !== a.p_merge)
+      db.space_entries = db.space_entries.filter((x) => x.pantry_id !== a.p_merge)
       db.pantry = db.pantry.filter((p) => p.id !== a.p_merge)
     },
-    set_staple: (a) => {
-      db.staples = db.staples.filter(
+    keep_entry: (a) => {
+      db.space_entries = db.space_entries.filter(
         (x) => !(x.space_id === a.p_space && x.pantry_id === a.p_pantry),
       )
-      if (a.p_staple)
-        db.staples.push({
-          space_id: a.p_space,
-          pantry_id: a.p_pantry,
-          out_of_stock: Boolean(a.p_out_of_stock),
-        })
+      db.space_entries.push({
+        space_id: a.p_space,
+        pantry_id: a.p_pantry,
+        kind: a.p_kind,
+        needed: Boolean(a.p_needed),
+      })
+    },
+    remove_entry: (a) => {
+      db.space_entries = db.space_entries.filter(
+        (x) => !(x.space_id === a.p_space && x.pantry_id === a.p_pantry),
+      )
     },
     note_change: (a) => {
       db.change_notes = db.change_notes.filter((n) => n.activity_id !== a.p_activity)
@@ -755,6 +788,128 @@ export async function standIn(
           created_at: now(),
         })
     },
+  }
+  // A food shop's Meals' lines, as shopping_private.refresh_meal writes them
+  // after every change (ADR-0057): unticked ones replaced, ticked ones kept.
+  const openList = (id: unknown) => {
+    const i = item(id)
+    return !!i && i.status === 'active' && !i.archived_at
+  }
+  const refreshShops = () => {
+    db.lines = db.lines.filter((l) => !(l.meal_id && !l.checked && openList(l.list_id)))
+    for (const { list_id, meal_id } of db.list_meals) {
+      const meal = item(meal_id)
+      const m = db.meal.find((x) => x.item_id === meal_id)
+      if (!openList(list_id) || !meal || meal.archived_at || meal.status === 'cancelled') continue
+      if (m?.leftovers_of) continue
+      const ticked = (source: unknown) =>
+        db.lines.some((l) => l.list_id === list_id && l.source_id === source && l.checked)
+      const variation = db.links.find((l) => l.from_item === meal_id && l.link_type === 'uses')
+      const v = db.variation.find((x) => x.item_id === variation?.to_item)
+      const factor = m?.servings && v?.servings ? Number(m.servings) / Number(v.servings) : 1
+      const add = (src: Record<string, unknown>, scale: number) => {
+        if (ticked(src.id)) return
+        db.lines.push({
+          id: `${String(list_id)}:${String(src.id)}`,
+          list_id,
+          position: src.position ?? '',
+          heading: null,
+          pantry_id: src.pantry_id ?? null,
+          text: src.text ?? null,
+          qty: src.qty === null || src.qty === undefined ? null : Number(src.qty) * scale,
+          qty_max:
+            src.qty_max === null || src.qty_max === undefined ? null : Number(src.qty_max) * scale,
+          approx: Boolean(src.approx),
+          unit: src.unit ?? null,
+          checked: false,
+          meal_id,
+          source_id: src.id,
+          needed_space_id: null,
+        })
+      }
+      for (const l of db.variation_lines)
+        if (l.variation_id === variation?.to_item && !l.heading) add(l, factor)
+      for (const l of db.meal_lines) if (l.meal_id === meal_id) add(l, 1)
+    }
+  }
+  const shopMeals = (list: unknown) =>
+    db.list_meals
+      .filter((m) => m.list_id === list)
+      .map((lm) => {
+        const meal = item(lm.meal_id)
+        const m = db.meal.find((x) => x.item_id === lm.meal_id)
+        const space = db.spaces.find((x) => x.id === meal?.space_id)
+        return {
+          meal_id: lm.meal_id,
+          title: meal?.title ?? '',
+          do_on: meal?.do_on ?? null,
+          slot: meal?.slot ?? null,
+          servings: m?.servings ?? null,
+          personal: space?.kind !== 'household',
+          live: !!meal && !meal.archived_at && meal.status !== 'cancelled',
+        }
+      })
+  const shoppingWrite: Record<string, (a: Record<string, unknown>) => unknown> = {
+    create_list: (a) => {
+      if (item(a.p_id)) return
+      const { kind, meals, ...fields } = a.p_fields as Record<string, unknown>
+      db.items.push(itemRow({ id: String(a.p_id), type: 'shopping_list', ...fields }))
+      db.shopping_list.push({ item_id: a.p_id, kind: kind ?? 'food' })
+      for (const m of (meals as string[] | undefined) ?? [])
+        db.list_meals.push({ list_id: a.p_id, meal_id: m })
+    },
+    update_list: (a) =>
+      db.shopping_list
+        .filter((l) => l.item_id === a.p_id)
+        .forEach((l) => Object.assign(l, a.p_patch)),
+    add_meals: (a) => {
+      for (const m of (a.p_meals as string[]) ?? [])
+        if (!db.list_meals.some((x) => x.list_id === a.p_list && x.meal_id === m))
+          db.list_meals.push({ list_id: a.p_list, meal_id: m })
+    },
+    remove_meal: (a) => {
+      db.list_meals = db.list_meals.filter(
+        (x) => !(x.list_id === a.p_list && x.meal_id === a.p_meal),
+      )
+    },
+    add_line: (a) => {
+      if (db.lines.some((l) => l.id === a.p_id)) return
+      db.lines.push({
+        position: '',
+        heading: null,
+        pantry_id: null,
+        text: null,
+        qty: null,
+        qty_max: null,
+        approx: false,
+        unit: null,
+        checked: false,
+        meal_id: null,
+        source_id: null,
+        needed_space_id: null,
+        ...(a.p_fields as object),
+        id: a.p_id,
+        list_id: a.p_list,
+      })
+    },
+    update_line: (a) =>
+      db.lines
+        .filter((l) => l.id === a.p_id && !l.meal_id)
+        .forEach((l) => Object.assign(l, a.p_patch)),
+    delete_line: (a) => {
+      db.lines = db.lines.filter((l) => l.id !== a.p_id || l.meal_id)
+    },
+    tick: (a) => {
+      for (const l of db.lines) {
+        if (!(a.p_ids as string[]).includes(String(l.id)) || l.heading) continue
+        l.checked = a.p_checked
+        if (!a.p_checked || !l.pantry_id) continue
+        const space = l.needed_space_id ?? item(l.list_id)?.space_id
+        for (const e of db.space_entries)
+          if (e.space_id === space && e.pantry_id === l.pantry_id) e.needed = false
+      }
+    },
+    meals_of: (a) => shopMeals(a.p_list),
   }
   const write: Record<string, (a: Record<string, unknown>) => unknown> = {
     // The sender's public key (a made-up one: nothing is really sent).
@@ -934,6 +1089,8 @@ export async function standIn(
         })
         return Object.assign(i, { type: 'recipe', status: 'idea', body: null })
       }
+      if (a.p_type === 'shopping_list' && !db.shopping_list.some((l) => l.item_id === i.id))
+        db.shopping_list.push({ item_id: i.id, kind: 'food' })
       return Object.assign(i, {
         type: a.p_type,
         status: keeps.includes(String(i.status)) ? i.status : 'active',
@@ -1196,9 +1353,12 @@ export async function standIn(
     }
     const rpc = url.pathname.match(/\/rest\/v1\/rpc\/(\w+)$/)
     if (rpc) {
-      // The food schema's functions come with its profile (supabase.schema('food')).
-      const food = route.request().headers()['content-profile'] === 'food'
-      const result = (food ? foodWrite : write)[rpc[1]!]?.(route.request().postDataJSON() ?? {})
+      // A Module's functions come with its profile (supabase.schema('food')).
+      const profile = route.request().headers()['content-profile']
+      const result = (
+        profile === 'food' ? foodWrite : profile === 'shopping' ? shoppingWrite : write
+      )[rpc[1]!]?.(route.request().postDataJSON() ?? {})
+      refreshShops()
       if (result === 'in use')
         return route.fulfill({
           status: 409,

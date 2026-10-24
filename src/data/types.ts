@@ -34,16 +34,22 @@ export type ItemFields = Partial<
 
 type CoreFunctions = Database['core']['Functions']
 type FoodFunctions = Database['food']['Functions']
+type ShoppingFunctions = Database['shopping']['Functions']
 
 /**
  * The database functions the write queue replays (ADR-0042): the core's by
  * name, a Module's with its schema first ("food.create_recipe").
  */
-export type WriteFn = keyof CoreFunctions | `food.${keyof FoodFunctions & string}`
+export type WriteFn =
+  | keyof CoreFunctions
+  | `food.${keyof FoodFunctions & string}`
+  | `shopping.${keyof ShoppingFunctions & string}`
 
 export type WriteArgs<F extends WriteFn = WriteFn> =
   F extends `food.${infer N extends keyof FoodFunctions}`
     ? FoodFunctions[N]['Args']
-    : F extends keyof CoreFunctions
-      ? CoreFunctions[F]['Args']
-      : never
+    : F extends `shopping.${infer N extends keyof ShoppingFunctions}`
+      ? ShoppingFunctions[N]['Args']
+      : F extends keyof CoreFunctions
+        ? CoreFunctions[F]['Args']
+        : never

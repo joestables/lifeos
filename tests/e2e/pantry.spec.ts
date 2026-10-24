@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
-import { GARLIC, GREEN, SPRING, pantryRows } from './pantry-rows'
+import { GREEN, SPRING, pantryRows } from './pantry-rows'
 import { CHICKEN, KATSU, PANKO, id } from './recipe-rows'
 import { standIn } from './stand-in'
 
@@ -24,7 +24,7 @@ async function menu(page: Page, name: string, item: string) {
 }
 
 test.describe('The Pantry', () => {
-  test('PAN-001 1: ingredients by aisle, household items apart, staples marked, searched', async ({
+  test('PAN-001 1: ingredients by aisle, household items apart, searched', async ({
     page,
     isMobile,
   }) => {
@@ -46,32 +46,16 @@ test.describe('The Pantry', () => {
     await expect(names(page, 'Household items')).toHaveText(['Bin bags'])
     // How many Recipes use each, on a computer only.
     await expect(rowOf(page, 'Panko').getByText('1 recipe')).toBeVisible({ visible: !isMobile })
-    await expect(page.getByRole('button', { name: 'Garlic is a staple' })).toHaveAttribute(
-      'aria-pressed',
-      'true',
-    )
-    await expect(page.getByRole('button', { name: 'Garlic out of stock' })).toHaveAttribute(
-      'aria-pressed',
-      'true',
-    )
+    // Staples and Essentials are kept on Shopping (SHP-005), not here.
+    await expect(page.getByRole('button', { name: 'Garlic is a staple' })).toHaveCount(0)
 
     await page.getByRole('searchbox', { name: 'Search the Pantry' }).fill('ONION')
     await expect(names(page, 'Fruit & Veg')).toHaveText(['Green onions', 'Spring onions'])
     await page.getByRole('searchbox', { name: 'Search the Pantry' }).fill('nothing like it')
     await expect(page.getByText('Nothing matches')).toBeVisible()
-    await page.getByRole('searchbox', { name: 'Search the Pantry' }).fill('')
-
-    await page.getByRole('button', { name: 'Staples', exact: true }).click()
-    await expect(names(page, 'Fruit & Veg')).toHaveText(['Garlic'])
-    await expect(names(page, 'Household items')).toHaveText(['Bin bags'])
-    await page.getByRole('button', { name: 'Out of stock', exact: true }).click()
-    await expect(names(page, 'Fruit & Veg')).toHaveText(['Garlic'])
-    await expect(aisle(page, 'Household items')).toHaveCount(0)
   })
 
-  test('PAN-001 2, PAN-002 1: a new ingredient and household item, one a staple', async ({
-    page,
-  }) => {
+  test('PAN-001 2: a new ingredient and a household item', async ({ page }) => {
     const db = await start(page)
     await page.getByRole('button', { name: 'New entry' }).first().click()
     let dialog = page.getByRole('dialog', { name: 'New entry' })
@@ -80,15 +64,10 @@ test.describe('The Pantry', () => {
     await dialog.getByLabel('Name').fill('Gochujang')
     await dialog.getByLabel('Default unit').click()
     await page.getByRole('option', { name: 'tbsp' }).click()
-    await dialog.getByRole('switch').click()
     await dialog.getByRole('button', { name: 'Save' }).click()
     await expect
       .poll(() => db.pantry.find((p) => p.name === 'Gochujang'))
       .toMatchObject({ kind: 'ingredient', aisle: 'cupboard', default_unit: 'tbsp' })
-    const gochujang = db.pantry.find((p) => p.name === 'Gochujang')!
-    await expect
-      .poll(() => db.staples.find((x) => x.pantry_id === gochujang.id))
-      .toMatchObject({ space_id: 's', out_of_stock: false })
     await expect(names(page, 'Cupboard')).toHaveText(['Gochujang', 'Panko breadcrumbs'])
 
     await page.getByRole('button', { name: 'New entry' }).first().click()
@@ -143,21 +122,6 @@ test.describe('The Pantry', () => {
     const dialog = page.getByRole('dialog', { name: 'Chicken thighs' })
     await dialog.getByText('Katsu curry').click()
     await expect(page).toHaveURL(new RegExp(`/recipes/${KATSU}$`))
-  })
-
-  test('PAN-002 1: a staple marked, run out, and unmarked', async ({ page }) => {
-    const db = await start(page)
-    await page.getByRole('button', { name: 'Spring onions is a staple' }).click()
-    await expect
-      .poll(() => db.staples.find((x) => x.pantry_id === SPRING))
-      .toMatchObject({ out_of_stock: false })
-    await page.getByRole('button', { name: 'Spring onions out of stock' }).click()
-    await expect
-      .poll(() => db.staples.find((x) => x.pantry_id === SPRING))
-      .toMatchObject({ out_of_stock: true })
-    await page.getByRole('button', { name: 'Garlic is a staple' }).click()
-    await expect.poll(() => db.staples.some((x) => x.pantry_id === GARLIC)).toBe(false)
-    await expect(page.getByRole('button', { name: 'Garlic out of stock' })).toBeHidden()
   })
 
   test('PAN-003: one of my entries merged into another, which keeps its name', async ({ page }) => {

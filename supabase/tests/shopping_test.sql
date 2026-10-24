@@ -4,7 +4,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = extensions, public;
-select plan(31);
+select plan(32);
 
 insert into auth.users (id, email) values
   ('00000000-0000-4000-8000-00000000000a', 'ann@example.com'),
@@ -247,7 +247,7 @@ select food.keep_entry(
   (select id from core.spaces where kind = 'personal' and created_by = '00000000-0000-4000-8000-00000000000a'),
   '00000000-0000-7000-8000-0000000000e3', 'staple', true);
 select is(
-  (select array_agg(kind || ':' || out_of_stock order by kind) from food.staples
+  (select array_agg(kind || ':' || needed order by kind) from food.space_entries
    where space_id = '00000000-0000-7000-8000-0000000000f1'),
   array['essential:true', 'staple:true'],
   'SHP-005 2: a Space keeps staples, out of stock, and Essentials, Required'
@@ -259,14 +259,14 @@ select shopping.add_line('00000000-0000-7000-8000-0000000000a3', '00000000-0000-
   '{"pantry_id": "00000000-0000-7000-8000-0000000000e4", "qty": 4}');
 select shopping.tick(array['00000000-0000-7000-8000-0000000000a2'::uuid, '00000000-0000-7000-8000-0000000000a3'::uuid], true);
 select is(
-  (select array_agg(s.kind || ':' || st.out_of_stock order by s.kind)
-   from food.staples st join core.spaces s on s.id = st.space_id
+  (select array_agg(s.kind || ':' || st.needed order by s.kind)
+   from food.space_entries st join core.spaces s on s.id = st.space_id
    where st.pantry_id = '00000000-0000-7000-8000-0000000000e3'),
   array['household:true', 'personal:false'],
   'SHP-003 4: a line added from a Space''s Needed clears it there, and nowhere else'
 );
 select is(
-  (select out_of_stock from food.staples where pantry_id = '00000000-0000-7000-8000-0000000000e4'),
+  (select needed from food.space_entries where pantry_id = '00000000-0000-7000-8000-0000000000e4'),
   false,
   'SHP-003 4: any other line clears it in the shop''s own Space'
 );
@@ -304,7 +304,7 @@ select is(
   'PAN-003: a merge moves shopping lines'
 );
 select is(
-  (select kind from food.staples where space_id = '00000000-0000-7000-8000-0000000000f1' and pantry_id = '00000000-0000-7000-8000-0000000000e4'),
+  (select kind from food.space_entries where space_id = '00000000-0000-7000-8000-0000000000f1' and pantry_id = '00000000-0000-7000-8000-0000000000e4'),
   'essential',
   'PAN-003: and keeps a Space''s Essential an Essential'
 );
@@ -316,9 +316,17 @@ select food.keep_entry(
   '00000000-0000-7000-8000-0000000000e4', 'essential', false);
 select core.create_household('00000000-0000-7000-8000-0000000000f2', 'Flat');
 select is(
-  (select kind from food.staples where space_id = '00000000-0000-7000-8000-0000000000f2'),
+  (select kind from food.space_entries where space_id = '00000000-0000-7000-8000-0000000000f2'),
   'essential',
   'SHP-005 4: my first Household starts with a copy of my staples and Essentials'
+);
+
+-- Taken off, a staple or Essential is gone from its Space (SHP-005 1).
+select food.remove_entry('00000000-0000-7000-8000-0000000000f2', '00000000-0000-7000-8000-0000000000e4');
+select is(
+  (select count(*)::int from food.space_entries where space_id = '00000000-0000-7000-8000-0000000000f2'),
+  0,
+  'SHP-005 1: a staple or Essential is taken off'
 );
 
 select * from finish();

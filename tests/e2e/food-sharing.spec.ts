@@ -11,7 +11,7 @@ const SHARED = id(82)
 
 /**
  * The Meal plan's rows, with Ann and Sam in Home: Sam's Recipe, a Meal in
- * Home, and Home's staples beside Ann's own.
+ * Home, and Home's staples beside Ann's own (SHP-005).
  */
 function rows(meals: string | null = null): Rows {
   const base = mealRows()
@@ -72,9 +72,9 @@ function rows(meals: string | null = null): Rows {
         added_by: ANN.id,
       },
     ],
-    staples: [
-      { space_id: 's', pantry_id: GARLIC, out_of_stock: false },
-      { space_id: HOME, pantry_id: BIN_BAGS, out_of_stock: true },
+    space_entries: [
+      { space_id: 's', pantry_id: GARLIC, kind: 'staple', needed: false },
+      { space_id: HOME, pantry_id: BIN_BAGS, kind: 'staple', needed: true },
     ],
   }
 }
@@ -151,22 +151,6 @@ test.describe('Food shared through a Household', () => {
     await cards(page, '2026-10-14:dinner').getByRole('button', { name: 'Out: Wagamama' }).click()
     await expect(page.getByRole('dialog').getByText('Out: Wagamama').first()).toBeVisible()
     await expect(page.getByRole('combobox', { name: 'For' })).toHaveCount(0)
-  })
-
-  test('PAN-002 1: the Pantry shows the staples of where my Meals go', async ({ page }) => {
-    const db = await start(page, '/meal-plan?tab=pantry', HOME)
-    await expect(page.getByRole('button', { name: 'Bin bags out of stock' })).toHaveAttribute(
-      'aria-pressed',
-      'true',
-    )
-    await expect(page.getByRole('button', { name: 'Garlic is a staple' })).toHaveAttribute(
-      'aria-pressed',
-      'false',
-    )
-    await page.getByRole('button', { name: 'Garlic is a staple' }).click()
-    await expect
-      .poll(() => db.staples.find((s) => s.pantry_id === GARLIC && s.space_id === HOME))
-      .toBeTruthy()
   })
 
   test('RCP-001 5: Created by lists me and Home’s members; a member’s Recipe says whose', async ({

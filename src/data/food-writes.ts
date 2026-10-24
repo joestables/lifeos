@@ -168,17 +168,21 @@ export function foodWrites(queue: WriteQueue) {
     removePantry(id: string): void {
       queue.enqueue('food.remove_pantry', { p_id: id }, [])
     },
-    /** Two entries I added made one (PAN-003): `merge`'s lines and staples move to `keep`. */
+    /** Two entries I added made one (PAN-003): `merge`'s lines, staples and Essentials move to `keep`. */
     mergePantry(keep: string, merge: string): void {
       queue.enqueue('food.merge_pantry', { p_keep: keep, p_merge: merge }, [])
     },
-    /** One of a Space's staples, and whether it has run out; or not a staple (PAN-002). */
-    setStaple(space: string, pantry: string, staple: boolean, outOfStock = false): void {
+    /** One of a Space's staples or Essentials kept, of a kind, needed or not (SHP-005 1, 2). */
+    keepEntry(space: string, pantry: string, kind: 'staple' | 'essential', needed = false): void {
       queue.enqueue(
-        'food.set_staple',
-        { p_space: space, p_pantry: pantry, p_staple: staple, p_out_of_stock: outOfStock },
+        'food.keep_entry',
+        { p_space: space, p_pantry: pantry, p_kind: kind, p_needed: needed },
         [],
       )
+    },
+    /** One taken off its Space's staples or Essentials (SHP-005 1). */
+    removeEntry(space: string, pantry: string): void {
+      queue.enqueue('food.remove_entry', { p_space: space, p_pantry: pantry }, [])
     },
     /**
      * A Meal in a slot (MPL-002): of a Variation, typed, or leftovers of
