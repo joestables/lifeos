@@ -412,7 +412,7 @@ StepEditor. Agreed with Joe on 18 October on the
   about 250 KB on the device as it is chosen, kept on Save or Done, and
   sent once its Recipe has reached the server; with no signal it is
   refused, saying so.
-- **Import** is a Dialog: Link and an outline Import, then its progress as
+- **Import** is a Dialog: Link, then Cancel and a primary Import side by side at the bottom right (Joe, 24 October), then its progress as
   three lines (Reading the page, Writing it up, Matching the Pantry; done
   with a filled check, the current one with a spinner, the next muted). A
   link saved before says which Recipe or Idea has it first, with Open and
@@ -499,7 +499,8 @@ StepEditor. Agreed with Joe on 18 October on the
   works, it goes on, the Ingredients' and Method's Cards Skeletons until
   it is kept (a page of several then opens the Dialog at its choice).
   Either ends in a toast with Undo. Add "…" to the Pantry
-  opens a small Dialog, "Add to the Pantry": Name, then Aisle (a Select,
+  opens a small Dialog, "Add to the Pantry", the Dialog itself focused so a
+  phone's keyboard stays down (Joe, 24 October): Name, then Aisle (a Select,
   Cupboard to start) beside Default unit (a Select, the line's unit to
   start), Cancel and Add (PAN-004 1); a line kept as typed opens it from
   its mark. A Pantry entry chosen for a line with no unit gives it the

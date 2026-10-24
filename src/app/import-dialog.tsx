@@ -147,7 +147,7 @@ export function ImportDialog({
               <Button type="button" variant="outline" onClick={onClose}>
                 Cancel
               </Button>
-              <Button type="submit" variant="outline" disabled={!link.trim()}>
+              <Button type="submit" disabled={!link.trim()}>
                 Import
               </Button>
             </DialogFooter>
