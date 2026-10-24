@@ -15,7 +15,9 @@ them.
 (step 1 there): [meals](../../10-requirements/modules/meals.md#shopping)
 SHP-001–004 and what they change in Plan, items, Search, Inbox and
 Households. Step 1 is Joe agreeing them, after the
-[questions below](#questions-for-the-specs).
+[questions below](#questions-for-the-specs). Joe answered them and widened
+Shopping on 24 October ([his answers](#joes-answers-24-october)); five
+points are still open, then the specs are redrafted.
 
 ## Steps
 
@@ -65,6 +67,74 @@ Claude's recommendation is given with each question.
 6. **Android's share target** (RCP-003, a Must from Stage 4) isn't built.
    *Recommended:* build it here as step 9, since it is small and Stage 4
    closed without it.
+
+## Joe's answers (24 October)
+
+- **Shopping has three tabs: Food, Lists and Online.** Online (items
+  watched for price alerts, with a notification) is out of scope for 4b: a
+  [later opportunity](../../roadmap.md#later-opportunities). What Lists
+  holds is [question 7](#still-open-24-october).
+- **A food shop is linked to any number of Meals.** Every ingredient of each
+  Meal comes onto the list: its Recipe's, a one-off import's, and those
+  added by hand (MPL-006). When a Meal's ingredients change, the list
+  follows (answers question 4). Anything else, household items included,
+  is added by hand. **All · Meals · Extra** at the top of a list tells the
+  Meals' lines from those added by hand.
+- **No repeating lists** (question 1, as recommended).
+- **Perishables** (milk) are never marked out of stock; Joe wants to be
+  offered them on every food shop. **Each Household has an Essentials
+  list** for these. Staples' out of stock stays for long-life goods (salt):
+  marked when it runs out, bought on the next shop.
+- **Extra** shows out-of-stock Pantry entries and the Essentials of every
+  Household he is in, each added with + and none added by itself.
+- **Households:** Joe buys food mostly at his girlfriend's and cooks, but
+  doesn't buy, at his parents'. LifeOS must stay flexible as that changes.
+  Out of stock is per Space, Personal or a Household (it already is:
+  PAN-002), and ticking an out-of-stock line marks it back in stock
+  (question 3). Which Space when a list holds Meals of more than one is
+  [question 8](#still-open-24-october).
+- **Done** (question 5): ticking the last line offers Done, which completes
+  the list and takes it off the lists. **Complete list** is also in its
+  menu at any time, asking first when lines are unticked.
+- **Android's share target in this stage** (question 6): share from TikTok,
+  and LifeOS keeps a Recipe idea from the link without being opened. On an
+  iPhone LifeOS may open, with the name and link already filled in.
+
+### Still open (24 October)
+
+Claude's recommendation is given with each question.
+
+7. **What the Lists tab holds.** ADR-0050 makes lists that aren't shopping
+   (packing, DIY jobs) Notes with a checklist. *Recommended:* Lists holds
+   shopping lists that aren't food (Screwfix, Boots, a birthday): the same
+   Shopping list Type, with no Meals, no aisles (my own subheadings), and
+   typed lines plus the Pantry's household items. Packing lists stay
+   Notes.
+8. **Which Space an out-of-stock line restocks.** *Recommended:* a food
+   shop is *for* one Space (Personal or a Household; the Household of its
+   first Household Meal by default, then mine to change). Its Meals may come
+   from any of my Spaces. Extra shows out of stock and Essentials from each
+   of my Spaces under its name, the shop's own first. A line added from a
+   Space's out of stock restocks that Space when ticked. Any other line
+   whose entry is out of stock in the shop's own Space restocks it there.
+   Nothing else is touched. So at my girlfriend's I see my parents' out of
+   stock below hers, and adding their salt is a choice.
+9. **Essentials.** *Recommended:* each Space has one Essentials list, made
+   by itself and kept on the Food tab apart from the shops. It holds lines
+   as any list does (an amount where wanted: "Milk 4 pints"). It is never
+   ticked or done: it only feeds Extra. Members of the Household edit it.
+10. **Staples a Meal uses.** Today they aren't added from Meals; Extra would
+    show them under **Staples the Meals use**, each added with +.
+    *Recommended:* keep that, so salt isn't bought every week.
+11. **Sharing from Android without opening LifeOS.** An installed web app
+    can't save in the background. Android opens it to receive what's
+    shared, and the share sheet shows "LifeOS", not "Add as idea".
+    *Recommended:* LifeOS opens on a small "Saved as an idea" screen. The
+    Idea is kept at once (offline too), its name and picture filled from
+    the link, then it closes back to TikTok. Nothing to type or press. A
+    one-press-free share with no window at all would need a native Android
+    app, which LifeOS isn't. On an iPhone, an iOS Shortcut in the share
+    sheet opens New idea with the link and name filled in.
 
 ## Done when
 
