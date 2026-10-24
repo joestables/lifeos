@@ -2,6 +2,27 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#36](https://github.com/joestables/lifeos/pull/36) — Stage 4b, step 4: the shopping schema
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-24
+
+**What it did**
+- Shopping list in the ontology, in a new `shopping` Module (stage 4b).
+- Migrations `ontology` and `stage4b_shopping_schema`, applied by the tool:
+  lists, a food shop's Meals and lines, each through the list's Space;
+  guards on a Meal's lines; the write functions; staples' kind; the
+  Realtime publication.
+- `stage4b_shopping_refresh`, for Joe in the SQL editor: a Meal's lines
+  written by the database as it changes, taking a Meal off, deleting a
+  line, merges moving shopping lines.
+- `shopping_test` (31); the generated types include `shopping`.
+
+**Documents touched:** ADR-0057 (as built), ADR-0052, data model,
+integration setup, plans/stage-4b.md.
+
+**Left for later:** Joe runs `stage4b_shopping_refresh` and exposes
+`shopping` in the Data API; step 5, the Shopping page.
+
 ## [#35](https://github.com/joestables/lifeos/pull/35) — Stage 4b, step 3: the Shopping design agreed
 
 Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-24
