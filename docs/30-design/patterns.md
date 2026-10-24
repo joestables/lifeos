@@ -292,7 +292,7 @@ DateField, TimeField, RepeatField, SubtaskList and AddRow in
   email" and Invite.
 - **Food** (RCP-018, MPL-005): a titled Card: with a Household, "New meals
   are for" (`utensils`) with an `sm` Select of Personal and my Households,
-  which is also whose staples the Pantry shows (until Stage 4b's step 5); then CardRows leading to
+  then CardRows leading to
   "Categories, cuisines and tags" and "Archived recipes" (with its count).
 - A Card of CardRows leads on: Recently deleted (with its count), then Sign
   out, which acts at once and so has no chevron.
@@ -597,24 +597,22 @@ MealCard, MealSlot, AddMealButton, MealWeek, MealDay and PantryRow in
   Katsu curry" for leftovers) and its slot where a time would be. Plan's
   "+" → Meal opens a Dialog, "Add a meal · Thu 15 Oct": a ToggleGroup of
   Breakfast, Lunch and Dinner (Dinner to start), then the Popover's search
-  and list in its place.
-- **The Pantry** (Stage 4b moves staples and out of stock to Shopping →
-  Food, [SHP-005](../10-requirements/modules/meals.md#shp-005--staples-and-essentials);
-  until then, as built): search and a ToggleGroup of All, Staples and Out of
-  stock; then "Ingredients" (a SectionLabel) and a Card per aisle, in aisle
+  and list in its place. "+" → Shopping list opens New shop dated that day
+  ([Shopping](#shopping)).
+- **The Pantry** (staples and out of stock are kept on Shopping → Food,
+  [SHP-005](../10-requirements/modules/meals.md#shp-005--staples-and-essentials)):
+  search; then "Ingredients" (a SectionLabel) and a Card per aisle, in aisle
   order (its name muted, 14px weight 600, then its PantryRows); then
   household items apart. Nothing matching: an EmptyState ("Nothing in the
-  Pantry", "No staples", "Nothing out of stock", or "Nothing matches").
+  Pantry" or "Nothing matches").
   **New entry** is a Dialog: a ToggleGroup of
-  Ingredient and Household item, Name, Aisle (Cupboard to start) and
-  Default unit side by side, and a Switch "One of our staples"; then Cancel
-  and Save. A household item's Aisle reads Household and can't be changed.
+  Ingredient and Household item, Name, and Aisle (Cupboard to start) and
+  Default unit side by side; then Cancel and Save. A household item's Aisle reads Household and can't be changed.
   A name the Pantry has is refused under the field ("Already in the
   Pantry").
 - **An entry's "…" menu:** Edit, Recipes that use it, Merge into… and
   Delete (red) on one I added; Recipes that use it alone on anyone
-  else's. **Edit** is the New entry Dialog titled "Edit entry", without the
-  Switch. **Recipes that use it** is a Dialog titled with the entry's name:
+  else's. **Edit** is the New entry Dialog titled "Edit entry". **Recipes that use it** is a Dialog titled with the entry's name:
   an ItemRow per Recipe (its TypeTile and name), opening it, or "No recipes
   use it". **Merge into…** is a Dialog, 'Merge "Green onions"': "Merge
   into" (a Select of the other entries I added of the same kind, A–Z, none
@@ -653,8 +651,9 @@ ShoppingLine, OfferRow, KeptRow, PantryAisle and ItemRow in
   then a `link` "Done shops". Below, "Staples and essentials" with an `sm`
   Select of my Spaces at its end, then two Cards side by side (stacked on a
   phone), "Staples" and "Essentials", each a muted title, its KeptRows
-  ("Out of stock", "Required") and an AddRow ("Add a staple", "Add an
-  essential") with the Pantry's Suggestions.
+  ("Out of stock", "Required") and an Input ("Add a staple", "Add an
+  essential") with a leading `plus` and the Pantry's Suggestions, as a
+  shop's.
 - **New shop** is a Dialog: Name, then Date and For side by side (For a
   Select of Personal and my Households, the Household of the
   first Household Meal chosen to start), then "Meals": the plan's Meals from
@@ -663,7 +662,8 @@ ShoppingLine, OfferRow, KeptRow, PantryAisle and ItemRow in
   or "On Top-up" (disabled, faded: a Meal on another open shop). Cancel and
   Create. New list asks Name and Date only.
 - **A shop's page:** a BackLink to Shopping, its name (`text-h1`) with its
-  "…" menu (Edit details…, Complete list, Delete) at the title's end; a
+  "…" menu (Edit details…, Complete list — Not done once done — and
+  Delete) at the title's end; a
   muted line of its date and Space; Tabs **All · Meals · Extra**, each with
   its count; then, on All and Extra, an Input "Add to the shop" with a
   leading `plus` and the Pantry's Suggestions ("Add "chick" as typed" after
@@ -684,8 +684,9 @@ ShoppingLine, OfferRow, KeptRow, PantryAisle and ItemRow in
   an AlertDialog: "Complete Big shop?", "4 lines aren't ticked.", Complete
   and Cancel. Done or completed, the shop leaves the list, with Undo.
 - **A list's page:** as a shop's, with no Tabs: its subheadings as
-  PantryAisle Cards, each ending in an AddRow ("Add to Garden"), and "Add a
-  subheading" in its menu; at the reading width.
+  PantryAisle Cards, each ending in an AddRow ("Add to Garden"; a list with
+  none yet has one untitled Card, "Add an item"), ticked lines at the foot
+  of their Card; then an AddRow "Add a subheading"; at the reading width.
 - **Saved as an idea** (a share from another app; RCP-003): a page with no
   drawer, green, centred about a fifth of the way down: a large `check`
   TypeTile (`chef-hat` when saved before), "Saved as an idea" or "Already

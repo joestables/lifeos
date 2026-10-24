@@ -55,7 +55,7 @@ Acceptance criteria
 
 **As** Joe, **I want** Search to find my recipes and lists, **so that**
 food is found like everything else.
-Priority: Must · Status: built for Recipes (1 verified, without photos until they come; tags and ingredients are searched on the device, beside the server's results); 2 in Stage 4b
+Priority: Must · Status: built for Recipes (1 verified, without photos until they come; tags and ingredients are searched on the device, beside the server's results) and Shopping lists (2: by name on the server, by a line on the device)
 
 Acceptance criteria
 1. Given I search, then Recipes and Ideas I can see (mine and my

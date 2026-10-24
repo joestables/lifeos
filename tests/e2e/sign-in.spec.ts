@@ -28,6 +28,7 @@ test('ACC-001: signed in, I land in the app with the navigation drawer', async (
     'Cardio',
     'Recipes',
     'Meal plan',
+    'Shopping',
     'Goals',
     'Wardrobe',
   ])

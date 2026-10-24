@@ -7,7 +7,6 @@ import {
   applyPendingMeals,
   applyPendingMealLines,
   applyPendingPantry,
-  applyPendingStaples,
   applyPendingRecipes,
   applyPendingSteps,
   applyPendingValues,
@@ -27,7 +26,6 @@ import {
   fetchPantry,
   fetchPersonalSpace,
   fetchRecipes,
-  fetchStaples,
   fetchSteps,
   fetchValues,
   fetchVariations,
@@ -37,7 +35,6 @@ import {
   pantryKey,
   personalSpaceKey,
   recipesKey,
-  staplesKey,
   stepsKey,
   valuesKey,
   variationsKey,
@@ -309,7 +306,7 @@ export interface FoodSpaces {
   personal: string | null
   /** Personal first, then my Households, each with what to call it. */
   spaces: { id: string; name: string }[]
-  /** Where my new Meals go, and whose staples the Pantry shows (PAN-002 1). */
+  /** Where my new Meals go (MPL-005), and whose staples and Essentials show first (SHP-005). */
   home: string | null
   /** A Household's name, for an Item in it; undefined for Personal. */
   householdName: (space: string | null | undefined) => string | undefined
@@ -361,23 +358,6 @@ export function useFoodSpaces(queue: WriteQueue): FoodSpaces {
       ],
     }
   }, [me, personal, households, settings.mealSpaceId])
-}
-
-/** The staples of where my new Meals go (PAN-002 1): a Household's, or mine. */
-export function useStaples(queue: WriteQueue): {
-  space: string | null
-  staples: ReadonlyMap<string, { out: boolean }>
-} {
-  const entries = useQueueEntries(queue)
-  const { home: space } = useFoodSpaces(queue)
-  const { data } = useQuery({ queryKey: staplesKey, queryFn: fetchStaples })
-  return useMemo(() => {
-    const mine = applyPendingStaples(data ?? [], entries).filter((s) => s.space_id === space)
-    return {
-      space,
-      staples: new Map(mine.map((s) => [s.pantry_id, { out: s.out_of_stock }])),
-    }
-  }, [data, entries, space])
 }
 
 /**

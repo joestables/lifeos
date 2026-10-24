@@ -1521,23 +1521,12 @@ const AISLES: { aisle: string; entries: [string, string, number, boolean?, boole
   },
 ]
 
-function Entry({
-  name,
-  used,
-  staple,
-  out,
-}: {
-  name: string
-  used: number
-  staple?: boolean
-  out?: boolean
-}) {
+/** Stage 4's Pantry row, its staple marks since moved to Shopping (SHP-005). */
+function Entry({ name, used }: { name: string; used: number; staple?: boolean; out?: boolean }) {
   return (
     <PantryRow
       name={name}
       recipes={used}
-      staple={staple}
-      out={out}
       menu={more(
         <>
           <DropdownMenuItem>Edit</DropdownMenuItem>

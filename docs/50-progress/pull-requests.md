@@ -2,6 +2,37 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#37](https://github.com/joestables/lifeos/pull/37) — Stage 4b, step 5: the Shopping page
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-24
+
+**What it did**
+- `food.staples` renamed `food.space_entries`, `out_of_stock` now `needed`:
+  `stage4b_space_entries` applied by the tool;
+  `stage4b_space_entries_removing` (drops `set_staple`, adds
+  `remove_entry`, merges moving staples and Essentials) for Joe in the SQL
+  editor. The Pantry's staple marks removed (PAN-002).
+- The shopping data layer: lists, lines, a shop's Meals, space entries,
+  queued writes laid over offline, a Meal's lines worked out on the device
+  until the server's arrive; totals in `packages/food`.
+- Shopping in the drawer: Food (shops; each Space's Staples and Essentials,
+  out of stock and Required) and Lists; New shop and New list; a shop's
+  page with All, Meals and Extra; a list's page with subheadings; ticking,
+  Done and Complete list with Undo; deleting with Undo.
+- Dated lists on Plan, moved by dragging; Plan's "+" → Shopping list;
+  Search finding a list by a line.
+- Walks `shopping.spec.ts`; database tests updated for space entries;
+  design screenshots updated for the Pantry without staples.
+
+**Documents touched:** ADR-0057 (as built), ADR-0052, data model,
+integration setup, meals spec (SHP-001–005, MPL-003, MPL-006 statuses),
+Plan, Search and items specs, design patterns and components,
+plans/stage-4b.md.
+
+**Left for later:** Joe runs `stage4b_space_entries_removing`; reordering
+a list's lines; step 6, a shop from the Meal plan's Select; step 7,
+Realtime; step 8, a Thought or Note made a Shopping list.
+
 ## [#36](https://github.com/joestables/lifeos/pull/36) — Stage 4b, step 4: the shopping schema
 
 Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-24

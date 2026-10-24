@@ -5,10 +5,13 @@ import { FileIcon } from 'lucide-react'
 import { TYPE_ICONS } from '@/components/lifeos/colours'
 
 /** The roadmap stage being built: the app offers a Type from its stage on. */
-export const APP_STAGE = 4
+export const APP_STAGE = 4.5
 
 /** The stage being built's Types the app has so far; the rest wait for their step. */
-const BUILT_NOW: readonly string[] = ['recipe', 'variation', 'meal']
+const BUILT_NOW: readonly string[] = ['shopping_list']
+
+/** Conversions offered once their step is built: a Thought into a Shopping list (Stage 4b, step 8). */
+const CONVERT_LATER: readonly string[] = ['shopping_list']
 
 /** Whether the app offers a Type yet: an earlier stage's, or one built in this stage. */
 export function offered(key: string): boolean {
@@ -23,7 +26,7 @@ export interface TypeLook {
   icon: LucideIcon
   mark?: Mark
   /** The page an Item of this Type lives on, and that page's name. */
-  home: '/inbox' | '/tasks' | '/notes' | '/plan' | '/recipes'
+  home: '/inbox' | '/tasks' | '/notes' | '/plan' | '/recipes' | '/shopping'
   homeLabel: string
 }
 
@@ -33,6 +36,7 @@ const HOMES: Record<string, Pick<TypeLook, 'home' | 'homeLabel'>> = {
   event: { home: '/plan', homeLabel: 'Plan' },
   recipe: { home: '/recipes', homeLabel: 'Recipes' },
   variation: { home: '/recipes', homeLabel: 'Recipes' },
+  shopping_list: { home: '/shopping', homeLabel: 'Shopping' },
 }
 
 /** How a Type looks and where it lives (ontology + patterns.md#icons). */
@@ -52,7 +56,9 @@ export function typeLook(key: string): TypeLook {
 export function convertTargets(type: string): TypeLook[] {
   const t = typeByKey(type)
   if (!t) return []
-  return convertsTo(t).filter(offered).map(typeLook)
+  return convertsTo(t)
+    .filter((k) => offered(k) && !CONVERT_LATER.includes(k))
+    .map(typeLook)
 }
 
 /**
@@ -63,8 +69,11 @@ export function opensAsPage(type: string, isMobile: boolean): boolean {
   return type === 'note' && isMobile
 }
 
-/** A Recipe opens on its own page always (RCP-005); a Variation on its Recipe's. */
-export const RECIPE_TYPES: readonly string[] = ['recipe', 'variation']
+/**
+ * Types that open on a page of their own always: a Recipe (RCP-005), a
+ * Variation on its Recipe's, a Shopping list (ITM-006 1).
+ */
+export const RECIPE_TYPES: readonly string[] = ['recipe', 'variation', 'shopping_list']
 
 /** An Item's name: its title, else its first line (NTE-001), else "Untitled". */
 export function itemTitle(item: { title: string; body: string | null }): string {

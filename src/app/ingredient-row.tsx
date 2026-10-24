@@ -7,7 +7,7 @@ import { addPantry, type Line, type LineFields, type PantryEntry } from '@/data'
 import { useOnLeave } from '@/hooks/use-on-leave'
 import type { useReorder } from '@/hooks/use-reorder'
 import { amountText, readAmount } from '@/lib/recipe-parts'
-import { AISLES, type Aisle } from '@/lib/pantry'
+import { AISLES, pantryMatches, type Aisle } from '@/lib/pantry'
 import { lineName } from '@/lib/recipes'
 import { AddToPantryDialog } from './add-to-pantry'
 
@@ -15,20 +15,6 @@ type LineUnit = (typeof LINE_UNITS)[number]
 type Reorder = ReturnType<ReturnType<typeof useReorder>['row']>
 /** What a kept line has: a Variation's or a Meal's. */
 export type LineValues = Pick<Line, 'pantry_id' | 'text' | 'qty' | 'qty_max' | 'approx' | 'unit'>
-
-/** Pantry entries for a typed name: names starting with it first, up to six. */
-function pantryMatches(pantry: ReadonlyMap<string, PantryEntry>, query: string): PantryEntry[] {
-  const q = query.trim().toLowerCase()
-  if (!q) return []
-  return [...pantry.values()]
-    .filter((p) => p.name.toLowerCase().includes(q))
-    .sort((a, b) => {
-      const x = a.name.toLowerCase().startsWith(q) ? 0 : 1
-      const y = b.name.toLowerCase().startsWith(q) ? 0 : 1
-      return x - y || a.name.localeCompare(b.name)
-    })
-    .slice(0, 6)
-}
 
 /**
  * An ingredient line being edited (RCP-007, MPL-006 1): the name, with

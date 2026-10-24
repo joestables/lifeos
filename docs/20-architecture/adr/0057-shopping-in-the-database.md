@@ -80,13 +80,10 @@ There were two ways to hold a Meal's lines:
 - **Offline,** a Meal added to a shop shows lines worked out on the device
   from what it holds, with the same scaling, until the server's arrive and
   replace them. A Meal the device can't read shows no lines until then.
-- **Staples and Essentials:** `food.staples` gains a `kind`, staple or
-  Essential, and its `out_of_stock` means needed: out of stock for a staple,
-  Required for an Essential. An entry is one or the other in a Space, not
-  both. Anyone who can read the Space changes it, as before. (As built, step
-  4: first written as a new `food.space_entries`; the table keeps its name
-  so the Pantry built in Stage 4 keeps working until step 5 takes its
-  staple marks away: expand, then contract.)
+- **Staples and Essentials:** `food.staples` becomes `food.space_entries`,
+  with a `kind`, staple or Essential, and `needed`: out of stock for a
+  staple, Required for an Essential. An entry is one or the other in a
+  Space, not both. Anyone who can read the Space changes it, as before.
 - **Totals** are `packages/food`'s, as ADR-0053 sets. All collates by Pantry
   entry, or by a typed line's text ignoring case. Units of one kind add up;
   others sit side by side.
@@ -126,7 +123,7 @@ There were two ways to hold a Meal's lines:
 ## As built (24 October, plan step 4)
 
 - Migrations `stage4b_shopping_schema` (the tables, RLS, the writes that
-  don't delete, `food.staples.kind`, the Realtime publication) and
+  don't delete, a `kind` on staples, the Realtime publication) and
   `stage4b_shopping_refresh` (`refresh_meal` and its triggers, taking a
   Meal off, deleting a line, merges moving shopping lines), split because
   the second's deletes are run by Joe in the SQL editor.
@@ -136,7 +133,21 @@ There were two ways to hold a Meal's lines:
 - A Pantry entry deleted leaves its shopping lines as typed, with its name,
   as a past Meal's lines are; a merge moves them.
 - Ticking a line, with `shopping.tick`, clears out of stock or Required in
-  the same call. Taking a staple or Essential off reuses
-  `food.set_staple(…, false)`; `food.keep_entry` keeps one, of a kind.
+  the same call.
 - `shopping.meals_of(list)` names a shop's Meals for its readers.
-- Database tests: `shopping_test` (31).
+- Database tests: `shopping_test` (32).
+
+## As built (24 October, plan step 5)
+
+- `food.staples` renamed `food.space_entries`, its `out_of_stock` renamed
+  `needed`, in `stage4b_space_entries` (applied by the tool);
+  `stage4b_space_entries_removing` (run by Joe in the SQL editor, for its
+  deletes) drops `food.set_staple`, adds `food.remove_entry` and rewrites
+  `food.merge_pantry` to move a merged entry's staples and Essentials.
+  `food.keep_entry(space, entry, kind, needed)` keeps one. The Pantry's
+  staple marks went with it (PAN-002).
+- A shop's lines to tick are its lines but its subheadings and its Space's
+  staples a Meal needs: those are checked on Extra, so the last tick and
+  Complete list count without them.
+- Realtime is left for plan step 7: until then a shop refreshes when it is
+  opened or written to.

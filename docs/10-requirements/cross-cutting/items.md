@@ -127,7 +127,7 @@ history shown on it; exporting.
 **As** Joe, **I want** Recipes, Meals and Shopping lists to open, delete,
 recover and convert like everything else, **so that** food works the way
 the rest of LifeOS does.
-Priority: Must · Status: built for Recipes (1 and 4 verified, 2 and 6 built; a link of its own, `/item/…`, opens the Recipe's page, a Variation's on it) and Meals (1 and 3: a Meal opens over the page, and removing it takes its leftovers); Shopping lists to come
+Priority: Must · Status: built for Recipes (1 and 4 verified, 2 and 6 built; a link of its own, `/item/…`, opens the Recipe's page, a Variation's on it) and Meals (1 and 3: a Meal opens over the page, and removing it takes its leftovers) and Shopping lists (1 and 3: its own page, `/shopping/…`; 5 and 6 with Stage 4b's step 8)
 
 Acceptance criteria
 1. Given a Recipe, a Meal or a Shopping list, then it opens as set above,

@@ -151,8 +151,9 @@ export function moveTo(
     const t = eventTimes(item, timezone)!
     return eventFields(moveStart(t, addDays(t.startDay, daysBetween(from, to))), timezone)
   }
-  // A Meal keeps its slot (PLN-008 5).
-  if (item.type === 'task' || item.type === 'meal') return { do_on: to }
+  // A Meal keeps its slot; a Shopping list moves to the day (PLN-008 5).
+  if (item.type === 'task' || item.type === 'meal' || item.type === 'shopping_list')
+    return { do_on: to }
   return null
 }
 

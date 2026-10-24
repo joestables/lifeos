@@ -1,11 +1,10 @@
 import { todayIn } from '@lifeos/recurrence'
-import { PackageIcon, SearchIcon, StarIcon } from 'lucide-react'
+import { PackageIcon, SearchIcon } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { CardRow, EmptyState, PantryAisle, PantryRow, SectionLabel } from '@/components/lifeos'
 import { Button } from '@/components/ui/button'
 import { DropdownMenuItem } from '@/components/ui/dropdown-menu'
 import { toast } from '@/components/ui/sonner'
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { AddToPantryDialog } from './add-to-pantry'
 import { MoreMenu } from './more-menu'
 import { MergeDialog, RecipesUsingDialog } from './pantry-dialogs'
@@ -14,14 +13,14 @@ import { SearchField } from './search-field'
 import {
   addPantry,
   queue,
+  keepEntry,
   removePantry,
-  setStaple,
   updateLine,
   useFood,
   useMeals,
   useSettings,
   usePantryInUse,
-  useStaples,
+  useShopping,
   type PantryEntry,
 } from '@/data'
 import {
@@ -32,22 +31,16 @@ import {
   typedNames,
   usedIn,
   type PantryRecipe,
-  type PantryShow,
   type TypedName,
 } from '@/lib/pantry'
 
 type Open =
   { kind: 'edit' | 'recipes' | 'merge'; entry: PantryEntry } | { kind: 'typed'; typed: TypedName }
 
-const EMPTY: Record<PantryShow, string> = {
-  all: 'Nothing in the Pantry',
-  staples: 'No staples',
-  out: 'Nothing out of stock',
-}
-
 /**
  * The Meal plan's Pantry (PAN-001–004): ingredients by aisle, household
  * items, and names kept as typed; New entry is opened by the page's action.
+ * Staples and Essentials are kept on Shopping → Food (SHP-005).
  */
 export function PantryTab({
   creating,
@@ -57,9 +50,8 @@ export function PantryTab({
   onCreating: (on: boolean) => void
 }) {
   const food = useFood(queue)
-  const { space, staples } = useStaples(queue)
+  const kept = useShopping(queue).entries
   const [search, setSearch] = useState('')
-  const [show, setShow] = useState<PantryShow>('all')
   const [open, setOpen] = useState<Open | null>(null)
   const close = () => {
     setOpen(null)
@@ -93,7 +85,7 @@ export function PantryTab({
     [meals, today],
   )
   const typed = useMemo(() => typedNames(recipes, entries), [recipes, entries])
-  const { aisles, household } = pantryGroups(entries, staples, show, search)
+  const { aisles, household } = pantryGroups(entries, search)
   const shown = aisles.length > 0 || household.length > 0
 
   const remove = (entry: PantryEntry) => {
@@ -107,14 +99,16 @@ export function PantryTab({
       toast('Used in a deleted recipe')
       return
     }
-    const staple = staples.get(entry.id)
+    // Its place among my Spaces' staples and Essentials comes back with it.
+    const keptIn = kept.filter((k) => k.pantry_id === entry.id)
     removePantry(entry.id)
     toast(`Deleted "${entry.name}"`, {
       action: {
         label: 'Undo',
         onClick: () => {
           addPantry(entry, entry.id)
-          if (staple && space) setStaple(space, entry.id, true, staple.out)
+          for (const k of keptIn)
+            keepEntry(k.space_id, entry.id, k.kind as 'staple' | 'essential', k.needed)
         },
       },
     })
@@ -130,17 +124,12 @@ export function PantryTab({
   }
 
   const row = (e: PantryEntry) => {
-    const staple = staples.get(e.id)
     const mine = e.added_by === food.me
     return (
       <PantryRow
         key={e.id}
         name={e.name}
         recipes={using.get(e.id)?.length}
-        staple={staple !== undefined}
-        out={staple?.out ?? false}
-        onStaple={space ? (on) => setStaple(space, e.id, on) : undefined}
-        onOut={space ? (on) => setStaple(space, e.id, true, on) : undefined}
         menu={
           <MoreMenu>
             {mine && (
@@ -173,7 +162,6 @@ export function PantryTab({
         <PantryEntryDialog
           entry={open?.kind === 'edit' ? open.entry : undefined}
           pantry={food.pantry}
-          space={space}
           onClose={close}
         />
       )}
@@ -198,24 +186,11 @@ export function PantryTab({
         />
       )}
       <div className="flex max-w-3xl flex-col gap-4">
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="flex min-w-0 flex-1 basis-56">
-            <SearchField label="Search the Pantry" value={search} onChange={setSearch} />
-          </div>
-          <ToggleGroup
-            aria-label="Show"
-            value={[show]}
-            onValueChange={(v: string[]) => v[0] && setShow(v[0] as PantryShow)}
-          >
-            <ToggleGroupItem value="all">All</ToggleGroupItem>
-            <ToggleGroupItem value="staples">Staples</ToggleGroupItem>
-            <ToggleGroupItem value="out">Out of stock</ToggleGroupItem>
-          </ToggleGroup>
-        </div>
+        <SearchField label="Search the Pantry" value={search} onChange={setSearch} />
         {!food.isLoading && !shown && (
           <EmptyState
-            icon={search.trim() ? SearchIcon : show === 'all' ? PackageIcon : StarIcon}
-            title={search.trim() ? 'Nothing matches' : EMPTY[show]}
+            icon={search.trim() ? SearchIcon : PackageIcon}
+            title={search.trim() ? 'Nothing matches' : 'Nothing in the Pantry'}
           />
         )}
         {aisles.length > 0 && <SectionLabel>Ingredients</SectionLabel>}
@@ -232,7 +207,7 @@ export function PantryTab({
             </PantryAisle>
           </>
         )}
-        {show === 'all' && !search.trim() && typed.length > 0 && (
+        {!search.trim() && typed.length > 0 && (
           <>
             <div className="flex items-center justify-between gap-3">
               <SectionLabel>Kept as typed</SectionLabel>

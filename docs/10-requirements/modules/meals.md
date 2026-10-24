@@ -208,7 +208,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to move, rescale or remove a Meal, **so that** the
 plan follows the week as it really goes.
-Priority: Must · Status: built (4 with Shopping, Stage 4b)
+Priority: Must · Status: built (4 by the database, Stage 4b)
 
 Acceptance criteria
 1. Given a Meal, when I press it, then it opens: its Recipe (the Variation
@@ -227,7 +227,7 @@ Acceptance criteria
 **As** Joe, **I want** to give any Meal ingredients, or read them from a
 recipe's link, **so that** what I'll shop for includes Meals that aren't
 Recipes (Joe, 23 October).
-Priority: Should · Status: built (lines going to a shopping list with Shopping, Stage 4b)
+Priority: Should · Status: built (its lines go onto a food shop, Stage 4b)
 
 Acceptance criteria
 1. Given a Meal that isn't leftovers, then I add, change, reorder and
@@ -334,7 +334,7 @@ Acceptance criteria
 
 **As** Joe, **I want** all my shopping in one place, **so that** I know
 what to buy.
-Priority: Must · Status: proposed (Stage 4b)
+Priority: Must · Status: built (3 but reordering, which is to come)
 
 Acceptance criteria
 1. Given Shopping, then Food shows my food shops and Lists my other lists:
@@ -359,7 +359,7 @@ Acceptance criteria
 
 **As** Joe, **I want** a food shop made from the Meals I've planned, **so
 that** I buy exactly what they need.
-Priority: Must · Status: proposed (Stage 4b)
+Priority: Must · Status: built for 2–6 (a shop made with New shop, Meals added on its Meals tab); 1 in Stage 4b's step 6
 
 Acceptance criteria
 1. Given the Meal plan, when I choose Select (the week's PageAction; a
@@ -381,7 +381,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to add anything to a food shop, and be offered what
 runs out, **so that** one shop holds everything.
-Priority: Must · Status: proposed (Stage 4b)
+Priority: Must · Status: built for 1–4; 5 in Stage 4b's step 8
 
 Acceptance criteria
 1. Given a shop, when I type, then Pantry entries are suggested, household
@@ -406,7 +406,7 @@ Acceptance criteria
 
 **As** Joe, **I want** a list we share to update for both of us at once,
 **so that** we don't buy things twice.
-Priority: Should · Status: proposed (Stage 4b)
+Priority: Should · Status: built for 1 and 3; 2 in Stage 4b's step 7
 
 Acceptance criteria
 1. Given a list in a Household, then every member sees all of it, its
@@ -421,7 +421,7 @@ Acceptance criteria
 **As** Joe, **I want** each Household's long-life goods and everyday buys
 kept in one place, **so that** I'm offered what runs out, and milk every
 shop, without visiting the Pantry.
-Priority: Must · Status: proposed (Stage 4b)
+Priority: Must · Status: built
 
 Acceptance criteria
 1. Given Shopping → Food, then each of my Spaces' Staples and Essentials

@@ -2142,29 +2142,29 @@ export type Database = {
         }
         Relationships: []
       }
-      staples: {
+      space_entries: {
         Row: {
           kind: string
-          out_of_stock: boolean
+          needed: boolean
           pantry_id: string
           space_id: string
         }
         ComputedFields: never
         Insert: {
           kind?: string
-          out_of_stock?: boolean
+          needed?: boolean
           pantry_id: string
           space_id: string
         }
         Update: {
           kind?: string
-          out_of_stock?: boolean
+          needed?: boolean
           pantry_id?: string
           space_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: 'staples_pantry_id_fkey'
+            foreignKeyName: 'space_entries_pantry_id_fkey'
             columns: ['pantry_id']
             isOneToOne: false
             referencedRelation: 'pantry'
@@ -2445,13 +2445,13 @@ export type Database = {
         Args: { p_kind: string; p_needed?: boolean; p_pantry: string; p_space: string }
         Returns: {
           kind: string
-          out_of_stock: boolean
+          needed: boolean
           pantry_id: string
           space_id: string
         }
         SetofOptions: {
           from: '*'
-          to: 'staples'
+          to: 'space_entries'
           isOneToOne: true
           isSetofReturn: false
         }
@@ -2519,6 +2519,7 @@ export type Database = {
         }
       }
       remove_cook: { Args: { p_id: string }; Returns: undefined }
+      remove_entry: { Args: { p_pantry: string; p_space: string }; Returns: undefined }
       remove_line: { Args: { p_id: string }; Returns: undefined }
       remove_meal_line: { Args: { p_id: string }; Returns: undefined }
       remove_pantry: { Args: { p_id: string }; Returns: undefined }
@@ -2541,10 +2542,6 @@ export type Database = {
         }
       }
       set_meal_variation: { Args: { p_meal: string; p_variation: string }; Returns: undefined }
-      set_staple: {
-        Args: { p_out_of_stock?: boolean; p_pantry: string; p_space: string; p_staple: boolean }
-        Returns: undefined
-      }
       update_cook: {
         Args: { p_id: string; p_patch: Json }
         Returns: {

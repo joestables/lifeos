@@ -52,7 +52,7 @@ select is(
 select food.plan_meal('00000000-0000-7000-8000-000000000001',
   '{"title": "Out: Dishoom", "do_on": "2026-10-23", "slot": "dinner", "space_id": "00000000-0000-7000-8000-0000000000f1"}');
 select food.add_pantry('00000000-0000-7000-8000-0000000000e1', '{"name": "Garlic"}');
-select food.set_staple('00000000-0000-7000-8000-0000000000f1', '00000000-0000-7000-8000-0000000000e1', true, false);
+select food.keep_entry('00000000-0000-7000-8000-0000000000f1', '00000000-0000-7000-8000-0000000000e1', 'staple', false);
 
 select pg_temp.sign_in('00000000-0000-4000-8000-00000000000b');
 select is(
@@ -71,9 +71,9 @@ select throws_ok(
   '42501', null,
   'HSH-003 2: a member can''t take someone else''s Meal into their own Space'
 );
-select food.set_staple('00000000-0000-7000-8000-0000000000f1', '00000000-0000-7000-8000-0000000000e1', true, true);
+select food.keep_entry('00000000-0000-7000-8000-0000000000f1', '00000000-0000-7000-8000-0000000000e1', 'staple', true);
 select is(
-  (select out_of_stock from food.staples where space_id = '00000000-0000-7000-8000-0000000000f1'),
+  (select needed from food.space_entries where space_id = '00000000-0000-7000-8000-0000000000f1'),
   true,
   'PAN-002 1: any member marks the Household''s staple out of stock'
 );

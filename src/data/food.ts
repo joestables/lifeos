@@ -35,9 +35,11 @@ export type MealLine = Omit<Food['meal_lines']['Row'], 'created_at' | 'updated_a
 export type MealLineFields = Partial<
   Pick<MealLine, 'position' | 'pantry_id' | 'text' | 'qty' | 'qty_max' | 'approx' | 'unit'>
 >
-/** A staple of one of my Spaces, and whether it has run out (PAN-002). */
-/** The Pantry's staples as Stage 4 built them; Essentials and kinds arrive with Shopping (step 5). */
-export type Staple = Pick<Food['staples']['Row'], 'space_id' | 'pantry_id' | 'out_of_stock'>
+/**
+ * One of a Space's staples or Essentials (SHP-005): needed is out of stock
+ * for a staple, Required for an Essential.
+ */
+export type SpaceEntry = Food['space_entries']['Row']
 /** What a Pantry entry is made or changed with (PAN-001). */
 export type PantryFields = Partial<Pick<PantryEntry, 'name' | 'kind' | 'aisle' | 'default_unit'>>
 /** A name in someone's list of categories, cuisines, tags, protein or carbs. */
@@ -64,10 +66,10 @@ export const stepsKey = ['food', 'variation_steps'] as const
 export const cooksKey = ['food', 'cooks'] as const
 export const pantryKey = ['food', 'pantry'] as const
 export const valuesKey = ['food', 'values'] as const
-export const staplesKey = ['food', 'staples'] as const
+export const spaceEntriesKey = ['food', 'space_entries'] as const
 export const mealsKey = ['food', 'meal'] as const
 export const mealLinesKey = ['food', 'meal_lines'] as const
-/** My personal Space's id: where my staples are kept until Households (PAN-002 1). */
+/** My personal Space's id: where my staples are kept without a Household (SHP-005). */
 export const personalSpaceKey = ['core', 'spaces', 'personal'] as const
 /** A Recipe's log (RCP-013): the activity of it and its Variations. */
 export const activityKey = (ids: readonly string[]) => ['core', 'activity', ...ids] as const
@@ -194,8 +196,10 @@ export async function fetchMealLines(): Promise<MealLine[]> {
   return data
 }
 
-export async function fetchStaples(): Promise<Staple[]> {
-  const { data, error } = await food().from('staples').select('space_id, pantry_id, out_of_stock')
+export async function fetchSpaceEntries(): Promise<SpaceEntry[]> {
+  const { data, error } = await food()
+    .from('space_entries')
+    .select('space_id, pantry_id, kind, needed')
   if (error) throw error
   return data
 }
@@ -652,32 +656,47 @@ export function applyPendingMealLines(
   return out.sort(byPosition)
 }
 
-/** My staples, with unsent marks, merges and deletions laid over (PAN-002). */
-export function applyPendingStaples(
-  rows: readonly Staple[],
+/**
+ * My Spaces' staples and Essentials, with unsent changes, ticks, merges and
+ * deletions laid over (SHP-005, SHP-003 4). `ticked`: the Pantry entry and
+ * Space each unsent tick clears.
+ */
+export function applyPendingEntries(
+  rows: readonly SpaceEntry[],
   entries: readonly QueueEntry[],
-): Staple[] {
+  ticked: (e: QueueEntry) => readonly { space_id: string; pantry_id: string }[] = () => [],
+): SpaceEntry[] {
   let out = [...rows]
+  const same = (a: Args) => (x: SpaceEntry) =>
+    x.space_id === a.p_space && x.pantry_id === a.p_pantry
   for (const e of entries) {
     const a = args(e)
-    if (e.fn === 'food.set_staple') {
-      const same = (s: Staple) => s.space_id === a.p_space && s.pantry_id === a.p_pantry
-      out = out.filter((s) => !same(s))
-      if (a.p_staple)
-        out.push({
-          space_id: String(a.p_space),
-          pantry_id: String(a.p_pantry),
-          out_of_stock: Boolean(a.p_out_of_stock),
-        })
+    if (e.fn === 'food.keep_entry') {
+      out = out.filter((x) => !same(a)(x))
+      out.push({
+        space_id: String(a.p_space),
+        pantry_id: String(a.p_pantry),
+        kind: String(a.p_kind),
+        needed: Boolean(a.p_needed),
+      })
+    } else if (e.fn === 'food.remove_entry') {
+      out = out.filter((x) => !same(a)(x))
+    } else if (e.fn === 'shopping.tick' && a.p_checked) {
+      const cleared = ticked(e)
+      out = out.map((x) =>
+        cleared.some((c) => c.space_id === x.space_id && c.pantry_id === x.pantry_id)
+          ? { ...x, needed: false }
+          : x,
+      )
     } else if (e.fn === 'food.remove_pantry') {
-      out = out.filter((s) => s.pantry_id !== a.p_id)
+      out = out.filter((x) => x.pantry_id !== a.p_id)
     } else if (e.fn === 'food.merge_pantry') {
-      const moved = out.filter((s) => s.pantry_id === a.p_merge)
-      out = out.filter((s) => s.pantry_id !== a.p_merge)
+      const moved = out.filter((x) => x.pantry_id === a.p_merge)
+      out = out.filter((x) => x.pantry_id !== a.p_merge)
       for (const m of moved) {
-        const kept = (s: Staple) => s.space_id === m.space_id && s.pantry_id === a.p_keep
+        const kept = (x: SpaceEntry) => x.space_id === m.space_id && x.pantry_id === a.p_keep
         out = out.some(kept)
-          ? out.map((s) => (kept(s) ? { ...s, out_of_stock: s.out_of_stock || m.out_of_stock } : s))
+          ? out.map((x) => (kept(x) ? { ...x, needed: x.needed || m.needed } : x))
           : [...out, { ...m, pantry_id: String(a.p_keep) }]
       }
     }

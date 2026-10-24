@@ -27,7 +27,7 @@ set local role authenticated;
 -- Ann makes a Household; her staples come with her first.
 select pg_temp.sign_in('00000000-0000-4000-8000-00000000000a', 'ann@example.com');
 select food.add_pantry('00000000-0000-7000-8000-0000000000e1', '{"name": "Garlic"}');
-select food.set_staple(:'ann_space', '00000000-0000-7000-8000-0000000000e1', true, true);
+select food.keep_entry(:'ann_space', '00000000-0000-7000-8000-0000000000e1', 'staple', true);
 select core.create_household('00000000-0000-7000-8000-0000000000f1', ' Home ');
 select core.create_household('00000000-0000-7000-8000-0000000000f1', 'Home');
 select is(
@@ -37,14 +37,14 @@ select is(
   'HSH-001 1: a new Household, its maker the owner; made twice, once'
 );
 select is(
-  (select array_agg(pantry_id::text || ':' || out_of_stock) from food.staples
+  (select array_agg(pantry_id::text || ':' || needed) from food.space_entries
    where space_id = '00000000-0000-7000-8000-0000000000f1'),
   array['00000000-0000-7000-8000-0000000000e1:true'],
   'PAN-002 1: my first Household starts with a copy of my staples'
 );
 select core.create_household('00000000-0000-7000-8000-0000000000f2', 'Allotment');
 select is(
-  (select count(*)::int from food.staples where space_id = '00000000-0000-7000-8000-0000000000f2'),
+  (select count(*)::int from food.space_entries where space_id = '00000000-0000-7000-8000-0000000000f2'),
   0,
   'PAN-002 1: a second Household starts with none'
 );
