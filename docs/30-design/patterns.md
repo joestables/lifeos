@@ -25,6 +25,12 @@ AppShell
   focused tasks (capture, confirming) in a Dialog.
 - No browser scrollbars: whatever scrolls is a ScrollArea.
 - Content never fills edge to edge without the 36px page padding.
+- **One reading width for rows** (Joe, 24 October): a page or tab whose
+  content is a column of rows or Cards — Inbox, Tasks, Ideas, Settings,
+  the Pantry, Plan's day, Shopping's Food and Lists, a list — is at most
+  `max-w-3xl` (768px) wide, left-aligned. Grids and weeks (the library,
+  Notes, the Meal plan's week, Plan's week) and a food shop's aisles take
+  the page's width.
 
 ## The drawer
 
@@ -532,9 +538,13 @@ MealCard, MealSlot, AddMealButton, MealWeek, MealDay and PantryRow in
 [components](components.md). Agreed with the Recipes screens.
 
 - Green (TypeScope). Tabs: **Week** and **Pantry** (`?tab=pantry`); the
-  PageAction is "Select" on the week, choosing Meals for a SelectionBar's
-  "Add to shop" (with Shopping, Stage 4b, designed in its step 3; until
-  then none), "New entry" on the Pantry.
+  PageAction none on the week, "New entry" on the Pantry. The week's
+  toolbar has a ghost `sm` "Select" (`list-checks`) after Show, as the
+  library's (Stage 4b): it puts a SelectionBar in the toolbar's place with
+  "Add to shop" (`shopping-cart`), MealCards take their Checkbox, and the
+  chosen Meals make a new food shop
+  ([SHP-002](../10-requirements/modules/meals.md#shp-002--a-food-shop-from-the-meal-plan)).
+  A long press still drags on a phone.
 - **The week:** the PlanToolbar (no Day / Week; `?day=` names the week), an
   `sm` Select of whose Meals show ("All my meals", Personal, each
   Household; only with a Household, kept on the device) and a "…" menu holding Copy this
@@ -625,6 +635,62 @@ MealCard, MealSlot, AddMealButton, MealWeek, MealDay and PantryRow in
 - **Until the week is built** (plan step 7), the page is the Pantry alone:
   the title, then the Pantry, with no Tabs; on a computer its PageAction,
   "New entry", ends the row of search and ToggleGroup.
+
+## Shopping
+
+[SHP-001–005](../10-requirements/modules/meals.md#shp-001--shopping-lists);
+ShoppingLine, OfferRow, KeptRow, PantryAisle and ItemRow in
+[components](components.md). Agreed on the
+[Stage 4b design canvas](https://claude.ai/artifact/KZyE2VPa3jTsVZ4mjxanGk)
+(24 October), with New shop's Date and For only, and the reading width.
+
+- Yellow (TypeScope), as Notes and Thoughts. Tabs: **Food** and **Lists**
+  (`?tab=lists`); Online waits for a later stage. The PageAction is "New
+  shop" on Food, "New list" on Lists. Both tabs are at the reading width.
+- **Food:** "Shops" (a SectionLabel) and an ItemRow per open shop: a yellow
+  `shopping-cart` TypeTile, its name, and a meta line of its date, how many
+  Meals, its Space when not where my new Meals go, and "2 of 27" ticked;
+  then a `link` "Done shops". Below, "Staples and essentials" with an `sm`
+  Select of my Spaces at its end, then two Cards side by side (stacked on a
+  phone), "Staples" and "Essentials", each a muted title, its KeptRows
+  ("Out of stock", "Required") and an AddRow ("Add a staple", "Add an
+  essential") with the Pantry's Suggestions.
+- **New shop** is a Dialog: Name, then Date and For side by side (For a
+  Select of Personal and my Households, the Household of the
+  first Household Meal chosen to start), then "Meals": the plan's Meals from
+  today, under each day (12px bold muted), a 40px row each with a yellow
+  Checkbox, the Meal's name and, muted at its end, its slot and "Personal"
+  or "On Top-up" (disabled, faded: a Meal on another open shop). Cancel and
+  Create. New list asks Name and Date only.
+- **A shop's page:** a BackLink to Shopping, its name (`text-h1`) with its
+  "…" menu (Edit details…, Complete list, Delete) at the title's end; a
+  muted line of its date and Space; Tabs **All · Meals · Extra**, each with
+  its count; then, on All and Extra, an Input "Add to the shop" with a
+  leading `plus` and the Pantry's Suggestions ("Add "chick" as typed" after
+  the line).
+  - **All:** a PantryAisle Card per aisle in aisle order, Household then
+    Other last, in two balanced columns on a wide screen; ShoppingLines,
+    ticked ones at the foot of their aisle.
+  - **Meals:** a Card per Meal: a small green `utensils` TypeTile, its name
+    (weight 600) and, muted, "Thu · Dinner · Serves 6" (and "Personal"),
+    its "…" menu (Take off the shop), then its ShoppingLines, which have no
+    menu. Last, an outline "Add a meal", opening New shop's list of Meals.
+  - **Extra:** "Added" (my lines, with their menus) and "Staples the meals
+    use · check you have them" (OfferRows with no "+"); beside them, for
+    each of my Spaces, the shop's own first, "Needed · Home" (OfferRows with
+    their `warning` Badge) and "Essentials · Home". Each a PantryAisle Card.
+- **Finishing:** ticking the last line shows a toast, "Everything's ticked",
+  with Done. Complete list in the menu, with lines unticked, asks first in
+  an AlertDialog: "Complete Big shop?", "4 lines aren't ticked.", Complete
+  and Cancel. Done or completed, the shop leaves the list, with Undo.
+- **A list's page:** as a shop's, with no Tabs: its subheadings as
+  PantryAisle Cards, each ending in an AddRow ("Add to Garden"), and "Add a
+  subheading" in its menu; at the reading width.
+- **Saved as an idea** (a share from another app; RCP-003): a page with no
+  drawer, green, centred about a fifth of the way down: a large `check`
+  TypeTile (`chef-hat` when saved before), "Saved as an idea" or "Already
+  saved" (`text-h2`), and a Card of the Idea's thumbnail, its name and,
+  muted, the link's site; "Already saved" adds an outline `sm` Open.
 
 ## Forms
 

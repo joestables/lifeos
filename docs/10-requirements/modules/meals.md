@@ -340,8 +340,9 @@ Acceptance criteria
 1. Given Shopping, then Food shows my food shops and Lists my other lists:
    dated ones by date, then undated; done ones a press away. Online comes
    later.
-2. Given New shop or New list, then I name it, and may give it a date,
-   a time and a place; a dated one shows on Plan. New shop also offers the
+2. Given New shop or New list, then I name it, and may give it a date
+   (no time or place; Joe, 24 October) and, for a shop, its Space; a dated
+   one shows on Plan. New shop also offers the
    plan's Meals from today, those on no open shop, each toggled on or off
    (SHP-002).
 3. Given a food shop, then its lines are grouped by aisle, Other last; given

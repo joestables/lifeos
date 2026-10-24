@@ -73,7 +73,7 @@ core.items     id (UUIDv7, made on the device), type, title, body, space_id,
 <type> detail  1:1 with items, per Type, in its Module's schema, e.g.
                fitness.workout(item_id, actual_start, duration, readiness …)
                food.meal(item_id, servings)
-               shopping.shopping_list(item_id, place)
+               shopping.shopping_list(item_id, kind)
 
 child rows     belong to one Item and are not Items themselves:
                workout_sets, variation_lines, shopping lines …
@@ -105,8 +105,8 @@ core.activity  item_id, verb, changed (jsonb), at, actor — written by triggers
   Postgres 17 has no built-in `uuidv7()`, so server-side inserts use a small
   SQL function, `core_private.uuidv7()`.
 - **`do_on` is a date with an optional time.** A Task is something *you do*,
-  by or on a date; an Event is something that *happens* at a time. "Sat 10:00
-  Tesco" is a Shopping list with a do-on time; "Dishoom 19:30" is an Event.
+  by or on a date; an Event is something that *happens* at a time. "Big
+  shop, Sat" is a Shopping list with a do-on date; "Dishoom 19:30" is an Event.
 - **`touched_at`** is set the first time a person edits, ticks, labels,
   adds a sub-task to or links an occurrence; what the series itself writes
   doesn't count ([ADR-0022](adr/0022-repeating-items.md)).
@@ -134,7 +134,7 @@ use.
 |---|---|---|
 | Task | `do_on` + `do_at`, `due_on` | `do_on`, `due_on` |
 | Event | `starts_at`, `ends_at`, `all_day` | `starts_at` |
-| Shopping list (when dated) | `do_on` + `do_at` | `do_on` |
+| Shopping list (when dated) | `do_on` (a date, no time) | `do_on` |
 | Meal | `do_on` + `slot` | `do_on` |
 | Workout, Cardio activity | `starts_at` (planned; what happened is in the detail table) | `starts_at` |
 | Outfit worn | `do_on` | `do_on` |
@@ -203,7 +203,7 @@ these, so the database enforces them.
 
 | Module | Type | S | C | Sh | Cap | Default Space | Statuses used (labels) | Colour | Labels | Mark | Stage |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| shopping | **Shopping list** (a food shop or a list; a date is optional) | ✓ do-on, place (optional) | ✓ | ✓ | ✓ | Household | active · done · cancelled | yellow | — | — | 4b |
+| shopping | **Shopping list** (a food shop or a list; a date is optional) | ✓ do-on (optional; a date, no time or place) | ✓ | ✓ | ✓ | Household | active · done · cancelled | yellow | — | — | 4b |
 | fitness | **Exercise** | — | — | — | — | Personal | active | coral | — | — | 5 |
 | fitness | **Workout template** | — | — | — | — | Personal | active | coral | — | — | 5 |
 | fitness | **Workout** | ✓ start | ✓ | — | — | Personal | active "Planned" · done · cancelled "Skipped" | coral | — | — | 5 |
@@ -239,7 +239,7 @@ more than Labels).
 | Module | Detail tables (1:1 with an Item) | Child rows |
 |---|---|---|
 | core | — (Thought, Note, Task use `core.items` only; where an Event's place is kept is decided with Stage 3's schema) | `subtasks(item_id, title, done, position)` — a Task's sub-tasks |
-| shopping | `shopping_list(kind: food · list, place)` | `list_meals(list_id, meal_id)` (a food shop's Meals; a Meal on one open shop at most); `lines(position, heading?, pantry_id?, text?, qty?, qty_max?, approx, unit?, checked, meal_id?, source_id?, needed_space_id?)` — in the list's own Space; a Meal's lines written by the database as its Meal changes, ticked ones kept ([ADR-0057](adr/0057-shopping-in-the-database.md)) |
+| shopping | `shopping_list(kind: food · list)` | `list_meals(list_id, meal_id)` (a food shop's Meals; a Meal on one open shop at most); `lines(position, heading?, pantry_id?, text?, qty?, qty_max?, approx, unit?, checked, meal_id?, source_id?, needed_space_id?)` — in the list's own Space; a Meal's lines written by the database as its Meal changes, ticked ones kept ([ADR-0057](adr/0057-shopping-in-the-database.md)) |
 | food | `recipe(category, cuisine, tags, protein, carbs, default_variation)` (its name is the Item's title; its photo is in `core.attachments`), `variation(servings, prep_min, cook_min, sources, notes, archived_from)` (its name and state are the Item's title and status; `archived_from` keeps its state while its Recipe is archived), `meal(servings, leftovers_of?, source?)` (a typed Meal is one with no *uses* link, named by its title; `source` its recipe link, MPL-006) | `variation_lines(position, heading?, pantry_id?, text?, qty?, qty_max?, approx, unit?)` (a row with a heading is a subheading and nothing else), `meal_lines(position, pantry_id?, text?, qty?, qty_max?, approx, unit?)` (a Meal's own lines, no subheadings, never on leftovers; MPL-006), `variation_steps(position, text)` (an "@" reference to a Recipe kept in the text, and in a Variation's notes, as `@[Name](recipe id)`: shown under the Recipe's name now, plain once it is gone; RCP-008), `cooks(person, cooked_at, verdict?, notes?, servings?, meal_id?, snapshot)`; each person's `values` (kind: category · cuisine · tag · protein · carb); `change_notes(activity_id, item_id, note, person_id)`, the words of whoever made a change on what it changed, by the activity entry it starts with (RCP-013; written only through `food.note_change`, by its maker); not Items: the Pantry `pantry(name, kind: ingredient · household, aisle?, default_unit?, added_by)` — one name once, ignoring case; an ingredient has an aisle (fruit_veg · bakery · protein · chilled · cupboard · frozen), a household item none — and each Space's `staples(pantry_id, out_of_stock)`, from Stage 4b `space_entries(pantry_id, kind: staple · essential, needed)` (out of stock, or Required) ([ADR-0052](adr/0052-food-in-the-database.md)) |
 | fitness | `exercise(muscle_groups, equipment, increment, target)`, `workout(actual_start, duration, readiness, stage)`, `cardio_activity(kind, distance_m, duration_s, avg_hr)` | `template_exercises(exercise_id, sets, reps, target)`, `workout_entries(exercise_id, snapshot)`, `workout_sets(entry_id, set_no, reps, weight, rpe)`; reference data: muscle groups, equipment, recovery settings per person |
 | goals | `goal(kind, measure_key, params, target, unit, period, start_on, deadline)` | — |
@@ -445,7 +445,7 @@ flowchart LR
   R2["Tofu katsu<br/>Variation · Draft · H"]
   R3["Miso salmon traybake<br/>Recipe · idea · H<br/>(captured as a Thought)"]
   M["Katsu curry<br/>Meal · Thu dinner · H"]
-  S["Big shop<br/>Shopping list · Sat 10:00 · H"]
+  S["Big shop<br/>Shopping list · Sat · H"]
   L(["Panko 100 g<br/>list line"])
   RL(["100 g panko<br/>recipe line"])
   I["Panko breadcrumbs<br/>Pantry entry · everyone"]
