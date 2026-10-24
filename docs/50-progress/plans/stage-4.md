@@ -11,15 +11,13 @@ Cooking is logged, with or without a Meal
 shared AI service and food preferences arrive, and Households
 turn sharing on. **Shopping** follows in Stage 4b.
 
-**State:** started 17 October 2026. Joe's brief is below; the drawer
-already has its new order, with Cardio as a blank page (this plan's pull
-request). Joe agreed every recommendation below (17 October). Step 1 is
-under way: the [recipes](../../10-requirements/modules/recipes.md) and
-[meals](../../10-requirements/modules/meals.md) specs are in their third
-draft, after [Joe's comments](#joes-comments-18-october), for further rounds;
-Shopping lists replacing List and Shop is decided
-([ADR-0050](../../20-architecture/adr/0050-shopping-list.md)), and so is who
-sees and edits food ([ADR-0051](../../20-architecture/adr/0051-who-sees-food.md)).
+**State:** done (Joe, 24 October 2026). Steps 1–10 are done; step 10
+(Joe using it and Claude fixing what he trips over) closed after his three
+rounds and a production bug hunt. Left, each recorded in its step: Android's
+share target (RCP-003, a Must, offered to Stage 4b as its step 9), photos in
+Search's results, the timer's notification from the server when LifeOS is
+closed, Settings' lists (RCP-018 1), and a card saying whose a Recipe is
+when two share a name. Next: [Stage 4b](stage-4b.md), Shopping.
 **The Recipes design is drawn without looking at v1**; v1's backend code may
 be looked at only when the features are built (Joe, 18 October).
 

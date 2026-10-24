@@ -5,9 +5,10 @@ Items, the Links between them, and Views over both. These documents are the
 source of truth for what it does and why. Code is checked against them.
 
 Stages 0 (requirements and architecture), 1 (foundation), 2 (replacing
-Google Tasks) and 3 (Plan, Events and Google Calendar) are done. **Stage 4**,
-Recipes, has started: its [plan](50-progress/plans/stage-4.md) is written,
-and its specs come first ([roadmap](roadmap.md#where-we-are)).
+Google Tasks), 3 (Plan, Events and Google Calendar) and 4 (Recipes and the
+Meal plan) are done. **Stage 4b**, Shopping, has started: its
+[plan](50-progress/plans/stage-4b.md) is written, and its specs come first
+([roadmap](roadmap.md#where-we-are)).
 
 ## Index
 

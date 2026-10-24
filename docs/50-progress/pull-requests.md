@@ -2,6 +2,25 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#30](https://github.com/joestables/lifeos/pull/30) — Stage 4b plan: Shopping
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-24
+
+**What it did**
+- Stage 4 marked done (Joe, 24 October), with what it left listed in its
+  plan.
+- Wrote the [Stage 4b plan](plans/stage-4b.md): ten steps from the specs to
+  Joe shopping with it, and six questions for the specs with Claude's
+  recommendations (no repeating lists in 4b, Clear ticked on a standing
+  list, ticking an out-of-stock staple, a Meal changed after its list is
+  made, a list's done, Android's share target carried over).
+- RCP-017's status corrected to built (it was built in Stage 4's step 8).
+
+**Documents touched:** plans/stage-4.md, plans/stage-4b.md, roadmap,
+docs/README, CLAUDE.md, recipes (RCP-017).
+
+**Left for later:** Joe's answers and agreement to the specs (step 1).
+
 ## [#29](https://github.com/joestables/lifeos/pull/29) — Stage 4, step 10 closed
 
 Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-24
