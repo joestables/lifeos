@@ -220,6 +220,8 @@ const collections: {
       'food.update_meal_line',
       'food.remove_meal_line',
       'food.merge_pantry',
+      // A past Meal's lines become typed as their entry goes (PAN-001 4).
+      'food.remove_pantry',
     ],
     fold: (rows: MealLine[], e: QueueEntry) => applyPendingMealLines(rows, [e]),
   },

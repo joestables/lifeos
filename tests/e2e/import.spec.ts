@@ -116,15 +116,41 @@ test.describe('Import a recipe', () => {
     await expect(page.getByLabel('Amount').nth(2)).toHaveValue('1.5')
     await expect(page.getByRole('combobox', { name: 'Unit' }).nth(2)).toContainText('cup')
     await page.getByLabel('Amount').nth(1).fill('250')
+    // Chorizo is added from its mark, the AI's aisle to start; Paella Rice
+    // is left, so it is kept as typed (Joe, 24 October).
+    await page.getByRole('button', { name: 'Add Chorizo to the Pantry' }).click()
+    const add = page.getByRole('dialog', { name: 'Add to the Pantry' })
+    await expect(add.getByLabel('Aisle')).toContainText('Chilled')
+    await add.getByRole('button', { name: 'Add' }).click()
+    await expect(page.getByRole('button', { name: 'Add Chorizo to the Pantry' })).toHaveCount(0)
     await page.getByRole('button', { name: 'Keep' }).click()
 
     await expect(page.getByRole('heading', { name: 'Chicken and chorizo paella' })).toBeVisible()
     const kept = db.items.find((i) => i.title === 'Chicken and chorizo paella')!
     expect(kept.status).toBe('active')
     expect(db.recipe.find((r) => r.item_id === kept.id)).toMatchObject({ cuisine: 'Spanish' })
-    expect(db.pantry.map((p) => p.name)).toEqual(expect.arrayContaining(['Chorizo', 'Paella Rice']))
+    expect(db.pantry.map((p) => p.name)).toContain('Chorizo')
+    expect(db.pantry.map((p) => p.name)).not.toContain('Paella Rice')
+    expect(db.variation_lines.find((l) => l.text === 'Paella Rice')).toBeTruthy()
     expect(db.variation_lines.filter((l) => l.qty === 250)).toHaveLength(1)
     expect(db.values.map((v) => v.name)).toEqual(expect.arrayContaining(['Spanish', 'Pork']))
+  })
+
+  test('RCP-008 1: in the method, Enter starts a step and Backspace removes an empty one', async ({
+    page,
+  }) => {
+    await start(page)
+    await importLink(page)
+    const step1 = page.getByRole('textbox', { name: 'Step 1' })
+    await step1.click()
+    await step1.press('End')
+    await step1.press('Enter')
+    await expect(page.getByRole('textbox', { name: /^Step \d$/ })).toHaveCount(3)
+    await expect(page.getByRole('textbox', { name: 'Step 2' })).toBeFocused()
+    await expect(page.getByRole('textbox', { name: 'Step 2' })).toHaveValue('')
+    await page.keyboard.press('Backspace')
+    await expect(page.getByRole('textbox', { name: /^Step \d$/ })).toHaveCount(2)
+    await expect(step1).toBeFocused()
   })
 
   test('RCP-014 3: cancelled, it asks, and nothing is kept', async ({ page }) => {

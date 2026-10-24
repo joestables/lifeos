@@ -253,8 +253,10 @@ Acceptance criteria
    change.
 4. Given an entry I added that nothing uses, then I can delete it, with
    Undo; one in use can't be deleted, and says where it is used: the
-   Recipes, then the Meals whose own lines use it (MPL-006), or "Used in
-   something deleted" when only a deleted Recipe or Meal does.
+   Recipes, then the Meals today or later whose own lines use it
+   (MPL-006), or "Used in a deleted recipe" when only a deleted Recipe
+   does. A past or deleted Meal doesn't keep it: its line keeps the name,
+   as typed (Joe, 24 October).
 5. Given an entry, then I see which Recipes use it.
 
 ### PAN-002 — Staples and out of stock

@@ -129,7 +129,7 @@ export function CaptureDialog({
               />
             )}
           </div>
-          <DialogFooter className="flex-row px-[18px] pb-[18px] sm:px-5 sm:pb-5 [&>*]:flex-1 sm:[&>*]:flex-none">
+          <DialogFooter className="px-[18px] pb-[18px] sm:px-5 sm:pb-5">
             <DialogClose render={<Button type="button" variant="outline" />}>Cancel</DialogClose>
             <Button type="submit" disabled={!text.trim()}>
               Save

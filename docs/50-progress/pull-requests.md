@@ -2,6 +2,31 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#28](https://github.com/joestables/lifeos/pull/28) — Stage 4: Joe's second list
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-24
+
+**What it did**
+- Pantry delete warns only of Meals today or later. Before an entry goes,
+  the lines of past, deleted or cancelled Meals become typed with its name
+  (migration `stage4_past_meal_lines`, `past_meal_lines_test` (3)).
+- The AI names the dish's own cuisine before looking at my list: Pad Thai
+  is Thai, not Chinese (`PROMPT_VERSION` 2026-10-24.1, `ai` version 6).
+- Check the import on a phone: its lines and steps were jammed together
+  with no gap; they are now spaced as editing a Variation's, with "Add an
+  ingredient" and "Add a step".
+- Lines matching no Pantry entry carry the `package-plus` mark, opening Add
+  to the Pantry with the AI's aisle. They are added on Keep; a line left
+  unadded is kept as typed. No "New" badge.
+- No mark on a line in the Pantry; the `package-plus` mark only on one
+  that isn't.
+- In the method, Backspace in an empty step removes it, when editing and
+  on Check the import; Enter starts the next step on both.
+- Popup buttons are as wide as their words and sit at the bottom right, on
+  a phone too.
+- The Idea popup opens without the keyboard. Its Delete and Make it a
+  draft share a line, with Done under them on a phone.
+
 ## [#27](https://github.com/joestables/lifeos/pull/27) — Stage 4: fixes from Joe's first use, and a bug hunt
 
 Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-23

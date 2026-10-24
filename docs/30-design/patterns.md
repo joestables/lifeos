@@ -401,8 +401,11 @@ StepEditor. Agreed with Joe on 18 October on the
   when saved · the start of the note, muted; a "…" menu (Make it a draft,
   Delete; Import from its link with Import). **An Idea opens in a Dialog**
   over Ideas, "Idea" (its link, `?idea=`, too; never a page): Name, Links,
-  Note and its photo, kept on Done or on closing; then Delete (`ghost-destructive`)
-  on the left, "Make it a draft" (outline, `chef-hat`) and Done. **Make it
+  Note and its photo, kept on Done or on closing, the Dialog itself focused as
+  it opens, so a phone's keyboard stays down (Joe, 24 October); then Delete
+  (`ghost-destructive`) and "Make it a draft" (outline, `chef-hat`) side by
+  side at their own width, and Done at the right (on a phone, full width
+  under them). **Make it
   a draft** is the Edit heading Dialog titled so, asking the category and
   cuisine; it then opens the Variation to fill. New idea is a Dialog: Name, Links (any number, "Add a link"), Note, "Add a
   photo" (as Edit heading's); then Cancel and Save. A photo is made WebP of
@@ -424,13 +427,18 @@ StepEditor. Agreed with Joe on 18 October on the
   picture made small on the device, beside Name, Category, Cuisine,
   Protein and Carbs), the VariationFieldsCard's Serves, Prep and Cook,
   then Ingredients (IngredientLineEditors, with the page's groups as
-  SubheadingEditors) beside Method (StepEditors), then Notes (a Textarea
-  and "From" the link, muted). A name on none of my lists carries an
-  `outline` "New" Badge (" · New" in a Protein or Carbs Badge), and a
-  line whose entry isn't in the Pantry the IngredientLineEditor's "New";
-  renaming a line matches it to the Pantry entry of that name. Cancel
+  SubheadingEditors, and "Add an ingredient") beside Method (StepEditors,
+  and "Add a step"), spaced as editing a Variation's, then Notes (a
+  Textarea and "From" the link, muted). A name on none of my lists
+  carries an `outline` "New" Badge (" · New" in a Protein or Carbs Badge).
+  A line whose entry isn't in the Pantry has the `package-plus` mark, as
+  a typed line has when editing: it opens Add to the Pantry, the AI's
+  aisle to start, and the entry is added when the import is kept; a line
+  left so is kept as typed (Joe, 24 October). Renaming a line matches it
+  to the Pantry entry of that name. In the method, Enter starts the next
+  step and Backspace in an empty one removes it, as when editing. Cancel
   (outline) and Keep (primary) at the top right on a computer, at the
-  foot on a phone, sharing the width. Keep saves it all and opens the
+  foot on the right on a phone, as wide as their words. Keep saves it all and opens the
   Recipe, or says it couldn't, keeping the page; Cancel, or leaving, asks
   first in an AlertDialog ("Leave without keeping it?", Leave, Cancel) and
   keeps nothing. An Idea's "…" menu has **Import from its link**, the same
@@ -598,10 +606,11 @@ MealCard, MealSlot, AddMealButton, MealWeek, MealDay and PantryRow in
   into" (a Select of the other entries I added of the same kind, A–Z, none
   chosen to start); then Cancel and Merge, which waits for a choice and
   ends in a toast, 'Merged "Green onions" into "Spring onions"'. **Delete** of an entry
-  nothing uses says so in a toast with Undo; one a Recipe or a Meal's own
-  lines use isn't deleted, and a toast names where it is used, Recipes
-  first ("Used in Katsu curry and 2 more"), or says "Used in something
-  deleted" when only a deleted one does.
+  nothing uses says so in a toast with Undo; one a Recipe or the own lines
+  of a Meal today or later use isn't deleted, and a toast names where it
+  is used, Recipes first ("Used in Katsu curry and 2 more"), or says "Used
+  in a deleted recipe" when only a deleted one does. A past Meal's line
+  keeps the name, as typed.
 - **Kept as typed** (PAN-004 2): after the household items, when any of my
   Recipes' lines were kept as typed, a SectionLabel and a Card of CardRows,
   A–Z: the name as typed and, as its value, how many of my Recipes use it;
@@ -618,8 +627,11 @@ MealCard, MealSlot, AddMealButton, MealWeek, MealDay and PantryRow in
 - Label above, field below, 6px apart. No help text under fields, and no
   keyboard hints in footers.
 - Fields are filled, never outlined. Two short fields may sit side by side.
-- The primary action is last on the right (full width on a phone); Cancel or
-  Close is an outline button beside it.
+- The primary action is last on the right; Cancel or Close is an outline
+  button beside it. Buttons are as wide as their words, on a phone too, and
+  sit together at the bottom right (Joe, 24 October); the one exception is
+  a page's or a popup's lone Done under its other actions, full width on a
+  phone (editing a Variation, an Idea).
 - **Choosing between options that each need explaining** (how a Task
   repeats: "On a schedule", "After it's done"): a RadioGroup of `cards`; the
   chosen card has a ring, never a fill, and a primary Save confirms.
@@ -677,8 +689,9 @@ sub-tasks `list-checks` with "2/5".
   pull to refresh can't reach, so pulling down from the top of any page
   shows a round indicator that turns as it follows the finger; let go past
   72px and LifeOS reloads.
-- Dialogs sit inset 18px from the sides, as tall as their content;
-  AlertDialog actions stack, full width.
+- Dialogs sit inset 18px from the sides, as tall as their content; their
+  actions, an AlertDialog's too, sit side by side at the bottom right, as
+  wide as their words (Joe, 24 October).
 - Row actions: the "…" menu is always visible; a Thought in Inbox can be
   swiped to make it a Task.
 - A long press starts choosing several where a computer has Select (the

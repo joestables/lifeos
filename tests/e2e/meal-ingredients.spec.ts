@@ -98,7 +98,9 @@ test.describe('A Meal’s own ingredients', () => {
         db.meal_lines.filter((l) => l.meal_id === DISHOOM).map((l) => l.text ?? l.pantry_id),
       )
       .toEqual([PANKO, 'Buttermilk'])
-    expect(db.meal.find((m) => m.item_id === DISHOOM)).toMatchObject({ servings: 4, source: LINK })
+    await expect
+      .poll(() => db.meal.find((m) => m.item_id === DISHOOM))
+      .toMatchObject({ servings: 4, source: LINK })
     await expect(dialog.getByRole('link', { name: 'Open the link' })).toHaveAttribute('href', LINK)
     // Closed, the popup doesn't put the old servings back.
     await page.keyboard.press('Escape')

@@ -32,6 +32,7 @@ const UNITS = LINE_UNITS.map((u) => ({ value: u || NONE, label: u || 'None' }))
 export function AddToPantryDialog({
   name: typed,
   unit: lineUnit,
+  aisle: suggested,
   pantry,
   onAdd,
   onClose,
@@ -39,13 +40,15 @@ export function AddToPantryDialog({
   name: string
   /** The line's unit, the default unit to start. */
   unit?: string | null
+  /** The aisle to start, the AI's for an imported line; else Cupboard. */
+  aisle?: Aisle
   pantry: ReadonlyMap<string, PantryEntry>
   onAdd: (name: string, aisle: Aisle, defaultUnit: string | null) => void
   onClose: () => void
 }) {
   const ids = useId()
   const [name, setName] = useState(typed)
-  const [aisle, setAisle] = useState<Aisle>('cupboard')
+  const [aisle, setAisle] = useState<Aisle>(suggested ?? 'cupboard')
   const [unit, setUnit] = useState(lineUnit || NONE)
   const taken = [...pantry.values()].some(
     (p) => p.name.trim().toLowerCase() === name.trim().replace(/\s+/g, ' ').toLowerCase(),

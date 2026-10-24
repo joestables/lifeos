@@ -1,7 +1,6 @@
 import {
   ChefHatIcon,
   GripVerticalIcon,
-  PackageCheckIcon,
   PackagePlusIcon,
   TypeIcon,
   MinusIcon,
@@ -528,10 +527,10 @@ export function IngredientLineEditor({
   unit?: (typeof UNITS)[number]
   ingredient: string
   /**
-   * In the Pantry, kept as typed, still being typed, or to be added to the
-   * Pantry when kept (an import being checked, RCP-014).
+   * In the Pantry (no mark: Joe, 24 October), kept as typed, or still being
+   * typed.
    */
-  status?: 'pantry' | 'typed' | 'typing' | 'new'
+  status?: 'pantry' | 'typed' | 'typing'
   /** The ingredient box, when it carries its suggestions (a Popover's trigger). */
   ingredientField?: ReactNode
   reorder?: Reorder
@@ -556,14 +555,6 @@ export function IngredientLineEditor({
         {ingredientField ?? (
           <Input aria-label="Ingredient" defaultValue={ingredient} className="pr-8" />
         )}
-        {status === 'new' && (
-          <Badge
-            variant="outline"
-            className="pointer-events-none absolute top-1/2 right-2 -translate-y-1/2"
-          >
-            New
-          </Badge>
-        )}
         {status === 'typed' && onAddToPantry && (
           <Button
             variant="ghost"
@@ -576,16 +567,12 @@ export function IngredientLineEditor({
             <PackagePlusIcon />
           </Button>
         )}
-        {status !== 'typing' && status !== 'new' && !(status === 'typed' && onAddToPantry) && (
+        {status === 'typed' && !onAddToPantry && (
           <span
-            title={status === 'pantry' ? 'In the Pantry' : 'Kept as typed'}
+            title="Kept as typed"
             className="pointer-events-none absolute top-1/2 right-2.5 -translate-y-1/2 text-muted-foreground [&_svg]:size-4"
           >
-            {status === 'pantry' ? (
-              <PackageCheckIcon aria-label="In the Pantry" />
-            ) : (
-              <TypeIcon aria-label="Kept as typed" />
-            )}
+            <TypeIcon aria-label="Kept as typed" />
           </span>
         )}
       </div>
