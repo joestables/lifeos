@@ -25,14 +25,16 @@ ingredients should be collated onto a shopping list.
   A line kept as typed goes on a shopping list under *Other*.
 - **Adding Meals' ingredients to a Shopping list** creates one line per
   ingredient per Meal, pointing at its Ingredient and *for* its Meal.
-  - "New shopping list" on the Meal plan offers the Meals of the days I
-    choose, for a new food shop or one I pick; Meals are added or taken
-    off later. Then I add more on Extra, from the Pantry or typed.
+  - On the Meal plan, Select chooses Meals and Add to shop makes a new
+    food shop of them; Shopping's New shop offers the plan's Meals to toggle.
+    Meals are added or taken off later. Then I add more on Extra, from the
+    Pantry or typed.
   - **Collation is a display rule, not merged data:** lines with the same
     Ingredient and compatible units show as one row ("Panko 250 g · Katsu
     Thu, Schnitzel Sat").
   - **Staples** aren't added; those the Meals use are highlighted on Extra
-    to check. Out-of-stock staples and Essentials are offered there too.
+    to check. Out-of-stock staples and Essentials, Required first, are
+    offered there too.
   - **Generated lines follow their Meal:** a change to its ingredients or
     servings changes them; if it is removed or taken off the shop, its
     unticked lines go. A Meal's line isn't changed or deleted on the shop;

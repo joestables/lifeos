@@ -1,7 +1,7 @@
 # ADR-0051: Who sees and edits Recipes, the Pantry, Meals and shopping lists
 
 **Status:** Provisionally agreed · 2026-10-18
-**Amended:** 2026-10-24 by Joe's answers for Stage 4b (a food shop is for one Space).
+**Amended:** 2026-10-24 by Joe's answers for Stage 4b (a food shop is for one Space; staples and Essentials kept on Shopping).
 
 ## Context
 
@@ -20,8 +20,10 @@ food should be shared instead (18 October).
   or delete it, and an entry any Recipe uses can't be deleted. Pantry
   entries are a catalogue, not Items in a Space.
 - **Staple and out of stock are ours, not the catalogue's:** each
-  Household (or person, without one) marks its own staples, and which of
-  them have run out.
+  Household (or person, without one) keeps its own staples, and which of
+  them have run out; and, from Stage 4b, its Essentials and which are
+  Required. Both are kept on Shopping → Food, not in the Pantry (amended
+  24 October).
 - **A Recipe belongs to the person who wrote it**, in their Personal Space.
   Everyone in a Household with them sees all their Recipes, read-only: a
   Recipe is seen through its author's Household membership, not through a

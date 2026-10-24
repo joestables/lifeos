@@ -218,7 +218,7 @@ Acceptance criteria
    the app I shared from (Joe, 24 October, to try). Android opens LifeOS to
    receive a share: a web app can't save without a window.
 2. Given the link is already a source of a Recipe or Idea, then it isn't
-   saved again: the screen names it, with Open. **(Suggested)**
+   saved again: the screen names it, with Open.
 3. Given no signal, then the Idea is kept and sent later; its title and
    thumbnail fill in when it is.
 4. Given an iPhone, then an iOS Shortcut in the share sheet opens New idea

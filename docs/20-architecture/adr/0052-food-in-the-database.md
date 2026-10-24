@@ -44,7 +44,8 @@ how the schema holds it and how the database enforces it
   refused while any line points at it. `food.merge_pantry()` checks the
   merger added both, then repoints every line, everyone's.
 - **Staples:** `food.staples` (Space, entry, out of stock), changed by
-  anyone who can read the Space.
+  anyone who can read the Space; each Space's Essentials (and Required)
+  beside them, from Stage 4b's step 4.
 - **Lists of values** (categories, cuisines, tags, protein, carbs) are each
   person's, in `food.values`; browsing pools those of everyone in my
   Households, the same name counting once.
