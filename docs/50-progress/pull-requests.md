@@ -2,6 +2,22 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#35](https://github.com/joestables/lifeos/pull/35) — Stage 4b, step 3: the Shopping design agreed
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-24
+
+**What it did**
+- Joe's two changes: New shop asks Name, Date and For only, and no
+  Shopping list has a time or place (ADR-0050, ADR-0057, the data model,
+  SHP-001, PLN-008); Shopping's Food and Lists at one reading width,
+  `max-w-3xl`, now a rule in patterns' page anatomy.
+- The design written into the spec: patterns' Shopping section and the
+  Meal plan's Select; the drafted components made final in components.md;
+  ShoppingLine, OfferRow, KeptRow, MealCard's choosing and Badge's
+  `warning` on `/design`, its screenshots refreshed.
+
+**Left for later:** step 4, the database.
+
 ## [#34](https://github.com/joestables/lifeos/pull/34) — Stage 4b, step 3: the Shopping design, first pass
 
 Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-24

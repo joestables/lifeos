@@ -38,7 +38,7 @@ There were two ways to hold a Meal's lines:
 
 ## Decision
 
-- **`shopping.shopping_list(item_id, kind, place)`**, `kind` food or list,
+- **`shopping.shopping_list(item_id, kind)`** (a date only, as `do_on`: no time or place, ADR-0050), `kind` food or list,
   a Shopping list being an Item in the `shopping` Module
   ([ADR-0052](0052-food-in-the-database.md)).
 - **`shopping.list_meals(list_id, meal_id)`** links a food shop to its

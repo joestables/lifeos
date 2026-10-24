@@ -40,7 +40,11 @@ import {
   MealDay,
   MealSlot,
   MethodSteps,
+  KeptRow,
+  OfferRow,
+  PantryAisle,
   PantryRow,
+  ShoppingLine,
   RecipeCard,
   RecipeFact,
   RecipeGrid,
@@ -432,6 +436,7 @@ function DesignPage() {
             <Badge>Errands</Badge>
             <Badge variant="outline">Someday</Badge>
             <Badge variant="destructive">Overdue</Badge>
+            <Badge variant="warning">Out of stock</Badge>
             <Badge removeLabel="Remove Quick" onRemove={() => undefined}>
               Quick
             </Badge>
@@ -1013,12 +1018,42 @@ function DesignPage() {
             <div className="flex flex-col gap-2">
               <MealCard name="Out: Dishoom" kind="typed" />
               <MealCard name="Overnight oats" servings={1} eaten />
+              <MealCard name="Chilli con carne" servings={6} selecting selected />
               <AddMealButton slot="Dinner" dropping />
               <Card className="gap-1 px-2 py-2">
                 <PantryRow name="Carrots" recipes={6} />
                 <PantryRow name="Garlic" recipes={14} staple />
                 <PantryRow name="Onion" recipes={18} staple out />
               </Card>
+            </div>
+          </TypeScope>
+        </Section>
+
+        <Section title="Shopping">
+          <TypeScope colour="yellow" className="grid max-w-3xl gap-4 sm:grid-cols-2">
+            <PantryAisle label="Fruit & Veg">
+              <ShoppingLine name="Red peppers" amount="3" meta="Chilli Thu, Shakshuka Sun" />
+              <ShoppingLine name="Onions" amount="3" meta="Chilli Thu" checked />
+              <ShoppingLine
+                name="Bin bags"
+                meta="Extra"
+                menu={
+                  <Button variant="ghost" size="icon-sm" aria-label="Line">
+                    <EllipsisIcon />
+                  </Button>
+                }
+              />
+            </PantryAisle>
+            <div className="flex flex-col gap-4">
+              <PantryAisle label="Needed · Home">
+                <OfferRow name="Olive oil" needed="Out of stock" onAdd={() => undefined} />
+                <OfferRow name="Milk" needed="Required" added onAdd={() => undefined} />
+                <OfferRow name="Cumin" meta="Chilli Thu" />
+              </PantryAisle>
+              <PantryAisle label="Essentials">
+                <KeptRow name="Milk" flag="Required" on />
+                <KeptRow name="Bananas" flag="Required" />
+              </PantryAisle>
             </div>
           </TypeScope>
         </Section>

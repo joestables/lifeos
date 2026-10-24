@@ -196,15 +196,15 @@ Acceptance criteria
    name (or "Leftovers: Katsu curry"), and its slot in place of a time;
    Breakfast, Lunch and Dinner in that order, among the day's untimed
    Items.
-2. Given a dated Shopping list, then it shows on its day with its time if
-   it has one, and its place as its detail.
+2. Given a dated Shopping list, then it shows on its day among the untimed
+   Items (a list has a date, never a time or place: ADR-0050).
 3. Given the Type pills, then Meal and Shopping list are among them.
 4. Given a day's "+", when I choose Meal, then the Meal plan's search adds
    one to that day in the slot I choose
    ([MPL-002](../modules/meals.md#mpl-002--plan-a-meal)); when I choose
    Shopping list, then a new list opens dated that day.
 5. Given a computer, when I drag a Meal to another day, then it keeps its
-   slot; a Shopping list moves to the new day, keeping its time.
+   slot; a Shopping list moves to the new day.
 6. Given a Meal's card, when I open it and tick it eaten, then it is done
    and no cook is logged.
 

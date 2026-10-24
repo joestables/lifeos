@@ -267,14 +267,14 @@ function Food({ phone = false }: { phone?: boolean }) {
     <Shell page="Shopping">
       <TypeScope colour="yellow">
         <PageHeader title="Shopping" action={{ label: 'New shop', onClick: nothing }} />
-        <div className={`flex flex-col gap-6 px-5 sm:px-9 ${phone ? 'pb-28' : 'pb-12'}`}>
+        <div className={`flex max-w-3xl flex-col gap-6 px-5 sm:px-9 ${phone ? 'pb-28' : 'pb-12'}`}>
           <ShoppingTabs tab="food" action={<PageAction label="New shop" onClick={nothing} />} />
           <section className="flex flex-col gap-1.5">
             <SectionLabel>Shops</SectionLabel>
             <ItemRow
               leading={cart}
               title="Big shop"
-              meta={['Sat 26 Oct · 10:00', 'Tesco', '4 meals', '2 of 27']}
+              meta={['Sat 26 Oct', '4 meals', '2 of 27']}
               menu={more(null)}
               onOpen={nothing}
             />
@@ -318,7 +318,7 @@ function Lists({ phone = false }: { phone?: boolean }) {
     <Shell page="Shopping">
       <TypeScope colour="yellow">
         <PageHeader title="Shopping" action={{ label: 'New list', onClick: nothing }} />
-        <div className={`flex flex-col gap-6 px-5 sm:px-9 ${phone ? 'pb-28' : 'pb-12'}`}>
+        <div className={`flex max-w-3xl flex-col gap-6 px-5 sm:px-9 ${phone ? 'pb-28' : 'pb-12'}`}>
           <ShoppingTabs tab="lists" action={<PageAction label="New list" onClick={nothing} />} />
           <section className="flex flex-col gap-1.5">
             <ItemRow
@@ -490,9 +490,7 @@ function ShopPage({
           trailing={<ShopMenu />}
         />
         <div className={`flex flex-col gap-4 px-5 sm:px-9 ${phone ? 'pb-16' : 'pb-12'}`}>
-          <p className="-mt-3 text-sm text-muted-foreground tabular-nums">
-            Sat 26 Oct · 10:00 · Tesco · Home
-          </p>
+          <p className="-mt-3 text-sm text-muted-foreground tabular-nums">Sat 26 Oct · Home</p>
           <ShopTabs tab={tab} />
           {tab !== 'meals' && <AddToShop suggesting={suggesting} />}
           {tab === 'all' && <AllLines />}
@@ -746,14 +744,6 @@ function NewShop() {
               <Field label="Date">
                 <Input defaultValue="Sat 26 Oct" />
               </Field>
-              <Field label="Time">
-                <Input defaultValue="10:00" />
-              </Field>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <Field label="Place">
-                <Input defaultValue="Tesco" />
-              </Field>
               <Field label="For">
                 <SmallSelect
                   full
@@ -805,7 +795,7 @@ function ListPage({ phone = false }: { phone?: boolean }) {
             'List',
           )}
         />
-        <div className={`flex max-w-2xl flex-col gap-4 px-5 sm:px-9 ${phone ? 'pb-16' : 'pb-12'}`}>
+        <div className={`flex max-w-3xl flex-col gap-4 px-5 sm:px-9 ${phone ? 'pb-16' : 'pb-12'}`}>
           <p className="-mt-3 text-sm text-muted-foreground tabular-nums">Sat 26 Oct · Personal</p>
           <PantryAisle label="Bathroom">
             <ShoppingLine name="Silicone sealant, white" menu={lineMenu} />
