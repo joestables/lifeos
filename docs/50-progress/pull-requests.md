@@ -2,6 +2,31 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#31](https://github.com/joestables/lifeos/pull/31) — Stage 4b: the Shopping specs, third draft
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-24
+
+**What it did**
+- Joe's answers written in: Shopping's Food, Lists and Online (later) tabs;
+  a food shop linked to Meals and following their ingredients; All · Meals ·
+  Extra; each Space's Essentials; out of stock and Essentials offered on
+  Extra by Space, staples the Meals use highlighted; back in stock in the
+  Space the line came from; a food shop for one Space; Done and Complete
+  list; no repeating lists.
+- A recipe shared from Android kept as an Idea with nothing to press, and
+  an iOS Shortcut opening New idea filled in (RCP-003, in Stage 4b).
+- Claude's suggestions marked: a Meal on one open food shop at most; a
+  Meal's line not changed on a shop, more added on Extra; a sorted Thought
+  a food shop when a line matches the Pantry; a link shared twice not saved
+  again.
+
+**Documents touched:** meals (Pantry, Shopping, PAN-002, MPL-003, SHP-001–005),
+recipes (RCP-003), items (ITM-006), spaces and sharing, ADR-0050, 0051,
+0052, 0053, 0012, 0055, 0028, data model, glossary, capability map, ADR-0026's
+drawer, roadmap, plans/stage-4b.md.
+
+**Left for later:** Joe's agreement to the specs; step 2's decisions.
+
 ## [#30](https://github.com/joestables/lifeos/pull/30) — Stage 4b plan: Shopping
 
 Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-24

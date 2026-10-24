@@ -141,7 +141,9 @@ Acceptance criteria
    text is the name, and any link in it becomes a source.
 5. Given a Thought, when I make it a Shopping list, then its text is split
    at the commas into lines ("buy milk, bread, eggs" → Milk, Bread, Eggs),
-   "buy" dropped, each line matched to the Pantry where it can be.
+   "buy" dropped, each line matched to the Pantry where it can be; a food
+   shop when any line matches a Pantry ingredient, else a list
+   ([SHP-003](../modules/meals.md#shp-003--extra) 5).
 6. Given a Note, when I make it a Recipe, then it becomes an Idea: its
    title is the name and its body the notes; made a Shopping list, each line
    or checklist item of its body becomes a line.

@@ -2,7 +2,7 @@
 
 **Status:** Provisionally agreed · 2026-10-09
 
-**Amended:** 2026-10-17 by [ADR-0050](0050-shopping-list.md) (one Shopping list Type) and Joe's answers and notes for Stage 4 (a shopping list made from the days I choose; a line is an amount, a unit and an ingredient, and may stay unlinked; six fixed aisles); 2026-10-18 by Joe's comments on the Stage 4 specs (optional subheadings; a Meal's lines protected) and [ADR-0051](0051-who-sees-food.md) (the Pantry, one catalogue for everyone; staples ours); 2026-10-23 by Joe's answers for step 9 (a Meal's own lines).
+**Amended:** 2026-10-17 by [ADR-0050](0050-shopping-list.md) (one Shopping list Type) and Joe's answers and notes for Stage 4 (a shopping list made from the days I choose; a line is an amount, a unit and an ingredient, and may stay unlinked; six fixed aisles); 2026-10-18 by Joe's comments on the Stage 4 specs (optional subheadings; a Meal's lines protected) and [ADR-0051](0051-who-sees-food.md) (the Pantry, one catalogue for everyone; staples ours); 2026-10-23 by Joe's answers for step 9 (a Meal's own lines); 2026-10-24 by Joe's answers for Stage 4b (a food shop linked to Meals; Extra; Essentials).
 
 ## Context
 
@@ -25,18 +25,18 @@ ingredients should be collated onto a shopping list.
   A line kept as typed goes on a shopping list under *Other*.
 - **Adding Meals' ingredients to a Shopping list** creates one line per
   ingredient per Meal, pointing at its Ingredient and *for* its Meal.
-  - "New shopping list" on the Meal plan takes the days I choose into a
-    new Shopping list, or adds them to one I pick; then I add more, from the
-    Ingredient database or typed.
+  - "New shopping list" on the Meal plan offers the Meals of the days I
+    choose, for a new food shop or one I pick; Meals are added or taken
+    off later. Then I add more on Extra, from the Pantry or typed.
   - **Collation is a display rule, not merged data:** lines with the same
     Ingredient and compatible units show as one row ("Panko 250 g · Katsu
     Thu, Schnitzel Sat").
-  - **Staples** are offered unticked ("Check you have: soy sauce") rather
-    than added.
-  - **Generated lines follow their Meal:** if it is removed or moved off
-    the list's days, its unticked lines go. What the Meals need is
-    protected: a Meal's line can't be deleted or lowered below it, only
-    raised.
+  - **Staples** aren't added; those the Meals use are highlighted on Extra
+    to check. Out-of-stock staples and Essentials are offered there too.
+  - **Generated lines follow their Meal:** a change to its ingredients or
+    servings changes them; if it is removed or taken off the shop, its
+    unticked lines go. A Meal's line isn't changed or deleted on the shop;
+    more of it is added on Extra.
 - **Lines without an Ingredient** stay possible ("bin bags", packing lists).
 - **Who sees and edits** Recipes, Variations, the Pantry and lists is set by
   [ADR-0051](0051-who-sees-food.md): the catalogue is the Pantry, one for everyone in

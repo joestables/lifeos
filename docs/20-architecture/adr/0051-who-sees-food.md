@@ -1,6 +1,7 @@
 # ADR-0051: Who sees and edits Recipes, the Pantry, Meals and shopping lists
 
 **Status:** Provisionally agreed · 2026-10-18
+**Amended:** 2026-10-24 by Joe's answers for Stage 4b (a food shop is for one Space).
 
 ## Context
 
@@ -29,10 +30,12 @@ food should be shared instead (18 October).
   Recipe. It is theirs to edit; the Recipe's heading and other Variations
   stay the author's. If they leave the Household, they keep their
   Variations.
-- **A Meal is Personal or the Household's.** A Shopping list holding any
-  Household Meal's lines is the Household's, seen by every member, even if
-  it also holds Personal Meals' lines; one holding Meals of two Households
-  is seen by both.
+- **A Meal is Personal or the Household's.** A food shop is for one Space,
+  Personal or a Household, starting as the Household of its first Household
+  Meal; everyone in that Space sees all of it, even its Personal Meals'
+  lines, and a Meal of another of my Households brings its lines without
+  that Household's members seeing the shop (amended 24 October; it was
+  "seen by both").
 
 ## Consequences
 

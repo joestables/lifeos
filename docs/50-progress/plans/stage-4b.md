@@ -1,14 +1,16 @@
 # Plan: Stage 4b — Shopping
 
 **Outcome** ([roadmap](../../roadmap.md)): Joe and his girlfriend shop
-together from LifeOS. **Shopping** holds all their shopping lists: made by
-hand, or made from the Meal plan's days with more added from the Pantry or
-typed. One **Shopping list** Type takes the place of List and Shop
+together from LifeOS. **Shopping** has three tabs: **Food**, food shops
+linked to Meals and following their ingredients, with more added from the
+Pantry or typed, and each Household's Essentials and out of stock offered;
+**Lists**, shopping that isn't food; and **Online**, later. One **Shopping
+list** Type takes the place of List and Shop
 ([ADR-0050](../../20-architecture/adr/0050-shopping-list.md)). A dated list
 is on Plan with no Plan work
-([ADR-0029](../../20-architecture/adr/0029-plan-reads-core-items.md)). What
-the Meals need is protected, and a shared list updates live for both of
-them.
+([ADR-0029](../../20-architecture/adr/0029-plan-reads-core-items.md)). A
+shared list updates live for both of them. A recipe shared from TikTok is
+kept as an Idea.
 
 **State:** started 24 October 2026, after Stage 4 closed (Joe, 24 October;
 [its plan](stage-4.md)). The Shopping specs were drafted with Stage 4's
@@ -16,8 +18,8 @@ them.
 SHP-001–004 and what they change in Plan, items, Search, Inbox and
 Households. Step 1 is Joe agreeing them, after the
 [questions below](#questions-for-the-specs). Joe answered them and widened
-Shopping on 24 October ([his answers](#joes-answers-24-october)); five
-points are still open, then the specs are redrafted.
+Shopping on 24 October ([his answers](#joes-answers-24-october)), then
+answered five more; the specs are redrafted (third draft), for Joe to agree.
 
 ## Steps
 
@@ -28,15 +30,15 @@ verifies. The walks use a stand-in for Supabase, Realtime included.
 
 | # | Step | State | Produces |
 |---|---|---|---|
-| 1 | **Joe** — specs: Shopping lists (SHP-001), from the Meal plan (SHP-002), adding (SHP-003), shopping together (SHP-004); and what they change elsewhere: dated lists on Plan ([PLN-008](../../10-requirements/views/plan.md#pln-008--meals-and-shopping-lists-on-plan) 2, 4, 5), opening, deleting and converting ([ITM-006](../../10-requirements/cross-cutting/items.md#itm-006--food-items) 1, 3, 5, 6), Search ([SRC-003](../../10-requirements/cross-cutting/search.md#src-003--find-recipes-and-shopping-lists) 2), a list's Space ([HSH-003](../../10-requirements/cross-cutting/spaces-and-sharing.md#hsh-003--several-households) 2), servings on a list ([MPL-003](../../10-requirements/modules/meals.md#mpl-003--change-a-meal) 4), staples on a list ([PAN-002](../../10-requirements/modules/meals.md#pan-002--staples-and-out-of-stock) 2, 3) | Drafted with Stage 4's specs (18 October), all *proposed*. Next: Joe's answers to the [questions](#questions-for-the-specs), then his agreement | [meals](../../10-requirements/modules/meals.md#shopping) (SHP-*), changes to Plan, items, Search, Inbox, spaces and sharing |
-| 2 | Decisions: how a list's lines from Meals are held and kept in step with the Meals (one row per Meal and ingredient, shown as one line; made and removed by the database when a Meal changes, or by the app); totals in `packages/food` ([ADR-0053](../../20-architecture/adr/0053-quantities-and-units.md)); live updates with Supabase Realtime, the first in LifeOS ([ADR-0042](../../20-architecture/adr/0042-data-layer.md), [principles](../../00-foundation/principles.md) 9); repeating lists, if Joe wants them | — | ADRs, or amendments to ADR-0052 and ADR-0053 |
-| 3 | **Joe** — design, with Claude design: Shopping (the lists, New list), a list (by aisle, or by my subheadings; ticking; adding with Pantry suggestions; Staples not added; done), New shopping list on the Meal plan (choosing days, a new list or one I pick), a list's card on Plan. Into the design spec first, then the shared components, with the screenshot tests refreshed | — | [design system](../../30-design/README.md), components |
-| 4 | Schema: the `shopping` Module — Shopping list in the ontology; `shopping.shopping_list` and `shopping.lines`; lists readable, ticked and added to through their Meals ([ADR-0052](../../20-architecture/adr/0052-food-in-the-database.md)); a Meal's lines protected; the write functions; the generated data model; database tests | — | Migrations, database tests |
-| 5 | Shopping page: the lists, New list, a list made by hand (subheadings, lines, reordering, ticking, done with Undo), adding with Pantry suggestions, dated lists on Plan, deleting and recovering, Search; Shopping joins the drawer (`shopping-cart`) | — | Code, tests citing SHP-001, SHP-003, PLN-008, ITM-006, SRC-003 |
-| 6 | From the Meal plan: New shopping list (choosing days; a new list dated the first Meal's day, or one I pick), each Meal's lines scaled to its servings and its own as written, lines for one ingredient shown as one with their total and Meals, grouped by aisle with Other last, Staples not added, out-of-stock staples added, the list following the Meals as they change, a Meal's lines protected | — | Code, tests citing SHP-002, SHP-003, MPL-003, PAN-002 |
-| 7 | Shopping together: a list holding a Household Meal's lines seen by every member; ticks and new lines shown to the other within a second or two; ticks with no signal kept and sent when it returns | — | Code, tests citing SHP-004, HSH-003 |
+| 1 | **Joe** — specs: Shopping lists (SHP-001), a food shop from the Meal plan (SHP-002), Extra (SHP-003), shopping together (SHP-004), Essentials (SHP-005); and what they change elsewhere: staples and out of stock ([PAN-002](../../10-requirements/modules/meals.md#pan-002--staples-and-out-of-stock)), dated lists on Plan ([PLN-008](../../10-requirements/views/plan.md#pln-008--meals-and-shopping-lists-on-plan) 2, 4, 5), opening, deleting and converting ([ITM-006](../../10-requirements/cross-cutting/items.md#itm-006--food-items) 1, 3, 5, 6), Search ([SRC-003](../../10-requirements/cross-cutting/search.md#src-003--find-recipes-and-shopping-lists) 2), a shop's Space ([HSH-003](../../10-requirements/cross-cutting/spaces-and-sharing.md#hsh-003--several-households) 2), a Meal's changes on a shop ([MPL-003](../../10-requirements/modules/meals.md#mpl-003--change-a-meal) 4); sharing a recipe in ([RCP-003](../../10-requirements/modules/recipes.md#rcp-003--save-an-idea-from-another-app)) | Drafted with Stage 4's specs (18 October). Third draft 24 October, after [Joe's answers](#joes-answers-24-october): three tabs, food shops linked to Meals, All · Meals · Extra, Essentials, back in stock by Space, Done and Complete list, no repeating lists, sharing from Android with nothing to press; ADR-0050, 0051, 0052, 0053, 0012, 0055 and 0028 amended. Next: Joe agrees it, or comments | [meals](../../10-requirements/modules/meals.md#shopping) (SHP-*, PAN-002), [recipes](../../10-requirements/modules/recipes.md) (RCP-003), changes to Plan, items, Search, spaces and sharing |
+| 2 | Decisions: how a food shop's lines from its Meals are held and kept in step as the Meals change (rows the database makes and removes, or worked out from the Meals on the device with only ticks and Extra stored); where Essentials are kept (beside staples); totals in `packages/food` ([ADR-0053](../../20-architecture/adr/0053-quantities-and-units.md)); live updates with Supabase Realtime, the first in LifeOS ([ADR-0042](../../20-architecture/adr/0042-data-layer.md), [principles](../../00-foundation/principles.md) 9) | — | ADRs, or amendments to ADR-0052 and ADR-0053 |
+| 3 | **Joe** — design, with Claude design: Shopping's Food and Lists tabs (shops, lists, Essentials, New food shop and New list), a food shop (All · Meals · Extra by aisle; ticking; adding with Pantry suggestions; Extra's out of stock, Essentials and staples to check; Done and Complete list), a list by my subheadings, New shopping list on the Meal plan (choosing days and Meals, a new shop or one I pick), a list's card on Plan, the "Saved as an idea" screen. Into the design spec first, then the shared components, with the screenshot tests refreshed | — | [design system](../../30-design/README.md), components |
+| 4 | Schema: the `shopping` Module — Shopping list (food shop or list) in the ontology; `shopping.shopping_list` and `shopping.lines`; a food shop's Meals; each Space's Essentials; lists in their Space ([ADR-0052](../../20-architecture/adr/0052-food-in-the-database.md)); the write functions; the generated data model; database tests | — | Migrations, database tests |
+| 5 | Shopping page: the Food and Lists tabs, New food shop and New list, a list by my subheadings, ticking, Done and Complete list with Undo, adding with Pantry suggestions, Essentials, dated lists on Plan, deleting and recovering, Search; Shopping joins the drawer (`shopping-cart`) | — | Code, tests citing SHP-001, SHP-003, SHP-005, PLN-008, ITM-006, SRC-003 |
+| 6 | From the Meal plan: New shopping list (choosing days and their Meals; a new food shop dated the first Meal's day, or one I pick), adding and taking off Meals, each Meal's lines scaled to its servings and its own as written, All · Meals · Extra, lines for one ingredient shown as one with their total and Meals, grouped by aisle with Other last, Extra's out of stock and Essentials by Space and staples to check, back in stock by Space, the shop following its Meals as they change | — | Code, tests citing SHP-002, SHP-003, MPL-003, PAN-002 |
+| 7 | Shopping together: a list in a Household seen by every member, its Personal Meals' lines too; ticks and new lines shown to the other within a second or two; ticks with no signal kept and sent when it returns | — | Code, tests citing SHP-004, HSH-003 |
 | 8 | A Thought or Note sorted into a Shopping list: split at the commas (a Note's lines or checklist), "buy" dropped, each line matched to the Pantry where it can be | — | Code, tests citing SHP-003 4, ITM-006 5–6 |
-| 9 | Left from Stage 4, if Joe agrees ([question 6](#questions-for-the-specs)): saving a recipe idea from another app on Android ([RCP-003](../../10-requirements/modules/recipes.md#rcp-003--save-an-idea-from-another-app), [ADR-0055](../../20-architecture/adr/0055-sharing-into-lifeos.md)) | — | Code, tests citing RCP-003 |
+| 9 | Left from Stage 4: a recipe shared from another app on Android kept as an Idea, with a small "Saved as an idea" screen and nothing to press; on an iPhone, an iOS Shortcut opening New idea filled in ([RCP-003](../../10-requirements/modules/recipes.md#rcp-003--save-an-idea-from-another-app), [ADR-0055](../../20-architecture/adr/0055-sharing-into-lifeos.md)). Joe tries it | — | Code, tests citing RCP-003 |
 | 10 | **Joe** — uses Shopping in a real shop; what he trips over is fixed | — | Code, tests |
 
 Each step's code goes into the specs' status as it lands (*built*, then
@@ -44,7 +46,7 @@ Each step's code goes into the specs' status as it lands (*built*, then
 
 ## Questions for the specs
 
-Claude's recommendation is given with each question.
+Claude's recommendation was given with each; [Joe's answers](#joes-answers-24-october) follow.
 
 1. **Repeating lists.** ADR-0050 left open whether unticked lines carry
    over to a repeating list's next occurrence. *Recommended:* Shopping
@@ -73,7 +75,7 @@ Claude's recommendation is given with each question.
 - **Shopping has three tabs: Food, Lists and Online.** Online (items
   watched for price alerts, with a notification) is out of scope for 4b: a
   [later opportunity](../../roadmap.md#later-opportunities). What Lists
-  holds is [question 7](#still-open-24-october).
+  holds is [question 7](#the-next-five-24-october).
 - **A food shop is linked to any number of Meals.** Every ingredient of each
   Meal comes onto the list: its Recipe's, a one-off import's, and those
   added by hand (MPL-006). When a Meal's ingredients change, the list
@@ -92,7 +94,7 @@ Claude's recommendation is given with each question.
   Out of stock is per Space, Personal or a Household (it already is:
   PAN-002), and ticking an out-of-stock line marks it back in stock
   (question 3). Which Space when a list holds Meals of more than one is
-  [question 8](#still-open-24-october).
+  [question 8](#the-next-five-24-october).
 - **Done** (question 5): ticking the last line offers Done, which completes
   the list and takes it off the lists. **Complete list** is also in its
   menu at any time, asking first when lines are unticked.
@@ -100,9 +102,9 @@ Claude's recommendation is given with each question.
   and LifeOS keeps a Recipe idea from the link without being opened. On an
   iPhone LifeOS may open, with the name and link already filled in.
 
-### Still open (24 October)
+### The next five (24 October)
 
-Claude's recommendation is given with each question.
+Claude's recommendation was given with each; Joe's answers follow them.
 
 7. **What the Lists tab holds.** ADR-0050 makes lists that aren't shopping
    (packing, DIY jobs) Notes with a checklist. *Recommended:* Lists holds
@@ -136,10 +138,24 @@ Claude's recommendation is given with each question.
     app, which LifeOS isn't. On an iPhone, an iOS Shortcut in the share
     sheet opens New idea with the link and name filled in.
 
+Joe's answers (24 October): **7** agreed. **8** agreed. **9** agreed, but
+Essentials are Pantry ingredients, with no amounts: not a list of lines.
+**10** staples are never added; Extra highlights those the Meals use, so I
+can check they're in stock. **11** try it, and Joe will see how he likes
+it. The specs were redrafted the same day: [meals](../../10-requirements/modules/meals.md#shopping)
+(the Pantry's staples and Essentials, Shopping, PAN-002, MPL-003 4,
+SHP-001–005), RCP-003, ITM-006 5, HSH-003 2; ADR-0050, 0051, 0052, 0053,
+0012, 0055 and 0028 amended; the data model, glossary, capability map,
+drawer and roadmap to match. Claude's own suggestions are marked
+**(suggested)**: a Meal on one open food shop at most; a Meal's line not
+changed or deleted on a shop, more of it added on Extra (in place of
+raising it, Joe's 18 October rule); a sorted Thought a food shop when any
+line matches a Pantry ingredient; a link shared twice not saved again.
+
 ## Done when
 
 - Every **Must** requirement in this stage's specs is *verified* (a test
   citing its ID passes).
-- Joe and his girlfriend do a week's shop from a list made from the Meal
-  plan, both ticking as they go.
+- Joe and his girlfriend do a week's shop from a food shop made from the
+  Meal plan, both ticking as they go.
 - No two documents conflict.

@@ -52,7 +52,8 @@ templates, and starting a session opens the session-logging Screen.
 | **Do-on** | When you intend to do a Task (a date, with an optional time). |
 | **Due** | A deadline (a date). Drives "overdue". |
 | **Slot** | A Meal's fixed time of day: breakfast, lunch, dinner. |
-| **Pantry** | The catalogue of ingredients and household items that recipes and shopping lists point at: one for everyone in LifeOS, each entry changed only by whoever added it ([ADR-0051](../20-architecture/adr/0051-who-sees-food.md)). Staples and out of stock are each Household's. |
+| **Pantry** | The catalogue of ingredients and household items that recipes and shopping lists point at: one for everyone in LifeOS, each entry changed only by whoever added it ([ADR-0051](../20-architecture/adr/0051-who-sees-food.md)). Staples (long-life goods, marked out of stock when they run out) and Essentials (bought most shops, offered on every food shop) are each Household's. |
+| **Food shop** | A Shopping list on Shopping's Food tab: linked to Meals, whose ingredients it follows, with more added by hand; grouped by aisle, for one Space ([meals](../10-requirements/modules/meals.md#shopping)). Shopping's other lists are on its Lists tab. |
 | **Rule** | A relationship that is calculated, not stored, e.g. a goal's measure. |
 | **Measure** | Something a goal can track; an SQL function named in code. |
 | **Conversion** | Changing an Item's Type in place; the Item keeps its id, links and history. |
