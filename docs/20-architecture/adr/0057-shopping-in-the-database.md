@@ -80,11 +80,13 @@ There were two ways to hold a Meal's lines:
 - **Offline,** a Meal added to a shop shows lines worked out on the device
   from what it holds, with the same scaling, until the server's arrive and
   replace them. A Meal the device can't read shows no lines until then.
-- **Staples and Essentials:** `food.staples` becomes
-  `food.space_entries(space_id, pantry_id, kind, needed)`: kind staple or
-  Essential, needed meaning out of stock for a staple and Required for an
-  Essential. An entry is one or the other in a Space, not both. Anyone who
-  can read the Space changes it, as before.
+- **Staples and Essentials:** `food.staples` gains a `kind`, staple or
+  Essential, and its `out_of_stock` means needed: out of stock for a staple,
+  Required for an Essential. An entry is one or the other in a Space, not
+  both. Anyone who can read the Space changes it, as before. (As built, step
+  4: first written as a new `food.space_entries`; the table keeps its name
+  so the Pantry built in Stage 4 keeps working until step 5 takes its
+  staple marks away: expand, then contract.)
 - **Totals** are `packages/food`'s, as ADR-0053 sets. All collates by Pantry
   entry, or by a typed line's text ignoring case. Units of one kind add up;
   others sit side by side.
@@ -118,5 +120,23 @@ There were two ways to hold a Meal's lines:
 - The browser walks' stand-in grows Realtime: a second page's change
   arriving.
 - Amends [ADR-0052](0052-food-in-the-database.md) (lines held as rows the
-  database writes; staples become `space_entries`) and
+  database writes; staples gain their kind) and
   [ADR-0042](0042-data-layer.md) (live updates arrive).
+
+## As built (24 October, plan step 4)
+
+- Migrations `stage4b_shopping_schema` (the tables, RLS, the writes that
+  don't delete, `food.staples.kind`, the Realtime publication) and
+  `stage4b_shopping_refresh` (`refresh_meal` and its triggers, taking a
+  Meal off, deleting a line, merges moving shopping lines), split because
+  the second's deletes are run by Joe in the SQL editor.
+- A guard trigger lets only the database write, change or remove a Meal's
+  line (a transaction setting, `shopping.refreshing`, marks its own
+  writes); people change only its tick.
+- A Pantry entry deleted leaves its shopping lines as typed, with its name,
+  as a past Meal's lines are; a merge moves them.
+- Ticking a line, with `shopping.tick`, clears out of stock or Required in
+  the same call. Taking a staple or Essential off reuses
+  `food.set_staple(…, false)`; `food.keep_entry` keeps one, of a kind.
+- `shopping.meals_of(list)` names a shop's Meals for its readers.
+- Database tests: `shopping_test` (31).

@@ -2144,17 +2144,20 @@ export type Database = {
       }
       staples: {
         Row: {
+          kind: string
           out_of_stock: boolean
           pantry_id: string
           space_id: string
         }
         ComputedFields: never
         Insert: {
+          kind?: string
           out_of_stock?: boolean
           pantry_id: string
           space_id: string
         }
         Update: {
+          kind?: string
           out_of_stock?: boolean
           pantry_id?: string
           space_id?: string
@@ -2438,6 +2441,21 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      keep_entry: {
+        Args: { p_kind: string; p_needed?: boolean; p_pantry: string; p_space: string }
+        Returns: {
+          kind: string
+          out_of_stock: boolean
+          pantry_id: string
+          space_id: string
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'staples'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       keep_import: {
         Args: { p_draft: Json; p_recipe: string; p_variation: string }
         Returns: Database['core']['Tables']['items']['Row']
@@ -2692,6 +2710,215 @@ export type Database = {
       [_ in never]: never
     }
   }
+  shopping: {
+    Tables: {
+      lines: {
+        Row: {
+          approx: boolean
+          checked: boolean
+          created_at: string
+          heading: string | null
+          id: string
+          list_id: string
+          meal_id: string | null
+          needed_space_id: string | null
+          pantry_id: string | null
+          position: string
+          qty: number | null
+          qty_max: number | null
+          source_id: string | null
+          text: string | null
+          unit: string | null
+          updated_at: string
+        }
+        ComputedFields: never
+        Insert: {
+          approx?: boolean
+          checked?: boolean
+          created_at?: string
+          heading?: string | null
+          id?: string
+          list_id: string
+          meal_id?: string | null
+          needed_space_id?: string | null
+          pantry_id?: string | null
+          position?: string
+          qty?: number | null
+          qty_max?: number | null
+          source_id?: string | null
+          text?: string | null
+          unit?: string | null
+          updated_at?: string
+        }
+        Update: {
+          approx?: boolean
+          checked?: boolean
+          created_at?: string
+          heading?: string | null
+          id?: string
+          list_id?: string
+          meal_id?: string | null
+          needed_space_id?: string | null
+          pantry_id?: string | null
+          position?: string
+          qty?: number | null
+          qty_max?: number | null
+          source_id?: string | null
+          text?: string | null
+          unit?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      list_meals: {
+        Row: {
+          created_at: string
+          list_id: string
+          meal_id: string
+        }
+        ComputedFields: never
+        Insert: {
+          created_at?: string
+          list_id: string
+          meal_id: string
+        }
+        Update: {
+          created_at?: string
+          list_id?: string
+          meal_id?: string
+        }
+        Relationships: []
+      }
+      shopping_list: {
+        Row: {
+          created_at: string
+          item_id: string
+          kind: string
+          updated_at: string
+        }
+        ComputedFields: never
+        Insert: {
+          created_at?: string
+          item_id: string
+          kind?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          item_id?: string
+          kind?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      add_line: {
+        Args: { p_fields: Json; p_id: string; p_list: string }
+        Returns: {
+          approx: boolean
+          checked: boolean
+          created_at: string
+          heading: string | null
+          id: string
+          list_id: string
+          meal_id: string | null
+          needed_space_id: string | null
+          pantry_id: string | null
+          position: string
+          qty: number | null
+          qty_max: number | null
+          source_id: string | null
+          text: string | null
+          unit: string | null
+          updated_at: string
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'lines'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      add_meals: { Args: { p_list: string; p_meals: string[] }; Returns: undefined }
+      create_list: {
+        Args: { p_fields: Json; p_id: string }
+        Returns: Database['core']['Tables']['items']['Row']
+        SetofOptions: {
+          from: '*'
+          to: 'items'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      delete_line: { Args: { p_id: string }; Returns: undefined }
+      meals_of: {
+        Args: { p_list: string }
+        Returns: {
+          do_on: string
+          live: boolean
+          meal_id: string
+          personal: boolean
+          servings: number
+          slot: string
+          title: string
+        }[]
+      }
+      remove_meal: { Args: { p_list: string; p_meal: string }; Returns: undefined }
+      tick: { Args: { p_checked: boolean; p_ids: string[] }; Returns: undefined }
+      update_line: {
+        Args: { p_id: string; p_patch: Json }
+        Returns: {
+          approx: boolean
+          checked: boolean
+          created_at: string
+          heading: string | null
+          id: string
+          list_id: string
+          meal_id: string | null
+          needed_space_id: string | null
+          pantry_id: string | null
+          position: string
+          qty: number | null
+          qty_max: number | null
+          source_id: string | null
+          text: string | null
+          unit: string | null
+          updated_at: string
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'lines'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      update_list: {
+        Args: { p_id: string; p_patch: Json }
+        Returns: {
+          created_at: string
+          item_id: string
+          kind: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'shopping_list'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
 }
 
 type DatabaseWithoutInternals = Omit<Database, '__InternalSupabase'>
@@ -2800,6 +3027,9 @@ export const Constants = {
     Enums: {},
   },
   food: {
+    Enums: {},
+  },
+  shopping: {
     Enums: {},
   },
 } as const

@@ -36,7 +36,8 @@ export type MealLineFields = Partial<
   Pick<MealLine, 'position' | 'pantry_id' | 'text' | 'qty' | 'qty_max' | 'approx' | 'unit'>
 >
 /** A staple of one of my Spaces, and whether it has run out (PAN-002). */
-export type Staple = Food['staples']['Row']
+/** The Pantry's staples as Stage 4 built them; Essentials and kinds arrive with Shopping (step 5). */
+export type Staple = Pick<Food['staples']['Row'], 'space_id' | 'pantry_id' | 'out_of_stock'>
 /** What a Pantry entry is made or changed with (PAN-001). */
 export type PantryFields = Partial<Pick<PantryEntry, 'name' | 'kind' | 'aisle' | 'default_unit'>>
 /** A name in someone's list of categories, cuisines, tags, protein or carbs. */

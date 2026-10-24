@@ -196,6 +196,7 @@ these, so the database enforces them.
 | food | **Recipe** (the dish) | — | — | ✓ | ✓ | Its author's Personal, seen read-only by their Households ([ADR-0051](adr/0051-who-sees-food.md)) | idea "Idea" · active "Draft" · done "Complete" · cancelled "Archived" — the highest of its Variations', worked out | green | — | favourited | 4 |
 | food | **Variation** (a way of making it) | — | — | ✓ | — | Its own author's: the Recipe's, or a Household member's added to it (ADR-0051) | idea "Idea" · active "Draft" · done "Complete" · cancelled "Archived" — set by hand; never back to Idea once it has ingredients or a method | green | — | — | 4 |
 | food | **Meal** (from a Variation, typed, or leftovers of another) | ✓ do-on / slot | ✓ "eaten" | ✓ | — | Household when in one, else Personal | active "Planned" · done "Eaten" · cancelled — ticking it eaten logs no cook | green | — | — | 4 |
+| shopping | **Shopping list** (a food shop or a list; a date is optional) | ✓ do-on | ✓ | ✓ | ✓ | Household when in one, else Personal; a food shop the Space chosen for it | active · done · cancelled | yellow | — | — | 4b |
 
 <!-- /generated: types -->
 
@@ -203,7 +204,6 @@ these, so the database enforces them.
 
 | Module | Type | S | C | Sh | Cap | Default Space | Statuses used (labels) | Colour | Labels | Mark | Stage |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| shopping | **Shopping list** (a food shop or a list; a date is optional) | ✓ do-on (optional; a date, no time or place) | ✓ | ✓ | ✓ | Household | active · done · cancelled | yellow | — | — | 4b |
 | fitness | **Exercise** | — | — | — | — | Personal | active | coral | — | — | 5 |
 | fitness | **Workout template** | — | — | — | — | Personal | active | coral | — | — | 5 |
 | fitness | **Workout** | ✓ start | ✓ | — | — | Personal | active "Planned" · done · cancelled "Skipped" | coral | — | — | 5 |
@@ -240,7 +240,7 @@ more than Labels).
 |---|---|---|
 | core | — (Thought, Note, Task use `core.items` only; where an Event's place is kept is decided with Stage 3's schema) | `subtasks(item_id, title, done, position)` — a Task's sub-tasks |
 | shopping | `shopping_list(kind: food · list)` | `list_meals(list_id, meal_id)` (a food shop's Meals; a Meal on one open shop at most); `lines(position, heading?, pantry_id?, text?, qty?, qty_max?, approx, unit?, checked, meal_id?, source_id?, needed_space_id?)` — in the list's own Space; a Meal's lines written by the database as its Meal changes, ticked ones kept ([ADR-0057](adr/0057-shopping-in-the-database.md)) |
-| food | `recipe(category, cuisine, tags, protein, carbs, default_variation)` (its name is the Item's title; its photo is in `core.attachments`), `variation(servings, prep_min, cook_min, sources, notes, archived_from)` (its name and state are the Item's title and status; `archived_from` keeps its state while its Recipe is archived), `meal(servings, leftovers_of?, source?)` (a typed Meal is one with no *uses* link, named by its title; `source` its recipe link, MPL-006) | `variation_lines(position, heading?, pantry_id?, text?, qty?, qty_max?, approx, unit?)` (a row with a heading is a subheading and nothing else), `meal_lines(position, pantry_id?, text?, qty?, qty_max?, approx, unit?)` (a Meal's own lines, no subheadings, never on leftovers; MPL-006), `variation_steps(position, text)` (an "@" reference to a Recipe kept in the text, and in a Variation's notes, as `@[Name](recipe id)`: shown under the Recipe's name now, plain once it is gone; RCP-008), `cooks(person, cooked_at, verdict?, notes?, servings?, meal_id?, snapshot)`; each person's `values` (kind: category · cuisine · tag · protein · carb); `change_notes(activity_id, item_id, note, person_id)`, the words of whoever made a change on what it changed, by the activity entry it starts with (RCP-013; written only through `food.note_change`, by its maker); not Items: the Pantry `pantry(name, kind: ingredient · household, aisle?, default_unit?, added_by)` — one name once, ignoring case; an ingredient has an aisle (fruit_veg · bakery · protein · chilled · cupboard · frozen), a household item none — and each Space's `staples(pantry_id, out_of_stock)`, from Stage 4b `space_entries(pantry_id, kind: staple · essential, needed)` (out of stock, or Required) ([ADR-0052](adr/0052-food-in-the-database.md)) |
+| food | `recipe(category, cuisine, tags, protein, carbs, default_variation)` (its name is the Item's title; its photo is in `core.attachments`), `variation(servings, prep_min, cook_min, sources, notes, archived_from)` (its name and state are the Item's title and status; `archived_from` keeps its state while its Recipe is archived), `meal(servings, leftovers_of?, source?)` (a typed Meal is one with no *uses* link, named by its title; `source` its recipe link, MPL-006) | `variation_lines(position, heading?, pantry_id?, text?, qty?, qty_max?, approx, unit?)` (a row with a heading is a subheading and nothing else), `meal_lines(position, pantry_id?, text?, qty?, qty_max?, approx, unit?)` (a Meal's own lines, no subheadings, never on leftovers; MPL-006), `variation_steps(position, text)` (an "@" reference to a Recipe kept in the text, and in a Variation's notes, as `@[Name](recipe id)`: shown under the Recipe's name now, plain once it is gone; RCP-008), `cooks(person, cooked_at, verdict?, notes?, servings?, meal_id?, snapshot)`; each person's `values` (kind: category · cuisine · tag · protein · carb); `change_notes(activity_id, item_id, note, person_id)`, the words of whoever made a change on what it changed, by the activity entry it starts with (RCP-013; written only through `food.note_change`, by its maker); not Items: the Pantry `pantry(name, kind: ingredient · household, aisle?, default_unit?, added_by)` — one name once, ignoring case; an ingredient has an aisle (fruit_veg · bakery · protein · chilled · cupboard · frozen), a household item none — and each Space's `staples(pantry_id, kind: staple · essential, out_of_stock)` (for an Essential, out of stock reads Required; Stage 4b) ([ADR-0052](adr/0052-food-in-the-database.md)) |
 | fitness | `exercise(muscle_groups, equipment, increment, target)`, `workout(actual_start, duration, readiness, stage)`, `cardio_activity(kind, distance_m, duration_s, avg_hr)` | `template_exercises(exercise_id, sets, reps, target)`, `workout_entries(exercise_id, snapshot)`, `workout_sets(entry_id, set_no, reps, weight, rpe)`; reference data: muscle groups, equipment, recovery settings per person |
 | goals | `goal(kind, measure_key, params, target, unit, period, start_on, deadline)` | — |
 | wardrobe | `garment(category, brand, colour, size, fit, photo, url, price)`, `outfit(photo)` | `outfit_worn_garments` (the snapshot); reference data: category, brand, colour, size, fit |
@@ -348,17 +348,23 @@ flowchart LR
     Variation[Variation]
     Meal[Meal]
   end
+  subgraph SHOPPING[Shopping]
+    Shopping_list[Shopping list]
+  end
 
   Thought == converts in place ==> Event
   Thought == converts in place ==> Note
   Thought == converts in place ==> Recipe
+  Thought == converts in place ==> Shopping_list
   Thought == converts in place ==> Task
   Note == converts in place ==> Event
   Note == converts in place ==> Recipe
+  Note == converts in place ==> Shopping_list
   Note == converts in place ==> Task
   Event -. converts .- Task
 
   Task -- for --> Event
+  Shopping_list -- for --> Event
   Meal -- uses --> Variation
   Variation -- variation of --> Recipe
 ```
