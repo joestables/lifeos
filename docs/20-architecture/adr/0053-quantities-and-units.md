@@ -1,7 +1,7 @@
 # ADR-0053: Quantities and units
 
 **Status:** Provisionally agreed · 2026-10-18
-**Amended:** 2026-10-23 by Joe's answers for step 9 (cup, 250 ml).
+**Amended:** 2026-10-23 by Joe's answers for step 9 (cup, 250 ml); 2026-10-24 by Joe's answers for Stage 4b (no check on lowering a Meal's line).
 
 ## Context
 
@@ -27,10 +27,9 @@ work offline on the device and be checked in the database.
   once it reads better (1.5 kg); weight and volume sit side by side; a range
   counts as its top; approximate carries into the total; an unmeasured line
   on a measured one shows "+".
-- **The database checks one thing:** that a Meal's line isn't lowered below
-  what the Meals need. Its SQL function uses the same factors, and one table
-  of cases is run by both the unit tests and the database tests, so the two
-  can't drift.
+- **The database does no unit arithmetic** (amended 24 October): a Meal's
+  line on a shop isn't changed there, so nothing needs checking against
+  what the Meals need. Totals are worked out on the device.
 - **Display rounding:** whole grams and millilitres up to 100, then to 5;
   kg and l to two decimals; spoons and cups to quarters; counts to halves; never
   rounded to nothing. Always shown as decimals, "0.75 tsp" and never "¾ tsp"

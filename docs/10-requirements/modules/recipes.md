@@ -208,17 +208,21 @@ Acceptance criteria
 
 **As** Joe, **I want** to share a recipe from TikTok or a web page to
 LifeOS, **so that** it's saved as an idea without copying anything.
-Priority: Must · Status: proposed
+Priority: Must · Status: proposed (Stage 4b)
 
 Acceptance criteria
-1. Given LifeOS installed on my Android phone, when I share a link to it and
-   choose Recipe idea, then an Idea is kept with the link, and its title and
-   thumbnail where the link offers them.
-2. Given the link is already a source of a Recipe or Idea, then I'm told
-   which, and can open it or save anyway.
+1. Given LifeOS installed on my Android phone, when I share a link to it
+   (LifeOS in the share sheet), then an Idea is kept at once with the link,
+   its title and thumbnail where the link offers them; a small "Saved as an
+   idea" screen shows, with nothing to type or press, and closes back to
+   the app I shared from (Joe, 24 October, to try). Android opens LifeOS to
+   receive a share: a web app can't save without a window.
+2. Given the link is already a source of a Recipe or Idea, then it isn't
+   saved again: the screen names it, with Open. **(Suggested)**
 3. Given no signal, then the Idea is kept and sent later; its title and
    thumbnail fill in when it is.
-4. *Later:* given an iPhone, then an iOS Shortcut does the same.
+4. Given an iPhone, then an iOS Shortcut in the share sheet opens New idea
+   with the link and its name filled in, to save.
 
 ### RCP-004 — Many at once
 

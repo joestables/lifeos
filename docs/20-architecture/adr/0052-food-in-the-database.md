@@ -1,7 +1,7 @@
 # ADR-0052: Food in the database
 
 **Status:** Provisionally agreed · 2026-10-18
-**Amended:** 2026-10-23 by Joe's answers for step 9 (a Meal's own lines and link).
+**Amended:** 2026-10-23 by Joe's answers for step 9 (a Meal's own lines and link); 2026-10-24 by Joe's answers for Stage 4b (a food shop in its own Space, its Meals' lines unchanged on it).
 
 ## Context
 
@@ -33,11 +33,11 @@ how the schema holds it and how the database enforces it
 - **My Variation of your Recipe** is mine: in my Personal Space, linked to
   your Recipe by *variation of*. `food.add_variation()` checks I can read
   the Recipe, then makes the copy and the link.
-- **Shopping lists seen through their Meals:** a list is readable, and its
-  lines can be ticked and added to, by anyone who can read a Meal any of
-  its lines is for, as well as by its own Space. A trigger refuses deleting
-  a Meal's line or lowering it below what the Meals need
-  ([ADR-0053](0053-quantities-and-units.md)).
+- **Shopping lists are in their own Space** (amended 24 October): a food
+  shop's Space is chosen, and everyone in it reads, ticks and adds; the
+  Meals it is linked to bring their lines, whatever their Space. A Meal's
+  lines aren't changed or deleted on the shop: they follow the Meal. How
+  they are held and kept in step is Stage 4b's step 2.
 - **The Pantry is not Items:** `food.pantry` (name, kind: ingredient or
   household, aisle, default unit, added by). Every signed-in person reads
   and adds; only whoever added an entry changes or deletes it; a delete is
@@ -71,5 +71,5 @@ how the schema holds it and how the database enforces it
   past the [non-functional](../../10-requirements/non-functional.md#performance)
   limit, a table of Household peers kept by triggers replaces the lookup.
 - Database tests cover each path: seeing a Household member's Recipe, not
-  editing it, adding and keeping a Variation, a list seen through a Meal,
-  the Pantry's rules, and a Meal's protected lines.
+  editing it, adding and keeping a Variation, a list in its Space, the
+  Pantry's rules, and a Meal's lines following it onto a shop.

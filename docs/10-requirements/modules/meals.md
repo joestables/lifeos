@@ -71,44 +71,75 @@ Provisionally agreed).
   (ADR-0051): any member marks which entries are the Household's staples,
   and a staple that has run out as **out of stock**. Without a Household
   they are mine; my first Household starts with a copy of them, and I keep
-  mine for Personal lists (Joe, 18 October). A list uses the staples of the
-  Space it belongs to.
+  mine for Personal lists (Joe, 18 October). Staples are long-life goods I
+  expect to have (salt): never added from a Meal, and offered on a food
+  shop when out of stock (Joe, 24 October).
+- **Essentials are each Household's too** (Joe, 24 October): the Pantry
+  ingredients a Household buys most shops and never marks out of stock
+  (milk). Without a Household they are mine. Each food shop offers them;
+  none is added by itself.
 - **Merging two entries** that are the same ("Spring onions", "Scallions")
   keeps one, under a name I choose; at most two at a time, and only when I
   added both (Joe, 18 October).
 
 ### Shopping
 
-- **A Shopping list** is one Type, made by hand or from the meal plan
+- **Shopping has three tabs** (Joe, 24 October): **Food**, food shops and
+  each of my Spaces' Essentials; **Lists**, shopping that isn't food
+  (Screwfix, Boots, a birthday); and **Online**, items watched for their
+  price, which comes later
+  ([roadmap](../../roadmap.md#later-opportunities)). Lists that aren't
+  shopping (packing, DIY jobs) are Notes with a checklist.
+- **A Shopping list** is one Type, a food shop or a list
   ([ADR-0050](../../20-architecture/adr/0050-shopping-list.md),
-  Provisionally agreed). It may have a date (then it's on Plan, and ticked
-  done when the shop is done) or none (a standing list).
-- **Made from the meal plan**, for the days I choose: their Meals'
-  ingredients, a Recipe's scaled to each Meal's servings and a Meal's own
-  as written, go into a new list or one I pick. A new list is dated the day of its first Meal, and can be dragged on
-  Plan (Joe, 18 October). Lines for the same ingredient show as one,
+  Provisionally agreed). Either may have a date (then it's on Plan) or none.
+  A food shop's lines are grouped by aisle, Pantry entries (ingredients and
+  household items) or typed, those without an entry under **Other**, last.
+  A list's are typed, or the Pantry's household items, under my own
+  subheadings.
+- **A food shop is linked to Meals**, any number (Joe, 24 October). Every
+  ingredient of each comes onto it: its Recipe's, scaled to the Meal's
+  servings, and its own, from an import or added by hand (MPL-006). When a
+  Meal's ingredients or servings change, the shop follows; when a Meal is
+  removed, or taken off the shop, its unticked lines go. A Meal is on one
+  open food shop at most. **(Suggested)**
+- **New shopping list on the Meal plan** takes the days I choose and offers
+  their Meals, each ticked to start, into a new food shop dated the day of
+  the first, or into one I pick. Meals are added or taken off later from
+  the shop. A new shop's date can be dragged on Plan (Joe, 18 October).
+- **All · Meals · Extra** at the top of a food shop (Joe, 24 October).
+  **All** is the whole shop by aisle: lines for one ingredient show as one,
   totalled where the units allow ("Chicken thighs 1.2 kg · Katsu Thu, Curry
   Sat") ([ADR-0012](../../20-architecture/adr/0012-ingredients-and-shopping-lists.md),
-  Provisionally agreed).
-- **What the Meals need is protected** (Joe, 18 October): on a list made
-  from the meal plan I can add lines and raise an amount, but not delete a
-  Meal's line or lower it below what the Meals need. Removing a Meal from
-  the plan, or moving it off the list's days, takes its unticked lines with
-  it.
-- **Grouping:** a list from the meal plan is grouped by aisle, lines without
-  a Pantry entry under **Other**, last. A list made by hand can instead have
-  my own subheadings, with lines under each (Joe, 18 October).
-- **Staples** aren't added from Meals; the list shows **Staples not added**,
-  each added with a tap. **Out-of-stock staples** are added to the next list
-  I make, whether or not a Meal needs them (Joe, 18 October). **(Suggested)**
-  Ticking one off on a list marks it in stock again.
-- **A list is the Household's** if it holds any Household Meal's lines, and
-  every member sees all of it, even its Personal Meals' lines (ADR-0051).
-  For example: Sam plans a Household dinner, I plan a Personal lunch, and
-  my list from the meal plan takes both; because it holds the Household
-  dinner, Sam sees the whole list (Joe, 18 October). A list holding
-  Meals of two of my Households is seen by both (Joe, 18 October). Shared lists update live
+  Provisionally agreed). **Meals** is each Meal with its lines, and
+  adding or taking off a Meal. **Extra** is what I added by hand, then what
+  I may add with +.
+- **What the Meals need is protected:** a Meal's line on a shop follows its
+  Meal and isn't changed or deleted there. To buy more I add the ingredient
+  on Extra, and All shows the total (Joe, 18 October; **(suggested)**, 24
+  October, in place of raising a Meal's line).
+- **Extra offers, none added by itself** (Joe, 24 October):
+  - **Out of stock**: each of my Spaces' out-of-stock staples, under its
+    name, the shop's own Space first;
+  - **Essentials**: each of my Spaces' Essentials, the same way;
+  - **Staples the Meals use**: the shop's Space's staples that its Meals
+    need, never added, highlighted so I can check I have them.
+- **Back in stock:** ticking a line added from a Space's out of stock marks
+  it in stock there; any other line whose entry is out of stock in the
+  shop's own Space marks it in stock there. Nothing else changes (Joe, 24
+  October).
+- **A shop is for one Space**, Personal or a Household (Joe, 24 October):
+  the Household of its first Household Meal to start, then mine to change.
+  Its Meals may be from any of my Spaces, and everyone in its Space sees all
+  of it, its Personal Meals' lines too (ADR-0051). For example: I live
+  mostly at my girlfriend's and cook, but don't buy, at my parents'. Our
+  shop is our Household's; my parents' out of stock shows under theirs on
+  Extra, to add if I choose. Shared lists update live
   ([principles](../../00-foundation/principles.md), 9).
+- **Done:** ticking the last line offers **Done**; **Complete list** is in a
+  list's menu at any time, asking first when lines are unticked. A done
+  list leaves the lists, with Undo (Joe, 24 October).
+- **No repeating lists** (Joe, 24 October): Essentials do that job.
 - **Totals:** units of one kind add up (500 g + 1 kg = 1.5 kg; ml, l, tsp,
   tbsp together); weight and volume sit side by side; a range counts as its
   top; "~" carries into the total; an unmeasured line on top of a measured
@@ -119,13 +150,16 @@ Provisionally agreed).
 **Meal plan.** Two tabs. **Week**: Monday to Sunday — columns on a computer,
 days stacked on a phone — each day's Breakfast, Lunch and Dinner with their
 Meals (photo, name, servings; leftovers marked); ‹ Today › and a date, as on
-Plan; a filter for Personal, each Household or all; "New shopping list";
+Plan; a filter for Personal, each Household or all; "New shopping list"
+(a food shop);
 "Copy week" tucked in the week's menu. **Pantry**: ingredients by aisle, then
 household items, staples and out-of-stock marked, with a search.
 
-**Shopping.** The lists — dated ones by date, then standing ones — each
-opening to its lines by aisle or by my subheadings, with ticking, adding and
-done.
+**Shopping.** Tabs **Food**, **Lists** and, later, **Online**. Food: the
+food shops, dated ones by date, then undated, then my Spaces' Essentials;
+each shop opening to All · Meals · Extra, with ticking, adding and Done.
+Lists: the other lists, the same way, by my subheadings. Done lists are a
+press away on each.
 
 ## Requirements
 
@@ -184,8 +218,8 @@ Acceptance criteria
    then it moves, with Undo.
 3. Given a Meal with leftovers, when I remove it, then its leftovers go too,
    with Undo.
-4. Given a Meal on a shopping list, when I change its servings, then what it
-   needs on the list changes with it.
+4. Given a Meal on a food shop, when I change its servings or its
+   ingredients, then what it needs on the shop changes with it (SHP-002).
 5. Given I tick a Meal eaten, then it shows eaten, and no cook is logged.
 
 ### MPL-006 — A Meal's own ingredients
@@ -270,10 +304,10 @@ Acceptance criteria
    Household's staples, or unticks it; without a Household, as mine. In
    two or more, the Pantry shows the staples of where my new Meals go
    (Settings → Food; MPL-005).
-2. Given a staple, when I mark it out of stock, then it is added to the next
-   shopping list I make, whether or not a Meal needs it.
-3. **(Suggested)** Given an out-of-stock staple on a list, when I tick it
-   off, then it is in stock again.
+2. Given a staple, when I mark it out of stock, then every food shop offers
+   it on Extra, under its Space's name (SHP-003).
+3. Given an out-of-stock staple on a shop, when I tick it off, then it is
+   in stock again, in the Space SHP-003 4 names.
 
 ### PAN-003 — Merge two entries
 
@@ -307,60 +341,69 @@ Acceptance criteria
 
 ### SHP-001 — Shopping lists
 
-**As** Joe, **I want** all my shopping lists in one place, **so that** I
-know what to buy.
+**As** Joe, **I want** all my shopping in one place, **so that** I know
+what to buy.
 Priority: Must · Status: proposed (Stage 4b)
 
 Acceptance criteria
-1. Given Shopping, then my lists show: dated ones by date, then standing
-   ones; done lists are a press away.
-2. Given New list, then I name it, and may give it a date, a time and a
-   place; a dated list shows on Plan.
-3. Given a list made by hand, then I add subheadings and lines under them,
-   and reorder both.
+1. Given Shopping, then Food shows my food shops and Lists my other lists:
+   dated ones by date, then undated; done ones a press away. Online comes
+   later.
+2. Given New food shop or New list, then I name it, and may give it a date,
+   a time and a place; a dated one shows on Plan.
+3. Given a food shop, then its lines are grouped by aisle, Other last; given
+   a list, then I add subheadings and lines under them, and reorder both.
 4. Given any list, then I tick lines as I go, ticked ones moving to the foot
    of their group.
-5. Given a dated list, when I tick it done, then it leaves the list of
-   lists, with Undo.
+5. Given I tick the last line, then Done is offered; given Complete list in
+   its menu, then it asks first if lines are unticked. A done list leaves
+   the lists, with Undo.
+6. Given a food shop, then I choose its Space, Personal or one of my
+   Households; it starts as the Household of its first Household Meal.
 
-### SHP-002 — A shopping list from the meal plan
+### SHP-002 — A food shop from the Meal plan
 
-**As** Joe, **I want** a list made from the meals I've planned, **so that**
-I buy exactly what they need.
+**As** Joe, **I want** a food shop made from the Meals I've planned, **so
+that** I buy exactly what they need.
 Priority: Must · Status: proposed (Stage 4b)
 
 Acceptance criteria
-1. Given the Meal plan, when I choose New shopping list and pick days,
-   then each Meal's ingredients — its Recipe's, scaled to its servings, and
-   its own as written (MPL-006) — go to a new list dated the day of the
-   first Meal, or to a list I pick.
-2. Given the same ingredient for two Meals, then it shows as one line with
-   its total and the Meals it's for, grouped by aisle; lines kept as typed
-   in a recipe go under Other.
-3. Given staples a Meal needs, then they aren't added, and Staples not added
-   lists them, each added with a tap.
-4. Given out-of-stock staples, then they're added, whether or not a Meal
-   needs them.
-5. Given a Meal later removed or moved off the list's days, then its
-   unticked lines go.
+1. Given the Meal plan, when I choose New shopping list and pick days, then
+   their Meals are offered, each ticked, and go to a new food shop dated
+   the day of the first, or to one I pick.
+2. Given a Meal on a shop, then all its ingredients are on it: its Recipe's,
+   scaled to its servings, and its own (MPL-006); staples aren't.
+3. Given the same ingredient for two Meals, then All shows it as one line,
+   with its total and the Meals it's for.
+4. Given Meals, then I add one to the shop or take one off; a Meal is on one
+   open food shop at most. **(Suggested)**
+5. Given a Meal's servings or ingredients change, then the shop follows;
+   given a Meal removed or taken off, then its unticked lines go. Ticked
+   lines stay as they are.
+6. Given Meals in the top bar, then each Meal shows with its own lines.
 
-### SHP-003 — Add to a list
+### SHP-003 — Extra
 
-**As** Joe, **I want** to add anything to a list without breaking what the
-Meals need, **so that** one list holds the whole shop.
+**As** Joe, **I want** to add anything to a food shop, and be offered what
+runs out, **so that** one shop holds everything.
 Priority: Must · Status: proposed (Stage 4b)
 
 Acceptance criteria
-1. Given a list, when I type, then Pantry entries are suggested, each
-   joining its aisle (or my subheading); anything else is added as typed,
-   under Other.
-2. Given a line, then I can give it an amount and unit, which adds to any
-   total from Meals.
-3. Given a Meal's line, then I can't delete it or lower its amount below
-   what the Meals need; I can raise it.
-4. Given a Thought in Inbox ("buy milk, bread, eggs"), when I sort it into a
-   Shopping list, then a new list is made with milk, bread and eggs as its
-   lines, split at the commas, "buy" dropped.
+1. Given a shop, when I type, then Pantry entries are suggested, household
+   items too, each joining its aisle; anything else is added as typed,
+   under Other. It shows on Extra and in All.
+2. Given a Meal's line, then I can't change or delete it on the shop; adding
+   the same ingredient on Extra adds to the total in All. **(Suggested)**
+3. Given Extra, then it offers each of my Spaces' out-of-stock staples and
+   Essentials, under its Space's name, the shop's own first, each added with
+   +; and highlights the staples its Meals use, never added.
+4. Given a line added from a Space's out of stock, when I tick it, then it
+   is in stock again there; given any other line out of stock in the shop's
+   own Space, then there.
+5. Given a Thought in Inbox ("buy milk, bread, eggs"), when I sort it into a
+   Shopping list, then a new one is made with milk, bread and eggs as its
+   lines, split at the commas, "buy" dropped; a food shop when any line
+   matches a Pantry ingredient, else a list. **(Suggested)**
 
 ### SHP-004 — Shopping together
 
@@ -369,14 +412,28 @@ Acceptance criteria
 Priority: Should · Status: proposed (Stage 4b)
 
 Acceptance criteria
-1. Given a list holding any Household Meal's lines, then every member of
-   the Household sees it.
+1. Given a list in a Household, then every member sees all of it, its
+   Personal Meals' lines too.
 2. Given a shared list, when one of us ticks or adds a line, then the other
    sees it within a second or two.
 3. Given no signal in the shop, then ticks are kept and sent when it
    returns.
 
-Non-goals: tracking stock beyond staples' out of stock; nutrition and
+### SHP-005 — Essentials
+
+**As** Joe, **I want** each Household's everyday buys kept, **so that** I'm
+offered milk every shop without marking it out of stock.
+Priority: Must · Status: proposed (Stage 4b)
+
+Acceptance criteria
+1. Given Food, then each of my Spaces' Essentials show, Personal and each
+   Household, and any member adds Pantry ingredients to them or takes them
+   off.
+2. Given Essentials, then they are never ticked or done; they are offered
+   on every food shop's Extra (SHP-003 3).
+
+Non-goals: tracking stock beyond staples' out of stock; repeating lists;
+Online's price alerts (later); nutrition and
 macros; prices; ordering online; AI planning of the week (later); a
 Meal's method, or turning a Meal's link into a Recipe (Joe, 23 October).
 
