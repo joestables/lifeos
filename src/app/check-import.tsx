@@ -1,6 +1,6 @@
 import type { ImportedRecipe } from '@lifeos/food'
 import { useBlocker, useNavigate } from '@tanstack/react-router'
-import { ChevronDownIcon } from 'lucide-react'
+import { ChevronDownIcon, PlusIcon } from 'lucide-react'
 import { useEffect, useId, useRef, useState } from 'react'
 import {
   IngredientLineEditor,
@@ -40,8 +40,11 @@ import {
   type ValueKind,
 } from '@/data'
 import { resizePhoto } from '@/lib/photo-resize'
+import { type Aisle } from '@/lib/pantry'
 import { amountText, readAmount } from '@/lib/recipe-parts'
 import { nameTaken, valueChoices } from '@/lib/recipes'
+import { AddToPantryDialog } from './add-to-pantry'
+import { focusStep } from './focus-step'
 import { keepPhoto, type PhotoChoice } from './keep-photo'
 import { setPendingImport, type PendingImport } from './import-store'
 import { PhotoField } from './photo-field'
@@ -58,6 +61,8 @@ type Row =
       pantryId: string | null
       aisle: string
       defaultUnit: string | null
+      /** To be added to the Pantry when kept, chosen from its mark. */
+      add: boolean
       amount: string
       unit: LineUnit
     }
@@ -78,6 +83,7 @@ function rowsOf(recipe: ImportedRecipe): Row[] {
       pantryId: l.pantryId,
       aisle: l.aisle ?? 'cupboard',
       defaultUnit: l.defaultUnit,
+      add: false,
       amount: amountText({ qty: l.qty, qty_max: l.qtyMax, approx: l.approx }),
       unit: l.unit ?? '',
     })
@@ -163,7 +169,33 @@ export function CheckImport({ pending, food }: { pending: PendingImport; food: F
     const found = [...food.pantry.values()].find(
       (p) => p.kind === 'ingredient' && same(p.name, text),
     )
-    setRow(key, { name: text, pantryId: found?.id ?? null })
+    setRow(key, { name: text, pantryId: found?.id ?? null, add: false })
+  }
+  const [adding, setAdding] = useState<Extract<Row, { kind: 'line' }> | null>(null)
+  // A step made by Enter takes the caret.
+  const [focusKey, setFocusKey] = useState<string | null>(null)
+  const addStepAfter = (i: number) => {
+    const key = newId()
+    setSteps((ss) => [...ss.slice(0, i + 1), { key, text: '' }, ...ss.slice(i + 1)])
+    setFocusKey(key)
+  }
+  const addLineRow = () => {
+    const key = newId()
+    setRows((rs) => [
+      ...rs,
+      {
+        key,
+        kind: 'line',
+        name: '',
+        pantryId: null,
+        aisle: 'cupboard',
+        defaultUnit: null,
+        add: false,
+        amount: '',
+        unit: '',
+      },
+    ])
+    setFocusKey(key)
   }
 
   const keep = async () => {
@@ -192,16 +224,20 @@ export function CheckImport({ pending, food }: { pending: PendingImport; food: F
         const unit = row.unit || read.unit || null
         return {
           position,
+          // Not in the Pantry and not added from its mark: kept as typed
+          // (Joe, 24 October), to add later as any typed line is.
           ...(row.pantryId
             ? { pantry_id: row.pantryId }
-            : {
-                new_pantry: {
-                  id: newId(),
-                  name: row.name.trim(),
-                  aisle: row.aisle,
-                  default_unit: row.defaultUnit,
-                },
-              }),
+            : row.add
+              ? {
+                  new_pantry: {
+                    id: newId(),
+                    name: row.name.trim(),
+                    aisle: row.aisle,
+                    default_unit: row.defaultUnit,
+                  },
+                }
+              : { text: row.name.trim() }),
           qty: read.qty,
           qty_max: read.qty_max,
           approx: read.approx,
@@ -361,7 +397,19 @@ export function CheckImport({ pending, food }: { pending: PendingImport; food: F
       </VariationFieldsCard>
       <RecipeColumns layout="editing">
         <RecipePanel title="Ingredients">
-          <div className="flex flex-col">
+          {adding && (
+            <AddToPantryDialog
+              name={adding.name.trim()}
+              unit={adding.defaultUnit ?? (adding.unit || null)}
+              aisle={adding.aisle as Aisle}
+              pantry={food.pantry}
+              onAdd={(n, aisle, defaultUnit) =>
+                setRow(adding.key, { name: n, aisle, defaultUnit, add: true })
+              }
+              onClose={() => setAdding(null)}
+            />
+          )}
+          <div className="flex flex-col gap-2">
             {rows.map((row) =>
               row.kind === 'heading' ? (
                 <SubheadingEditor
@@ -376,14 +424,16 @@ export function CheckImport({ pending, food }: { pending: PendingImport; food: F
                 <IngredientLineEditor
                   key={row.key}
                   ingredient={row.name}
-                  status={row.pantryId ? 'pantry' : 'new'}
+                  status={row.pantryId || row.add ? 'pantry' : 'typed'}
+                  onAddToPantry={row.name.trim() ? () => setAdding(row) : undefined}
                   ingredientField={
                     <Input
                       aria-label="Ingredient"
                       autoComplete="off"
+                      autoFocus={focusKey === row.key}
                       value={row.name}
                       onChange={(e) => rename(row.key, e.target.value)}
-                      className={row.pantryId ? 'pr-8' : 'pr-14'}
+                      className="pr-9"
                     />
                   }
                   amount={row.amount}
@@ -394,29 +444,58 @@ export function CheckImport({ pending, food }: { pending: PendingImport; food: F
                 />
               ),
             )}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="self-start text-muted-foreground"
+              onClick={addLineRow}
+            >
+              <PlusIcon /> Add an ingredient
+            </Button>
           </div>
         </RecipePanel>
         <RecipePanel title="Method">
-          <div className="flex flex-col">
+          <div className="flex flex-col gap-2.5">
             {steps.map((s, i) => (
               <StepEditor
                 key={s.key}
                 n={i + 1}
                 field={
-                  <textarea
+                  <Textarea
                     aria-label={`Step ${i + 1}`}
                     className={STEP_FIELD}
+                    autoFocus={focusKey === s.key}
                     value={s.text}
                     onChange={(e) =>
                       setSteps((ss) =>
                         ss.map((x) => (x.key === s.key ? { ...x, text: e.target.value } : x)),
                       )
                     }
+                    onKeyDown={(e) => {
+                      // As editing a Variation: Enter starts the next step,
+                      // Backspace in an empty one removes it (Joe, 24 October).
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault()
+                        addStepAfter(i)
+                      } else if (e.key === 'Backspace' && s.text === '') {
+                        e.preventDefault()
+                        setSteps((ss) => ss.filter((x) => x.key !== s.key))
+                        if (i > 0) focusStep(i)
+                      }
+                    }}
                   />
                 }
                 onRemove={() => setSteps((ss) => ss.filter((x) => x.key !== s.key))}
               />
             ))}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="self-start text-muted-foreground"
+              onClick={() => addStepAfter(steps.length - 1)}
+            >
+              <PlusIcon /> Add a step
+            </Button>
           </div>
         </RecipePanel>
       </RecipeColumns>
@@ -424,7 +503,7 @@ export function CheckImport({ pending, food }: { pending: PendingImport; food: F
         <Textarea aria-label="Notes" value={notes} onChange={(e) => setNotes(e.target.value)} />
         <p className="text-sm text-muted-foreground">From {pending.link}</p>
       </RecipePanel>
-      {actions('flex gap-2 sm:hidden [&>*]:flex-1')}
+      {actions('flex justify-end gap-2 sm:hidden')}
       <AlertDialog
         open={blocker.status === 'blocked'}
         onOpenChange={(o) => !o && blocker.reset?.()}

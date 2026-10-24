@@ -428,6 +428,21 @@ test.describe('Recipes', () => {
     await expect.poll(() => db.variation_lines.find((l) => l.text === 'Honey')?.qty).toBe(3)
   })
 
+  test('RCP-008 1: editing, Backspace in an empty step removes it', async ({ page }) => {
+    const db = await start(page, `/recipes/${KATSU}?edit=variation`)
+    const steps = page.getByRole('textbox', { name: /^Step \d$/ })
+    await expect(steps).toHaveCount(3)
+    await page.getByRole('textbox', { name: 'Step 3' }).click()
+    await page.getByRole('textbox', { name: 'Step 3' }).press('End')
+    await page.keyboard.press('Enter')
+    await expect(steps).toHaveCount(4)
+    await expect(page.getByRole('textbox', { name: 'Step 4' })).toBeFocused()
+    await page.keyboard.press('Backspace')
+    await expect(steps).toHaveCount(3)
+    await expect(page.getByRole('textbox', { name: 'Step 3' })).toBeFocused()
+    expect(db.variation_steps.filter((s) => s.variation_id === KATSU_STD)).toHaveLength(3)
+  })
+
   test('RCP-013: an edit says Edited, and I say what changed if I want to', async ({ page }) => {
     const db = await start(page, `/recipes/${KATSU}?edit=variation`)
     await page.getByLabel('Serves').fill('6')

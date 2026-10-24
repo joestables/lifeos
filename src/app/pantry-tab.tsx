@@ -1,3 +1,4 @@
+import { todayIn } from '@lifeos/recurrence'
 import { PackageIcon, SearchIcon, StarIcon } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { CardRow, EmptyState, PantryAisle, PantryRow, SectionLabel } from '@/components/lifeos'
@@ -18,6 +19,7 @@ import {
   updateLine,
   useFood,
   useMeals,
+  useSettings,
   usePantryInUse,
   useStaples,
   type PantryEntry,
@@ -78,9 +80,17 @@ export function PantryTab({
   const using = useMemo(() => recipesUsing(recipes), [recipes])
   const { meals } = useMeals(queue)
   const inUse = usePantryInUse(queue)
+  const today = todayIn(useSettings(queue).timezone)
+  // Only Meals today or later keep an entry (Joe, 24 October): a past
+  // Meal's line becomes typed when its entry goes.
   const mealUses = useMemo(
-    () => mealsUsing(meals.map((m) => ({ id: m.item.id, name: m.item.title, lines: m.lines }))),
-    [meals],
+    () =>
+      mealsUsing(
+        meals
+          .filter((m) => m.item.do_on !== null && m.item.do_on >= today)
+          .map((m) => ({ id: m.item.id, name: m.item.title, lines: m.lines })),
+      ),
+    [meals, today],
   )
   const typed = useMemo(() => typedNames(recipes, entries), [recipes, entries])
   const { aisles, household } = pantryGroups(entries, staples, show, search)
@@ -92,9 +102,9 @@ export function PantryTab({
       toast(usedIn(used))
       return
     }
-    // Only a deleted Recipe or Meal uses it (Settings → Deleted).
+    // Only a deleted Recipe uses it (Settings → Deleted).
     if (inUse.has(entry.id)) {
-      toast('Used in something deleted')
+      toast('Used in a deleted recipe')
       return
     }
     const staple = staples.get(entry.id)

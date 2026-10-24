@@ -47,6 +47,7 @@ import type { RecipeView, VariationView } from '@/data/food-hooks'
 import { useOnLeave } from '@/hooks/use-on-leave'
 import { useReorder } from '@/hooks/use-reorder'
 import { STATE_NAMES, byPosition, editableText, storedText } from '@/lib/recipe-parts'
+import { focusStep } from './focus-step'
 import { IngredientRow } from './ingredient-row'
 import { AI_REFUSALS } from './ai-words'
 import { ImportDialog } from './import-dialog'
@@ -421,6 +422,16 @@ function Method({
                   onChange={(text) => setDrafts((d) => ({ ...d, [r.id]: text }))}
                   onCommit={() => commit(r)}
                   onEnter={() => addAfter(r)}
+                  onEmptyBackspace={() => {
+                    setDrafts((d) => {
+                      const next = { ...d }
+                      delete next[r.id]
+                      return next
+                    })
+                    if (r.kept) removeStep(v, r.id)
+                    setFresh((f) => f.filter((x) => x.id !== r.id))
+                    if (i > 0) focusStep(i)
+                  }}
                   refs={refsOf(r.id)}
                   recipes={food.recipes}
                   except={recipe.item.id}

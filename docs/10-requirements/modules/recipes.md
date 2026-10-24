@@ -307,7 +307,8 @@ Priority: Must · Status: verified
 
 Acceptance criteria
 1. Given the method, then steps are numbered, and I add, edit and delete
-   them; they aren't dragged to reorder (Joe, 23 October).
+   them: Enter starts the next step, Backspace in an empty step removes it
+   (Joe, 24 October); they aren't dragged to reorder (Joe, 23 October).
 2. Given I type "@" in a step or the notes, then up to three of my Recipes
    are suggested, the first highlighted; choosing one makes a reference.
 3. Given a referenced Recipe is renamed, then the reference shows its new
@@ -419,8 +420,10 @@ Acceptance criteria
    times, servings, ingredient lines matched to the Pantry, method and
    source.
 2. Given any import, then it is written in Joe's recipe style.
-3. Given I keep it, then the Recipe and any new Pantry entries are saved
-   together; cancelled, nothing is left.
+3. Given I keep it, then the Recipe and the Pantry entries I chose to add
+   are saved together; cancelled, nothing is left. A line matching no
+   Pantry entry is kept as typed unless I add it from its mark, with its
+   aisle (the AI's to start) and default unit (Joe, 24 October).
 4. Given an Idea with a link, when I import from it, then the Idea becomes a
    Draft, keeping its name, notes and photo.
 5. Given the link was saved before, then I'm told before importing.
@@ -439,8 +442,8 @@ Acceptance criteria
     23 October). Closing the Dialog while it works doesn't stop it: the
     ingredients and method show as loading until it is kept, and a page of
     several asks which when it is read (Joe, 23 October).
-11. Given lines brought in by Import from a link or Fill from method that
-    match no Pantry entry, then they are kept as typed, to add to the
+11. Given lines brought in by an import, Import from a link or Fill from
+    method that match no Pantry entry, then they are kept as typed, to add to the
     Pantry as any typed line is ([PAN-004](meals.md#pan-004--entries-from-a-recipe)).
 
 ### RCP-015 — Favourites

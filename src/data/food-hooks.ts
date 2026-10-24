@@ -407,24 +407,21 @@ export function useRecipeActivity(
 }
 
 /**
- * Every Pantry entry any line uses, a deleted Recipe's or Meal's too
+ * Every Pantry entry any Recipe's line uses, a deleted Recipe's too
  * (PAN-001 4): those keep their entries until they are gone for good, so
- * such an entry can't be deleted either.
+ * such an entry can't be deleted either. A past or deleted Meal's line
+ * doesn't keep it: it becomes typed when the entry goes.
  */
 export function usePantryInUse(queue: WriteQueue): ReadonlySet<string> {
   const entries = useQueueEntries(queue)
   const lines = useQuery({ queryKey: linesKey, queryFn: fetchLines })
-  const mealLines = useQuery({ queryKey: mealLinesKey, queryFn: fetchMealLines })
   return useMemo(
     () =>
       new Set(
-        [
-          ...applyPendingLines(lines.data ?? [], entries),
-          ...applyPendingMealLines(mealLines.data ?? [], entries),
-        ]
+        applyPendingLines(lines.data ?? [], entries)
           .map((l) => l.pantry_id)
           .filter((id): id is string => id !== null),
       ),
-    [entries, lines.data, mealLines.data],
+    [entries, lines.data],
   )
 }

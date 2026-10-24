@@ -95,9 +95,7 @@ export function ItemDialog({
             </div>
           </ScrollArea>
           {footer && (
-            <div className="flex justify-end gap-2 px-5 pt-1 pb-5 [&>*]:max-sm:flex-1">
-              {footer}
-            </div>
+            <div className="flex flex-wrap justify-end gap-2 px-5 pt-1 pb-5">{footer}</div>
           )}
         </TypeScope>
       </DialogContent>
