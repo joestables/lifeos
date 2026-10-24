@@ -286,7 +286,7 @@ DateField, TimeField, RepeatField, SubtaskList and AddRow in
   email" and Invite.
 - **Food** (RCP-018, MPL-005): a titled Card: with a Household, "New meals
   are for" (`utensils`) with an `sm` Select of Personal and my Households,
-  which is also whose staples the Pantry shows; then CardRows leading to
+  which is also whose staples the Pantry shows (until Stage 4b's step 5); then CardRows leading to
   "Categories, cuisines and tags" and "Archived recipes" (with its count).
 - A Card of CardRows leads on: Recently deleted (with its count), then Sign
   out, which acts at once and so has no chevron.
@@ -532,8 +532,9 @@ MealCard, MealSlot, AddMealButton, MealWeek, MealDay and PantryRow in
 [components](components.md). Agreed with the Recipes screens.
 
 - Green (TypeScope). Tabs: **Week** and **Pantry** (`?tab=pantry`); the
-  PageAction is "New shopping list" on the week (with Shopping, Stage 4b;
-  until then none), "New entry" on the Pantry.
+  PageAction is "Select" on the week, choosing Meals for a SelectionBar's
+  "Add to shop" (with Shopping, Stage 4b, designed in its step 3; until
+  then none), "New entry" on the Pantry.
 - **The week:** the PlanToolbar (no Day / Week; `?day=` names the week), an
   `sm` Select of whose Meals show ("All my meals", Personal, each
   Household; only with a Household, kept on the device) and a "…" menu holding Copy this
@@ -587,7 +588,9 @@ MealCard, MealSlot, AddMealButton, MealWeek, MealDay and PantryRow in
   "+" → Meal opens a Dialog, "Add a meal · Thu 15 Oct": a ToggleGroup of
   Breakfast, Lunch and Dinner (Dinner to start), then the Popover's search
   and list in its place.
-- **The Pantry:** search and a ToggleGroup of All, Staples and Out of
+- **The Pantry** (Stage 4b moves staples and out of stock to Shopping →
+  Food, [SHP-005](../10-requirements/modules/meals.md#shp-005--staples-and-essentials);
+  until then, as built): search and a ToggleGroup of All, Staples and Out of
   stock; then "Ingredients" (a SectionLabel) and a Card per aisle, in aisle
   order (its name muted, 14px weight 600, then its PantryRows); then
   household items apart. Nothing matching: an EmptyState ("Nothing in the

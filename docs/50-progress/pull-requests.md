@@ -2,6 +2,27 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#32](https://github.com/joestables/lifeos/pull/32) — Stage 4b: making a shop, and staples beside Essentials
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-24
+
+**What it did**
+- A food shop is made from the Meal plan's Select and Add to shop, or from
+  Shopping → Food's New shop offering the plan's Meals to toggle; Meals are
+  added or taken off afterwards.
+- Staples move from the Pantry to Shopping → Food, each Space's list beside
+  its Essentials; a staple may be out of stock, an Essential Required, and
+  Extra offers both first. PAN-002 is replaced by SHP-005; the Pantry's
+  built marks go in step 5.
+- Joe's agreement to the earlier suggestions recorded, their marks removed.
+
+**Documents touched:** meals (Pantry, Shopping, PAN-001, PAN-002,
+SHP-001–005), recipes (RCP-003), ADR-0050, 0051, 0052, 0012, patterns
+(the Meal plan's PageAction, the Pantry, Settings → Food), glossary,
+plans/stage-4b.md.
+
+**Left for later:** Joe's agreement to the specs; step 2's decisions.
+
 ## [#31](https://github.com/joestables/lifeos/pull/31) — Stage 4b: the Shopping specs, third draft
 
 Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-24

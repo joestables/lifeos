@@ -1,7 +1,7 @@
 # ADR-0050: One Shopping list Type, in place of List and Shop
 
 **Status:** Provisionally agreed · 2026-10-17
-**Amended:** 2026-10-24 by Joe's answers for Stage 4b (Shopping's three tabs; a food shop or a list; a food shop linked to Meals and for one Space; Essentials; no repeating lists).
+**Amended:** 2026-10-24 by Joe's answers for Stage 4b (Shopping's three tabs; a food shop or a list; a food shop linked to Meals and for one Space; staples and Essentials on Shopping; no repeating lists).
 
 Supersedes [ADR-0010](0010-shop-is-its-own-type.md).
 
@@ -42,9 +42,14 @@ questions 1 and 2).
   ingredients come onto it, change with them, and go when a Meal is removed
   or taken off. It is **for one Space**, Personal or a Household, whatever
   Spaces its Meals are in ([ADR-0051](0051-who-sees-food.md), amended).
-- **Essentials:** each Space's ingredients bought most shops (milk), offered
-  on every food shop beside each Space's out-of-stock staples, none added by
-  itself. Staples stay long-life goods, never added from a Meal.
+- **Staples and Essentials** are each Space's lists of Pantry entries, kept
+  on Shopping → Food rather than in the Pantry: staples are long-life goods
+  (salt), never added from a Meal, any marked out of stock; Essentials are
+  bought most shops (milk), any marked Required. Every food shop offers the
+  out of stock and Required, then the other Essentials, none added by
+  itself.
+- **A food shop is made** from Meals chosen on the Meal plan (Select, Add to
+  shop), or from Shopping → Food's New shop, offering the plan's Meals.
 - **No repeating lists:** Essentials do that job, which settles the
   carry-over question below.
 
