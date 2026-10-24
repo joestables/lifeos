@@ -2,6 +2,22 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#33](https://github.com/joestables/lifeos/pull/33) — Stage 4b, step 2: Shopping in the database
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-24
+
+**What it did**
+- Step 1 closed: Joe agreed the Shopping specs.
+- [ADR-0057](../20-architecture/adr/0057-shopping-in-the-database.md)
+  (Proposed): a Meal's lines on a food shop are rows the database writes
+  as the Meal changes, ticked ones kept; a shop's Meals in
+  `shopping.list_meals`; staples and Essentials in `food.space_entries`;
+  totals on the device; live updates by Supabase Realtime, refreshing the
+  queries they touch.
+- ADR-0052, ADR-0042, the data model and the ADR index amended.
+
+**Left for later:** Joe's agreement to ADR-0057; the design (step 3).
+
 ## [#32](https://github.com/joestables/lifeos/pull/32) — Stage 4b: making a shop, and staples beside Essentials
 
 Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-24

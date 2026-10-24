@@ -37,15 +37,17 @@ how the schema holds it and how the database enforces it
   shop's Space is chosen, and everyone in it reads, ticks and adds; the
   Meals it is linked to bring their lines, whatever their Space. A Meal's
   lines aren't changed or deleted on the shop: they follow the Meal. How
-  they are held and kept in step is Stage 4b's step 2.
+  they are held and kept in step: [ADR-0057](0057-shopping-in-the-database.md)
+  (rows the database writes).
 - **The Pantry is not Items:** `food.pantry` (name, kind: ingredient or
   household, aisle, default unit, added by). Every signed-in person reads
   and adds; only whoever added an entry changes or deletes it; a delete is
   refused while any line points at it. `food.merge_pantry()` checks the
   merger added both, then repoints every line, everyone's.
 - **Staples:** `food.staples` (Space, entry, out of stock), changed by
-  anyone who can read the Space; each Space's Essentials (and Required)
-  beside them, from Stage 4b's step 4.
+  anyone who can read the Space; from Stage 4b,
+  `food.space_entries` (Space, entry, kind: staple or Essential, needed)
+  in its place ([ADR-0057](0057-shopping-in-the-database.md)).
 - **Lists of values** (categories, cuisines, tags, protein, carbs) are each
   person's, in `food.values`; browsing pools those of everyone in my
   Households, the same name counting once.
