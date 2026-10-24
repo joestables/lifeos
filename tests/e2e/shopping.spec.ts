@@ -241,4 +241,60 @@ test.describe('Shopping', () => {
     await list.getByRole('option', { name: /Big shop/ }).click()
     await expect(page.getByRole('heading', { name: 'Big shop', level: 1 })).toBeVisible()
   })
+
+  test('SHP-002 1: Meals chosen on the Meal plan made a shop', async ({ page }) => {
+    const db = await start(page, '/meal-plan?day=2026-10-15', mealRows())
+    await page.getByRole('button', { name: 'Select' }).click()
+    // Leftovers have no lines of their own: not offered.
+    await expect(page.getByRole('checkbox', { name: /Leftovers/ })).toHaveCount(0)
+    await page.getByRole('checkbox', { name: 'Out: Dishoom' }).click()
+    await page.getByRole('checkbox', { name: 'Katsu curry' }).click()
+    await expect(page.getByText('2 selected')).toBeVisible()
+    await page.getByRole('button', { name: 'Add to shop' }).filter({ visible: true }).click()
+    await expect(page.getByRole('heading', { name: 'Food shop', level: 1 })).toBeVisible()
+    await expect.poll(() => db.list_meals.length).toBe(2)
+    expect(db.items.find((i) => i.type === 'shopping_list')).toMatchObject({ do_on: '2026-10-15' })
+    await expect(line(page, 'Chicken thighs')).toContainText('4')
+  })
+
+  test('SHP-002 4; MPL-003 4: a Meal on a shop isn’t chosen again, and rescaled, the shop follows', async ({
+    page,
+  }) => {
+    const db = await start(page, '/meal-plan?day=2026-10-15')
+    await page.getByRole('button', { name: 'Select' }).click()
+    await expect(page.getByRole('checkbox', { name: 'Katsu curry' })).toHaveCount(0)
+    await page.getByRole('button', { name: 'Stop selecting' }).click()
+    // Thursday's dinner, not Friday's leftovers of it.
+    await page
+      .locator('[data-drop="2026-10-15:dinner"]')
+      .last()
+      .getByRole('button', { name: 'Katsu curry' })
+      .click()
+    const dialog = page.getByRole('dialog', { name: 'Katsu curry' })
+    await dialog.getByLabel('Servings').fill('8')
+    await dialog.getByLabel('Servings').blur()
+    await expect.poll(() => db.meal.find((m) => m.item_id === KATSU_MEAL)?.servings).toBe(8)
+    await page.goto(`/shopping/${SHOP}`)
+    await expect(line(page, 'Chicken thighs')).toContainText('8')
+  })
+
+  test('SHP-002 4, 5: a Meal taken off the shop, its lines going, and added back', async ({
+    page,
+  }) => {
+    const db = await start(page, `/shopping/${SHOP}`)
+    await page.getByRole('tab', { name: /Meals/ }).click()
+    await page
+      .getByRole('group', { name: 'Katsu curry' })
+      .getByRole('button', { name: 'More' })
+      .click()
+    await page.getByRole('menuitem', { name: 'Take off the shop' }).click()
+    await expect.poll(() => db.list_meals.length).toBe(0)
+    await expect.poll(() => db.lines.filter((l) => l.meal_id).length).toBe(0)
+    await page.getByRole('button', { name: 'Add a meal' }).click()
+    const dialog = page.getByRole('dialog', { name: 'Add a meal' })
+    await dialog.getByText('Katsu curry').click()
+    await dialog.getByRole('button', { name: 'Add' }).click()
+    await expect(page.getByRole('group', { name: 'Katsu curry' })).toContainText('Chicken thighs')
+    await expect.poll(() => db.list_meals.map((m) => m.meal_id)).toEqual([KATSU_MEAL])
+  })
 })

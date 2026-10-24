@@ -359,7 +359,7 @@ Acceptance criteria
 
 **As** Joe, **I want** a food shop made from the Meals I've planned, **so
 that** I buy exactly what they need.
-Priority: Must · Status: built for 2–6 (a shop made with New shop, Meals added on its Meals tab); 1 in Stage 4b's step 6
+Priority: Must · Status: built
 
 Acceptance criteria
 1. Given the Meal plan, when I choose Select (the week's PageAction; a

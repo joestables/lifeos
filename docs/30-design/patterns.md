@@ -541,8 +541,10 @@ MealCard, MealSlot, AddMealButton, MealWeek, MealDay and PantryRow in
   PageAction none on the week, "New entry" on the Pantry. The week's
   toolbar has a ghost `sm` "Select" (`list-checks`) after Show, as the
   library's (Stage 4b): it puts a SelectionBar in the toolbar's place with
-  "Add to shop" (`shopping-cart`), MealCards take their Checkbox, and the
-  chosen Meals make a new food shop
+  "Add to shop" (`shopping-cart`), MealCards take their Checkbox (not
+  eaten Meals, leftovers, or Meals on another open shop), and the chosen
+  Meals make a new food shop, "Food shop", dated the first one's day,
+  which opens
   ([SHP-002](../10-requirements/modules/meals.md#shp-002--a-food-shop-from-the-meal-plan)).
   A long press still drags on a phone.
 - **The week:** the PlanToolbar (no Day / Week; `?day=` names the week), an

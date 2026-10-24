@@ -2,6 +2,24 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#38](https://github.com/joestables/lifeos/pull/38) — Stage 4b, step 6: a food shop from the Meal plan
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-24
+
+**What it did**
+- The Meal plan's Select: a SelectionBar in the week's toolbar, MealCards
+  chosen (not eaten Meals, leftovers, or Meals on another open shop), and
+  Add to shop making a new food shop of them, dated the first one's day,
+  which opens.
+- Walks: Select and Add to shop; a Meal on a shop not offered again; a Meal
+  rescaled and the shop following; a Meal taken off and added back.
+
+**Documents touched:** meals spec (SHP-002 built), design patterns and
+components (MealCard's choosing, SelectionBar), plans/stage-4b.md.
+
+**Left for later:** step 7, Realtime; step 8, a Thought or Note made a
+Shopping list.
+
 ## [#37](https://github.com/joestables/lifeos/pull/37) — Stage 4b, step 5: the Shopping page
 
 Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-24

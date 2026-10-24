@@ -1,5 +1,6 @@
 import { addDays } from '@lifeos/recurrence'
-import { CopyIcon } from 'lucide-react'
+import { useNavigate } from '@tanstack/react-router'
+import { CopyIcon, ListChecksIcon, ShoppingCartIcon } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import {
   AddMealButton,
@@ -8,10 +9,12 @@ import {
   MealSlot,
   MealWeek,
   PlanToolbar,
+  SelectionBar,
 } from '@/components/lifeos'
+import { Button } from '@/components/ui/button'
 import { DropdownMenuItem } from '@/components/ui/dropdown-menu'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { usePhotoUrls } from '@/data'
+import { createList, queue, usePhotoUrls, useShopping } from '@/data'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { useMealDrag } from '@/hooks/use-meal-drag'
 import { fromIsoDay, shortDate } from '@/lib/dates'
@@ -52,6 +55,8 @@ function useShown(): [string, (space: string) => void] {
  * The Meal plan's week (MPL-001–004, patterns.md#meal-plan): Monday to
  * Sunday, columns on a computer and days down a phone; a slot's "+" plans
  * a Meal, a Meal opens over the page and is dragged to another slot.
+ * Select chooses Meals and Add to shop makes a new food shop of them
+ * (SHP-002 1).
  */
 export function WeekTab({
   day,
@@ -75,6 +80,34 @@ export function WeekTab({
   const photos = usePhotoUrls([...meals.values()].flat().map((m) => m.picture))
   const [adding, setAdding] = useState<string | null>(null)
   const [copying, setCopying] = useState(false)
+  const navigate = useNavigate()
+  const { shopOf } = useShopping(queue)
+  const [chosen, setChosen] = useState<ReadonlySet<string> | null>(null)
+  const selecting = chosen !== null
+  // Leftovers have no lines of their own, an eaten Meal is past, and a Meal
+  // on another open shop stays there (SHP-002 4).
+  const choosable = (m: PlannedMeal) => !m.leftoversOf && m.status !== 'done' && !shopOf.has(m.id)
+  const addToShop = () => {
+    const picked = plan.meals
+      .filter((m) => chosen?.has(m.id))
+      .sort(
+        (a, b) =>
+          (a.day ?? '').localeCompare(b.day ?? '') ||
+          SLOTS.indexOf(a.slot as SlotKey) - SLOTS.indexOf(b.slot as SlotKey),
+      )
+    if (!picked.length) return
+    // Dated the first one's day; the Household of its first Household Meal (SHP-001 6).
+    const household = picked.find((m) => plan.spaces.householdName(m.space))?.space
+    const id = createList({
+      title: 'Food shop',
+      kind: 'food',
+      do_on: picked[0]!.day,
+      space_id: household ?? plan.spaces.home ?? personal ?? undefined,
+      meals: picked.map((m) => m.id),
+    })
+    setChosen(null)
+    void navigate({ to: '/shopping/$id', params: { id } })
+  }
   const drag = useMealDrag((id, drop) => {
     const m = plan.byId.get(id)
     const [d, s] = drop.split(':')
@@ -95,7 +128,11 @@ export function WeekTab({
     const several =
       (recipe?.variations.filter((v) => v.item.status !== 'cancelled').length ?? 0) > 1
     return (
-      <div key={m.id} className="touch-manipulation select-none" {...drag.handle(m.id)}>
+      <div
+        key={m.id}
+        className="touch-manipulation select-none"
+        {...(selecting ? {} : drag.handle(m.id))}
+      >
         <MealCard
           personal={shared && show === ALL && m.space === personal}
           household={
@@ -108,6 +145,14 @@ export function WeekTab({
           kind={m.leftoversOf ? 'leftovers' : m.variation ? 'recipe' : 'typed'}
           eaten={m.status === 'done'}
           dragging={drag.dragging === m.id}
+          selecting={selecting && choosable(m)}
+          selected={!!chosen?.has(m.id)}
+          onSelect={(on) => {
+            const next = new Set(chosen)
+            if (on) next.add(m.id)
+            else next.delete(m.id)
+            setChosen(next)
+          }}
           onOpen={() => open({ id: m.id, type: 'meal' })}
         />
       </div>
@@ -143,35 +188,46 @@ export function WeekTab({
 
   return (
     <div className="flex flex-col gap-4">
-      <PlanToolbar
-        title={weekTitle(week[0]!)}
-        day={day}
-        onChooseDay={onDay}
-        layout="week"
-        onToday={() => onDay(today)}
-        onPrevious={() => onDay(addDays(day, -7))}
-        onNext={() => onDay(addDays(day, 7))}
-        step="week"
-        action={
-          <>
-            {shared && (
-              <SpaceSelect
-                all
-                spaces={spaces}
-                value={show}
-                onChange={keep}
-                label="Show"
-                className="w-36"
-              />
-            )}
-            <MoreMenu>
-              <DropdownMenuItem onClick={() => setCopying(true)}>
-                <CopyIcon /> Copy this week…
-              </DropdownMenuItem>
-            </MoreMenu>
-          </>
-        }
-      />
+      {selecting ? (
+        <SelectionBar
+          count={chosen.size}
+          onDone={() => setChosen(null)}
+          actions={[{ label: 'Add to shop', icon: ShoppingCartIcon, onClick: addToShop }]}
+        />
+      ) : (
+        <PlanToolbar
+          title={weekTitle(week[0]!)}
+          day={day}
+          onChooseDay={onDay}
+          layout="week"
+          onToday={() => onDay(today)}
+          onPrevious={() => onDay(addDays(day, -7))}
+          onNext={() => onDay(addDays(day, 7))}
+          step="week"
+          action={
+            <>
+              {shared && (
+                <SpaceSelect
+                  all
+                  spaces={spaces}
+                  value={show}
+                  onChange={keep}
+                  label="Show"
+                  className="w-36"
+                />
+              )}
+              <Button variant="ghost" size="sm" onClick={() => setChosen(new Set())}>
+                <ListChecksIcon /> Select
+              </Button>
+              <MoreMenu>
+                <DropdownMenuItem onClick={() => setCopying(true)}>
+                  <CopyIcon /> Copy this week…
+                </DropdownMenuItem>
+              </MoreMenu>
+            </>
+          }
+        />
+      )}
       {copying && (
         <CopyWeekDialog
           day={addDays(week[0]!, 7)}
