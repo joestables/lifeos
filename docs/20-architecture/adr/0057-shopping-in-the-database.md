@@ -1,6 +1,6 @@
 # ADR-0057: Shopping in the database, and live
 
-**Status:** Proposed · 2026-10-24
+**Status:** Provisionally agreed · 2026-10-24 (Joe)
 
 ## Context
 

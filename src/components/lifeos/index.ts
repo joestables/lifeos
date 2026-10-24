@@ -47,6 +47,7 @@ export { RecipeCard, RecipeGrid, RecipePhoto, StarRating, type CardSize } from '
 export { FilterLayout, FilterPanel, FilterSection, type FilterGroup } from './FilterPanel'
 export { SelectionBar } from './SelectionBar'
 export { PantryAisle, PantryRow } from './PantryRow'
+export { KeptRow, OfferRow, ShoppingLine } from './Shopping'
 export { PickRow } from './PickRow'
 export {
   IngredientLineEditor,

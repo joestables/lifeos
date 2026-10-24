@@ -1,4 +1,4 @@
-// Screenshots of a stage's design page (/design-stage-3, /design-stage-4), dark and
+// Screenshots of a stage's design page (/design-stage-3, /design-stage-4, /design-stage-4b), dark and
 // light, for the design canvas (each stage's plan, step 3). Usage, with the dev
 // server running:
 //   node scripts/design-shots.mjs http://localhost:5173 <out dir> week day m:m-day …

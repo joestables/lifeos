@@ -170,7 +170,7 @@ Consequences**, to a page.
 | [0054](20-architecture/adr/0054-the-ai-service-and-import.md) | The AI service and recipe import, on Gemini's free tier | Provisionally agreed |
 | [0055](20-architecture/adr/0055-sharing-into-lifeos.md) | Sharing into LifeOS from another app | Provisionally agreed |
 | [0056](20-architecture/adr/0056-cooking-on-the-device.md) | Cooking on the device | Provisionally agreed |
-| [0057](20-architecture/adr/0057-shopping-in-the-database.md) | Shopping in the database, and live | Proposed |
+| [0057](20-architecture/adr/0057-shopping-in-the-database.md) | Shopping in the database, and live | Provisionally agreed |
 
 ## Sources
 

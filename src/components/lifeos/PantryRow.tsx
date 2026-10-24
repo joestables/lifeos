@@ -4,7 +4,7 @@ import type { ReactNode } from 'react'
 import { Card } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 
-function Pill({
+export function Pill({
   pressed,
   onPressedChange,
   children,
