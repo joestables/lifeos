@@ -19,6 +19,7 @@ import {
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu'
 import { useConvert } from '@/app/convert'
+import { useCanShop, useToShop } from '@/app/to-shop'
 import { deleteItem, useOpenItem } from '@/app/item-navigation'
 import { useLabelFilter, validateLabels } from '@/app/label-filter'
 import { MoreMenu } from '@/app/more-menu'
@@ -135,10 +136,18 @@ function ThoughtRow({
   reminder?: string
 }) {
   const open = useOpenItem()
-  const convert = useConvert()
+  const doConvert = useConvert()
+  const toShop = useToShop()
+  const canShop = useCanShop(thought)
+  const convert = (item: Item, type: string) =>
+    type === 'shopping_list' ? toShop.start(item) : doConvert(item, type)
   // Task first: the one a swipe does. Task and Note are one action each;
-  // any other Type is in the menu (INB-002).
-  const targets = convertTargets('thought').slice().reverse()
+  // any other Type is in the menu (INB-002). Shopping list only when it
+  // names a Pantry ingredient (SHP-003 5).
+  const targets = convertTargets('thought')
+    .slice()
+    .reverse()
+    .filter((t) => t.key !== 'shopping_list' || canShop)
   const quick = targets.filter((t) => t.key === 'task' || t.key === 'note')
   const meta = [capturedWhen(thought.created_at, now)]
   if (reminder) meta.push(reminderWhen(reminder, now))
@@ -146,47 +155,50 @@ function ThoughtRow({
   const title = itemTitle(thought)
 
   return (
-    <SwipeAction
-      label={TASK.label}
-      icon={TASK.icon}
-      colour={TASK.colour}
-      onAction={() => convert(thought, 'task')}
-    >
-      <ItemRow
-        leading={
-          <Checkbox
-            colour={THOUGHT.colour}
-            aria-label={`Done: ${title}`}
-            checked={thought.status === 'done'}
-            onCheckedChange={(on) => tickThought(thought, on)}
-          />
-        }
-        title={title}
-        meta={meta}
-        sync={thought.sync}
-        onOpen={() => open(thought)}
-        actions={quick.map((t) => (
-          <Button key={t.key} variant="outline" size="sm" onClick={() => convert(thought, t.key)}>
-            <t.icon data-colour={t.colour} className="text-tc-text" /> {t.label}
-          </Button>
-        ))}
-        menu={
-          <MoreMenu>
-            <DropdownMenuGroup>
-              <DropdownMenuLabel>Convert to</DropdownMenuLabel>
-              {targets.map((t) => (
-                <DropdownMenuItem key={t.key} onClick={() => convert(thought, t.key)}>
-                  <t.icon /> {t.label}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem variant="destructive" onClick={() => deleteItem(thought)}>
-              <Trash2Icon /> Delete
-            </DropdownMenuItem>
-          </MoreMenu>
-        }
-      />
-    </SwipeAction>
+    <>
+      <SwipeAction
+        label={TASK.label}
+        icon={TASK.icon}
+        colour={TASK.colour}
+        onAction={() => convert(thought, 'task')}
+      >
+        <ItemRow
+          leading={
+            <Checkbox
+              colour={THOUGHT.colour}
+              aria-label={`Done: ${title}`}
+              checked={thought.status === 'done'}
+              onCheckedChange={(on) => tickThought(thought, on)}
+            />
+          }
+          title={title}
+          meta={meta}
+          sync={thought.sync}
+          onOpen={() => open(thought)}
+          actions={quick.map((t) => (
+            <Button key={t.key} variant="outline" size="sm" onClick={() => convert(thought, t.key)}>
+              <t.icon data-colour={t.colour} className="text-tc-text" /> {t.label}
+            </Button>
+          ))}
+          menu={
+            <MoreMenu>
+              <DropdownMenuGroup>
+                <DropdownMenuLabel>Convert to</DropdownMenuLabel>
+                {targets.map((t) => (
+                  <DropdownMenuItem key={t.key} onClick={() => convert(thought, t.key)}>
+                    <t.icon /> {t.label}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuGroup>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem variant="destructive" onClick={() => deleteItem(thought)}>
+                <Trash2Icon /> Delete
+              </DropdownMenuItem>
+            </MoreMenu>
+          }
+        />
+      </SwipeAction>
+      {toShop.dialog}
+    </>
   )
 }

@@ -142,7 +142,14 @@ used the same way on every screen.
 - **Convert to** lists only the Types this Type converts into that the app
   has yet; a toast says what it became ("Converted into a Task", "Converted
   into an Event"), with Undo. A Thought's row offers Task and Note as its
-  own buttons; Event is in its "…" menu.
+  own buttons; Event is in its "…" menu. Shopping list is offered only to a
+  Thought or Note naming a Pantry ingredient; with an open food shop it
+  opens a small Dialog, "Shopping list": the lines it will add, muted and
+  separated by " · ", then "Add to" (a Select of "A new food shop", then
+  the open food shops), Cancel and Convert (Add for an open shop). With
+  none it converts at once. Either way the toast ("Converted into a
+  Shopping list", 'Added to "Big shop"') offers Open rather than Undo; a
+  Thought added to a shop goes to Recently deleted.
 - **Delete** closes the Item and says so in a toast with Undo ("Deleted
   "Renew insurance""); the Item waits in Recently deleted.
 

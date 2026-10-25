@@ -31,6 +31,7 @@ import {
   typeLook,
 } from '@/lib/item-types'
 import { useConvert } from './convert'
+import { useCanShop, useToShop } from './to-shop'
 import { MealPopup } from './meal-dialog'
 import { EventDetails, EventTitle, GoogleEventDetails } from './event-details'
 import { useGoogleSource } from './google-source'
@@ -49,8 +50,14 @@ export function ItemActions({ item, onDelete }: { item: Item; onDelete: () => vo
   const marks = useMarks(queue)
   const look = typeLook(item.type)
   const google = useGoogleSource(item)
-  const targets = google?.readOnly ? [] : convertTargets(item.type)
-  const convert = useConvert()
+  const canShop = useCanShop(item)
+  const targets = google?.readOnly
+    ? []
+    : convertTargets(item.type).filter((t) => t.key !== 'shopping_list' || canShop)
+  const toShop = useToShop()
+  const doConvert = useConvert()
+  const convert = (i: Item, type: string) =>
+    type === 'shopping_list' ? toShop.start(i) : doConvert(i, type)
   const MarkIcon = look.mark === 'pinned' ? PinIcon : StarIcon
   return (
     <>
@@ -105,6 +112,7 @@ export function ItemActions({ item, onDelete }: { item: Item; onDelete: () => vo
           </DropdownMenuContent>
         </DropdownMenu>
       )}
+      {toShop.dialog}
     </>
   )
 }

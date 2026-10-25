@@ -27,7 +27,8 @@ questions 1 and 2).
   Thoughts and Notes ([ADR-0043](0043-colour-by-type.md)).
 - **Lists that aren't shopping** (packing for Lisbon, DIY) are Notes with a
   checklist, which Notes already have. A Thought sorts into a Shopping list,
-  not a List.
+  not a List, and only when it names a Pantry ingredient: it becomes a food
+  shop (Joe, 25 October).
 - **No list templates.** Essentials and an undated list do their job; a
   packing Note can be duplicated.
 

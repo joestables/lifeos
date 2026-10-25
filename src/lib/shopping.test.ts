@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest'
-import { extraOffers, mealLabel, shopRows, type Line } from './shopping'
+import {
+  extraOffers,
+  mealLabel,
+  namesAnIngredient,
+  shopRows,
+  writtenLines,
+  type Line,
+} from './shopping'
 
 const pantry = new Map([
   ['beef', { name: 'Beef mince', kind: 'ingredient', aisle: 'protein' }],
@@ -84,5 +91,45 @@ describe('a line’s Meal by name and day', () => {
   it('names the day', () => {
     expect(mealLabel({ title: 'Katsu curry', do_on: '2026-10-29' })).toBe('Katsu curry Thu')
     expect(mealLabel({ title: 'Katsu curry', do_on: null })).toBe('Katsu curry')
+  })
+})
+
+describe('SHP-003 5: a Thought or Note read as lines to buy', () => {
+  const pantry = new Map(
+    [
+      { id: 'milk', name: 'Milk', kind: 'ingredient', aisle: 'chilled' },
+      { id: 'egg', name: 'Egg', kind: 'ingredient', aisle: 'chilled' },
+      { id: 'tomatoes', name: 'Tomatoes', kind: 'ingredient', aisle: 'fruit_veg' },
+      { id: 'bulbs', name: 'Light bulbs', kind: 'household', aisle: null },
+    ].map((p) => [p.id, p]),
+  )
+  const read = (text: string) =>
+    writtenLines(text, pantry).map((l) => [l.amount.name, l.amount.qty, l.pantry?.id ?? null])
+
+  it('splits at commas and a list’s last "and", drops "buy", and matches ignoring a plural', () => {
+    expect(read('buy milk, bread and 6 eggs')).toEqual([
+      ['Milk', null, 'milk'],
+      ['Bread', null, null],
+      ['Eggs', 6, 'egg'],
+    ])
+    expect(read('mac and cheese')).toEqual([['Mac and cheese', null, null]])
+    expect(read('Buy milk, 2 tomato')).toEqual([
+      ['Milk', null, 'milk'],
+      ['Tomato', 2, 'tomatoes'],
+    ])
+  })
+
+  it('reads a Note’s lines and checklist, skipping its headings', () => {
+    expect(read('# Weekend\n- [ ] Milk\n- [x] light bulbs\n\n* Eggs.')).toEqual([
+      ['Milk', null, 'milk'],
+      ['Light bulbs', null, 'bulbs'],
+      ['Eggs', null, 'egg'],
+    ])
+  })
+
+  it('is a food shop only when a line names a Pantry ingredient (Joe, 25 October)', () => {
+    expect(namesAnIngredient(writtenLines('buy milk, bread', pantry))).toBe(true)
+    expect(namesAnIngredient(writtenLines('light bulbs, screws', pantry))).toBe(false)
+    expect(namesAnIngredient(writtenLines('call mum', pantry))).toBe(false)
   })
 })
