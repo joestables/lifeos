@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
-import { DISHOOM, KATSU_MEAL, LEFTOVERS, NOW, mealRows } from './meal-rows'
+import { DISHOOM, LEFTOVERS, NOW, mealRows } from './meal-rows'
 import { CHICKEN, PANKO } from './recipe-rows'
 import { standIn, type Rows } from './stand-in'
 
@@ -131,29 +131,6 @@ test.describe('A Meal’s own ingredients', () => {
       .click()
     await expect(dialog.getByText('That link isn’t a recipe')).toBeVisible()
     expect(db.meal_lines).toHaveLength(1)
-  })
-
-  test('MPL-006 5: Copy week copies a Meal’s lines and link', async ({ page }) => {
-    const rows = mealRows()
-    const db = await start(page, {
-      ...rows,
-      meal: (rows.meal ?? []).map((m) => (m.item_id === DISHOOM ? { ...m, source: LINK } : m)),
-      meal_lines: [{ id: 'l1', meal_id: DISHOOM, position: 'a', text: 'Naan', qty: 2 }],
-    })
-    await page.getByRole('button', { name: 'More' }).first().click()
-    await page.getByRole('menuitem', { name: 'Copy this week…' }).click()
-    await page
-      .getByRole('dialog', { name: 'Copy this week' })
-      .getByRole('button', { name: 'Copy' })
-      .click()
-    await expect(page.getByText('Copied 3 meals')).toBeVisible()
-    const copy = () => db.items.find((i) => i.type === 'meal' && i.do_on === '2026-10-24')
-    await expect.poll(() => copy()?.id).toBeTruthy()
-    await expect
-      .poll(() => db.meal_lines.find((l) => l.meal_id === copy()!.id))
-      .toMatchObject({ text: 'Naan', qty: 2 })
-    expect(db.meal.find((m) => m.item_id === copy()!.id)).toMatchObject({ source: LINK })
-    expect(KATSU_MEAL).toBeTruthy()
   })
 
   test('MPL-006 6: a typed Meal’s link brings its picture to the plan', async ({ page }) => {

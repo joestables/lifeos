@@ -542,7 +542,7 @@ StepEditor. Agreed with Joe on 18 October on the
 ## Meal plan
 
 [MPL-001–006, PAN-001–004](../10-requirements/modules/meals.md#requirements);
-MealCard, MealSlot, AddMealButton, MealWeek, MealDay and PantryRow in
+MealCard, MealSlot, MealSlotRow, AddMealButton, MealWeek, MealDay and PantryRow in
 [components](components.md). Agreed with the Recipes screens.
 
 - Green (TypeScope). Tabs: **Week** and **Pantry** (`?tab=pantry`); the
@@ -557,15 +557,19 @@ MealCard, MealSlot, AddMealButton, MealWeek, MealDay and PantryRow in
   A long press still drags on a phone.
 - **The week:** the PlanToolbar (no Day / Week; `?day=` names the week), an
   `sm` Select of whose Meals show ("All my meals", Personal, each
-  Household; only with a Household, kept on the device) and a "…" menu holding Copy this
-  week…; then the MealWeek on a computer, the week's seven MealDays down a
-  phone, today's scrolled into view. A Meal's name is its Recipe's, a typed
+  Household; only with a Household, kept on the device) and Select; on a
+  phone those two take a row of their own under the dates, so the dates
+  show whole. Then the MealWeek on a computer, the week's seven MealDays
+  down a phone, today's scrolled into view: each slot a MealSlotRow, its
+  Meals as one-line cards (Joe, 25 October). A Meal's name is its Recipe's, a typed
   Meal's what was typed; leftovers take the name of the Meal they are of.
 - **Moving:** on a computer a MealCard is dragged to any slot, as on Plan;
   on a phone it is pressed and held until it lifts, then dragged, the slot
   under the finger lit, and let go there. A slot can hold several Meals.
   Moved, a toast says where ("Moved "Katsu curry" to Sat lunch") with Undo.
-- **Adding:** a slot's "+" opens a Popover (320px): an `sm` search, my
+- **Adding:** a slot's "+" opens a Popover (320px) on a computer; on a
+  phone, the Dialog Plan's "+" → Meal opens, its slot the one tapped
+  (Joe, 25 October: a Popover over the page let taps through). In it, an `sm` search, my
   categories as LabelChips with the slot's chosen when I have one, then
   "Planned lately" (the Recipes of my latest Meals, up to five) and "All
   recipes" (Drafts and Completes, A–Z), each a 40px line with the Recipe's
@@ -599,10 +603,6 @@ MealCard, MealSlot, AddMealButton, MealWeek, MealDay and PantryRow in
   start),
   then Cancel and Move, or Add. **Remove** takes its leftovers with it, in
   a toast with Undo.
-- **Copy this week…** is a small Dialog: "To the week of" (a DateField),
-  then Cancel and Copy. Each Meal is made again on the same weekday and
-  slot, leftovers still of their copied Meal; a toast says how many, with
-  Undo.
 - **On Plan** (PLN-008): a Meal's card says Meal, its name ("Leftovers:
   Katsu curry" for leftovers) and its slot where a time would be. Plan's
   "+" → Meal opens a Dialog, "Add a meal · Thu 15 Oct": a ToggleGroup of

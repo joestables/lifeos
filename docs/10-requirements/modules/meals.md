@@ -150,8 +150,7 @@ Provisionally agreed).
 days stacked on a phone — each day's Breakfast, Lunch and Dinner with their
 Meals (photo, name, servings; leftovers marked); ‹ Today › and a date, as on
 Plan; a filter for Personal, each Household or all; Select, to choose
-Meals and Add to shop;
-"Copy week" tucked in the week's menu. **Pantry**: ingredients by aisle, then
+Meals and Add to shop. **Pantry**: ingredients by aisle, then
 household items, with a search.
 
 **Shopping.** Tabs **Food**, **Lists** and, later, **Online**. Food: the
@@ -177,12 +176,15 @@ Acceptance criteria
    photo, name, servings, and the Variation when the Recipe has more than
    one.
 2. Given a phone, then the same week shows with its days stacked, today's
-   first in view.
+   first in view: each slot on a line with its name beside it, its Meals
+   one line each (Joe, 25 October).
 3. Given ‹, ›, Today or a date, then that week shows.
 4. Given leftovers, then they're marked as leftovers, with the Meal they
    come from.
 5. Given the filter, then the week shows Personal Meals, one Household's,
    or all of mine.
+6. Given a Meal planned or moved, then the other Meals' photos stay as they
+   are, not loaded again (Joe, 25 October).
 
 ### MPL-002 — Plan a Meal
 
@@ -194,7 +196,8 @@ Acceptance criteria
 1. Given a slot's "+", then a search opens, listing the Recipes I planned
    most recently first, with my categories to narrow it (Dinner, Baking…);
    choosing one adds a Meal of its default Variation, or offers its
-   Variations when it has more than one.
+   Variations when it has more than one. On a phone it opens in a Dialog,
+   the slot tapped chosen (Joe, 25 October).
 2. Given a new Meal, then its servings are the Variation's until I change
    them on the Meal, a change to the Variation's showing on the plan too
    (Joe, 23 October); cleared, they are the Variation's again. Its Space is my default from Settings → Food (Personal or one
@@ -243,7 +246,7 @@ Acceptance criteria
    so and the lines are unchanged.
 4. Given a Recipe's Meal, then its own lines are extras beside the
    Recipe's, not part of it.
-5. Given Copy week, then a Meal's own lines and link are copied with it.
+5. Removed with Copy week ([MPL-004](#mpl-004--copy-a-week)).
 6. Given a typed Meal without a picture, when I give it a link, then the
    page's picture becomes its photo; a Recipe's Meal shows its Recipe's
    photo, and leftovers the photo of the Meal they are of, on the plan
@@ -261,14 +264,8 @@ Acceptance criteria
 
 ### MPL-004 — Copy a week
 
-**As** Joe, **I want** to start a week from an earlier one, **so that** a
-good week is quick to repeat.
-Priority: Could · Status: built
-
-Acceptance criteria
-1. Given Copy week in the week's menu (not on the page itself), when I
-   choose another week, then the Meals are made again on the same days and
-   slots.
+Removed (Joe, 25 October: not needed). Built in Stage 4 as Copy this
+week… in the week's menu; taken out in Stage 4b's step 10.
 
 ### PAN-001 — The Pantry
 

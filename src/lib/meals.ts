@@ -1,6 +1,5 @@
-import { addDays, daysBetween } from '@lifeos/recurrence'
+import { addDays } from '@lifeos/recurrence'
 import { fromIsoDay } from './dates'
-import { mondayOf } from './plan'
 import type { MealLine, Photo } from '@/data'
 
 /** A Meal's slot as kept: breakfast, lunch, dinner (Joe, 18 October). */
@@ -112,39 +111,4 @@ export function nextMealSlot(day: string, slot: SlotKey): { day: string; slot: S
   if (slot === 'breakfast') return { day, slot: 'lunch' }
   if (slot === 'lunch') return { day, slot: 'dinner' }
   return { day: addDays(day, 1), slot: 'lunch' }
-}
-
-/** A Meal made again in another week (MPL-004): its new id, and what it is copied from. */
-export interface CopiedMeal {
-  id: string
-  from: PlannedMeal
-  day: string
-  /** The copy of the Meal it is leftovers of, when that is copied too. */
-  leftoversOf: string | null
-}
-
-/**
- * A week's Meals made again in the week of `to` (MPL-004 1): the same
- * weekday and slot; leftovers stay leftovers of their Meal's copy, or of
- * the Meal itself when it isn't in the week.
- */
-export function copyWeek(
-  meals: readonly PlannedMeal[],
-  from: string,
-  to: string,
-  newId: () => string,
-): CopiedMeal[] {
-  const shift = daysBetween(mondayOf(from), mondayOf(to))
-  const week = new Set(Array.from({ length: 7 }, (_, i) => addDays(mondayOf(from), i)))
-  const copied = meals.filter((m) => m.day && m.slot && week.has(m.day))
-  const ids = new Map(copied.map((m) => [m.id, newId()]))
-  // Meals before leftovers: the server checks the Meal leftovers are of.
-  return [...copied.filter((m) => !m.leftoversOf), ...copied.filter((m) => m.leftoversOf)].map(
-    (m) => ({
-      id: ids.get(m.id)!,
-      from: m,
-      day: addDays(m.day!, shift),
-      leftoversOf: m.leftoversOf ? (ids.get(m.leftoversOf) ?? m.leftoversOf) : null,
-    }),
-  )
 }

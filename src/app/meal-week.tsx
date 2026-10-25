@@ -1,18 +1,18 @@
 import { addDays } from '@lifeos/recurrence'
 import { useNavigate } from '@tanstack/react-router'
-import { CopyIcon, ListChecksIcon, ShoppingCartIcon } from 'lucide-react'
+import { ListChecksIcon, ShoppingCartIcon } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import {
   AddMealButton,
   MealCard,
   MealDay,
   MealSlot,
+  MealSlotRow,
   MealWeek,
   PlanToolbar,
   SelectionBar,
 } from '@/components/lifeos'
 import { Button } from '@/components/ui/button'
-import { DropdownMenuItem } from '@/components/ui/dropdown-menu'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { createList, queue, usePhotoUrls, useShopping } from '@/data'
 import { useIsMobile } from '@/hooks/use-mobile'
@@ -20,11 +20,9 @@ import { useMealDrag } from '@/hooks/use-meal-drag'
 import { fromIsoDay, shortDate } from '@/lib/dates'
 import { SLOTS, SLOT_LABEL, weekMeals, type PlannedMeal, type SlotKey } from '@/lib/meals'
 import { weekOf, weekTitle } from '@/lib/plan'
-import { MealPicker } from './add-meal'
+import { AddMealDialog, MealPicker } from './add-meal'
 import { useOpenItem } from './item-navigation'
-import { copyMeals, moveMeal, useMealPlan } from './meal-actions'
-import { CopyWeekDialog } from './meal-dialogs'
-import { MoreMenu } from './more-menu'
+import { moveMeal, useMealPlan } from './meal-actions'
 import { ALL, SpaceSelect } from './space-select'
 
 const month = new Intl.DateTimeFormat('en-GB', { month: 'short' })
@@ -79,7 +77,8 @@ export function WeekTab({
   const meals = weekMeals(shown, week)
   const photos = usePhotoUrls([...meals.values()].flat().map((m) => m.picture))
   const [adding, setAdding] = useState<string | null>(null)
-  const [copying, setCopying] = useState(false)
+  // A phone plans in a Dialog: the day, and the slot tapped.
+  const [planning, setPlanning] = useState<{ day: string; slot?: SlotKey } | null>(null)
   const navigate = useNavigate()
   const { shopOf } = useShopping(queue)
   const [chosen, setChosen] = useState<ReadonlySet<string> | null>(null)
@@ -122,6 +121,8 @@ export function WeekTab({
     days.current?.querySelector(`[data-day="${today}"]`)?.scrollIntoView({ block: 'start' })
   }, [isMobile, today, monday])
 
+  // Personal is marked only among Household Meals: a week of my own is unmarked.
+  const mixed = [...meals.values()].flat().some((m) => m.space !== personal)
   const card = (m: PlannedMeal) => {
     const recipe = plan.recipeOf(m)
     const variation = plan.variationOf(m)
@@ -134,7 +135,8 @@ export function WeekTab({
         {...(selecting ? {} : drag.handle(m.id))}
       >
         <MealCard
-          personal={shared && show === ALL && m.space === personal}
+          row={isMobile}
+          personal={shared && show === ALL && mixed && m.space === personal}
           household={
             spaces.length > 2 && show === ALL ? plan.spaces.householdName(m.space) : undefined
           }
@@ -159,14 +161,13 @@ export function WeekTab({
     )
   }
 
-  const slot = (d: string, s: SlotKey, label: boolean) => {
+  const slot = (d: string, s: SlotKey) => {
     const key = `${d}:${s}`
     const list = meals.get(key) ?? []
     return (
       <MealSlot
         key={key}
         slot={SLOT_LABEL[s]}
-        label={label}
         drop={key}
         adding={adding === key}
         dropping={drag.over === key}
@@ -183,6 +184,29 @@ export function WeekTab({
       >
         {list.length > 0 ? list.map(card) : undefined}
       </MealSlot>
+    )
+  }
+
+  const phoneSlot = (d: string, s: SlotKey) => {
+    const key = `${d}:${s}`
+    const list = meals.get(key) ?? []
+    return (
+      <MealSlotRow
+        key={key}
+        slot={SLOT_LABEL[s]}
+        drop={key}
+        dropping={drag.over === key}
+        add={
+          <AddMealButton
+            slot={SLOT_LABEL[s]}
+            compact
+            dropping={drag.over === key}
+            onClick={() => setPlanning({ day: d, slot: s })}
+          />
+        }
+      >
+        {list.length > 0 ? list.map(card) : undefined}
+      </MealSlotRow>
     )
   }
 
@@ -205,7 +229,8 @@ export function WeekTab({
           onNext={() => onDay(addDays(day, 7))}
           step="week"
           action={
-            <>
+            // On a phone its own row under the dates, so the dates show whole.
+            <div className="flex w-full items-center gap-2 md:w-auto">
               {shared && (
                 <SpaceSelect
                   all
@@ -213,30 +238,26 @@ export function WeekTab({
                   value={show}
                   onChange={keep}
                   label="Show"
-                  className="w-36"
+                  className="min-w-0 flex-1 md:w-36 md:flex-none"
                 />
               )}
-              <Button variant="ghost" size="sm" onClick={() => setChosen(new Set())}>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="max-md:ml-auto"
+                onClick={() => setChosen(new Set())}
+              >
                 <ListChecksIcon /> Select
               </Button>
-              <MoreMenu>
-                <DropdownMenuItem onClick={() => setCopying(true)}>
-                  <CopyIcon /> Copy this week…
-                </DropdownMenuItem>
-              </MoreMenu>
-            </>
+            </div>
           }
         />
       )}
-      {copying && (
-        <CopyWeekDialog
-          day={addDays(week[0]!, 7)}
-          onCopy={(to) => copyMeals(shown, week[0]!, to)}
-          onClose={() => setCopying(false)}
-        />
+      {planning && (
+        <AddMealDialog day={planning.day} slot={planning.slot} onClose={() => setPlanning(null)} />
       )}
       {isMobile ? (
-        <div ref={days} className="flex flex-col gap-5">
+        <div ref={days} className="flex flex-col gap-7">
           {week.map((d) => {
             const date = fromIsoDay(d)
             return (
@@ -246,7 +267,7 @@ export function WeekTab({
                   date={`${date.getDate()} ${month.format(date)}`}
                   today={d === today}
                 >
-                  {SLOTS.map((s) => slot(d, s, true))}
+                  {SLOTS.map((s) => phoneSlot(d, s))}
                 </MealDay>
               </div>
             )
@@ -266,7 +287,7 @@ export function WeekTab({
             }
           })}
           slots={SLOTS.map((s) => SLOT_LABEL[s])}
-          cell={(d, s) => slot(d, s.toLowerCase() as SlotKey, false)}
+          cell={(d, s) => slot(d, s.toLowerCase() as SlotKey)}
         />
       )}
     </div>

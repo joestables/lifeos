@@ -1,6 +1,6 @@
 import { expect, test, type Page } from '@playwright/test'
 import { DISHOOM, KATSU_AIR, KATSU_MEAL, LEFTOVERS, NOW, mealRows } from './meal-rows'
-import { KATSU, KATSU_STD, NOODLES_STD } from './recipe-rows'
+import { KATSU, KATSU_STD, NOODLES, NOODLES_STD } from './recipe-rows'
 import { standIn } from './stand-in'
 
 async function start(page: Page, path = '/meal-plan', { clock = true } = {}) {
@@ -51,10 +51,9 @@ test.describe('The Meal plan', () => {
     await add(page, '2026-10-14:dinner')
     const picker = page.getByRole('dialog')
     // The slot's category is chosen: Shakshuka, a breakfast, isn't offered.
-    await expect(picker.getByRole('button', { name: 'Dinner' })).toHaveAttribute(
-      'aria-pressed',
-      'true',
-    )
+    await expect(
+      picker.getByLabel('Category').getByRole('button', { name: 'Dinner' }),
+    ).toHaveAttribute('aria-pressed', 'true')
     await expect(picker.getByText('Planned lately')).toBeVisible()
     await expect(picker.getByRole('button', { name: /Shakshuka/ })).toHaveCount(0)
     await picker.getByRole('button', { name: /Gochujang noodles/ }).click()
@@ -207,25 +206,6 @@ test.describe('The Meal plan', () => {
     await expect(cards(page, '2026-10-16:lunch')).toHaveCount(1)
   })
 
-  test('MPL-004: a week copied to another, leftovers of their copies', async ({ page }) => {
-    const db = await start(page)
-    await page.getByRole('button', { name: 'More' }).first().click()
-    await page.getByRole('menuitem', { name: 'Copy this week…' }).click()
-    await page
-      .getByRole('dialog', { name: 'Copy this week' })
-      .getByRole('button', { name: 'Copy' })
-      .click()
-    await expect(page.getByText('Copied 3 meals')).toBeVisible()
-    await expect
-      .poll(() => db.items.filter((i) => i.type === 'meal' && String(i.do_on) >= '2026-10-19'))
-      .toHaveLength(3)
-    const copy = db.items.find((i) => i.type === 'meal' && i.do_on === '2026-10-22')!
-    expect(db.meal.find((m) => m.leftovers_of === copy.id)).toBeTruthy()
-    expect(uses(db, String(copy.id))).toBe(KATSU_STD)
-    await page.getByRole('button', { name: 'Next week' }).click()
-    await expect(cards(page, '2026-10-23:lunch')).toHaveText(/Katsu curry.*Leftovers/)
-  })
-
   test('PLN-008: Meals on Plan in slot order, and added from its "+"', async ({
     page,
     isMobile,
@@ -245,5 +225,56 @@ test.describe('The Meal plan', () => {
     await expect
       .poll(() => db.items.find((i) => i.type === 'meal' && i.title === 'Shakshuka'))
       .toMatchObject({ do_on: '2026-10-15', slot: 'breakfast' })
+  })
+
+  test('MPL-001 6: planning a Meal leaves the other photos as they are', async ({ page }) => {
+    await page.clock.setFixedTime(NOW)
+    const photo = `${KATSU}/p1.webp`
+    const rows = mealRows()
+    const other = `${NOODLES}/p2.webp`
+    rows.attachments = [
+      { id: 'p1', item_id: KATSU, kind: 'photo', path: photo, width: 400, height: 300 },
+      { id: 'p2', item_id: NOODLES, kind: 'photo', path: other, width: 400, height: 300 },
+    ]
+    const db = await standIn(page, { signedIn: true, rows })
+    db.files.set(photo, Buffer.from('stand-in'))
+    db.files.set(other, Buffer.from('stand-in'))
+    const signed: string[][] = []
+    page.on('request', (r) => {
+      if (r.url().includes('/storage/v1/object/sign/photos') && r.method() === 'POST')
+        signed.push((r.postDataJSON() as { paths: string[] }).paths)
+    })
+    await page.goto('/meal-plan')
+    await expect.poll(() => signed.flat()).toContain(photo)
+    const asked = signed.length
+    await add(page, '2026-10-14:dinner')
+    await page
+      .getByRole('dialog')
+      .getByRole('button', { name: /Gochujang noodles/ })
+      .click()
+    await expect(cards(page, '2026-10-14:dinner')).toHaveCount(1)
+    // Only the new Meal's photo is asked for, not Katsu curry's again.
+    await expect.poll(() => signed.slice(asked).flat()).toContain(other)
+    expect(signed.slice(asked).flat()).not.toContain(photo)
+  })
+
+  test('MPL-002 1: on a phone, + opens a Dialog with the slot tapped', async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(!isMobile, 'a phone')
+    const db = await start(page)
+    await slot(page, '2026-10-14:lunch').getByRole('button', { name: 'Add lunch' }).tap()
+    const dialog = page.getByRole('dialog', { name: /Add a meal · Wed 14 Oct/ })
+    await expect(dialog.getByLabel('Slot').getByRole('button', { name: 'Lunch' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    )
+    await dialog.getByRole('button', { name: /Gochujang noodles/ }).tap()
+    await expect(dialog).toBeHidden()
+    await expect(cards(page, '2026-10-14:lunch')).toHaveText(/Gochujang noodles/)
+    await expect
+      .poll(() => db.items.find((i) => i.type === 'meal' && i.title === 'Gochujang noodles'))
+      .toMatchObject({ do_on: '2026-10-14', slot: 'lunch' })
   })
 })

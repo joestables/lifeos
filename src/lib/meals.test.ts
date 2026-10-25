@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest'
 import {
-  copyWeek,
   leftoverChoices,
   mealName,
   nextMealSlot,
@@ -93,23 +92,5 @@ describe('MPL-002: planning a Meal', () => {
     expect(nextMealSlot('2026-10-15', 'breakfast')).toEqual({ day: '2026-10-15', slot: 'lunch' })
     expect(nextMealSlot('2026-10-15', 'lunch')).toEqual({ day: '2026-10-15', slot: 'dinner' })
     expect(nextMealSlot('2026-10-15', 'dinner')).toEqual({ day: '2026-10-16', slot: 'lunch' })
-  })
-})
-
-describe('MPL-004: copying a week', () => {
-  it('makes each Meal again on the same weekday and slot, leftovers of their copies', () => {
-    let n = 0
-    const meals = [
-      meal('left', '2026-10-16', 'lunch', { leftoversOf: 'katsu' }),
-      meal('katsu', '2026-10-15', 'dinner'),
-      meal('outside', '2026-10-20', 'dinner'),
-      meal('oldLeft', '2026-10-12', 'lunch', { leftoversOf: 'sunday' }),
-    ]
-    const copies = copyWeek(meals, '2026-10-14', '2026-10-28', () => `new${++n}`)
-    expect(copies.map((c) => [c.from.id, c.id, c.day, c.leftoversOf])).toEqual([
-      ['katsu', 'new2', '2026-10-29', null],
-      ['left', 'new1', '2026-10-30', 'new2'],
-      ['oldLeft', 'new3', '2026-10-26', 'sunday'],
-    ])
   })
 })
