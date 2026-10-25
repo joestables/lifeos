@@ -522,6 +522,7 @@ export {
 } from './food-hooks'
 export { positionBetween, positionsFor } from './food-writes'
 export { useShopMeals, useShopping, type ShoppingData, type ShoppingList } from './shopping-hooks'
+export { deleteIsMine, liveKeys, useLiveShopping } from './live'
 export type { ListFields, ShopLine, ShopLineFields, ShopMeal } from './shopping'
 export {
   useHouseholds,

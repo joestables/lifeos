@@ -1,4 +1,4 @@
-import { expect, type Locator, type Page } from '@playwright/test'
+import { expect, type Locator, type Page, type WebSocketRoute } from '@playwright/test'
 import { typeByKey } from '../../packages/ontology/src/index.ts'
 import { addDays } from '../../packages/recurrence/src/index.ts'
 import { zonedInstant } from '../../src/lib/dates.ts'
@@ -1295,6 +1295,7 @@ export async function standIn(
       }))
   // The shops' Meals' lines, as the database would have them already.
   refreshShops()
+  const live = await realtime(page)
   await page.route(`${STAND_IN_URL}/**`, async (route) => {
     const url = new URL(route.request().url())
     if (url.pathname.includes('/auth/v1/logout')) return route.fulfill({ status: 204 })
@@ -1412,7 +1413,88 @@ export async function standIn(
       [SESSION_KEY, JSON.stringify(session)],
     )
   }
-  return db
+  return Object.assign(db, { live })
+}
+
+interface Binding {
+  id: number
+  event: string
+  schema: string
+  table: string
+  filter?: string
+}
+
+/**
+ * Supabase Realtime (ADR-0057), enough for the app's Postgres Changes: a
+ * channel's join is answered with its bindings, anything else with ok. A
+ * walk makes another device's change arrive with `db.live.change`, after
+ * changing the rows itself, as that device's write would have.
+ */
+async function realtime(page: Page) {
+  const channels: { ws: WebSocketRoute; topic: string; bindings: Binding[] }[] = []
+  let next = 1
+  await page.routeWebSocket(/\/realtime\/v1\/websocket/, (ws) => {
+    ws.onMessage((raw) => {
+      const [joinRef, ref, topic, event, payload] = JSON.parse(String(raw)) as [
+        string | null,
+        string | null,
+        string,
+        string,
+        { config?: { postgres_changes?: Omit<Binding, 'id'>[] } },
+      ]
+      let response = {}
+      if (event === 'phx_join') {
+        const bindings = (payload.config?.postgres_changes ?? []).map((b) => ({ ...b, id: next++ }))
+        channels.push({ ws, topic, bindings })
+        response = { postgres_changes: bindings }
+      }
+      if (event === 'phx_leave') {
+        const i = channels.findIndex((c) => c.ws === ws && c.topic === topic)
+        if (i >= 0) channels.splice(i, 1)
+      }
+      ws.send(JSON.stringify([joinRef, ref, topic, 'phx_reply', { status: 'ok', response }]))
+    })
+  })
+  return {
+    /** How many channels are joined: the app is listening. */
+    joined: () => channels.length,
+    change(table: string, type: 'INSERT' | 'UPDATE' | 'DELETE', record: Record<string, unknown>) {
+      const columns = Object.keys(record).map((name) => ({ name, type: 'text' }))
+      for (const c of channels) {
+        const ids = c.bindings
+          .filter((b) => b.schema === 'shopping' && b.table === table)
+          .filter((b) => b.event === '*' || b.event === type)
+          .filter((b) => {
+            if (!b.filter || type === 'DELETE') return true
+            const [column, value] = b.filter.split('=eq.')
+            return String(record[column!]) === value
+          })
+          .map((b) => b.id)
+        if (!ids.length) continue
+        c.ws.send(
+          JSON.stringify([
+            null,
+            null,
+            c.topic,
+            'postgres_changes',
+            {
+              ids,
+              data: {
+                schema: 'shopping',
+                table,
+                type,
+                commit_timestamp: new Date().toISOString(),
+                columns,
+                record: type === 'DELETE' ? null : record,
+                old_record: type === 'INSERT' ? null : record,
+                errors: null,
+              },
+            },
+          ]),
+        )
+      }
+    },
+  }
 }
 
 /** Puts writes in the queue before the app loads, as if made offline earlier. */
