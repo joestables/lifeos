@@ -63,7 +63,7 @@ export function SortMenu<T extends string>({
         <Arrow dir={direction} />
         <ChevronDownIcon className="ml-auto" />
       </MenuPrimitive.Trigger>
-      <DropdownMenuContent>
+      <DropdownMenuContent align="end">
         <DropdownMenuGroup>
           <DropdownMenuLabel>Sort</DropdownMenuLabel>
           {options.map((o) => {

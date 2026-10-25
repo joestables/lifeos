@@ -67,9 +67,10 @@ Provisionally agreed).
   (Joe, 17 October); a new ingredient starts in Cupboard. A household item's
   aisle is **Household**, after Frozen, and only household items use it (Joe,
   18 October).
-- **Staples and Essentials are each Space's lists on Shopping → Food**,
-  not set in the Pantry (Joe, 24 October; until Stage 4b's step 5 the
-  Pantry still marks staples and out of stock, as built in Stage 4). Each
+- **Staples and Essentials are each Space's lists, kept in the Pantry**
+  (Joe, 25 October; on Shopping → Food from 24 October until then): a
+  Household picker, All · Staples · Essentials, and on every entry a
+  Staple and an Essential toggle, one or the other. Each
   Household has one of each, and so do I for Personal. **Staples** are
   long-life goods I expect to have (salt), any of which I may mark **out
   of stock**; **Essentials** are what we buy most shops (milk), any of
@@ -81,8 +82,7 @@ Provisionally agreed).
 
 ### Shopping
 
-- **Shopping has three tabs** (Joe, 24 October): **Food**, food shops and
-  each of my Spaces' Essentials; **Lists**, shopping that isn't food
+- **Shopping has three tabs** (Joe, 24 October): **Food**, food shops; **Lists**, shopping that isn't food
   (Screwfix, Boots, a birthday); and **Online**, items watched for their
   price, which comes later
   ([roadmap](../../roadmap.md#later-opportunities)). Lists that aren't
@@ -150,12 +150,13 @@ Provisionally agreed).
 days stacked on a phone — each day's Breakfast, Lunch and Dinner with their
 Meals (photo, name, servings; leftovers marked); ‹ Today › and a date, as on
 Plan; a filter for Personal, each Household or all; Select, to choose
-Meals and Add to shop. **Pantry**: ingredients by aisle, then
-household items, with a search.
+Meals and Add to shop. **Pantry**: the chosen Space's staples and
+Essentials picked from it (All · Staples · Essentials), ingredients by
+aisle or sorted by use or A–Z, then household items, with a search; Pending
+a press away.
 
 **Shopping.** Tabs **Food**, **Lists** and, later, **Online**. Food: the
-food shops, dated ones by date, then undated, then each of my Spaces'
-Staples and Essentials, with out of stock and Required marked;
+food shops, dated ones by date, then undated;
 each shop opening to All · Meals · Extra, with ticking, adding and Done.
 Lists: the other lists, the same way, by my subheadings. Done lists are a
 press away on each.
@@ -276,7 +277,10 @@ Priority: Must · Status: built
 Acceptance criteria
 1. Given Meal plan → Pantry, then ingredients show under their aisles, in
    aisle order, with how many Recipes use each (on a computer), then household items apart;
-   a search narrows them.
+   a search narrows them. I sort them By aisle, Recently used (by the
+   latest Recipe, Meal or shop with it), Most popular (by how many Recipes
+   and Meals use it) or A–Z, either way round, and show or hide each
+   entry's aisle and default unit; my choices are kept (Joe, 25 October).
 2. Given New, then I add an ingredient or a household item: a name, an
    aisle (Cupboard to start) and a default unit.
 3. Given an entry I added, then I change its name, aisle and default unit,
@@ -293,9 +297,10 @@ Acceptance criteria
 ### PAN-002 — Staples and out of stock
 
 Replaced by [SHP-005](#shp-005--staples-and-essentials) (Joe, 24 October):
-staples and out of stock move from the Pantry to Shopping → Food. Built in
+staples and out of stock moved from the Pantry to Shopping → Food. Built in
 Stage 4 (marking staples and out of stock in the Pantry, the Space's
 staples those of where my new Meals go); removed with Stage 4b's step 5.
+On 25 October they came back to the Pantry, as SHP-005's lists.
 
 ### PAN-003 — Merge two entries
 
@@ -321,9 +326,10 @@ Acceptance criteria
    the Pantry, then I choose its aisle (Cupboard to start) and default unit
    (the line's to start), and the line links to it ([RCP-007](recipes.md#rcp-007--ingredient-lines)).
    A line kept as typed offers the same from its mark (Joe, 23 October).
-2. Given lines kept as typed in my Recipes, then the Pantry lists them by
-   name, to add one at a time or all at once (in Cupboard); each line then
-   uses the new entry.
+2. Given lines kept as typed in my Recipes, then the Pantry's Pending, a
+   page of its own with their count on its button (Joe, 25 October), lists
+   them by name, to add one at a time or all at once (in Cupboard); each
+   line then uses the new entry.
 3. Given an entry with no default unit, when a line using it is given a
    unit, then that unit becomes its default (Joe, 23 October).
 
@@ -416,16 +422,17 @@ Acceptance criteria
 ### SHP-005 — Staples and Essentials
 
 **As** Joe, **I want** each Household's long-life goods and everyday buys
-kept in one place, **so that** I'm offered what runs out, and milk every
-shop, without visiting the Pantry.
+kept with the Pantry, **so that** I'm offered what runs out, and milk every
+shop, and marking them is a press.
 Priority: Must · Status: built
 
 Acceptance criteria
-1. Given Shopping → Food, then each of my Spaces' Staples and Essentials
-   show, Personal and each Household; any member adds Pantry entries to
-   them or takes them off.
+1. Given the Pantry, then I choose whose (Personal or a Household) and
+   show All, Staples or Essentials; any member makes an entry a staple or
+   an Essential with its toggle, one or the other, or takes it off (Joe,
+   25 October; on Shopping → Food until then).
 2. Given a staple, then I mark it out of stock, or not; given an Essential,
-   then I mark it Required, or not.
+   then I mark it Required, or not, from its pill beside the toggles.
 3. Given either list, then it is never ticked or done; it feeds every food
    shop's Extra (SHP-003 3), and staples aren't added from Meals (SHP-002
    2).

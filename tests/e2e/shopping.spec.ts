@@ -154,32 +154,53 @@ test.describe('Shopping', () => {
     await expect.poll(() => db.items.find((i) => i.id === SHOP)?.status).toBe('done')
   })
 
-  test('SHP-005: staples and Essentials kept on Food, out of stock and Required', async ({
+  test('SHP-005: staples and Essentials kept in the Pantry, out of stock and Required', async ({
     page,
   }) => {
-    const db = await start(page)
-    const staples = page.getByRole('group', { name: 'Staples' })
-    await expect(staples.getByRole('button', { name: 'Salt out of stock' })).toHaveAttribute(
+    const db = await start(page, '/meal-plan?tab=pantry')
+    const row = (name: string) => page.locator('[data-slot="pantry-row"]').filter({ hasText: name })
+    await expect(row('Salt').getByRole('button', { name: 'Salt out of stock' })).toHaveAttribute(
       'aria-pressed',
       'true',
     )
-    await staples.getByRole('textbox', { name: 'Add a staple' }).fill('Chick')
-    await page.keyboard.press('Enter')
+    // A staple at a press, then out of stock.
+    await row('Chicken thighs').getByRole('button', { name: 'Staple: Chicken thighs' }).click()
     await expect
       .poll(() => db.space_entries.find((e) => e.pantry_id === CHICKEN))
       .toMatchObject({ kind: 'staple', needed: false })
-    await staples.getByRole('button', { name: 'Chicken thighs out of stock' }).click()
+    await row('Chicken thighs').getByRole('button', { name: 'Chicken thighs out of stock' }).click()
     await expect
       .poll(() => db.space_entries.find((e) => e.pantry_id === CHICKEN)?.needed)
       .toBe(true)
-    const essentials = page.getByRole('group', { name: 'Essentials' })
-    await expect(essentials.getByRole('button', { name: 'Milk required' })).toHaveAttribute(
+    // Made an Essential instead: one or the other.
+    await row('Chicken thighs').getByRole('button', { name: 'Essential: Chicken thighs' }).click()
+    await expect
+      .poll(() => db.space_entries.find((e) => e.pantry_id === CHICKEN)?.kind)
+      .toBe('essential')
+    await expect(
+      row('Chicken thighs').getByRole('button', { name: 'Staple: Chicken thighs' }),
+    ).toHaveAttribute('aria-pressed', 'false')
+    // Essentials only; one taken off leaves, with Undo.
+    await page
+      .getByRole('group', { name: 'Show' })
+      .getByRole('button', { name: 'Essentials' })
+      .click()
+    await expect(page.locator('[data-slot="pantry-row"]')).toHaveCount(2)
+    await expect(row('Milk').getByRole('button', { name: 'Milk required' })).toHaveAttribute(
       'aria-pressed',
       'true',
     )
-    await essentials.getByRole('button', { name: 'More' }).click()
-    await page.getByRole('menuitem', { name: 'Take off' }).click()
+    await row('Milk').getByRole('button', { name: 'Essential: Milk' }).click()
     await expect.poll(() => db.space_entries.some((e) => e.pantry_id === MILK)).toBe(false)
+    await expect(row('Milk')).toHaveCount(0)
+    await page.getByRole('button', { name: 'Undo' }).click()
+    await expect
+      .poll(() => db.space_entries.find((e) => e.pantry_id === MILK))
+      .toMatchObject({ kind: 'essential', needed: true })
+    // Shopping → Food holds only the shops now.
+    await page.goto('/shopping')
+    await expect(page.getByText('Big shop')).toBeVisible()
+    await expect(page.getByRole('group', { name: 'Staples' })).toHaveCount(0)
   })
 
   test('SHP-001 3: a list by my own subheadings, ticked as I go', async ({ page }) => {

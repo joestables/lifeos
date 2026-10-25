@@ -40,7 +40,7 @@ import {
   MealDay,
   MealSlotRow,
   MethodSteps,
-  KeptRow,
+  KeepToggles,
   OfferRow,
   PantryAisle,
   PantryRow,
@@ -1062,9 +1062,42 @@ function DesignPage() {
                 <OfferRow name="Milk" needed="Required" added onAdd={() => undefined} />
                 <OfferRow name="Cumin" meta="Chilli Thu" />
               </PantryAisle>
-              <PantryAisle label="Essentials">
-                <KeptRow name="Milk" flag="Required" on />
-                <KeptRow name="Bananas" flag="Required" />
+              <PantryAisle label="Fruit & Veg">
+                <PantryRow
+                  name="Onion"
+                  meta="Fruit & Veg · g"
+                  actions={
+                    <KeepToggles
+                      name="Onion"
+                      kept="staple"
+                      needed
+                      onKept={() => undefined}
+                      onNeeded={() => undefined}
+                    />
+                  }
+                />
+                <PantryRow
+                  name="Bananas"
+                  actions={
+                    <KeepToggles
+                      name="Bananas"
+                      kept="essential"
+                      onKept={() => undefined}
+                      onNeeded={() => undefined}
+                    />
+                  }
+                />
+                <PantryRow
+                  name="Garlic"
+                  actions={
+                    <KeepToggles
+                      name="Garlic"
+                      kept={null}
+                      onKept={() => undefined}
+                      onNeeded={() => undefined}
+                    />
+                  }
+                />
               </PantryAisle>
             </div>
           </TypeScope>

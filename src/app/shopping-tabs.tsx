@@ -1,26 +1,14 @@
 import { useNavigate } from '@tanstack/react-router'
-import { ShoppingCartIcon, XIcon } from 'lucide-react'
+import { ShoppingCartIcon } from 'lucide-react'
 import { useState } from 'react'
-import { EmptyState, ItemRow, KeptRow, SectionLabel, TypeTile } from '@/components/lifeos'
+import { EmptyState, ItemRow, SectionLabel, TypeTile } from '@/components/lifeos'
 import { Button } from '@/components/ui/button'
-import { Card, CardTitle } from '@/components/ui/card'
 import { DropdownMenuItem } from '@/components/ui/dropdown-menu'
-import {
-  addPantry,
-  keepEntry,
-  queue,
-  removeEntry,
-  useFood,
-  useFoodSpaces,
-  useShopping,
-  type ShoppingList,
-} from '@/data'
+import { queue, useFoodSpaces, useShopping, type ShoppingList } from '@/data'
 import { dateName } from '@/lib/dates'
 import { itemTitle } from '@/lib/item-types'
 import { deleteItem } from './item-navigation'
 import { MoreMenu } from './more-menu'
-import { PantryPicker } from './pantry-picker'
-import { SpaceSelect } from './space-select'
 
 const cart = <TypeTile colour="yellow" icon={ShoppingCartIcon} />
 
@@ -90,82 +78,11 @@ function Lists({ kind, label }: { kind: 'food' | 'list'; label: string }) {
   )
 }
 
-/** One of a Space's staples or Essentials cards (SHP-005 1, 2). */
-function KeptCard({ space, kind }: { space: string; kind: 'staple' | 'essential' }) {
-  const food = useFood(queue)
-  const { entries } = useShopping(queue)
-  const flag = kind === 'staple' ? 'Out of stock' : 'Required'
-  const rows = entries
-    .filter((e) => e.space_id === space && e.kind === kind)
-    .map((e) => ({ ...e, name: food.pantry.get(e.pantry_id)?.name ?? '' }))
-    .filter((e) => e.name)
-    .sort((a, b) => a.name.localeCompare(b.name))
-  const title = kind === 'staple' ? 'Staples' : 'Essentials'
-  return (
-    <Card role="group" aria-label={title} className="gap-0 px-2 py-1.5">
-      <CardTitle className="px-3 pt-2.5 pb-1 text-sm text-muted-foreground">{title}</CardTitle>
-      {rows.map((e) => (
-        <KeptRow
-          key={e.pantry_id}
-          name={e.name}
-          flag={flag}
-          on={e.needed}
-          onChange={(on) => keepEntry(space, e.pantry_id, kind, on)}
-          menu={
-            <MoreMenu>
-              <DropdownMenuItem
-                variant="destructive"
-                onClick={() => removeEntry(space, e.pantry_id)}
-              >
-                <XIcon /> Take off
-              </DropdownMenuItem>
-            </MoreMenu>
-          }
-        />
-      ))}
-      <div className="px-1 pt-1 pb-1.5">
-        <PantryPicker
-          pantry={food.pantry}
-          label={kind === 'staple' ? 'Add a staple' : 'Add an essential'}
-          typedLabel={(name) => `Add "${name}" to the Pantry`}
-          onPick={(choice) => {
-            const id = 'pantry' in choice ? choice.pantry.id : addPantry({ name: choice.text })
-            keepEntry(space, id, kind)
-          }}
-        />
-      </div>
-    </Card>
-  )
-}
-
-/** Shopping → Food (SHP-001, SHP-005): the shops, then a Space's staples and Essentials. */
+/** Shopping → Food (SHP-001): the food shops; staples and Essentials are the Pantry's (SHP-005). */
 export function FoodTab() {
-  const spaces = useFoodSpaces(queue)
-  const [chosen, setChosen] = useState<string | null>(null)
-  const space = chosen ?? spaces.home ?? spaces.personal
   return (
     <div className="flex max-w-3xl flex-col gap-6">
       <Lists kind="food" label="Shops" />
-      {space && (
-        <section className="flex flex-col gap-2">
-          <div className="flex items-center gap-2">
-            <SectionLabel className="mb-0 flex-1">Staples and essentials</SectionLabel>
-            {spaces.spaces.length > 1 && (
-              <SpaceSelect
-                label="Whose"
-                spaces={spaces.spaces}
-                value={space}
-                onChange={setChosen}
-                className="w-auto"
-              />
-            )}
-          </div>
-          <div className="grid items-start gap-4 md:grid-cols-2">
-            <KeptCard space={space} kind="staple" />
-            <KeptCard space={space} kind="essential" />
-          </div>
-        </section>
-      )}
     </div>
   )
 }

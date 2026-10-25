@@ -1,7 +1,9 @@
 import { Toggle as TogglePrimitive } from '@base-ui/react/toggle'
-import { CheckIcon } from 'lucide-react'
+import { CheckIcon, PackageIcon, StarIcon } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { Card } from '@/components/ui/card'
+import { Toggle } from '@/components/ui/toggle'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
 
 export function Pill({
@@ -36,34 +38,138 @@ export function Pill({
 }
 
 /**
- * A Pantry entry (PAN-001): its name, then how many Recipes use it, muted
- * (no unit: Joe, 23 October; the count only on a computer), then its "…"
- * menu. Staples and Essentials are kept on Shopping (SHP-005).
+ * A Pantry entry (PAN-001): its name and, muted, what the page shows of it
+ * (its aisle, its default unit) and how many Recipes use it (on a computer);
+ * then its actions (whether it's a staple or an Essential) and its "…" menu.
  */
 export function PantryRow({
   name,
+  meta,
   recipes,
+  actions,
   menu,
 }: {
   name: string
+  /** "Fruit & Veg · g", as the Pantry's Show chooses. */
+  meta?: string
   /** How many Recipes use it. */
   recipes?: number
+  actions?: ReactNode
   menu?: ReactNode
 }) {
   return (
     <div
       data-slot="pantry-row"
-      className="flex min-h-12 items-center gap-3 rounded-control px-3 py-1.5 hover:bg-accent/50"
+      className="flex min-h-12 items-center gap-2 rounded-control py-1.5 pr-1 pl-3 hover:bg-accent/50"
     >
       <div className="flex min-w-0 flex-1 flex-col sm:flex-row sm:items-baseline sm:gap-3">
         <span className="truncate font-semibold sm:shrink-0">{name}</span>
-        {!!recipes && (
-          <span className="truncate text-sm text-muted-foreground tabular-nums max-sm:hidden">
-            {recipes} {recipes === 1 ? 'recipe' : 'recipes'}
+        {(meta || !!recipes) && (
+          <span className="truncate text-xs text-muted-foreground tabular-nums sm:text-sm">
+            {meta}
+            {meta && !!recipes && <span className="max-sm:hidden"> · </span>}
+            {!!recipes && (
+              <span className="max-sm:hidden">
+                {recipes} {recipes === 1 ? 'recipe' : 'recipes'}
+              </span>
+            )}
           </span>
         )}
       </div>
+      {actions}
       {menu}
+    </div>
+  )
+}
+
+export type Kept = 'staple' | 'essential'
+
+function KeepToggle({
+  label,
+  pressed,
+  onPressedChange,
+  fill = false,
+  children,
+}: {
+  label: string
+  pressed: boolean
+  onPressedChange: (on: boolean) => void
+  /** Its icon filled when on (the star); else only the tint shows it. */
+  fill?: boolean
+  children: ReactNode
+}) {
+  return (
+    <Tooltip>
+      <TooltipTrigger
+        render={
+          <Toggle
+            aria-label={label}
+            pressed={pressed}
+            onPressedChange={onPressedChange}
+            className={cn(
+              'data-pressed:bg-selected data-pressed:text-selected-foreground',
+              !fill && 'data-pressed:[&_svg]:fill-none',
+            )}
+          />
+        }
+      >
+        {children}
+      </TooltipTrigger>
+      <TooltipContent>{label}</TooltipContent>
+    </Tooltip>
+  )
+}
+
+/**
+ * Whether an entry is one of a Space's staples (`package`) or Essentials
+ * (`star`), one at most, each a Toggle tinted when on, the star filled
+ * (Joe, 25 October);
+ * once it is, its "Out of stock" or "Required" Pill first, amber when on.
+ */
+export function KeepToggles({
+  name,
+  kept,
+  needed = false,
+  onKept,
+  onNeeded,
+}: {
+  name: string
+  kept: Kept | null
+  needed?: boolean
+  /** A kind, or none: taken off. */
+  onKept: (kept: Kept | null) => void
+  onNeeded: (on: boolean) => void
+}) {
+  const flag = kept === 'staple' ? 'Out of stock' : 'Required'
+  return (
+    <div className="flex shrink-0 items-center gap-0.5">
+      {kept && (
+        <Pill
+          label={`${name} ${flag.toLowerCase()}`}
+          pressed={needed}
+          onPressedChange={onNeeded}
+          warning
+        >
+          {flag}
+        </Pill>
+      )}
+      <span className={cn('flex items-center gap-0.5', kept && 'ml-1.5')}>
+        <KeepToggle
+          label={`Staple: ${name}`}
+          pressed={kept === 'staple'}
+          onPressedChange={(on) => onKept(on ? 'staple' : null)}
+        >
+          <PackageIcon />
+        </KeepToggle>
+        <KeepToggle
+          label={`Essential: ${name}`}
+          pressed={kept === 'essential'}
+          onPressedChange={(on) => onKept(on ? 'essential' : null)}
+          fill
+        >
+          <StarIcon />
+        </KeepToggle>
+      </span>
     </div>
   )
 }

@@ -2,6 +2,32 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#46](https://github.com/joestables/lifeos/pull/46) — The Pantry: sorts, Show, Pending, Staples and Essentials
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-25
+
+**What it did**
+- Staples and Essentials moved from Shopping → Food to the Pantry: whose
+  (Personal or a Household), All · Staples · Essentials, and on every
+  entry KeepToggles (a new component): Staple (`package`) and Essential
+  (`star`), one or the other, with its Out of stock or Required pill; one
+  taken off while only those show leaves with Undo.
+- Sorts in a SortMenu: By aisle, Recently used (the latest Recipe, Meal or
+  shop with it), Most popular (Recipes and Meals using it) and A–Z, either
+  way round; Show the aisle and default unit on each row. Kept on the
+  device.
+- Pending, a page of its own (its count on the button), holds the names
+  kept as typed.
+- Shopping → Food shows only the shops.
+
+**Documents touched:** components (PantryRow, KeepToggles, KeptRow),
+patterns (the Pantry, Pending, Shopping), meals (decisions, pages,
+PAN-001 1, PAN-002, PAN-004 2, SHP-005 1–2), glossary, ADR-0050 and
+ADR-0051 amended, the Stage 4b plan.
+
+**Left for later:** Shopping's part of Joe's first round (added by
+themselves, Extra's two columns).
+
 ## [#45](https://github.com/joestables/lifeos/pull/45) — Meal plan: photos that stay, a phone's week that fits
 
 Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-25
