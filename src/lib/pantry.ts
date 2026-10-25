@@ -1,3 +1,5 @@
+import { directed, type SortDirection } from './sort'
+
 /** The Pantry's aisles, in shopping order (ADR-0012, PAN-001). */
 export const AISLES = {
   fruit_veg: 'Fruit & Veg',
@@ -76,26 +78,105 @@ export function usedIn(uses: readonly { name: string }[]): string {
   return rest.length ? `Used in ${first.name} and ${rest.length} more` : `Used in ${first.name}`
 }
 
+export type PantrySort = 'aisle' | 'recent' | 'popular' | 'name'
+
+/** The Pantry's sorts (PAN-001 1), each its own way to start. */
+export const PANTRY_SORTS: { value: PantrySort; label: string; initial: SortDirection }[] = [
+  { value: 'aisle', label: 'By aisle', initial: 'asc' },
+  { value: 'recent', label: 'Recently used', initial: 'desc' },
+  { value: 'popular', label: 'Most popular', initial: 'desc' },
+  { value: 'name', label: 'A–Z', initial: 'asc' },
+]
+
+/** How an entry is used: by how many Recipes and Meals, and when last. */
+export interface PantryUse {
+  count: number
+  /** The latest day or time of a Recipe, Meal or shop with it; "" for never. */
+  last: string
+}
+
+type Used = { when: string; lines: readonly { pantry_id: string | null }[] }
+
 /**
- * The Pantry as shown (PAN-001 1): ingredients by aisle, in aisle order,
- * then household items, each A–Z; narrowed by the search.
+ * Each entry's use (Joe, 25 October): Recipes and Meals count towards Most
+ * popular; Recipes, Meals and shops towards Recently used, by a Recipe's
+ * last change, a Meal's day and a shop's date (or when it was made).
  */
-export function pantryGroups(
+export function pantryUse(
+  recipes: readonly Used[],
+  meals: readonly Used[],
+  shops: readonly Used[],
+): Map<string, PantryUse> {
+  const out = new Map<string, PantryUse>()
+  const add = (u: Used, counts: boolean) => {
+    for (const id of new Set(u.lines.map((l) => l.pantry_id))) {
+      if (!id) continue
+      const was = out.get(id) ?? { count: 0, last: '' }
+      out.set(id, {
+        count: was.count + (counts ? 1 : 0),
+        last: u.when > was.last ? u.when : was.last,
+      })
+    }
+  }
+  for (const r of recipes) add(r, true)
+  for (const m of meals) add(m, true)
+  for (const s of shops) add(s, false)
+  return out
+}
+
+export interface PantryShown {
+  /** By aisle: each aisle's entries; otherwise one group, unnamed. */
+  groups: { key: string; label: string; entries: PantryLine[] }[]
+  household: PantryLine[]
+}
+
+/**
+ * The Pantry as shown (PAN-001 1): narrowed by the search, then by aisle
+ * (in aisle order, each A–Z), by when last used, by how many use it, or
+ * A–Z, either way round; household items apart, sorted the same.
+ */
+export function pantryShown(
   entries: readonly PantryLine[],
   search: string,
-): { aisles: { aisle: Aisle; label: string; entries: PantryLine[] }[]; household: PantryLine[] } {
+  sort: PantrySort = 'aisle',
+  direction: SortDirection = 'asc',
+  use: ReadonlyMap<string, PantryUse> = new Map(),
+): PantryShown {
   const q = nameKey(search)
+  const byName = (a: PantryLine, b: PantryLine) => a.name.localeCompare(b.name)
+  const compare =
+    sort === 'recent'
+      ? (a: PantryLine, b: PantryLine) =>
+          (use.get(b.id)?.last ?? '').localeCompare(use.get(a.id)?.last ?? '') || byName(a, b)
+      : sort === 'popular'
+        ? (a: PantryLine, b: PantryLine) =>
+            (use.get(b.id)?.count ?? 0) - (use.get(a.id)?.count ?? 0) || byName(a, b)
+        : byName
+  const initial = PANTRY_SORTS.find((o) => o.value === sort)?.initial ?? 'asc'
   const shown = entries
     .filter((e) => !q || nameKey(e.name).includes(q))
-    .sort((a, b) => a.name.localeCompare(b.name))
-  const aisles = (Object.keys(AISLES) as Aisle[])
-    .map((aisle) => ({
-      aisle,
-      label: AISLES[aisle],
-      entries: shown.filter((e) => e.kind === 'ingredient' && (e.aisle ?? 'cupboard') === aisle),
-    }))
-    .filter((a) => a.entries.length)
-  return { aisles, household: shown.filter((e) => e.kind === 'household') }
+    .sort(directed(compare, initial, direction))
+  const ingredients = shown.filter((e) => e.kind === 'ingredient')
+  const household = shown.filter((e) => e.kind === 'household')
+  if (sort !== 'aisle')
+    return {
+      groups: ingredients.length
+        ? [{ key: 'all', label: 'Ingredients', entries: ingredients }]
+        : [],
+      household,
+    }
+  const order = Object.keys(AISLES) as Aisle[]
+  if (direction === 'desc') order.reverse()
+  return {
+    groups: order
+      .map((aisle) => ({
+        key: aisle,
+        label: AISLES[aisle],
+        entries: ingredients.filter((e) => (e.aisle ?? 'cupboard') === aisle),
+      }))
+      .filter((a) => a.entries.length),
+    household,
+  }
 }
 
 /** A name kept as typed in my Recipes' lines, to add to the Pantry (PAN-004 2). */

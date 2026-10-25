@@ -609,12 +609,28 @@ MealCard, MealSlot, MealSlotRow, AddMealButton, MealWeek, MealDay and PantryRow 
   Breakfast, Lunch and Dinner (Dinner to start), then the Popover's search
   and list in its place. "+" → Shopping list opens New shop dated that day
   ([Shopping](#shopping)).
-- **The Pantry** (staples and out of stock are kept on Shopping → Food,
-  [SHP-005](../10-requirements/modules/meals.md#shp-005--staples-and-essentials)):
-  search; then "Ingredients" (a SectionLabel) and a Card per aisle, in aisle
-  order (its name muted, 14px weight 600, then its PantryRows); then
-  household items apart. Nothing matching: an EmptyState ("Nothing in the
-  Pantry" or "Nothing matches").
+- **The Pantry** ([PAN-001](../10-requirements/modules/meals.md#pan-001--the-pantry),
+  [SHP-005](../10-requirements/modules/meals.md#shp-005--staples-and-essentials);
+  Joe, 25 October): on one row whose staples and Essentials (an `sm`
+  Select of Personal and my Households, only with a Household; full width
+  on a phone), All · Staples · Essentials (a ToggleGroup, sharing the row's
+  width on a phone) and an outline `sm` "Pending" (`clock`, and a
+  `secondary` Badge counting the names; only the icon and count on a
+  phone) at the end; then the search and a SortMenu (By aisle, Recently
+  used, Most popular, A–Z; under Show, Aisle and Default unit as
+  CheckboxItems, both off to start). By aisle: "Ingredients" (a
+  SectionLabel) and a Card per aisle, in aisle order (its name muted,
+  14px weight 600, then its PantryRows); the other sorts, one unnamed Card.
+  Then household items apart, sorted the same. Each PantryRow carries
+  KeepToggles for the Space chosen. Staples or Essentials show only those;
+  one taken off there leaves, in a toast with Undo. Nothing matching: an
+  EmptyState ("Nothing in the Pantry", "No staples yet", "No essentials
+  yet" or "Nothing matches"). View, Space and sort are kept on the device.
+- **Pending** is a page of its own (PageHeader "Pending", back to the
+  Pantry): "Kept as typed" (a SectionLabel) with an outline `sm` "Add
+  all", then a Card of CardRows, each the name, how many Recipes, and an
+  outline `sm` "Add" opening Add to the Pantry; none, an EmptyState
+  ("Nothing pending").
   **New entry** is a Dialog: a ToggleGroup of
   Ingredient and Household item, Name, and Aisle (Cupboard to start) and
   Default unit side by side; then Cancel and Save. A household item's Aisle reads Household and can't be changed.
@@ -633,13 +649,6 @@ MealCard, MealSlot, MealSlotRow, AddMealButton, MealWeek, MealDay and PantryRow 
   is used, Recipes first ("Used in Katsu curry and 2 more"), or says "Used
   in a deleted recipe" when only a deleted one does. A past Meal's line
   keeps the name, as typed.
-- **Kept as typed** (PAN-004 2): after the household items, when any of my
-  Recipes' lines were kept as typed, a SectionLabel and a Card of CardRows,
-  A–Z: the name as typed and, as its value, how many of my Recipes use it;
-  an outline `sm` "Add" opening the Add to the Pantry Dialog (as in a
-  Recipe's editor). The SectionLabel's line ends with an outline `sm` "Add
-  all", which adds each in Cupboard. Each line kept as typed in my Recipes then uses
-  the new entry.
 - **Until the week is built** (plan step 7), the page is the Pantry alone:
   the title, then the Pantry, with no Tabs; on a computer its PageAction,
   "New entry", ends the row of search and ToggleGroup.
@@ -647,7 +656,7 @@ MealCard, MealSlot, MealSlotRow, AddMealButton, MealWeek, MealDay and PantryRow 
 ## Shopping
 
 [SHP-001–005](../10-requirements/modules/meals.md#shp-001--shopping-lists);
-ShoppingLine, OfferRow, KeptRow, PantryAisle and ItemRow in
+ShoppingLine, OfferRow, PantryAisle and ItemRow in
 [components](components.md). Agreed on the
 [Stage 4b design canvas](https://claude.ai/artifact/KZyE2VPa3jTsVZ4mjxanGk)
 (24 October), with New shop's Date and For only, and the reading width.
@@ -658,12 +667,8 @@ ShoppingLine, OfferRow, KeptRow, PantryAisle and ItemRow in
 - **Food:** "Shops" (a SectionLabel) and an ItemRow per open shop: a yellow
   `shopping-cart` TypeTile, its name, and a meta line of its date, how many
   Meals, its Space when not where my new Meals go, and "2 of 27" ticked;
-  then a `link` "Done shops". Below, "Staples and essentials" with an `sm`
-  Select of my Spaces at its end, then two Cards side by side (stacked on a
-  phone), "Staples" and "Essentials", each a muted title, its KeptRows
-  ("Out of stock", "Required") and an Input ("Add a staple", "Add an
-  essential") with a leading `plus` and the Pantry's Suggestions, as a
-  shop's.
+  then a `link` "Done shops". Staples and Essentials are kept in the
+  Pantry ([Meal plan](#meal-plan); Joe, 25 October).
 - **New shop** is a Dialog: Name, then Date and For side by side (For a
   Select of Personal and my Households, the Household of the
   first Household Meal chosen to start), then "Meals": the plan's Meals from

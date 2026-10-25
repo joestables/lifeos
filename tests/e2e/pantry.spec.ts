@@ -139,8 +139,12 @@ test.describe('The Pantry', () => {
     await expect(names(page, 'Fruit & Veg')).toHaveText(['Garlic', 'Scallions', 'Spring onions'])
   })
 
-  test('PAN-004 2: names kept as typed, added one at a time or all at once', async ({ page }) => {
+  test('PAN-004 2: names kept as typed, on Pending, added one at a time or all at once', async ({
+    page,
+  }) => {
     const db = await start(page)
+    await page.getByRole('button', { name: /^Pending/ }).click()
+    await expect(page.getByRole('heading', { name: 'Pending', level: 1 })).toBeVisible()
     const typed = aisle(page, 'Kept as typed')
     await expect(typed.getByText('Honey')).toBeVisible()
     await typed.getByRole('button', { name: 'Add Honey' }).click()
@@ -151,7 +155,6 @@ test.describe('The Pantry', () => {
     await expect
       .poll(() => db.variation_lines.find((l) => l.id === id(33)))
       .toMatchObject({ pantry_id: honey.id, text: null })
-    await expect(names(page, 'Cupboard')).toHaveText(['Honey', 'Panko breadcrumbs'])
     await expect(typed.getByText('Honey')).toHaveCount(0)
 
     await page.getByRole('button', { name: 'Add all' }).click()
@@ -163,5 +166,31 @@ test.describe('The Pantry', () => {
       .poll(() => db.variation_lines.find((l) => l.id === id(66))?.pantry_id)
       .toBe(mirin.id)
     await expect(aisle(page, 'Kept as typed')).toHaveCount(0)
+    await expect(page.getByText('Nothing pending')).toBeVisible()
+    // Back in the Pantry, under their aisle.
+    await page.getByRole('button', { name: 'Pantry' }).click()
+    await expect(names(page, 'Cupboard')).toHaveText(['Honey', 'Mirin', 'Panko breadcrumbs'])
+  })
+
+  test('PAN-001 1: sorted by use or A–Z, either way round; aisle and unit shown', async ({
+    page,
+  }) => {
+    await start(page)
+    await page.getByRole('button', { name: /^Sort:/ }).click()
+    await page.getByRole('menuitem', { name: 'A–Z' }).click()
+    // One list, no aisles named.
+    await expect(aisle(page, 'Fruit & Veg')).toHaveCount(0)
+    const all = aisle(page, 'Ingredients').locator('[data-slot="pantry-row"] span.font-semibold')
+    const first = await all.first().textContent()
+    await page.getByRole('button', { name: /^Sort:/ }).click()
+    await page.getByRole('menuitem', { name: 'A–Z, ascending: reverse' }).click()
+    await page.getByRole('menuitemcheckbox', { name: 'Aisle' }).click()
+    await page.keyboard.press('Escape')
+    await expect(all.last()).toHaveText(first!)
+    await expect(rowOf(page, 'Garlic')).toContainText('Fruit & Veg')
+    await page.getByRole('button', { name: /^Sort:/ }).click()
+    await page.getByRole('menuitem', { name: 'Most popular' }).click()
+    // Panko and chicken are in Katsu curry; garlic in nothing.
+    await expect(all.first()).not.toHaveText('Garlic')
   })
 })
