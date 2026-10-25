@@ -39,7 +39,8 @@ function AccordionTrigger({
         data-slot="accordion-trigger"
         className={cn(
           'flex flex-1 items-center gap-2.5 rounded-sm py-1 text-left font-bold outline-none focus-visible:ring-3 focus-visible:ring-ring-soft [&[data-panel-open]>svg:last-child]:rotate-180',
-          size === 'sm' && 'min-h-9 py-2 text-sm',
+          // Fixed, so a count Badge (22px) never makes it taller.
+          size === 'sm' && 'h-9 py-0 text-sm',
           className,
         )}
         {...props}

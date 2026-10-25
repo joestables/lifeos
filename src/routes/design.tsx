@@ -49,6 +49,7 @@ import {
   RecipeFact,
   RecipeGrid,
   SelectionBar,
+  SortMenu,
   ServingsStepper,
   StarRating,
   TimerChip,
@@ -913,13 +914,24 @@ function DesignPage() {
               >
                 <FilterSection title="State">
                   <ToggleGroup aria-label="State" defaultValue={['all']} className="self-start">
+                    <ToggleGroupItem value="all">All</ToggleGroupItem>
                     <ToggleGroupItem value="draft">Draft</ToggleGroupItem>
                     <ToggleGroupItem value="complete">Complete</ToggleGroupItem>
-                    <ToggleGroupItem value="all">All</ToggleGroupItem>
                   </ToggleGroup>
                 </FilterSection>
               </FilterPanel>
               <div className="flex min-w-0 flex-col gap-3">
+                <div className="flex">
+                  <SortMenu
+                    options={[
+                      { value: 'added', label: 'Recently added', initial: 'desc' },
+                      { value: 'name', label: 'A–Z', initial: 'asc' },
+                    ]}
+                    value="added"
+                    direction="desc"
+                    onChange={() => {}}
+                  />
+                </div>
                 {/* Contained, so the phone's bar sits under its example, not on the screen's foot. */}
                 <div className="contain-layout max-md:pb-16">
                   <SelectionBar

@@ -2,6 +2,27 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#44](https://github.com/joestables/lifeos/pull/44) — Recipes: filters that stay put, sorts either way round
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-25
+
+**What it did**
+- Choosing a filter moves nothing: the FilterPanel's collapsed groups are
+  exactly 36px, their count Badge inside; a filter's values show a muted
+  `plus` that the tick replaces, so a pill never widens or rewraps its row
+  (the Meal plan's Add meal categories too); a phone's Filters count sits
+  on the button's corner.
+- The State filter reads All · Draft · Complete (All to start).
+- **SortMenu**, a new component: the sort and its arrow; in the menu the
+  active one shows its arrow, and choosing it again reverses it. The
+  library and Ideas use it; a sort kept from before keeps its way.
+
+**Documents touched:** components, patterns, recipes (RCP-001 2, 6;
+RCP-002 2), the Stage 4b plan (Joe's first round, step 10).
+
+**Left for later:** the Meal plan, the Pantry and Shopping parts of Joe's
+first round, each its own pull request.
+
 ## [#43](https://github.com/joestables/lifeos/pull/43) — joestables.uk live
 
 Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-25

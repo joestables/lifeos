@@ -168,7 +168,7 @@ Acceptance criteria
 1. Given the Recipes tab, then every Draft and Complete Recipe I can see
    shows as a card: photo (or a quiet placeholder), name, cuisine, my heart,
    and a mark on a Draft. Ideas and Archived Recipes don't show.
-2. Given Draft · Complete · All, the first of the filters (All to start),
+2. Given All · Draft · Complete, the first of the filters (All to start),
    then the grid shows that state's Recipes.
 3. Given I search, then Recipes match by name, tag or ingredient.
 4. Given I filter by category, cuisine, tags, protein, carbs or favourites,
@@ -179,6 +179,8 @@ Acceptance criteria
    member of all my Households; outside a Household it isn't shown.
 6. Given I sort (recently added, recently cooked, A–Z) or group (by
    category, cuisine or state), then the grid follows, and my choice is kept.
+   Choosing the sort in use again reverses it, its arrow showing which way
+   (Joe, 25 October).
 7. *(Suggested)* Given S, M or L on a computer, then the cards take that
    size, and my choice is kept; a phone shows two across.
 
@@ -192,7 +194,7 @@ Acceptance criteria
 1. Given New idea, then only the name is required; notes, links (any
    number) and a photo are optional.
 2. Given the Ideas tab, then Ideas show as a list: name, source, when saved
-   and the start of the note, newest first or A–Z (kept for next time), with
+   and the start of the note, newest first or A–Z, either way round (kept for next time), with
    a search.
 3. Given an Idea, then it opens in a popup over Ideas, never a page of its
    own: its name, links, note and photo, and no ingredients or method (Joe,
