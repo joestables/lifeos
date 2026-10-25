@@ -22,7 +22,10 @@ export function LabelChips({
   chosen: ReadonlySet<string>
   onChange: (chosen: string[]) => void
   'aria-label'?: string
-  /** The icon an unchosen chip shows; null for none (a Recipe's filters). */
+  /**
+   * The icon an unchosen chip shows (`plus` for a filter's values); the tick
+   * takes its place, so choosing never changes a chip's width. Null for none.
+   */
   icon?: LucideIcon | null
   className?: string
 }) {

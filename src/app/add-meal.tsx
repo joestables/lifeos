@@ -1,4 +1,4 @@
-import { ArrowLeftIcon, ChefHatIcon, RotateCcwIcon, UtensilsIcon } from 'lucide-react'
+import { ArrowLeftIcon, ChefHatIcon, PlusIcon, RotateCcwIcon, UtensilsIcon } from 'lucide-react'
 import { useState } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
@@ -202,7 +202,7 @@ export function MealPicker({
       {categories.length > 0 && (
         <LabelChips
           aria-label="Category"
-          icon={null}
+          icon={PlusIcon}
           labels={categories.map((c) => ({ id: c, name: c }))}
           chosen={chosen}
           onChange={(next) => setChosen(new Set(next))}

@@ -91,12 +91,39 @@ test.describe('Recipes', () => {
       .click()
     if (isMobile) await page.getByRole('button', { name: /^Show 2 recipes/ }).click()
     await expect(cardNames(page)).toHaveText(['Gochujang noodles', 'Katsu curry'])
-    await page.getByRole('combobox', { name: 'Sort' }).click()
-    await page.getByRole('option', { name: 'A–Z' }).click()
+    await page.getByRole('button', { name: /^Sort:/ }).click()
+    await page.getByRole('menuitem', { name: 'A–Z' }).click()
     await expect(cardNames(page)).toHaveText(['Gochujang noodles', 'Katsu curry'])
+    // Choosing it again reverses it, the menu staying open (RCP-001 6).
+    await page.getByRole('button', { name: /^Sort:/ }).click()
+    await page.getByRole('menuitem', { name: 'A–Z, ascending: reverse' }).click()
+    await expect(page.getByRole('menuitem', { name: 'A–Z, descending: reverse' })).toBeVisible()
+    await page.keyboard.press('Escape')
+    await expect(cardNames(page)).toHaveText(['Katsu curry', 'Gochujang noodles'])
     await page.reload()
-    await expect(cardNames(page)).toHaveText(['Gochujang noodles', 'Katsu curry'])
-    await expect(page.getByRole('combobox', { name: 'Sort' })).toContainText('A–Z')
+    await expect(cardNames(page)).toHaveText(['Katsu curry', 'Gochujang noodles'])
+    await expect(page.getByRole('button', { name: 'Sort: A–Z, descending' })).toBeVisible()
+  })
+
+  test('RCP-001: choosing a filter moves nothing', async ({ page, isMobile }) => {
+    await start(page)
+    await openFilters(page, isMobile)
+    const panel = isMobile
+      ? page.getByRole('dialog')
+      : page.getByRole('region', { name: 'Filters' })
+    const trigger = panel.locator('[data-slot="accordion-trigger"]').first()
+    await expect(async () => {
+      if ((await trigger.getAttribute('aria-expanded')) !== 'true') await trigger.click()
+      await expect(trigger).toHaveAttribute('aria-expanded', 'true', { timeout: 500 })
+    }).toPass()
+    const chip = panel.locator('[data-slot="accordion-content"]').getByRole('button').first()
+    await expect(chip).toBeVisible()
+    await page.waitForTimeout(300) // the panel's opening
+    const before = await chip.boundingBox()
+    await chip.click()
+    await expect(trigger).toContainText('1')
+    // The count fits the heading, and the tick takes the plus's place.
+    expect(await chip.boundingBox()).toEqual(before)
   })
 
   test('RCP-015: my heart, and the favourites filter', async ({ page, isMobile }) => {
@@ -171,8 +198,8 @@ test.describe('Recipes', () => {
       .poll(() => db.items.find((i) => i.title === 'Crispy chilli beef')?.status)
       .toBe('idea')
     // Sorted A–Z, kept for next time.
-    await page.getByRole('combobox', { name: 'Sort' }).click()
-    await page.getByRole('option', { name: 'A–Z' }).click()
+    await page.getByRole('button', { name: /^Sort:/ }).click()
+    await page.getByRole('menuitem', { name: 'A–Z' }).click()
     await expect(page.locator('[data-slot="item-row"]')).toContainText([
       'Birria tacos',
       'Crispy chilli beef',

@@ -1,8 +1,9 @@
 import { formatAmount, type Unit } from '@lifeos/food'
 import type { FoodValue, Line, PantryEntry, ValueKind } from '@/data'
 import type { RecipeView } from '@/data/food-hooks'
+import { directed, type SortDirection } from './sort'
 
-/** Draft · Complete · All (RCP-001 2). */
+/** All · Draft · Complete (RCP-001 2). */
 export type StateFilter = 'draft' | 'complete' | 'all'
 export type Sort = 'added' | 'cooked' | 'name'
 export type Grouping = 'none' | 'category' | 'cuisine' | 'state'
@@ -24,6 +25,8 @@ export interface LibraryView {
   chosen: Partial<Record<FilterName, string[]>>
   search: string
   sort: Sort
+  /** The sort's way (RCP-001 6): its own to start, reversed by choosing it again. */
+  sortDir: SortDirection
   group: Grouping
 }
 
@@ -32,13 +35,14 @@ export const DEFAULT_VIEW: LibraryView = {
   chosen: {},
   search: '',
   sort: 'added',
+  sortDir: 'desc',
   group: 'none',
 }
 
-export const SORTS: { value: Sort; label: string }[] = [
-  { value: 'added', label: 'Recently added' },
-  { value: 'cooked', label: 'Recently cooked' },
-  { value: 'name', label: 'A–Z' },
+export const SORTS: { value: Sort; label: string; initial: SortDirection }[] = [
+  { value: 'added', label: 'Recently added', initial: 'desc' },
+  { value: 'cooked', label: 'Recently cooked', initial: 'desc' },
+  { value: 'name', label: 'A–Z', initial: 'asc' },
 ]
 
 export const GROUPINGS: { value: Grouping; label: string }[] = [
@@ -167,14 +171,20 @@ export function libraryRecipes(
       }),
     )
     .filter((r) => matches(r, view.search, pantry))
-    .sort((a, b) => {
-      if (view.sort === 'name') return a.item.title.localeCompare(b.item.title)
-      if (view.sort === 'cooked') {
-        const d = lastCooked(b).localeCompare(lastCooked(a))
-        if (d) return d
-      }
-      return b.item.created_at.localeCompare(a.item.created_at)
-    })
+    .sort(
+      directed(
+        (a, b) => {
+          if (view.sort === 'name') return a.item.title.localeCompare(b.item.title)
+          if (view.sort === 'cooked') {
+            const d = lastCooked(b).localeCompare(lastCooked(a))
+            if (d) return d
+          }
+          return b.item.created_at.localeCompare(a.item.created_at)
+        },
+        SORTS.find((o) => o.value === view.sort)?.initial ?? 'desc',
+        view.sortDir ?? 'desc',
+      ),
+    )
 }
 
 const STATE_NAMES: Record<string, string> = { done: 'Complete', active: 'Draft' }
@@ -225,17 +235,19 @@ export function sourceHost(link: string): string {
 
 export type IdeaSort = 'added' | 'name'
 
-export const IDEA_SORTS: { value: IdeaSort; label: string }[] = [
-  { value: 'added', label: 'Recently added' },
-  { value: 'name', label: 'A–Z' },
+export const IDEA_SORTS: { value: IdeaSort; label: string; initial: SortDirection }[] = [
+  { value: 'added', label: 'Recently added', initial: 'desc' },
+  { value: 'name', label: 'A–Z', initial: 'asc' },
 ]
 
-/** Ideas newest first or A–Z, matched by name or note (RCP-002 2). */
+/** Ideas newest first or A–Z, either way round, matched by name or note (RCP-002 2). */
 export function ideaRecipes(
   recipes: readonly RecipeView[],
   search: string,
   sort: IdeaSort = 'added',
+  direction?: SortDirection,
 ): RecipeView[] {
+  const initial = IDEA_SORTS.find((o) => o.value === sort)?.initial ?? 'desc'
   const words = key(search).split(/\s+/).filter(Boolean)
   return recipes
     .filter(isIdea)
@@ -243,10 +255,15 @@ export function ideaRecipes(
       const text = `${r.item.title} ${r.defaultVariation?.fields.notes ?? ''}`.toLowerCase()
       return words.every((w) => text.includes(w))
     })
-    .sort((a, b) =>
-      sort === 'name'
-        ? a.item.title.localeCompare(b.item.title)
-        : b.item.created_at.localeCompare(a.item.created_at),
+    .sort(
+      directed(
+        (a, b) =>
+          sort === 'name'
+            ? a.item.title.localeCompare(b.item.title)
+            : b.item.created_at.localeCompare(a.item.created_at),
+        initial,
+        direction ?? initial,
+      ),
     )
 }
 

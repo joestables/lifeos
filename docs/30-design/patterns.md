@@ -398,9 +398,10 @@ StepEditor. Agreed with Joe on 18 October on the
 - **The library:** on a computer a 248px FilterPanel on the left (State and
   Category open; Cuisine, Tags, Protein, Carbs, Created by — in a Household
   only — and Favourites collapsed), and over the RecipeGrid a toolbar:
-  search, Sort and Group (`sm` Selects), S / M / L (a ToggleGroup) and a
+  search, Sort (a SortMenu) and Group (an `sm` Select), S / M / L (a ToggleGroup) and a
   ghost "Select" with `list-checks`. On a phone: search and an outline
-  "Filters" button (with a Badge counting what's chosen) on one line, Sort
+  "Filters" button (with a Badge counting what's chosen on its corner, so
+  the row never moves) on one line, Sort
   and Group sharing the next; no S / M / L, cards two across; Filters open
   in a right Sheet.
 - **Choosing several:** Select (a long press on a card or row on a phone)
@@ -409,8 +410,8 @@ StepEditor. Agreed with Joe on 18 October on the
   are outline buttons sharing a bar fixed to the foot of the screen, and
   the Fab is put away. Each card or row shows its Checkbox; Undo follows
   in a toast.
-- **Ideas** are ItemRows, up to `max-w-3xl`, under the search and an `sm`
-  Sort (Recently added, A–Z): the Recipe's TypeTile, the name, then source ·
+- **Ideas** are ItemRows, up to `max-w-3xl`, under the search and a
+  SortMenu (Recently added, A–Z): the Recipe's TypeTile, the name, then source ·
   when saved · the start of the note, muted; a "…" menu (Make it a draft,
   Delete; Import from its link with Import). **An Idea opens in a Dialog**
   over Ideas, "Idea" (its link, `?idea=`, too; never a page): Name, Links,

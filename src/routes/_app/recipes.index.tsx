@@ -22,6 +22,7 @@ import {
   RecipeGrid,
   SectionLabel,
   SelectionBar,
+  SortMenu,
   TabsRow,
   TypeScope,
   TypeTile,
@@ -338,20 +339,20 @@ function Library({
         onValueChange={(v: string[]) => v[0] && change({ state: v[0] as StateFilter })}
         className="self-start"
       >
+        <ToggleGroupItem value="all">All</ToggleGroupItem>
         <ToggleGroupItem value="draft">Draft</ToggleGroupItem>
         <ToggleGroupItem value="complete">Complete</ToggleGroupItem>
-        <ToggleGroupItem value="all">All</ToggleGroupItem>
       </ToggleGroup>
     </FilterSection>
   )
   const sortAndGroup = (fill: boolean) => (
     <>
-      <SmallSelect<Sort>
+      <SortMenu<Sort>
         fill={fill}
-        label="Sort"
-        value={view.sort}
         options={SORTS}
-        onChange={(sort) => change({ sort })}
+        value={view.sort}
+        direction={view.sortDir}
+        onChange={(sort, sortDir) => change({ sort, sortDir })}
       />
       <SmallSelect<Grouping>
         fill={fill}
@@ -398,11 +399,14 @@ function Library({
               <Button
                 variant="outline"
                 size="sm"
-                className="lg:hidden"
+                className="relative lg:hidden"
                 onClick={() => setSheet(true)}
               >
                 <SlidersHorizontalIcon /> Filters
-                {chosenCount > 0 && <Badge className="-mr-1">{chosenCount}</Badge>}
+                {/* On its corner, so the row never moves when it comes. */}
+                {chosenCount > 0 && (
+                  <Badge className="absolute -top-2 -right-2">{chosenCount}</Badge>
+                )}
               </Button>
             </div>
             <div className="flex items-center gap-2 lg:contents">
@@ -584,9 +588,9 @@ function Ideas({
   onChoosing: (on: boolean) => void
 }) {
   const [search, setSearch] = useState('')
-  const { ideaSort, change } = useLibraryView()
+  const { ideaSort, ideaSortDir, change } = useLibraryView()
   const choosing = useChoosing(onChoosing)
-  const ideas = ideaRecipes(recipes, search, ideaSort)
+  const ideas = ideaRecipes(recipes, search, ideaSort, ideaSortDir)
   const any = recipes.some((r) => r.state === 'idea')
   const picked = ideas.filter((r) => choosing.chosen.has(r.item.id))
   const act = (fn: (rs: RecipeView[]) => void) => () => {
@@ -613,11 +617,11 @@ function Ideas({
       ) : (
         <div className="flex items-center gap-2">
           <SearchField label="Search ideas" value={search} onChange={setSearch} />
-          <SmallSelect<IdeaSort>
-            label="Sort"
-            value={ideaSort}
+          <SortMenu<IdeaSort>
             options={IDEA_SORTS}
-            onChange={(ideaSort) => change({ ideaSort })}
+            value={ideaSort}
+            direction={ideaSortDir}
+            onChange={(ideaSort, ideaSortDir) => change({ ideaSort, ideaSortDir })}
           />
           <Button
             variant="ghost"

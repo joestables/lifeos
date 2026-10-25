@@ -135,12 +135,21 @@ describe('RCP-001: the library', () => {
   it('sorts by recently cooked, then added, or A–Z; groups (6)', () => {
     const cooked = libraryRecipes(all, { ...DEFAULT_VIEW, sort: 'cooked' }, pantry)
     expect(cooked[0]!.item.title).toBe('Katsu curry')
-    const byName = libraryRecipes(all, { ...DEFAULT_VIEW, sort: 'name' }, pantry)
+    const byName = libraryRecipes(all, { ...DEFAULT_VIEW, sort: 'name', sortDir: 'asc' }, pantry)
     expect(byName.map((r) => r.item.title)).toEqual([
       'Gochujang noodles',
       'Katsu curry',
       'Shakshuka',
     ])
+    // Either way round.
+    const zToA = libraryRecipes(all, { ...DEFAULT_VIEW, sort: 'name', sortDir: 'desc' }, pantry)
+    expect(zToA.map((r) => r.item.title)).toEqual(['Shakshuka', 'Katsu curry', 'Gochujang noodles'])
+    const oldest = libraryRecipes(all, { ...DEFAULT_VIEW, sortDir: 'asc' }, pantry)
+    expect(oldest.map((r) => r.item.title)).toEqual(
+      libraryRecipes(all, DEFAULT_VIEW, pantry)
+        .map((r) => r.item.title)
+        .reverse(),
+    )
     expect(groupRecipes(byName, 'category').map((g) => [g.label, g.recipes.length])).toEqual([
       ['Breakfast', 1],
       ['Dinner', 2],

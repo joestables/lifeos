@@ -1,3 +1,4 @@
+import { PlusIcon } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -50,7 +51,7 @@ export function FilterPanel({
   const chips = (g: FilterGroup) => (
     <LabelChips
       aria-label={g.name}
-      icon={null}
+      icon={PlusIcon}
       className="flex-wrap overflow-visible"
       labels={g.values.map((v) => ({ id: v, name: v }))}
       chosen={new Set(g.chosen ?? [])}
