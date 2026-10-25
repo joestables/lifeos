@@ -38,7 +38,7 @@ import {
   LogEntry,
   MealCard,
   MealDay,
-  MealSlot,
+  MealSlotRow,
   MethodSteps,
   KeptRow,
   OfferRow,
@@ -1019,13 +1019,13 @@ function DesignPage() {
         <Section title="Meal plan, Pantry">
           <TypeScope colour="green" className="grid max-w-3xl gap-4 sm:grid-cols-2">
             <MealDay name="Thu" date="15 Oct" today>
-              <MealSlot slot="Breakfast">
-                <MealCard name="Berry smoothie" servings={1} personal />
-              </MealSlot>
-              <MealSlot slot="Lunch">
-                <MealCard name="Katsu curry" kind="leftovers" />
-              </MealSlot>
-              <MealSlot slot="Dinner" />
+              <MealSlotRow slot="Breakfast">
+                <MealCard row name="Berry smoothie" servings={1} personal />
+              </MealSlotRow>
+              <MealSlotRow slot="Lunch">
+                <MealCard row name="Katsu curry" kind="leftovers" />
+              </MealSlotRow>
+              <MealSlotRow slot="Dinner" add={<AddMealButton slot="Dinner" compact />} />
             </MealDay>
             <div className="flex flex-col gap-2">
               <MealCard name="Out: Dishoom" kind="typed" />

@@ -2,6 +2,29 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#45](https://github.com/joestables/lifeos/pull/45) — Meal plan: photos that stay, a phone's week that fits
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-25
+
+**What it did**
+- Planning a Meal no longer reloads every photo: each photo's signed link
+  is kept on its own, and only paths without one are asked for (a walk
+  that fails on the old code).
+- On a phone, a slot's "+" opens the Add a meal Dialog with that slot
+  chosen; the Popover drew under the page's days, so a tap could land on
+  the page.
+- A phone's week: the toolbar's Show and Select on a row of their own, so
+  the dates show whole; each slot a new MealSlotRow (its name, fainter,
+  beside its Meals; a compact "+"), Meals as one-line MealCards (`row`),
+  dates 16px and days further apart (Joe chose this of two layouts).
+- The lock marks a Personal Meal only when the week has Household Meals.
+- Copy week removed (MPL-004, MPL-006 5).
+
+**Documents touched:** components, patterns, meals (MPL-001 2, 6;
+MPL-002 1; MPL-004; MPL-006 5), the Stage 4b plan.
+
+**Left for later:** the Pantry and Shopping parts of Joe's first round.
+
 ## [#44](https://github.com/joestables/lifeos/pull/44) — Recipes: filters that stay put, sorts either way round
 
 Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-25

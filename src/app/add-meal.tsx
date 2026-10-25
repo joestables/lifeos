@@ -250,12 +250,21 @@ const dayTitle = new Intl.DateTimeFormat('en-GB', {
 })
 
 /**
- * Plan's "+" → Meal (PLN-008 4): the day's slot, Dinner to start, then the
- * Meal plan's search in its place.
+ * Plan's "+" → Meal (PLN-008 4), and a phone's Meal plan: the day's slot,
+ * Dinner to start (or the one tapped), then the Meal plan's search in its
+ * place.
  */
-export function AddMealDialog({ day, onClose }: { day: string; onClose: () => void }) {
+export function AddMealDialog({
+  day,
+  slot: first = 'dinner',
+  onClose,
+}: {
+  day: string
+  slot?: SlotKey
+  onClose: () => void
+}) {
   const plan = useMealPlan()
-  const [slot, setSlot] = useState<SlotKey>('dinner')
+  const [slot, setSlot] = useState<SlotKey>(first)
   const date = new Date(`${day}T12:00:00`)
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>

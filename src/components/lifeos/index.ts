@@ -69,6 +69,14 @@ export {
   type IngredientLine,
   type StepPart,
 } from './RecipeParts'
-export { AddMealButton, MealCard, MealDay, MealSlot, MealWeek, type Slot } from './MealPlan'
+export {
+  AddMealButton,
+  MealCard,
+  MealDay,
+  MealSlot,
+  MealSlotRow,
+  MealWeek,
+  type Slot,
+} from './MealPlan'
 export { Suggestions, type Suggestion } from './Suggestions'
 export { LINE_UNITS, STEP_FIELD } from './recipe-fields'

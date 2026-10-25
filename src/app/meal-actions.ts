@@ -2,8 +2,6 @@ import { useMemo } from 'react'
 import { toast } from '@/components/ui/sonner'
 import {
   archiveItem,
-  newId,
-  addMealLine,
   planMeal,
   queue,
   restoreItem,
@@ -15,7 +13,7 @@ import {
   type FoodSpaces,
 } from '@/data'
 import type { RecipeView, VariationView } from '@/data/food-hooks'
-import { copyWeek, mealName, slotName, type PlannedMeal, type SlotKey } from '@/lib/meals'
+import { mealName, slotName, type PlannedMeal, type SlotKey } from '@/lib/meals'
 
 /** The Meal plan's Meals, with what each needs to show (MPL-001). */
 export interface MealPlanData {
@@ -152,40 +150,4 @@ export function removeMeal(m: PlannedMeal, name: string, meals: readonly Planned
 /** Ticks a Meal eaten, or not: no cook is logged (MPL-003 5). */
 export function setEaten(m: PlannedMeal, eaten: boolean) {
   updateItem(m.id, { status: eaten ? 'done' : 'active' })
-}
-
-/** A week's Meals made again in another (MPL-004), with Undo. */
-export function copyMeals(meals: readonly PlannedMeal[], from: string, to: string) {
-  const copies = copyWeek(meals, from, to, newId)
-  for (const c of copies)
-    planMeal(
-      {
-        title: c.from.title,
-        do_on: c.day,
-        slot: c.from.slot as SlotKey,
-        ...(c.from.variation && { variation: c.from.variation }),
-        servings: c.from.ownServings ?? null,
-        ...(c.leftoversOf && { leftovers_of: c.leftoversOf }),
-        ...(c.from.source && { source: c.from.source }),
-        ...inSpace(c.from.space),
-      },
-      c.id,
-    )
-  // A Meal's own lines go with it (MPL-006 5).
-  for (const c of copies)
-    if (!c.leftoversOf)
-      for (const l of c.from.lines ?? [])
-        addMealLine(c.id, {
-          position: l.position,
-          pantry_id: l.pantry_id,
-          text: l.text,
-          qty: l.qty,
-          qty_max: l.qty_max,
-          approx: l.approx,
-          unit: l.unit,
-        })
-  toast(copies.length === 1 ? 'Copied 1 meal' : `Copied ${copies.length} meals`, {
-    action: { label: 'Undo', onClick: () => copies.forEach((c) => archiveItem(c.id)) },
-  })
-  return copies.length
 }

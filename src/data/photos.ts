@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
+import { useState } from 'react'
 import type { Database } from './database.types'
 import { newId } from './ids'
 import type { WriteQueue } from './queue/queue'
@@ -117,30 +118,45 @@ export function photoWrites(queue: WriteQueue) {
   }
 }
 
+/** Each photo's link, kept apart, until a day before it runs out. */
+const signed = new Map<string, { url: string; until: number }>()
+const keepSigned = (urls: Record<string, string>, at: number) => {
+  for (const [path, url] of Object.entries(urls))
+    if (!signed.has(path)) signed.set(path, { url, until: at + (LINK_SECONDS - 24 * 3600) * 1000 })
+}
+
 /**
  * Links to show photos by, from Storage (private), each lasting a week and
  * kept with the rest of the cache, so a photo seen before shows offline
- * (RCP-016 1). A photo chosen here shows from the device until then.
+ * (RCP-016 1). A photo chosen here shows from the device until then. Only
+ * paths without a link are asked for, so a new photo on the page (a Meal
+ * planned) never reloads the others.
  */
 export function usePhotoUrls(paths: readonly (string | undefined)[]): ReadonlyMap<string, string> {
   const wanted = [...new Set(paths.filter((p): p is string => Boolean(p)))].sort()
-  const { data } = useQuery({
-    queryKey: ['storage', BUCKET, ...wanted],
+  // When the page opened: a link runs out days later, long after.
+  const [now] = useState(() => Date.now())
+  const missing = wanted.filter((p) => (signed.get(p)?.until ?? 0) <= now)
+  for (const p of missing) signed.delete(p)
+  const { data, dataUpdatedAt } = useQuery({
+    queryKey: ['storage', BUCKET, ...missing],
     queryFn: async () => {
       const { data, error } = await supabase()
         .storage.from(BUCKET)
-        .createSignedUrls(wanted, LINK_SECONDS)
+        .createSignedUrls(missing, LINK_SECONDS)
       if (error) throw error
       return Object.fromEntries(
         data.filter((d) => d.signedUrl && d.path).map((d) => [d.path!, d.signedUrl]),
       ) as Record<string, string>
     },
-    enabled: wanted.length > 0,
+    enabled: missing.length > 0,
     staleTime: (LINK_SECONDS - 24 * 3600) * 1000,
   })
+  // Fetched now, or kept in the cache from before (offline).
+  if (data) keepSigned(data, dataUpdatedAt)
   const out = new Map<string, string>()
   for (const p of wanted) {
-    const url = data?.[p] ?? local.get(p)
+    const url = signed.get(p)?.url ?? local.get(p)
     if (url) out.set(p, url)
   }
   return out

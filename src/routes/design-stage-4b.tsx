@@ -3,7 +3,6 @@ import {
   CalendarDaysIcon,
   CheckIcon,
   ChefHatIcon,
-  CopyIcon,
   DumbbellIcon,
   EllipsisIcon,
   FootprintsIcon,
@@ -921,12 +920,6 @@ function MealPlanSelect({ selecting = true }: { selecting?: boolean }) {
                   <Button variant="ghost" size="sm">
                     <ListChecksIcon /> Select
                   </Button>
-                  {more(
-                    <DropdownMenuItem>
-                      <CopyIcon /> Copy this week…
-                    </DropdownMenuItem>,
-                    'Week',
-                  )}
                 </div>
               }
             />
