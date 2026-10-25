@@ -108,22 +108,28 @@ Provisionally agreed).
   be dragged on Plan (Joe, 18 October).
 - **All · Meals · Extra** at the top of a food shop (Joe, 24 October).
   **All** is the whole shop by aisle: lines for one ingredient show as one,
-  totalled where the units allow ("Chicken thighs 1.2 kg · Katsu Thu, Curry
-  Sat") ([ADR-0012](../../20-architecture/adr/0012-ingredients-and-shopping-lists.md),
+  totalled where the units allow ("Chicken thighs 1.2 kg"), with no Meals
+  named under it (Joe, 25 October) ([ADR-0012](../../20-architecture/adr/0012-ingredients-and-shopping-lists.md),
   Provisionally agreed). **Meals** is each Meal with its lines, and
-  adding or taking off a Meal. **Extra** is what I added by hand, then what
-  I may add with +.
+  adding or taking off a Meal. **Extra** is what I added, and what I may
+  add.
 - **What the Meals need is protected:** a Meal's line on a shop follows its
   Meal and isn't changed or deleted there. To buy more I add the ingredient
   on Extra, and All shows the total (Joe, 18 October; 24 October, in place
   of raising a Meal's line).
-- **Extra offers, none added by itself** (Joe, 24 October), each of my
-  Spaces under its name, the shop's own Space first:
-  - **Needed**: out-of-stock staples and Required Essentials, marked so;
-  - **Essentials**: the rest of each Space's Essentials;
-  - **Staples the Meals use**: the shop's Space's staples that its Meals
-    need, never added, highlighted so I can check I have them.
-- **Back in stock:** ticking a line added from a Space's Needed clears its
+- **What's needed is on the shop by itself** (Joe, 25 October, in place
+  of being offered): the shop's Space's out-of-stock staples and Required
+  Essentials are on every open food shop of that Space, in All and Extra,
+  until ticked (bought) or taken off with their × (which unmarks them).
+  Extra offers the rest, on a computer two Cards on the left with what I
+  added on the right, on a phone what I added first:
+  - **Add staples**: the shop's Space's staples its Meals use, and those
+    out of stock (Added);
+  - **Add essentials**: every Essential of all my Spaces, once each, those
+    Required in the shop's Space Added. Adding one of the shop's Space's
+    marks it out of stock or Required; another Space's is added as a line.
+  Other Spaces' out-of-stock staples aren't offered.
+- **Back in stock:** ticking a line added from a Space's needed clears its
   out of stock or Required there; any other line whose entry is out of
   stock or Required in the shop's own Space clears it there. Nothing else
   changes (Joe, 24 October).
@@ -132,8 +138,8 @@ Provisionally agreed).
   Its Meals may be from any of my Spaces, and everyone in its Space sees all
   of it, its Personal Meals' lines too (ADR-0051). For example: I live
   mostly at my girlfriend's and cook, but don't buy, at my parents'. Our
-  shop is our Household's; my parents' out of stock shows under theirs on
-  Extra, to add if I choose. Shared lists update live
+  shop is our Household's, and only our out of stock comes onto it. Shared
+  lists, and the staples and Essentials feeding them, update live
   ([principles](../../00-foundation/principles.md), 9).
 - **Done:** ticking the last line offers **Done**; **Complete list** is in a
   list's menu at any time, asking first when lines are unticked. A done
@@ -372,7 +378,8 @@ Acceptance criteria
 2. Given a Meal on a shop, then all its ingredients are on it: its Recipe's,
    scaled to its servings, and its own (MPL-006); staples aren't.
 3. Given the same ingredient for two Meals, then All shows it as one line,
-   with its total and the Meals it's for.
+   with its total, and counts it once in the shop's "2 of 27" (Joe, 25
+   October).
 4. Given Meals, then I add one to the shop or take one off; a Meal is on one
    open food shop at most.
 5. Given a Meal's servings or ingredients change, then the shop follows;
@@ -389,14 +396,18 @@ Priority: Must · Status: built
 Acceptance criteria
 1. Given a shop, when I type, then Pantry entries are suggested, household
    items too, each joining its aisle; anything else is added as typed,
-   under Other. It shows on Extra and in All.
+   under Other. It shows on Extra and in All, and its × takes it off, with
+   no asking (Joe, 25 October).
 2. Given a Meal's line, then I can't change or delete it on the shop; adding
    the same ingredient on Extra adds to the total in All.
-3. Given Extra, then it offers, under each of my Spaces' names, the shop's
-   own first: Needed (out-of-stock staples and Required Essentials), then
-   the other Essentials, each added with +; and highlights the staples its
-   Meals use, never added.
-4. Given a line added from a Space's Needed, when I tick it, then its out
+3. Given the shop's Space's out-of-stock staples and Required Essentials,
+   then they are on the shop by themselves, in All and on Extra; × takes
+   one off and unmarks it. Extra's Add staples offers the shop's Space's
+   staples its Meals use (and shows the out-of-stock ones Added); Add
+   essentials offers every Space's Essentials, once each (the shop's
+   Space's Required ones Added). Only a line on the shop shows as Added,
+   never a Meal's (Joe, 25 October).
+4. Given a line added from a Space's needed, when I tick it, then its out
    of stock or Required is cleared there; given any other line out of stock
    or Required in the shop's own Space, then there.
 5. Given a Thought in Inbox ("buy milk, bread, eggs"), then Shopping list
@@ -433,9 +444,9 @@ Acceptance criteria
    25 October; on Shopping → Food until then).
 2. Given a staple, then I mark it out of stock, or not; given an Essential,
    then I mark it Required, or not, from its pill beside the toggles.
-3. Given either list, then it is never ticked or done; it feeds every food
-   shop's Extra (SHP-003 3), and staples aren't added from Meals (SHP-002
-   2).
+3. Given either list, then it is never ticked or done; what's needed in it
+   comes onto every open food shop of its Space, the rest is offered on
+   Extra (SHP-003 3), and staples aren't added from Meals (SHP-002 2).
 4. Given my first Household, then it starts with a copy of my staples; I
    keep mine for Personal shops.
 

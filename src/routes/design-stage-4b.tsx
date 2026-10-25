@@ -625,28 +625,32 @@ function Extra() {
           <ShoppingLine name="Bin bags" meta="Household" menu={lineMenu} />
         </PantryAisle>
         <PantryAisle label="Staples the meals use · check you have them">
-          <OfferRow name="Cumin" meta="Chilli Thu" />
-          <OfferRow name="Chilli powder" meta="Chilli Thu" />
-          <OfferRow name="Vegetable stock" meta="Risotto Sun" />
-          <OfferRow name="Salt" meta="Chilli Thu, Curry Sat, Risotto Sun" />
+          <OfferRow name="Cumin" meta="Chilli Thu" onToggle={() => undefined} />
+          <OfferRow name="Chilli powder" meta="Chilli Thu" onToggle={() => undefined} />
+          <OfferRow name="Vegetable stock" meta="Risotto Sun" onToggle={() => undefined} />
+          <OfferRow
+            name="Salt"
+            meta="Chilli Thu, Curry Sat, Risotto Sun"
+            onToggle={() => undefined}
+          />
         </PantryAisle>
       </div>
       <div className="flex flex-col gap-4">
         <PantryAisle label="Needed · Home">
-          <OfferRow name="Olive oil" needed="Out of stock" onAdd={nothing} />
-          <OfferRow name="Milk" needed="Required" added onAdd={nothing} />
+          <OfferRow name="Olive oil" meta="Out of stock" onToggle={() => undefined} />
+          <OfferRow name="Milk" meta="Required" added onToggle={() => undefined} />
         </PantryAisle>
         <PantryAisle label="Needed · Mum & Dad">
-          <OfferRow name="Salt" needed="Out of stock" onAdd={nothing} />
+          <OfferRow name="Salt" meta="Out of stock" onToggle={() => undefined} />
         </PantryAisle>
         <PantryAisle label="Essentials · Home">
-          <OfferRow name="Bananas" onAdd={nothing} />
-          <OfferRow name="Greek yoghurt" onAdd={nothing} />
-          <OfferRow name="Sourdough" added onAdd={nothing} />
+          <OfferRow name="Bananas" onToggle={() => undefined} />
+          <OfferRow name="Greek yoghurt" onToggle={() => undefined} />
+          <OfferRow name="Sourdough" added onToggle={() => undefined} />
         </PantryAisle>
         <PantryAisle label="Essentials · Mum & Dad">
-          <OfferRow name="Semi-skimmed milk" onAdd={nothing} />
-          <OfferRow name="Tea bags" onAdd={nothing} />
+          <OfferRow name="Semi-skimmed milk" onToggle={() => undefined} />
+          <OfferRow name="Tea bags" onToggle={() => undefined} />
         </PantryAisle>
       </div>
     </div>

@@ -40,10 +40,8 @@ export interface ShopRow {
   /** Every line under it: ticking the row ticks them all. */
   ids: string[]
   amount: string
-  /** Which Meals it is for, then "Extra" for what I added. */
-  meta: string
   checked: boolean
-  /** The one line added by hand it is, which its menu changes and deletes. */
+  /** The one line added by hand (or needed) it is, which its × takes off. */
   own?: Line
 }
 
@@ -68,13 +66,13 @@ const nameOf = (l: Line, pantry: ReadonlyMap<string, PantryLook>) =>
  * A food shop's All (SHP-002 2, 3; SHP-003 3): its lines but the shop's
  * Space's staples a Meal needs, one row per ingredient (a Pantry entry, or a
  * typed name whatever its case), totalled, grouped by aisle in aisle order
- * with Other last; within an aisle A–Z, ticked rows at the foot.
+ * with Other last; within an aisle A–Z, ticked rows at the foot. No Meals
+ * named under a row (Joe, 25 October).
  */
 export function shopRows(
   lines: readonly Line[],
   pantry: ReadonlyMap<string, PantryLook>,
   staples: ReadonlySet<string>,
-  mealName: (meal: string) => string | undefined,
 ): { aisle: ShopAisle; label: string; rows: ShopRow[] }[] {
   const groups = new Map<string, Line[]>()
   for (const l of lines) {
@@ -83,21 +81,15 @@ export function shopRows(
     const key = l.pantry_id ?? `typed:${nameKey(l.text ?? '')}`
     groups.set(key, [...(groups.get(key) ?? []), l])
   }
-  const rows: ShopRow[] = [...groups.entries()].map(([key, ls]) => {
-    const meals = [...new Set(ls.map((l) => l.meal_id).filter((m): m is string => m !== null))]
-    const names = meals.map(mealName).filter((n): n is string => !!n)
-    const extra = ls.some((l) => l.meal_id === null)
-    return {
-      key,
-      name: nameOf(ls[0]!, pantry),
-      aisle: aisleOf(ls[0]!, pantry),
-      ids: ls.map((l) => l.id),
-      amount: total(ls.map(amountOf)),
-      meta: [...names, ...(extra ? ['Extra'] : [])].join(', '),
-      checked: ls.every((l) => l.checked),
-      ...(ls.length === 1 && ls[0]!.meal_id === null && { own: ls[0] }),
-    }
-  })
+  const rows: ShopRow[] = [...groups.entries()].map(([key, ls]) => ({
+    key,
+    name: nameOf(ls[0]!, pantry),
+    aisle: aisleOf(ls[0]!, pantry),
+    ids: ls.map((l) => l.id),
+    amount: total(ls.map(amountOf)),
+    checked: ls.every((l) => l.checked),
+    ...(ls.length === 1 && ls[0]!.meal_id === null && { own: ls[0] }),
+  }))
   return SHOP_AISLES.map(({ key, label }) => ({
     aisle: key,
     label,
@@ -105,6 +97,19 @@ export function shopRows(
       .filter((r) => r.aisle === key)
       .sort((a, b) => Number(a.checked) - Number(b.checked) || a.name.localeCompare(b.name)),
   })).filter((g) => g.rows.length)
+}
+
+/**
+ * How far through a food shop is, counted as All counts (Joe, 25 October):
+ * pepper for two Meals is one; a row is done when every line under it is.
+ */
+export function shopTally(
+  lines: readonly Line[],
+  pantry: ReadonlyMap<string, PantryLook>,
+  staples: ReadonlySet<string>,
+): { done: number; total: number } {
+  const rows = shopRows(lines, pantry, staples).flatMap((g) => g.rows)
+  return { done: rows.filter((r) => r.checked).length, total: rows.length }
 }
 
 /** A Meal's name with its day, as a line says what it is for: "Katsu curry Thu". */
@@ -125,39 +130,52 @@ export interface Kept {
   needed: boolean
 }
 
-/** What Extra offers for one Space (SHP-003 3). */
-export interface Offers {
-  space: string
-  needed: { pantry_id: string; kind: string }[]
-  essentials: string[]
+/** A staple Extra offers: the shop's Space's, out of stock or used by its Meals. */
+export interface StapleChoice {
+  pantry_id: string
+  /** Out of stock: on the shop by itself. */
+  needed: boolean
+  /** A Meal on the shop uses it. */
+  used: boolean
+}
+
+/** An Essential Extra offers, from any of my Spaces, once. */
+export interface EssentialChoice {
+  pantry_id: string
+  /** The Spaces keeping it. */
+  spaces: string[]
+  /** Required in the shop's own Space: on the shop by itself. */
+  required: boolean
 }
 
 /**
- * Extra's offers (SHP-003 3): for each of my Spaces, the shop's own first,
- * its out-of-stock staples and Required Essentials, then its other
- * Essentials; and the shop's Space's staples its Meals use, to check.
+ * Extra's two lists (SHP-003 3; Joe, 25 October): Add staples, the shop's
+ * Space's staples its Meals use and those out of stock; Add essentials,
+ * every Essential of all my Spaces, once each, Required in the shop's Space
+ * marked. Other Spaces' out-of-stock staples aren't offered.
  */
-export function extraOffers(
+export function extraChoices(
   kept: readonly Kept[],
-  spaces: readonly string[],
   shopSpace: string,
   mealPantry: ReadonlySet<string>,
-): { offers: Offers[]; staplesUsed: string[] } {
-  const order = [shopSpace, ...spaces.filter((s) => s !== shopSpace)]
-  const offers = order
-    .map((space) => {
-      const mine = kept.filter((k) => k.space_id === space)
-      return {
-        space,
-        needed: mine.filter((k) => k.needed).map((k) => ({ pantry_id: k.pantry_id, kind: k.kind })),
-        essentials: mine.filter((k) => k.kind === 'essential' && !k.needed).map((k) => k.pantry_id),
-      }
-    })
-    .filter((o) => o.needed.length || o.essentials.length)
-  const staplesUsed = kept
-    .filter((k) => k.space_id === shopSpace && k.kind === 'staple' && mealPantry.has(k.pantry_id))
-    .map((k) => k.pantry_id)
-  return { offers, staplesUsed }
+): { staples: StapleChoice[]; essentials: EssentialChoice[] } {
+  const staples = kept
+    .filter(
+      (k) =>
+        k.space_id === shopSpace &&
+        k.kind === 'staple' &&
+        (k.needed || mealPantry.has(k.pantry_id)),
+    )
+    .map((k) => ({ pantry_id: k.pantry_id, needed: k.needed, used: mealPantry.has(k.pantry_id) }))
+  const essentials = new Map<string, EssentialChoice>()
+  for (const k of kept) {
+    if (k.kind !== 'essential') continue
+    const e = essentials.get(k.pantry_id) ?? { pantry_id: k.pantry_id, spaces: [], required: false }
+    e.spaces.push(k.space_id)
+    if (k.space_id === shopSpace && k.needed) e.required = true
+    essentials.set(k.pantry_id, e)
+  }
+  return { staples, essentials: [...essentials.values()] }
 }
 
 /** One thing to buy, read from a Thought or Note (SHP-003 5). */

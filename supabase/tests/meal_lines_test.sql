@@ -26,8 +26,10 @@ set local role authenticated;
 select pg_temp.sign_in('00000000-0000-4000-8000-00000000000a');
 select food.add_pantry('00000000-0000-7000-8000-0000000000e1', '{"name": "Milk", "aisle": "chilled"}');
 select food.add_pantry('00000000-0000-7000-8000-0000000000e2', '{"name": "Semi-skimmed milk", "aisle": "chilled"}');
+-- Today or later, so its lines keep their entries (PAN-001 4).
 select food.plan_meal('00000000-0000-7000-8000-000000000001',
-  '{"title": "Cornflakes", "do_on": "2026-10-24", "slot": "breakfast", "space_id": "00000000-0000-7000-8000-0000000000f1", "source": "https://example.com/cornflakes"}');
+  jsonb_build_object('title', 'Cornflakes', 'do_on', current_date + 1, 'slot', 'breakfast',
+    'space_id', '00000000-0000-7000-8000-0000000000f1', 'source', 'https://example.com/cornflakes'));
 select food.add_meal_line('00000000-0000-7000-8000-0000000000d1', '00000000-0000-7000-8000-000000000001',
   '{"position": "a", "pantry_id": "00000000-0000-7000-8000-0000000000e2", "qty": 0.5, "unit": "cup"}');
 select food.add_meal_line('00000000-0000-7000-8000-0000000000d1', '00000000-0000-7000-8000-000000000001',
@@ -80,7 +82,8 @@ select throws_ok(
 
 select pg_temp.sign_in('00000000-0000-4000-8000-00000000000a');
 select food.plan_meal('00000000-0000-7000-8000-000000000002',
-  '{"title": "Cornflakes", "do_on": "2026-10-25", "slot": "breakfast", "leftovers_of": "00000000-0000-7000-8000-000000000001"}');
+  jsonb_build_object('title', 'Cornflakes', 'do_on', current_date + 2, 'slot', 'breakfast',
+    'leftovers_of', '00000000-0000-7000-8000-000000000001'));
 select throws_ok(
   $$select food.add_meal_line('00000000-0000-7000-8000-0000000000d4', '00000000-0000-7000-8000-000000000002',
     '{"position": "a", "text": "Milk"}')$$,

@@ -24,6 +24,7 @@ import {
   TagIcon,
   UtensilsIcon,
   WifiOffIcon,
+  XIcon,
   type LucideIcon,
 } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
@@ -1044,23 +1045,23 @@ function DesignPage() {
         <Section title="Shopping">
           <TypeScope colour="yellow" className="grid max-w-3xl gap-4 sm:grid-cols-2">
             <PantryAisle label="Fruit & Veg">
-              <ShoppingLine name="Red peppers" amount="3" meta="Chilli Thu, Shakshuka Sun" />
-              <ShoppingLine name="Onions" amount="3" meta="Chilli Thu" checked />
+              <ShoppingLine name="Red peppers" amount="3" />
+              <ShoppingLine name="Onions" amount="3" checked />
               <ShoppingLine
                 name="Bin bags"
-                meta="Extra"
+                meta="Required"
                 menu={
-                  <Button variant="ghost" size="icon-sm" aria-label="Line">
-                    <EllipsisIcon />
+                  <Button variant="ghost" size="icon-sm" aria-label="Remove Bin bags">
+                    <XIcon />
                   </Button>
                 }
               />
             </PantryAisle>
             <div className="flex flex-col gap-4">
-              <PantryAisle label="Needed · Home">
-                <OfferRow name="Olive oil" needed="Out of stock" onAdd={() => undefined} />
-                <OfferRow name="Milk" needed="Required" added onAdd={() => undefined} />
-                <OfferRow name="Cumin" meta="Chilli Thu" />
+              <PantryAisle label="Add staples">
+                <OfferRow name="Olive oil" meta="Out of stock" onToggle={() => undefined} />
+                <OfferRow name="Milk" meta="Required" added onToggle={() => undefined} />
+                <OfferRow name="Cumin" meta="Chilli Thu" onToggle={() => undefined} />
               </PantryAisle>
               <PantryAisle label="Fruit & Veg">
                 <PantryRow

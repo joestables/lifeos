@@ -38,18 +38,29 @@ import {
 } from './shopping'
 import type { Item } from './types'
 
+/**
+ * A list's line. `auto`: not stored, but one of its Space's out-of-stock
+ * staples or Required Essentials, on every open food shop of that Space
+ * until it is ticked (then a stored line, ticked) or unmarked (Joe, 25
+ * October). Its id is `autoLineId`'s.
+ */
+export type ListLine = ShopLine & { auto?: 'staple' | 'essential' }
+
+/** An open shop's line for a needed entry, until it is stored. */
+export const autoLineId = (list: string, pantry: string) => `auto:${list}:${pantry}`
+
 /** A Shopping list as the pages show it (SHP-001): its Item, kind, Meals and lines. */
 export interface ShoppingList {
   item: Item
   kind: 'food' | 'list'
   /** A food shop's Meals (SHP-002). */
   meals: string[]
-  lines: ShopLine[]
+  lines: ListLine[]
   /**
    * The lines to tick: not its subheadings, nor the staples of its Space a
    * Meal needs, which are checked on Extra instead (SHP-003 3).
    */
-  toBuy: ShopLine[]
+  toBuy: ListLine[]
 }
 
 export interface ShoppingData {
@@ -151,10 +162,39 @@ export function useShopping(queue: WriteQueue): ShoppingData {
     const out: ShoppingList[] = items
       .filter((i) => i.type === 'shopping_list')
       .map((item) => {
-        const mine = linesBy.get(item.id) ?? []
+        const stored = linesBy.get(item.id) ?? []
+        const kind = kinds.get(item.id)?.kind === 'list' ? 'list' : 'food'
+        // Its Space's needed staples and Essentials, on an open food shop
+        // without a line of its own for them (SHP-003 3).
+        const own = new Set(
+          stored.filter((l) => l.meal_id === null && l.pantry_id).map((l) => l.pantry_id),
+        )
+        const auto: ListLine[] =
+          kind === 'food' && open(item)
+            ? kept
+                .filter((e) => e.space_id === item.space_id && e.needed && !own.has(e.pantry_id))
+                .map((e) => ({
+                  id: autoLineId(item.id, e.pantry_id),
+                  list_id: item.id,
+                  position: '',
+                  heading: null,
+                  pantry_id: e.pantry_id,
+                  text: null,
+                  qty: null,
+                  qty_max: null,
+                  approx: false,
+                  unit: null,
+                  checked: false,
+                  meal_id: null,
+                  source_id: null,
+                  needed_space_id: e.space_id,
+                  auto: e.kind === 'staple' ? 'staple' : 'essential',
+                }))
+            : []
+        const mine: ListLine[] = [...stored, ...auto]
         return {
           item,
-          kind: kinds.get(item.id)?.kind === 'list' ? 'list' : 'food',
+          kind,
           meals: mealsBy.get(item.id) ?? [],
           lines: mine,
           toBuy: mine.filter(

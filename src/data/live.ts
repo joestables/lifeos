@@ -79,8 +79,14 @@ export function useLiveShopping(list?: string) {
           refresh(liveKeys(table))
       })
     }
+    // A Space's staples and Essentials: needed ones are an open shop's lines
+    // (SHP-003 3). Realtime sends only my Spaces' rows, deletes all, and
+    // refreshing them is cheap.
+    channel.on('postgres_changes', { event: '*', schema: 'food', table: 'space_entries' }, () =>
+      refresh([spaceEntriesKey]),
+    )
     channel.subscribe((status) => {
-      if (status === 'SUBSCRIBED') refresh(TABLES.flatMap(liveKeys))
+      if (status === 'SUBSCRIBED') refresh([...TABLES.flatMap(liveKeys), spaceEntriesKey])
     })
     return () => {
       clearTimeout(timer)
