@@ -2,6 +2,29 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#41](https://github.com/joestables/lifeos/pull/41) — Stage 4b, step 9: sharing a recipe in
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-25
+
+**What it did**
+- Android: the manifest's `share_target` opens `/share`, which keeps an
+  Idea at once, offline too, and shows "Saved as an idea", or "Already
+  saved" with Open for a link saved before (on the device, or on the
+  server with signal); signed out, it carries on after sign-in.
+- `link-preview` answers the link's name as well as its picture, and the
+  device fills shared Ideas' names and photos when there's signal.
+  Deployed by the tool as one bundled file (`scripts/bundle-function.mjs`).
+- iPhone: New idea opens with a link from `/recipes?tab=ideas&share=…`, for
+  an iOS Shortcut whose steps are in integration setup.
+- Unit tests and walks.
+
+**Documents touched:** ADR-0055 (as built), ADR-0054, runbook, integration
+setup (sharing, the iOS Shortcut), recipes spec (RCP-003), design patterns,
+plans/stage-4b.md.
+
+**Left for later:** Joe installs LifeOS again on Android, makes the
+Shortcut and tries both; step 10, Joe uses Shopping.
+
 ## [#40](https://github.com/joestables/lifeos/pull/40) — Stage 4b, step 8: a Thought or Note made a food shop
 
 Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-25

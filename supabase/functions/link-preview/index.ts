@@ -1,8 +1,9 @@
-// link-preview: a link's picture, as the person signed in (ADR-0054): not
-// AI, so not counted against the allowance. For a typed Meal's link
-// (MPL-006 6). Deployed by Claude through the Supabase MCP with the ai
-// function's run.ts, rules.ts and schema.ts and packages/food's files.
-import { linkPicture } from '../ai/run.ts'
+// link-preview: a link's name and picture, as the person signed in
+// (ADR-0054): not AI, so not counted against the allowance. For a typed
+// Meal's link (MPL-006 6) and a shared Idea (RCP-003 1). Deployed by Claude
+// through the Supabase MCP with the ai function's run.ts, rules.ts and
+// schema.ts and packages/food's files.
+import { linkPreview } from '../ai/run.ts'
 
 const url = Deno.env.get('SUPABASE_URL')!
 const anon =
@@ -30,6 +31,6 @@ Deno.serve(async (req) => {
   const token = req.headers.get('Authorization')?.replace(/^Bearer /, '')
   if (!token || !(await signedIn(token))) return answer({ error: 'Not signed in' }, 401)
   const { link } = (await req.json().catch(() => ({}))) as { link?: unknown }
-  if (typeof link !== 'string') return answer({ photo: null })
-  return answer({ photo: await linkPicture(fetch, link) })
+  if (typeof link !== 'string') return answer({ name: null, photo: null })
+  return answer(await linkPreview(fetch, link))
 })

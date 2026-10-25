@@ -16,6 +16,7 @@ import { Route as DesignStage3RouteImport } from './routes/design-stage-3'
 import { Route as DesignStage4RouteImport } from './routes/design-stage-4'
 import { Route as DesignStage4bRouteImport } from './routes/design-stage-4b'
 import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as ShareRouteImport } from './routes/share'
 import { Route as SignInRouteImport } from './routes/sign-in'
 import { Route as AppCardioRouteImport } from './routes/_app/cardio'
 import { Route as AppGoalsRouteImport } from './routes/_app/goals'
@@ -70,6 +71,11 @@ const DesignStage4bRoute = DesignStage4bRouteImport.update({
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShareRoute = ShareRouteImport.update({
+  id: '/share',
+  path: '/share',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SignInRoute = SignInRouteImport.update({
@@ -186,6 +192,7 @@ export interface FileRoutesByFullPath {
   '/design-stage-4': typeof DesignStage4Route
   '/design-stage-4b': typeof DesignStage4bRoute
   '/privacy': typeof PrivacyRoute
+  '/share': typeof ShareRoute
   '/sign-in': typeof SignInRoute
   '/cardio': typeof AppCardioRoute
   '/goals': typeof AppGoalsRoute
@@ -215,6 +222,7 @@ export interface FileRoutesByTo {
   '/design-stage-4': typeof DesignStage4Route
   '/design-stage-4b': typeof DesignStage4bRoute
   '/privacy': typeof PrivacyRoute
+  '/share': typeof ShareRoute
   '/sign-in': typeof SignInRoute
   '/cardio': typeof AppCardioRoute
   '/goals': typeof AppGoalsRoute
@@ -246,6 +254,7 @@ export interface FileRoutesById {
   '/design-stage-4': typeof DesignStage4Route
   '/design-stage-4b': typeof DesignStage4bRoute
   '/privacy': typeof PrivacyRoute
+  '/share': typeof ShareRoute
   '/sign-in': typeof SignInRoute
   '/_app/cardio': typeof AppCardioRoute
   '/_app/goals': typeof AppGoalsRoute
@@ -277,6 +286,7 @@ export interface FileRouteTypes {
     | '/design-stage-4'
     | '/design-stage-4b'
     | '/privacy'
+    | '/share'
     | '/sign-in'
     | '/cardio'
     | '/goals'
@@ -306,6 +316,7 @@ export interface FileRouteTypes {
     | '/design-stage-4'
     | '/design-stage-4b'
     | '/privacy'
+    | '/share'
     | '/sign-in'
     | '/cardio'
     | '/goals'
@@ -336,6 +347,7 @@ export interface FileRouteTypes {
     | '/design-stage-4'
     | '/design-stage-4b'
     | '/privacy'
+    | '/share'
     | '/sign-in'
     | '/_app/cardio'
     | '/_app/goals'
@@ -367,6 +379,7 @@ export interface RootRouteChildren {
   DesignStage4Route: typeof DesignStage4Route
   DesignStage4bRoute: typeof DesignStage4bRoute
   PrivacyRoute: typeof PrivacyRoute
+  ShareRoute: typeof ShareRoute
   SignInRoute: typeof SignInRoute
 }
 
@@ -419,6 +432,13 @@ declare module '@tanstack/react-router' {
       path: '/privacy'
       fullPath: '/privacy'
       preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/share': {
+      id: '/share'
+      path: '/share'
+      fullPath: '/share'
+      preLoaderRoute: typeof ShareRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sign-in': {
@@ -627,6 +647,7 @@ const rootRouteChildren: RootRouteChildren = {
   DesignStage4Route: DesignStage4Route,
   DesignStage4bRoute: DesignStage4bRoute,
   PrivacyRoute: PrivacyRoute,
+  ShareRoute: ShareRoute,
   SignInRoute: SignInRoute,
 }
 export const routeTree = rootRouteImport

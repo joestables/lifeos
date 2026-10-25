@@ -159,11 +159,14 @@ JWT checks (it asks Auth who the token is), with `rules.ts`, `schema.ts`,
   model's default thinking.
 - **A bad import** is traced to its prompt by the version in its `ai` row
   (`PROMPT_VERSION` in `rules.ts`).
-- **`link-preview`** (not AI, nothing counted): a link's picture as a data
-  URL, for a typed Meal (MPL-006 6). Deployed by Claude through the
-  Supabase MCP without JWT checks (it asks Auth who the token is), with
-  the `ai` function's `run.ts`, `rules.ts` and `schema.ts` and
-  `packages/food`'s `imported.ts` and `units.ts`.
+- **`link-preview`** (not AI, nothing counted): a link's name and picture,
+  the picture as a data URL, for a typed Meal (MPL-006 6) and a shared Idea
+  (RCP-003 1). Deployed by Claude through the Supabase MCP without JWT
+  checks (it asks Auth who the token is), as one file:
+  `node scripts/bundle-function.mjs link-preview out.js` bundles only the
+  code it uses from the `ai` function's `run.ts`, leaving the prompts and
+  schemas out (from 25 October; before, the six files were sent as they
+  are).
 
 ## The nightly series run
 

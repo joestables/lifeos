@@ -1,5 +1,6 @@
 import type { Database } from './database.types'
 import type { QueueEntry } from './queue/store'
+import { queryClient } from './queryClient'
 import { supabase } from './supabase'
 
 type Food = Database['food']['Tables']
@@ -139,6 +140,23 @@ export async function fetchVariations(): Promise<VariationFields[]> {
     .select('item_id, servings, prep_min, cook_min, sources, notes, archived_from')
   if (error) throw error
   return data
+}
+
+/**
+ * The Variation a link is already a source of, as the server has it
+ * (RCP-003 2), so a link saved on another device is found too; null if none.
+ */
+export async function savedSource(links: readonly string[]): Promise<string | null> {
+  const { data, error } = await food()
+    .from('variation')
+    .select('item_id')
+    .overlaps('sources', [...links])
+    .limit(1)
+  if (error) throw error
+  const found = data[0]?.item_id ?? null
+  // Saved on another device: what this one holds is behind.
+  if (found) void queryClient.invalidateQueries()
+  return found
 }
 
 export async function fetchLines(): Promise<Line[]> {

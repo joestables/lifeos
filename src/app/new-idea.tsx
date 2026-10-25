@@ -1,4 +1,4 @@
-import { useId, useState } from 'react'
+import { useEffect, useId, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -10,7 +10,8 @@ import {
 import { Input } from '@/components/ui/input'
 import { toast } from '@/components/ui/sonner'
 import { Textarea } from '@/components/ui/textarea'
-import { archiveItem, createRecipe, updateVariation, type FoodData } from '@/data'
+import { archiveItem, createRecipe, linkPreview, updateVariation, type FoodData } from '@/data'
+import { resizePhoto } from '@/lib/photo-resize'
 import { nameTaken } from '@/lib/recipes'
 import { keepPhoto, type PhotoChoice } from './keep-photo'
 import { LinksField } from './links-field'
@@ -19,15 +20,45 @@ import { Field } from './task-details'
 
 /**
  * New idea (RCP-002 1): only the name is needed; any number of links and a
- * note are optional. Nothing is kept until Save.
+ * note are optional. Nothing is kept until Save. From the iOS Shortcut
+ * (RCP-003 4) it opens with the shared link and its name filled in; with
+ * signal, the link's own name and picture fill what is still empty.
  */
-export function NewIdeaDialog({ food, onClose }: { food: FoodData; onClose: () => void }) {
+export function NewIdeaDialog({
+  food,
+  link,
+  name: sharedName,
+  onClose,
+}: {
+  food: FoodData
+  link?: string
+  name?: string
+  onClose: () => void
+}) {
   const ids = useId()
-  const [name, setName] = useState('')
-  const [links, setLinks] = useState([''])
+  const [name, setName] = useState(sharedName ?? '')
+  const [links, setLinks] = useState([link ?? ''])
   const [note, setNote] = useState('')
   const [tried, setTried] = useState(false)
   const [photo, setPhotoChoice] = useState<PhotoChoice>(null)
+  useEffect(() => {
+    if (!link) return
+    let gone = false
+    void linkPreview(link).then(async (found) => {
+      if (gone || !found) return
+      if (found.name) setName((n) => n || found.name!)
+      if (!found.photo) return
+      try {
+        const made = await resizePhoto(await (await fetch(found.photo)).blob())
+        if (!gone) setPhotoChoice((c) => c ?? { ...made, url: URL.createObjectURL(made.blob) })
+      } catch {
+        // A picture the browser can't read: none chosen.
+      }
+    })
+    return () => {
+      gone = true
+    }
+  }, [link])
   const taken = name.trim() ? nameTaken(food.recipes, name) : undefined
   const problem = taken
     ? taken.mine

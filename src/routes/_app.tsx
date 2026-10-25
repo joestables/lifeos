@@ -18,6 +18,7 @@ import { useEffect } from 'react'
 import { AppShell, type DrawerPage } from '@/components/lifeos'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { CaptureProvider } from '@/app/capture'
+import { takeWaiting, useFillShared } from '@/app/share-actions'
 import { CookTimerAlerts } from '@/app/cooking-timers'
 import { useOpenCapture } from '@/app/open-capture'
 import { ItemPopup } from '@/app/items'
@@ -69,6 +70,12 @@ function SignedIn() {
   useEffect(() => {
     if (auth.status === 'signed-out') void navigate({ to: '/sign-in' })
   }, [auth.status, navigate])
+  // A share that arrived signed out carries on now (ADR-0055).
+  useEffect(() => {
+    const shared = auth.status === 'signed-in' ? takeWaiting() : null
+    if (shared) void navigate({ to: '/share', search: shared, replace: true })
+  }, [auth.status, navigate])
+  useFillShared()
   if (auth.status !== 'signed-in') return null
 
   return (

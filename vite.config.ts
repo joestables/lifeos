@@ -28,6 +28,12 @@ export default defineConfig({
         short_name: 'LifeOS',
         start_url: '/',
         display: 'standalone',
+        // Android's share sheet offers LifeOS, opening /share (RCP-003, ADR-0055).
+        share_target: {
+          action: '/share',
+          method: 'GET',
+          params: { title: 'title', text: 'text', url: 'url' },
+        },
         // The manifest needs hex: --background (dark) from theme.css.
         background_color: '#101012',
         theme_color: '#101012',

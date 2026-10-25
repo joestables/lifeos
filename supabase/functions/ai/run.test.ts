@@ -5,7 +5,9 @@ import {
   importRecipe,
   mealIngredients,
   linkKind,
+  ideaName,
   linkPicture,
+  linkPreview,
   publicUrl,
   readPage,
   readSource,
@@ -430,5 +432,32 @@ describe('link previews (MPL-006 6)', () => {
   it('nothing for a page without one, or a link that isn’t public', async () => {
     expect(await linkPicture(site('<html></html>'), 'https://example.com/x')).toBeNull()
     expect(await linkPicture(site(''), 'http://localhost/x')).toBeNull()
+  })
+})
+
+describe('RCP-003 1: a shared link’s name', () => {
+  it('a caption’s first line, its hashtags and mentions dropped', () => {
+    expect(ideaName('Crispy chilli beef noodles 🔥 #recipe #fyp @chefjack\nIngredients: …')).toBe(
+      'Crispy chilli beef noodles 🔥',
+    )
+    expect(ideaName('Best pancakes | BBC Good Food')).toBe('Best pancakes')
+    expect(ideaName('Fish &amp; chips')).toBe('Fish & chips')
+    expect(ideaName('#fyp #food')).toBeNull()
+    expect(ideaName(`${'word '.repeat(30)}`)!.length).toBeLessThanOrEqual(80)
+  })
+
+  it('a page’s Open Graph title with its picture', async () => {
+    const html =
+      '<html><head><meta property="og:title" content="Pancakes | Site"><meta property="og:image" content="/p.png"></head></html>'
+    const fetch: Fetch = async (url) =>
+      url.endsWith('.png')
+        ? new Response(new Uint8Array([137, 80, 78, 71]), {
+            headers: { 'content-type': 'image/png' },
+          })
+        : new Response(html)
+    expect(await linkPreview(fetch, 'https://example.com/pancakes')).toEqual({
+      name: 'Pancakes',
+      photo: 'data:image/png;base64,iVBORw==',
+    })
   })
 })

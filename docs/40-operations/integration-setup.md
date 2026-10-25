@@ -12,6 +12,28 @@
 
 The local and CI databases expose it through `supabase/config.toml`.
 
+## Sharing into LifeOS
+
+| Where | Setting | State |
+|---|---|---|
+| Android | Install LifeOS from Chrome (menu → Add to Home screen → Install); it then shows as "LifeOS" in the share sheet. An install made before 25 October needs installing again to pick up the share target | To do (Joe) |
+| iPhone | The Shortcut below | To do (Joe) |
+
+### iOS Shortcut: Save to LifeOS
+
+An iPhone can't offer a web app in its share sheet, so a Shortcut opens New
+idea with the link ([ADR-0055](../20-architecture/adr/0055-sharing-into-lifeos.md)):
+
+1. In Shortcuts, make a new Shortcut named **Save to LifeOS**.
+2. In its details, turn on **Show in Share Sheet**, receiving **URLs**,
+   **Safari web pages** and **Text**.
+3. Add **URL Encode**, encoding the **Shortcut Input**.
+4. Add **Open URLs** with
+   `https://lifeos-bice-mu.vercel.app/recipes?tab=ideas&share=` followed by
+   the **URL Encoded Text**.
+
+It opens in Safari, so sign in to LifeOS in Safari once.
+
 ## Google sign-in
 
 Google is how everyone signs up and signs in

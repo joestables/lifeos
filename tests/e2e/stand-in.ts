@@ -74,6 +74,8 @@ export interface Rows {
     meal?: Record<string, unknown>
     /** link-preview's picture, a data URL (MPL-006 6). */
     picture?: string | null
+    /** link-preview's name for a link (RCP-003 1). */
+    name?: string | null
     /** How long an import takes to answer, in ms. */
     delay?: number
   }
@@ -1316,7 +1318,7 @@ export async function standIn(
       })
     }
     if (url.pathname.endsWith('/functions/v1/link-preview'))
-      return route.fulfill({ json: { photo: ai?.picture ?? null } })
+      return route.fulfill({ json: { name: ai?.name ?? null, photo: ai?.picture ?? null } })
     if (url.pathname.endsWith('/functions/v1/calendar-connect'))
       try {
         return route.fulfill({ json: calendar(route.request().postDataJSON() ?? {}) })
@@ -1381,6 +1383,18 @@ export async function standIn(
         for (const [k, v] of url.searchParams)
           if (v.startsWith('eq.'))
             rows = (rows as Record<string, unknown>[]).filter((r) => String(r[k]) === v.slice(3))
+      // A link's Variation, asked for by its sources (RCP-003 2).
+      const ov = url.searchParams.get('sources')
+      if (table === 'variation' && ov?.startsWith('ov.')) {
+        // PostgREST's array: {a,b}, an item in quotes when it needs them.
+        const links = ov
+          .slice(4, -1)
+          .split(',')
+          .map((x) => x.replace(/^"|"$/g, ''))
+        rows = (rows as { sources?: string[] }[]).filter((r) =>
+          (r.sources ?? []).some((x) => links.includes(x)),
+        )
+      }
       // .single() / .maybeSingle(): one row, as PostgREST sends it.
       if (route.request().headers()['accept']?.includes('vnd.pgrst.object'))
         return route.fulfill({ json: (Array.isArray(rows) ? rows[0] : rows) ?? null })
