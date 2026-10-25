@@ -2,6 +2,24 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#42](https://github.com/joestables/lifeos/pull/42) — LifeOS at joestables.uk
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-25
+
+**What it did**
+- Google Calendar connecting trusts `joestables.uk` (and `www.`) as the
+  app's address, and falls back to `https://joestables.uk/settings`;
+  `calendar-connect` and `calendar-callback` redeployed, each as one
+  bundled file.
+- The address moved in the docs: environments, integration setup (Supabase
+  and Google settings Joe changed, the domain move, the iOS Shortcut),
+  runbook.
+
+**Documents touched:** environments, integration setup, runbook.
+
+**Left for later:** Joe removes the domain from v1's Vercel project; Claude
+adds it to `lifeos`.
+
 ## [#41](https://github.com/joestables/lifeos/pull/41) — Stage 4b, step 9: sharing a recipe in
 
 Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-25

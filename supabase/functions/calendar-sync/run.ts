@@ -260,7 +260,9 @@ export function allowedReturn(url: string): boolean {
     const u = new URL(url)
     return (
       (u.protocol === 'https:' &&
-        (u.host === 'lifeos-bice-mu.vercel.app' ||
+        (u.host === 'joestables.uk' ||
+          u.host === 'www.joestables.uk' ||
+          u.host === 'lifeos-bice-mu.vercel.app' ||
           /^lifeos-[a-z0-9-]+-joestables1\.vercel\.app$/.test(u.host))) ||
       (u.protocol === 'http:' && u.host === 'localhost:5173')
     )
