@@ -17,8 +17,8 @@ The local and CI databases expose it through `supabase/config.toml`.
 | Where | Setting | State |
 |---|---|---|
 | Cloudflare DNS for `joestables.uk` | An A record for the apex and a CNAME for `www`, both to Vercel (v1's, kept as they were) | Done |
-| Vercel → project `life-os` (v1) → Settings → Domains | Remove `joestables.uk` and `www.joestables.uk`: a domain is on one project at a time, and the Vercel tools Claude has can add one but not remove it | To do (Joe) |
-| Vercel → project `lifeos` → Domains | `joestables.uk`, and `www.joestables.uk` redirecting to it (308) | Claude, once v1's are removed |
+| Vercel → project `life-os` (v1) → Settings → Domains | Remove `joestables.uk` and `www.joestables.uk`: a domain is on one project at a time, and the Vercel tools Claude has can add one but not remove it | Done (Joe, 25 October) |
+| Vercel → project `lifeos` → Domains | `joestables.uk`, and `www.joestables.uk` redirecting to it (308) | Done (Claude, 25 October): both verified, the site and its manifest served |
 
 ## Sharing into LifeOS
 
