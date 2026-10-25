@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { PageAction, PageHeader, TabsRow, TypeScope } from '@/components/lifeos'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { NewListDialog } from '@/app/new-list'
+import { useLiveShopping } from '@/data'
 import { FoodTab, ListsTab } from '@/app/shopping-tabs'
 
 /**
@@ -21,6 +22,7 @@ function ShoppingPage() {
   const navigate = useNavigate()
   const tab = search.tab ?? 'food'
   const [creating, setCreating] = useState(false)
+  useLiveShopping()
   const label = tab === 'food' ? 'New shop' : 'New list'
   const create = () => setCreating(true)
   return (

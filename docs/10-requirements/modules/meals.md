@@ -406,7 +406,7 @@ Acceptance criteria
 
 **As** Joe, **I want** a list we share to update for both of us at once,
 **so that** we don't buy things twice.
-Priority: Should · Status: built for 1 and 3; 2 in Stage 4b's step 7
+Priority: Should · Status: built (2 verified against the walks' stand-in; with two people on the real database when Joe uses it, step 10)
 
 Acceptance criteria
 1. Given a list in a Household, then every member sees all of it, its

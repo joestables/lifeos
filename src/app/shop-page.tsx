@@ -48,6 +48,7 @@ import {
   updateItem,
   useFood,
   useFoodSpaces,
+  useLiveShopping,
   useMeals,
   useSettings,
   useShopMeals,
@@ -546,6 +547,7 @@ export function ShopPage({ list }: { list: ShoppingList }) {
   const spaces = useFoodSpaces(queue)
   const [editing, setEditing] = useState(false)
   const [confirming, setConfirming] = useState(false)
+  useLiveShopping(list.item.id)
   const back = () =>
     void navigate({ to: '/shopping', search: list.kind === 'list' ? { tab: 'lists' } : {} })
   const unticked = list.toBuy.filter((l) => !l.checked).length

@@ -2,6 +2,25 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#39](https://github.com/joestables/lifeos/pull/39) — Stage 4b, step 7: shopping together, live
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-25
+
+**What it did**
+- `useLiveShopping`: while Shopping or a list is open, Supabase Realtime's
+  Postgres Changes on the shopping tables refresh what they touch, so
+  another device's ticks, lines and Meals arrive within a second or two;
+  deletes counted only when they name a line or list on the device; joining
+  again after a dropped connection refreshes everything.
+- The browser walks' stand-in answers Realtime's websocket; walks for
+  another device's changes arriving and a tick made with no signal.
+
+**Documents touched:** ADR-0057 (as built), ADR-0042, meals spec (SHP-004),
+plans/stage-4b.md.
+
+**Left for later:** step 8, a Thought or Note made a Shopping list; two
+people on the real database when Joe uses it (step 10).
+
 ## [#38](https://github.com/joestables/lifeos/pull/38) — Stage 4b, step 6: a food shop from the Meal plan
 
 Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-24

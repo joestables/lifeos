@@ -149,5 +149,25 @@ There were two ways to hold a Meal's lines:
 - A shop's lines to tick are its lines but its subheadings and its Space's
   staples a Meal needs: those are checked on Extra, so the last tick and
   Complete list count without them.
-- Realtime is left for plan step 7: until then a shop refreshes when it is
-  opened or written to.
+- Realtime came with plan step 7 (below).
+
+## As built (25 October, plan step 7)
+
+- `useLiveShopping` in the data layer joins one Realtime channel while
+  Shopping is open (every list I can read) or a list's page is (filtered to
+  its id), with inserts and updates on `shopping.lines`,
+  `shopping.list_meals` and `shopping.shopping_list`.
+- A change refreshes what it touches, a quarter of a second after the last
+  of a burst (a Meal's refresh writes many lines): a line, the lines and the
+  Spaces' staples and Essentials (a tick clears needed); a Meal on a shop,
+  its Meals and lines; a list's row, the lists and Items.
+- Deletes are listened to unfiltered, since Realtime doesn't filter them,
+  and acted on only when the deleted row's key names a line or list on the
+  device.
+- Joining, and joining again after a dropped connection, refreshes
+  everything Shopping shows.
+- A list's name, date and done live on `core.items`, which isn't
+  published: another device's rename or Complete arrives when the lists are
+  next refreshed (a line's change, joining again, or opening the page).
+- The browser walks' stand-in answers Realtime's websocket, and a walk
+  sends another device's change.

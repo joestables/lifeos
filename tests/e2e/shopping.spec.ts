@@ -1,4 +1,4 @@
-import { expect, test, type Locator, type Page } from '@playwright/test'
+import { expect, test, type Locator, type Page, type Route } from '@playwright/test'
 import { KATSU_MEAL, NOW, mealRows } from './meal-rows'
 import { CHICKEN, PANKO, id } from './recipe-rows'
 import { ANN, itemRow, standIn, type Rows } from './stand-in'
@@ -296,5 +296,52 @@ test.describe('Shopping', () => {
     await dialog.getByRole('button', { name: 'Add' }).click()
     await expect(page.getByRole('group', { name: 'Katsu curry' })).toContainText('Chicken thighs')
     await expect.poll(() => db.list_meals.map((m) => m.meal_id)).toEqual([KATSU_MEAL])
+  })
+
+  test('SHP-004 2: what the other ticks, adds and deletes shows within a second or two', async ({
+    page,
+  }) => {
+    const db = await start(page, `/shopping/${SHOP}`)
+    await expect(line(page, 'Chicken thighs')).toBeVisible()
+    await expect.poll(() => db.live.joined()).toBeGreaterThan(0)
+    // Ben ticks the chicken in Tesco.
+    const chicken = db.lines.find((l) => l.pantry_id === CHICKEN)!
+    chicken.checked = true
+    db.live.change('lines', 'UPDATE', chicken)
+    await expect(line(page, 'Chicken thighs').getByRole('checkbox')).toBeChecked({ timeout: 2000 })
+    // Then adds bread, and takes it off again.
+    const bread = {
+      ...chicken,
+      id: id(90),
+      meal_id: null,
+      source_id: null,
+      pantry_id: null,
+      text: 'Bread',
+      checked: false,
+    }
+    db.lines.push(bread)
+    db.live.change('lines', 'INSERT', bread)
+    await expect(line(page, 'Bread')).toBeVisible({ timeout: 2000 })
+    db.lines.splice(db.lines.indexOf(bread), 1)
+    db.live.change('lines', 'DELETE', { id: bread.id })
+    await expect(line(page, 'Bread')).toHaveCount(0, { timeout: 2000 })
+  })
+
+  test('SHP-004 3: ticked with no signal, kept and sent when it returns', async ({
+    page,
+    context,
+  }) => {
+    const db = await start(page, `/shopping/${SHOP}`)
+    await expect(line(page, 'Honey')).toBeVisible()
+    // The stand-in answers before the network, so its writes are refused too.
+    const noSignal = (route: Route) => route.abort('internetdisconnected')
+    await page.route('**/rest/v1/rpc/**', noSignal)
+    await context.setOffline(true)
+    await line(page, 'Honey').getByRole('checkbox').click()
+    await expect(line(page, 'Honey').getByRole('checkbox')).toBeChecked()
+    expect(db.lines.find((l) => l.text === 'Honey')?.checked).toBe(false)
+    await page.unroute('**/rest/v1/rpc/**', noSignal)
+    await context.setOffline(false)
+    await expect.poll(() => db.lines.find((l) => l.text === 'Honey')?.checked).toBe(true)
   })
 })

@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { deleteIsMine, liveKeys } from './live'
 import type { QueueEntry } from './queue/store'
 import {
   applyPendingListMeals,
@@ -90,5 +91,26 @@ describe('SHP-001 4, SHP-003: lines added, ticked and deleted at once', () => {
       [entry('shopping.remove_meal', { p_list: 'l', p_meal: 'meal' })],
     )
     expect(out.map((l) => l.id)).toEqual(['y', 'z'])
+  })
+})
+
+describe('SHP-004 2: another device’s change refreshes what it touches', () => {
+  it('a line refreshes the lines and what a tick clears; a Meal its lines too', () => {
+    expect(liveKeys('lines')).toEqual([
+      ['shopping', 'lines'],
+      ['food', 'space_entries'],
+    ])
+    expect(liveKeys('list_meals')).toContainEqual(['shopping', 'lines'])
+    expect(liveKeys('shopping_list')).toContainEqual(['items'])
+  })
+
+  it('a delete counts only when it names a line or list on this device', () => {
+    const lines = [line('a')]
+    const lists = [{ item_id: 'l' }]
+    expect(deleteIsMine('lines', { id: 'a' }, lines, lists)).toBe(true)
+    expect(deleteIsMine('lines', { id: 'someone else’s' }, lines, lists)).toBe(false)
+    expect(deleteIsMine('list_meals', { list_id: 'l', meal_id: 'm' }, lines, lists)).toBe(true)
+    expect(deleteIsMine('list_meals', { list_id: 'x', meal_id: 'm' }, lines, lists)).toBe(false)
+    expect(deleteIsMine('shopping_list', { item_id: 'l' }, lines, lists)).toBe(true)
   })
 })
