@@ -2,6 +2,20 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#43](https://github.com/joestables/lifeos/pull/43) — joestables.uk live
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-25
+
+**What it did**
+- Recorded the move: Joe took `joestables.uk` off v1's project, and Claude
+  added it to `lifeos` with `www` redirecting to it; both verified, the
+  site and its manifest served.
+
+**Documents touched:** integration setup.
+
+**Left for later:** Joe installs LifeOS again from `https://joestables.uk`
+on his phones.
+
 ## [#42](https://github.com/joestables/lifeos/pull/42) — LifeOS at joestables.uk
 
 Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-25
@@ -17,8 +31,9 @@ Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-25
 
 **Documents touched:** environments, integration setup, runbook.
 
-**Left for later:** Joe removes the domain from v1's Vercel project; Claude
-adds it to `lifeos`.
+**Left for later:** Joe removed the domain from v1's Vercel project and
+Claude added it to `lifeos` the same day (recorded in the next pull
+request).
 
 ## [#41](https://github.com/joestables/lifeos/pull/41) — Stage 4b, step 9: sharing a recipe in
 
