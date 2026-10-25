@@ -1,4 +1,4 @@
-import { isUnit, total, type Amount } from '@lifeos/food'
+import { isUnit, parseLine, total, type Amount, type ParsedLine } from '@lifeos/food'
 import { AISLES, nameKey, type Aisle } from './pantry'
 
 /** Where a line sits on a food shop: an aisle, household items, or Other last (SHP-001 3). */
@@ -159,3 +159,72 @@ export function extraOffers(
     .map((k) => k.pantry_id)
   return { offers, staplesUsed }
 }
+
+/** One thing to buy, read from a Thought or Note (SHP-003 5). */
+export interface WrittenLine<P> {
+  amount: ParsedLine
+  /** The Pantry entry it names, if any. */
+  pantry?: P
+}
+
+/** A name's other forms, for matching "eggs" to Egg and "tomato" to Tomatoes. */
+const forms = (key: string) => [
+  key,
+  `${key}s`,
+  `${key}es`,
+  ...(key.endsWith('es') ? [key.slice(0, -2)] : []),
+  ...(key.endsWith('s') ? [key.slice(0, -1)] : []),
+]
+
+/**
+ * A Thought's or Note's text as lines to buy (SHP-003 5, ITM-006 5, 6): split
+ * at commas and line breaks, and at the "and" ending a list of several ("mac
+ * and cheese" alone stays one); a list's bullets and checkboxes and a leading
+ * "buy" or "and" dropped, an amount read off the front ("2 milk"), and each
+ * matched to the Pantry by name, ignoring case and a plural's "s". A
+ * heading ("# Weekend") isn't a line.
+ */
+export function writtenLines<P extends PantryLook>(
+  text: string,
+  pantry: ReadonlyMap<string, P>,
+): WrittenLine<P>[] {
+  const byName = new Map<string, P>()
+  // An ingredient wins over a household item of the same name.
+  const ingredient = (p: P) => Number(p.kind === 'ingredient')
+  for (const p of [...pantry.values()].sort((a, b) => ingredient(a) - ingredient(b)))
+    byName.set(nameKey(p.name), p)
+  return text
+    .split('\n')
+    .flatMap((row) => {
+      const parts = row.split(/[,;]/)
+      // "milk, bread and eggs": the last of a list joined by "and".
+      if (parts.length > 1) parts.push(...parts.pop()!.split(/\s+and\s+/i))
+      return parts
+    })
+    .filter((part) => !/^\s*#/.test(part))
+    .map((part) =>
+      part
+        .replace(/^\s*(?:[-*+•]\s+|\d+[.)]\s+)?(?:\[[ xX]?\]\s*)?/, '')
+        .replace(/^\s*(?:buy|and)\s+/i, '')
+        .replace(/[.!:]+\s*$/, '')
+        .trim(),
+    )
+    .filter(Boolean)
+    .map((part) => {
+      const amount = parseLine(part)
+      const key = nameKey(amount.name)
+      const p = forms(key)
+        .map((f) => byName.get(f))
+        .find(Boolean)
+      return p ? { amount, pantry: p } : { amount }
+    })
+    .filter((l) => l.amount.name)
+}
+
+/** Whether a Thought or Note can be a food shop: a line names a Pantry ingredient (Joe, 25 October). */
+export const namesAnIngredient = (lines: readonly WrittenLine<PantryLook>[]) =>
+  lines.some((l) => l.pantry?.kind === 'ingredient')
+
+/** What a Thought or Note gives a shop: a Thought's words; a Note's body, else its title. */
+export const shopText = (item: { type: string; title: string; body: string | null }) =>
+  item.type === 'note' && item.body?.trim() ? item.body : item.title

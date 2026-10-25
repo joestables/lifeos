@@ -10,9 +10,6 @@ export const APP_STAGE = 4.5
 /** The stage being built's Types the app has so far; the rest wait for their step. */
 const BUILT_NOW: readonly string[] = ['shopping_list']
 
-/** Conversions offered once their step is built: a Thought into a Shopping list (Stage 4b, step 8). */
-const CONVERT_LATER: readonly string[] = ['shopping_list']
-
 /** Whether the app offers a Type yet: an earlier stage's, or one built in this stage. */
 export function offered(key: string): boolean {
   const stage = typeByKey(key)?.stage ?? Infinity
@@ -56,9 +53,7 @@ export function typeLook(key: string): TypeLook {
 export function convertTargets(type: string): TypeLook[] {
   const t = typeByKey(type)
   if (!t) return []
-  return convertsTo(t)
-    .filter((k) => offered(k) && !CONVERT_LATER.includes(k))
-    .map(typeLook)
+  return convertsTo(t).filter(offered).map(typeLook)
 }
 
 /**

@@ -2,6 +2,25 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#40](https://github.com/joestables/lifeos/pull/40) — Stage 4b, step 8: a Thought or Note made a food shop
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-25
+
+**What it did**
+- Convert to offers Shopping list only to a Thought or Note naming a
+  Pantry ingredient (Joe, 25 October); it becomes a food shop, its lines
+  read from its text and matched to the Pantry, or its lines go onto an
+  open food shop chosen in a small Dialog.
+- `writtenLines` reads the text: commas, line breaks, a list's last "and",
+  bullets and checkboxes, "buy", amounts and plurals.
+- Unit tests and walks.
+
+**Documents touched:** meals spec (SHP-003), items spec (ITM-006), ADR-0050,
+design patterns (Convert to), plans/stage-4b.md.
+
+**Left for later:** step 9, sharing a recipe in from Android and an iOS
+Shortcut; step 10, Joe uses Shopping.
+
 ## [#39](https://github.com/joestables/lifeos/pull/39) — Stage 4b, step 7: shopping together, live
 
 Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-25

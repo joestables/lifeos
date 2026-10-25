@@ -381,7 +381,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to add anything to a food shop, and be offered what
 runs out, **so that** one shop holds everything.
-Priority: Must · Status: built for 1–4; 5 in Stage 4b's step 8
+Priority: Must · Status: built
 
 Acceptance criteria
 1. Given a shop, when I type, then Pantry entries are suggested, household
@@ -396,11 +396,11 @@ Acceptance criteria
 4. Given a line added from a Space's Needed, when I tick it, then its out
    of stock or Required is cleared there; given any other line out of stock
    or Required in the shop's own Space, then there.
-5. Given a Thought in Inbox ("buy milk, bread, eggs"), when I sort it into a
-   Shopping list, then a new one is made with milk, bread and eggs as its
-   lines, split at the commas, "buy" dropped; a food shop when any line
-   matches a Pantry ingredient, else a list. Or they're added to a list I
-   pick (Joe, 24 October).
+5. Given a Thought in Inbox ("buy milk, bread, eggs"), then Shopping list
+   is offered only when a line names a Pantry ingredient (Joe, 25 October);
+   when I sort it into one, then a new food shop is made with milk, bread
+   and eggs as its lines, split at the commas, "buy" dropped. Or they're
+   added to an open food shop I pick (Joe, 24 October).
 
 ### SHP-004 — Shopping together
 

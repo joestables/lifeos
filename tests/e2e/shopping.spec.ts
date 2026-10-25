@@ -344,4 +344,77 @@ test.describe('Shopping', () => {
     await context.setOffline(false)
     await expect.poll(() => db.lines.find((l) => l.text === 'Honey')?.checked).toBe(true)
   })
+
+  test('ITM-006 5; SHP-003 5: a Thought naming a Pantry ingredient sorted into a food shop', async ({
+    page,
+  }) => {
+    const base = mealRows()
+    const thought = id(91)
+    const db = await start(page, '/inbox', {
+      ...base,
+      items: [
+        ...(base.items ?? []),
+        itemRow({ id: thought, type: 'thought', title: 'buy milk, bread and 2 chicken thighs' }),
+        itemRow({ id: id(92), type: 'thought', title: 'call mum' }),
+      ],
+      pantry: [
+        ...(base.pantry ?? []),
+        {
+          id: MILK,
+          name: 'Milk',
+          kind: 'ingredient',
+          aisle: 'chilled',
+          default_unit: null,
+          added_by: ANN.id,
+        },
+      ],
+    })
+    const row = (title: string) => page.locator('[data-slot="item-row"]').filter({ hasText: title })
+    // Not food: Shopping list isn't offered.
+    await row('call mum').getByRole('button', { name: 'More' }).click()
+    await expect(page.getByRole('menuitem', { name: 'Task' })).toBeVisible()
+    await expect(page.getByRole('menuitem', { name: 'Shopping list' })).toHaveCount(0)
+    await page.keyboard.press('Escape')
+    // With no open shop, it becomes one at once.
+    await row('buy milk').getByRole('button', { name: 'More' }).click()
+    await page.getByRole('menuitem', { name: 'Shopping list' }).click()
+    const toast = page
+      .locator('[data-sonner-toast]')
+      .filter({ hasText: 'Converted into a Shopping list' })
+    await toast.getByRole('button', { name: 'Open' }).click()
+    await expect(page.getByRole('heading', { name: 'Food shop', level: 1 })).toBeVisible()
+    await expect(line(aisle(page, 'Chilled'), 'Milk')).toBeVisible()
+    await expect(line(aisle(page, 'Other'), 'Bread')).toBeVisible()
+    await expect(line(aisle(page, 'Protein'), 'Chicken thighs')).toContainText('2')
+    await expect
+      .poll(() => db.items.find((i) => i.id === thought))
+      .toMatchObject({ type: 'shopping_list', title: 'Food shop' })
+  })
+
+  test('SHP-003 5: a Thought’s lines added to an open shop instead', async ({ page }) => {
+    const base = shopRows()
+    const thought = id(93)
+    const db = await start(page, '/inbox', {
+      ...base,
+      items: [...(base.items ?? []), itemRow({ id: thought, type: 'thought', title: 'Buy milk' })],
+    })
+    // From the Thought opened, as from its row.
+    await page
+      .locator('[data-slot="item-row"]')
+      .filter({ hasText: 'Buy milk' })
+      .getByRole('button', { name: /^Buy milk/ })
+      .click()
+    await page.getByRole('dialog').getByRole('button', { name: 'More' }).click()
+    await page.getByRole('menuitem', { name: 'Shopping list' }).click()
+    const ask = page.getByRole('dialog', { name: 'Shopping list' })
+    await expect(ask).toContainText('Milk')
+    await ask.getByRole('combobox', { name: 'Add to' }).click()
+    await page.getByRole('option', { name: 'Big shop' }).click()
+    await ask.getByRole('button', { name: 'Add' }).click()
+    await expect(page.getByText('Added to "Big shop"')).toBeVisible()
+    await expect
+      .poll(() => db.lines.find((l) => l.pantry_id === MILK))
+      .toMatchObject({ list_id: SHOP, meal_id: null })
+    await expect.poll(() => db.items.find((i) => i.id === thought)?.archived_at).toBeTruthy()
+  })
 })
