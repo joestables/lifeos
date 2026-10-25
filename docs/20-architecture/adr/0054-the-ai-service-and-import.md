@@ -83,7 +83,10 @@ served well.
   Instagram gives no thumbnail) or a page's Open Graph tags, for Ideas
   saved from a link ([ADR-0055](0055-sharing-into-lifeos.md)). Built 23
   October for a typed Meal's picture from its link (MPL-006 6): it answers
-  the picture as a data URL, and counts nothing against the allowance.
+  the picture as a data URL, and counts nothing against the allowance. From
+  25 October it answers the link's name too, for a shared Idea (RCP-003 1):
+  a video's title, a TikTok's caption's first line without its hashtags, or
+  a page's Open Graph title.
 
 ## Consequences
 

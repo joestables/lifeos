@@ -79,17 +79,24 @@ export async function mealIngredients(link: string): Promise<MealAnswer> {
 }
 
 /**
- * A link's picture, as a data URL (MPL-006 6), from `link-preview`: not
- * AI, nothing counted. Nothing offline or when the page has none.
+ * A link's name and picture, the picture as a data URL (MPL-006 6, RCP-003
+ * 1), from `link-preview`: not AI, nothing counted. Null when it can't be
+ * asked (offline, unreachable); empty when the page has neither.
  */
-export async function linkPicture(link: string): Promise<string | null> {
+export async function linkPreview(
+  link: string,
+): Promise<{ name: string | null; photo: string | null } | null> {
   if (!navigator.onLine) return null
   const { data, error } = await supabase()
     .functions.invoke('link-preview', { body: { link } })
     .catch(() => ({ data: null, error: true }))
   if (error) return null
-  return (data as { photo?: string | null } | null)?.photo ?? null
+  const found = data as { name?: string | null; photo?: string | null } | null
+  return { name: found?.name ?? null, photo: found?.photo ?? null }
 }
+
+/** A link's picture alone (MPL-006 6). */
+export const linkPicture = async (link: string) => (await linkPreview(link))?.photo ?? null
 
 /** What `food.keep_import` takes (RCP-014 3). */
 export interface KeptImport {

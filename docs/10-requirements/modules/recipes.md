@@ -208,7 +208,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to share a recipe from TikTok or a web page to
 LifeOS, **so that** it's saved as an idea without copying anything.
-Priority: Must · Status: proposed (Stage 4b)
+Priority: Must · Status: built (verified against the walks' stand-in; Joe tries it on his phones)
 
 Acceptance criteria
 1. Given LifeOS installed on my Android phone, when I share a link to it
@@ -222,7 +222,8 @@ Acceptance criteria
 3. Given no signal, then the Idea is kept and sent later; its title and
    thumbnail fill in when it is.
 4. Given an iPhone, then an iOS Shortcut in the share sheet opens New idea
-   with the link and its name filled in, to save.
+   with the link and its name filled in, to save (in Safari: an iPhone's
+   home-screen app can't be opened by a link).
 
 ### RCP-004 — Many at once
 

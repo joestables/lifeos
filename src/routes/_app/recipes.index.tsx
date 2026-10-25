@@ -54,6 +54,7 @@ import { SearchField } from '@/app/search-field'
 import { queue, setMark, useFood, useFoodSpaces, usePhotoUrls } from '@/data'
 import type { RecipeView } from '@/data/food-hooks'
 import { capturedWhen } from '@/lib/dates'
+import { sharedLink } from '@/lib/share'
 import {
   FILTERS,
   IDEA_SORTS,
@@ -78,10 +79,15 @@ type Tab = 'recipes' | 'ideas'
 
 /** The Recipes library and the Ideas list (RCP-001, RCP-002, RCP-004). */
 export const Route = createFileRoute('/_app/recipes/')({
-  validateSearch: (s: Record<string, unknown>): { tab?: 'ideas'; idea?: string } => ({
+  validateSearch: (
+    s: Record<string, unknown>,
+  ): { tab?: 'ideas'; idea?: string; share?: string; name?: string } => ({
     ...(s.tab === 'ideas' ? { tab: 'ideas' as const } : {}),
     // An Idea open in its popup (RCP-002, Joe, 20 October).
     ...(typeof s.idea === 'string' ? { idea: s.idea } : {}),
+    // A link from the iOS Shortcut, to New idea filled in (RCP-003 4).
+    ...(typeof s.share === 'string' ? { share: s.share } : {}),
+    ...(typeof s.name === 'string' ? { name: s.name } : {}),
   }),
   component: Recipes,
 })
@@ -176,6 +182,14 @@ function Recipes() {
         />
       )}
       {making === 'idea' && <NewIdeaDialog food={food} onClose={() => setMaking(null)} />}
+      {search.share && !food.isLoading && (
+        <NewIdeaDialog
+          food={food}
+          link={sharedLink({ text: search.share }) ?? search.share}
+          name={search.name}
+          onClose={() => void navigate({ to: '.', search: { tab: 'ideas' }, replace: true })}
+        />
+      )}
       {/* Both tabs alike, so the search stays put between them (Joe, 20 October). */}
       <div className="flex flex-col gap-5 px-5 pb-28 sm:px-9 sm:pb-8">
         <TabsRow>

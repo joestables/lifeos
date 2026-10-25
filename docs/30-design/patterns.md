@@ -700,7 +700,9 @@ ShoppingLine, OfferRow, KeptRow, PantryAisle and ItemRow in
   drawer, green, centred about a fifth of the way down: a large `check`
   TypeTile (`chef-hat` when saved before), "Saved as an idea" or "Already
   saved" (`text-h2`), and a Card of the Idea's thumbnail, its name and,
-  muted, the link's site; "Already saved" adds an outline `sm` Open.
+  muted, the link's site; "Already saved" adds an outline `sm` Open, which
+  opens an Idea in its popup on Ideas, a Recipe its page. A share with no
+  link says "No link to save", with an outline `sm` Recipes.
 
 ## Forms
 

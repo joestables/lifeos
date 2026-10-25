@@ -504,19 +504,52 @@ export async function mealIngredients(deps: ImportDeps, link: string): Promise<M
 // Link previews (ADR-0054's link-preview): no AI, nothing counted
 
 /**
- * A link's picture, as a data URL, for a typed Meal (MPL-006 6): a
- * YouTube video's thumbnail, a TikTok's, or a page's Open Graph or
- * recipe picture. Nothing, when there is none or it can't be read.
+ * A shared post's or page's title as an Idea's name (RCP-003 1): its first
+ * line, its hashtags and mentions dropped, a site's name after " | " too,
+ * cut at a word to 80 characters. Nothing when nothing is left.
  */
-export async function linkPicture(fetch: Fetch, link: string): Promise<string | null> {
+export function ideaName(raw: string | null | undefined): string | null {
+  if (!raw) return null
+  const first =
+    decodeEntities(raw)
+      .split(/\n/)
+      .map((l) => l.replace(/[#@][\p{L}\p{N}_.]+/gu, '').trim())
+      .find(Boolean) ?? ''
+  const name = first.split(' | ')[0]!.replace(/\s+/g, ' ').trim()
+  if (!name) return null
+  if (name.length <= 80) return name
+  const cut = name.slice(0, 80)
+  return cut.slice(0, cut.lastIndexOf(' ') > 40 ? cut.lastIndexOf(' ') : 80).trim()
+}
+
+/**
+ * A link's name and picture (MPL-006 6, RCP-003 1): a YouTube video's title
+ * and thumbnail, a TikTok's caption and thumbnail, or a page's Open Graph
+ * title and recipe or Open Graph picture, the picture as a data URL.
+ * Nothing of either when there is none or it can't be read.
+ */
+export async function linkPreview(
+  fetch: Fetch,
+  link: string,
+): Promise<{ name: string | null; photo: string | null }> {
+  const none = { name: null, photo: null }
   const url = publicUrl(link)
-  if (!url) return null
+  if (!url) return none
   const kind = linkKind(url)
   let image: string | null
+  let title: string | null | undefined
   try {
     if (kind === 'youtube') {
       const id = youtubeId(url)
       image = id ? `https://i.ytimg.com/vi/${id}/hqdefault.jpg` : null
+      if (id)
+        title = await fetchText(
+          fetch,
+          `https://www.youtube.com/oembed?format=json&url=${encodeURIComponent(`https://www.youtube.com/watch?v=${id}`)}`,
+          'application/json',
+        )
+          .then((t) => (JSON.parse(t) as { title?: string }).title)
+          .catch(() => null)
     } else if (kind === 'tiktok') {
       const embed = JSON.parse(
         await fetchText(
@@ -524,14 +557,27 @@ export async function linkPicture(fetch: Fetch, link: string): Promise<string | 
           `https://www.tiktok.com/oembed?url=${encodeURIComponent(url.href)}`,
           'application/json',
         ),
-      ) as { thumbnail_url?: string }
+      ) as { thumbnail_url?: string; title?: string }
       image = embed.thumbnail_url ?? null
+      title = embed.title
     } else {
       const html = await fetchText(fetch, url.href)
       image = kind === 'instagram' ? meta(html, 'og:image') : readPage(html).image
+      title =
+        kind === 'instagram'
+          ? null
+          : (meta(html, 'og:title') ?? /<title[^>]*>([^<]*)<\/title>/i.exec(html)?.[1])
     }
   } catch {
-    return null
+    return none
   }
-  return pictureOf(fetch, image, url.href)
+  return { name: ideaName(title), photo: await pictureOf(fetch, image, url.href) }
+}
+
+/**
+ * A link's picture, as a data URL, for a typed Meal (MPL-006 6), as
+ * `linkPreview` finds it.
+ */
+export async function linkPicture(fetch: Fetch, link: string): Promise<string | null> {
+  return (await linkPreview(fetch, link)).photo
 }

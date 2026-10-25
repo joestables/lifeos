@@ -34,3 +34,33 @@ otherwise Stage 10 ([ADR-0028](0028-capture-from-outside-the-app.md)).
 
 - `/share` is a signed-in page; signed out, it signs in and carries on.
 - A browser walk covers `/share` with a link, offline, and a link saved before.
+
+## As built (25 October, Stage 4b step 9)
+
+- The manifest's `share_target` sends `title`, `text` and `url` to
+  `/share` by GET. The link is the url, else the first link in the text or
+  title (TikTok and Instagram put it there), kept without its fragment,
+  `utm_…` tracking, or any query on TikTok and Instagram, so the same post
+  shared twice is found again.
+- The Idea is named from the shared title, else the text without its link
+  and hashtags, else "Idea from tiktok.com", made unique among my Recipes
+  ("Pancakes 2"). `link-preview` now answers a name as well as the picture;
+  the device keeps a list of Ideas still to fill in and fills them when the
+  app is open with signal, replacing the name only while the Idea still has
+  the one it was kept with.
+- **A link saved before** is checked against the sources the device holds,
+  then, with signal, by reading `food.variation` for that source, so one
+  saved on another device is found too. Offline, only the device's are
+  checked; a second save of the same link from two devices with no signal
+  isn't caught.
+- Installed, the page closes itself after a moment and a half; where
+  Android doesn't allow it, Back returns to the app shared from.
+- Signed out, the share is kept on the device while I sign in, and the app
+  carries on to `/share` once I'm in.
+- **The iOS Shortcut** opens `/recipes?tab=ideas&share=<link>` (and
+  `&name=` if it has one) in Safari: an iPhone's home-screen app can't be
+  opened by a link, so it needs a sign-in in Safari once. New idea opens
+  with the link, and fills the name and photo from `link-preview` while
+  they're empty. How to make it is in
+  [integration setup](../../40-operations/integration-setup.md#ios-shortcut-save-to-lifeos).
+

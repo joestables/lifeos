@@ -506,6 +506,7 @@ export {
   importRecipe,
   mealIngredients,
   linkPicture,
+  linkPreview,
   keepImport,
   useAiStatus,
   type KeptImport,
@@ -552,6 +553,7 @@ export type {
   VariationFields,
   VariationPatch,
 } from './food'
+export { savedSource } from './food'
 export type { Calendar, CalendarLink, Connection, ExternalRef } from './calendar'
 export { newId } from './ids'
 export { searchItemIds, searchKey } from './search'
