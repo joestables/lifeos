@@ -41,6 +41,7 @@ import {
   addMeals,
   addShopLine,
   deleteShopLine,
+  keepEntry,
   positionBetween,
   queue,
   removeMeal,
@@ -53,6 +54,7 @@ import {
   useSettings,
   useShopMeals,
   useShopping,
+  type ListLine,
   type PantryEntry,
   type ShopLine,
   type ShoppingList,
@@ -61,7 +63,7 @@ import { todayIn } from '@lifeos/recurrence'
 import { dateName } from '@/lib/dates'
 import { itemTitle } from '@/lib/item-types'
 import { nameKey } from '@/lib/pantry'
-import { amountOf, extraOffers, mealLabel, shopRows } from '@/lib/shopping'
+import { amountOf, extraChoices, mealLabel, shopRows } from '@/lib/shopping'
 import { total } from '@lifeos/food'
 import { deleteItem } from './item-navigation'
 import { MoreMenu } from './more-menu'
@@ -93,10 +95,28 @@ function complete(list: ShoppingList, onDone: () => void) {
   })
 }
 
-/** Ticks lines, and offers Done once every line is ticked (SHP-001 4, 5). */
+/**
+ * Ticks lines, and offers Done once every line is ticked (SHP-001 4, 5). A
+ * needed staple or Essential not yet stored is stored first, then ticked,
+ * which clears its out of stock or Required (SHP-003 4).
+ */
 function useTick(list: ShoppingList, onDone: () => void) {
   return (ids: readonly string[], on: boolean) => {
-    tick(list.item.id, ids, on)
+    const byId = new Map(list.lines.map((l) => [l.id, l]))
+    const real = ids.filter((i) => !byId.get(i)?.auto)
+    if (on)
+      for (const i of ids) {
+        const l = byId.get(i)
+        if (!l?.auto) continue
+        real.push(
+          addShopLine(list.item.id, {
+            position: positionBetween(lastPosition(list.lines), null),
+            pantry_id: l.pantry_id,
+            needed_space_id: l.needed_space_id,
+          }),
+        )
+      }
+    if (real.length) tick(list.item.id, real, on)
     const left = list.toBuy.filter((l) => !l.checked && !ids.includes(l.id))
     if (on && left.length === 0 && list.item.status === 'active')
       toast("Everything's ticked", {
@@ -243,6 +263,13 @@ const lineMenu = (list: string, l: { id: string }) => (
   </MoreMenu>
 )
 
+/** A line's ×: a line I added, or one on the shop because it's needed (Joe, 25 October). */
+const removeButton = (name: string, onClick: () => void) => (
+  <Button variant="ghost" size="icon-sm" aria-label={`Remove ${name}`} onClick={onClick}>
+    <XIcon />
+  </Button>
+)
+
 /** A food shop's page (SHP-001–003, patterns.md#shopping): All, Meals and Extra. */
 function FoodShop({ list, onDone }: { list: ShoppingList; onDone: () => void }) {
   const food = useFood(queue)
@@ -266,22 +293,28 @@ function FoodShop({ list, onDone }: { list: ShoppingList; onDone: () => void }) 
       ),
     [entries, space],
   )
-  const groups = shopRows(list.lines, food.pantry, staples, mealName)
+  const groups = shopRows(list.lines, food.pantry, staples)
   const rowCount = groups.reduce((n, g) => n + g.rows.length, 0)
-  const own = list.lines.filter((l) => l.heading === null && l.meal_id === null)
+  const pantryName = (p: string) => food.pantry.get(p)?.name ?? ''
+  const own = list.lines
+    .filter((l) => l.heading === null && l.meal_id === null)
+    .sort(
+      (a, b) =>
+        Number(a.checked) - Number(b.checked) ||
+        ((a.pantry_id && pantryName(a.pantry_id)) || a.text || '').localeCompare(
+          (b.pantry_id && pantryName(b.pantry_id)) || b.text || '',
+        ),
+    )
   const mealPantry = new Set(
     list.lines.filter((l) => l.meal_id && l.pantry_id).map((l) => l.pantry_id!),
   )
-  const onShop = new Set(list.lines.filter((l) => l.pantry_id).map((l) => l.pantry_id!))
-  const { offers, staplesUsed } = extraOffers(
-    entries,
-    spaces.spaces.map((s) => s.id),
-    space,
-    mealPantry,
-  )
+  // Only what I added, or what is needed, counts as Added (not a Meal's line).
+  const ownPantry = new Set(own.filter((l) => l.pantry_id).map((l) => l.pantry_id!))
+  const choices = extraChoices(entries, space, mealPantry)
   const spaceName = (s: string) =>
     spaces.spaces.find((x) => x.id === s)?.name ?? spaces.householdName(s) ?? 'Personal'
-  const pantryName = (p: string) => food.pantry.get(p)?.name ?? ''
+  const neededHere = (p: string) =>
+    entries.find((e) => e.space_id === space && e.pantry_id === p && e.needed)
 
   const add = (choice: { pantry: PantryEntry } | { text: string }, amount: ParsedLine) =>
     addShopLine(id, {
@@ -289,12 +322,23 @@ function FoodShop({ list, onDone }: { list: ShoppingList; onDone: () => void }) 
       ...('pantry' in choice ? { pantry_id: choice.pantry.id } : { text: choice.text }),
       ...amountFields(amount),
     })
-  const offer = (pantry: string, from?: string) =>
-    addShopLine(id, {
-      position: positionBetween(lastPosition(list.lines), null),
-      pantry_id: pantry,
-      ...(from && { needed_space_id: from }),
-    })
+  /** Off the shop: unmarked where it's needed, and any unticked line I added for it gone. */
+  const takeOff = (pantry: string) => {
+    const was = neededHere(pantry)
+    if (was) keepEntry(space, pantry, was.kind as 'staple' | 'essential', false)
+    for (const l of own)
+      if (l.pantry_id === pantry && !l.checked && !l.auto) deleteShopLine(id, l.id)
+  }
+  const remove = (l: ListLine) => (l.pantry_id ? takeOff(l.pantry_id) : deleteShopLine(id, l.id))
+  /** On the shop: marked needed where its Space keeps it, else a line of its own. */
+  const putOn = (pantry: string, kind: 'staple' | 'essential', kept: boolean) => {
+    if (kept) keepEntry(space, pantry, kind, true)
+    else
+      addShopLine(id, {
+        position: positionBetween(lastPosition(list.lines), null),
+        pantry_id: pantry,
+      })
+  }
 
   const picker = (
     <PantryPicker
@@ -303,6 +347,56 @@ function FoodShop({ list, onDone }: { list: ShoppingList; onDone: () => void }) 
       typedLabel={(name) => `Add "${name}" as typed`}
       onPick={add}
     />
+  )
+  const usedBy = (p: string) =>
+    [
+      ...new Set(
+        list.lines
+          .filter((l) => l.pantry_id === p && l.meal_id)
+          .map((l) => mealName(l.meal_id!))
+          .filter(Boolean),
+      ),
+    ].join(', ')
+
+  const addStaples = (
+    <PantryAisle label="Add staples">
+      {choices.staples.length === 0 && (
+        <p className="px-3 pb-2.5 text-sm text-muted-foreground">None for these meals</p>
+      )}
+      {choices.staples.map((c) => (
+        <OfferRow
+          key={c.pantry_id}
+          name={pantryName(c.pantry_id)}
+          meta={c.needed ? 'Out of stock' : usedBy(c.pantry_id)}
+          added={c.needed || ownPantry.has(c.pantry_id)}
+          onToggle={(on) => (on ? putOn(c.pantry_id, 'staple', true) : takeOff(c.pantry_id))}
+        />
+      ))}
+    </PantryAisle>
+  )
+  const addEssentials = (
+    <PantryAisle label="Add essentials">
+      {choices.essentials.length === 0 && (
+        <p className="px-3 pb-2.5 text-sm text-muted-foreground">No essentials yet</p>
+      )}
+      {choices.essentials.map((c) => (
+        <OfferRow
+          key={c.pantry_id}
+          name={pantryName(c.pantry_id)}
+          meta={
+            c.required
+              ? 'Required'
+              : spaces.spaces.length > 1
+                ? c.spaces.map(spaceName).join(' · ')
+                : undefined
+          }
+          added={c.required || ownPantry.has(c.pantry_id)}
+          onToggle={(on) =>
+            on ? putOn(c.pantry_id, 'essential', c.spaces.includes(space)) : takeOff(c.pantry_id)
+          }
+        />
+      ))}
+    </PantryAisle>
   )
 
   return (
@@ -320,7 +414,7 @@ function FoodShop({ list, onDone }: { list: ShoppingList; onDone: () => void }) 
           </TabsTrigger>
         </TabsList>
       </Tabs>
-      {tab !== 'meals' && picker}
+      {tab === 'all' && picker}
       {tab === 'all' && (
         <div className="gap-4 lg:columns-2 [&>*]:mb-4 [&>*]:break-inside-avoid">
           {groups.map((g) => (
@@ -330,10 +424,9 @@ function FoodShop({ list, onDone }: { list: ShoppingList; onDone: () => void }) 
                   key={r.key}
                   name={r.name}
                   amount={r.amount}
-                  meta={r.meta}
                   checked={r.checked}
                   onCheck={(on) => onTick(r.ids, on)}
-                  menu={r.own ? lineMenu(id, r.own) : undefined}
+                  menu={r.own ? removeButton(r.name, () => remove(r.own as ListLine)) : undefined}
                 />
               ))}
             </PantryAisle>
@@ -397,77 +490,45 @@ function FoodShop({ list, onDone }: { list: ShoppingList; onDone: () => void }) 
         </div>
       )}
       {tab === 'extra' && (
+        // A computer: Add staples over Add essentials, what I added beside
+        // them; a phone: what I added first (Joe, 25 October).
         <div className="grid items-start gap-4 lg:grid-cols-2">
-          <div className="flex flex-col gap-4">
-            {own.length > 0 && (
-              <PantryAisle label="Added">
-                {own.map((l) => (
+          <div className="flex flex-col gap-4 max-lg:order-last">
+            {addStaples}
+            {addEssentials}
+          </div>
+          <div className="flex flex-col gap-3">
+            {picker}
+            <PantryAisle label="Added">
+              {own.length === 0 && (
+                <p className="px-3 pb-2.5 text-sm text-muted-foreground">Nothing added</p>
+              )}
+              {own.map((l) => {
+                const name = (l.pantry_id && pantryName(l.pantry_id)) || l.text || ''
+                return (
                   <ShoppingLine
                     key={l.id}
-                    name={(l.pantry_id && pantryName(l.pantry_id)) || l.text || ''}
+                    name={name}
                     amount={formatAmount({
                       qty: l.qty,
                       qtyMax: l.qty_max,
                       approx: l.approx,
                       unit: l.unit && isUnit(l.unit) ? l.unit : null,
                     })}
-                    meta={l.needed_space_id ? `From ${spaceName(l.needed_space_id)}` : undefined}
+                    meta={
+                      l.auto === 'staple'
+                        ? 'Out of stock'
+                        : l.auto === 'essential'
+                          ? 'Required'
+                          : undefined
+                    }
                     checked={l.checked}
                     onCheck={(on) => onTick([l.id], on)}
-                    menu={lineMenu(id, l)}
+                    menu={l.checked ? undefined : removeButton(name, () => remove(l))}
                   />
-                ))}
-              </PantryAisle>
-            )}
-            {staplesUsed.length > 0 && (
-              <PantryAisle label="Staples the meals use · check you have them">
-                {staplesUsed.map((p) => (
-                  <OfferRow
-                    key={p}
-                    name={pantryName(p)}
-                    meta={[
-                      ...new Set(
-                        list.lines
-                          .filter((l) => l.pantry_id === p && l.meal_id)
-                          .map((l) => mealName(l.meal_id!))
-                          .filter(Boolean),
-                      ),
-                    ].join(', ')}
-                  />
-                ))}
-              </PantryAisle>
-            )}
-          </div>
-          <div className="flex flex-col gap-4">
-            {offers.map((o) => (
-              <div key={o.space} className="flex flex-col gap-4">
-                {o.needed.length > 0 && (
-                  <PantryAisle label={`Needed · ${spaceName(o.space)}`}>
-                    {o.needed.map((n) => (
-                      <OfferRow
-                        key={n.pantry_id}
-                        name={pantryName(n.pantry_id)}
-                        needed={n.kind === 'staple' ? 'Out of stock' : 'Required'}
-                        added={onShop.has(n.pantry_id)}
-                        onAdd={() => offer(n.pantry_id, o.space)}
-                      />
-                    ))}
-                  </PantryAisle>
-                )}
-                {o.essentials.length > 0 && (
-                  <PantryAisle label={`Essentials · ${spaceName(o.space)}`}>
-                    {o.essentials.map((p) => (
-                      <OfferRow
-                        key={p}
-                        name={pantryName(p)}
-                        added={onShop.has(p)}
-                        onAdd={() => offer(p)}
-                      />
-                    ))}
-                  </PantryAisle>
-                )}
-              </div>
-            ))}
+                )
+              })}
+            </PantryAisle>
           </div>
         </div>
       )}

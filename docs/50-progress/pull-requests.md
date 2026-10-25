@@ -2,6 +2,31 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#47](https://github.com/joestables/lifeos/pull/47) — Shopping: what's needed on the shop by itself, Extra in two columns
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-25
+
+**What it did**
+- A shop's Space's out-of-stock staples and Required Essentials are on
+  every open food shop by themselves, in All and Extra, worked out on the
+  device; ticking one stores and ticks it (clearing needed), × unmarks it.
+- Extra: Add staples (the staples its Meals use, the out-of-stock ones
+  Added) over Add essentials (every Space's, once, the Required ones
+  Added) on the left, Added on the right; on a phone Added first.
+  OfferRow is now a fixed-width Add / Added Pill. Other Spaces'
+  out-of-stock staples are no longer offered.
+- Fixed: a staple showed Added when only a Meal's line had it.
+- A shop's "2 of 27" counts All's rows; All names no Meals under a row; a
+  line I added comes off with an ×.
+- `stage4b_live_space_entries`: `food.space_entries` joins the Realtime
+  publication, so marks made on another device reach an open shop.
+
+**Documents touched:** components (ShoppingLine, OfferRow), patterns
+(a shop's All and Extra), meals (decisions, SHP-002 3, SHP-003 1, 3,
+SHP-005 3), ADR-0012, ADR-0050 and ADR-0057 amended, the Stage 4b plan.
+
+**Left for later:** step 10 goes on: Joe shops with it.
+
 ## [#46](https://github.com/joestables/lifeos/pull/46) — The Pantry: sorts, Show, Pending, Staples and Essentials
 
 Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-25

@@ -1,7 +1,5 @@
-import { CheckIcon, PlusIcon } from 'lucide-react'
+import { PlusIcon } from 'lucide-react'
 import type { ReactNode } from 'react'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { cn } from '@/lib/utils'
 import { Pill } from './PantryRow'
@@ -9,8 +7,8 @@ import { Pill } from './PantryRow'
 /**
  * A line on a shopping list (SHP-001 4): its Checkbox in Shopping's yellow,
  * its name (weight 600) and, muted under it, what it's for ("Katsu Thu,
- * Curry Sat"); its amount at the end, tabular; then its "…" menu, which a
- * Meal's line doesn't have (SHP-003 2). The whole row ticks it; ticked, the
+ * Curry Sat"); its amount at the end, tabular; then, for a line I added,
+ * its × (Joe, 25 October), which a Meal's line doesn't have (SHP-003 2). The whole row ticks it; ticked, the
  * name is struck through and the row fades.
  */
 export function ShoppingLine({
@@ -66,45 +64,46 @@ export function ShoppingLine({
 }
 
 /**
- * Something Extra offers (SHP-003 3): its name and, muted, why it's offered;
- * an amber "Out of stock" or "Required" Badge when it is needed; then "+",
- * or "Added" once it's on the shop. Without `onAdd` it is only shown: the
- * staples the Meals use, to check they're in.
+ * Something Extra offers (SHP-003 3; Joe, 25 October): its name and, muted,
+ * why it's offered ("Katsu Thu", "Out of stock", "Home · Mum's"); then a
+ * fixed-width Pill, "Add" with a `plus`, or "Added" with a tick once it's
+ * on the shop, pressed again to take it off. The Pill never changes width.
  */
 export function OfferRow({
   name,
   meta,
-  needed,
   added = false,
-  onAdd,
+  onToggle,
 }: {
   name: string
   meta?: ReactNode
-  /** "Out of stock" or "Required". */
-  needed?: string
   added?: boolean
-  onAdd?: () => void
+  onToggle: (on: boolean) => void
 }) {
   return (
     <div
       data-slot="offer-row"
-      className="flex min-h-11 items-center gap-3 rounded-control py-1.5 pr-1 pl-3 max-sm:min-h-12"
+      className="flex min-h-11 items-center gap-3 rounded-control py-1.5 pr-1.5 pl-3 hover:bg-accent/50 max-sm:min-h-12"
     >
       <span className="flex min-w-0 flex-1 flex-col">
         <span className="truncate font-semibold">{name}</span>
         {meta && <span className="truncate text-xs text-muted-foreground">{meta}</span>}
       </span>
-      {needed && <Badge variant="warning">{needed}</Badge>}
-      {onAdd &&
-        (added ? (
-          <span className="inline-flex h-8 items-center gap-1 px-2 text-sm font-semibold text-muted-foreground [&_svg]:size-4">
-            <CheckIcon aria-hidden /> Added
-          </span>
+      <Pill
+        label={added ? `Take ${name} off` : `Add ${name}`}
+        pressed={added}
+        onPressedChange={onToggle}
+        className="w-[78px] justify-center"
+      >
+        {added ? (
+          'Added'
         ) : (
-          <Button variant="ghost" size="icon-sm" aria-label={`Add ${name}`} onClick={onAdd}>
-            <PlusIcon />
-          </Button>
-        ))}
+          <>
+            <PlusIcon aria-hidden />
+            Add
+          </>
+        )}
+      </Pill>
     </div>
   )
 }

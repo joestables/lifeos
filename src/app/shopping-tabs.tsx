@@ -4,9 +4,10 @@ import { useState } from 'react'
 import { EmptyState, ItemRow, SectionLabel, TypeTile } from '@/components/lifeos'
 import { Button } from '@/components/ui/button'
 import { DropdownMenuItem } from '@/components/ui/dropdown-menu'
-import { queue, useFoodSpaces, useShopping, type ShoppingList } from '@/data'
+import { queue, useFood, useFoodSpaces, useShopping, type ShoppingList } from '@/data'
 import { dateName } from '@/lib/dates'
 import { itemTitle } from '@/lib/item-types'
+import { shopTally } from '@/lib/shopping'
 import { deleteItem } from './item-navigation'
 import { MoreMenu } from './more-menu'
 
@@ -21,7 +22,21 @@ const byDate = (a: ShoppingList, b: ShoppingList) =>
 function ListRow({ list, homeSpace }: { list: ShoppingList; homeSpace: string | null }) {
   const navigate = useNavigate()
   const spaces = useFoodSpaces(queue)
-  const lines = list.toBuy
+  const { pantry } = useFood(queue)
+  const { entries } = useShopping(queue)
+  // A food shop counts as its All does (Joe, 25 October); a list, its lines.
+  const tally =
+    list.kind === 'food'
+      ? shopTally(
+          list.lines,
+          pantry,
+          new Set(
+            entries
+              .filter((e) => e.space_id === list.item.space_id && e.kind === 'staple')
+              .map((e) => e.pantry_id),
+          ),
+        )
+      : { done: list.toBuy.filter((l) => l.checked).length, total: list.toBuy.length }
   const done = list.item.status !== 'active'
   const meta = [
     list.item.do_on ? dateName(list.item.do_on) : null,
@@ -29,7 +44,7 @@ function ListRow({ list, homeSpace }: { list: ShoppingList; homeSpace: string | 
       ? `${list.meals.length} ${list.meals.length === 1 ? 'meal' : 'meals'}`
       : null,
     list.item.space_id !== homeSpace ? spaces.householdName(list.item.space_id) : null,
-    lines.length ? `${lines.filter((l) => l.checked).length} of ${lines.length}` : null,
+    tally.total ? `${tally.done} of ${tally.total}` : null,
   ].filter((m): m is string => !!m)
   return (
     <ItemRow

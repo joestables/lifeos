@@ -12,7 +12,9 @@ export function Pill({
   children,
   label,
   warning = false,
+  className,
 }: {
+  className?: string
   pressed: boolean
   onPressedChange?: (on: boolean) => void
   children: ReactNode
@@ -29,6 +31,7 @@ export function Pill({
         'inline-flex h-7 shrink-0 items-center gap-1 rounded-full px-2.5 text-xs font-semibold whitespace-nowrap text-muted-foreground shadow-[inset_0_0_0_1px_var(--border)] transition-colors outline-none not-data-pressed:hover:bg-accent not-data-pressed:hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring-soft data-pressed:bg-selected data-pressed:text-selected-foreground data-pressed:shadow-none [&_svg]:size-3',
         warning &&
           'data-pressed:bg-[color-mix(in_oklch,var(--warning)_16%,transparent)] data-pressed:text-warning',
+        className,
       )}
     >
       {pressed && <CheckIcon aria-hidden className="stroke-3" />}

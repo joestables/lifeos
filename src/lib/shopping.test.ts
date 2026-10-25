@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import {
-  extraOffers,
+  extraChoices,
   mealLabel,
   namesAnIngredient,
   shopRows,
+  shopTally,
   writtenLines,
   type Line,
 } from './shopping'
@@ -28,11 +29,6 @@ const line = (id: string, more: Partial<Line>): Line => ({
   position: '',
   ...more,
 })
-const meals = new Map([
-  ['m1', 'Chilli Thu'],
-  ['m2', 'Risotto Sun'],
-])
-
 describe('SHP-002 2, 3: a food shop’s All', () => {
   const lines = [
     line('a', { pantry_id: 'beef', qty: 500, unit: 'g', meal_id: 'm1' }),
@@ -44,12 +40,16 @@ describe('SHP-002 2, 3: a food shop’s All', () => {
     line('g', { text: 'Scotch bonnet', qty: 1, meal_id: 'm1' }),
     line('h', { text: 'scotch  BONNET', qty: 1 }),
   ]
-  const groups = shopRows(lines, pantry, new Set(['salt']), (m) => meals.get(m))
+  const groups = shopRows(lines, pantry, new Set(['salt']))
 
-  it('shows one row per ingredient, totalled, with the Meals it is for and Extra', () => {
+  it('shows one row per ingredient, totalled, no Meals named under it', () => {
     const beef = groups.find((g) => g.aisle === 'protein')!.rows[0]!
-    expect(beef).toMatchObject({ name: 'Beef mince', amount: '1.5 kg', meta: 'Chilli Thu, Extra' })
+    expect(beef).toMatchObject({ name: 'Beef mince', amount: '1.5 kg' })
+    expect(beef).not.toHaveProperty('meta')
     expect(beef.ids).toEqual(['a', 'b'])
+  })
+  it('counts as All does: onion for two Meals once (Joe, 25 October)', () => {
+    expect(shopTally(lines, pantry, new Set(['salt']))).toEqual({ done: 1, total: 4 })
   })
   it('groups by aisle, household items then Other last, and a typed name whatever its case', () => {
     expect(groups.map((g) => g.aisle)).toEqual(['fruit_veg', 'protein', 'household', 'other'])
@@ -70,20 +70,25 @@ describe('SHP-003 3: what Extra offers', () => {
     { space_id: 'home', pantry_id: 'milk', kind: 'essential', needed: true },
     { space_id: 'home', pantry_id: 'bread', kind: 'essential', needed: false },
     { space_id: 'home', pantry_id: 'cumin', kind: 'staple', needed: false },
+    { space_id: 'home', pantry_id: 'oil', kind: 'staple', needed: false },
     { space_id: 'mum', pantry_id: 'tea', kind: 'staple', needed: true },
-    { space_id: 'me', pantry_id: 'oats', kind: 'staple', needed: false },
+    { space_id: 'mum', pantry_id: 'milk', kind: 'essential', needed: false },
+    { space_id: 'me', pantry_id: 'oats', kind: 'essential', needed: true },
   ]
-  it('offers each Space’s needed then Essentials, the shop’s own first; staples the Meals use', () => {
-    const { offers, staplesUsed } = extraOffers(
-      kept,
-      ['me', 'home', 'mum'],
-      'home',
-      new Set(['cumin', 'tea']),
-    )
-    expect(offers.map((o) => o.space)).toEqual(['home', 'mum'])
-    expect(offers[0]!.needed.map((n) => n.pantry_id)).toEqual(['salt', 'milk'])
-    expect(offers[0]!.essentials).toEqual(['bread'])
-    expect(staplesUsed).toEqual(['cumin'])
+  const { staples, essentials } = extraChoices(kept, 'home', new Set(['cumin', 'tea']))
+
+  it('offers the shop’s staples its Meals use and those out of stock, not other Spaces’', () => {
+    expect(staples).toEqual([
+      { pantry_id: 'salt', needed: true, used: false },
+      { pantry_id: 'cumin', needed: false, used: true },
+    ])
+  })
+  it('offers every Space’s Essentials once, Required only in the shop’s Space', () => {
+    expect(essentials).toEqual([
+      { pantry_id: 'milk', spaces: ['home', 'mum'], required: true },
+      { pantry_id: 'bread', spaces: ['home'], required: false },
+      { pantry_id: 'oats', spaces: ['me'], required: false },
+    ])
   })
 })
 

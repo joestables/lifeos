@@ -171,3 +171,21 @@ There were two ways to hold a Meal's lines:
   next refreshed (a line's change, joining again, or opening the page).
 - The browser walks' stand-in answers Realtime's websocket, and a walk
   sends another device's change.
+
+## As built (25 October, plan step 10: Joe's first round)
+
+- **What's needed comes onto the shop by itself, worked out on the
+  device:** every open food shop shows its Space's out-of-stock staples
+  and Required Essentials as lines that aren't stored (`auto` lines in
+  `useShopping`), unless the shop has a line of its own for that entry.
+  Everyone in the Space sees the same, since the lines come from the
+  Space's shared entries. Ticking one stores a line (with
+  `needed_space_id`) and ticks it, which clears needed as before, so it
+  leaves every other shop; its × unmarks the entry instead. No database
+  trigger writes or deletes lines for them, so nothing here needs Joe to
+  run SQL.
+- `food.space_entries` joins the `supabase_realtime` publication
+  (`stage4b_live_space_entries`), and `useLiveShopping` listens to it, so
+  an entry marked on another device reaches an open shop at once.
+- A shop's count ("2 of 27") counts All's rows, an ingredient for two
+  Meals once.

@@ -680,7 +680,7 @@ ShoppingLine, OfferRow, PantryAisle and ItemRow in
   "…" menu (Edit details…, Complete list — Not done once done — and
   Delete) at the title's end; a
   muted line of its date and Space; Tabs **All · Meals · Extra**, each with
-  its count; then, on All and Extra, an Input "Add to the shop" with a
+  its count; then, on All (and on Extra, over Added), an Input "Add to the shop" with a
   leading `plus` and the Pantry's Suggestions ("Add "chick" as typed" after
   the line).
   - **All:** a PantryAisle Card per aisle in aisle order, Household then
@@ -690,10 +690,17 @@ ShoppingLine, OfferRow, PantryAisle and ItemRow in
     (weight 600) and, muted, "Thu · Dinner · Serves 6" (and "Personal"),
     its "…" menu (Take off the shop), then its ShoppingLines, which have no
     menu. Last, an outline "Add a meal", opening New shop's list of Meals.
-  - **Extra:** "Added" (my lines, with their menus) and "Staples the meals
-    use · check you have them" (OfferRows with no "+"); beside them, for
-    each of my Spaces, the shop's own first, "Needed · Home" (OfferRows with
-    their `warning` Badge) and "Essentials · Home". Each a PantryAisle Card.
+    A row that is one line I added, or one on the shop because it's
+    needed, ends in a ghost `icon-sm` × (no asking); no Meals are named
+    under a row (Joe, 25 October).
+  - **Extra** (Joe, 25 October): on a computer two columns, "Add staples"
+    over "Add essentials" on the left (PantryAisle Cards of OfferRows, the
+    why muted: the Meals using it, "Out of stock", "Required", or the
+    Spaces keeping it), and on the right the Input then "Added": what I
+    added and what's needed, as ShoppingLines ("Out of stock", "Required"
+    muted under the name; ×, until ticked). On a phone the Input and
+    Added come first. An empty Card says so in one muted line ("None for
+    these meals", "No essentials yet", "Nothing added").
 - **Finishing:** ticking the last line shows a toast, "Everything's ticked",
   with Done. Complete list in the menu, with lines unticked, asks first in
   an AlertDialog: "Complete Big shop?", "4 lines aren't ticked.", Complete

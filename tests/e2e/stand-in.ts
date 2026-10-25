@@ -1472,11 +1472,16 @@ async function realtime(page: Page) {
   return {
     /** How many channels are joined: the app is listening. */
     joined: () => channels.length,
-    change(table: string, type: 'INSERT' | 'UPDATE' | 'DELETE', record: Record<string, unknown>) {
+    change(
+      table: string,
+      type: 'INSERT' | 'UPDATE' | 'DELETE',
+      record: Record<string, unknown>,
+      schema = 'shopping',
+    ) {
       const columns = Object.keys(record).map((name) => ({ name, type: 'text' }))
       for (const c of channels) {
         const ids = c.bindings
-          .filter((b) => b.schema === 'shopping' && b.table === table)
+          .filter((b) => b.schema === schema && b.table === table)
           .filter((b) => b.event === '*' || b.event === type)
           .filter((b) => {
             if (!b.filter || type === 'DELETE') return true
@@ -1494,7 +1499,7 @@ async function realtime(page: Page) {
             {
               ids,
               data: {
-                schema: 'shopping',
+                schema,
                 table,
                 type,
                 commit_timestamp: new Date().toISOString(),

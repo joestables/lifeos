@@ -81,7 +81,9 @@ test.describe('Shopping', () => {
     await expect(page.getByRole('heading', { name: 'Big shop', level: 1 })).toBeVisible()
     await expect.poll(() => db.shopping_list.length).toBe(1)
     expect(db.items.find((i) => i.type === 'shopping_list')).toMatchObject({ do_on: '2026-10-15' })
-    await expect(line(aisle(page, 'Protein'), 'Chicken thighs')).toContainText('Katsu curry Thu')
+    // No Meals named under a line (Joe, 25 October).
+    await expect(line(aisle(page, 'Protein'), 'Chicken thighs')).toContainText('4')
+    await expect(line(aisle(page, 'Protein'), 'Chicken thighs')).not.toContainText('Katsu')
     await expect(line(aisle(page, 'Cupboard'), 'Panko breadcrumbs')).toContainText('100 g')
   })
 
@@ -93,7 +95,6 @@ test.describe('Shopping', () => {
     await add.fill('2 chick')
     await page.keyboard.press('Enter')
     await expect(line(aisle(page, 'Protein'), 'Chicken thighs')).toContainText('6')
-    await expect(line(aisle(page, 'Protein'), 'Chicken thighs')).toContainText('Extra')
     await add.fill('Sourdough')
     await expect(page.getByText('Add "Sourdough" as typed')).toBeVisible()
     await page.keyboard.press('Enter')
@@ -101,6 +102,12 @@ test.describe('Shopping', () => {
     await expect
       .poll(() => db.lines.filter((l) => !l.meal_id).map((l) => l.pantry_id ?? l.text))
       .toEqual([CHICKEN, 'Sourdough'])
+    // A line I added comes off with its ×, no asking (Joe, 25 October).
+    await line(aisle(page, 'Other'), 'Sourdough')
+      .getByRole('button', { name: 'Remove Sourdough' })
+      .click()
+    await expect(line(page, 'Sourdough')).toHaveCount(0)
+    await expect.poll(() => db.lines.some((l) => l.text === 'Sourdough')).toBe(false)
     // A Meal's line has no menu: it changes with its Meal.
     await page.getByRole('tab', { name: /Meals/ }).click()
     await expect(
@@ -108,31 +115,62 @@ test.describe('Shopping', () => {
     ).toHaveCount(1)
   })
 
-  test('SHP-003 3, 4: Extra offers what’s needed; ticked, it’s in stock again', async ({
+  test('SHP-003 3, 4: what’s needed is on the shop by itself; Extra adds and takes off', async ({
     page,
+    isMobile,
   }) => {
     const db = await start(page, `/shopping/${SHOP}`)
-    // Panko is a staple the Meal uses: not on All, but to check on Extra.
+    // Salt is out of stock and milk Required, at home: on All by themselves.
+    await expect(line(aisle(page, 'Cupboard'), 'Salt')).toBeVisible()
+    await expect(line(aisle(page, 'Chilled'), 'Milk')).toBeVisible()
+    // Panko is a staple the Meal uses: not on All, but offered on Extra.
     await expect(line(page, 'Panko')).toHaveCount(0)
     await page.getByRole('tab', { name: /Extra/ }).click()
-    await expect(page.getByRole('group', { name: /Staples the meals use/ })).toContainText('Panko')
-    const needed = page.getByRole('group', { name: 'Needed · Personal' })
-    await expect(needed).toContainText('Out of stock')
-    await needed.getByRole('button', { name: 'Add Milk' }).click()
-    await expect(needed.getByText('Added')).toBeVisible()
+    const added = aisle(page, 'Added')
+    const staples = aisle(page, 'Add staples')
+    const essentials = aisle(page, 'Add essentials')
+    await expect(line(added, 'Salt')).toContainText('Out of stock')
+    await expect(line(added, 'Milk')).toContainText('Required')
+    // What I added first on a phone; beside the offers on a computer.
+    const a = (await added.boundingBox())!
+    const st = (await staples.boundingBox())!
+    if (isMobile) expect(a.y).toBeLessThan(st.y)
+    else expect(a.x).toBeGreaterThan(st.x)
+    // Only what's on the shop is Added, not a Meal's line (the Onion bug).
+    await expect(staples.getByRole('button', { name: 'Take Salt off' })).toBeVisible()
+    await expect(essentials.getByRole('button', { name: 'Take Milk off' })).toBeVisible()
+    await staples.getByRole('button', { name: 'Add Panko breadcrumbs' }).click()
+    await expect.poll(() => db.space_entries.find((e) => e.pantry_id === PANKO)?.needed).toBe(true)
+    await expect(line(added, 'Panko breadcrumbs')).toContainText('Out of stock')
+    // Its × unmarks salt: off every shop.
+    await line(added, 'Salt').getByRole('button', { name: 'Remove Salt' }).click()
+    await expect.poll(() => db.space_entries.find((e) => e.pantry_id === SALT)?.needed).toBe(false)
+    await expect(line(added, 'Salt')).toHaveCount(0)
+    // In stock and in no Meal here, it isn't offered.
+    await expect(staples.getByText('Salt')).toHaveCount(0)
+    // Ticked, milk is stored, ticked, and no longer Required (SHP-003 4).
+    await line(added, 'Milk').getByRole('checkbox').click()
     await expect
       .poll(() => db.lines.find((l) => l.pantry_id === MILK))
-      .toMatchObject({ needed_space_id: 's' })
-    await line(page.getByRole('group', { name: 'Added' }), 'Milk')
-      .getByRole('checkbox')
-      .click()
+      .toMatchObject({ checked: true, needed_space_id: 's' })
     await expect.poll(() => db.space_entries.find((e) => e.pantry_id === MILK)?.needed).toBe(false)
+    await expect(line(added, 'Milk').getByRole('checkbox')).toBeChecked()
+  })
+
+  test('SHP-002 3: a shop counts as All does', async ({ page }) => {
+    await start(page)
+    // Chicken, honey, salt and milk; panko (a staple) is checked on Extra.
+    await expect(
+      page.locator('[data-slot="item-row"]').filter({ hasText: 'Big shop' }),
+    ).toContainText('0 of 4')
   })
 
   test('SHP-001 4, 5: ticked to the last line, Done; done shops a press away', async ({ page }) => {
     const db = await start(page, `/shopping/${SHOP}`)
     await line(page, 'Chicken thighs').getByRole('checkbox').click()
     await expect(line(aisle(page, 'Protein'), 'Chicken thighs').getByRole('checkbox')).toBeChecked()
+    await line(page, 'Salt').getByRole('checkbox').click()
+    await line(page, 'Milk').getByRole('checkbox').click()
     // Panko, a staple, is checked on Extra: the last line is Honey.
     await line(page, 'Honey').getByRole('checkbox').click()
     await page.getByRole('button', { name: 'Done' }).click()
@@ -317,6 +355,19 @@ test.describe('Shopping', () => {
     await dialog.getByRole('button', { name: 'Add' }).click()
     await expect(page.getByRole('group', { name: 'Katsu curry' })).toContainText('Chicken thighs')
     await expect.poll(() => db.list_meals.map((m) => m.meal_id)).toEqual([KATSU_MEAL])
+  })
+
+  test('SHP-004 2: panko marked out of stock on another phone comes onto the open shop', async ({
+    page,
+  }) => {
+    const db = await start(page, `/shopping/${SHOP}`)
+    await expect(line(page, 'Chicken thighs')).toBeVisible()
+    await expect(line(page, 'Panko')).toHaveCount(0)
+    await expect.poll(() => db.live.joined()).toBeGreaterThan(0)
+    const panko = db.space_entries.find((e) => e.pantry_id === PANKO)!
+    panko.needed = true
+    db.live.change('space_entries', 'UPDATE', panko, 'food')
+    await expect(line(aisle(page, 'Cupboard'), 'Panko breadcrumbs')).toBeVisible({ timeout: 2000 })
   })
 
   test('SHP-004 2: what the other ticks, adds and deletes shows within a second or two', async ({
