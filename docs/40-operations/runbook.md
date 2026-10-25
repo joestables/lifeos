@@ -95,7 +95,13 @@ Edge Functions deployed by Claude through the Supabase MCP, sharing
   token in Vault against the state (`core.calendar_received`, the state
   good once for 15 minutes) and sends me back to Settings, only at the
   app's own addresses, with `?calendar=finish&code=…` for the app to finish
-  as me, or `cancelled`, `expired` or `failed`.
+  as me, or `cancelled`, `expired` or `failed`. The app's own addresses
+  (`allowedReturn` in `calendar-sync/run.ts`): `joestables.uk` (and
+  `www.`), the old `lifeos-bice-mu.vercel.app`, previews and localhost;
+  with no good address, `https://joestables.uk/settings`.
+- **Deploying** `calendar-connect` and `calendar-callback`: from 25 October
+  each as one bundled file, `node scripts/bundle-function.mjs <name> out.js`,
+  sent through the Supabase MCP without JWT checks.
 - **`calendar-sync`** (every five minutes, `pg_cron` job `calendar-sync`,
   through `pg_net` with `calendar_secret` from Vault, only while a calendar
   is on): a fresh access token per connection; Google refusing it marks the

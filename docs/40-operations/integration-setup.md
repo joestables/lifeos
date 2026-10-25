@@ -12,6 +12,14 @@
 
 The local and CI databases expose it through `supabase/config.toml`.
 
+## The address: joestables.uk
+
+| Where | Setting | State |
+|---|---|---|
+| Cloudflare DNS for `joestables.uk` | An A record for the apex and a CNAME for `www`, both to Vercel (v1's, kept as they were) | Done |
+| Vercel → project `life-os` (v1) → Settings → Domains | Remove `joestables.uk` and `www.joestables.uk`: a domain is on one project at a time, and the Vercel tools Claude has can add one but not remove it | To do (Joe) |
+| Vercel → project `lifeos` → Domains | `joestables.uk`, and `www.joestables.uk` redirecting to it (308) | Claude, once v1's are removed |
+
 ## Sharing into LifeOS
 
 | Where | Setting | State |
@@ -29,7 +37,7 @@ idea with the link ([ADR-0055](../20-architecture/adr/0055-sharing-into-lifeos.m
    **Safari web pages** and **Text**.
 3. Add **URL Encode**, encoding the **Shortcut Input**.
 4. Add **Open URLs** with
-   `https://lifeos-bice-mu.vercel.app/recipes?tab=ideas&share=` followed by
+   `https://joestables.uk/recipes?tab=ideas&share=` followed by
    the **URL Encoded Text**.
 
 It opens in Safari, so sign in to LifeOS in Safari once.
@@ -44,13 +52,13 @@ Google is how everyone signs up and signs in
 |---|---|---|
 | Google Cloud project `lifeos` → OAuth client | Created; client ID and secret entered in Supabase | Done (Joe) |
 | … OAuth client → Authorized redirect URIs | `https://nxydbufwuvsacayqoakh.supabase.co/auth/v1/callback`, exactly | The first sign-in (10 October) reached Google and was refused ("this app's request is invalid"), the usual sign of a missing or mistyped redirect URI: to check (Joe) |
-| … Google Auth Platform → Branding | App name `LifeOS`; support email Joe's; **no logo** (uploading one sends the app for verification); authorised domains `nxydbufwuvsacayqoakh.supabase.co` and `lifeos-bice-mu.vercel.app` | Done (Joe) |
-| … Branding → App domain | Home page `https://lifeos-bice-mu.vercel.app`; privacy policy `https://lifeos-bice-mu.vercel.app/privacy`. Google requires both before the app can leave Testing | Done (Joe); the pages go live with the app's first deploy (plan step 9a) |
+| … Google Auth Platform → Branding | App name `LifeOS`; support email Joe's; **no logo** (uploading one sends the app for verification); authorised domains `nxydbufwuvsacayqoakh.supabase.co`, `joestables.uk` and `lifeos-bice-mu.vercel.app` | Done (Joe; `joestables.uk` added 25 October) |
+| … Branding → App domain | Home page `https://joestables.uk`; privacy policy `https://joestables.uk/privacy` (until 25 October the `lifeos-bice-mu.vercel.app` ones). Google requires both before the app can leave Testing | Done (Joe); the pages go live with the app's first deploy (plan step 9a) |
 | … Google Auth Platform → Data Access | `openid`, `.../auth/userinfo.email`, `.../auth/userinfo.profile`; nothing else | Done (Joe) |
 | … Google Auth Platform → Audience | **In production**, so anyone can sign in. Scopes: `openid`, `email`, `profile` only, which need no verification | Done (Joe) |
 | … Verification centre | Optional *brand* verification, so the consent screen says "LifeOS" rather than the Supabase address. Sign-in works without it. Submit only once the home page and privacy page are live | Later |
 | Supabase → Authentication → Sign In / Providers → Google | Enabled | Done (Joe) |
-| Supabase → Authentication → URL Configuration | Site URL `https://lifeos-bice-mu.vercel.app`. Redirect URLs: `https://lifeos-bice-mu.vercel.app/**`, `https://lifeos-*-joestables1.vercel.app/**` (previews) and `http://localhost:5173/**`. A sign-in whose return address isn't listed goes to the Site URL instead | Done (Joe, 10 October). Before that, the Site URL was `http://joestables.uk` (v1's site) and production wasn't listed, so signing in on production landed there |
+| Supabase → Authentication → URL Configuration | Site URL `https://joestables.uk`. Redirect URLs: `https://joestables.uk/**`, `https://www.joestables.uk/**`, `https://lifeos-bice-mu.vercel.app/**`, `https://lifeos-*-joestables1.vercel.app/**` (previews) and `http://localhost:5173/**`. A sign-in whose return address isn't listed goes to the Site URL instead | Done (Joe, 10 October; `joestables.uk` on 25 October). Before that, the Site URL was `http://joestables.uk` (v1's site) and production wasn't listed, so signing in on production landed there |
 
 Email/password sign-up is blocked in the database, not by a dashboard
 setting (Supabase's "allow new users to sign up" switch applies to Google

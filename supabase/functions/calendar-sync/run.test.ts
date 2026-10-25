@@ -246,11 +246,13 @@ describe('connecting (GCL-001)', () => {
     expect(u.searchParams.get('state')).toBe('st')
   })
   it('comes back only to the app’s own addresses', () => {
+    expect(allowedReturn('https://joestables.uk/settings')).toBe(true)
     expect(allowedReturn('https://lifeos-bice-mu.vercel.app/settings')).toBe(true)
     expect(allowedReturn('https://lifeos-git-x-joestables1.vercel.app/settings')).toBe(true)
     expect(allowedReturn('http://localhost:5173/settings')).toBe(true)
     expect(allowedReturn('https://evil.example/settings')).toBe(false)
     expect(allowedReturn('https://lifeos-bice-mu.vercel.app.evil.example/')).toBe(false)
+    expect(allowedReturn('https://joestables.uk.evil.example/')).toBe(false)
   })
   it('reads the Google account from the id token', () => {
     const payload = btoa(JSON.stringify({ email: 'ann@gmail.com' })).replace(/=+$/, '')
