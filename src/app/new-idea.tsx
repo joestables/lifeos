@@ -12,7 +12,7 @@ import { toast } from '@/components/ui/sonner'
 import { Textarea } from '@/components/ui/textarea'
 import { archiveItem, createRecipe, linkPreview, updateVariation, type FoodData } from '@/data'
 import { resizePhoto } from '@/lib/photo-resize'
-import { nameTaken } from '@/lib/recipes'
+import { nameTaken, takenMessage } from '@/lib/recipes'
 import { keepPhoto, type PhotoChoice } from './keep-photo'
 import { LinksField } from './links-field'
 import { PhotoField } from './photo-field'
@@ -60,11 +60,7 @@ export function NewIdeaDialog({
     }
   }, [link])
   const taken = name.trim() ? nameTaken(food.recipes, name) : undefined
-  const problem = taken
-    ? taken.mine
-      ? 'You already have a recipe with this name'
-      : 'A recipe in your Household has this name'
-    : null
+  const problem = taken ? takenMessage(taken) : null
 
   const save = () => {
     setTried(true)

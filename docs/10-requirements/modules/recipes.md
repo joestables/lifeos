@@ -237,7 +237,8 @@ Acceptance criteria
 1. Given Select on either tab (or a long press on a phone), then I can pick
    several of my own and Archive or Delete Recipes, or Delete Ideas, with
    Undo. Ideas are made Drafts one at a time, each needing its category and
-   cuisine (RCP-010 6).
+   cuisine (RCP-010 6). One Recipe is also deleted from its own page's "…"
+   (Joe, 26 October).
 
 ### RCP-005 — A Recipe's page, to read
 
@@ -276,7 +277,8 @@ Acceptance criteria
 5. Given a new list value in a field ("Korean"), then it is added to my
    list as I type it, also when only a Household member's list has it.
 6. Given a name already used by a Recipe I can see, then it is refused, and
-   I'm told whose it is.
+   I'm told whose it is, and when mine, if it is archived or an Idea (Joe, 26
+   October).
 
 ### RCP-007 — Ingredient lines
 
@@ -337,6 +339,9 @@ Acceptance criteria
 3. Given the grid, then a Recipe is one card however many Variations it has.
 4. Given two Variations, when I compare them, then their ingredients and
    methods show side by side, differences marked.
+5. Given a Recipe I can see, when I choose New variation and name it, then
+   an empty Variation of mine is made, a Draft, and opens to fill (Joe, 26
+   October).
 
 ### RCP-010 — States
 
@@ -425,7 +430,10 @@ Acceptance criteria
 1. Given New → Import and a link to a web page or a video, then I see its
    progress, then a new Draft, not yet kept, to check: name, photo, facts,
    times, servings, ingredient lines matched to the Pantry, method and
-   source.
+   source. Closing the Dialog while it works doesn't stop it: a toast says
+   when it is read, with Check it (or Choose, for a page of several). The
+   import being checked survives a reload, as when new code loads (Joe, 26
+   October).
 2. Given any import, then it is written in Joe's recipe style.
 3. Given I keep it, then the Recipe and the Pantry entries I chose to add
    are saved together; cancelled, nothing is left. A line matching no

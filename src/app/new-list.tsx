@@ -49,7 +49,8 @@ export function NewListDialog({
     () =>
       meals
         .filter(
-          (m) => m.item.do_on !== null && m.item.do_on >= today && m.item.status !== 'cancelled',
+          // Eaten, it needs nothing bought (SHP-002 4).
+          (m) => m.item.do_on !== null && m.item.do_on >= today && m.item.status === 'active',
         )
         .filter((m) => !m.leftoversOf)
         .sort(

@@ -45,6 +45,7 @@ import {
   archiveItem,
   restoreItem,
   setMark,
+  updateItem,
   updateRecipe,
   noteChange,
   queue,
@@ -69,7 +70,7 @@ import {
 import { sourceHost } from '@/lib/recipes'
 import { CookDialog } from './cooking'
 import { MoreMenu } from './more-menu'
-import { archiveRecipes } from './recipe-actions'
+import { archiveRecipes, deleteRecipes } from './recipe-actions'
 import { Field } from './task-details'
 import { titlesOf, useWho } from './recipe-helpers'
 
@@ -198,7 +199,7 @@ function Heading({
   variation: VariationView
   go: RecipeGo
 }) {
-  const [naming, setNaming] = useState<'duplicate' | 'mine' | null>(null)
+  const [naming, setNaming] = useState<'duplicate' | 'mine' | 'new' | null>(null)
   const photo = usePhotoUrls([recipe.photo?.path]).get(recipe.photo?.path ?? '')
   const { firstName } = useFoodSpaces(queue)
   const h = recipe.heading
@@ -214,6 +215,12 @@ function Heading({
   const times = timesLine(variation)
   const source = variation.fields.sources[0]
   const live = recipe.variations.filter((v) => v.item.status !== 'cancelled')
+  // An empty one, a Draft to fill (RCP-009 5, Joe, 26 October).
+  const blank = (name: string) => {
+    const id = addVariation(recipe.item.id, name)
+    updateItem(id, { status: 'active' })
+    go.editNew(id)
+  }
   const copy = (name: string) =>
     go.editNew(
       addVariation(recipe.item.id, name, variation.item.id, [
@@ -313,6 +320,7 @@ function Heading({
               {recipe.mine && (
                 <DropdownMenuItem onClick={go.editHeading}>Edit heading</DropdownMenuItem>
               )}
+              <DropdownMenuItem onClick={() => setNaming('new')}>New variation</DropdownMenuItem>
               {variation.mine && (
                 <DropdownMenuItem onClick={() => setNaming('duplicate')}>
                   Duplicate this variation
@@ -350,15 +358,39 @@ function Heading({
                   Delete variation
                 </DropdownMenuItem>
               )}
+              {/* From its own page too, not only the library (Joe, 26 October). */}
+              {recipe.mine && (
+                <DropdownMenuItem
+                  variant="destructive"
+                  onClick={() => {
+                    deleteRecipes([recipe])
+                    go.library()
+                  }}
+                >
+                  Delete recipe
+                </DropdownMenuItem>
+              )}
             </MoreMenu>
           </>
         }
       />
       {naming && (
         <NameDialog
-          title={naming === 'mine' ? 'Add my variation' : 'Duplicate variation'}
-          initial={naming === 'mine' ? variation.item.title : `${variation.item.title} copy`}
-          onSave={copy}
+          title={
+            naming === 'new'
+              ? 'New variation'
+              : naming === 'mine'
+                ? 'Add my variation'
+                : 'Duplicate variation'
+          }
+          initial={
+            naming === 'new'
+              ? ''
+              : naming === 'mine'
+                ? variation.item.title
+                : `${variation.item.title} copy`
+          }
+          onSave={naming === 'new' ? blank : copy}
           onClose={() => setNaming(null)}
         />
       )}

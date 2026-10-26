@@ -136,6 +136,32 @@ test.describe('Import a recipe', () => {
     expect(db.values.map((v) => v.name)).toEqual(expect.arrayContaining(['Spanish', 'Pork']))
   })
 
+  test('RCP-014 1: a reload while checking keeps the import (Joe, 26 October)', async ({
+    page,
+  }) => {
+    await start(page)
+    await importLink(page)
+    await expect(page.getByRole('heading', { name: 'Check the import', level: 1 })).toBeVisible()
+    // As when new code loads mid-import.
+    await page.reload()
+    await expect(page.getByRole('heading', { name: 'Check the import', level: 1 })).toBeVisible()
+    await expect(page.getByLabel('Name')).toHaveValue('Chicken and chorizo paella')
+  })
+
+  test('RCP-014 1: closed while it works, the import goes on and says when it is read', async ({
+    page,
+  }) => {
+    await start(page, { delay: 1500 })
+    await importLink(page)
+    const dialog = page.getByRole('dialog', { name: 'Import' })
+    await expect(dialog.getByLabel('Progress')).toBeVisible()
+    await page.keyboard.press('Escape')
+    await expect(dialog).toBeHidden()
+    await page.getByRole('button', { name: 'Check it' }).click()
+    await expect(page.getByRole('heading', { name: 'Check the import', level: 1 })).toBeVisible()
+    await expect(page.getByLabel('Name')).toHaveValue('Chicken and chorizo paella')
+  })
+
   test('RCP-008 1: in the method, Enter starts a step and Backspace removes an empty one', async ({
     page,
   }) => {

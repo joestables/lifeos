@@ -388,7 +388,7 @@ Acceptance criteria
    with its total, and counts it once in the shop's "2 of 27" (Joe, 25
    October).
 4. Given Meals, then I add one to the shop or take one off; a Meal is on one
-   open food shop at most.
+   open food shop at most, and an eaten one isn't offered (Joe, 26 October).
 5. Given a Meal's servings or ingredients change, then the shop follows;
    given a Meal removed or taken off, then its unticked lines go. Ticked
    lines stay as they are.

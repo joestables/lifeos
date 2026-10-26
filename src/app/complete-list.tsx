@@ -29,7 +29,7 @@ export function CompleteListDialog({
         <AlertDialogHeader>
           <AlertDialogTitle>Complete {itemTitle(list.item)}?</AlertDialogTitle>
           <AlertDialogDescription>
-            {unticked === 1 ? "1 line isn't ticked." : `${unticked} lines aren't ticked.`}
+            {unticked === 1 ? "1 line isn't ticked" : `${unticked} lines aren't ticked`}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

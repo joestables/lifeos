@@ -1,5 +1,5 @@
 import { expect, test, type Locator, type Page, type Route } from '@playwright/test'
-import { KATSU_MEAL, NOW, mealCards, mealRows } from './meal-rows'
+import { DISHOOM, KATSU_MEAL, NOW, mealCards, mealRows } from './meal-rows'
 import { CHICKEN, PANKO, id } from './recipe-rows'
 import { ANN, itemRow, standIn, type Rows } from './stand-in'
 
@@ -85,6 +85,20 @@ test.describe('Shopping', () => {
     await expect(line(aisle(page, 'Protein'), 'Chicken thighs')).toContainText('4')
     await expect(line(aisle(page, 'Protein'), 'Chicken thighs')).not.toContainText('Katsu')
     await expect(line(aisle(page, 'Cupboard'), 'Panko breadcrumbs')).toContainText('100 g')
+  })
+
+  test('SHP-002 4: an eaten Meal isn’t offered for a new shop (Joe, 26 October)', async ({
+    page,
+  }) => {
+    const base = mealRows()
+    await start(page, '/shopping', {
+      ...base,
+      items: (base.items ?? []).map((i) => (i.id === DISHOOM ? { ...i, status: 'done' } : i)),
+    })
+    await page.getByRole('button', { name: 'New shop' }).first().click()
+    const dialog = page.getByRole('dialog', { name: 'New shop' })
+    await expect(dialog.getByText('Katsu curry')).toBeVisible()
+    await expect(dialog.getByText('Out: Dishoom')).toHaveCount(0)
   })
 
   test('SHP-003 1, 2: added from the Pantry or typed, joining the Meal’s total', async ({

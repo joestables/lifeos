@@ -477,10 +477,11 @@ StepEditor. Agreed with Joe on 18 October on the
   Start cooking (primary, `utensils`), Edit (outline), the heart (an `lg`
   Toggle) and a "…" menu. A member's Recipe has "Add my variation" (outline, `copy`) for
   Edit and "By Sam" first among its facts. The "…" menu as drawn: Edit
-  heading, Duplicate this variation, Compare variations (two or more), Log
-  a cook, Make it the default, then Archive and Delete variation (not the
-  last); a member's Recipe: Log a cook and Compare variations. Duplicate and Add my variation ask the copy's name in a small
-  Dialog, then open it to edit. Under it three Cards on a
+  heading, New variation, Duplicate this variation, Compare variations (two or more), Log
+  a cook, Make it the default, then Archive, Delete variation (not the
+  last) and Delete recipe; a member's Recipe: New variation, Log a cook and Compare variations. New variation,
+  Duplicate and Add my variation ask the name in a small Dialog (New's field
+  focused and empty), then open it to edit; New's is empty, a Draft. Under it three Cards on a
   computer — Ingredients (IngredientList), Method (MethodSteps), and Notes
   over the Log (three LogEntries and a ghost "See all") — stacked on a
   phone. An ingredient reads name first, its amount at the end. In the Log
@@ -717,7 +718,7 @@ ShoppingLine, OfferRow, PantryAisle and ItemRow in
     these meals", "No essentials yet", "Nothing added").
 - **Finishing:** ticking the last line shows a toast, "Everything's ticked",
   with Done. Complete list in the menu, with lines unticked, asks first in
-  an AlertDialog: "Complete Big shop?", "4 lines aren't ticked.", Complete
+  an AlertDialog: "Complete Big shop?", "4 lines aren't ticked", Complete
   and Cancel. Done or completed, the shop leaves the list, with Undo.
 - **A list's page:** as a shop's, with no Tabs: its subheadings as
   PantryAisle Cards, each ending in an AddRow ("Add to Garden"; a list with

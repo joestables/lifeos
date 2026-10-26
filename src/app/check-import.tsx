@@ -42,7 +42,7 @@ import {
 import { resizePhoto } from '@/lib/photo-resize'
 import { type Aisle } from '@/lib/pantry'
 import { amountText, readAmount } from '@/lib/recipe-parts'
-import { nameTaken, valueChoices } from '@/lib/recipes'
+import { nameTaken, takenMessage, valueChoices } from '@/lib/recipes'
 import { AddToPantryDialog } from './add-to-pantry'
 import { focusStep } from './focus-step'
 import { keepPhoto, type PhotoChoice } from './keep-photo'
@@ -143,13 +143,7 @@ export function CheckImport({ pending, food }: { pending: PendingImport; food: F
   const blocker = useBlocker({ shouldBlockFn: () => !done.current, withResolver: true })
 
   const taken = name.trim() ? nameTaken(food.recipes, name, idea?.item.id) : undefined
-  const problem = !name.trim()
-    ? 'A recipe needs a name'
-    : taken
-      ? taken.mine
-        ? 'You already have a recipe with this name'
-        : 'A recipe in your Household has this name'
-      : null
+  const problem = !name.trim() ? 'A recipe needs a name' : taken ? takenMessage(taken) : null
   const missing = [
     !heading.category.trim() && 'category',
     !heading.cuisine.trim() && 'cuisine',
