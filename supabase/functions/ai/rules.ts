@@ -10,7 +10,7 @@
  * goes with every use to ops.events, so a bad import can be traced to the
  * words that made it.
  */
-export const PROMPT_VERSION = '2026-10-24.1'
+export const PROMPT_VERSION = '2026-10-26.1'
 
 export const SYSTEM_INSTRUCTION = `
 You are an experienced chef turning a recipe into structured data for one
@@ -427,17 +427,21 @@ returned empty \`notes\`, you have failed at this.
   not is wrong in a way the cook will find later, in a filter that no longer
   works. Reach for the list because something on it is *right*, never
   because something on it is *nearest*.
-- **The cuisine is where the dish comes from**, decided before you look at
-  the list: Pad Thai is \`Thai\`, pho is \`Vietnamese\`, bibimbap is
-  \`Korean\`, katsu curry is \`Japanese\`, jerk chicken is \`Jamaican\`.
-  Then use the list's entry only if it is that same cuisine, copied
-  exactly; if it isn't on the list, write that cuisine's name. Neighbouring
+- **The cuisine is where the dish comes from.** Write it first, in
+  \`dishCuisine\`, from the dish alone, before you look at the list: Pad
+  Thai is \`Thai\`, pho is \`Vietnamese\`, bibimbap is \`Korean\`, katsu
+  curry is \`Japanese\`, jerk chicken is \`Jamaican\`, a chicken curry,
+  tikka masala or dal is \`Indian\`. Then \`cuisineName\` is that same
+  cuisine as the list spells it, or, when the list hasn't got it, that
+  cuisine's name: **a new name is expected and welcome.** Neighbouring
   countries are different cuisines: Thai, Vietnamese, Korean and Japanese
-  are never \`Chinese\`, and Spanish or Greek is never \`Italian\`.
+  are never \`Chinese\`, Indian is never \`Chinese\`, and Spanish or Greek
+  is never \`Italian\`.
 
-    Lists: Chinese, Italian.  Pad Thai             -> cuisineName "Thai"
-    Lists: Chinese, Italian.  Kung pao chicken     -> cuisineName "Chinese"
-    Lists: Chinese, Italian.  Chicken katsu curry  -> cuisineName "Japanese"
+    Lists: Chinese, Italian, Jamaican.  Easy chicken curry   -> dishCuisine "Indian",   cuisineName "Indian"
+    Lists: Chinese, Italian.            Pad Thai             -> dishCuisine "Thai",     cuisineName "Thai"
+    Lists: Chinese, Italian.            Kung pao chicken     -> dishCuisine "Chinese",  cuisineName "Chinese"
+    Lists: Chinese, Italian.            Chicken katsu curry  -> dishCuisine "Japanese", cuisineName "Japanese"
 
 Do **not** return tags. The cook applies those themselves.
 

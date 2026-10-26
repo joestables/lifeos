@@ -135,8 +135,9 @@ Edge Functions deployed by Claude through the Supabase MCP, sharing
 ## The AI service
 
 `ai`, an Edge Function deployed by Claude through the Supabase MCP without
-JWT checks (it asks Auth who the token is), with `rules.ts`, `schema.ts`,
-`run.ts` and `packages/food`'s `imported.ts` and `units.ts`
+JWT checks (it asks Auth who the token is), from 26 October as one bundled
+file, `node scripts/bundle-function.mjs ai out.js` (`rules.ts`, `schema.ts`,
+`run.ts` and `packages/food`'s `imported.ts` and `units.ts`)
 ([ADR-0054](../20-architecture/adr/0054-the-ai-service-and-import.md)):
 
 - **Tasks:** `status` (can the AI be used, and how much of today's

@@ -440,7 +440,7 @@ export async function importRecipe(deps: ImportDeps, link: string): Promise<Impo
     askGemini(deps.fetch, deps.gemini, geminiBody(input, source.video, RESPONSE_SCHEMA)),
     pictureOf(deps.fetch, source.image, link),
   ])
-  const recipes: ImportedRecipe[] = parseRecipes(text, pantry)
+  const recipes: ImportedRecipe[] = parseRecipes(text, pantry, lists.cuisines)
   if (recipes.length === 0) return { ok: false, reason: 'not_recipe' }
   return { ok: true, recipes, photo, left }
 }
