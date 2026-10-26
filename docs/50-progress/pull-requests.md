@@ -2,6 +2,26 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#51](https://github.com/joestables/lifeos/pull/51) — Settings → Food: Recipe lists
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-26
+
+**What it did**
+- `stage4b_value_settings`: `food.move_value_uses` moves my Recipes
+  (archived and deleted too) from one name to another, a tag once in its
+  place; `food.rename_value` now renames on my Recipes too; neither is
+  logged on each Recipe (`food.quiet`); a Recipe restored from Recently
+  deleted puts its names back on its author's lists. Database tests in
+  `value_settings_test`. Advisors: nothing new.
+- Settings → Food → Recipe lists: a Card per list with counts, New,
+  Rename (onto another name, a merge, asked first) and Delete (not while
+  in use). Laid over at once, my Recipes only.
+
+**Documents touched:** recipes (RCP-018), ADR-0052, the data model,
+patterns (Settings), the Stage 4b plan.
+
+**Left for later:** the UI review and bug hunt.
+
 ## [#50](https://github.com/joestables/lifeos/pull/50) — Import: the right cuisine
 
 Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-26

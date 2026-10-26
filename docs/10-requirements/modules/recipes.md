@@ -504,13 +504,17 @@ Acceptance criteria
 
 **As** Joe, **I want** to keep my lists, **so that** filters follow how I
 organise food.
-Priority: Should · Status: proposed (2 built)
+Priority: Should · Status: built
 
 Acceptance criteria
-1. Given Settings → Recipes, then I rename, merge and delete categories,
-   cuisines, tags, protein and carbs; one in use can't be deleted until
-   nothing uses it.
-2. Given Settings → Recipes, then Archived recipes opens (RCP-010).
+1. Given Settings → Food → Recipe lists, then I add, rename, merge and
+   delete categories, cuisines, tags, protein and carbs, each saying how
+   many of my Recipes use it. A rename reaches my Recipes, archived and
+   deleted ones too, without an entry in each one's log; renaming onto
+   another name on the list asks, then merges them. One in use can't be
+   deleted until nothing uses it; a deleted Recipe brought back puts its
+   names back on my lists (Joe, 26 October).
+2. Given Settings → Food, then Archived recipes opens (RCP-010).
 
 Non-goals (Stage 4): AI that suggests what to cook; import from a photo;
 nutrition; converting weight to volume; sharing a Recipe outside LifeOS;

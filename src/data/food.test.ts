@@ -65,6 +65,42 @@ describe('RCP-006, RCP-016: a new Recipe shows at once, offline too', () => {
   })
 })
 
+describe('RCP-018 1: a list rename reaches my Recipes at once', () => {
+  const headings = applyPendingRecipes(
+    applyPendingRecipes([], [create, { ...create, args: { ...create.args, p_id: 'theirs' } }]),
+    [
+      entry('food.update_recipe', {
+        p_id: 'r',
+        p_patch: { cuisine: 'chinese', tags: ['Spicy', 'quick', 'Batch'] },
+      }),
+      entry('food.update_recipe', { p_id: 'theirs', p_patch: { cuisine: 'Chinese' } }),
+    ],
+  )
+  const move = (kind: string, from: string, to: string) =>
+    entry('food.move_value_uses', { p_kind: kind, p_from: from, p_to: to })
+
+  it('renames mine, whatever the case, and leaves others’', () => {
+    const out = applyPendingRecipes(
+      headings,
+      [move('cuisine', 'Chinese', 'Indian')],
+      (id) => id === 'r',
+    )
+    expect(out.map((h) => [h.item_id, h.cuisine])).toEqual([
+      ['r', 'Indian'],
+      ['theirs', 'Chinese'],
+    ])
+  })
+
+  it('keeps a renamed tag in its place, once, spelt as the new name', () => {
+    const [mine] = applyPendingRecipes(
+      headings,
+      [move('tag', 'Spicy', 'Quick')],
+      (id) => id === 'r',
+    )
+    expect(mine!.tags).toEqual(['Quick', 'Batch'])
+  })
+})
+
 describe('RCP-007, RCP-008: lines and steps', () => {
   const lines: Line[] = [
     {

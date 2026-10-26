@@ -799,6 +799,37 @@ export async function standIn(
           created_at: now(),
         })
     },
+    // My Recipes from one of my list's names to another (RCP-018 1).
+    move_value_uses: (a) => {
+      const k = String(a.p_from).trim().toLowerCase()
+      const to = String(a.p_to).trim()
+      const is = (v: unknown) => typeof v === 'string' && v.trim().toLowerCase() === k
+      const field = {
+        category: 'category',
+        cuisine: 'cuisine',
+        tag: 'tags',
+        protein: 'protein',
+        carb: 'carbs',
+      }[String(a.p_kind)]
+      if (!field) return
+      for (const r of db.recipe) {
+        if (item(r.item_id)?.owner_id !== ANN.id) continue
+        const v = r[field]
+        if (Array.isArray(v)) {
+          const out: string[] = []
+          for (const n of v.map((n) => (is(n) ? to : String(n))))
+            if (!out.some((o) => o.toLowerCase() === n.toLowerCase())) out.push(n)
+          r[field] = out
+        } else if (is(v)) r[field] = to
+      }
+    },
+    rename_value: (a) => {
+      const v = db.values.find((x) => x.id === a.p_id)
+      if (v) v.name = String(a.p_name).trim()
+    },
+    remove_value: (a) => {
+      db.values = db.values.filter((x) => x.id !== a.p_id)
+    },
   }
   // A food shop's Meals' lines, as shopping_private.refresh_meal writes them
   // after every change (ADR-0057): unticked ones replaced, ticked ones kept.

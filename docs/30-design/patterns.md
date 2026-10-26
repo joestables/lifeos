@@ -300,7 +300,14 @@ DateField, TimeField, RepeatField, SubtaskList and AddRow in
 - **Food** (RCP-018, MPL-005): a titled Card: with a Household, "New meals
   are for" (`utensils`) with an `sm` Select of Personal and my Households,
   then CardRows leading to
-  "Categories, cuisines and tags" and "Archived recipes" (with its count).
+  "Recipe lists" (`list`) and "Archived recipes" (with its count).
+- **Recipe lists** (RCP-018 1) has a back link to Settings and a Card per
+  list (Categories, Cuisines, Tags, Protein, Carbs), as Labels: its title,
+  an outline `sm` "New", then a CardRow per name with "3 recipes" and a
+  "…" menu (Rename, Delete). Naming one already there says "Already on the
+  list"; a rename onto another name asks first (AlertDialog, "Merge
+  "Korean" into "Japanese"?", how many Recipes move). Deleting one in use
+  says so and how many use it, with only OK.
 - A Card of CardRows leads on: Recently deleted (with its count), then Sign
   out, which acts at once and so has no chevron.
 - **Google Calendar** ([GCL-001–006](../10-requirements/cross-cutting/integrations.md#google-calendar)):

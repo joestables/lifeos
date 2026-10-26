@@ -175,7 +175,7 @@ const collections: {
   },
   {
     key: recipesKey,
-    fns: ['food.create_recipe', 'food.update_recipe'],
+    fns: ['food.create_recipe', 'food.update_recipe', 'food.move_value_uses'],
     fold: (rows: RecipeHeading[], e: QueueEntry) => applyPendingRecipes(rows, [e]),
   },
   {
@@ -299,7 +299,8 @@ const collections: {
   },
   {
     key: valuesKey,
-    fns: ['food.add_value', 'food.rename_value', 'food.remove_value'],
+    // A Recipe brought back puts its names back on my lists: refetched after.
+    fns: ['food.add_value', 'food.rename_value', 'food.remove_value', 'restore_item'],
     fold: (rows: FoodValue[], e: QueueEntry) => applyPendingValues(rows, [e], ''),
   },
   {
@@ -453,6 +454,9 @@ export const {
   removeMealLine,
   setMealVariation,
   addValue,
+  renameValue,
+  mergeValue,
+  removeValue,
   noteChange,
 } = foodWrites(queue)
 
