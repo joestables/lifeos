@@ -20,9 +20,10 @@ const router = createRouter({
 })
 
 startReporting()
-// A page's code from before a deploy: the new code is loaded instead.
+// A page's code from before a deploy: the new code is loaded instead, on
+// the page being opened.
 window.addEventListener('vite:preloadError', (e) => {
-  if (reloadForNewCode()) e.preventDefault()
+  if (reloadForNewCode(router.latestLocation.href)) e.preventDefault()
 })
 router.subscribe('onResolved', ({ toLocation }) => noteAction(`navigate ${toLocation.pathname}`))
 // A tapped notification opens its Item here (REM-006).

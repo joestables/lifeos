@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { updateItem, updateVariation, usePhotoUrls, type FoodData } from '@/data'
 import type { RecipeView } from '@/data/food-hooks'
 import { useOnLeave } from '@/hooks/use-on-leave'
-import { nameTaken } from '@/lib/recipes'
+import { nameTaken, takenMessage } from '@/lib/recipes'
 import { keepPhoto, type PhotoChoice } from './keep-photo'
 import { LinksField } from './links-field'
 import { PhotoField } from './photo-field'
@@ -41,13 +41,7 @@ export function IdeaDialog({
   const [photo, setPhoto] = useState<PhotoChoice>(null)
   const current = usePhotoUrls([idea.photo?.path]).get(idea.photo?.path ?? '')
   const taken = name.trim() ? nameTaken(food.recipes, name, idea.item.id) : undefined
-  const problem = !name.trim()
-    ? 'An idea needs a name'
-    : taken
-      ? taken.mine
-        ? 'You already have a recipe with this name'
-        : 'A recipe in your Household has this name'
-      : null
+  const problem = !name.trim() ? 'An idea needs a name' : taken ? takenMessage(taken) : null
 
   /** What changed, kept; false, keeping nothing, when the name can't be and `strict`. */
   const keep = (strict = true): boolean => {

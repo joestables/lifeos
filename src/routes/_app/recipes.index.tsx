@@ -1,3 +1,4 @@
+import type { ImportAnswer } from '@lifeos/food'
 import { createFileRoute, useLocation, useNavigate, useRouter } from '@tanstack/react-router'
 import {
   ArchiveIcon,
@@ -40,11 +41,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { toast } from '@/components/ui/sonner'
 import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { useLibraryView } from '@/app/library-view'
 import { ImportDialog } from '@/app/import-dialog'
+import { AI_REFUSALS } from '@/app/ai-words'
 import { setPendingImport, type PendingImport } from '@/app/import-store'
 import { NewIdeaDialog } from '@/app/new-idea'
 import { NewRecipeMenu } from '@/app/new-recipe-menu'
@@ -124,12 +127,47 @@ function Recipes() {
   const newRecipe = () => setMaking('recipe')
   const newIdea = () => setMaking('idea')
   // Import, or an Idea imported from its link (RCP-014).
-  const [importing, setImporting] = useState<{ idea?: RecipeView } | null>(null)
+  const [importing, setImporting] = useState<{
+    idea?: RecipeView
+    choice?: { link: string; answer: Extract<ImportAnswer, { ok: true }> }
+  } | null>(null)
   const checkImport = (pending: PendingImport) => {
     setPendingImport(pending)
     setImporting(null)
     void navigate({ to: '/recipes/import' })
   }
+  /**
+   * Closed while it works: it goes on, and says when it's read (RCP-014 1,
+   * Joe, 26 October), as a Variation's import does.
+   */
+  const continueImport = (work: Promise<ImportAnswer>, link: string, idea?: RecipeView) =>
+    void work.then(
+      (answer) => {
+        if (!answer.ok) return void toast(AI_REFUSALS[answer.reason])
+        if (answer.recipes.length > 1)
+          return void toast(`Imported ${answer.recipes.length} recipes`, {
+            action: {
+              label: 'Choose',
+              onClick: () => setImporting({ idea, choice: { link, answer } }),
+            },
+          })
+        const recipe = answer.recipes[0]!
+        toast(`Imported "${recipe.name}"`, {
+          action: {
+            label: 'Check it',
+            onClick: () =>
+              checkImport({
+                recipe,
+                link,
+                photo: answer.photo,
+                ...(idea ? { idea: idea.item.id } : {}),
+              }),
+          },
+          duration: 60_000,
+        })
+      },
+      () => toast(AI_REFUSALS.failed),
+    )
   const menu = (fab: boolean) => (
     <NewRecipeMenu
       fab={fab}
@@ -147,7 +185,9 @@ function Recipes() {
         <ImportDialog
           food={food}
           idea={importing.idea}
+          choice={importing.choice}
           onClose={() => setImporting(null)}
+          onContinue={(work, link) => continueImport(work, link, importing.idea)}
           onChecked={checkImport}
           onOpen={(r) => {
             setImporting(null)

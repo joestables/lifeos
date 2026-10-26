@@ -277,6 +277,17 @@ export function nameTaken(
   return recipes.find((r) => r.item.id !== except && key(r.item.title).replace(/\s+/g, ' ') === k)
 }
 
+/**
+ * Why a name can't be had, from the Recipe that has it: an archived one or
+ * an Idea is out of sight, so says so (Joe, 26 October).
+ */
+export function takenMessage(taken: RecipeView): string {
+  if (!taken.mine) return 'A recipe in your Household has this name'
+  if (taken.state === 'cancelled') return 'An archived recipe of yours has this name'
+  if (taken.state === 'idea') return 'One of your ideas has this name'
+  return 'You already have a recipe with this name'
+}
+
 /** The lists, in the order a Recipe's heading has them. */
 export const VALUE_LISTS: { kind: ValueKind; title: string; one: string }[] = [
   { kind: 'category', title: 'Categories', one: 'category' },

@@ -2,6 +2,34 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#53](https://github.com/joestables/lifeos/pull/53) — Lost imports, New variation, a second bug hunt
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-26
+
+**What it did**
+- **An import lost after a deploy:** opened on old code, the new service
+  worker took over and its old files went; when the import finished,
+  Check the import's code couldn't load, the page reloaded and the import,
+  held only in memory, was gone. It is now held for the tab
+  (`import-store`), and a reload for new code lands on the page being
+  opened (`reloadForNewCode(href)`).
+- **Import closed while it works** on Recipes goes on, as a Variation's
+  does: a toast with Check it (or Choose) when it's read.
+- **New variation** (RCP-009 5): an empty Draft of mine, named, opened to
+  fill.
+- **Bug hunt**, every Shopping, Meal plan and Recipes file read: a name
+  taken by an archived Recipe or an Idea says so (it was "You already have
+  a recipe with this name", for one out of sight); eaten Meals aren't
+  offered for a shop (New shop ticked them); a ticked line's × on All,
+  which did nothing, is gone; Shop details won't save an empty name;
+  Delete recipe on a Recipe's own page.
+
+**Documents touched:** recipes (RCP-004, RCP-006 6, RCP-009 5, RCP-014 1),
+meals (SHP-002 4), patterns (a Recipe's menu, Complete list), the Stage 4b
+plan.
+
+**Left for later:** the findings reported to Joe and not fixed.
+
 ## [#52](https://github.com/joestables/lifeos/pull/52) — Joe's second round: review and bug hunt
 
 Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-26

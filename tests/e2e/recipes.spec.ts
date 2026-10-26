@@ -151,6 +151,9 @@ test.describe('Recipes', () => {
     await dialog.getByLabel('Name').fill('katsu  CURRY')
     await dialog.getByRole('button', { name: 'Save' }).click()
     await expect(dialog.getByText('You already have a recipe with this name')).toBeVisible()
+    // An archived one is out of sight: it says so (Joe, 26 October).
+    await dialog.getByLabel('Name').fill('Old stew')
+    await expect(dialog.getByText('An archived recipe of yours has this name')).toBeVisible()
     await dialog.getByLabel('Name').fill('Chicken shawarma')
     // A Draft needs a category and a cuisine (RCP-010 6).
     await dialog.getByRole('button', { name: 'Save' }).click()
@@ -365,6 +368,34 @@ test.describe('Recipes', () => {
     await page.getByRole('button', { name: 'Done' }).click()
     await expect(page.getByRole('heading', { name: 'Katsu curry', level: 1 })).toBeVisible()
     await expect(page.getByText('Chorizo', { exact: true })).toBeVisible()
+  })
+
+  test('RCP-009 5: a new Variation from scratch is an empty Draft (Joe, 26 October)', async ({
+    page,
+  }) => {
+    const db = await start(page, `/recipes/${KATSU}`)
+    await page.getByRole('button', { name: 'More' }).first().click()
+    await page.getByRole('menuitem', { name: 'New variation' }).click()
+    const dialog = page.getByRole('dialog', { name: 'New variation' })
+    await expect(dialog.getByLabel('Name')).toBeFocused()
+    await dialog.getByLabel('Name').fill('Slow cooker')
+    await dialog.getByRole('button', { name: 'Save' }).click()
+    await expect(page.getByRole('heading', { name: 'Edit variation' })).toBeVisible()
+    await expect(page.getByLabel('Ingredient')).toHaveCount(0)
+    await expect.poll(() => db.items.find((i) => i.title === 'Slow cooker')?.status).toBe('active')
+    const made = db.items.find((i) => i.title === 'Slow cooker')!
+    expect(db.variation_lines.filter((l) => l.variation_id === made.id)).toHaveLength(0)
+    expect(db.variation_steps.filter((st) => st.variation_id === made.id)).toHaveLength(0)
+  })
+
+  test('RCP-004: a Recipe deleted from its own page, with Undo', async ({ page }) => {
+    const db = await start(page, `/recipes/${SHAKSHUKA}`)
+    await page.getByRole('button', { name: 'More' }).first().click()
+    await page.getByRole('menuitem', { name: 'Delete recipe' }).click()
+    await expect(page.getByRole('heading', { name: 'Recipes', level: 1 })).toBeVisible()
+    await expect.poll(() => db.items.find((i) => i.id === SHAKSHUKA)?.archived_at).toBeTruthy()
+    await page.getByRole('button', { name: 'Undo' }).click()
+    await expect.poll(() => db.items.find((i) => i.id === SHAKSHUKA)?.archived_at).toBeFalsy()
   })
 
   test('RCP-009: a Variation duplicated, switched to and compared', async ({ page }) => {

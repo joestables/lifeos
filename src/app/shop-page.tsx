@@ -112,6 +112,7 @@ function DetailsDialog({ list, onClose }: { list: ShoppingList; onClose: () => v
   const [day, setDay] = useState(list.item.do_on)
   const [space, setSpace] = useState(list.item.space_id)
   const save = () => {
+    if (!title.trim()) return
     const patch = {
       ...(title.trim() !== list.item.title && { title: title.trim() }),
       ...(day !== list.item.do_on && { do_on: day }),
@@ -160,7 +161,9 @@ function DetailsDialog({ list, onClose }: { list: ShoppingList; onClose: () => v
             <Button type="button" variant="outline" onClick={onClose}>
               Cancel
             </Button>
-            <Button type="submit">Save</Button>
+            <Button type="submit" disabled={!title.trim()}>
+              Save
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>
@@ -180,7 +183,8 @@ function AddMealDialog({ list, onClose }: { list: ShoppingList; onClose: () => v
         m.item.do_on !== null &&
         m.item.do_on >= today &&
         !m.leftoversOf &&
-        m.item.status !== 'cancelled' &&
+        // Eaten, it needs nothing bought (SHP-002 4).
+        m.item.status === 'active' &&
         !shopOf.has(m.item.id),
     )
     .sort((a, b) => (a.item.do_on ?? '').localeCompare(b.item.do_on ?? ''))
@@ -404,7 +408,12 @@ function FoodShop({ list, onDone }: { list: ShoppingList; onDone: () => void }) 
                   amount={r.amount}
                   checked={r.checked}
                   onCheck={(on) => onTick(r.ids, on)}
-                  menu={r.own ? removeButton(r.name, () => remove(r.own as ListLine)) : undefined}
+                  menu={
+                    // Ticked, it's bought: nothing to take off (as on Extra).
+                    r.own && !r.checked
+                      ? removeButton(r.name, () => remove(r.own as ListLine))
+                      : undefined
+                  }
                 />
               ))}
             </PantryAisle>
