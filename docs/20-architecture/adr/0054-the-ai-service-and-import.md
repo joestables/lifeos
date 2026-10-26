@@ -46,7 +46,10 @@ served well.
   ingredient, preparation going into the method; the method one action a
   step, quantities at first use, oven °C with the fan figure; notes only
   what helps the cook; category and cuisine always given, a new one
-  suggested rather than a near miss; protein and carbs grouped to the
+  suggested rather than a near miss (the cuisine is asked for twice: first
+  where the dish comes from, then as my list spells it, and `ai` keeps the
+  first, so a curry is never filed under Chinese because Chinese was on the
+  list; Joe, 26 October); protein and carbs grouped to the
   animal or starch. Changed for LifeOS: the units are LifeOS's (g, kg, ml,
   l, tsp, tbsp, cup); a line names a Pantry entry's id rather than copying
   its name; no standard pack size; prep and cook times, no total; "about"

@@ -439,7 +439,9 @@ Acceptance criteria
 7. Given the AI is unavailable, then Import says so before I start.
 8. Given a category, cuisine, protein or carb not on my lists, then the
    import suggests one, marked new, added to my list only when I keep the
-   Draft.
+   Draft. The cuisine is where the dish comes from, never the nearest on
+   my list: a chicken curry is Indian, made new when Indian isn't there yet
+   (Joe, 26 October).
 9. Given a page with several recipes, then I choose which to import.
 10. Given a Draft Variation, when I choose Import from a link in its Method
     and give a link, then its ingredients and method are replaced by the

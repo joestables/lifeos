@@ -90,6 +90,7 @@ export const RESPONSE_SCHEMA = {
         additionalProperties: false,
         required: [
           'name',
+          'dishCuisine',
           'ingredients',
           'method',
           'notes',
@@ -103,6 +104,11 @@ export const RESPONSE_SCHEMA = {
         ],
         properties: {
           name: { type: 'string' },
+          dishCuisine: {
+            type: 'string',
+            description:
+              'Where the dish comes from, as a cuisine (Indian for a chicken curry, Thai for pad Thai), decided from the dish alone, before reading the cook’s lists.',
+          },
           ingredients: { type: 'array', items: INGREDIENT },
           method: { type: 'array', items: { type: 'string' } },
           notes: { type: 'string', description: 'Empty string if none.' },
@@ -110,7 +116,11 @@ export const RESPONSE_SCHEMA = {
           cookTimeMinutes: nullable('integer'),
           servings: nullable('integer'),
           categoryName: { type: 'string', description: 'Always set; never empty.' },
-          cuisineName: { type: 'string', description: 'Always set; never empty.' },
+          cuisineName: {
+            type: 'string',
+            description:
+              'dishCuisine as the cook’s Cuisines spell it when it is there; otherwise dishCuisine itself. Never a different cuisine from the list.',
+          },
           proteinNames: { type: 'array', items: { type: 'string' } },
           carbNames: { type: 'array', items: { type: 'string' } },
         },
@@ -188,7 +198,11 @@ const key = (name: string) => name.trim().replace(/\s+/g, ' ').toLowerCase()
  * already there is that one. An omitted line, or one with no name, leaves
  * the list (its words are in the method).
  */
-export function parseRecipes(text: string, pantry: readonly PantryEntry[]): ImportedRecipe[] {
+export function parseRecipes(
+  text: string,
+  pantry: readonly PantryEntry[],
+  cuisines: readonly string[] = [],
+): ImportedRecipe[] {
   let raw: unknown
   try {
     raw = JSON.parse(text)
@@ -203,7 +217,7 @@ export function parseRecipes(text: string, pantry: readonly PantryEntry[]): Impo
   const byName = new Map(pantry.map((p) => [key(p.name), p]))
   return obj.recipes
     .filter((r): r is Record<string, unknown> => !!r && typeof r === 'object')
-    .map((r) => parseRecipe(r, pantry, byName))
+    .map((r) => parseRecipe(r, pantry, byName, cuisines))
     .filter((r) => r.name && (r.lines.length > 0 || r.steps.length > 0))
 }
 
@@ -243,10 +257,27 @@ export function parseLines(text: string, pantry: readonly PantryEntry[]): Import
     .filter((l): l is ImportedLine => l !== null)
 }
 
+/**
+ * The cuisine kept (Joe, 26 October): where the dish comes from, as my list
+ * spells it when it has it, or as a new name. A list entry the model chose
+ * for a dish from elsewhere (an Indian curry filed as Chinese) never wins.
+ */
+export function cuisineOf(
+  dish: string | null,
+  chosen: string | null,
+  cuisines: readonly string[],
+): string {
+  if (!dish) return chosen ?? ''
+  const mine = cuisines.find((c) => key(c) === key(dish))
+  if (mine) return mine
+  return dish.replace(/(^|[\s-])(\p{Ll})/gu, (_, sep: string, ch: string) => sep + ch.toUpperCase())
+}
+
 function parseRecipe(
   r: Record<string, unknown>,
   pantry: readonly PantryEntry[],
   byName: ReadonlyMap<string, PantryEntry>,
+  cuisines: readonly string[],
 ): ImportedRecipe {
   const lines = (Array.isArray(r.ingredients) ? r.ingredients : [])
     .filter((i): i is Record<string, unknown> => !!i && typeof i === 'object')
@@ -255,7 +286,7 @@ function parseRecipe(
   return {
     name: str(r.name) ?? '',
     category: str(r.categoryName) ?? '',
-    cuisine: str(r.cuisineName) ?? '',
+    cuisine: cuisineOf(str(r.dishCuisine), str(r.cuisineName), cuisines),
     protein: names(r.proteinNames),
     carbs: names(r.carbNames),
     servings: int(r.servings),

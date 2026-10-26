@@ -2,6 +2,24 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#50](https://github.com/joestables/lifeos/pull/50) — Import: the right cuisine
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-26
+
+**What it did**
+- BBC Good Food's easy chicken curry came in as Chinese. The model now
+  writes `dishCuisine`, where the dish comes from, before `cuisineName`,
+  and `ai` keeps `dishCuisine` (as my list spells it, else in Title Case),
+  so a near miss from my list never wins (`cuisineOf`, with a test).
+- The rules' Category and Cuisine section rewritten, with worked examples;
+  `PROMPT_VERSION` 2026-10-26.1. `ai` deployed as one bundled file
+  (version 7).
+
+**Documents touched:** recipes (RCP-014 8), ADR-0054, the runbook, the
+Stage 4b plan.
+
+**Left for later:** Settings → Food, the UI review and bug hunt.
+
 ## [#49](https://github.com/joestables/lifeos/pull/49) — Add a meal: Recently viewed
 
 Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-26

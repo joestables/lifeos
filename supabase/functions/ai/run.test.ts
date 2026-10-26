@@ -17,7 +17,7 @@ import {
   type ImportDeps,
 } from './run.ts'
 import { importInput, pantryList } from './rules.ts'
-import { parseRecipes, RESPONSE_SCHEMA } from './schema.ts'
+import { cuisineOf, parseRecipes, RESPONSE_SCHEMA } from './schema.ts'
 
 const PANTRY = [
   { id: 'p-salt', name: 'Salt' },
@@ -53,6 +53,7 @@ const answer = (ingredients: unknown[], extra: Record<string, unknown> = {}) =>
         cookTimeMinutes: 40,
         servings: 4,
         categoryName: 'Dinner',
+        dishCuisine: 'Spanish',
         cuisineName: 'Spanish',
         proteinNames: ['Chicken', 'Pork'],
         carbNames: ['Rice'],
@@ -186,6 +187,15 @@ describe('checking the answer (RCP-014 1, 8)', () => {
       servings: 4,
       prepMin: 15,
     })
+  })
+
+  it('keeps the cuisine the dish is from, never a nearer one from my list (Joe, 26 October)', () => {
+    const mine = ['Chinese', 'Italian', 'Jamaican']
+    // BBC Good Food's easy chicken curry came in as Chinese.
+    expect(cuisineOf('Indian', 'Chinese', mine)).toBe('Indian')
+    expect(cuisineOf('chinese', 'Chinese', mine)).toBe('Chinese')
+    expect(cuisineOf('middle eastern', null, mine)).toBe('Middle Eastern')
+    expect(cuisineOf(null, 'Italian', mine)).toBe('Italian')
   })
 
   it('is nothing when the source isn’t a recipe', () => {
