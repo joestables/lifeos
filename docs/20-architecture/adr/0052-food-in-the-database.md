@@ -51,7 +51,9 @@ how the schema holds it and how the database enforces it
   ([ADR-0057](0057-shopping-in-the-database.md)).
 - **Lists of values** (categories, cuisines, tags, protein, carbs) are each
   person's, in `food.values`; browsing pools those of everyone in my
-  Households, the same name counting once.
+  Households, the same name counting once. A Recipe keeps the names
+  themselves, so renaming or merging one of mine renames it on my Recipes
+  too (RCP-018 1, 26 October).
 - **Unique names** are checked by the function that creates or renames a
   Recipe: refused if a Recipe I can read already has it, ignoring case and
   spaces. Names that clash only because people joined are left alone.

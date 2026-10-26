@@ -2526,6 +2526,10 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      move_value_uses: {
+        Args: { p_from: string; p_kind: string; p_to: string }
+        Returns: undefined
+      }
       note_change: { Args: { p_activity: number; p_note: string }; Returns: undefined }
       plan_meal: {
         Args: { p_fields: Json; p_id: string }

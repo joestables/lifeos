@@ -4,6 +4,7 @@ import type {
   HeadingPatch,
   LineFields,
   MealFields,
+  FoodValue,
   MealLineFields,
   PantryFields,
   ValueKind,
@@ -239,6 +240,27 @@ export function foodWrites(queue: WriteQueue) {
       const id = newId()
       queue.enqueue('food.add_value', { p_id: id, p_kind: kind, p_name: name }, [])
       return id
+    },
+    /** A new name for one of my values, on my Recipes too (RCP-018 1). */
+    renameValue(value: FoodValue, name: string): void {
+      queue.enqueue(
+        'food.move_value_uses',
+        { p_kind: value.kind, p_from: value.name, p_to: name },
+        [],
+      )
+      queue.enqueue('food.rename_value', { p_id: value.id, p_name: name }, [])
+    },
+    /** One of my values into another: my Recipes take its name, and it goes. */
+    mergeValue(value: FoodValue, into: FoodValue): void {
+      queue.enqueue(
+        'food.move_value_uses',
+        { p_kind: value.kind, p_from: value.name, p_to: into.name },
+        [],
+      )
+      queue.enqueue('food.remove_value', { p_id: value.id }, [])
+    },
+    removeValue(value: FoodValue): void {
+      queue.enqueue('food.remove_value', { p_id: value.id }, [])
     },
   }
 }

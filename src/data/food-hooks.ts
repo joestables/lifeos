@@ -151,8 +151,14 @@ export function useFood(queue: WriteQueue): FoodData {
   const photos = useQuery({ queryKey: photosKey, queryFn: fetchPhotos })
 
   return useMemo(() => {
+    const mine = new Set(
+      items.filter((i) => i.owner_id === me || i.owner_id === '').map((i) => i.id),
+    )
     const headings = new Map(
-      applyPendingRecipes(recipes.data ?? [], entries).map((r) => [r.item_id, r]),
+      applyPendingRecipes(recipes.data ?? [], entries, (id) => mine.has(id)).map((r) => [
+        r.item_id,
+        r,
+      ]),
     )
     const fields = new Map(
       applyPendingVariations(variations.data ?? [], entries).map((v) => [v.item_id, v]),

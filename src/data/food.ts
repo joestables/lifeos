@@ -314,14 +314,49 @@ const names = (v: unknown) =>
         .filter(Boolean)
     : []
 
+/** A heading with one of a list's names swapped for another (RCP-018 1). */
+function movedValue(row: RecipeHeading, kind: string, from: string, to: string): RecipeHeading {
+  const k = from.trim().toLowerCase()
+  const t = to.trim()
+  const is = (v: string | null) => v !== null && v.trim().toLowerCase() === k
+  const swap = (list: string[]) => {
+    if (!list.some(is)) return list
+    const out: string[] = []
+    for (const v of list.map((v) => (is(v) ? t : v))) {
+      const i = out.findIndex((o) => o.trim().toLowerCase() === v.trim().toLowerCase())
+      if (i < 0) out.push(v)
+      else if (v === t) out[i] = t
+    }
+    return out
+  }
+  if (kind === 'category') return is(row.category) ? { ...row, category: t } : row
+  if (kind === 'cuisine') return is(row.cuisine) ? { ...row, cuisine: t } : row
+  if (kind === 'tag') return { ...row, tags: swap(row.tags) }
+  if (kind === 'protein') return { ...row, protein: swap(row.protein) }
+  if (kind === 'carb') return { ...row, carbs: swap(row.carbs) }
+  return row
+}
+
+/**
+ * Headings with unsent changes laid over. A list's rename reaches only my
+ * Recipes (`mine`); without it, all, until the refetch.
+ */
 export function applyPendingRecipes(
   rows: readonly RecipeHeading[],
   entries: readonly QueueEntry[],
+  mine?: (id: string) => boolean,
 ): RecipeHeading[] {
   const byId = new Map(rows.map((r) => [r.item_id, r]))
   for (const e of entries) {
     const a = args(e)
-    if (e.fn === 'food.create_recipe') {
+    if (e.fn === 'food.move_value_uses') {
+      for (const row of byId.values())
+        if (!mine || mine(row.item_id))
+          byId.set(
+            row.item_id,
+            movedValue(row, String(a.p_kind), String(a.p_from ?? ''), String(a.p_to ?? '')),
+          )
+    } else if (e.fn === 'food.create_recipe') {
       const id = String(a.p_id)
       if (!byId.has(id))
         byId.set(id, { ...blankHeading(id), default_variation: String(a.p_variation) })

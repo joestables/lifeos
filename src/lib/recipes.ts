@@ -277,7 +277,16 @@ export function nameTaken(
   return recipes.find((r) => r.item.id !== except && key(r.item.title).replace(/\s+/g, ' ') === k)
 }
 
-const HEADING_FIELD = {
+/** The lists, in the order a Recipe's heading has them. */
+export const VALUE_LISTS: { kind: ValueKind; title: string; one: string }[] = [
+  { kind: 'category', title: 'Categories', one: 'category' },
+  { kind: 'cuisine', title: 'Cuisines', one: 'cuisine' },
+  { kind: 'tag', title: 'Tags', one: 'tag' },
+  { kind: 'protein', title: 'Protein', one: 'protein' },
+  { kind: 'carb', title: 'Carbs', one: 'carb' },
+]
+
+export const HEADING_FIELD = {
   category: 'category',
   cuisine: 'cuisine',
   tag: 'tags',
