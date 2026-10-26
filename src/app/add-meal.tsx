@@ -52,7 +52,9 @@ export function MealPicker({
   onDone: () => void
 }) {
   const { food } = plan
-  const categories = valueChoices(food.values, food.recipes, 'category')
+  // Only what a plannable Recipe has: a category of Ideas alone finds none.
+  const library = food.recipes.filter((r) => r.state === 'active' || r.state === 'done')
+  const categories = valueChoices([], library, 'category')
   const viewed = useRecentViews(queue)
   const [mode, setMode] = useState<Mode>({ kind: 'recipes' })
   const [search, setSearch] = useState('')
@@ -175,13 +177,17 @@ export function MealPicker({
   }
 
   const q = search.trim().toLowerCase()
-  const library = food.recipes.filter((r) => r.state === 'active' || r.state === 'done')
+  const picked = new Set([...chosen].map((c) => c.toLowerCase()))
   // Searching or narrowing: every match, A–Z. Else the three I viewed last
   // (Joe, 26 October), or those planned lately before I've viewed any.
   const looking = q !== '' || chosen.size > 0
   const shown = library
     .filter((r) => !q || r.item.title.toLowerCase().includes(q))
-    .filter((r) => !chosen.size || (r.heading.category !== null && chosen.has(r.heading.category)))
+    .filter(
+      (r) =>
+        !picked.size ||
+        (r.heading.category !== null && picked.has(r.heading.category.trim().toLowerCase())),
+    )
     .sort((a, b) => a.item.title.localeCompare(b.item.title))
   const byId = new Map(library.map((r) => [r.item.id, r]))
   const recent = viewed.map((id) => byId.get(id)).filter((r): r is RecipeView => !!r)

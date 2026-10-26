@@ -274,7 +274,7 @@ Acceptance criteria
    mid-edit, then nothing typed is lost: Edit heading keeps as it goes, and
    a name it can't take stays as it was.
 5. Given a new list value in a field ("Korean"), then it is added to my
-   list as I type it.
+   list as I type it, also when only a Household member's list has it.
 6. Given a name already used by a Recipe I can see, then it is refused, and
    I'm told whose it is.
 

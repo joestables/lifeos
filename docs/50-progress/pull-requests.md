@@ -2,6 +2,24 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#52](https://github.com/joestables/lifeos/pull/52) — Joe's second round: review and bug hunt
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-26
+
+**What it did**
+- Reviewed Shopping, Recipes and the Meal plan at both widths in dark
+  mode, and read their code.
+- A name chosen on a Recipe that only a Household member's list had now
+  goes onto my own list too, so Recipe lists shows it (RCP-006 5).
+- Add a meal offers only the categories of Recipes I can plan, matched
+  whatever their case: a category of Ideas alone, or one on my list that
+  nothing uses, no longer leads to "No recipes match" (MPL-002 1).
+
+**Documents touched:** recipes (RCP-006 5), meals (MPL-002 1), patterns
+(adding a Meal), the Stage 4b plan.
+
+**Left for later:** Joe uses it in a real shop.
+
 ## [#51](https://github.com/joestables/lifeos/pull/51) — Settings → Food: Recipe lists
 
 Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-26

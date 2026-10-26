@@ -10,7 +10,7 @@ import {
   mealRows,
 } from './meal-rows'
 import { KATSU, KATSU_STD, NOODLES, NOODLES_STD, SHAKSHUKA } from './recipe-rows'
-import { standIn } from './stand-in'
+import { ANN, standIn } from './stand-in'
 
 async function start(page: Page, path = '/meal-plan', { clock = true } = {}) {
   // A fixed clock stops the page's timers too, so a press and hold needs the real one.
@@ -45,6 +45,36 @@ test.describe('The Meal plan', () => {
     await expect(page.locator('[data-slot="meal-card"]')).toHaveCount(0)
     await page.getByRole('button', { name: 'Today' }).click()
     await expect(cards(page, '2026-10-15:dinner')).toHaveCount(1)
+  })
+
+  test('MPL-002 1: categories narrow to the Recipes I can plan', async ({ page }) => {
+    await page.clock.setFixedTime(NOW)
+    const base = mealRows()
+    await standIn(page, {
+      signedIn: true,
+      rows: {
+        ...base,
+        // On my list, but no Recipe I can plan has it.
+        values: [
+          {
+            id: 'v1',
+            person_id: ANN.id,
+            kind: 'category',
+            name: 'Baking',
+            created_at: '2026-10-01',
+          },
+        ],
+      },
+    })
+    await page.goto('/meal-plan')
+    await add(page, '2026-10-14:dinner')
+    const picker = page.getByRole('dialog')
+    const chips = picker.getByRole('group', { name: 'Category' })
+    await expect(chips.getByRole('button', { name: /Breakfast/ })).toBeVisible()
+    await expect(chips.getByRole('button', { name: /Baking/ })).toHaveCount(0)
+    await chips.getByRole('button', { name: /Breakfast/ }).click()
+    await expect(picker.getByRole('button', { name: /Shakshuka/ })).toBeVisible()
+    await expect(picker.getByRole('button', { name: /Katsu curry/ })).toHaveCount(0)
   })
 
   test('MPL-002 1, 2: a Recipe planned: my last viewed, or searched', async ({ page }) => {

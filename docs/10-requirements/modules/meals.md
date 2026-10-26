@@ -202,8 +202,8 @@ planning the week takes minutes.
 Priority: Must · Status: built
 
 Acceptance criteria
-1. Given a slot's "+", then a search opens, with my categories to narrow it
-   (Dinner, Baking…) and, until I search or choose one, the three Recipes I
+1. Given a slot's "+", then a search opens, with the categories of the Recipes I
+   can plan to narrow it (Dinner, Baking…) and, until I search or choose one, the three Recipes I
    viewed last (those planned lately before I've viewed any; Joe, 26
    October);
    choosing one adds a Meal of its default Variation, or offers its

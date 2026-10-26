@@ -94,9 +94,11 @@ export function HeadingDialog({
     : null
 
   const choices = (kind: ValueKind) => valueChoices(food.values, food.recipes, kind)
-  // A new name goes into my list as it is chosen (RCP-006 5).
+  // A new name goes into my list as it is chosen (RCP-006 5): one only a
+  // Household member has is new to mine (RCP-018 1).
   const remember = (kind: ValueKind, value: string) => {
-    if (!food.values.some((v) => v.kind === kind && same(v.name, value))) addValue(kind, value)
+    const mine = food.values.filter((v) => v.person_id === food.me)
+    if (!mine.some((v) => v.kind === kind && same(v.name, value))) addValue(kind, value)
   }
 
   /**
