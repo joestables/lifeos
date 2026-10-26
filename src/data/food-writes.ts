@@ -180,6 +180,10 @@ export function foodWrites(queue: WriteQueue) {
         [],
       )
     },
+    /** A Recipe viewed (MPL-002 1): Add a meal offers the last three. */
+    viewRecipe(recipe: string): void {
+      queue.enqueue('food.view_recipe', { p_recipe: recipe, p_at: new Date().toISOString() }, [])
+    },
     /** One taken off its Space's staples or Essentials (SHP-005 1). */
     removeEntry(space: string, pantry: string): void {
       queue.enqueue('food.remove_entry', { p_space: space, p_pantry: pantry }, [])

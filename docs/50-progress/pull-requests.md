@@ -2,6 +2,27 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#49](https://github.com/joestables/lifeos/pull/49) — Add a meal: Recently viewed
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-26
+
+**What it did**
+- `stage4b_recent_views`: `food.recent_views`, each person's own (RLS),
+  a row per Recipe moved on by `food.view_recipe` (the later view wins, so
+  a view sent late by the queue never moves it back); it goes with its
+  Recipe. Database tests in `recent_views_test`.
+- Opening a Recipe's page records a view through the write queue
+  (`viewRecipe`, `useRecentViews`).
+- Add a meal: the search and categories (none chosen), then Recently
+  viewed, three Recipes; every match only while searching or narrowing.
+  Much smaller on both widths.
+
+**Documents touched:** data model, meals (MPL-002 1), patterns (adding a
+Meal), the Stage 4b plan.
+
+**Left for later:** the AI's cuisines, Settings → Food, the UI review and
+bug hunt.
+
 ## [#48](https://github.com/joestables/lifeos/pull/48) — Joe's second round: quick fixes
 
 Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-26
