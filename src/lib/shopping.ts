@@ -66,7 +66,8 @@ const nameOf = (l: Line, pantry: ReadonlyMap<string, PantryLook>) =>
  * A food shop's All (SHP-002 2, 3; SHP-003 3): its lines but the shop's
  * Space's staples a Meal needs, one row per ingredient (a Pantry entry, or a
  * typed name whatever its case), totalled, grouped by aisle in aisle order
- * with Other last; within an aisle A–Z, ticked rows at the foot. No Meals
+ * with Other last; within an aisle A–Z, a ticked row staying in its place
+ * (Joe, 26 October). No Meals
  * named under a row (Joe, 25 October).
  */
 export function shopRows(
@@ -93,9 +94,7 @@ export function shopRows(
   return SHOP_AISLES.map(({ key, label }) => ({
     aisle: key,
     label,
-    rows: rows
-      .filter((r) => r.aisle === key)
-      .sort((a, b) => Number(a.checked) - Number(b.checked) || a.name.localeCompare(b.name)),
+    rows: rows.filter((r) => r.aisle === key).sort((a, b) => a.name.localeCompare(b.name)),
   })).filter((g) => g.rows.length)
 }
 

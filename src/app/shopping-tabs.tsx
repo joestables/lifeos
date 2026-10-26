@@ -1,14 +1,16 @@
 import { useNavigate } from '@tanstack/react-router'
-import { ShoppingCartIcon } from 'lucide-react'
+import { CheckIcon, ShoppingCartIcon, Trash2Icon } from 'lucide-react'
 import { useState } from 'react'
 import { EmptyState, ItemRow, SectionLabel, TypeTile } from '@/components/lifeos'
 import { Button } from '@/components/ui/button'
-import { DropdownMenuItem } from '@/components/ui/dropdown-menu'
+import { DropdownMenuItem, DropdownMenuSeparator } from '@/components/ui/dropdown-menu'
 import { queue, useFood, useFoodSpaces, useShopping, type ShoppingList } from '@/data'
 import { dateName } from '@/lib/dates'
 import { itemTitle } from '@/lib/item-types'
 import { shopTally } from '@/lib/shopping'
+import { CompleteListDialog } from './complete-list'
 import { deleteItem } from './item-navigation'
+import { completeList, untickedOf } from './shop-actions'
 import { MoreMenu } from './more-menu'
 
 const cart = <TypeTile colour="yellow" icon={ShoppingCartIcon} />
@@ -38,6 +40,7 @@ function ListRow({ list, homeSpace }: { list: ShoppingList; homeSpace: string | 
         )
       : { done: list.toBuy.filter((l) => l.checked).length, total: list.toBuy.length }
   const done = list.item.status !== 'active'
+  const [confirming, setConfirming] = useState(false)
   const meta = [
     list.item.do_on ? dateName(list.item.do_on) : null,
     list.kind === 'food' && list.meals.length
@@ -47,21 +50,32 @@ function ListRow({ list, homeSpace }: { list: ShoppingList; homeSpace: string | 
     tally.total ? `${tally.done} of ${tally.total}` : null,
   ].filter((m): m is string => !!m)
   return (
-    <ItemRow
-      leading={cart}
-      title={itemTitle(list.item)}
-      meta={meta}
-      done={done}
-      sync={list.item.sync}
-      onOpen={() => void navigate({ to: '/shopping/$id', params: { id: list.item.id } })}
-      menu={
-        <MoreMenu>
-          <DropdownMenuItem variant="destructive" onClick={() => deleteItem(list.item)}>
-            Delete
-          </DropdownMenuItem>
-        </MoreMenu>
-      }
-    />
+    <>
+      {confirming && <CompleteListDialog list={list} onClose={() => setConfirming(false)} />}
+      <ItemRow
+        leading={cart}
+        title={itemTitle(list.item)}
+        meta={meta}
+        done={done}
+        sync={list.item.sync}
+        onOpen={() => void navigate({ to: '/shopping/$id', params: { id: list.item.id } })}
+        menu={
+          <MoreMenu>
+            {!done && (
+              <DropdownMenuItem
+                onClick={() => (untickedOf(list) ? setConfirming(true) : completeList(list))}
+              >
+                <CheckIcon /> Complete list
+              </DropdownMenuItem>
+            )}
+            {!done && <DropdownMenuSeparator />}
+            <DropdownMenuItem variant="destructive" onClick={() => deleteItem(list.item)}>
+              <Trash2Icon /> Delete
+            </DropdownMenuItem>
+          </MoreMenu>
+        }
+      />
+    </>
   )
 }
 
@@ -75,7 +89,7 @@ function Lists({ kind, label }: { kind: 'food' | 'list'; label: string }) {
   const done = mine
     .filter((l) => l.item.status !== 'active')
     .sort((a, b) => b.item.updated_at.localeCompare(a.item.updated_at))
-  if (!isLoading && !open.length && !done.length)
+  if (!isLoading && !open.length && (kind === 'list' || !done.length))
     return <EmptyState icon={ShoppingCartIcon} title={kind === 'food' ? 'No shops' : 'No lists'} />
   return (
     <section className="flex flex-col gap-1.5">
@@ -83,12 +97,15 @@ function Lists({ kind, label }: { kind: 'food' | 'list'; label: string }) {
       {open.map((l) => (
         <ListRow key={l.item.id} list={l} homeSpace={home} />
       ))}
-      {done.length > 0 && (
+      {/* Done lists are a press away on Food only (Joe, 26 October). */}
+      {kind === 'food' && done.length > 0 && (
         <Button variant="link" className="self-start pt-1" onClick={() => setShowDone((v) => !v)}>
           {showDone ? 'Hide done' : kind === 'food' ? 'Done shops' : 'Done lists'}
         </Button>
       )}
-      {showDone && done.map((l) => <ListRow key={l.item.id} list={l} homeSpace={home} />)}
+      {kind === 'food' &&
+        showDone &&
+        done.map((l) => <ListRow key={l.item.id} list={l} homeSpace={home} />)}
     </section>
   )
 }
@@ -102,8 +119,8 @@ export function FoodTab() {
   )
 }
 
-/** Shopping → Lists (SHP-001): shopping that isn't food. */
-export function ListsTab() {
+/** Shopping → Other (SHP-001): shopping that isn't food, clothes or DIY. */
+export function OtherTab() {
   return (
     <div className="flex max-w-3xl flex-col gap-6">
       <Lists kind="list" label="Lists" />

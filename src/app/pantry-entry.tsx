@@ -96,7 +96,7 @@ export function PantryEntryDialog({
           <Field label="Name" htmlFor={`${ids}-name`}>
             <Input
               id={`${ids}-name`}
-              autoFocus
+              data-autofocus={!entry || undefined}
               autoComplete="off"
               value={name}
               aria-invalid={(tried && problem !== null) || undefined}

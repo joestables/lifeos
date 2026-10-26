@@ -58,6 +58,7 @@ function NameDialog({ editing, onDone }: { editing: Editing; onDone: () => void 
           <FieldLabel htmlFor="label-name">Name</FieldLabel>
           <Input
             id="label-name"
+            data-autofocus={editing?.kind !== 'rename' || undefined}
             value={name}
             maxLength={60}
             autoComplete="off"

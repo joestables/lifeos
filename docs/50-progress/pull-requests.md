@@ -2,6 +2,34 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#48](https://github.com/joestables/lifeos/pull/48) — Joe's second round: quick fixes
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-26
+
+**What it did**
+- Pantry: Show → Number of recipes (on a phone too); on a phone Pending
+  beside whose, the ToggleGroup its own width.
+- Shopping: ticked lines stay put; Lists is Other, without done lists;
+  Complete list in a row's menu, asking first (shared `completeList`,
+  `CompleteListDialog`); a new list is laid over the Items at once, so its
+  page never flashes "This can't be found".
+- Meal plan: the phone's Show select 160px; dragged cards don't turn (Plan
+  too); "28 Sept – 4 Oct" on a phone; a phone's day is its "+" and its
+  Meals saying their slot (MealSlotRow gone); Meals that can't be chosen
+  fade and say why; Recipes using an entry spaced in their Dialog.
+- Dialogs focus themselves; New dialogs' first field opts in with
+  `data-autofocus`.
+- Walks: shared `mealCards` and `addMeal` for both layouts; new walks for
+  Complete from a row, ticks staying, and focus.
+
+**Documents touched:** components (Dialog, PlanCard, MealCard, MealDay,
+PantryRow), patterns (Meal plan, Pantry, Shopping), meals (SHP-001 1, 4,
+5; SHP-002 1; MPL-001 2; MPL-002 1; PAN-001 1; decisions, pages),
+glossary, ADR-0050, the Stage 4b plan.
+
+**Left for later:** Recently viewed in Add a meal, the AI's cuisines,
+Settings → Food, the UI review and bug hunt.
+
 ## [#47](https://github.com/joestables/lifeos/pull/47) — Shopping: what's needed on the shop by itself, Extra in two columns
 
 Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-25

@@ -37,10 +37,10 @@ export function RecipesUsingDialog({
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent data-colour="green">
         <DialogHeader>
-          <DialogTitle>{entry.name}</DialogTitle>
+          <DialogTitle>Recipes using {entry.name}</DialogTitle>
         </DialogHeader>
         {recipes.length ? (
-          <div className="-mx-3 flex flex-col">
+          <div className="flex flex-col gap-1.5">
             {recipes.map((r) => (
               <ItemRow
                 key={r.id}

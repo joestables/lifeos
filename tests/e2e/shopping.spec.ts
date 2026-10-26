@@ -1,5 +1,5 @@
 import { expect, test, type Locator, type Page, type Route } from '@playwright/test'
-import { KATSU_MEAL, NOW, mealRows } from './meal-rows'
+import { KATSU_MEAL, NOW, mealCards, mealRows } from './meal-rows'
 import { CHICKEN, PANKO, id } from './recipe-rows'
 import { ANN, itemRow, standIn, type Rows } from './stand-in'
 
@@ -192,6 +192,46 @@ test.describe('Shopping', () => {
     await expect.poll(() => db.items.find((i) => i.id === SHOP)?.status).toBe('done')
   })
 
+  test('SHP-001 5: Complete list from a shop’s row, asking first; Other has no done lists', async ({
+    page,
+  }) => {
+    const db = await start(page)
+    await page
+      .locator('[data-slot="item-row"]')
+      .filter({ hasText: 'Big shop' })
+      .getByRole('button', { name: 'More' })
+      .click()
+    await page.getByRole('menuitem', { name: 'Complete list' }).click()
+    await page.getByRole('alertdialog').getByRole('button', { name: 'Complete' }).click()
+    await expect.poll(() => db.items.find((i) => i.id === SHOP)?.status).toBe('done')
+    // The Lists tab is Other now, and keeps no done lists (Joe, 26 October).
+    await page.getByRole('tab', { name: 'Other' }).click()
+    await expect(page.getByText('Screwfix')).toBeVisible()
+    await expect(page.getByRole('button', { name: /Done lists/ })).toHaveCount(0)
+  })
+
+  test('SHP-001 4: a ticked line stays where it is', async ({ page }) => {
+    await start(page, `/shopping/${SHOP}`)
+    const names = page.locator('[data-slot="shopping-line"] span.font-semibold')
+    await expect(line(page, 'Chicken thighs')).toBeVisible()
+    const before = await names.allTextContents()
+    await line(page, before[0]!).getByRole('checkbox').click()
+    await expect(line(page, before[0]!).getByRole('checkbox')).toBeChecked()
+    expect(await names.allTextContents()).toEqual(before)
+  })
+
+  test('Edit details opens without the keyboard; New list opens on its name', async ({ page }) => {
+    await start(page, `/shopping/${SHOP}`)
+    await page.getByRole('button', { name: 'More' }).first().click()
+    await page.getByRole('menuitem', { name: 'Edit details…' }).click()
+    await expect(page.getByRole('dialog', { name: 'Shop details' })).toBeVisible()
+    await expect(page.getByLabel('Name')).not.toBeFocused()
+    await page.keyboard.press('Escape')
+    await page.goto('/shopping?tab=lists')
+    await page.getByRole('button', { name: 'New list' }).first().click()
+    await expect(page.getByRole('dialog', { name: 'New list' }).getByLabel('Name')).toBeFocused()
+  })
+
   test('SHP-005: staples and Essentials kept in the Pantry, out of stock and Required', async ({
     page,
   }) => {
@@ -322,13 +362,11 @@ test.describe('Shopping', () => {
     const db = await start(page, '/meal-plan?day=2026-10-15')
     await page.getByRole('button', { name: 'Select' }).click()
     await expect(page.getByRole('checkbox', { name: 'Katsu curry' })).toHaveCount(0)
+    // Faded, saying why (Joe, 26 October).
+    await expect(mealCards(page, '2026-10-15:dinner')).toContainText('On Big shop')
     await page.getByRole('button', { name: 'Stop selecting' }).click()
     // Thursday's dinner, not Friday's leftovers of it.
-    await page
-      .locator('[data-drop="2026-10-15:dinner"]')
-      .last()
-      .getByRole('button', { name: 'Katsu curry' })
-      .click()
+    await mealCards(page, '2026-10-15:dinner').getByRole('button', { name: 'Katsu curry' }).click()
     const dialog = page.getByRole('dialog', { name: 'Katsu curry' })
     await dialog.getByLabel('Servings').fill('8')
     await dialog.getByLabel('Servings').blur()

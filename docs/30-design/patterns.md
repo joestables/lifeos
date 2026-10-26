@@ -27,7 +27,7 @@ AppShell
 - Content never fills edge to edge without the 36px page padding.
 - **One reading width for rows** (Joe, 24 October): a page or tab whose
   content is a column of rows or Cards — Inbox, Tasks, Ideas, Settings,
-  the Pantry, Plan's day, Shopping's Food and Lists, a list — is at most
+  the Pantry, Plan's day, Shopping's Food and Other, a list — is at most
   `max-w-3xl` (768px) wide, left-aligned. Grids and weeks (the library,
   Notes, the Meal plan's week, Plan's week) and a food shop's aisles take
   the page's width.
@@ -542,7 +542,7 @@ StepEditor. Agreed with Joe on 18 October on the
 ## Meal plan
 
 [MPL-001–006, PAN-001–004](../10-requirements/modules/meals.md#requirements);
-MealCard, MealSlot, MealSlotRow, AddMealButton, MealWeek, MealDay and PantryRow in
+MealCard, MealSlot, AddMealButton, MealWeek, MealDay and PantryRow in
 [components](components.md). Agreed with the Recipes screens.
 
 - Green (TypeScope). Tabs: **Week** and **Pantry** (`?tab=pantry`); the
@@ -557,19 +557,22 @@ MealCard, MealSlot, MealSlotRow, AddMealButton, MealWeek, MealDay and PantryRow 
   A long press still drags on a phone.
 - **The week:** the PlanToolbar (no Day / Week; `?day=` names the week), an
   `sm` Select of whose Meals show ("All my meals", Personal, each
-  Household; only with a Household, kept on the device) and Select; on a
-  phone those two take a row of their own under the dates, so the dates
-  show whole. Then the MealWeek on a computer, the week's seven MealDays
-  down a phone, today's scrolled into view: each slot a MealSlotRow, its
-  Meals as one-line cards (Joe, 25 October). A Meal's name is its Recipe's, a typed
+  Household; only with a Household, kept on the device; 160px, on a phone
+  too) and Select; on a phone those two take a row of their own under the
+  dates, so the dates show whole, and a week across two months is short
+  ("28 Sept – 4 Oct"; Joe, 26 October). Then the MealWeek on a computer,
+  the week's seven MealDays down a phone, today's scrolled into view: each
+  day its "+" and its Meals as one-line cards saying their slot, no slots
+  named (Joe, 25 and 26 October). A Meal's name is its Recipe's, a typed
   Meal's what was typed; leftovers take the name of the Meal they are of.
 - **Moving:** on a computer a MealCard is dragged to any slot, as on Plan;
-  on a phone it is pressed and held until it lifts, then dragged, the slot
-  under the finger lit, and let go there. A slot can hold several Meals.
+  on a phone it is pressed and held until it lifts, then dragged to another
+  day, the day under the finger lit, and let go there, keeping its slot
+  (Move to… changes the slot). It lifts without turning (Joe, 26 October). A slot can hold several Meals.
   Moved, a toast says where ("Moved "Katsu curry" to Sat lunch") with Undo.
 - **Adding:** a slot's "+" opens a Popover (320px) on a computer; on a
-  phone, the Dialog Plan's "+" → Meal opens, its slot the one tapped
-  (Joe, 25 October: a Popover over the page let taps through). In it, an `sm` search, my
+  phone, a day's "+" opens the Dialog Plan's "+" → Meal opens, Dinner to
+  start (Joe, 25 October: a Popover over the page let taps through). In it, an `sm` search, my
   categories as LabelChips with the slot's chosen when I have one, then
   "Planned lately" (the Recipes of my latest Meals, up to five) and "All
   recipes" (Drafts and Completes, A–Z), each a 40px line with the Recipe's
@@ -611,14 +614,14 @@ MealCard, MealSlot, MealSlotRow, AddMealButton, MealWeek, MealDay and PantryRow 
   ([Shopping](#shopping)).
 - **The Pantry** ([PAN-001](../10-requirements/modules/meals.md#pan-001--the-pantry),
   [SHP-005](../10-requirements/modules/meals.md#shp-005--staples-and-essentials);
-  Joe, 25 October): on one row whose staples and Essentials (an `sm`
-  Select of Personal and my Households, only with a Household; full width
-  on a phone), All · Staples · Essentials (a ToggleGroup, sharing the row's
-  width on a phone) and an outline `sm` "Pending" (`clock`, and a
-  `secondary` Badge counting the names; only the icon and count on a
-  phone) at the end; then the search and a SortMenu (By aisle, Recently
-  used, Most popular, A–Z; under Show, Aisle and Default unit as
-  CheckboxItems, both off to start). By aisle: "Ingredients" (a
+  Joe, 25 October): on one row whose staples and Essentials (a 160px `sm`
+  Select of Personal and my Households, only with a Household), All ·
+  Staples · Essentials (a ToggleGroup) and an outline `sm` "Pending"
+  (`clock`, and a `secondary` Badge counting the names) at the end; on a
+  phone Pending sits beside whose and the ToggleGroup, at its own width,
+  takes the next row (Joe, 26 October). Then the search and a SortMenu (By
+  aisle, Recently used, Most popular, A–Z; under Show, Aisle, Default unit
+  and Number of recipes as CheckboxItems, the last on to start). By aisle: "Ingredients" (a
   SectionLabel) and a Card per aisle, in aisle order (its name muted,
   14px weight 600, then its PantryRows); the other sorts, one unnamed Card.
   Then household items apart, sorted the same. Each PantryRow carries
@@ -661,13 +664,15 @@ ShoppingLine, OfferRow, PantryAisle and ItemRow in
 [Stage 4b design canvas](https://claude.ai/artifact/KZyE2VPa3jTsVZ4mjxanGk)
 (24 October), with New shop's Date and For only, and the reading width.
 
-- Yellow (TypeScope), as Notes and Thoughts. Tabs: **Food** and **Lists**
-  (`?tab=lists`); Online waits for a later stage. The PageAction is "New
-  shop" on Food, "New list" on Lists. Both tabs are at the reading width.
+- Yellow (TypeScope), as Notes and Thoughts. Tabs: **Food** and **Other**
+  (`?tab=lists`; named Lists until 26 October); Online waits for a later
+  stage. The PageAction is "New shop" on Food, "New list" on Other. Both tabs are at the reading width.
 - **Food:** "Shops" (a SectionLabel) and an ItemRow per open shop: a yellow
   `shopping-cart` TypeTile, its name, and a meta line of its date, how many
   Meals, its Space when not where my new Meals go, and "2 of 27" ticked;
-  then a `link` "Done shops". Staples and Essentials are kept in the
+  its "…" menu Complete list (asking first while lines are unticked) and
+  Delete; then a `link` "Done shops". **Other** is the same rows, with no
+  done lists (Joe, 26 October). Staples and Essentials are kept in the
   Pantry ([Meal plan](#meal-plan); Joe, 25 October).
 - **New shop** is a Dialog: Name, then Date and For side by side (For a
   Select of Personal and my Households, the Household of the
@@ -685,7 +690,7 @@ ShoppingLine, OfferRow, PantryAisle and ItemRow in
   the line).
   - **All:** a PantryAisle Card per aisle in aisle order, Household then
     Other last, in two balanced columns on a wide screen; ShoppingLines,
-    ticked ones at the foot of their aisle.
+    a ticked one staying where it is (Joe, 26 October).
   - **Meals:** a Card per Meal: a small green `utensils` TypeTile, its name
     (weight 600) and, muted, "Thu · Dinner · Serves 6" (and "Personal"),
     its "…" menu (Take off the shop), then its ShoppingLines, which have no
@@ -707,8 +712,8 @@ ShoppingLine, OfferRow, PantryAisle and ItemRow in
   and Cancel. Done or completed, the shop leaves the list, with Undo.
 - **A list's page:** as a shop's, with no Tabs: its subheadings as
   PantryAisle Cards, each ending in an AddRow ("Add to Garden"; a list with
-  none yet has one untitled Card, "Add an item"), ticked lines at the foot
-  of their Card; then an AddRow "Add a subheading"; at the reading width.
+  none yet has one untitled Card, "Add an item"), a ticked line staying in
+  its place; then an AddRow "Add a subheading"; at the reading width.
 - **Saved as an idea** (a share from another app; RCP-003): a page with no
   drawer, green, centred about a fifth of the way down: a large `check`
   TypeTile (`chef-hat` when saved before), "Saved as an idea" or "Already

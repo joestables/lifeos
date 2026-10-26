@@ -45,7 +45,7 @@ export function PlanCard({
         'relative flex min-w-0 flex-col rounded-control bg-card shadow-card transition-[box-shadow,opacity]',
         wide ? 'gap-1 px-3.5 py-3' : 'gap-1.5 px-2.5 py-[9px]',
         (past || done) && 'opacity-50 shadow-none',
-        dragging && 'z-10 rotate-[1.5deg] cursor-grabbing opacity-100 shadow-pop',
+        dragging && 'z-10 cursor-grabbing opacity-100 shadow-pop',
       )}
     >
       <div className="flex items-center gap-1.5 text-xs font-semibold text-tc-text [&_svg]:size-[13px] [&_svg]:shrink-0">

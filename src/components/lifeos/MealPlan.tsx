@@ -31,12 +31,16 @@ export function MealCard({
   eaten = false,
   selecting = false,
   selected = false,
+  unavailable,
+  slot,
   row = false,
   onOpen,
   onSelect,
 }: {
   /** On a phone: its picture a small square at the start, the words beside it. */
   row?: boolean
+  /** Its slot, first on its muted line, where the slots aren't named (a phone). */
+  slot?: Slot
   name: string
   /** Its picture's address. */
   photo?: string
@@ -52,16 +56,25 @@ export function MealCard({
   eaten?: boolean
   /** Choosing Meals for a food shop: Select on the week (SHP-002 1). */
   selecting?: boolean
+  /**
+   * While choosing, why this one can't be ("On Big shop", "Eaten",
+   * "Leftovers"): faded, its photo grey, the reason its muted line, and a
+   * press does nothing (Joe, 26 October).
+   */
+  unavailable?: string
   selected?: boolean
   onOpen?: () => void
   onSelect?: (on: boolean) => void
 }) {
   const [broken, setBroken] = useState<string>()
-  const parts = [
-    kind === 'leftovers' ? 'Leftovers' : servings ? `Serves ${servings}` : null,
-    variation,
-    household,
-  ].filter(Boolean)
+  const parts = unavailable
+    ? [slot, unavailable].filter(Boolean)
+    : [
+        slot,
+        kind === 'leftovers' ? 'Leftovers' : servings ? `Serves ${servings}` : null,
+        variation,
+        household,
+      ].filter(Boolean)
   return (
     <div
       data-slot="meal-card"
@@ -78,7 +91,8 @@ export function MealCard({
           ? 'bg-card shadow-card'
           : 'bg-[color-mix(in_oklch,var(--card)_50%,transparent)] shadow-[inset_0_0_0_1px_var(--border)]',
         eaten && 'opacity-50 shadow-none',
-        dragging && 'z-10 rotate-[1.5deg] cursor-grabbing opacity-100 shadow-pop',
+        unavailable && 'pointer-events-none opacity-45 shadow-none [&_img]:grayscale',
+        dragging && 'z-10 cursor-grabbing opacity-100 shadow-pop',
         'data-selected:ring-2 data-selected:ring-ring',
         selecting && 'pr-10',
       )}
@@ -106,6 +120,8 @@ export function MealCard({
           type="button"
           role={selecting ? 'checkbox' : undefined}
           aria-checked={selecting ? selected : undefined}
+          aria-disabled={unavailable ? true : undefined}
+          tabIndex={unavailable ? -1 : undefined}
           onClick={selecting ? () => onSelect?.(!selected) : onOpen}
           className={cn(
             cn(
@@ -178,53 +194,19 @@ export function MealSlot({
   )
 }
 
-/**
- * A slot on a phone's day: its name, small and muted, in a column down the
- * left, its Meals (as rows) beside it; empty, a quiet "+" a row high.
- */
-export function MealSlotRow({
-  slot,
-  drop,
-  dropping = false,
-  add,
-  children,
-}: {
-  slot: Slot
-  drop?: string
-  dropping?: boolean
-  add?: ReactNode
-  children?: ReactNode
-}) {
-  return (
-    <div
-      data-drop={drop}
-      className={cn(
-        'grid grid-cols-[76px_minmax(0,1fr)] items-start gap-2 rounded-control',
-        dropping && 'bg-accent ring-2 ring-ring-soft',
-      )}
-    >
-      <div className="flex min-h-12 items-center px-1 text-[11px] font-semibold tracking-[0.06em] text-muted-foreground/60 uppercase">
-        {slot}
-      </div>
-      <div className="grid min-w-0 gap-1.5">{children ?? add}</div>
-    </div>
-  )
-}
-
 /** An empty slot's "+": a dashed, card-high box. */
 export function AddMealButton({
   slot,
   dropping = false,
-  compact = false,
   ...props
-}: React.ComponentProps<'button'> & { slot: Slot; dropping?: boolean; compact?: boolean }) {
+}: React.ComponentProps<'button'> & { slot: Slot; dropping?: boolean }) {
   return (
     <button
       type="button"
       aria-label={`Add ${slot.toLowerCase()}`}
       className={cn(
         'grid w-full place-items-center rounded-control border-[1.5px] border-dashed border-muted-foreground/30 text-muted-foreground outline-none hover:bg-accent focus-visible:ring-3 focus-visible:ring-ring-soft data-popup-open:bg-accent [&_svg]:size-4',
-        compact ? 'my-1 h-10' : 'h-[46px]',
+        'h-[46px]',
         dropping && 'border-ring bg-accent',
       )}
       {...props}
@@ -235,14 +217,17 @@ export function AddMealButton({
 }
 
 /**
- * A day on a phone's Meal plan: the day's name on a line, today's in an ink
- * pill, then its three slots. Days stack one under another (Joe, 18
- * October).
+ * A day on a phone's Meal plan (Joe, 26 October): the day's name on a line,
+ * today's in an ink pill, a hairline, then its "+"; under it its Meals in
+ * slot order, each saying its slot. A Meal dragged here keeps its slot.
  */
 export function MealDay({
   name,
   date,
   today = false,
+  drop,
+  dropping = false,
+  action,
   children,
 }: {
   /** "Thu" */
@@ -250,11 +235,23 @@ export function MealDay({
   /** "15 Oct" */
   date: string
   today?: boolean
-  children: ReactNode
+  /** Where a Meal dragged here goes: the day ("2026-10-15"). */
+  drop?: string
+  dropping?: boolean
+  /** At the end of the day's line: its "+". */
+  action?: ReactNode
+  children?: ReactNode
 }) {
   return (
-    <section aria-label={`${name} ${date}`} className="flex flex-col gap-2.5">
-      <div className="flex items-center gap-2">
+    <section
+      aria-label={`${name} ${date}`}
+      data-drop={drop}
+      className={cn(
+        '-mx-2 flex flex-col gap-2 rounded-lg px-2 pb-2 transition-colors',
+        dropping && 'bg-accent ring-2 ring-ring-soft',
+      )}
+    >
+      <div className="flex min-h-9 items-center gap-2">
         <span
           className={cn(
             'text-base font-bold',
@@ -264,8 +261,9 @@ export function MealDay({
           {name} {date}
         </span>
         <span className="h-px flex-1 bg-border" />
+        {action}
       </div>
-      <div className="grid gap-1.5">{children}</div>
+      {children}
     </section>
   )
 }

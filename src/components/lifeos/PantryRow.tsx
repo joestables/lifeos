@@ -42,7 +42,7 @@ export function Pill({
 
 /**
  * A Pantry entry (PAN-001): its name and, muted, what the page shows of it
- * (its aisle, its default unit) and how many Recipes use it (on a computer);
+ * (its aisle, its default unit, how many Recipes use it), each as Show chooses;
  * then its actions (whether it's a staple or an Essential) and its "…" menu.
  */
 export function PantryRow({
@@ -70,12 +70,8 @@ export function PantryRow({
         {(meta || !!recipes) && (
           <span className="truncate text-xs text-muted-foreground tabular-nums sm:text-sm">
             {meta}
-            {meta && !!recipes && <span className="max-sm:hidden"> · </span>}
-            {!!recipes && (
-              <span className="max-sm:hidden">
-                {recipes} {recipes === 1 ? 'recipe' : 'recipes'}
-              </span>
-            )}
+            {meta && !!recipes && ' · '}
+            {!!recipes && `${recipes} ${recipes === 1 ? 'recipe' : 'recipes'}`}
           </span>
         )}
       </div>

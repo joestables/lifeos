@@ -195,7 +195,6 @@ export function HeadingDialog({
           <Field label="Name" htmlFor={nameId}>
             <Input
               id={nameId}
-              autoFocus
               autoComplete="off"
               value={name}
               aria-invalid={(tried && problem !== null) || undefined}

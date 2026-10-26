@@ -159,14 +159,20 @@ export function moveTo(
 
 const month = new Intl.DateTimeFormat('en-GB', { month: 'long' })
 const longWeekday = new Intl.DateTimeFormat('en-GB', { weekday: 'long' })
+const shortMonth = new Intl.DateTimeFormat('en-GB', { month: 'short' })
 
-/** A week as Plan's toolbar says it: "12 – 18 October", "28 September – 4 October". */
-export function weekTitle(monday: string): string {
+/**
+ * A week as Plan's toolbar says it: "12 – 18 October", "28 September – 4
+ * October", or `short`, "28 Sept – 4 Oct".
+ */
+export function weekTitle(monday: string, short = false): string {
   const a = fromIsoDay(monday)
   const b = fromIsoDay(addDays(monday, 6))
+  // Across two months on a phone, both short, so it fits (Joe, 26 October).
+  const m = short ? shortMonth : month
   return a.getMonth() === b.getMonth()
     ? `${a.getDate()} – ${b.getDate()} ${month.format(b)}`
-    : `${a.getDate()} ${month.format(a)} – ${b.getDate()} ${month.format(b)}`
+    : `${a.getDate()} ${m.format(a)} – ${b.getDate()} ${m.format(b)}`
 }
 
 /** A day as Plan's toolbar says it: "Thursday 15 October", or "Thu 15 October" on a phone. */
