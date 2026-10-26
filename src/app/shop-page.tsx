@@ -12,16 +12,6 @@ import {
   TypeScope,
   TypeTile,
 } from '@/components/lifeos'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -65,7 +55,9 @@ import { itemTitle } from '@/lib/item-types'
 import { nameKey } from '@/lib/pantry'
 import { amountOf, extraChoices, mealLabel, shopRows } from '@/lib/shopping'
 import { total } from '@lifeos/food'
+import { CompleteListDialog } from './complete-list'
 import { deleteItem } from './item-navigation'
+import { completeList, untickedOf } from './shop-actions'
 import { MoreMenu } from './more-menu'
 import { PantryPicker } from './pantry-picker'
 import { SpaceSelect } from './space-select'
@@ -82,18 +74,6 @@ const amountFields = (a: ParsedLine) => ({
 
 const lastPosition = (lines: readonly ShopLine[]) =>
   lines.reduce<string | null>((p, l) => (p === null || l.position > p ? l.position : p), null)
-
-/**
- * Finishing (SHP-001 5): done and off the lists, with Undo. Ticking the last
- * line offers it; Complete list asks first when lines are unticked.
- */
-function complete(list: ShoppingList, onDone: () => void) {
-  updateItem(list.item.id, { status: 'done' })
-  onDone()
-  toast(`Completed "${itemTitle(list.item)}"`, {
-    action: { label: 'Undo', onClick: () => updateItem(list.item.id, { status: 'active' }) },
-  })
-}
 
 /**
  * Ticks lines, and offers Done once every line is ticked (SHP-001 4, 5). A
@@ -120,7 +100,7 @@ function useTick(list: ShoppingList, onDone: () => void) {
     const left = list.toBuy.filter((l) => !l.checked && !ids.includes(l.id))
     if (on && left.length === 0 && list.item.status === 'active')
       toast("Everything's ticked", {
-        action: { label: 'Done', onClick: () => complete(list, onDone) },
+        action: { label: 'Done', onClick: () => completeList(list, onDone) },
       })
   }
 }
@@ -298,12 +278,10 @@ function FoodShop({ list, onDone }: { list: ShoppingList; onDone: () => void }) 
   const pantryName = (p: string) => food.pantry.get(p)?.name ?? ''
   const own = list.lines
     .filter((l) => l.heading === null && l.meal_id === null)
-    .sort(
-      (a, b) =>
-        Number(a.checked) - Number(b.checked) ||
-        ((a.pantry_id && pantryName(a.pantry_id)) || a.text || '').localeCompare(
-          (b.pantry_id && pantryName(b.pantry_id)) || b.text || '',
-        ),
+    .sort((a, b) =>
+      ((a.pantry_id && pantryName(a.pantry_id)) || a.text || '').localeCompare(
+        (b.pantry_id && pantryName(b.pantry_id)) || b.text || '',
+      ),
     )
   const mealPantry = new Set(
     list.lines.filter((l) => l.meal_id && l.pantry_id).map((l) => l.pantry_id!),
@@ -571,19 +549,17 @@ function ListLines({ list, onDone }: { list: ShoppingList; onDone: () => void })
         const label = g.heading?.heading ?? 'Items'
         return (
           <PantryAisle key={g.heading?.id ?? 'top'} label={label} title={g.heading !== null}>
-            {/* Ticked lines at the foot of their group (SHP-001 4). */}
-            {[...g.lines.filter((l) => !l.checked), ...g.lines.filter((l) => l.checked)].map(
-              (l) => (
-                <ShoppingLine
-                  key={l.id}
-                  name={(l.pantry_id && food.pantry.get(l.pantry_id)?.name) || l.text || ''}
-                  meta={l.pantry_id ? 'Household' : undefined}
-                  checked={l.checked}
-                  onCheck={(on) => onTick([l.id], on)}
-                  menu={lineMenu(id, l)}
-                />
-              ),
-            )}
+            {/* A ticked line stays in its place (SHP-001 4; Joe, 26 October). */}
+            {g.lines.map((l) => (
+              <ShoppingLine
+                key={l.id}
+                name={(l.pantry_id && food.pantry.get(l.pantry_id)?.name) || l.text || ''}
+                meta={l.pantry_id ? 'Household' : undefined}
+                checked={l.checked}
+                onCheck={(on) => onTick([l.id], on)}
+                menu={lineMenu(id, l)}
+              />
+            ))}
             <AddRow
               placeholder={g.heading ? `Add to ${label}` : 'Add an item'}
               onAdd={(text) => addTo(i, text)}
@@ -611,7 +587,6 @@ export function ShopPage({ list }: { list: ShoppingList }) {
   useLiveShopping(list.item.id)
   const back = () =>
     void navigate({ to: '/shopping', search: list.kind === 'list' ? { tab: 'lists' } : {} })
-  const unticked = list.toBuy.filter((l) => !l.checked).length
   const meta = [
     list.item.do_on ? dateName(list.item.do_on) : null,
     spaces.spaces.length > 1 ? (spaces.householdName(list.item.space_id) ?? 'Personal') : null,
@@ -629,7 +604,7 @@ export function ShopPage({ list }: { list: ShoppingList }) {
             </DropdownMenuItem>
             {list.item.status === 'active' ? (
               <DropdownMenuItem
-                onClick={() => (unticked ? setConfirming(true) : complete(list, back))}
+                onClick={() => (untickedOf(list) ? setConfirming(true) : completeList(list, back))}
               >
                 <CheckIcon /> Complete list
               </DropdownMenuItem>
@@ -662,20 +637,9 @@ export function ShopPage({ list }: { list: ShoppingList }) {
         )}
       </div>
       {editing && <DetailsDialog list={list} onClose={() => setEditing(false)} />}
-      <AlertDialog open={confirming} onOpenChange={setConfirming}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Complete {itemTitle(list.item)}?</AlertDialogTitle>
-            <AlertDialogDescription>
-              {unticked === 1 ? "1 line isn't ticked." : `${unticked} lines aren't ticked.`}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogAction onClick={() => complete(list, back)}>Complete</AlertDialogAction>
-            <AlertDialogCancel />
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {confirming && (
+        <CompleteListDialog list={list} onClose={() => setConfirming(false)} onDone={back} />
+      )}
     </TypeScope>
   )
 }

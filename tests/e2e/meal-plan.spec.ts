@@ -1,5 +1,14 @@
 import { expect, test, type Page } from '@playwright/test'
-import { DISHOOM, KATSU_AIR, KATSU_MEAL, LEFTOVERS, NOW, mealRows } from './meal-rows'
+import {
+  DISHOOM,
+  KATSU_AIR,
+  KATSU_MEAL,
+  LEFTOVERS,
+  NOW,
+  addMeal,
+  mealCards,
+  mealRows,
+} from './meal-rows'
 import { KATSU, KATSU_STD, NOODLES, NOODLES_STD } from './recipe-rows'
 import { standIn } from './stand-in'
 
@@ -12,16 +21,10 @@ async function start(page: Page, path = '/meal-plan', { clock = true } = {}) {
   return db
 }
 
-/** A day's slot: its MealSlot, on a computer or a phone. */
+/** A day's slot on a computer; a phone's day ("2026-10-15"). */
 const slot = (page: Page, key: string) => page.locator(`[data-drop="${key}"]`).last()
-const cards = (page: Page, key: string) => slot(page, key).locator('[data-slot="meal-card"]')
-
-async function add(page: Page, key: string) {
-  const name = key.split(':')[1]!
-  await slot(page, key)
-    .getByRole('button', { name: `Add ${name}` })
-    .click()
-}
+const cards = mealCards
+const add = addMeal
 
 const uses = (db: Awaited<ReturnType<typeof standIn>>, meal: string) =>
   db.links.find((l) => l.from_item === meal && l.link_type === 'uses')?.to_item
@@ -158,15 +161,15 @@ test.describe('The Meal plan', () => {
     await expect(cards(page, '2026-10-17:dinner')).toHaveText(/Out: Dishoom/)
   })
 
-  test('MPL-003 2: on a phone, a Meal pressed and held is dragged to another slot', async ({
+  test('MPL-003 2: on a phone, a Meal pressed and held is dragged to another day, keeping its slot', async ({
     page,
     isMobile,
   }) => {
     test.skip(!isMobile, 'a finger, on a phone')
     const db = await start(page, '/meal-plan?day=2026-10-15', { clock: false })
-    await slot(page, '2026-10-17:lunch').scrollIntoViewIfNeeded()
+    await slot(page, '2026-10-18').scrollIntoViewIfNeeded()
     const from = (await cards(page, '2026-10-17:dinner').first().boundingBox())!
-    const to = (await slot(page, '2026-10-17:lunch').boundingBox())!
+    const to = (await slot(page, '2026-10-18').boundingBox())!
     const cdp = await page.context().newCDPSession(page)
     const touch = (type: 'touchStart' | 'touchMove' | 'touchEnd', x: number, y: number) =>
       cdp.send('Input.dispatchTouchEvent', {
@@ -180,10 +183,10 @@ test.describe('The Meal plan', () => {
     for (let i = 1; i <= 6; i++)
       await touch('touchMove', x, from.y + ((to.y + to.height / 2 - from.y) * i) / 6)
     await touch('touchEnd', 0, 0)
-    await expect(cards(page, '2026-10-17:lunch')).toHaveText(/Out: Dishoom/)
+    await expect(cards(page, '2026-10-18:dinner')).toHaveText(/Out: Dishoom/)
     await expect
       .poll(() => db.items.find((i) => i.id === DISHOOM))
-      .toMatchObject({ do_on: '2026-10-17', slot: 'lunch' })
+      .toMatchObject({ do_on: '2026-10-18', slot: 'dinner' })
   })
 
   test('MPL-003 3: a Meal removed takes its leftovers, with Undo', async ({ page }) => {
@@ -258,18 +261,23 @@ test.describe('The Meal plan', () => {
     expect(signed.slice(asked).flat()).not.toContain(photo)
   })
 
-  test('MPL-002 1: on a phone, + opens a Dialog with the slot tapped', async ({
+  test('MPL-002 1: on a phone, a day’s + opens a Dialog, its slot chosen there', async ({
     page,
     isMobile,
   }) => {
     test.skip(!isMobile, 'a phone')
     const db = await start(page)
-    await slot(page, '2026-10-14:lunch').getByRole('button', { name: 'Add lunch' }).tap()
+    // No slots named on a phone's day (Joe, 26 October): its "+", then the slot.
+    await expect(slot(page, '2026-10-14').getByText('Lunch')).toHaveCount(0)
+    await slot(page, '2026-10-14')
+      .getByRole('button', { name: /^Add a meal/ })
+      .tap()
     const dialog = page.getByRole('dialog', { name: /Add a meal · Wed 14 Oct/ })
-    await expect(dialog.getByLabel('Slot').getByRole('button', { name: 'Lunch' })).toHaveAttribute(
+    await expect(dialog.getByLabel('Slot').getByRole('button', { name: 'Dinner' })).toHaveAttribute(
       'aria-pressed',
       'true',
     )
+    await dialog.getByLabel('Slot').getByRole('button', { name: 'Lunch' }).tap()
     await dialog.getByRole('button', { name: /Gochujang noodles/ }).tap()
     await expect(dialog).toBeHidden()
     await expect(cards(page, '2026-10-14:lunch')).toHaveText(/Gochujang noodles/)

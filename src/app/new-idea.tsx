@@ -97,7 +97,7 @@ export function NewIdeaDialog({
           <Field label="Name" htmlFor={`${ids}-name`}>
             <Input
               id={`${ids}-name`}
-              autoFocus
+              data-autofocus
               autoComplete="off"
               value={name}
               aria-invalid={(tried && problem !== null) || undefined}

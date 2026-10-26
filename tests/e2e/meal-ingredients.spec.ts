@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
-import { DISHOOM, LEFTOVERS, NOW, mealRows } from './meal-rows'
+import { DISHOOM, LEFTOVERS, NOW, mealCards, mealRows } from './meal-rows'
 import { CHICKEN, PANKO } from './recipe-rows'
 import { standIn, type Rows } from './stand-in'
 
@@ -16,9 +16,8 @@ async function start(page: Page, rows: Rows = mealRows(), ai: Rows['ai'] = {}) {
   return db
 }
 
-const slot = (page: Page, key: string) => page.locator(`[data-drop="${key}"]`).last()
 const open = (page: Page, key: string, name: string) =>
-  slot(page, key).locator('[data-slot="meal-card"]').getByRole('button', { name }).click()
+  mealCards(page, key).getByRole('button', { name }).first().click()
 
 test.describe('A Meal’s own ingredients', () => {
   test('MPL-006 1: a typed Meal takes lines from the Pantry', async ({ page }) => {
@@ -141,9 +140,7 @@ test.describe('A Meal’s own ingredients', () => {
     await dialog.getByLabel('Link').blur()
     await expect.poll(() => db.attachments.find((a) => a.item_id === DISHOOM)).toBeTruthy()
     await page.keyboard.press('Escape')
-    await expect(
-      slot(page, '2026-10-17:dinner').locator('[data-slot="meal-card"] img'),
-    ).toHaveCount(1)
+    await expect(mealCards(page, '2026-10-17:dinner').locator('img')).toHaveCount(1)
   })
 
   test('PAN-004 3, RCP-007 1: an entry’s default unit fills a new line', async ({ page }) => {

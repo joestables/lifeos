@@ -82,8 +82,9 @@ Provisionally agreed).
 
 ### Shopping
 
-- **Shopping has three tabs** (Joe, 24 October): **Food**, food shops; **Lists**, shopping that isn't food
-  (Screwfix, Boots, a birthday); and **Online**, items watched for their
+- **Shopping has three tabs** (Joe, 24 October): **Food**, food shops; **Other**, shopping that isn't food
+  (clothes, DIY, Boots, a birthday; *Lists* until Joe renamed it, 26
+  October); and **Online**, items watched for their
   price, which comes later
   ([roadmap](../../roadmap.md#later-opportunities)). Lists that aren't
   shopping (packing, DIY jobs) are Notes with a checklist.
@@ -161,11 +162,11 @@ Essentials picked from it (All · Staples · Essentials), ingredients by
 aisle or sorted by use or A–Z, then household items, with a search; Pending
 a press away.
 
-**Shopping.** Tabs **Food**, **Lists** and, later, **Online**. Food: the
-food shops, dated ones by date, then undated;
+**Shopping.** Tabs **Food**, **Other** and, later, **Online**. Food: the
+food shops, dated ones by date, then undated, done ones a press away;
 each shop opening to All · Meals · Extra, with ticking, adding and Done.
-Lists: the other lists, the same way, by my subheadings. Done lists are a
-press away on each.
+Other: the other lists, the same way, by my subheadings, with no done ones
+(Joe, 26 October).
 
 ## Requirements
 
@@ -183,8 +184,9 @@ Acceptance criteria
    photo, name, servings, and the Variation when the Recipe has more than
    one.
 2. Given a phone, then the same week shows with its days stacked, today's
-   first in view: each slot on a line with its name beside it, its Meals
-   one line each (Joe, 25 October).
+   first in view: each day its "+" and its Meals one line each, in slot
+   order, each saying its slot; no slots named apart (Joe, 25 and 26
+   October). A week across two months says them short ("28 Sept – 4 Oct").
 3. Given ‹, ›, Today or a date, then that week shows.
 4. Given leftovers, then they're marked as leftovers, with the Meal they
    come from.
@@ -203,8 +205,8 @@ Acceptance criteria
 1. Given a slot's "+", then a search opens, listing the Recipes I planned
    most recently first, with my categories to narrow it (Dinner, Baking…);
    choosing one adds a Meal of its default Variation, or offers its
-   Variations when it has more than one. On a phone it opens in a Dialog,
-   the slot tapped chosen (Joe, 25 October).
+   Variations when it has more than one. On a phone a day's "+" opens it in
+   a Dialog, the slot chosen there (Joe, 25 and 26 October).
 2. Given a new Meal, then its servings are the Variation's until I change
    them on the Meal, a change to the Variation's showing on the plan too
    (Joe, 23 October); cleared, they are the Variation's again. Its Space is my default from Settings → Food (Personal or one
@@ -282,11 +284,12 @@ Priority: Must · Status: built
 
 Acceptance criteria
 1. Given Meal plan → Pantry, then ingredients show under their aisles, in
-   aisle order, with how many Recipes use each (on a computer), then household items apart;
+   aisle order, with how many Recipes use each, then household items apart;
    a search narrows them. I sort them By aisle, Recently used (by the
    latest Recipe, Meal or shop with it), Most popular (by how many Recipes
    and Meals use it) or A–Z, either way round, and show or hide each
-   entry's aisle and default unit; my choices are kept (Joe, 25 October).
+   entry's aisle, default unit and number of recipes; my choices are kept
+   (Joe, 25 and 26 October).
 2. Given New, then I add an ingredient or a household item: a name, an
    aisle (Cupboard to start) and a default unit.
 3. Given an entry I added, then I change its name, aisle and default unit,
@@ -346,9 +349,9 @@ what to buy.
 Priority: Must · Status: built (3 but reordering, which is to come)
 
 Acceptance criteria
-1. Given Shopping, then Food shows my food shops and Lists my other lists:
-   dated ones by date, then undated; done ones a press away. Online comes
-   later.
+1. Given Shopping, then Food shows my food shops and Other my other lists:
+   dated ones by date, then undated; done shops a press away (Other keeps
+   no done lists; Joe, 26 October). Online comes later.
 2. Given New shop or New list, then I name it, and may give it a date
    (no time or place; Joe, 24 October) and, for a shop, its Space; a dated
    one shows on Plan. New shop also offers the
@@ -356,10 +359,11 @@ Acceptance criteria
    (SHP-002).
 3. Given a food shop, then its lines are grouped by aisle, Other last; given
    a list, then I add subheadings and lines under them, and reorder both.
-4. Given any list, then I tick lines as I go, ticked ones moving to the foot
-   of their group.
+4. Given any list, then I tick lines as I go, a ticked line staying where
+   it is (Joe, 26 October).
 5. Given I tick the last line, then Done is offered; given Complete list in
-   its menu, then it asks first if lines are unticked. A done list leaves
+   its menu or its row's on Shopping, then it asks first if lines are
+   unticked. A done list leaves
    the lists, with Undo.
 6. Given a food shop, then I choose its Space, Personal or one of my
    Households; it starts as the Household of its first Household Meal.
@@ -374,7 +378,8 @@ Acceptance criteria
 1. Given the Meal plan, when I choose Select (the week's PageAction; a
    long press stays for dragging on a phone), tap Meals and press Add to
    shop in the SelectionBar, then a new food shop is made of them, dated the
-   day of the first.
+   day of the first, and opens at once. A Meal that can't be chosen (eaten,
+   leftovers, on another open shop) fades and says why (Joe, 26 October).
 2. Given a Meal on a shop, then all its ingredients are on it: its Recipe's,
    scaled to its servings, and its own (MPL-006); staples aren't.
 3. Given the same ingredient for two Meals, then All shows it as one line,

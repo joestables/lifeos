@@ -45,7 +45,12 @@ test.describe('The Pantry', () => {
     await expect(names(page, 'Cupboard')).toHaveText(['Panko breadcrumbs'])
     await expect(names(page, 'Household items')).toHaveText(['Bin bags'])
     // How many Recipes use each, on a computer only.
-    await expect(rowOf(page, 'Panko').getByText('1 recipe')).toBeVisible({ visible: !isMobile })
+    // How many recipes, on a phone too, until Show turns it off (Joe, 26 October).
+    await expect(rowOf(page, 'Panko').getByText('1 recipe')).toBeVisible()
+    await page.getByRole('button', { name: /^Sort:/ }).click()
+    await page.getByRole('menuitemcheckbox', { name: 'Number of recipes' }).click()
+    await page.keyboard.press('Escape')
+    await expect(rowOf(page, 'Panko').getByText('1 recipe')).toHaveCount(0)
     // Staples and Essentials are kept on Shopping (SHP-005), not here.
     await expect(page.getByRole('button', { name: 'Garlic is a staple' })).toHaveCount(0)
 

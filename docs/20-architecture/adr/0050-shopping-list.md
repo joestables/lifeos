@@ -34,9 +34,9 @@ questions 1 and 2).
 
 ## Amended 24 October (Stage 4b)
 
-- **Shopping has three tabs:** Food, Lists and Online (later: items watched
-  for their price). A Shopping list is a **food shop** (Food) or a **list**
-  (Lists: shopping that isn't food). A food shop's lines are grouped by
+- **Shopping has three tabs:** Food, Other (named Lists until 26 October)
+  and Online (later: items watched for their price). A Shopping list is a
+  **food shop** (Food) or a **list** (Other: shopping that isn't food). A food shop's lines are grouped by
   aisle; a list's under my own subheadings. Packing and DIY lists stay
   Notes, as above.
 - **A food shop is linked to any number of Meals** and follows them: their

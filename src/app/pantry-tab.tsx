@@ -71,6 +71,8 @@ interface View {
   dir: SortDirection
   aisle: boolean
   unit: boolean
+  /** How many Recipes use each entry (Joe, 26 October). */
+  recipes: boolean
   showing: Showing
   /** Whose staples and Essentials: a Space, until I choose another. */
   space: string | null
@@ -82,6 +84,7 @@ const DEFAULT: View = {
   dir: 'asc',
   aisle: false,
   unit: false,
+  recipes: true,
   showing: 'all',
   space: null,
 }
@@ -275,7 +278,7 @@ export function PantryTab({
         key={e.id}
         name={e.name}
         meta={meta(e)}
-        recipes={using.get(e.id)?.length}
+        recipes={view.recipes ? using.get(e.id)?.length : undefined}
         actions={
           space && (
             <KeepToggles
@@ -348,19 +351,22 @@ export function PantryTab({
               spaces={spaces.spaces}
               value={space}
               onChange={(s) => change({ space: s })}
-              className="min-w-0 max-sm:w-full sm:w-40"
+              className="w-40 min-w-0"
             />
           )}
-          <ToggleGroup
-            aria-label="Show"
-            value={[view.showing]}
-            onValueChange={(v: string[]) => v[0] && change({ showing: v[0] as Showing })}
-            className="max-sm:flex-1 max-sm:[&>*]:flex-1"
-          >
-            <ToggleGroupItem value="all">All</ToggleGroupItem>
-            <ToggleGroupItem value="staple">Staples</ToggleGroupItem>
-            <ToggleGroupItem value="essential">Essentials</ToggleGroupItem>
-          </ToggleGroup>
+          {/* On a phone, Pending beside whose and the toggle on its own row
+              (Joe, 26 October); on a computer all on one. */}
+          <div className="max-sm:order-last max-sm:w-full">
+            <ToggleGroup
+              aria-label="Show"
+              value={[view.showing]}
+              onValueChange={(v: string[]) => v[0] && change({ showing: v[0] as Showing })}
+            >
+              <ToggleGroupItem value="all">All</ToggleGroupItem>
+              <ToggleGroupItem value="staple">Staples</ToggleGroupItem>
+              <ToggleGroupItem value="essential">Essentials</ToggleGroupItem>
+            </ToggleGroup>
+          </div>
           <Button
             variant="outline"
             size="sm"
@@ -369,7 +375,7 @@ export function PantryTab({
             onClick={onPending}
           >
             <ClockIcon />
-            <span className="max-sm:hidden">Pending</span>
+            Pending
             {typed.length > 0 && (
               <Badge variant="secondary" className="-mr-1 tabular-nums">
                 {typed.length}
@@ -401,6 +407,13 @@ export function PantryTab({
                 onCheckedChange={(on) => change({ unit: on })}
               >
                 Default unit
+              </DropdownMenuCheckboxItem>
+              <DropdownMenuCheckboxItem
+                checked={view.recipes}
+                closeOnClick={false}
+                onCheckedChange={(on) => change({ recipes: on })}
+              >
+                Number of recipes
               </DropdownMenuCheckboxItem>
             </DropdownMenuGroup>
           </SortMenu>

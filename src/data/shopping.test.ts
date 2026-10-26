@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { applyPending } from './overlay'
 import { deleteIsMine, liveKeys } from './live'
 import type { QueueEntry } from './queue/store'
 import {
@@ -112,5 +113,22 @@ describe('SHP-004 2: another device’s change refreshes what it touches', () =>
     expect(deleteIsMine('list_meals', { list_id: 'l', meal_id: 'm' }, lines, lists)).toBe(true)
     expect(deleteIsMine('list_meals', { list_id: 'x', meal_id: 'm' }, lines, lists)).toBe(false)
     expect(deleteIsMine('shopping_list', { item_id: 'l' }, lines, lists)).toBe(true)
+  })
+})
+
+describe('SHP-001 2: a new list shows at once, so its page opens on it', () => {
+  it('makes the Item before the server answers (Joe, 26 October)', () => {
+    const made = entry('shopping.create_list', {
+      p_id: 'l',
+      p_fields: { title: ' Big shop ', kind: 'food', do_on: '2026-10-17', space_id: 'home' },
+    })
+    const [l] = applyPending([], [made])
+    expect([l?.type, l?.title, l?.do_on, l?.space_id, l?.sync]).toEqual([
+      'shopping_list',
+      'Big shop',
+      '2026-10-17',
+      'home',
+      'pending',
+    ])
   })
 })

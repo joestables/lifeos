@@ -169,7 +169,7 @@ function NameDialog({
           <Field label="Name" htmlFor={nameId}>
             <Input
               id={nameId}
-              autoFocus
+              data-autofocus={!initial || undefined}
               autoComplete="off"
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -500,7 +500,7 @@ function NoteDialog({ item, onClose }: { item: LogItem; onClose: () => void }) {
           }}
         >
           <Textarea
-            autoFocus
+            data-autofocus={!item.detail || undefined}
             aria-label="What changed"
             placeholder="More honey; the sauce simmers longer"
             maxLength={500}

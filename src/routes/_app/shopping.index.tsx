@@ -4,12 +4,11 @@ import { PageAction, PageHeader, TabsRow, TypeScope } from '@/components/lifeos'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { NewListDialog } from '@/app/new-list'
 import { useLiveShopping } from '@/data'
-import { FoodTab, ListsTab } from '@/app/shopping-tabs'
+import { FoodTab, OtherTab } from '@/app/shopping-tabs'
 
 /**
- * Shopping (patterns.md#shopping): Food, the food shops and each Space's
- * staples and Essentials; Lists, shopping that isn't food (SHP-001, SHP-005).
- * Online comes in a later stage.
+ * Shopping (patterns.md#shopping): Food, the food shops; Other, shopping
+ * that isn't food (`?tab=lists`; SHP-001). Online comes in a later stage.
  */
 export const Route = createFileRoute('/_app/shopping/')({
   validateSearch: (search: Record<string, unknown>): { tab?: 'lists' } =>
@@ -45,12 +44,12 @@ function ShoppingPage() {
           >
             <TabsList>
               <TabsTrigger value="food">Food</TabsTrigger>
-              <TabsTrigger value="lists">Lists</TabsTrigger>
+              <TabsTrigger value="lists">Other</TabsTrigger>
             </TabsList>
           </Tabs>
           <PageAction label={label} onClick={create} />
         </TabsRow>
-        {tab === 'food' ? <FoodTab /> : <ListsTab />}
+        {tab === 'food' ? <FoodTab /> : <OtherTab />}
       </div>
       {creating && (
         <NewListDialog kind={tab === 'food' ? 'food' : 'list'} onClose={() => setCreating(false)} />

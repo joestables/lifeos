@@ -1,13 +1,12 @@
 import { addDays } from '@lifeos/recurrence'
 import { useNavigate } from '@tanstack/react-router'
-import { ListChecksIcon, ShoppingCartIcon } from 'lucide-react'
+import { ListChecksIcon, PlusIcon, ShoppingCartIcon } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import {
   AddMealButton,
   MealCard,
   MealDay,
   MealSlot,
-  MealSlotRow,
   MealWeek,
   PlanToolbar,
   SelectionBar,
@@ -19,6 +18,7 @@ import { useIsMobile } from '@/hooks/use-mobile'
 import { useMealDrag } from '@/hooks/use-meal-drag'
 import { fromIsoDay, shortDate } from '@/lib/dates'
 import { SLOTS, SLOT_LABEL, weekMeals, type PlannedMeal, type SlotKey } from '@/lib/meals'
+import { itemTitle } from '@/lib/item-types'
 import { weekOf, weekTitle } from '@/lib/plan'
 import { AddMealDialog, MealPicker } from './add-meal'
 import { useOpenItem } from './item-navigation'
@@ -80,12 +80,21 @@ export function WeekTab({
   // A phone plans in a Dialog: the day, and the slot tapped.
   const [planning, setPlanning] = useState<{ day: string; slot?: SlotKey } | null>(null)
   const navigate = useNavigate()
-  const { shopOf } = useShopping(queue)
+  const shopping = useShopping(queue)
+  const { shopOf } = shopping
   const [chosen, setChosen] = useState<ReadonlySet<string> | null>(null)
   const selecting = chosen !== null
   // Leftovers have no lines of their own, an eaten Meal is past, and a Meal
   // on another open shop stays there (SHP-002 4).
   const choosable = (m: PlannedMeal) => !m.leftoversOf && m.status !== 'done' && !shopOf.has(m.id)
+  // Why a Meal can't be chosen, said on it while choosing (Joe, 26 October).
+  const unavailable = (m: PlannedMeal) => {
+    if (m.leftoversOf) return 'Leftovers'
+    if (m.status === 'done') return 'Eaten'
+    const shop = shopOf.get(m.id)
+    const item = shop ? shopping.byId.get(shop)?.item : undefined
+    return shop ? (item ? `On ${itemTitle(item)}` : 'On a shop') : undefined
+  }
   const addToShop = () => {
     const picked = plan.meals
       .filter((m) => chosen?.has(m.id))
@@ -109,7 +118,8 @@ export function WeekTab({
   }
   const drag = useMealDrag((id, drop) => {
     const m = plan.byId.get(id)
-    const [d, s] = drop.split(':')
+    // A phone's day keeps the Meal's slot; the week's slot says its own.
+    const [d, s = m?.slot] = drop.split(':')
     if (m && d && s) moveMeal(m, plan.name(m), d, s as SlotKey)
   })
 
@@ -136,6 +146,7 @@ export function WeekTab({
       >
         <MealCard
           row={isMobile}
+          slot={isMobile && m.slot ? SLOT_LABEL[m.slot as SlotKey] : undefined}
           personal={shared && show === ALL && mixed && m.space === personal}
           household={
             spaces.length > 2 && show === ALL ? plan.spaces.householdName(m.space) : undefined
@@ -148,6 +159,7 @@ export function WeekTab({
           eaten={m.status === 'done'}
           dragging={drag.dragging === m.id}
           selecting={selecting && choosable(m)}
+          unavailable={selecting ? unavailable(m) : undefined}
           selected={!!chosen?.has(m.id)}
           onSelect={(on) => {
             const next = new Set(chosen)
@@ -187,29 +199,6 @@ export function WeekTab({
     )
   }
 
-  const phoneSlot = (d: string, s: SlotKey) => {
-    const key = `${d}:${s}`
-    const list = meals.get(key) ?? []
-    return (
-      <MealSlotRow
-        key={key}
-        slot={SLOT_LABEL[s]}
-        drop={key}
-        dropping={drag.over === key}
-        add={
-          <AddMealButton
-            slot={SLOT_LABEL[s]}
-            compact
-            dropping={drag.over === key}
-            onClick={() => setPlanning({ day: d, slot: s })}
-          />
-        }
-      >
-        {list.length > 0 ? list.map(card) : undefined}
-      </MealSlotRow>
-    )
-  }
-
   return (
     <div className="flex flex-col gap-4">
       {selecting ? (
@@ -220,7 +209,7 @@ export function WeekTab({
         />
       ) : (
         <PlanToolbar
-          title={weekTitle(week[0]!)}
+          title={weekTitle(week[0]!, isMobile)}
           day={day}
           onChooseDay={onDay}
           layout="week"
@@ -238,7 +227,7 @@ export function WeekTab({
                   value={show}
                   onChange={keep}
                   label="Show"
-                  className="min-w-0 flex-1 md:w-36 md:flex-none"
+                  className="w-40 min-w-0 md:w-36"
                 />
               )}
               <Button
@@ -257,7 +246,7 @@ export function WeekTab({
         <AddMealDialog day={planning.day} slot={planning.slot} onClose={() => setPlanning(null)} />
       )}
       {isMobile ? (
-        <div ref={days} className="flex flex-col gap-7">
+        <div ref={days} className="flex flex-col gap-3">
           {week.map((d) => {
             const date = fromIsoDay(d)
             return (
@@ -266,8 +255,24 @@ export function WeekTab({
                   name={shortDate(date).slice(0, 3)}
                   date={`${date.getDate()} ${month.format(date)}`}
                   today={d === today}
+                  drop={d}
+                  dropping={drag.over === d}
+                  action={
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      aria-label={`Add a meal on ${shortDate(date)}`}
+                      onClick={() => setPlanning({ day: d })}
+                    >
+                      <PlusIcon />
+                    </Button>
+                  }
                 >
-                  {SLOTS.map((s) => phoneSlot(d, s))}
+                  {SLOTS.some((s) => meals.get(`${d}:${s}`)?.length) && (
+                    <div className="grid gap-1.5">
+                      {SLOTS.flatMap((s) => meals.get(`${d}:${s}`) ?? []).map(card)}
+                    </div>
+                  )}
                 </MealDay>
               </div>
             )

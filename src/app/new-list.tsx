@@ -97,7 +97,12 @@ export function NewListDialog({
         >
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="list-name">Name</Label>
-            <Input id="list-name" value={title} onChange={(e) => setTitle(e.target.value)} />
+            <Input
+              id="list-name"
+              data-autofocus
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="flex min-w-0 flex-col gap-1.5">

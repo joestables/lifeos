@@ -39,7 +39,6 @@ import {
   LogEntry,
   MealCard,
   MealDay,
-  MealSlotRow,
   MethodSteps,
   KeepToggles,
   OfferRow,
@@ -1019,15 +1018,32 @@ function DesignPage() {
 
         <Section title="Meal plan, Pantry">
           <TypeScope colour="green" className="grid max-w-3xl gap-4 sm:grid-cols-2">
-            <MealDay name="Thu" date="15 Oct" today>
-              <MealSlotRow slot="Breakfast">
-                <MealCard row name="Berry smoothie" servings={1} personal />
-              </MealSlotRow>
-              <MealSlotRow slot="Lunch">
-                <MealCard row name="Katsu curry" kind="leftovers" />
-              </MealSlotRow>
-              <MealSlotRow slot="Dinner" add={<AddMealButton slot="Dinner" compact />} />
-            </MealDay>
+            <div className="flex flex-col gap-5">
+              <MealDay
+                name="Thu"
+                date="15 Oct"
+                today
+                action={
+                  <Button variant="ghost" size="icon-sm" aria-label="Add a meal">
+                    <PlusIcon />
+                  </Button>
+                }
+              >
+                <div className="grid gap-1.5">
+                  <MealCard row slot="Breakfast" name="Berry smoothie" servings={1} personal />
+                  <MealCard row slot="Lunch" name="Katsu curry" kind="leftovers" />
+                </div>
+              </MealDay>
+              <MealDay
+                name="Fri"
+                date="16 Oct"
+                action={
+                  <Button variant="ghost" size="icon-sm" aria-label="Add a meal">
+                    <PlusIcon />
+                  </Button>
+                }
+              />
+            </div>
             <div className="flex flex-col gap-2">
               <MealCard name="Out: Dishoom" kind="typed" />
               <MealCard name="Overnight oats" servings={1} eaten />

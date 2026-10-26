@@ -131,7 +131,7 @@ export function ImportDialog({
                 id={linkId}
                 type="url"
                 inputMode="url"
-                autoFocus
+                data-autofocus
                 autoComplete="off"
                 placeholder="https://"
                 value={link}
