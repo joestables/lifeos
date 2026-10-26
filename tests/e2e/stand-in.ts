@@ -39,6 +39,8 @@ export interface Rows {
   meal?: Record<string, unknown>[]
   /** Meals' own lines (MPL-006). */
   meal_lines?: Record<string, unknown>[]
+  /** The Recipes I viewed last (MPL-002 1). */
+  recent_views?: { recipe_id: string; viewed_at: string }[]
   /** My Spaces' staples and Essentials (SHP-005); my personal Space is `s`. */
   space_entries?: Record<string, unknown>[]
   /** The shopping schema (ADR-0057): lists' kinds, a food shop's Meals, and lines. */
@@ -197,6 +199,7 @@ export async function standIn(
     cooks: [...(rows.cooks ?? [])],
     pantry: [...(rows.pantry ?? [])],
     space_entries: [...(rows.space_entries ?? [])],
+    recent_views: [...(rows.recent_views ?? [])] as { recipe_id: string; viewed_at: string }[],
     shopping_list: [...(rows.shopping_list ?? [])],
     list_meals: [...(rows.list_meals ?? [])],
     lines: (rows.lines ?? []).map((l): Record<string, unknown> => ({
@@ -688,6 +691,12 @@ export async function standIn(
       }
       db.space_entries = db.space_entries.filter((x) => x.pantry_id !== a.p_merge)
       db.pantry = db.pantry.filter((p) => p.id !== a.p_merge)
+    },
+    view_recipe: (a) => {
+      const at = String(a.p_at ?? new Date().toISOString())
+      const was = db.recent_views.find((v) => v.recipe_id === a.p_recipe)
+      if (was) was.viewed_at = was.viewed_at > at ? was.viewed_at : at
+      else db.recent_views.push({ recipe_id: String(a.p_recipe), viewed_at: at })
     },
     keep_entry: (a) => {
       db.space_entries = db.space_entries.filter(

@@ -573,9 +573,11 @@ MealCard, MealSlot, AddMealButton, MealWeek, MealDay and PantryRow in
 - **Adding:** a slot's "+" opens a Popover (320px) on a computer; on a
   phone, a day's "+" opens the Dialog Plan's "+" → Meal opens, Dinner to
   start (Joe, 25 October: a Popover over the page let taps through). In it, an `sm` search, my
-  categories as LabelChips with the slot's chosen when I have one, then
-  "Planned lately" (the Recipes of my latest Meals, up to five) and "All
-  recipes" (Drafts and Completes, A–Z), each a 40px line with the Recipe's
+  categories as LabelChips (none chosen), then "Recently viewed": the
+  three Recipes I opened last ("Planned lately", from my latest Meals,
+  before I've opened any; Joe, 26 October). Searching or choosing a
+  category shows every match instead (Drafts and Completes, A–Z, scrolling
+  past 240px). Each is a 40px line with the Recipe's
   small TypeTile, its name and cuisine (and "· Sam") muted; a footer of
   ghost "Type a meal" (`utensils`) and "Leftovers" (`rotate-ccw`). A Recipe
   with one Variation is planned at once; with more, the list becomes its

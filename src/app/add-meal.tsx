@@ -15,6 +15,7 @@ import {
   type SlotKey,
 } from '@/lib/meals'
 import { valueChoices } from '@/lib/recipes'
+import { queue, useRecentViews } from '@/data'
 import {
   planLeftovers,
   planRecipe,
@@ -33,10 +34,11 @@ type Mode =
 const live = (r: RecipeView) => r.variations.filter((v) => v.item.status !== 'cancelled')
 
 /**
- * What a slot's "+" offers (MPL-002, patterns.md#meal-plan): my Recipes,
- * planned lately first, narrowed by a search and my categories (the slot's
- * to start); a Recipe's Variations when it has more than one; or a Meal
- * typed, or leftovers of an earlier one. `onDone` once a Meal is planned.
+ * What a slot's "+" offers (MPL-002, patterns.md#meal-plan): a search and
+ * my categories, then the three Recipes I viewed last (Joe, 26 October),
+ * every match once I search or choose a category; a Recipe's Variations
+ * when it has more than one; or a Meal typed, or leftovers of an earlier
+ * one. `onDone` once a Meal is planned.
  */
 export function MealPicker({
   plan,
@@ -51,10 +53,10 @@ export function MealPicker({
 }) {
   const { food } = plan
   const categories = valueChoices(food.values, food.recipes, 'category')
-  const start = categories.find((c) => c.toLowerCase() === slot)
+  const viewed = useRecentViews(queue)
   const [mode, setMode] = useState<Mode>({ kind: 'recipes' })
   const [search, setSearch] = useState('')
-  const [chosen, setChosen] = useState<ReadonlySet<string>>(new Set(start ? [start] : []))
+  const [chosen, setChosen] = useState<ReadonlySet<string>>(new Set())
   const [typed, setTyped] = useState('')
 
   const choose = (r: RecipeView) => {
@@ -173,16 +175,20 @@ export function MealPicker({
   }
 
   const q = search.trim().toLowerCase()
-  const shown = food.recipes
-    .filter((r) => r.state === 'active' || r.state === 'done')
+  const library = food.recipes.filter((r) => r.state === 'active' || r.state === 'done')
+  // Searching or narrowing: every match, A–Z. Else the three I viewed last
+  // (Joe, 26 October), or those planned lately before I've viewed any.
+  const looking = q !== '' || chosen.size > 0
+  const shown = library
     .filter((r) => !q || r.item.title.toLowerCase().includes(q))
     .filter((r) => !chosen.size || (r.heading.category !== null && chosen.has(r.heading.category)))
-  const lately = plannedLately(plan.meals, food.recipeOf)
-    .map((id) => shown.find((r) => r.item.id === id))
-    .filter((r): r is RecipeView => r !== undefined)
-  const rest = shown
-    .filter((r) => !lately.includes(r))
     .sort((a, b) => a.item.title.localeCompare(b.item.title))
+  const byId = new Map(library.map((r) => [r.item.id, r]))
+  const recent = viewed.map((id) => byId.get(id)).filter((r): r is RecipeView => !!r)
+  const fallback = plannedLately(plan.meals, food.recipeOf)
+    .map((id) => byId.get(id))
+    .filter((r): r is RecipeView => !!r)
+  const quick = (recent.length ? recent : fallback).slice(0, 3)
   const row = (r: RecipeView) => (
     <PickRow
       key={r.item.id}
@@ -208,19 +214,21 @@ export function MealPicker({
           onChange={(next) => setChosen(new Set(next))}
         />
       )}
-      {lately.length > 0 && (
-        <>
-          <div className="px-1 text-xs font-semibold text-muted-foreground">Planned lately</div>
-          <div className="flex flex-col">{lately.map(row)}</div>
-        </>
+      {looking
+        ? shown.length > 0 && (
+            <div className="flex max-h-60 flex-col overflow-y-auto">{shown.map(row)}</div>
+          )
+        : quick.length > 0 && (
+            <>
+              <div className="px-1 text-xs font-semibold text-muted-foreground">
+                {recent.length ? 'Recently viewed' : 'Planned lately'}
+              </div>
+              <div className="flex flex-col">{quick.map(row)}</div>
+            </>
+          )}
+      {looking && !shown.length && (
+        <p className="px-1.5 text-sm text-muted-foreground">No recipes match</p>
       )}
-      {rest.length > 0 && (
-        <>
-          <div className="px-1 text-xs font-semibold text-muted-foreground">All recipes</div>
-          <div className="flex max-h-60 flex-col overflow-y-auto">{rest.map(row)}</div>
-        </>
-      )}
-      {!shown.length && <p className="px-1.5 text-sm text-muted-foreground">No recipes match</p>}
       <div className="flex gap-1 border-t border-border pt-2">
         <Button
           variant="ghost"

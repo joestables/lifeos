@@ -2108,6 +2108,25 @@ export type Database = {
         }
         Relationships: []
       }
+      recent_views: {
+        Row: {
+          person_id: string
+          recipe_id: string
+          viewed_at: string
+        }
+        ComputedFields: never
+        Insert: {
+          person_id?: string
+          recipe_id: string
+          viewed_at?: string
+        }
+        Update: {
+          person_id?: string
+          recipe_id?: string
+          viewed_at?: string
+        }
+        Relationships: []
+      }
       recipe: {
         Row: {
           carbs: string[]
@@ -2699,6 +2718,7 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      view_recipe: { Args: { p_at?: string; p_recipe: string }; Returns: undefined }
     }
     Enums: {
       [_ in never]: never

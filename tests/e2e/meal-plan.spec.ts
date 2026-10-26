@@ -9,7 +9,7 @@ import {
   mealCards,
   mealRows,
 } from './meal-rows'
-import { KATSU, KATSU_STD, NOODLES, NOODLES_STD } from './recipe-rows'
+import { KATSU, KATSU_STD, NOODLES, NOODLES_STD, SHAKSHUKA } from './recipe-rows'
 import { standIn } from './stand-in'
 
 async function start(page: Page, path = '/meal-plan', { clock = true } = {}) {
@@ -47,18 +47,20 @@ test.describe('The Meal plan', () => {
     await expect(cards(page, '2026-10-15:dinner')).toHaveCount(1)
   })
 
-  test('MPL-002 1, 2: a Recipe planned from the slot, narrowed by its category', async ({
-    page,
-  }) => {
+  test('MPL-002 1, 2: a Recipe planned: my last viewed, or searched', async ({ page }) => {
     const db = await start(page)
+    // Viewing a Recipe is kept (Joe, 26 October).
+    await page.goto(`/recipes/${SHAKSHUKA}`)
+    await expect.poll(() => db.recent_views.map((v) => v.recipe_id)).toEqual([SHAKSHUKA])
+    await page.goto('/meal-plan')
     await add(page, '2026-10-14:dinner')
     const picker = page.getByRole('dialog')
-    // The slot's category is chosen: Shakshuka, a breakfast, isn't offered.
-    await expect(
-      picker.getByLabel('Category').getByRole('button', { name: 'Dinner' }),
-    ).toHaveAttribute('aria-pressed', 'true')
-    await expect(picker.getByText('Planned lately')).toBeVisible()
-    await expect(picker.getByRole('button', { name: /Shakshuka/ })).toHaveCount(0)
+    await expect(picker.getByText('Recently viewed')).toBeVisible()
+    await expect(picker.getByRole('button', { name: /Shakshuka/ })).toBeVisible()
+    await expect(picker.getByRole('button', { name: /Gochujang noodles/ })).toHaveCount(0)
+    // Searching shows every match.
+    await picker.getByRole('searchbox', { name: 'Search recipes' }).fill('noodles')
+    await expect(picker.getByText('Recently viewed')).toHaveCount(0)
     await picker.getByRole('button', { name: /Gochujang noodles/ }).click()
     await expect(cards(page, '2026-10-14:dinner')).toHaveText(/Gochujang noodles.*Serves 4/)
     await expect
@@ -71,6 +73,10 @@ test.describe('The Meal plan', () => {
 
     // A Recipe with more than one Variation asks which.
     await add(page, '2026-10-13:dinner')
+    await page
+      .getByRole('dialog')
+      .getByRole('searchbox', { name: 'Search recipes' })
+      .fill('katsu c')
     await page
       .getByRole('dialog')
       .getByRole('button', { name: /Katsu curry/ })
@@ -224,6 +230,7 @@ test.describe('The Meal plan', () => {
       .getByRole('group', { name: 'Slot' })
       .getByRole('button', { name: 'Breakfast' })
       .click()
+    await dialog.getByRole('searchbox', { name: 'Search recipes' }).fill('shak')
     await dialog.getByRole('button', { name: /Shakshuka/ }).click()
     await expect
       .poll(() => db.items.find((i) => i.type === 'meal' && i.title === 'Shakshuka'))
@@ -253,6 +260,10 @@ test.describe('The Meal plan', () => {
     await add(page, '2026-10-14:dinner')
     await page
       .getByRole('dialog')
+      .getByRole('searchbox', { name: 'Search recipes' })
+      .fill('noodles')
+    await page
+      .getByRole('dialog')
       .getByRole('button', { name: /Gochujang noodles/ })
       .click()
     await expect(cards(page, '2026-10-14:dinner')).toHaveCount(1)
@@ -278,6 +289,7 @@ test.describe('The Meal plan', () => {
       'true',
     )
     await dialog.getByLabel('Slot').getByRole('button', { name: 'Lunch' }).tap()
+    await dialog.getByRole('searchbox', { name: 'Search recipes' }).fill('noodles')
     await dialog.getByRole('button', { name: /Gochujang noodles/ }).tap()
     await expect(dialog).toBeHidden()
     await expect(cards(page, '2026-10-14:lunch')).toHaveText(/Gochujang noodles/)

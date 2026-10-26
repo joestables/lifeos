@@ -47,6 +47,9 @@ import {
   type RecipeHeading,
   type Step,
   type VariationFields,
+  applyPendingViews,
+  fetchRecentViews,
+  recentViewsKey,
 } from './food'
 import { useItems, useLinks, useMarks, useQueueEntries, useSettings } from './hooks'
 import { useHouseholds } from './households'
@@ -403,5 +406,15 @@ export function usePantryInUse(queue: WriteQueue): ReadonlySet<string> {
           .filter((id): id is string => id !== null),
       ),
     [entries, lines.data],
+  )
+}
+
+/** The Recipes I viewed, latest first (MPL-002 1), unsent views laid over. */
+export function useRecentViews(queue: WriteQueue): string[] {
+  const entries = useQueueEntries(queue)
+  const { data } = useQuery({ queryKey: recentViewsKey, queryFn: fetchRecentViews })
+  return useMemo(
+    () => applyPendingViews(data ?? [], entries).map((v) => v.recipe_id),
+    [data, entries],
   )
 }

@@ -202,8 +202,10 @@ planning the week takes minutes.
 Priority: Must · Status: built
 
 Acceptance criteria
-1. Given a slot's "+", then a search opens, listing the Recipes I planned
-   most recently first, with my categories to narrow it (Dinner, Baking…);
+1. Given a slot's "+", then a search opens, with my categories to narrow it
+   (Dinner, Baking…) and, until I search or choose one, the three Recipes I
+   viewed last (those planned lately before I've viewed any; Joe, 26
+   October);
    choosing one adds a Meal of its default Variation, or offers its
    Variations when it has more than one. On a phone a day's "+" opens it in
    a Dialog, the slot chosen there (Joe, 25 and 26 October).

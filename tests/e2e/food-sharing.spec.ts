@@ -177,6 +177,7 @@ test.describe('Food shared through a Household', () => {
   test('MPL-002 1: the picker says whose a member’s Recipe is', async ({ page }) => {
     await start(page, '/meal-plan')
     await addMeal(page, '2026-10-18:dinner')
+    await page.getByRole('dialog').getByRole('searchbox', { name: 'Search recipes' }).fill('ramen')
     await expect(page.getByRole('button', { name: /Shoyu ramen/ })).toContainText('Japanese · Sam')
   })
 

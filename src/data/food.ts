@@ -70,6 +70,8 @@ export const valuesKey = ['food', 'values'] as const
 export const spaceEntriesKey = ['food', 'space_entries'] as const
 export const mealsKey = ['food', 'meal'] as const
 export const mealLinesKey = ['food', 'meal_lines'] as const
+/** The Recipes I viewed last (MPL-002 1): mine alone. */
+export const recentViewsKey = ['food', 'recent_views'] as const
 /** My personal Space's id: where my staples are kept without a Household (SHP-005). */
 export const personalSpaceKey = ['core', 'spaces', 'personal'] as const
 /** A Recipe's log (RCP-013): the activity of it and its Variations. */
@@ -220,6 +222,36 @@ export async function fetchSpaceEntries(): Promise<SpaceEntry[]> {
     .select('space_id, pantry_id, kind, needed')
   if (error) throw error
   return data
+}
+
+/** A Recipe I viewed, and when (MPL-002 1). */
+export type RecentView = Pick<Food['recent_views']['Row'], 'recipe_id' | 'viewed_at'>
+
+export async function fetchRecentViews(): Promise<RecentView[]> {
+  const { data, error } = await food()
+    .from('recent_views')
+    .select('recipe_id, viewed_at')
+    .order('viewed_at', { ascending: false })
+    .limit(20)
+  if (error) throw error
+  return data
+}
+
+/** My views with unsent ones laid over, latest first. */
+export function applyPendingViews(
+  rows: readonly RecentView[],
+  entries: readonly QueueEntry[],
+): RecentView[] {
+  const by = new Map(rows.map((r) => [r.recipe_id, r.viewed_at]))
+  for (const e of entries) {
+    if (e.fn !== 'food.view_recipe') continue
+    const a = e.args as { p_recipe: string; p_at?: string }
+    const at = a.p_at ?? new Date().toISOString()
+    if ((by.get(a.p_recipe) ?? '') < at) by.set(a.p_recipe, at)
+  }
+  return [...by.entries()]
+    .map(([recipe_id, viewed_at]) => ({ recipe_id, viewed_at }))
+    .sort((a, b) => b.viewed_at.localeCompare(a.viewed_at))
 }
 
 export async function fetchPersonalSpace(me: string): Promise<string | null> {
