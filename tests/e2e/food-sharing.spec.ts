@@ -174,6 +174,21 @@ test.describe('Food shared through a Household', () => {
     await expect(page.getByText('By Sam', { exact: true })).toBeVisible()
   })
 
+  test('RCP-004 1: choosing several, a member’s Recipe fades, saying whose', async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(isMobile, 'Select is a computer’s; a phone long-presses one of mine')
+    await start(page, '/recipes')
+    await page.getByRole('button', { name: 'Select' }).click()
+    const ramen = page.locator('[data-slot="recipe-card"]').filter({ hasText: 'Shoyu ramen' })
+    await expect(ramen).toContainText('Japanese · Sam’s')
+    await expect(ramen.getByRole('checkbox')).toHaveAttribute('aria-disabled', 'true')
+    const katsu = page.locator('[data-slot="recipe-card"]').filter({ hasText: 'Katsu curry' })
+    await katsu.getByRole('checkbox').click()
+    await expect(katsu.getByRole('checkbox')).toHaveAttribute('aria-checked', 'true')
+  })
+
   test('MPL-002 1: the picker says whose a member’s Recipe is', async ({ page }) => {
     await start(page, '/meal-plan')
     await addMeal(page, '2026-10-18:dinner')

@@ -577,7 +577,9 @@ MealCard, MealSlot, AddMealButton, MealWeek, MealDay and PantryRow in
   on a phone it is pressed and held until it lifts, then dragged to another
   day, the day under the finger lit, and let go there, keeping its slot
   (Move to… changes the slot). It lifts without turning (Joe, 26 October). A slot can hold several Meals.
-  Moved, a toast says where ("Moved "Katsu curry" to Sat lunch") with Undo.
+  Moved, a toast says where ("Moved "Katsu curry" to Sat lunch") with Undo;
+  when its leftovers were at or before there, they go, and the toast ends
+  "and removed its leftovers".
 - **Adding:** a slot's "+" opens a Popover (320px) on a computer; on a
   phone, a day's "+" opens the Dialog Plan's "+" → Meal opens, Dinner to
   start (Joe, 25 October: a Popover over the page let taps through). In it, an `sm` search, my

@@ -469,6 +469,33 @@ test.describe('Shopping', () => {
     await expect.poll(() => db.lines.find((l) => l.text === 'Honey')?.checked).toBe(true)
   })
 
+  test('SHP-004 3: a Meal added and its line ticked with no signal, both sent when it returns', async ({
+    page,
+    context,
+  }) => {
+    const db = await start(page, `/shopping/${SHOP}`, { ...shopRows(), list_meals: [] })
+    await expect(page.getByRole('heading', { name: 'Big shop', level: 1 })).toBeVisible()
+    const noSignal = (route: Route) => route.abort('internetdisconnected')
+    await page.route('**/rest/v1/rpc/**', noSignal)
+    await context.setOffline(true)
+    await page.getByRole('tab', { name: /Meals/ }).click()
+    await page.getByRole('button', { name: 'Add a meal' }).click()
+    const dialog = page.getByRole('dialog', { name: 'Add a meal' })
+    await dialog.getByText('Katsu curry').click()
+    await dialog.getByRole('button', { name: 'Add' }).click()
+    await page.getByRole('tab', { name: /All/ }).click()
+    await line(page, 'Chicken thighs').getByRole('checkbox').click()
+    await expect(line(page, 'Chicken thighs').getByRole('checkbox')).toBeChecked()
+    await page.unroute('**/rest/v1/rpc/**', noSignal)
+    await context.setOffline(false)
+    // The line the server writes is the one ticked (Joe, 26 October).
+    await expect
+      .poll(
+        () => db.lines.find((l) => l.meal_id === KATSU_MEAL && l.pantry_id === CHICKEN)?.checked,
+      )
+      .toBe(true)
+  })
+
   test('ITM-006 5; SHP-003 5: a Thought naming a Pantry ingredient sorted into a food shop', async ({
     page,
   }) => {

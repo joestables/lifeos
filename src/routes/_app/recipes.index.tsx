@@ -491,6 +491,8 @@ function Library({
                   favourite={r.favourite}
                   selecting={choosing.choosing}
                   selected={choosing.chosen.has(r.item.id)}
+                  // Only my own are chosen: a member's fades, saying whose.
+                  unavailable={r.mine ? undefined : `${spaces.firstName(r.item.owner_id)}’s`}
                   onOpen={() => onOpen(r.item.id)}
                   onFavourite={(on) => setMark(r.item.id, on)}
                   onSelect={(on) => r.mine && choosing.choose(r.item.id, on)}

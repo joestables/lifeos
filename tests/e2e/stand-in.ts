@@ -2,6 +2,7 @@ import { expect, type Locator, type Page, type WebSocketRoute } from '@playwrigh
 import { typeByKey } from '../../packages/ontology/src/index.ts'
 import { addDays } from '../../packages/recurrence/src/index.ts'
 import { zonedInstant } from '../../src/lib/dates.ts'
+import { mealLineId } from '../../src/lib/line-id.ts'
 
 /** The stand-in Supabase the e2e build points at (npm run build:e2e). */
 export const STAND_IN_URL = 'https://stand-in.supabase.co'
@@ -852,7 +853,8 @@ export async function standIn(
       const add = (src: Record<string, unknown>, scale: number) => {
         if (ticked(src.id)) return
         db.lines.push({
-          id: `${String(list_id)}:${String(src.id)}`,
+          // As shopping_private.line_id gives it (SHP-004 3).
+          id: mealLineId(String(list_id), String(meal_id), String(src.id)),
           list_id,
           position: src.position ?? '',
           heading: null,

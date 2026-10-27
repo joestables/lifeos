@@ -2,6 +2,28 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#54](https://github.com/joestables/lifeos/pull/54) — Leftovers when a Meal moves, ticks offline, faded Recipes
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-27
+
+**What it did**
+- **A Meal moved** (the week's drag, Move to…, Plan's drag) goes anywhere;
+  its leftovers at or before where it goes are removed, and Undo brings
+  them back (`leftoversBefore`).
+- **Ticks offline:** `stage4b_meal_line_ids` gives a Meal's line on a shop
+  the id `shopping_private.line_id(list, meal, source)` (MD5) every time
+  it is written; the app works out the same (`mealLineId`), so a line
+  ticked before its Meal is sent, or after the Meal rewrote its lines, is
+  the line ticked. Database tests in `meal_line_ids_test`.
+- **Choosing several Recipes:** a Household member's fades, saying whose,
+  as Meals that can't be chosen do.
+
+**Documents touched:** meals (MPL-003 2, SHP-004 3), recipes (RCP-004 1),
+ADR-0057, the data model, components (RecipeCard), patterns (moving a
+Meal), the Stage 4b plan.
+
+**Left for later:** nothing from Joe's list.
+
 ## [#53](https://github.com/joestables/lifeos/pull/53) — Lost imports, New variation, a second bug hunt
 
 Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-26

@@ -51,7 +51,10 @@ There were two ways to hold a Meal's lines:
   entry or typed `text`, `qty`, `qty_max`, `approx` and `unit` (as a
   Variation's line), `checked`, and:
   - `meal_id` and `source_id` on a Meal's line: the Meal it is for, and the
-    Variation's or Meal's own line it came from;
+    Variation's or Meal's own line it came from; its id is always
+    `shopping_private.line_id(list, meal, source)`, MD5 of the three, set
+    by a trigger, so it is the same each time the line is written and the
+    app, offline, gives it the same (`mealLineId`; Joe, 26 October);
   - `needed_space_id` on a line added from a Space's Needed, saying which
     Space its out of stock or Required is cleared in (SHP-003 4).
 - **A Meal's lines are written by the database.**

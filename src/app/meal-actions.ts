@@ -13,7 +13,7 @@ import {
   type FoodSpaces,
 } from '@/data'
 import type { RecipeView, VariationView } from '@/data/food-hooks'
-import { mealName, slotName, type PlannedMeal, type SlotKey } from '@/lib/meals'
+import { leftoversBefore, mealName, slotName, type PlannedMeal, type SlotKey } from '@/lib/meals'
 
 /** The Meal plan's Meals, with what each needs to show (MPL-001). */
 export interface MealPlanData {
@@ -128,14 +128,34 @@ export function setMealSpace(m: PlannedMeal, space: string, meals: readonly Plan
     if (x.space !== space) updateItem(x.id, { space_id: space })
 }
 
-/** A Meal moved to another day or slot, with Undo (MPL-003 2). */
-export function moveMeal(m: PlannedMeal, name: string, day: string, slot: SlotKey) {
+/**
+ * A Meal moved to another day or slot, with Undo (MPL-003 2): anywhere, its
+ * leftovers at or before where it goes removed (Joe, 26 October).
+ */
+export function moveMeal(
+  m: PlannedMeal,
+  name: string,
+  day: string,
+  slot: SlotKey,
+  meals: readonly PlannedMeal[],
+) {
   if (m.day === day && m.slot === slot) return
   const was = { do_on: m.day, slot: m.slot }
+  const gone = leftoversBefore(m.id, day, slot, meals)
   updateItem(m.id, { do_on: day, slot })
-  toast(`Moved "${name}" to ${slotName(day, slot)}`, {
-    action: { label: 'Undo', onClick: () => updateItem(m.id, was) },
-  })
+  for (const l of gone) archiveItem(l.id)
+  toast(
+    `Moved "${name}" to ${slotName(day, slot)}${gone.length ? ' and removed its leftovers' : ''}`,
+    {
+      action: {
+        label: 'Undo',
+        onClick: () => {
+          updateItem(m.id, was)
+          for (const l of gone) restoreItem(l.id)
+        },
+      },
+    },
+  )
 }
 
 /** Removes a Meal and its leftovers, with Undo (MPL-003 3, ITM-006 3). */
