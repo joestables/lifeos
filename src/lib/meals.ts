@@ -106,6 +106,24 @@ export function leftoverChoices(
     .sort((a, b) => order(b.day!, b.slot!).localeCompare(order(a.day!, a.slot!)))
 }
 
+/**
+ * A Meal's leftovers a move would put before it (MPL-003 2, Joe, 26
+ * October): those at or before its new day and slot; leftovers later the
+ * same day stay.
+ */
+export function leftoversBefore<M extends Pick<PlannedMeal, 'leftoversOf' | 'day' | 'slot'>>(
+  meal: string,
+  day: string,
+  slot: string,
+  meals: readonly M[],
+): M[] {
+  const at = order(day, slot)
+  return meals.filter(
+    (l) =>
+      l.leftoversOf === meal && l.day !== null && l.slot !== null && order(l.day, l.slot) <= at,
+  )
+}
+
 /** Where leftovers go to start: the next lunch or dinner (patterns.md#meal-plan). */
 export function nextMealSlot(day: string, slot: SlotKey): { day: string; slot: SlotKey } {
   if (slot === 'breakfast') return { day, slot: 'lunch' }

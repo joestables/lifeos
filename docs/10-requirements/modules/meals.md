@@ -229,7 +229,9 @@ Acceptance criteria
    it planned), servings, Personal or Household, eaten, its own
    ingredients, Remove.
 2. Given a computer or a phone, when I drag a Meal to another day or slot,
-   then it moves, with Undo.
+   then it moves, with Undo. It goes anywhere; its leftovers at or before
+   where it goes (earlier days, or that day up to its slot) are removed,
+   and Undo brings them back (Joe, 26 October).
 3. Given a Meal with leftovers, when I remove it, then its leftovers go too,
    with Undo.
 4. Given a Meal on a food shop, when I change its servings or its
@@ -435,7 +437,8 @@ Acceptance criteria
 2. Given a shared list, when one of us ticks or adds a line, then the other
    sees it within a second or two.
 3. Given no signal in the shop, then ticks are kept and sent when it
-   returns.
+   returns, a Meal's line ticked before its Meal was sent too (Joe, 26
+   October).
 
 ### SHP-005 — Staples and Essentials
 

@@ -120,7 +120,7 @@ export function WeekTab({
     const m = plan.byId.get(id)
     // A phone's day keeps the Meal's slot; the week's slot says its own.
     const [d, s = m?.slot] = drop.split(':')
-    if (m && d && s) moveMeal(m, plan.name(m), d, s as SlotKey)
+    if (m && d && s) moveMeal(m, plan.name(m), d, s as SlotKey, plan.meals)
   })
 
   // A phone opens on today (MPL-001 2).

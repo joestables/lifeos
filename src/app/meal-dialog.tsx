@@ -89,7 +89,7 @@ export function MealPopup({ id, onClose }: { id: string; onClose: () => void }) 
           action="Move"
           day={day}
           slot={slot}
-          onChoose={(d, s) => moveMeal(meal, name, d, s)}
+          onChoose={(d, s) => moveMeal(meal, name, d, s, plan.meals)}
           onClose={() => setAsking(null)}
         />
       )}

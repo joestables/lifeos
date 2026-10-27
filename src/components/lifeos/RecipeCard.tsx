@@ -40,7 +40,8 @@ export function RecipePhoto({
  * A Recipe in the library (RCP-001): its photo with my heart over it, its
  * name, its cuisine and, for a Draft, a "Draft" badge. The whole card opens
  * the Recipe. While choosing several, a checkbox takes the heart's corner
- * and the whole card chooses it; a chosen card is ringed.
+ * and the whole card chooses it; a chosen card is ringed. One that can't be
+ * chosen (`unavailable`, saying why) fades, as a MealCard does.
  */
 export function RecipeCard({
   name,
@@ -51,6 +52,7 @@ export function RecipeCard({
   by,
   selecting = false,
   selected = false,
+  unavailable,
   onOpen,
   onFavourite,
   onSelect,
@@ -66,6 +68,8 @@ export function RecipeCard({
   /** Choosing several (a computer's Select; a long press on a phone). */
   selecting?: boolean
   selected?: boolean
+  /** Choosing several: why this one can't be chosen ("Sam's"; Joe, 26 October). */
+  unavailable?: string
   onOpen?: () => void
   onFavourite?: (on: boolean) => void
   onSelect?: (on: boolean) => void
@@ -78,10 +82,13 @@ export function RecipeCard({
       {...longPress}
       data-slot="recipe-card"
       data-selected={selected || undefined}
-      className="group/card relative flex min-w-0 flex-col overflow-hidden rounded-lg bg-card shadow-card data-selected:ring-2 data-selected:ring-ring"
+      className={cn(
+        'group/card relative flex min-w-0 flex-col overflow-hidden rounded-lg bg-card shadow-card data-selected:ring-2 data-selected:ring-ring',
+        selecting && unavailable && 'pointer-events-none opacity-45 shadow-none [&_img]:grayscale',
+      )}
     >
       <RecipePhoto src={photo} />
-      {selecting ? (
+      {selecting && unavailable ? null : selecting ? (
         <span className="pointer-events-none absolute top-2 right-2 z-10 grid size-10 place-items-center rounded-control bg-popover/85 shadow-card backdrop-blur-sm">
           <Checkbox checked={selected} tabIndex={-1} aria-hidden />
         </span>
@@ -101,13 +108,17 @@ export function RecipeCard({
           type="button"
           role={selecting ? 'checkbox' : undefined}
           aria-checked={selecting ? selected : undefined}
+          aria-disabled={selecting && unavailable ? true : undefined}
+          tabIndex={selecting && unavailable ? -1 : undefined}
           onClick={selecting ? () => onSelect?.(!selected) : onOpen}
           className="truncate text-left font-[650] outline-none group-data-[size=S]/grid:text-sm after:absolute after:inset-0 after:rounded-lg focus-visible:after:ring-3 focus-visible:after:ring-ring-soft"
         >
           {name}
         </button>
         <div className="flex min-w-0 items-center gap-1.5 text-sm text-muted-foreground group-data-[size=S]/grid:text-xs">
-          <span className="truncate">{[cuisine, by].filter(Boolean).join(' · ')}</span>
+          <span className="truncate">
+            {[cuisine, selecting && unavailable ? unavailable : by].filter(Boolean).join(' · ')}
+          </span>
           {draft && (
             <Badge variant="outline" className="ml-auto shrink-0">
               Draft

@@ -235,7 +235,8 @@ Priority: Should · Status: verified
 
 Acceptance criteria
 1. Given Select on either tab (or a long press on a phone), then I can pick
-   several of my own and Archive or Delete Recipes, or Delete Ideas, with
+   several of my own (a Household member's Recipe fades, saying whose) and
+   Archive or Delete Recipes, or Delete Ideas, with
    Undo. Ideas are made Drafts one at a time, each needing its category and
    cuisine (RCP-010 6). One Recipe is also deleted from its own page's "…"
    (Joe, 26 October).

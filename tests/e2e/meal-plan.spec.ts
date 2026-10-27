@@ -197,6 +197,30 @@ test.describe('The Meal plan', () => {
     await expect(cards(page, '2026-10-17:dinner')).toHaveText(/Out: Dishoom/)
   })
 
+  test('MPL-003 2: a Meal moved past its leftovers removes them, and Undo brings both back', async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(isMobile, 'dragged on a computer; the rule is the same from Move to')
+    const db = await start(page)
+    // Thursday's dinner to Friday's, after its leftovers at Friday lunch.
+    const from = cards(page, '2026-10-15:dinner').first()
+    const to = slot(page, '2026-10-16:dinner')
+    const a = (await from.boundingBox())!
+    const b = (await to.boundingBox())!
+    await page.mouse.move(a.x + a.width / 2, a.y + a.height / 2)
+    await page.mouse.down()
+    await page.mouse.move(a.x + a.width / 2 + 20, a.y + a.height / 2, { steps: 4 })
+    await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2, { steps: 8 })
+    await page.mouse.up()
+    await expect(page.getByText('and removed its leftovers')).toBeVisible()
+    await expect.poll(() => db.items.find((i) => i.id === LEFTOVERS)?.archived_at).toBeTruthy()
+    await expect(cards(page, '2026-10-16:lunch')).toHaveCount(0)
+    await page.getByRole('button', { name: 'Undo' }).click()
+    await expect(cards(page, '2026-10-16:lunch')).toHaveText(/Katsu curry/)
+    await expect(cards(page, '2026-10-15:dinner')).toHaveText(/Katsu curry/)
+  })
+
   test('MPL-003 2: on a phone, a Meal pressed and held is dragged to another day, keeping its slot', async ({
     page,
     isMobile,

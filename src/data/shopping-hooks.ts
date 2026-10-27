@@ -36,6 +36,7 @@ import {
   type ShopLine,
   type ShopMeal,
 } from './shopping'
+import { mealLineId } from '@/lib/line-id'
 import type { Item } from './types'
 
 /**
@@ -123,7 +124,7 @@ export function useShopping(queue: WriteQueue): ShoppingData {
           if (l.variation_id === variation && !l.heading && (l.pantry_id || l.text))
             shopLines.push({
               ...base,
-              id: `${list_id}:${l.id}`,
+              id: mealLineId(list_id, meal_id, l.id),
               source_id: l.id,
               position: l.position,
               pantry_id: l.pantry_id,
@@ -135,9 +136,18 @@ export function useShopping(queue: WriteQueue): ShoppingData {
             })
         for (const l of own)
           if (l.meal_id === meal_id)
-            shopLines.push({ ...base, ...l, id: `${list_id}:${l.id}`, source_id: l.id })
+            shopLines.push({
+              ...base,
+              ...l,
+              id: mealLineId(list_id, meal_id, l.id),
+              source_id: l.id,
+            })
       }
-      shopLines = [...shopLines]
+      // Ticked before their Meal was sent: the ticks laid over them too.
+      shopLines = applyPendingShopLines(
+        shopLines,
+        queued.filter((e) => e.fn === 'shopping.tick'),
+      )
     }
 
     const linesBy = new Map<string, ShopLine[]>()
