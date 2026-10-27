@@ -14,7 +14,9 @@ Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-27
   the id `shopping_private.line_id(list, meal, source)` (MD5) every time
   it is written; the app works out the same (`mealLineId`), so a line
   ticked before its Meal is sent, or after the Meal rewrote its lines, is
-  the line ticked. Database tests in `meal_line_ids_test`.
+  the line ticked; and such a tick now shows at once (the ticks were laid
+  over before the unsent Meal's lines were). Database tests in
+  `meal_line_ids_test`.
 - **Choosing several Recipes:** a Household member's fades, saying whose,
   as Meals that can't be chosen do.
 

@@ -143,7 +143,11 @@ export function useShopping(queue: WriteQueue): ShoppingData {
               source_id: l.id,
             })
       }
-      shopLines = [...shopLines]
+      // Ticked before their Meal was sent: the ticks laid over them too.
+      shopLines = applyPendingShopLines(
+        shopLines,
+        queued.filter((e) => e.fn === 'shopping.tick'),
+      )
     }
 
     const linesBy = new Map<string, ShopLine[]>()
