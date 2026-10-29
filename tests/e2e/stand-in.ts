@@ -1,7 +1,8 @@
-import { expect, type Locator, type Page } from '@playwright/test'
+import { expect, type Locator, type Page, type WebSocketRoute } from '@playwright/test'
 import { typeByKey } from '../../packages/ontology/src/index.ts'
 import { addDays } from '../../packages/recurrence/src/index.ts'
 import { zonedInstant } from '../../src/lib/dates.ts'
+import { mealLineId } from '../../src/lib/line-id.ts'
 
 /** The stand-in Supabase the e2e build points at (npm run build:e2e). */
 export const STAND_IN_URL = 'https://stand-in.supabase.co'
@@ -35,10 +36,18 @@ export interface Rows {
   variation_steps?: Record<string, unknown>[]
   cooks?: Record<string, unknown>[]
   pantry?: Record<string, unknown>[]
-  /** Meals' own fields (food.meal): servings, leftovers_of. */
+  /** Meals' own fields (food.meal): servings, leftovers_of, source. */
   meal?: Record<string, unknown>[]
-  /** My Spaces' staples (PAN-002); my personal Space is `s`. */
-  staples?: Record<string, unknown>[]
+  /** Meals' own lines (MPL-006). */
+  meal_lines?: Record<string, unknown>[]
+  /** The Recipes I viewed last (MPL-002 1). */
+  recent_views?: { recipe_id: string; viewed_at: string }[]
+  /** My Spaces' staples and Essentials (SHP-005); my personal Space is `s`. */
+  space_entries?: Record<string, unknown>[]
+  /** The shopping schema (ADR-0057): lists' kinds, a food shop's Meals, and lines. */
+  shopping_list?: Record<string, unknown>[]
+  list_meals?: Record<string, unknown>[]
+  lines?: Record<string, unknown>[]
   values?: Record<string, unknown>[]
   activity?: Record<string, unknown>[]
   /** Photos (core.attachments) and their files in Storage's `photos` bucket. */
@@ -57,6 +66,22 @@ export interface Rows {
   space_invites?: Record<string, unknown>[]
   /** Invitations waiting for me, as core.my_invites() returns them. */
   my_invites?: Record<string, unknown>[]
+  /**
+   * What the `ai` Edge Function answers (ADR-0054): whether it can be used,
+   * and an import's answer. Never Gemini: walks don't call the AI.
+   */
+  ai?: {
+    status?: Record<string, unknown>
+    import?: Record<string, unknown>
+    fill?: Record<string, unknown>
+    meal?: Record<string, unknown>
+    /** link-preview's picture, a data URL (MPL-006 6). */
+    picture?: string | null
+    /** link-preview's name for a link (RCP-003 1). */
+    name?: string | null
+    /** How long an import takes to answer, in ms. */
+    delay?: number
+  }
   /** What connecting Google Calendar brings: its calendars and the main one's events. */
   google?: {
     account: string
@@ -98,7 +123,7 @@ export const itemRow = (fields: Record<string, unknown> & { id: string; type: st
  */
 export async function standIn(
   page: Page,
-  { signedIn = false, rows = {} }: { signedIn?: boolean; rows?: Rows } = {},
+  { signedIn = false, rows = {}, ai }: { signedIn?: boolean; rows?: Rows; ai?: Rows['ai'] } = {},
 ) {
   const db = {
     items: [...(rows.items ?? [])],
@@ -174,8 +199,35 @@ export async function standIn(
     variation_steps: [...(rows.variation_steps ?? [])],
     cooks: [...(rows.cooks ?? [])],
     pantry: [...(rows.pantry ?? [])],
-    staples: [...(rows.staples ?? [])],
-    meal: [...(rows.meal ?? [])],
+    space_entries: [...(rows.space_entries ?? [])],
+    recent_views: [...(rows.recent_views ?? [])] as { recipe_id: string; viewed_at: string }[],
+    shopping_list: [...(rows.shopping_list ?? [])],
+    list_meals: [...(rows.list_meals ?? [])],
+    lines: (rows.lines ?? []).map((l): Record<string, unknown> => ({
+      position: '',
+      heading: null,
+      pantry_id: null,
+      text: null,
+      qty: null,
+      qty_max: null,
+      approx: false,
+      unit: null,
+      checked: false,
+      meal_id: null,
+      source_id: null,
+      needed_space_id: null,
+      ...l,
+    })),
+    meal: [...(rows.meal ?? [])].map((m): Record<string, unknown> => ({ source: null, ...m })),
+    meal_lines: (rows.meal_lines ?? []).map((l): Record<string, unknown> => ({
+      pantry_id: null,
+      text: null,
+      qty: null,
+      qty_max: null,
+      approx: false,
+      unit: null,
+      ...l,
+    })),
     spaces: [
       { id: 's', kind: 'personal', name: '', created_by: ANN.id },
       ...(rows.spaces ?? []).map((h) => ({ kind: 'household', ...h })),
@@ -194,6 +246,8 @@ export async function standIn(
     files: new Map<string, Buffer>(),
     /** The calendar chosen for each new Event (set_event_calendar). */
     event_calendars: [] as { item_id: string; calendar_link_id: string | null }[],
+    /** What was asked of the `ai` Edge Function. */
+    ai_asked: [] as Record<string, unknown>[],
   }
   /** What the Edge Function calendar-connect does, without Google (GCL-001). */
   const calendar = (body: { action?: string; code?: string }) => {
@@ -568,6 +622,7 @@ export async function standIn(
         item_id: a.p_id,
         servings: f.servings ?? null,
         leftovers_of: f.leftovers_of ?? null,
+        source: f.source ?? null,
       })
       if (f.variation)
         db.links.push({
@@ -578,6 +633,25 @@ export async function standIn(
     },
     update_meal: (a) =>
       db.meal.filter((m) => m.item_id === a.p_id).forEach((m) => Object.assign(m, a.p_patch)),
+    add_meal_line: (a) => {
+      if (db.meal_lines.some((l) => l.id === a.p_id)) return
+      db.meal_lines.push({
+        pantry_id: null,
+        text: null,
+        qty: null,
+        qty_max: null,
+        approx: false,
+        unit: null,
+        ...(a.p_fields as object),
+        id: a.p_id,
+        meal_id: a.p_meal,
+      })
+    },
+    update_meal_line: (a) =>
+      db.meal_lines.filter((l) => l.id === a.p_id).forEach((l) => Object.assign(l, a.p_patch)),
+    remove_meal_line: (a) => {
+      db.meal_lines = db.meal_lines.filter((l) => l.id !== a.p_id)
+    },
     set_meal_variation: (a) => {
       db.links = db.links.filter((l) => !(l.from_item === a.p_meal && l.link_type === 'uses'))
       if (a.p_variation)
@@ -597,30 +671,49 @@ export async function standIn(
     },
     remove_pantry: (a) => {
       // Refused while any line uses it, as the foreign key does (PAN-001 4).
-      if (db.variation_lines.some((l) => l.pantry_id === a.p_id)) return 'in use'
+      if ([...db.variation_lines, ...db.meal_lines].some((l) => l.pantry_id === a.p_id))
+        return 'in use'
+      const gone = db.pantry.find((p) => p.id === a.p_id)
+      // Its shopping lines are left as typed, with its name (PAN-001 4).
+      for (const l of db.lines)
+        if (l.pantry_id === a.p_id) Object.assign(l, { pantry_id: null, text: gone?.name })
       db.pantry = db.pantry.filter((p) => p.id !== a.p_id)
-      db.staples = db.staples.filter((x) => x.pantry_id !== a.p_id)
+      db.space_entries = db.space_entries.filter((x) => x.pantry_id !== a.p_id)
     },
     merge_pantry: (a) => {
-      for (const l of db.variation_lines) if (l.pantry_id === a.p_merge) l.pantry_id = a.p_keep
-      for (const x of db.staples.filter((x) => x.pantry_id === a.p_merge)) {
-        const kept = db.staples.find((k) => k.space_id === x.space_id && k.pantry_id === a.p_keep)
-        if (kept) kept.out_of_stock = Boolean(kept.out_of_stock) || Boolean(x.out_of_stock)
-        else db.staples.push({ ...x, pantry_id: a.p_keep })
+      for (const l of [...db.variation_lines, ...db.meal_lines, ...db.lines])
+        if (l.pantry_id === a.p_merge) l.pantry_id = a.p_keep
+      for (const x of db.space_entries.filter((x) => x.pantry_id === a.p_merge)) {
+        const kept = db.space_entries.find(
+          (k) => k.space_id === x.space_id && k.pantry_id === a.p_keep,
+        )
+        if (kept) kept.needed = Boolean(kept.needed) || Boolean(x.needed)
+        else db.space_entries.push({ ...x, pantry_id: a.p_keep })
       }
-      db.staples = db.staples.filter((x) => x.pantry_id !== a.p_merge)
+      db.space_entries = db.space_entries.filter((x) => x.pantry_id !== a.p_merge)
       db.pantry = db.pantry.filter((p) => p.id !== a.p_merge)
     },
-    set_staple: (a) => {
-      db.staples = db.staples.filter(
+    view_recipe: (a) => {
+      const at = String(a.p_at ?? new Date().toISOString())
+      const was = db.recent_views.find((v) => v.recipe_id === a.p_recipe)
+      if (was) was.viewed_at = was.viewed_at > at ? was.viewed_at : at
+      else db.recent_views.push({ recipe_id: String(a.p_recipe), viewed_at: at })
+    },
+    keep_entry: (a) => {
+      db.space_entries = db.space_entries.filter(
         (x) => !(x.space_id === a.p_space && x.pantry_id === a.p_pantry),
       )
-      if (a.p_staple)
-        db.staples.push({
-          space_id: a.p_space,
-          pantry_id: a.p_pantry,
-          out_of_stock: Boolean(a.p_out_of_stock),
-        })
+      db.space_entries.push({
+        space_id: a.p_space,
+        pantry_id: a.p_pantry,
+        kind: a.p_kind,
+        needed: Boolean(a.p_needed),
+      })
+    },
+    remove_entry: (a) => {
+      db.space_entries = db.space_entries.filter(
+        (x) => !(x.space_id === a.p_space && x.pantry_id === a.p_pantry),
+      )
     },
     note_change: (a) => {
       db.change_notes = db.change_notes.filter((n) => n.activity_id !== a.p_activity)
@@ -628,6 +721,74 @@ export async function standIn(
       const act = db.activity.find((x) => x.id === a.p_activity)
       if (note && act)
         db.change_notes.push({ activity_id: a.p_activity, item_id: act.item_id, note })
+    },
+    // An import kept all together (RCP-014 3, 4), from the writes above.
+    keep_import: (a) => {
+      const d = a.p_draft as Record<string, unknown>
+      const recipe = String(a.p_recipe)
+      const v = String(a.p_variation)
+      const idea = item(recipe)
+      if (idea && idea.status !== 'idea') return
+      if (!idea)
+        foodWrite.create_recipe!({
+          p_id: recipe,
+          p_variation: v,
+          p_name: d.name,
+          p_status: 'active',
+        })
+      foodWrite.update_recipe!({
+        p_id: recipe,
+        p_patch: { category: d.category, cuisine: d.cuisine, protein: d.protein, carbs: d.carbs },
+      })
+      for (const [kind, names] of [
+        ['category', [d.category]],
+        ['cuisine', [d.cuisine]],
+        ['protein', d.protein],
+        ['carb', d.carbs],
+      ] as [string, string[]][])
+        for (const name of names)
+          if (
+            !db.values.some(
+              (x) => x.kind === kind && String(x.name).toLowerCase() === name.toLowerCase(),
+            )
+          )
+            foodWrite.add_value!({ p_id: `value-${kind}-${name}`, p_kind: kind, p_name: name })
+      const was = db.variation.find((x) => x.item_id === v)
+      foodWrite.update_variation!({
+        p_id: v,
+        p_patch: {
+          servings: d.servings,
+          prep_min: d.prep_min,
+          cook_min: d.cook_min,
+          notes: [was?.notes, d.notes].filter(Boolean).join('\n\n') || null,
+          sources: [
+            ...new Set([...((was?.sources as string[]) ?? []), ...(d.sources as string[])]),
+          ],
+        },
+      })
+      for (const [i, l] of (d.lines as Record<string, unknown>[]).entries()) {
+        const { new_pantry: added, ...fields } = l as { new_pantry?: Record<string, unknown> }
+        if (added) {
+          const found = db.pantry.find(
+            (p) => String(p.name).toLowerCase() === String(added.name).toLowerCase(),
+          )
+          if (!found) foodWrite.add_pantry!({ p_id: added.id, p_fields: added })
+          Object.assign(fields, { pantry_id: found?.id ?? added.id })
+        }
+        foodWrite.add_line!({ p_id: `${v}-line-${i}`, p_variation: v, p_fields: fields })
+      }
+      for (const [i, st] of (d.steps as { position: string; text: string }[]).entries())
+        foodWrite.add_step!({
+          p_id: `${v}-step-${i}`,
+          p_variation: v,
+          p_text: st.text,
+          p_position: st.position,
+        })
+      if (idea) {
+        item(v)!.status = 'active'
+        idea.status = 'active'
+      }
+      return item(recipe)
     },
     add_value: (a) => {
       if (!db.values.some((v) => v.id === a.p_id))
@@ -639,6 +800,160 @@ export async function standIn(
           created_at: now(),
         })
     },
+    // My Recipes from one of my list's names to another (RCP-018 1).
+    move_value_uses: (a) => {
+      const k = String(a.p_from).trim().toLowerCase()
+      const to = String(a.p_to).trim()
+      const is = (v: unknown) => typeof v === 'string' && v.trim().toLowerCase() === k
+      const field = {
+        category: 'category',
+        cuisine: 'cuisine',
+        tag: 'tags',
+        protein: 'protein',
+        carb: 'carbs',
+      }[String(a.p_kind)]
+      if (!field) return
+      for (const r of db.recipe) {
+        if (item(r.item_id)?.owner_id !== ANN.id) continue
+        const v = r[field]
+        if (Array.isArray(v)) {
+          const out: string[] = []
+          for (const n of v.map((n) => (is(n) ? to : String(n))))
+            if (!out.some((o) => o.toLowerCase() === n.toLowerCase())) out.push(n)
+          r[field] = out
+        } else if (is(v)) r[field] = to
+      }
+    },
+    rename_value: (a) => {
+      const v = db.values.find((x) => x.id === a.p_id)
+      if (v) v.name = String(a.p_name).trim()
+    },
+    remove_value: (a) => {
+      db.values = db.values.filter((x) => x.id !== a.p_id)
+    },
+  }
+  // A food shop's Meals' lines, as shopping_private.refresh_meal writes them
+  // after every change (ADR-0057): unticked ones replaced, ticked ones kept.
+  const openList = (id: unknown) => {
+    const i = item(id)
+    return !!i && i.status === 'active' && !i.archived_at
+  }
+  const refreshShops = () => {
+    db.lines = db.lines.filter((l) => !(l.meal_id && !l.checked && openList(l.list_id)))
+    for (const { list_id, meal_id } of db.list_meals) {
+      const meal = item(meal_id)
+      const m = db.meal.find((x) => x.item_id === meal_id)
+      if (!openList(list_id) || !meal || meal.archived_at || meal.status === 'cancelled') continue
+      if (m?.leftovers_of) continue
+      const ticked = (source: unknown) =>
+        db.lines.some((l) => l.list_id === list_id && l.source_id === source && l.checked)
+      const variation = db.links.find((l) => l.from_item === meal_id && l.link_type === 'uses')
+      const v = db.variation.find((x) => x.item_id === variation?.to_item)
+      const factor = m?.servings && v?.servings ? Number(m.servings) / Number(v.servings) : 1
+      const add = (src: Record<string, unknown>, scale: number) => {
+        if (ticked(src.id)) return
+        db.lines.push({
+          // As shopping_private.line_id gives it (SHP-004 3).
+          id: mealLineId(String(list_id), String(meal_id), String(src.id)),
+          list_id,
+          position: src.position ?? '',
+          heading: null,
+          pantry_id: src.pantry_id ?? null,
+          text: src.text ?? null,
+          qty: src.qty === null || src.qty === undefined ? null : Number(src.qty) * scale,
+          qty_max:
+            src.qty_max === null || src.qty_max === undefined ? null : Number(src.qty_max) * scale,
+          approx: Boolean(src.approx),
+          unit: src.unit ?? null,
+          checked: false,
+          meal_id,
+          source_id: src.id,
+          needed_space_id: null,
+        })
+      }
+      for (const l of db.variation_lines)
+        if (l.variation_id === variation?.to_item && !l.heading) add(l, factor)
+      for (const l of db.meal_lines) if (l.meal_id === meal_id) add(l, 1)
+    }
+  }
+  const shopMeals = (list: unknown) =>
+    db.list_meals
+      .filter((m) => m.list_id === list)
+      .map((lm) => {
+        const meal = item(lm.meal_id)
+        const m = db.meal.find((x) => x.item_id === lm.meal_id)
+        const space = db.spaces.find((x) => x.id === meal?.space_id)
+        return {
+          meal_id: lm.meal_id,
+          title: meal?.title ?? '',
+          do_on: meal?.do_on ?? null,
+          slot: meal?.slot ?? null,
+          servings: m?.servings ?? null,
+          personal: space?.kind !== 'household',
+          live: !!meal && !meal.archived_at && meal.status !== 'cancelled',
+        }
+      })
+  const shoppingWrite: Record<string, (a: Record<string, unknown>) => unknown> = {
+    create_list: (a) => {
+      if (item(a.p_id)) return
+      const { kind, meals, ...fields } = a.p_fields as Record<string, unknown>
+      db.items.push(itemRow({ id: String(a.p_id), type: 'shopping_list', ...fields }))
+      db.shopping_list.push({ item_id: a.p_id, kind: kind ?? 'food' })
+      for (const m of (meals as string[] | undefined) ?? [])
+        db.list_meals.push({ list_id: a.p_id, meal_id: m })
+    },
+    update_list: (a) =>
+      db.shopping_list
+        .filter((l) => l.item_id === a.p_id)
+        .forEach((l) => Object.assign(l, a.p_patch)),
+    add_meals: (a) => {
+      for (const m of (a.p_meals as string[]) ?? [])
+        if (!db.list_meals.some((x) => x.list_id === a.p_list && x.meal_id === m))
+          db.list_meals.push({ list_id: a.p_list, meal_id: m })
+    },
+    remove_meal: (a) => {
+      db.list_meals = db.list_meals.filter(
+        (x) => !(x.list_id === a.p_list && x.meal_id === a.p_meal),
+      )
+    },
+    add_line: (a) => {
+      if (db.lines.some((l) => l.id === a.p_id)) return
+      db.lines.push({
+        position: '',
+        heading: null,
+        pantry_id: null,
+        text: null,
+        qty: null,
+        qty_max: null,
+        approx: false,
+        unit: null,
+        checked: false,
+        meal_id: null,
+        source_id: null,
+        needed_space_id: null,
+        ...(a.p_fields as object),
+        id: a.p_id,
+        list_id: a.p_list,
+      })
+    },
+    update_line: (a) =>
+      db.lines
+        .filter((l) => l.id === a.p_id && !l.meal_id)
+        .forEach((l) => Object.assign(l, a.p_patch)),
+    delete_line: (a) => {
+      db.lines = db.lines.filter((l) => l.id !== a.p_id || l.meal_id)
+    },
+    tick: (a) => {
+      for (const l of db.lines) {
+        if (!(a.p_ids as string[]).includes(String(l.id)) || l.heading) continue
+        l.checked = a.p_checked
+        if (!a.p_checked || !l.pantry_id) continue
+        const space = l.needed_space_id ?? item(l.list_id)?.space_id
+        for (const e of db.space_entries)
+          if (e.space_id === space && e.pantry_id === l.pantry_id) e.needed = false
+      }
+    },
+    meals_of: (a) => shopMeals(a.p_list),
   }
   const write: Record<string, (a: Record<string, unknown>) => unknown> = {
     // The sender's public key (a made-up one: nothing is really sent).
@@ -818,6 +1133,8 @@ export async function standIn(
         })
         return Object.assign(i, { type: 'recipe', status: 'idea', body: null })
       }
+      if (a.p_type === 'shopping_list' && !db.shopping_list.some((l) => l.item_id === i.id))
+        db.shopping_list.push({ item_id: i.id, kind: 'food' })
       return Object.assign(i, {
         type: a.p_type,
         status: keeps.includes(String(i.status)) ? i.status : 'active',
@@ -1020,9 +1337,30 @@ export async function standIn(
             people: { name: m.name },
           })),
       }))
-  await page.route(`${STAND_IN_URL}/**`, (route) => {
+  // The shops' Meals' lines, as the database would have them already.
+  refreshShops()
+  const live = await realtime(page)
+  await page.route(`${STAND_IN_URL}/**`, async (route) => {
     const url = new URL(route.request().url())
     if (url.pathname.includes('/auth/v1/logout')) return route.fulfill({ status: 204 })
+    if (url.pathname.endsWith('/functions/v1/ai')) {
+      const body = (route.request().postDataJSON() ?? {}) as Record<string, unknown>
+      db.ai_asked.push(body)
+      if (body.task === 'recipe.import' && ai?.delay)
+        await new Promise((r) => setTimeout(r, ai.delay))
+      return route.fulfill({
+        json:
+          body.task === 'status'
+            ? (ai?.status ?? { available: true, left: 30 })
+            : body.task === 'recipe.fill_lines'
+              ? (ai?.fill ?? { ok: false, reason: 'not_recipe' })
+              : body.task === 'meal.ingredients'
+                ? (ai?.meal ?? { ok: false, reason: 'not_recipe' })
+                : (ai?.import ?? { ok: false, reason: 'not_recipe' }),
+      })
+    }
+    if (url.pathname.endsWith('/functions/v1/link-preview'))
+      return route.fulfill({ json: { name: ai?.name ?? null, photo: ai?.picture ?? null } })
     if (url.pathname.endsWith('/functions/v1/calendar-connect'))
       try {
         return route.fulfill({ json: calendar(route.request().postDataJSON() ?? {}) })
@@ -1062,9 +1400,12 @@ export async function standIn(
     }
     const rpc = url.pathname.match(/\/rest\/v1\/rpc\/(\w+)$/)
     if (rpc) {
-      // The food schema's functions come with its profile (supabase.schema('food')).
-      const food = route.request().headers()['content-profile'] === 'food'
-      const result = (food ? foodWrite : write)[rpc[1]!]?.(route.request().postDataJSON() ?? {})
+      // A Module's functions come with its profile (supabase.schema('food')).
+      const profile = route.request().headers()['content-profile']
+      const result = (
+        profile === 'food' ? foodWrite : profile === 'shopping' ? shoppingWrite : write
+      )[rpc[1]!]?.(route.request().postDataJSON() ?? {})
+      refreshShops()
       if (result === 'in use')
         return route.fulfill({
           status: 409,
@@ -1084,6 +1425,18 @@ export async function standIn(
         for (const [k, v] of url.searchParams)
           if (v.startsWith('eq.'))
             rows = (rows as Record<string, unknown>[]).filter((r) => String(r[k]) === v.slice(3))
+      // A link's Variation, asked for by its sources (RCP-003 2).
+      const ov = url.searchParams.get('sources')
+      if (table === 'variation' && ov?.startsWith('ov.')) {
+        // PostgREST's array: {a,b}, an item in quotes when it needs them.
+        const links = ov
+          .slice(4, -1)
+          .split(',')
+          .map((x) => x.replace(/^"|"$/g, ''))
+        rows = (rows as { sources?: string[] }[]).filter((r) =>
+          (r.sources ?? []).some((x) => links.includes(x)),
+        )
+      }
       // .single() / .maybeSingle(): one row, as PostgREST sends it.
       if (route.request().headers()['accept']?.includes('vnd.pgrst.object'))
         return route.fulfill({ json: (Array.isArray(rows) ? rows[0] : rows) ?? null })
@@ -1116,7 +1469,93 @@ export async function standIn(
       [SESSION_KEY, JSON.stringify(session)],
     )
   }
-  return db
+  return Object.assign(db, { live })
+}
+
+interface Binding {
+  id: number
+  event: string
+  schema: string
+  table: string
+  filter?: string
+}
+
+/**
+ * Supabase Realtime (ADR-0057), enough for the app's Postgres Changes: a
+ * channel's join is answered with its bindings, anything else with ok. A
+ * walk makes another device's change arrive with `db.live.change`, after
+ * changing the rows itself, as that device's write would have.
+ */
+async function realtime(page: Page) {
+  const channels: { ws: WebSocketRoute; topic: string; bindings: Binding[] }[] = []
+  let next = 1
+  await page.routeWebSocket(/\/realtime\/v1\/websocket/, (ws) => {
+    ws.onMessage((raw) => {
+      const [joinRef, ref, topic, event, payload] = JSON.parse(String(raw)) as [
+        string | null,
+        string | null,
+        string,
+        string,
+        { config?: { postgres_changes?: Omit<Binding, 'id'>[] } },
+      ]
+      let response = {}
+      if (event === 'phx_join') {
+        const bindings = (payload.config?.postgres_changes ?? []).map((b) => ({ ...b, id: next++ }))
+        channels.push({ ws, topic, bindings })
+        response = { postgres_changes: bindings }
+      }
+      if (event === 'phx_leave') {
+        const i = channels.findIndex((c) => c.ws === ws && c.topic === topic)
+        if (i >= 0) channels.splice(i, 1)
+      }
+      ws.send(JSON.stringify([joinRef, ref, topic, 'phx_reply', { status: 'ok', response }]))
+    })
+  })
+  return {
+    /** How many channels are joined: the app is listening. */
+    joined: () => channels.length,
+    change(
+      table: string,
+      type: 'INSERT' | 'UPDATE' | 'DELETE',
+      record: Record<string, unknown>,
+      schema = 'shopping',
+    ) {
+      const columns = Object.keys(record).map((name) => ({ name, type: 'text' }))
+      for (const c of channels) {
+        const ids = c.bindings
+          .filter((b) => b.schema === schema && b.table === table)
+          .filter((b) => b.event === '*' || b.event === type)
+          .filter((b) => {
+            if (!b.filter || type === 'DELETE') return true
+            const [column, value] = b.filter.split('=eq.')
+            return String(record[column!]) === value
+          })
+          .map((b) => b.id)
+        if (!ids.length) continue
+        c.ws.send(
+          JSON.stringify([
+            null,
+            null,
+            c.topic,
+            'postgres_changes',
+            {
+              ids,
+              data: {
+                schema,
+                table,
+                type,
+                commit_timestamp: new Date().toISOString(),
+                columns,
+                record: type === 'DELETE' ? null : record,
+                old_record: type === 'INSERT' ? null : record,
+                errors: null,
+              },
+            },
+          ]),
+        )
+      }
+    },
+  }
 }
 
 /** Puts writes in the queue before the app loads, as if made offline earlier. */

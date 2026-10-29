@@ -23,7 +23,7 @@ const entry = (
   ...extra,
 })
 
-/** The Recipes' rows, with a fuller Pantry and my staples. */
+/** The Recipes' rows, with a fuller Pantry and my staples (SHP-005). */
 export function pantryRows() {
   const base = rows()
   return {
@@ -41,9 +41,9 @@ export function pantryRows() {
       { id: id(65), variation_id: KATSU_STD, position: 'e', qty: 2, pantry_id: GREEN },
       { id: id(66), variation_id: KATSU_STD, position: 'f', qty: 1, unit: 'tbsp', text: 'Mirin' },
     ],
-    staples: [
-      { space_id: 's', pantry_id: GARLIC, out_of_stock: true },
-      { space_id: 's', pantry_id: BIN_BAGS, out_of_stock: false },
+    space_entries: [
+      { space_id: 's', pantry_id: GARLIC, kind: 'staple', needed: true },
+      { space_id: 's', pantry_id: BIN_BAGS, kind: 'staple', needed: false },
     ],
   }
 }

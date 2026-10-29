@@ -28,7 +28,7 @@ A collapsible drawer (no bottom bar) with these pages, in this order:
 | **Cardio** | Cardio activities. *A blank page until Stage 8.* |
 | **Recipes** | The recipe library and saved ideas, with their Variations and cooking. |
 | **Meal plan** | Where meals are planned, and the Pantry of ingredients and household items. |
-| **Shopping** | Shopping lists: made by hand, or from the meal plan with more added. |
+| **Shopping** | Food shops (made by hand, or from the meal plan with more added), other shopping lists, and later Online. |
 | **Goals** | Goals, measured from the rest of the app. |
 | **Wardrobe** | Garments and outfits. |
 | **Finance** | *Later.* |

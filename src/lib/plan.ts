@@ -151,21 +151,28 @@ export function moveTo(
     const t = eventTimes(item, timezone)!
     return eventFields(moveStart(t, addDays(t.startDay, daysBetween(from, to))), timezone)
   }
-  // A Meal keeps its slot (PLN-008 5).
-  if (item.type === 'task' || item.type === 'meal') return { do_on: to }
+  // A Meal keeps its slot; a Shopping list moves to the day (PLN-008 5).
+  if (item.type === 'task' || item.type === 'meal' || item.type === 'shopping_list')
+    return { do_on: to }
   return null
 }
 
 const month = new Intl.DateTimeFormat('en-GB', { month: 'long' })
 const longWeekday = new Intl.DateTimeFormat('en-GB', { weekday: 'long' })
+const shortMonth = new Intl.DateTimeFormat('en-GB', { month: 'short' })
 
-/** A week as Plan's toolbar says it: "12 – 18 October", "28 September – 4 October". */
-export function weekTitle(monday: string): string {
+/**
+ * A week as Plan's toolbar says it: "12 – 18 October", "28 September – 4
+ * October", or `short`, "28 Sept – 4 Oct".
+ */
+export function weekTitle(monday: string, short = false): string {
   const a = fromIsoDay(monday)
   const b = fromIsoDay(addDays(monday, 6))
+  // Across two months on a phone, both short, so it fits (Joe, 26 October).
+  const m = short ? shortMonth : month
   return a.getMonth() === b.getMonth()
     ? `${a.getDate()} – ${b.getDate()} ${month.format(b)}`
-    : `${a.getDate()} ${month.format(a)} – ${b.getDate()} ${month.format(b)}`
+    : `${a.getDate()} ${m.format(a)} – ${b.getDate()} ${m.format(b)}`
 }
 
 /** A day as Plan's toolbar says it: "Thursday 15 October", or "Thu 15 October" on a phone. */

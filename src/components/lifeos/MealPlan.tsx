@@ -1,6 +1,7 @@
 import { LockIcon, PlusIcon, RotateCcwIcon, UtensilsIcon } from 'lucide-react'
 import type * as React from 'react'
-import type { ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
+import { Checkbox } from '@/components/ui/checkbox'
 import { cn } from '@/lib/utils'
 
 /** The three slots, in order (Joe, 18 October). */
@@ -12,10 +13,15 @@ export type Slot = 'Breakfast' | 'Lunch' | 'Dinner'
  * Variation when its Recipe has more than one, and a lock when it's
  * Personal while the plan shows Household meals too: only the exception is
  * marked, so a week of shared dinners isn't a row of icons. A typed Meal or leftovers sit lighter, with no card shadow.
- * Eaten, it fades and is struck through; being dragged, it lifts.
+ * Eaten, it fades and is struck through; being dragged, it lifts. Its
+ * picture, when it has one (its Recipe's photo, or a typed Meal's from its
+ * link), heads it (Joe, 23 October). While choosing Meals for a food shop
+ * (SHP-002 1), a checkbox sits at its top right, the whole card chooses it,
+ * and a chosen card is ringed, as a RecipeCard is.
  */
 export function MealCard({
   name,
+  photo,
   servings,
   variation,
   kind = 'recipe',
@@ -23,9 +29,21 @@ export function MealCard({
   household,
   dragging = false,
   eaten = false,
+  selecting = false,
+  selected = false,
+  unavailable,
+  slot,
+  row = false,
   onOpen,
+  onSelect,
 }: {
+  /** On a phone: its picture a small square at the start, the words beside it. */
+  row?: boolean
+  /** Its slot, first on its muted line, where the slots aren't named (a phone). */
+  slot?: Slot
   name: string
+  /** Its picture's address. */
+  photo?: string
   servings?: number
   /** When its Recipe has more than one. */
   variation?: string
@@ -36,51 +54,102 @@ export function MealCard({
   household?: string
   dragging?: boolean
   eaten?: boolean
+  /** Choosing Meals for a food shop: Select on the week (SHP-002 1). */
+  selecting?: boolean
+  /**
+   * While choosing, why this one can't be ("On Big shop", "Eaten",
+   * "Leftovers"): faded, its photo grey, the reason its muted line, and a
+   * press does nothing (Joe, 26 October).
+   */
+  unavailable?: string
+  selected?: boolean
   onOpen?: () => void
+  onSelect?: (on: boolean) => void
 }) {
-  const parts = [
-    kind === 'leftovers' ? 'Leftovers' : servings ? `Serves ${servings}` : null,
-    variation,
-    household,
-  ].filter(Boolean)
+  const [broken, setBroken] = useState<string>()
+  const parts = unavailable
+    ? [slot, unavailable].filter(Boolean)
+    : [
+        slot,
+        kind === 'leftovers' ? 'Leftovers' : servings ? `Serves ${servings}` : null,
+        variation,
+        household,
+      ].filter(Boolean)
   return (
     <div
       data-slot="meal-card"
+      data-selected={selected || undefined}
       className={cn(
-        'relative flex min-w-0 flex-col gap-1 rounded-control px-2.5 py-2 transition-[box-shadow,opacity]',
+        'relative flex min-w-0 rounded-control px-2.5 py-2 transition-[box-shadow,opacity]',
+        row
+          ? cn(
+              'min-h-12 flex-row items-center gap-2.5 py-1.5',
+              photo && photo !== broken && 'pl-1.5',
+            )
+          : 'flex-col gap-1',
         kind === 'recipe'
           ? 'bg-card shadow-card'
           : 'bg-[color-mix(in_oklch,var(--card)_50%,transparent)] shadow-[inset_0_0_0_1px_var(--border)]',
         eaten && 'opacity-50 shadow-none',
-        dragging && 'z-10 rotate-[1.5deg] cursor-grabbing opacity-100 shadow-pop',
+        unavailable && 'pointer-events-none opacity-45 shadow-none [&_img]:grayscale',
+        dragging && 'z-10 cursor-grabbing opacity-100 shadow-pop',
+        'data-selected:ring-2 data-selected:ring-ring',
+        selecting && 'pr-10',
       )}
     >
-      <button
-        type="button"
-        onClick={onOpen}
-        className={cn(
-          'line-clamp-2 text-left text-sm leading-[1.3] font-[650] break-words outline-none after:absolute after:inset-0 after:rounded-control focus-visible:after:ring-3 focus-visible:after:ring-ring-soft',
-          eaten && 'line-through',
-        )}
-      >
-        {name}
-      </button>
-      {(parts.length > 0 || personal || kind !== 'recipe') && (
-        <span className="flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground tabular-nums [&_svg]:size-3 [&_svg]:shrink-0">
-          {kind === 'leftovers' && <RotateCcwIcon aria-hidden />}
-          {kind === 'typed' && <UtensilsIcon aria-hidden />}
-          <span className="truncate">{parts.join(' · ')}</span>
-          {personal && <LockIcon aria-label="Personal" className="ml-auto" />}
+      {selecting && (
+        <span className="pointer-events-none absolute top-1.5 right-1.5 z-10 grid size-7 place-items-center rounded-sm bg-popover/85 shadow-card backdrop-blur-sm">
+          <Checkbox checked={selected} tabIndex={-1} aria-hidden />
         </span>
       )}
+      {photo && photo !== broken && (
+        <img
+          src={photo}
+          alt=""
+          draggable={false}
+          // A picture that can't be shown (offline, not kept yet) leaves no gap.
+          onError={() => setBroken(photo)}
+          className={cn(
+            'rounded-xs object-cover',
+            row ? 'size-10 shrink-0 self-center' : 'h-14 w-full',
+          )}
+        />
+      )}
+      <div className={cn('flex min-w-0 flex-col gap-1', row && 'flex-1 gap-0.5')}>
+        <button
+          type="button"
+          role={selecting ? 'checkbox' : undefined}
+          aria-checked={selecting ? selected : undefined}
+          aria-disabled={unavailable ? true : undefined}
+          tabIndex={unavailable ? -1 : undefined}
+          onClick={selecting ? () => onSelect?.(!selected) : onOpen}
+          className={cn(
+            cn(
+              row ? 'line-clamp-1' : 'line-clamp-2',
+              'text-left text-sm leading-[1.3] font-[650] break-words outline-none after:absolute after:inset-0 after:rounded-control focus-visible:after:ring-3 focus-visible:after:ring-ring-soft',
+            ),
+            eaten && 'line-through',
+          )}
+        >
+          {name}
+        </button>
+        {(parts.length > 0 || personal || kind !== 'recipe') && (
+          <span className="flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground tabular-nums [&_svg]:size-3 [&_svg]:shrink-0">
+            {kind === 'leftovers' && <RotateCcwIcon aria-hidden />}
+            {kind === 'typed' && <UtensilsIcon aria-hidden />}
+            <span className="truncate">{parts.join(' · ')}</span>
+            {personal && <LockIcon aria-label="Personal" className="ml-auto" />}
+          </span>
+        )}
+      </div>
     </div>
   )
 }
 
 /**
- * One slot of a day (Breakfast, Lunch, Dinner): its name, small and muted,
- * and its Meals; empty, a dashed "+" that shows on hover (always on a
- * phone, and while chosen).
+ * One slot of a day in the week (Breakfast, Lunch, Dinner), named down the
+ * week's left: its Meals; empty, a dashed "+" that shows on hover, focus
+ * and while chosen.
  */
 export function MealSlot({
   slot,
@@ -88,11 +157,11 @@ export function MealSlot({
   add,
   adding = false,
   dropping = false,
-  label = true,
+  label = false,
   drop,
 }: {
   slot: Slot
-  /** False in the week, where the slots are named once, down the left. */
+  /** Its name over it, as Stage 4's design pages showed a phone's day. */
   label?: boolean
   /** Where a Meal dragged here goes ("2026-10-15:dinner"). */
   drop?: string
@@ -114,8 +183,8 @@ export function MealSlot({
       {empty && (
         <div
           className={cn(
-            'transition-opacity md:opacity-0 md:group-hover/slot:opacity-100 md:focus-within:opacity-100',
-            (adding || dropping) && 'md:opacity-100',
+            'opacity-0 transition-opacity group-hover/slot:opacity-100 focus-within:opacity-100',
+            (adding || dropping) && 'opacity-100',
           )}
         >
           {add ?? <AddMealButton slot={slot} dropping={dropping} />}
@@ -136,7 +205,8 @@ export function AddMealButton({
       type="button"
       aria-label={`Add ${slot.toLowerCase()}`}
       className={cn(
-        'grid h-[46px] w-full place-items-center rounded-control border-[1.5px] border-dashed border-muted-foreground/30 text-muted-foreground outline-none hover:bg-accent focus-visible:ring-3 focus-visible:ring-ring-soft data-popup-open:bg-accent [&_svg]:size-4',
+        'grid w-full place-items-center rounded-control border-[1.5px] border-dashed border-muted-foreground/30 text-muted-foreground outline-none hover:bg-accent focus-visible:ring-3 focus-visible:ring-ring-soft data-popup-open:bg-accent [&_svg]:size-4',
+        'h-[46px]',
         dropping && 'border-ring bg-accent',
       )}
       {...props}
@@ -147,14 +217,17 @@ export function AddMealButton({
 }
 
 /**
- * A day on a phone's Meal plan: the day's name on a line, today's in an ink
- * pill, then its three slots. Days stack one under another (Joe, 18
- * October).
+ * A day on a phone's Meal plan (Joe, 26 October): the day's name on a line,
+ * today's in an ink pill, a hairline, then its "+"; under it its Meals in
+ * slot order, each saying its slot. A Meal dragged here keeps its slot.
  */
 export function MealDay({
   name,
   date,
   today = false,
+  drop,
+  dropping = false,
+  action,
   children,
 }: {
   /** "Thu" */
@@ -162,22 +235,35 @@ export function MealDay({
   /** "15 Oct" */
   date: string
   today?: boolean
-  children: ReactNode
+  /** Where a Meal dragged here goes: the day ("2026-10-15"). */
+  drop?: string
+  dropping?: boolean
+  /** At the end of the day's line: its "+". */
+  action?: ReactNode
+  children?: ReactNode
 }) {
   return (
-    <section aria-label={`${name} ${date}`} className="flex flex-col gap-2.5">
-      <div className="flex items-center gap-2">
+    <section
+      aria-label={`${name} ${date}`}
+      data-drop={drop}
+      className={cn(
+        '-mx-2 flex flex-col gap-2 rounded-lg px-2 pb-2 transition-colors',
+        dropping && 'bg-accent ring-2 ring-ring-soft',
+      )}
+    >
+      <div className="flex min-h-9 items-center gap-2">
         <span
           className={cn(
-            'text-sm font-bold',
+            'text-base font-bold',
             today && 'rounded-sm bg-ink px-2 py-0.5 text-ink-foreground',
           )}
         >
           {name} {date}
         </span>
         <span className="h-px flex-1 bg-border" />
+        {action}
       </div>
-      <div className="grid gap-2.5">{children}</div>
+      {children}
     </section>
   )
 }

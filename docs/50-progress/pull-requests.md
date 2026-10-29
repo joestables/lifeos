@@ -2,6 +2,692 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#54](https://github.com/joestables/lifeos/pull/54) — Leftovers when a Meal moves, ticks offline, faded Recipes
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-27
+
+**What it did**
+- **A Meal moved** (the week's drag, Move to…, Plan's drag) goes anywhere;
+  its leftovers at or before where it goes are removed, and Undo brings
+  them back (`leftoversBefore`).
+- **Ticks offline:** `stage4b_meal_line_ids` gives a Meal's line on a shop
+  the id `shopping_private.line_id(list, meal, source)` (MD5) every time
+  it is written; the app works out the same (`mealLineId`), so a line
+  ticked before its Meal is sent, or after the Meal rewrote its lines, is
+  the line ticked; and such a tick now shows at once (the ticks were laid
+  over before the unsent Meal's lines were). Database tests in
+  `meal_line_ids_test`.
+- **Choosing several Recipes:** a Household member's fades, saying whose,
+  as Meals that can't be chosen do.
+
+**Documents touched:** meals (MPL-003 2, SHP-004 3), recipes (RCP-004 1),
+ADR-0057, the data model, components (RecipeCard), patterns (moving a
+Meal), the Stage 4b plan.
+
+**Left for later:** nothing from Joe's list.
+
+## [#53](https://github.com/joestables/lifeos/pull/53) — Lost imports, New variation, a second bug hunt
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-26
+
+**What it did**
+- **An import lost after a deploy:** opened on old code, the new service
+  worker took over and its old files went; when the import finished,
+  Check the import's code couldn't load, the page reloaded and the import,
+  held only in memory, was gone. It is now held for the tab
+  (`import-store`), and a reload for new code lands on the page being
+  opened (`reloadForNewCode(href)`).
+- **Import closed while it works** on Recipes goes on, as a Variation's
+  does: a toast with Check it (or Choose) when it's read.
+- **New variation** (RCP-009 5): an empty Draft of mine, named, opened to
+  fill.
+- **Bug hunt**, every Shopping, Meal plan and Recipes file read: a name
+  taken by an archived Recipe or an Idea says so (it was "You already have
+  a recipe with this name", for one out of sight); eaten Meals aren't
+  offered for a shop (New shop ticked them); a ticked line's × on All,
+  which did nothing, is gone; Shop details won't save an empty name;
+  Delete recipe on a Recipe's own page.
+
+**Documents touched:** recipes (RCP-004, RCP-006 6, RCP-009 5, RCP-014 1),
+meals (SHP-002 4), patterns (a Recipe's menu, Complete list), the Stage 4b
+plan.
+
+**Left for later:** the findings reported to Joe and not fixed.
+
+## [#52](https://github.com/joestables/lifeos/pull/52) — Joe's second round: review and bug hunt
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-26
+
+**What it did**
+- Reviewed Shopping, Recipes and the Meal plan at both widths in dark
+  mode, and read their code.
+- A name chosen on a Recipe that only a Household member's list had now
+  goes onto my own list too, so Recipe lists shows it (RCP-006 5).
+- Add a meal offers only the categories of Recipes I can plan, matched
+  whatever their case: a category of Ideas alone, or one on my list that
+  nothing uses, no longer leads to "No recipes match" (MPL-002 1).
+
+**Documents touched:** recipes (RCP-006 5), meals (MPL-002 1), patterns
+(adding a Meal), the Stage 4b plan.
+
+**Left for later:** Joe uses it in a real shop.
+
+## [#51](https://github.com/joestables/lifeos/pull/51) — Settings → Food: Recipe lists
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-26
+
+**What it did**
+- `stage4b_value_settings`: `food.move_value_uses` moves my Recipes
+  (archived and deleted too) from one name to another, a tag once in its
+  place; `food.rename_value` now renames on my Recipes too; neither is
+  logged on each Recipe (`food.quiet`); a Recipe restored from Recently
+  deleted puts its names back on its author's lists. Database tests in
+  `value_settings_test`. Advisors: nothing new.
+- Settings → Food → Recipe lists: a Card per list with counts, New,
+  Rename (onto another name, a merge, asked first) and Delete (not while
+  in use). Laid over at once, my Recipes only.
+
+**Documents touched:** recipes (RCP-018), ADR-0052, the data model,
+patterns (Settings), the Stage 4b plan.
+
+**Left for later:** the UI review and bug hunt.
+
+## [#50](https://github.com/joestables/lifeos/pull/50) — Import: the right cuisine
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-26
+
+**What it did**
+- BBC Good Food's easy chicken curry came in as Chinese. The model now
+  writes `dishCuisine`, where the dish comes from, before `cuisineName`,
+  and `ai` keeps `dishCuisine` (as my list spells it, else in Title Case),
+  so a near miss from my list never wins (`cuisineOf`, with a test).
+- The rules' Category and Cuisine section rewritten, with worked examples;
+  `PROMPT_VERSION` 2026-10-26.1. `ai` deployed as one bundled file
+  (version 7).
+
+**Documents touched:** recipes (RCP-014 8), ADR-0054, the runbook, the
+Stage 4b plan.
+
+**Left for later:** Settings → Food, the UI review and bug hunt.
+
+## [#49](https://github.com/joestables/lifeos/pull/49) — Add a meal: Recently viewed
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-26
+
+**What it did**
+- `stage4b_recent_views`: `food.recent_views`, each person's own (RLS),
+  a row per Recipe moved on by `food.view_recipe` (the later view wins, so
+  a view sent late by the queue never moves it back); it goes with its
+  Recipe. Database tests in `recent_views_test`.
+- Opening a Recipe's page records a view through the write queue
+  (`viewRecipe`, `useRecentViews`).
+- Add a meal: the search and categories (none chosen), then Recently
+  viewed, three Recipes; every match only while searching or narrowing.
+  Much smaller on both widths.
+
+**Documents touched:** data model, meals (MPL-002 1), patterns (adding a
+Meal), the Stage 4b plan.
+
+**Left for later:** the AI's cuisines, Settings → Food, the UI review and
+bug hunt.
+
+## [#48](https://github.com/joestables/lifeos/pull/48) — Joe's second round: quick fixes
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-26
+
+**What it did**
+- Pantry: Show → Number of recipes (on a phone too); on a phone Pending
+  beside whose, the ToggleGroup its own width.
+- Shopping: ticked lines stay put; Lists is Other, without done lists;
+  Complete list in a row's menu, asking first (shared `completeList`,
+  `CompleteListDialog`); a new list is laid over the Items at once, so its
+  page never flashes "This can't be found".
+- Meal plan: the phone's Show select 160px; dragged cards don't turn (Plan
+  too); "28 Sept – 4 Oct" on a phone; a phone's day is its "+" and its
+  Meals saying their slot (MealSlotRow gone); Meals that can't be chosen
+  fade and say why; Recipes using an entry spaced in their Dialog.
+- Dialogs focus themselves; New dialogs' first field opts in with
+  `data-autofocus`.
+- Walks: shared `mealCards` and `addMeal` for both layouts; new walks for
+  Complete from a row, ticks staying, and focus.
+
+**Documents touched:** components (Dialog, PlanCard, MealCard, MealDay,
+PantryRow), patterns (Meal plan, Pantry, Shopping), meals (SHP-001 1, 4,
+5; SHP-002 1; MPL-001 2; MPL-002 1; PAN-001 1; decisions, pages),
+glossary, ADR-0050, the Stage 4b plan.
+
+**Left for later:** Recently viewed in Add a meal, the AI's cuisines,
+Settings → Food, the UI review and bug hunt.
+
+## [#47](https://github.com/joestables/lifeos/pull/47) — Shopping: what's needed on the shop by itself, Extra in two columns
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-25
+
+**What it did**
+- A shop's Space's out-of-stock staples and Required Essentials are on
+  every open food shop by themselves, in All and Extra, worked out on the
+  device; ticking one stores and ticks it (clearing needed), × unmarks it.
+- Extra: Add staples (the staples its Meals use, the out-of-stock ones
+  Added) over Add essentials (every Space's, once, the Required ones
+  Added) on the left, Added on the right; on a phone Added first.
+  OfferRow is now a fixed-width Add / Added Pill. Other Spaces'
+  out-of-stock staples are no longer offered.
+- Fixed: a staple showed Added when only a Meal's line had it.
+- A shop's "2 of 27" counts All's rows; All names no Meals under a row; a
+  line I added comes off with an ×.
+- `stage4b_live_space_entries`: `food.space_entries` joins the Realtime
+  publication, so marks made on another device reach an open shop.
+
+**Documents touched:** components (ShoppingLine, OfferRow), patterns
+(a shop's All and Extra), meals (decisions, SHP-002 3, SHP-003 1, 3,
+SHP-005 3), ADR-0012, ADR-0050 and ADR-0057 amended, the Stage 4b plan.
+
+**Left for later:** step 10 goes on: Joe shops with it.
+
+## [#46](https://github.com/joestables/lifeos/pull/46) — The Pantry: sorts, Show, Pending, Staples and Essentials
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-25
+
+**What it did**
+- Staples and Essentials moved from Shopping → Food to the Pantry: whose
+  (Personal or a Household), All · Staples · Essentials, and on every
+  entry KeepToggles (a new component): Staple (`package`) and Essential
+  (`star`), one or the other, with its Out of stock or Required pill; one
+  taken off while only those show leaves with Undo.
+- Sorts in a SortMenu: By aisle, Recently used (the latest Recipe, Meal or
+  shop with it), Most popular (Recipes and Meals using it) and A–Z, either
+  way round; Show the aisle and default unit on each row. Kept on the
+  device.
+- Pending, a page of its own (its count on the button), holds the names
+  kept as typed.
+- Shopping → Food shows only the shops.
+
+**Documents touched:** components (PantryRow, KeepToggles, KeptRow),
+patterns (the Pantry, Pending, Shopping), meals (decisions, pages,
+PAN-001 1, PAN-002, PAN-004 2, SHP-005 1–2), glossary, ADR-0050 and
+ADR-0051 amended, the Stage 4b plan.
+
+**Left for later:** Shopping's part of Joe's first round (added by
+themselves, Extra's two columns).
+
+## [#45](https://github.com/joestables/lifeos/pull/45) — Meal plan: photos that stay, a phone's week that fits
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-25
+
+**What it did**
+- Planning a Meal no longer reloads every photo: each photo's signed link
+  is kept on its own, and only paths without one are asked for (a walk
+  that fails on the old code).
+- On a phone, a slot's "+" opens the Add a meal Dialog with that slot
+  chosen; the Popover drew under the page's days, so a tap could land on
+  the page.
+- A phone's week: the toolbar's Show and Select on a row of their own, so
+  the dates show whole; each slot a new MealSlotRow (its name, fainter,
+  beside its Meals; a compact "+"), Meals as one-line MealCards (`row`),
+  dates 16px and days further apart (Joe chose this of two layouts).
+- The lock marks a Personal Meal only when the week has Household Meals.
+- Copy week removed (MPL-004, MPL-006 5).
+
+**Documents touched:** components, patterns, meals (MPL-001 2, 6;
+MPL-002 1; MPL-004; MPL-006 5), the Stage 4b plan.
+
+**Left for later:** the Pantry and Shopping parts of Joe's first round.
+
+## [#44](https://github.com/joestables/lifeos/pull/44) — Recipes: filters that stay put, sorts either way round
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-25
+
+**What it did**
+- Choosing a filter moves nothing: the FilterPanel's collapsed groups are
+  exactly 36px, their count Badge inside; a filter's values show a muted
+  `plus` that the tick replaces, so a pill never widens or rewraps its row
+  (the Meal plan's Add meal categories too); a phone's Filters count sits
+  on the button's corner.
+- The State filter reads All · Draft · Complete (All to start).
+- **SortMenu**, a new component: the sort and its arrow; in the menu the
+  active one shows its arrow, and choosing it again reverses it. The
+  library and Ideas use it; a sort kept from before keeps its way.
+
+**Documents touched:** components, patterns, recipes (RCP-001 2, 6;
+RCP-002 2), the Stage 4b plan (Joe's first round, step 10).
+
+**Left for later:** the Meal plan, the Pantry and Shopping parts of Joe's
+first round, each its own pull request.
+
+## [#43](https://github.com/joestables/lifeos/pull/43) — joestables.uk live
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-25
+
+**What it did**
+- Recorded the move: Joe took `joestables.uk` off v1's project, and Claude
+  added it to `lifeos` with `www` redirecting to it; both verified, the
+  site and its manifest served.
+
+**Documents touched:** integration setup.
+
+**Left for later:** Joe installs LifeOS again from `https://joestables.uk`
+on his phones.
+
+## [#42](https://github.com/joestables/lifeos/pull/42) — LifeOS at joestables.uk
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-25
+
+**What it did**
+- Google Calendar connecting trusts `joestables.uk` (and `www.`) as the
+  app's address, and falls back to `https://joestables.uk/settings`;
+  `calendar-connect` and `calendar-callback` redeployed, each as one
+  bundled file.
+- The address moved in the docs: environments, integration setup (Supabase
+  and Google settings Joe changed, the domain move, the iOS Shortcut),
+  runbook.
+
+**Documents touched:** environments, integration setup, runbook.
+
+**Left for later:** Joe removed the domain from v1's Vercel project and
+Claude added it to `lifeos` the same day (recorded in the next pull
+request).
+
+## [#41](https://github.com/joestables/lifeos/pull/41) — Stage 4b, step 9: sharing a recipe in
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-25
+
+**What it did**
+- Android: the manifest's `share_target` opens `/share`, which keeps an
+  Idea at once, offline too, and shows "Saved as an idea", or "Already
+  saved" with Open for a link saved before (on the device, or on the
+  server with signal); signed out, it carries on after sign-in.
+- `link-preview` answers the link's name as well as its picture, and the
+  device fills shared Ideas' names and photos when there's signal.
+  Deployed by the tool as one bundled file (`scripts/bundle-function.mjs`).
+- iPhone: New idea opens with a link from `/recipes?tab=ideas&share=…`, for
+  an iOS Shortcut whose steps are in integration setup.
+- Unit tests and walks.
+
+**Documents touched:** ADR-0055 (as built), ADR-0054, runbook, integration
+setup (sharing, the iOS Shortcut), recipes spec (RCP-003), design patterns,
+plans/stage-4b.md.
+
+**Left for later:** Joe installs LifeOS again on Android, makes the
+Shortcut and tries both; step 10, Joe uses Shopping.
+
+## [#40](https://github.com/joestables/lifeos/pull/40) — Stage 4b, step 8: a Thought or Note made a food shop
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-25
+
+**What it did**
+- Convert to offers Shopping list only to a Thought or Note naming a
+  Pantry ingredient (Joe, 25 October); it becomes a food shop, its lines
+  read from its text and matched to the Pantry, or its lines go onto an
+  open food shop chosen in a small Dialog.
+- `writtenLines` reads the text: commas, line breaks, a list's last "and",
+  bullets and checkboxes, "buy", amounts and plurals.
+- Unit tests and walks.
+
+**Documents touched:** meals spec (SHP-003), items spec (ITM-006), ADR-0050,
+design patterns (Convert to), plans/stage-4b.md.
+
+**Left for later:** step 9, sharing a recipe in from Android and an iOS
+Shortcut; step 10, Joe uses Shopping.
+
+## [#39](https://github.com/joestables/lifeos/pull/39) — Stage 4b, step 7: shopping together, live
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-25
+
+**What it did**
+- `useLiveShopping`: while Shopping or a list is open, Supabase Realtime's
+  Postgres Changes on the shopping tables refresh what they touch, so
+  another device's ticks, lines and Meals arrive within a second or two;
+  deletes counted only when they name a line or list on the device; joining
+  again after a dropped connection refreshes everything.
+- The browser walks' stand-in answers Realtime's websocket; walks for
+  another device's changes arriving and a tick made with no signal.
+
+**Documents touched:** ADR-0057 (as built), ADR-0042, meals spec (SHP-004),
+plans/stage-4b.md.
+
+**Left for later:** step 8, a Thought or Note made a Shopping list; two
+people on the real database when Joe uses it (step 10).
+
+## [#38](https://github.com/joestables/lifeos/pull/38) — Stage 4b, step 6: a food shop from the Meal plan
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-24
+
+**What it did**
+- The Meal plan's Select: a SelectionBar in the week's toolbar, MealCards
+  chosen (not eaten Meals, leftovers, or Meals on another open shop), and
+  Add to shop making a new food shop of them, dated the first one's day,
+  which opens.
+- Walks: Select and Add to shop; a Meal on a shop not offered again; a Meal
+  rescaled and the shop following; a Meal taken off and added back.
+
+**Documents touched:** meals spec (SHP-002 built), design patterns and
+components (MealCard's choosing, SelectionBar), plans/stage-4b.md.
+
+**Left for later:** step 7, Realtime; step 8, a Thought or Note made a
+Shopping list.
+
+## [#37](https://github.com/joestables/lifeos/pull/37) — Stage 4b, step 5: the Shopping page
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-24
+
+**What it did**
+- `food.staples` renamed `food.space_entries`, `out_of_stock` now `needed`:
+  `stage4b_space_entries` applied by the tool;
+  `stage4b_space_entries_removing` (drops `set_staple`, adds
+  `remove_entry`, merges moving staples and Essentials) for Joe in the SQL
+  editor. The Pantry's staple marks removed (PAN-002).
+- The shopping data layer: lists, lines, a shop's Meals, space entries,
+  queued writes laid over offline, a Meal's lines worked out on the device
+  until the server's arrive; totals in `packages/food`.
+- Shopping in the drawer: Food (shops; each Space's Staples and Essentials,
+  out of stock and Required) and Lists; New shop and New list; a shop's
+  page with All, Meals and Extra; a list's page with subheadings; ticking,
+  Done and Complete list with Undo; deleting with Undo.
+- Dated lists on Plan, moved by dragging; Plan's "+" → Shopping list;
+  Search finding a list by a line.
+- Walks `shopping.spec.ts`; database tests updated for space entries;
+  design screenshots updated for the Pantry without staples.
+
+**Documents touched:** ADR-0057 (as built), ADR-0052, data model,
+integration setup, meals spec (SHP-001–005, MPL-003, MPL-006 statuses),
+Plan, Search and items specs, design patterns and components,
+plans/stage-4b.md.
+
+**Left for later:** Joe runs `stage4b_space_entries_removing`; reordering
+a list's lines; step 6, a shop from the Meal plan's Select; step 7,
+Realtime; step 8, a Thought or Note made a Shopping list.
+
+## [#36](https://github.com/joestables/lifeos/pull/36) — Stage 4b, step 4: the shopping schema
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-24
+
+**What it did**
+- Shopping list in the ontology, in a new `shopping` Module (stage 4b).
+- Migrations `ontology` and `stage4b_shopping_schema`, applied by the tool:
+  lists, a food shop's Meals and lines, each through the list's Space;
+  guards on a Meal's lines; the write functions; staples' kind; the
+  Realtime publication.
+- `stage4b_shopping_refresh`, for Joe in the SQL editor: a Meal's lines
+  written by the database as it changes, taking a Meal off, deleting a
+  line, merges moving shopping lines.
+- `shopping_test` (31); the generated types include `shopping`.
+
+**Documents touched:** ADR-0057 (as built), ADR-0052, data model,
+integration setup, plans/stage-4b.md.
+
+**Left for later:** Joe runs `stage4b_shopping_refresh` and exposes
+`shopping` in the Data API; step 5, the Shopping page.
+
+## [#35](https://github.com/joestables/lifeos/pull/35) — Stage 4b, step 3: the Shopping design agreed
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-24
+
+**What it did**
+- Joe's two changes: New shop asks Name, Date and For only, and no
+  Shopping list has a time or place (ADR-0050, ADR-0057, the data model,
+  SHP-001, PLN-008); Shopping's Food and Lists at one reading width,
+  `max-w-3xl`, now a rule in patterns' page anatomy.
+- The design written into the spec: patterns' Shopping section and the
+  Meal plan's Select; the drafted components made final in components.md;
+  ShoppingLine, OfferRow, KeptRow, MealCard's choosing and Badge's
+  `warning` on `/design`, its screenshots refreshed.
+
+**Left for later:** step 4, the database.
+
+## [#34](https://github.com/joestables/lifeos/pull/34) — Stage 4b, step 3: the Shopping design, first pass
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-24
+
+**What it did**
+- ADR-0057 agreed by Joe; step 2 done.
+- `/design-stage-4b` (development and preview builds only): Shopping's Food
+  and Lists tabs, New shop, a shop's All, Meals and Extra, everything
+  ticked, Complete list, a list, the Meal plan's Select and Add to shop,
+  and "Saved as an idea", drawn from the real components; screenshots on a
+  [design canvas](https://claude.ai/artifact/KZyE2VPa3jTsVZ4mjxanGk) for
+  Joe.
+- Drafted components, in components.md as Stage 4b drafts: ShoppingLine,
+  OfferRow, KeptRow, MealCard's choosing, Badge's `warning`.
+
+**Left for later:** Joe's comments on the design, then the design spec
+(patterns) and the screenshot tests.
+
+## [#33](https://github.com/joestables/lifeos/pull/33) — Stage 4b, step 2: Shopping in the database
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-24
+
+**What it did**
+- Step 1 closed: Joe agreed the Shopping specs.
+- [ADR-0057](../20-architecture/adr/0057-shopping-in-the-database.md)
+  (Proposed): a Meal's lines on a food shop are rows the database writes
+  as the Meal changes, ticked ones kept; a shop's Meals in
+  `shopping.list_meals`; staples and Essentials in `food.space_entries`;
+  totals on the device; live updates by Supabase Realtime, refreshing the
+  queries they touch.
+- ADR-0052, ADR-0042, the data model and the ADR index amended.
+
+**Left for later:** Joe's agreement to ADR-0057; the design (step 3).
+
+## [#32](https://github.com/joestables/lifeos/pull/32) — Stage 4b: making a shop, and staples beside Essentials
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-24
+
+**What it did**
+- A food shop is made from the Meal plan's Select and Add to shop, or from
+  Shopping → Food's New shop offering the plan's Meals to toggle; Meals are
+  added or taken off afterwards.
+- Staples move from the Pantry to Shopping → Food, each Space's list beside
+  its Essentials; a staple may be out of stock, an Essential Required, and
+  Extra offers both first. PAN-002 is replaced by SHP-005; the Pantry's
+  built marks go in step 5.
+- Joe's agreement to the earlier suggestions recorded, their marks removed.
+
+**Documents touched:** meals (Pantry, Shopping, PAN-001, PAN-002,
+SHP-001–005), recipes (RCP-003), ADR-0050, 0051, 0052, 0012, patterns
+(the Meal plan's PageAction, the Pantry, Settings → Food), glossary,
+plans/stage-4b.md.
+
+**Left for later:** Joe's agreement to the specs; step 2's decisions.
+
+## [#31](https://github.com/joestables/lifeos/pull/31) — Stage 4b: the Shopping specs, third draft
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-24
+
+**What it did**
+- Joe's answers written in: Shopping's Food, Lists and Online (later) tabs;
+  a food shop linked to Meals and following their ingredients; All · Meals ·
+  Extra; each Space's Essentials; out of stock and Essentials offered on
+  Extra by Space, staples the Meals use highlighted; back in stock in the
+  Space the line came from; a food shop for one Space; Done and Complete
+  list; no repeating lists.
+- A recipe shared from Android kept as an Idea with nothing to press, and
+  an iOS Shortcut opening New idea filled in (RCP-003, in Stage 4b).
+- Claude's suggestions marked: a Meal on one open food shop at most; a
+  Meal's line not changed on a shop, more added on Extra; a sorted Thought
+  a food shop when a line matches the Pantry; a link shared twice not saved
+  again.
+
+**Documents touched:** meals (Pantry, Shopping, PAN-002, MPL-003, SHP-001–005),
+recipes (RCP-003), items (ITM-006), spaces and sharing, ADR-0050, 0051,
+0052, 0053, 0012, 0055, 0028, data model, glossary, capability map, ADR-0026's
+drawer, roadmap, plans/stage-4b.md.
+
+**Left for later:** Joe's agreement to the specs; step 2's decisions.
+
+## [#30](https://github.com/joestables/lifeos/pull/30) — Stage 4b plan: Shopping
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-24
+
+**What it did**
+- Stage 4 marked done (Joe, 24 October), with what it left listed in its
+  plan.
+- Wrote the [Stage 4b plan](plans/stage-4b.md): ten steps from the specs to
+  Joe shopping with it, and six questions for the specs with Claude's
+  recommendations (no repeating lists in 4b, Clear ticked on a standing
+  list, ticking an out-of-stock staple, a Meal changed after its list is
+  made, a list's done, Android's share target carried over).
+- RCP-017's status corrected to built (it was built in Stage 4's step 8).
+
+**Documents touched:** plans/stage-4.md, plans/stage-4b.md, roadmap,
+docs/README, CLAUDE.md, recipes (RCP-017).
+
+**Left for later:** Joe's answers and agreement to the specs (step 1).
+
+## [#29](https://github.com/joestables/lifeos/pull/29) — Stage 4, step 10 closed
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-24
+
+**What it did**
+- The Import Dialog's Import is primary, beside Cancel at the bottom right.
+- Add to the Pantry opens with the Dialog itself focused, so a phone's
+  keyboard stays down.
+- Step 10 closed: Joe is happy with Recipes and the Meal plan for now.
+
+## [#28](https://github.com/joestables/lifeos/pull/28) — Stage 4: Joe's second list
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-24
+
+**What it did**
+- Pantry delete warns only of Meals today or later. Before an entry goes,
+  the lines of past, deleted or cancelled Meals become typed with its name
+  (migration `stage4_past_meal_lines`, `past_meal_lines_test` (3)).
+- The AI names the dish's own cuisine before looking at my list: Pad Thai
+  is Thai, not Chinese (`PROMPT_VERSION` 2026-10-24.1, `ai` version 6).
+- Check the import on a phone: its lines and steps were jammed together
+  with no gap; they are now spaced as editing a Variation's, with "Add an
+  ingredient" and "Add a step".
+- Lines matching no Pantry entry carry the `package-plus` mark, opening Add
+  to the Pantry with the AI's aisle. They are added on Keep; a line left
+  unadded is kept as typed. No "New" badge.
+- No mark on a line in the Pantry; the `package-plus` mark only on one
+  that isn't.
+- In the method, Backspace in an empty step removes it, when editing and
+  on Check the import; Enter starts the next step on both.
+- Popup buttons are as wide as their words and sit at the bottom right, on
+  a phone too.
+- The Idea popup opens without the keyboard. Its Delete and Make it a
+  draft share a line, with Done under them on a phone.
+
+## [#27](https://github.com/joestables/lifeos/pull/27) — Stage 4: fixes from Joe's first use, and a bug hunt
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-23
+
+**What it did**
+- Joe's list (23 October):
+  - deleting a Pantry entry names the Meals that use it too;
+  - Import is never greyed while the AI is asked;
+  - Import from a link goes on when its Dialog is closed, the Cards
+    loading until it is kept;
+  - Dialogs scroll: ScrollArea's viewport is a flex child, so a Dialog's
+    body no longer grows past it; with a mouse the scrollbar always shows;
+  - the log's "Edited" is for ingredients and method only;
+  - a Recipe's Meal follows its Variation's servings;
+  - Meals show their Recipe's photo, or a typed Meal's picture from its
+    link (`link-preview`, new: not AI);
+  - Merge into…, keeping the chosen entry's name and aisle;
+  - editing's columns equally wide;
+  - a typed line's mark adds it to the Pantry, with a default unit;
+  - an entry's default unit is learnt from its first line with one
+    (migration `stage4_default_units`, `default_units_test` (5)) and
+    fills a new line;
+  - decimals, never fractions;
+  - steps aren't dragged;
+  - no units in the Pantry list;
+  - Cooking picks out no step.
+- The bug hunt, of production and the code:
+  - a write sent again by a reload, whose own id was then taken, was
+    refused (seen once, `create_recipe`); now it counts as sent;
+  - a page's code gone with a deploy crashed the page; it reloads once
+    instead;
+  - the browser's ResizeObserver notice is no longer reported;
+  - a Pantry entry used only by a deleted Recipe or Meal was queued for
+    deleting and refused; now it says so instead;
+  - the Meal's popup put its old servings back on closing after Get
+    ingredients.
+- Checked and clean:
+  - every function the app calls exists in production, with its
+    arguments and permission;
+  - every column it selects exists;
+  - food data has no orphans, and no photo without its file;
+  - no new security advisories.
+
+## [#26](https://github.com/joestables/lifeos/pull/26) — Stage 4, step 9d: a Meal's own ingredients and link
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-23
+
+**What it did**
+- Migrations `stage4_meal_lines` (applied by the tool) and
+  `stage4_meal_lines_removing` (run by Joe, its deletes): a typed Meal's
+  link, `food.meal_lines` with RLS as the Meal's, never on leftovers;
+  merges move Meals' lines too. `meal_lines_test` (11).
+- `meal.ingredients` in the `ai` Edge Function: a link's ingredient lines
+  and servings only.
+- The AI asks Flash-Lite first, then Flash (Joe, 23 October).
+- The Meal's popup: Ingredients ("Extra ingredients" on a Recipe's Meal),
+  a typed Meal's Link with Get ingredients and Undo, lines from the Pantry;
+  Copy week copies them (MPL-006). The ingredient row is shared with
+  editing a Variation.
+
+## [#25](https://github.com/joestables/lifeos/pull/25) — The AI answers sooner, and says when it took too long
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-23
+
+**What it did**
+- Joe's first imports stuck on "Writing it up", then said "The AI needs a
+  connection": Gemini, thinking at its default, ran past the function's
+  two minutes. The `ai` function (version 3) now asks for little thinking
+  in whichever form the model takes, sends less of a page that has
+  structured recipe data, gives up after 100 seconds as "took too long",
+  and logs each call's time.
+- The app says "The AI took too long" for a long wait cut off, and "needs
+  a connection" only with no signal.
+
+## [#24](https://github.com/joestables/lifeos/pull/24) — Stage 4, step 9c: Fill from method, and Import into a Draft
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-23
+
+**What it did**
+- `recipe.fill_lines` in the `ai` Edge Function: the lines a Variation's
+  method uses, in Joe's line rules, checked against the Pantry.
+- Edit variation: Fill from method in Ingredients (RCP-007 5) and, on a
+  Draft, Import from a link in Method (RCP-014 10), each replacing what is
+  there after asking, with Undo; lines matching no Pantry entry kept as
+  typed (RCP-014 11).
+- The editor's servings, times, notes and sources follow changes made
+  elsewhere. Walks in `import.spec.ts`.
+
+## [#23](https://github.com/joestables/lifeos/pull/23) — Stage 4, step 9b: the AI service and Import
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-23
+
+**What it did**
+- Migrations `stage4_ai` and `stage4_cup`, applied: a daily AI allowance
+  per person counted in `ops.events`; `food.keep_import`, which keeps an
+  imported Draft (or my Idea imported into) with its new Pantry entries
+  and list names, all together; cup as a unit (250 ml). `ai_test` (14).
+- The `ai` Edge Function on Gemini's free tier: `status` and
+  `recipe.import`, reading a page, a YouTube video or a TikTok or Instagram
+  caption, written in Joe's style (v1's rules adapted, `rules.ts`), the
+  reply checked before use. Unit tests (12).
+- New (New recipe, New idea, Import) on both tabs; the Import Dialog;
+  Check the import; an Idea's Import from its link (RCP-014 1–9, 11).
+  Walks in `import.spec.ts`; the Recipes walks use the New menu.
+
+## [#22](https://github.com/joestables/lifeos/pull/22) — Stage 4, step 9a: specs for the AI features
+
+Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-23
+
+**What it did**
+- Wrote in Joe's answers of 23 October: "New" (New recipe, New idea,
+  Import) on both tabs; Import from a link into a Draft Variation
+  (RCP-014 10–11); Fill from method replacing the lines (RCP-007 5); a
+  Meal's own ingredients, and a typed Meal's link read for its ingredients
+  (MPL-006, new); cups kept; v1's style rules adapted.
+- Amended ADR-0054 (tasks, the rules, the method sent, unmatched lines),
+  ADR-0053 (cup), ADR-0052 (`food.meal_lines`, a Meal's link) and ADR-0012;
+  the design spec's Import, Check the import, the card buttons and the
+  Meal's Ingredients; the plan's step 9 split into 9a–9d.
+
 ## [#21](https://github.com/joestables/lifeos/pull/21) — Bug hunt after Households: only its maker moves an Item to another Space
 
 Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-21

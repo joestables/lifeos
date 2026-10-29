@@ -1,19 +1,13 @@
 import { ChefHatIcon, Trash2Icon } from 'lucide-react'
 import { useId, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { updateItem, updateVariation, usePhotoUrls, type FoodData } from '@/data'
 import type { RecipeView } from '@/data/food-hooks'
 import { useOnLeave } from '@/hooks/use-on-leave'
-import { nameTaken } from '@/lib/recipes'
+import { nameTaken, takenMessage } from '@/lib/recipes'
 import { keepPhoto, type PhotoChoice } from './keep-photo'
 import { LinksField } from './links-field'
 import { PhotoField } from './photo-field'
@@ -47,13 +41,7 @@ export function IdeaDialog({
   const [photo, setPhoto] = useState<PhotoChoice>(null)
   const current = usePhotoUrls([idea.photo?.path]).get(idea.photo?.path ?? '')
   const taken = name.trim() ? nameTaken(food.recipes, name, idea.item.id) : undefined
-  const problem = !name.trim()
-    ? 'An idea needs a name'
-    : taken
-      ? taken.mine
-        ? 'You already have a recipe with this name'
-        : 'A recipe in your Household has this name'
-      : null
+  const problem = !name.trim() ? 'An idea needs a name' : taken ? takenMessage(taken) : null
 
   /** What changed, kept; false, keeping nothing, when the name can't be and `strict`. */
   const keep = (strict = true): boolean => {
@@ -74,6 +62,7 @@ export function IdeaDialog({
     return true
   }
   const kept = useRef(false)
+  const popup = useRef<HTMLDivElement>(null)
   // Closed with a name that can't be kept: the rest is still kept, under the old name.
   const close = () => {
     kept.current = true
@@ -85,7 +74,9 @@ export function IdeaDialog({
 
   return (
     <Dialog open onOpenChange={(open) => !open && close()}>
-      <DialogContent data-colour="green">
+      {/* The popup itself takes the focus, not the name: no keyboard as it
+          opens on a phone (Joe, 24 October). */}
+      <DialogContent data-colour="green" initialFocus={popup} ref={popup}>
         <DialogHeader>
           <DialogTitle>Idea</DialogTitle>
         </DialogHeader>
@@ -138,21 +129,23 @@ export function IdeaDialog({
             />
           </Field>
           {mine && <PhotoField current={current} choice={photo} onChoice={setPhoto} />}
-          <DialogFooter className="sm:justify-between">
-            {mine && (
-              <Button
-                type="button"
-                variant="ghost-destructive"
-                onClick={() => {
-                  kept.current = true
-                  onClose()
-                  deleteRecipes([idea], 'idea')
-                }}
-              >
-                <Trash2Icon /> Delete
-              </Button>
-            )}
-            <div className="flex flex-col-reverse gap-2 sm:flex-row">
+          {/* A phone: Delete and Make it a draft at their own width, Done
+              across under them (Joe, 24 October). */}
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div className="flex flex-wrap gap-2">
+              {mine && (
+                <Button
+                  type="button"
+                  variant="ghost-destructive"
+                  onClick={() => {
+                    kept.current = true
+                    onClose()
+                    deleteRecipes([idea], 'idea')
+                  }}
+                >
+                  <Trash2Icon /> Delete
+                </Button>
+              )}
               {mine && (
                 <Button
                   type="button"
@@ -167,9 +160,11 @@ export function IdeaDialog({
                   <ChefHatIcon /> Make it a draft
                 </Button>
               )}
-              <Button type="submit">Done</Button>
             </div>
-          </DialogFooter>
+            <Button type="submit" className="sm:ml-auto">
+              Done
+            </Button>
+          </div>
         </form>
       </DialogContent>
     </Dialog>

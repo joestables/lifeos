@@ -22,8 +22,8 @@ is shared is in [recipes](../modules/recipes.md) and
   Provisionally agreed).
 - **Food is shared its own way:** everyone in a Household sees each
   other's Recipes, read-only, and may add their own Variations; the Pantry
-  is one for everyone; a shopping list with any Household Meal is the
-  Household's ([ADR-0051](../../20-architecture/adr/0051-who-sees-food.md),
+  is one for everyone; a food shop is for one Space, starting as the
+  Household of its first Household Meal ([ADR-0051](../../20-architecture/adr/0051-who-sees-food.md),
   Provisionally agreed; [recipes](../modules/recipes.md),
   [meals](../modules/meals.md)).
 - **Enforcement** through one rule in `core_private`, benchmarked in Stage 1
@@ -137,7 +137,7 @@ Priority: Should · Status: built (1 for Meals and Plan's cards; 2 for Meals, a 
 Acceptance criteria
 1. Given I'm in two Households, then everything shared in each is shown to
    me, and each shared Item says which Household it belongs to.
-2. Given a choice of Space for an Item (a Meal, a shopping list), then it
+2. Given a choice of Space for an Item (a Meal, a food shop), then it
    offers Personal and each of my Households.
 3. Given an Item someone else made in a Household, then I can't move it to
    another Space; only its maker can (bug hunt, 21 October).

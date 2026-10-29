@@ -8,6 +8,7 @@ import {
   useItems,
   useLabels,
   useOnline,
+  useShopping,
   type Item,
 } from '@/data'
 import { isoDayOf } from '@/lib/dates'
@@ -47,6 +48,7 @@ export function useSearch(query: string): {
   const { items } = useItems(queue)
   const { labels, itemLabels } = useLabels(queue)
   const food = useFood(queue)
+  const shopping = useShopping(queue)
   const words = useMemo(() => searchWords(settled), [settled])
   const server = useQuery({
     queryKey: searchKey(settled),
@@ -71,14 +73,31 @@ export function useSearch(query: string): {
       // An archived Recipe is found, marked so (SRC-003 1).
       (i) => (i.status !== 'cancelled' || i.type === 'recipe') && i.type !== 'variation',
     )
-    // Recipes by tag or ingredient, which the server's search doesn't hold.
+    // Recipes by tag or ingredient, and Shopping lists by a line (SRC-003),
+    // which the server's search doesn't hold.
+    const lineWords = words.map((w) => w.toLowerCase())
+    const lineName = (l: {
+      pantry_id: string | null
+      text: string | null
+      heading: string | null
+    }) =>
+      (
+        (l.pantry_id && food.pantry.get(l.pantry_id)?.name) ||
+        l.text ||
+        l.heading ||
+        ''
+      ).toLowerCase()
     const withRecipes = (found: Item[]) => {
       const ids = new Set(found.map((i) => i.id))
       const recipes = food.recipes
         .filter((r) => !ids.has(r.item.id))
         .filter((r) => matches(r, settled, food.pantry))
         .map((r) => r.item)
-      return [...found, ...recipes].slice(0, SHOWN)
+      const lists = shopping.lists
+        .filter((l) => !ids.has(l.item.id) && l.item.archived_at === null)
+        .filter((l) => l.lines.some((x) => lineWords.every((w) => lineName(x).includes(w))))
+        .map((l) => l.item)
+      return [...found, ...recipes, ...lists].slice(0, SHOWN)
     }
 
     if (!online || server.isError) {
@@ -111,5 +130,6 @@ export function useSearch(query: string): {
     server.isPlaceholderData,
     food.recipes,
     food.pantry,
+    shopping.lists,
   ])
 }

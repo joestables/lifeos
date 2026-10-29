@@ -8,8 +8,39 @@
 |---|---|---|
 | Supabase → Project Settings → Data API → Exposed schemas | Add `core`, so the app can read its tables and call its write functions (`core_private` stays hidden) | Done (Joe), 10 October |
 | Supabase → Project Settings → Data API → Exposed schemas | Add `food` (Stage 4), for the same reason (`food_private` stays hidden); needed before the Recipes page reads its data (plan step 5) | Done (Joe), 19 October |
+| Supabase → Project Settings → Data API → Exposed schemas | Add `shopping` (Stage 4b), for the same reason (`shopping_private` stays hidden); needed before the Shopping page reads its data (plan step 5) | Done (Joe), 24 October |
 
 The local and CI databases expose it through `supabase/config.toml`.
+
+## The address: joestables.uk
+
+| Where | Setting | State |
+|---|---|---|
+| Cloudflare DNS for `joestables.uk` | An A record for the apex and a CNAME for `www`, both to Vercel (v1's, kept as they were) | Done |
+| Vercel → project `life-os` (v1) → Settings → Domains | Remove `joestables.uk` and `www.joestables.uk`: a domain is on one project at a time, and the Vercel tools Claude has can add one but not remove it | Done (Joe, 25 October) |
+| Vercel → project `lifeos` → Domains | `joestables.uk`, and `www.joestables.uk` redirecting to it (308) | Done (Claude, 25 October): both verified, the site and its manifest served |
+
+## Sharing into LifeOS
+
+| Where | Setting | State |
+|---|---|---|
+| Android | Install LifeOS from Chrome (menu → Add to Home screen → Install); it then shows as "LifeOS" in the share sheet. An install made before 25 October needs installing again to pick up the share target | To do (Joe) |
+| iPhone | The Shortcut below | To do (Joe) |
+
+### iOS Shortcut: Save to LifeOS
+
+An iPhone can't offer a web app in its share sheet, so a Shortcut opens New
+idea with the link ([ADR-0055](../20-architecture/adr/0055-sharing-into-lifeos.md)):
+
+1. In Shortcuts, make a new Shortcut named **Save to LifeOS**.
+2. In its details, turn on **Show in Share Sheet**, receiving **URLs**,
+   **Safari web pages** and **Text**.
+3. Add **URL Encode**, encoding the **Shortcut Input**.
+4. Add **Open URLs** with
+   `https://joestables.uk/recipes?tab=ideas&share=` followed by
+   the **URL Encoded Text**.
+
+It opens in Safari, so sign in to LifeOS in Safari once.
 
 ## Google sign-in
 
@@ -21,13 +52,13 @@ Google is how everyone signs up and signs in
 |---|---|---|
 | Google Cloud project `lifeos` → OAuth client | Created; client ID and secret entered in Supabase | Done (Joe) |
 | … OAuth client → Authorized redirect URIs | `https://nxydbufwuvsacayqoakh.supabase.co/auth/v1/callback`, exactly | The first sign-in (10 October) reached Google and was refused ("this app's request is invalid"), the usual sign of a missing or mistyped redirect URI: to check (Joe) |
-| … Google Auth Platform → Branding | App name `LifeOS`; support email Joe's; **no logo** (uploading one sends the app for verification); authorised domains `nxydbufwuvsacayqoakh.supabase.co` and `lifeos-bice-mu.vercel.app` | Done (Joe) |
-| … Branding → App domain | Home page `https://lifeos-bice-mu.vercel.app`; privacy policy `https://lifeos-bice-mu.vercel.app/privacy`. Google requires both before the app can leave Testing | Done (Joe); the pages go live with the app's first deploy (plan step 9a) |
+| … Google Auth Platform → Branding | App name `LifeOS`; support email Joe's; **no logo** (uploading one sends the app for verification); authorised domains `nxydbufwuvsacayqoakh.supabase.co`, `joestables.uk` and `lifeos-bice-mu.vercel.app` | Done (Joe; `joestables.uk` added 25 October) |
+| … Branding → App domain | Home page `https://joestables.uk`; privacy policy `https://joestables.uk/privacy` (until 25 October the `lifeos-bice-mu.vercel.app` ones). Google requires both before the app can leave Testing | Done (Joe); the pages go live with the app's first deploy (plan step 9a) |
 | … Google Auth Platform → Data Access | `openid`, `.../auth/userinfo.email`, `.../auth/userinfo.profile`; nothing else | Done (Joe) |
 | … Google Auth Platform → Audience | **In production**, so anyone can sign in. Scopes: `openid`, `email`, `profile` only, which need no verification | Done (Joe) |
 | … Verification centre | Optional *brand* verification, so the consent screen says "LifeOS" rather than the Supabase address. Sign-in works without it. Submit only once the home page and privacy page are live | Later |
 | Supabase → Authentication → Sign In / Providers → Google | Enabled | Done (Joe) |
-| Supabase → Authentication → URL Configuration | Site URL `https://lifeos-bice-mu.vercel.app`. Redirect URLs: `https://lifeos-bice-mu.vercel.app/**`, `https://lifeos-*-joestables1.vercel.app/**` (previews) and `http://localhost:5173/**`. A sign-in whose return address isn't listed goes to the Site URL instead | Done (Joe, 10 October). Before that, the Site URL was `http://joestables.uk` (v1's site) and production wasn't listed, so signing in on production landed there |
+| Supabase → Authentication → URL Configuration | Site URL `https://joestables.uk`. Redirect URLs: `https://joestables.uk/**`, `https://www.joestables.uk/**`, `https://lifeos-bice-mu.vercel.app/**`, `https://lifeos-*-joestables1.vercel.app/**` (previews) and `http://localhost:5173/**`. A sign-in whose return address isn't listed goes to the Site URL instead | Done (Joe, 10 October; `joestables.uk` on 25 October). Before that, the Site URL was `http://joestables.uk` (v1's site) and production wasn't listed, so signing in on production landed there |
 
 Email/password sign-up is blocked in the database, not by a dashboard
 setting (Supabase's "allow new users to sign up" switch applies to Google
@@ -78,12 +109,14 @@ every device turns notifications on again.
   charged.
 - Only the `ai` Edge Function holds the key; the browser never sees it.
 - On the free tier Google may use what is sent to improve its products, so
-  `ai` sends public recipe pages and Pantry names only.
+  `ai` sends public recipe pages, Pantry names and my lists' names, and a
+  Variation's method only when I choose Fill from method.
 
 | Where | Setting | State |
 |---|---|---|
 | Google AI Studio → Get API key | A key in a project with no billing | To do (Joe, before step 9) |
-| Supabase → Edge Functions → Secrets | `GEMINI_API_KEY`: that key | To do (Joe, before step 9); Claude never sees it |
+| Supabase → Edge Functions → Secrets | `GEMINI_API_KEY`: that key | Done (Joe, 23 October); Claude never sees it |
+| Supabase → Edge Functions → Secrets (optional) | `AI_MODEL` and `AI_FALLBACK_MODEL` (Google's `gemini-flash-lite-latest` and `gemini-flash-latest` aliases when unset); `AI_DAILY_ALLOWANCE` (30 uses per person a day when unset); `AI_OFF=1` turns the AI off | Unset: the defaults hold |
 
 ## Capture address email (after Stage 9)
 

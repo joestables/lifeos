@@ -86,8 +86,8 @@ Provisionally agreed).
 - **Optional subheadings** group the lines ("For the marinade", "For the
   sauce"); most Recipes won't have any (Joe, 18 October).
 - **Amounts** may be left out ("salt"), a range ("1–2") or approximate
-  ("~5"). **Units** are metric: g, kg, ml, l, tsp, tbsp, or none for a count
-  ("2 onions").
+  ("~5"). **Units** are metric: g, kg, ml, l, tsp, tbsp, cup (250 ml; Joe,
+  23 October), or none for a count ("2 onions").
 - **The method is numbered steps; notes are free text.** In either, typing
   "@" names another Recipe — a stock, a sauce — from a short list of
   suggestions; outside editing it is a button that opens it.
@@ -126,11 +126,17 @@ Provisionally agreed).
   app was Stage 10
   ([ADR-0028](../../20-architecture/adr/0028-capture-from-outside-the-app.md),
   amended), so this brings the share target forward for recipes.
-- **Imported from a web page or a video's link**, as a Draft. A video is
-  read from what its page says (description, captions). Every import is
-  rewritten in **Joe's recipe style**, kept in the code, not in Settings.
-  It is already written in v1's code; Joe will say where when import is
-  built (Joe, 18 October).
+- **Imported from a web page or a video's link**, as a Draft. A YouTube
+  video is watched; another video is read from what its page says
+  (description, captions). Every import is rewritten in **Joe's recipe
+  style**, kept in the code, not in Settings: v1's rules, which Joe gave on
+  23 October, adapted to LifeOS.
+- **Imported into a Draft Variation** I already have: Import from a link
+  in its Method brings in the ingredients and method, leaving the Recipe's
+  heading as it is (Joe, 23 October).
+- **Ingredients filled from the method**: Fill from method replaces the
+  Variation's ingredient lines with those its method names, and never
+  changes the method (Joe, 23 October).
 - **A link I've saved before** is flagged before I save it again.
 - Import and filling ingredients from a method use the core's one AI
   service ([principles](../../00-foundation/principles.md), 11); without
@@ -146,7 +152,7 @@ Complete · All) and Category always open, the other filters collapsed
 until opened; on a phone they open from a Filters button (Joe, 18
 October). **Ideas** tab: Ideas as a list (name, source, when
 saved, the start of the note). "New" offers *New recipe*, *New idea* and
-*Import*. A Recipe opens on its own page.
+*Import*, on both tabs (Joe, 23 October). A Recipe opens on its own page.
 
 ## Requirements
 
@@ -162,7 +168,7 @@ Acceptance criteria
 1. Given the Recipes tab, then every Draft and Complete Recipe I can see
    shows as a card: photo (or a quiet placeholder), name, cuisine, my heart,
    and a mark on a Draft. Ideas and Archived Recipes don't show.
-2. Given Draft · Complete · All, the first of the filters (All to start),
+2. Given All · Draft · Complete, the first of the filters (All to start),
    then the grid shows that state's Recipes.
 3. Given I search, then Recipes match by name, tag or ingredient.
 4. Given I filter by category, cuisine, tags, protein, carbs or favourites,
@@ -173,6 +179,8 @@ Acceptance criteria
    member of all my Households; outside a Household it isn't shown.
 6. Given I sort (recently added, recently cooked, A–Z) or group (by
    category, cuisine or state), then the grid follows, and my choice is kept.
+   Choosing the sort in use again reverses it, its arrow showing which way
+   (Joe, 25 October).
 7. *(Suggested)* Given S, M or L on a computer, then the cards take that
    size, and my choice is kept; a phone shows two across.
 
@@ -186,7 +194,7 @@ Acceptance criteria
 1. Given New idea, then only the name is required; notes, links (any
    number) and a photo are optional.
 2. Given the Ideas tab, then Ideas show as a list: name, source, when saved
-   and the start of the note, newest first or A–Z (kept for next time), with
+   and the start of the note, newest first or A–Z, either way round (kept for next time), with
    a search.
 3. Given an Idea, then it opens in a popup over Ideas, never a page of its
    own: its name, links, note and photo, and no ingredients or method (Joe,
@@ -202,17 +210,22 @@ Acceptance criteria
 
 **As** Joe, **I want** to share a recipe from TikTok or a web page to
 LifeOS, **so that** it's saved as an idea without copying anything.
-Priority: Must · Status: proposed
+Priority: Must · Status: built (verified against the walks' stand-in; Joe tries it on his phones)
 
 Acceptance criteria
-1. Given LifeOS installed on my Android phone, when I share a link to it and
-   choose Recipe idea, then an Idea is kept with the link, and its title and
-   thumbnail where the link offers them.
-2. Given the link is already a source of a Recipe or Idea, then I'm told
-   which, and can open it or save anyway.
+1. Given LifeOS installed on my Android phone, when I share a link to it
+   (LifeOS in the share sheet), then an Idea is kept at once with the link,
+   its title and thumbnail where the link offers them; a small "Saved as an
+   idea" screen shows, with nothing to type or press, and closes back to
+   the app I shared from (Joe, 24 October, to try). Android opens LifeOS to
+   receive a share: a web app can't save without a window.
+2. Given the link is already a source of a Recipe or Idea, then it isn't
+   saved again: the screen names it, with Open.
 3. Given no signal, then the Idea is kept and sent later; its title and
    thumbnail fill in when it is.
-4. *Later:* given an iPhone, then an iOS Shortcut does the same.
+4. Given an iPhone, then an iOS Shortcut in the share sheet opens New idea
+   with the link and its name filled in, to save (in Safari: an iPhone's
+   home-screen app can't be opened by a link).
 
 ### RCP-004 — Many at once
 
@@ -222,9 +235,11 @@ Priority: Should · Status: verified
 
 Acceptance criteria
 1. Given Select on either tab (or a long press on a phone), then I can pick
-   several of my own and Archive or Delete Recipes, or Delete Ideas, with
+   several of my own (a Household member's Recipe fades, saying whose) and
+   Archive or Delete Recipes, or Delete Ideas, with
    Undo. Ideas are made Drafts one at a time, each needing its category and
-   cuisine (RCP-010 6).
+   cuisine (RCP-010 6). One Recipe is also deleted from its own page's "…"
+   (Joe, 26 October).
 
 ### RCP-005 — A Recipe's page, to read
 
@@ -261,23 +276,26 @@ Acceptance criteria
    mid-edit, then nothing typed is lost: Edit heading keeps as it goes, and
    a name it can't take stays as it was.
 5. Given a new list value in a field ("Korean"), then it is added to my
-   list as I type it.
+   list as I type it, also when only a Household member's list has it.
 6. Given a name already used by a Recipe I can see, then it is refused, and
-   I'm told whose it is.
+   I'm told whose it is, and when mine, if it is archived or an Idea (Joe, 26
+   October).
 
 ### RCP-007 — Ingredient lines
 
 **As** Joe, **I want** structured ingredient lines, **so that** quantities
 are consistent and can go on a shopping list.
-Priority: Must · Status: verified (5 comes with the AI service, plan step 9)
+Priority: Must · Status: verified (5 built)
 
 Acceptance criteria
 1. Given I type "200 g chorizo", then it is read as 200, g and Chorizo;
    suggestions from the Pantry appear as I type, the first chosen with
-   Enter.
+   Enter. A Pantry entry chosen for a line with no unit gives it the
+   entry's default unit (Joe, 23 October).
 2. Given a name not in the Pantry, then I choose Add to the Pantry, which
-   asks its name and aisle (Cupboard to start; Joe, 20 October), or Keep as
-   typed.
+   asks its name, aisle (Cupboard to start; Joe, 20 October) and default
+   unit (the line's to start), or Keep as typed; a line kept as typed
+   offers Add to the Pantry again from its mark (Joe, 23 October).
 3. Given "1-2 tsp", "~5 g" or a name alone, then each is kept as typed.
 4. Given lines, then I reorder them by dragging (on a phone too; Joe, 20
    October) and delete them, and may add subheadings ("For the sauce") that
@@ -285,9 +303,11 @@ Acceptance criteria
 6. Given a line, then it reads ingredient, then amount, then unit, on one
    line on a phone and a computer, when edited and when read (Joe, 20
    October).
-5. Given a method and no ingredients, when I choose Fill from method, then
-   the lines are suggested from the method, matched to the Pantry, for me
-   to accept or change.
+5. Given a method, when I choose Fill from method, then the ingredient
+   lines are replaced by those the method names, with their amounts and
+   units, matched to the Pantry, for me to change; the method is not
+   changed. When there were lines already, I'm asked first, and Undo puts
+   them back (Joe, 23 October).
 
 ### RCP-008 — Method, notes and references
 
@@ -296,8 +316,9 @@ Acceptance criteria
 Priority: Must · Status: verified
 
 Acceptance criteria
-1. Given the method, then steps are numbered, and I add, edit, reorder and
-   delete them.
+1. Given the method, then steps are numbered, and I add, edit and delete
+   them: Enter starts the next step, Backspace in an empty step removes it
+   (Joe, 24 October); they aren't dragged to reorder (Joe, 23 October).
 2. Given I type "@" in a step or the notes, then up to three of my Recipes
    are suggested, the first highlighted; choosing one makes a reference.
 3. Given a referenced Recipe is renamed, then the reference shows its new
@@ -319,6 +340,9 @@ Acceptance criteria
 3. Given the grid, then a Recipe is one card however many Variations it has.
 4. Given two Variations, when I compare them, then their ingredients and
    methods show side by side, differences marked.
+5. Given a Recipe I can see, when I choose New variation and name it, then
+   an empty Variation of mine is made, a Draft, and opens to fill (Joe, 26
+   October).
 
 ### RCP-010 — States
 
@@ -350,9 +374,9 @@ Priority: Must · Status: verified (3: the alert sounds while LifeOS is open; th
 Acceptance criteria
 1. Given a Draft or Complete Variation, when I press Start cooking, then the
    ingredients and method show large, without editing controls, and the
-   screen doesn't sleep until I finish. Ingredients aren't ticked off; the
-   step I'm on is picked out, and the ones before it marked done (Joe, 18
-   October).
+   screen doesn't sleep until I finish. Ingredients aren't ticked off; no
+   step is picked out (Joe, 23 October), and choosing a step's number marks
+   the ones before it done.
 2. Given Cooking, when I change the servings, then the ingredients scale
    (both ends of a range) and the method says its numbers aren't scaled.
 3. Given a step that names a time ("simmer for 20 minutes"), then it offers
@@ -384,9 +408,11 @@ Priority: Must · Status: verified
 
 Acceptance criteria
 1. Given a Recipe, then its log lists, newest first, its cooks (verdict,
-   notes, who), Variations made, edited, marked or deleted, and the heading
-   edited, each with who and when; edits close together by one person are
-   one entry.
+   notes, who), and Variations made, edited, marked or deleted, each with
+   who and when; edits close together by one person are one entry. An edit
+   is a change to a Variation's ingredients or method only: a line or step
+   added, removed or changed, not moved; not its name, times, servings,
+   notes or the heading (Joe, 23 October).
 2. Given an edit, then it says "Edited", as a new Recipe says "Added"; its
    maker may say in their own words what changed, from the entry's "…"
    (Joe, 20 October).
@@ -399,22 +425,44 @@ Acceptance criteria
 
 **As** Joe, **I want** to import a recipe from a web page or a video in my
 style, **so that** I don't copy it out and can trust what I get.
-Priority: Should · Status: proposed
+Priority: Should · Status: built
 
 Acceptance criteria
-1. Given Import and a link to a web page or a video, then I see its
+1. Given New → Import and a link to a web page or a video, then I see its
    progress, then a new Draft, not yet kept, to check: name, photo, facts,
    times, servings, ingredient lines matched to the Pantry, method and
-   source.
+   source. Closing the Dialog while it works doesn't stop it: a toast says
+   when it is read, with Check it (or Choose, for a page of several). The
+   import being checked survives a reload, as when new code loads (Joe, 26
+   October).
 2. Given any import, then it is written in Joe's recipe style.
-3. Given I keep it, then the Recipe and any new Pantry entries are saved
-   together; cancelled, nothing is left.
+3. Given I keep it, then the Recipe and the Pantry entries I chose to add
+   are saved together; cancelled, nothing is left. A line matching no
+   Pantry entry is kept as typed unless I add it from its mark, with its
+   aisle (the AI's to start) and default unit (Joe, 24 October).
 4. Given an Idea with a link, when I import from it, then the Idea becomes a
    Draft, keeping its name, notes and photo.
 5. Given the link was saved before, then I'm told before importing.
-6. Given a video whose page says too little to make a recipe, then I'm told
-   so, and nothing is made.
+6. Given a video whose page says too little to make a recipe, or a page
+   that isn't a recipe, then I'm told so, and nothing is made.
 7. Given the AI is unavailable, then Import says so before I start.
+8. Given a category, cuisine, protein or carb not on my lists, then the
+   import suggests one, marked new, added to my list only when I keep the
+   Draft. The cuisine is where the dish comes from, never the nearest on
+   my list: a chicken curry is Indian, made new when Indian isn't there yet
+   (Joe, 26 October).
+9. Given a page with several recipes, then I choose which to import.
+10. Given a Draft Variation, when I choose Import from a link in its Method
+    and give a link, then its ingredients and method are replaced by the
+    page's, and its servings, times and notes filled where empty; the link
+    joins its sources; the Recipe's heading is not changed. When it had
+    ingredients or a method, I'm asked first, and Undo puts them back (Joe,
+    23 October). Closing the Dialog while it works doesn't stop it: the
+    ingredients and method show as loading until it is kept, and a page of
+    several asks which when it is read (Joe, 23 October).
+11. Given lines brought in by an import, Import from a link or Fill from
+    method that match no Pantry entry, then they are kept as typed, to add to the
+    Pantry as any typed line is ([PAN-004](meals.md#pan-004--entries-from-a-recipe)).
 
 ### RCP-015 — Favourites
 
@@ -445,7 +493,7 @@ Acceptance criteria
 **As** Joe, **I want** to see the Recipes of the person I live with, and
 make my own version of one, **so that** we draw on one collection without
 changing each other's.
-Priority: Must · Status: proposed
+Priority: Must · Status: built (plan step 8: Households, then food shared through them)
 
 Acceptance criteria
 1. Given we are in a Household, then each of us sees all the other's
@@ -465,20 +513,26 @@ Acceptance criteria
 
 **As** Joe, **I want** to keep my lists, **so that** filters follow how I
 organise food.
-Priority: Should · Status: proposed (2 built)
+Priority: Should · Status: built
 
 Acceptance criteria
-1. Given Settings → Recipes, then I rename, merge and delete categories,
-   cuisines, tags, protein and carbs; one in use can't be deleted until
-   nothing uses it.
-2. Given Settings → Recipes, then Archived recipes opens (RCP-010).
+1. Given Settings → Food → Recipe lists, then I add, rename, merge and
+   delete categories, cuisines, tags, protein and carbs, each saying how
+   many of my Recipes use it. A rename reaches my Recipes, archived and
+   deleted ones too, without an entry in each one's log; renaming onto
+   another name on the list asks, then merges them. One in use can't be
+   deleted until nothing uses it; a deleted Recipe brought back puts its
+   names back on my lists (Joe, 26 October).
+2. Given Settings → Food, then Archived recipes opens (RCP-010).
 
 Non-goals (Stage 4): AI that suggests what to cook; import from a photo;
-nutrition; converting weight to volume; sharing a Recipe outside LifeOS.
+nutrition; converting weight to volume; sharing a Recipe outside LifeOS;
+turning a Meal's link into a Recipe (Joe, 23 October).
 
 ## Open points for Joe
 
-1. **Joe's recipe style:** in v1's code; Joe will point Claude to it when
-   import is built (step 9).
+1. ~~Joe's recipe style~~: settled 23 October — Joe gave v1's rules,
+   adapted for LifeOS in [ADR-0054](../../20-architecture/adr/0054-the-ai-service-and-import.md).
 2. ~~Reordering on a phone~~: settled 20 October — ingredient lines are
-   dragged by their handle on a phone too; steps stay as they are.
+   dragged by their handle on a phone too; steps aren't dragged at all
+   (Joe, 23 October).

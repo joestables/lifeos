@@ -14,7 +14,9 @@ import { Route as AppRouteImport } from './routes/_app'
 import { Route as DesignRouteImport } from './routes/design'
 import { Route as DesignStage3RouteImport } from './routes/design-stage-3'
 import { Route as DesignStage4RouteImport } from './routes/design-stage-4'
+import { Route as DesignStage4bRouteImport } from './routes/design-stage-4b'
 import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as ShareRouteImport } from './routes/share'
 import { Route as SignInRouteImport } from './routes/sign-in'
 import { Route as AppCardioRouteImport } from './routes/_app/cardio'
 import { Route as AppGoalsRouteImport } from './routes/_app/goals'
@@ -28,10 +30,14 @@ import { Route as AppWardrobeRouteImport } from './routes/_app/wardrobe'
 import { Route as AppItemIdRouteImport } from './routes/_app/item.$id'
 import { Route as AppRecipesIndexRouteImport } from './routes/_app/recipes.index'
 import { Route as AppRecipesIdRouteImport } from './routes/_app/recipes.$id'
+import { Route as AppRecipesImportRouteImport } from './routes/_app/recipes.import'
 import { Route as AppSettingsIndexRouteImport } from './routes/_app/settings.index'
 import { Route as AppSettingsArchivedRecipesRouteImport } from './routes/_app/settings.archived-recipes'
 import { Route as AppSettingsDeletedRouteImport } from './routes/_app/settings.deleted'
 import { Route as AppSettingsLabelsRouteImport } from './routes/_app/settings.labels'
+import { Route as AppSettingsRecipeListsRouteImport } from './routes/_app/settings.recipe-lists'
+import { Route as AppShoppingIndexRouteImport } from './routes/_app/shopping.index'
+import { Route as AppShoppingIdRouteImport } from './routes/_app/shopping.$id'
 import { Route as AppSettingsHouseholdsIdRouteImport } from './routes/_app/settings.households.$id'
 
 const IndexRoute = IndexRouteImport.update({
@@ -58,9 +64,19 @@ const DesignStage4Route = DesignStage4RouteImport.update({
   path: '/design-stage-4',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DesignStage4bRoute = DesignStage4bRouteImport.update({
+  id: '/design-stage-4b',
+  path: '/design-stage-4b',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShareRoute = ShareRouteImport.update({
+  id: '/share',
+  path: '/share',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SignInRoute = SignInRouteImport.update({
@@ -128,6 +144,11 @@ const AppRecipesIdRoute = AppRecipesIdRouteImport.update({
   path: '/recipes/$id',
   getParentRoute: () => AppRoute,
 } as any)
+const AppRecipesImportRoute = AppRecipesImportRouteImport.update({
+  id: '/recipes/import',
+  path: '/recipes/import',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppSettingsIndexRoute = AppSettingsIndexRouteImport.update({
   id: '/settings/',
   path: '/settings/',
@@ -149,6 +170,21 @@ const AppSettingsLabelsRoute = AppSettingsLabelsRouteImport.update({
   path: '/settings/labels',
   getParentRoute: () => AppRoute,
 } as any)
+const AppSettingsRecipeListsRoute = AppSettingsRecipeListsRouteImport.update({
+  id: '/settings/recipe-lists',
+  path: '/settings/recipe-lists',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppShoppingIndexRoute = AppShoppingIndexRouteImport.update({
+  id: '/shopping/',
+  path: '/shopping/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppShoppingIdRoute = AppShoppingIdRouteImport.update({
+  id: '/shopping/$id',
+  path: '/shopping/$id',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppSettingsHouseholdsIdRoute = AppSettingsHouseholdsIdRouteImport.update({
   id: '/settings/households/$id',
   path: '/settings/households/$id',
@@ -160,7 +196,9 @@ export interface FileRoutesByFullPath {
   '/design': typeof DesignRoute
   '/design-stage-3': typeof DesignStage3Route
   '/design-stage-4': typeof DesignStage4Route
+  '/design-stage-4b': typeof DesignStage4bRoute
   '/privacy': typeof PrivacyRoute
+  '/share': typeof ShareRoute
   '/sign-in': typeof SignInRoute
   '/cardio': typeof AppCardioRoute
   '/goals': typeof AppGoalsRoute
@@ -173,11 +211,15 @@ export interface FileRoutesByFullPath {
   '/wardrobe': typeof AppWardrobeRoute
   '/item/$id': typeof AppItemIdRoute
   '/recipes/$id': typeof AppRecipesIdRoute
+  '/recipes/import': typeof AppRecipesImportRoute
   '/settings/archived-recipes': typeof AppSettingsArchivedRecipesRoute
   '/settings/deleted': typeof AppSettingsDeletedRoute
   '/settings/labels': typeof AppSettingsLabelsRoute
+  '/settings/recipe-lists': typeof AppSettingsRecipeListsRoute
+  '/shopping/$id': typeof AppShoppingIdRoute
   '/recipes/': typeof AppRecipesIndexRoute
   '/settings/': typeof AppSettingsIndexRoute
+  '/shopping/': typeof AppShoppingIndexRoute
   '/settings/households/$id': typeof AppSettingsHouseholdsIdRoute
 }
 export interface FileRoutesByTo {
@@ -185,7 +227,9 @@ export interface FileRoutesByTo {
   '/design': typeof DesignRoute
   '/design-stage-3': typeof DesignStage3Route
   '/design-stage-4': typeof DesignStage4Route
+  '/design-stage-4b': typeof DesignStage4bRoute
   '/privacy': typeof PrivacyRoute
+  '/share': typeof ShareRoute
   '/sign-in': typeof SignInRoute
   '/cardio': typeof AppCardioRoute
   '/goals': typeof AppGoalsRoute
@@ -198,11 +242,15 @@ export interface FileRoutesByTo {
   '/wardrobe': typeof AppWardrobeRoute
   '/item/$id': typeof AppItemIdRoute
   '/recipes/$id': typeof AppRecipesIdRoute
+  '/recipes/import': typeof AppRecipesImportRoute
   '/settings/archived-recipes': typeof AppSettingsArchivedRecipesRoute
   '/settings/deleted': typeof AppSettingsDeletedRoute
   '/settings/labels': typeof AppSettingsLabelsRoute
+  '/settings/recipe-lists': typeof AppSettingsRecipeListsRoute
+  '/shopping/$id': typeof AppShoppingIdRoute
   '/recipes': typeof AppRecipesIndexRoute
   '/settings': typeof AppSettingsIndexRoute
+  '/shopping': typeof AppShoppingIndexRoute
   '/settings/households/$id': typeof AppSettingsHouseholdsIdRoute
 }
 export interface FileRoutesById {
@@ -212,7 +260,9 @@ export interface FileRoutesById {
   '/design': typeof DesignRoute
   '/design-stage-3': typeof DesignStage3Route
   '/design-stage-4': typeof DesignStage4Route
+  '/design-stage-4b': typeof DesignStage4bRoute
   '/privacy': typeof PrivacyRoute
+  '/share': typeof ShareRoute
   '/sign-in': typeof SignInRoute
   '/_app/cardio': typeof AppCardioRoute
   '/_app/goals': typeof AppGoalsRoute
@@ -225,11 +275,15 @@ export interface FileRoutesById {
   '/_app/wardrobe': typeof AppWardrobeRoute
   '/_app/item/$id': typeof AppItemIdRoute
   '/_app/recipes/$id': typeof AppRecipesIdRoute
+  '/_app/recipes/import': typeof AppRecipesImportRoute
   '/_app/settings/archived-recipes': typeof AppSettingsArchivedRecipesRoute
   '/_app/settings/deleted': typeof AppSettingsDeletedRoute
   '/_app/settings/labels': typeof AppSettingsLabelsRoute
+  '/_app/settings/recipe-lists': typeof AppSettingsRecipeListsRoute
+  '/_app/shopping/$id': typeof AppShoppingIdRoute
   '/_app/recipes/': typeof AppRecipesIndexRoute
   '/_app/settings/': typeof AppSettingsIndexRoute
+  '/_app/shopping/': typeof AppShoppingIndexRoute
   '/_app/settings/households/$id': typeof AppSettingsHouseholdsIdRoute
 }
 export interface FileRouteTypes {
@@ -239,7 +293,9 @@ export interface FileRouteTypes {
     | '/design'
     | '/design-stage-3'
     | '/design-stage-4'
+    | '/design-stage-4b'
     | '/privacy'
+    | '/share'
     | '/sign-in'
     | '/cardio'
     | '/goals'
@@ -252,11 +308,15 @@ export interface FileRouteTypes {
     | '/wardrobe'
     | '/item/$id'
     | '/recipes/$id'
+    | '/recipes/import'
     | '/settings/archived-recipes'
     | '/settings/deleted'
     | '/settings/labels'
+    | '/settings/recipe-lists'
+    | '/shopping/$id'
     | '/recipes/'
     | '/settings/'
+    | '/shopping/'
     | '/settings/households/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -264,7 +324,9 @@ export interface FileRouteTypes {
     | '/design'
     | '/design-stage-3'
     | '/design-stage-4'
+    | '/design-stage-4b'
     | '/privacy'
+    | '/share'
     | '/sign-in'
     | '/cardio'
     | '/goals'
@@ -277,11 +339,15 @@ export interface FileRouteTypes {
     | '/wardrobe'
     | '/item/$id'
     | '/recipes/$id'
+    | '/recipes/import'
     | '/settings/archived-recipes'
     | '/settings/deleted'
     | '/settings/labels'
+    | '/settings/recipe-lists'
+    | '/shopping/$id'
     | '/recipes'
     | '/settings'
+    | '/shopping'
     | '/settings/households/$id'
   id:
     | '__root__'
@@ -290,7 +356,9 @@ export interface FileRouteTypes {
     | '/design'
     | '/design-stage-3'
     | '/design-stage-4'
+    | '/design-stage-4b'
     | '/privacy'
+    | '/share'
     | '/sign-in'
     | '/_app/cardio'
     | '/_app/goals'
@@ -303,11 +371,15 @@ export interface FileRouteTypes {
     | '/_app/wardrobe'
     | '/_app/item/$id'
     | '/_app/recipes/$id'
+    | '/_app/recipes/import'
     | '/_app/settings/archived-recipes'
     | '/_app/settings/deleted'
     | '/_app/settings/labels'
+    | '/_app/settings/recipe-lists'
+    | '/_app/shopping/$id'
     | '/_app/recipes/'
     | '/_app/settings/'
+    | '/_app/shopping/'
     | '/_app/settings/households/$id'
   fileRoutesById: FileRoutesById
 }
@@ -317,7 +389,9 @@ export interface RootRouteChildren {
   DesignRoute: typeof DesignRoute
   DesignStage3Route: typeof DesignStage3Route
   DesignStage4Route: typeof DesignStage4Route
+  DesignStage4bRoute: typeof DesignStage4bRoute
   PrivacyRoute: typeof PrivacyRoute
+  ShareRoute: typeof ShareRoute
   SignInRoute: typeof SignInRoute
 }
 
@@ -358,11 +432,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DesignStage4RouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/design-stage-4b': {
+      id: '/design-stage-4b'
+      path: '/design-stage-4b'
+      fullPath: '/design-stage-4b'
+      preLoaderRoute: typeof DesignStage4bRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/privacy': {
       id: '/privacy'
       path: '/privacy'
       fullPath: '/privacy'
       preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/share': {
+      id: '/share'
+      path: '/share'
+      fullPath: '/share'
+      preLoaderRoute: typeof ShareRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sign-in': {
@@ -456,6 +544,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppRecipesIdRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/recipes/import': {
+      id: '/_app/recipes/import'
+      path: '/recipes/import'
+      fullPath: '/recipes/import'
+      preLoaderRoute: typeof AppRecipesImportRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/settings/': {
       id: '/_app/settings/'
       path: '/settings'
@@ -484,6 +579,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppSettingsLabelsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/settings/recipe-lists': {
+      id: '/_app/settings/recipe-lists'
+      path: '/settings/recipe-lists'
+      fullPath: '/settings/recipe-lists'
+      preLoaderRoute: typeof AppSettingsRecipeListsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/shopping/': {
+      id: '/_app/shopping/'
+      path: '/shopping'
+      fullPath: '/shopping/'
+      preLoaderRoute: typeof AppShoppingIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/shopping/$id': {
+      id: '/_app/shopping/$id'
+      path: '/shopping/$id'
+      fullPath: '/shopping/$id'
+      preLoaderRoute: typeof AppShoppingIdRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/settings/households/$id': {
       id: '/_app/settings/households/$id'
       path: '/settings/households/$id'
@@ -506,11 +622,15 @@ interface AppRouteChildren {
   AppWardrobeRoute: typeof AppWardrobeRoute
   AppItemIdRoute: typeof AppItemIdRoute
   AppRecipesIdRoute: typeof AppRecipesIdRoute
+  AppRecipesImportRoute: typeof AppRecipesImportRoute
   AppSettingsArchivedRecipesRoute: typeof AppSettingsArchivedRecipesRoute
   AppSettingsDeletedRoute: typeof AppSettingsDeletedRoute
   AppSettingsLabelsRoute: typeof AppSettingsLabelsRoute
+  AppSettingsRecipeListsRoute: typeof AppSettingsRecipeListsRoute
+  AppShoppingIdRoute: typeof AppShoppingIdRoute
   AppRecipesIndexRoute: typeof AppRecipesIndexRoute
   AppSettingsIndexRoute: typeof AppSettingsIndexRoute
+  AppShoppingIndexRoute: typeof AppShoppingIndexRoute
   AppSettingsHouseholdsIdRoute: typeof AppSettingsHouseholdsIdRoute
 }
 
@@ -526,11 +646,15 @@ const AppRouteChildren: AppRouteChildren = {
   AppWardrobeRoute: AppWardrobeRoute,
   AppItemIdRoute: AppItemIdRoute,
   AppRecipesIdRoute: AppRecipesIdRoute,
+  AppRecipesImportRoute: AppRecipesImportRoute,
   AppSettingsArchivedRecipesRoute: AppSettingsArchivedRecipesRoute,
   AppSettingsDeletedRoute: AppSettingsDeletedRoute,
   AppSettingsLabelsRoute: AppSettingsLabelsRoute,
+  AppSettingsRecipeListsRoute: AppSettingsRecipeListsRoute,
+  AppShoppingIdRoute: AppShoppingIdRoute,
   AppRecipesIndexRoute: AppRecipesIndexRoute,
   AppSettingsIndexRoute: AppSettingsIndexRoute,
+  AppShoppingIndexRoute: AppShoppingIndexRoute,
   AppSettingsHouseholdsIdRoute: AppSettingsHouseholdsIdRoute,
 }
 
@@ -542,7 +666,9 @@ const rootRouteChildren: RootRouteChildren = {
   DesignRoute: DesignRoute,
   DesignStage3Route: DesignStage3Route,
   DesignStage4Route: DesignStage4Route,
+  DesignStage4bRoute: DesignStage4bRoute,
   PrivacyRoute: PrivacyRoute,
+  ShareRoute: ShareRoute,
   SignInRoute: SignInRoute,
 }
 export const routeTree = rootRouteImport

@@ -1,4 +1,4 @@
-import { ArrowLeftIcon, ChefHatIcon, RotateCcwIcon, UtensilsIcon } from 'lucide-react'
+import { ArrowLeftIcon, ChefHatIcon, PlusIcon, RotateCcwIcon, UtensilsIcon } from 'lucide-react'
 import { useState } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
@@ -15,6 +15,7 @@ import {
   type SlotKey,
 } from '@/lib/meals'
 import { valueChoices } from '@/lib/recipes'
+import { queue, useRecentViews } from '@/data'
 import {
   planLeftovers,
   planRecipe,
@@ -33,10 +34,11 @@ type Mode =
 const live = (r: RecipeView) => r.variations.filter((v) => v.item.status !== 'cancelled')
 
 /**
- * What a slot's "+" offers (MPL-002, patterns.md#meal-plan): my Recipes,
- * planned lately first, narrowed by a search and my categories (the slot's
- * to start); a Recipe's Variations when it has more than one; or a Meal
- * typed, or leftovers of an earlier one. `onDone` once a Meal is planned.
+ * What a slot's "+" offers (MPL-002, patterns.md#meal-plan): a search and
+ * my categories, then the three Recipes I viewed last (Joe, 26 October),
+ * every match once I search or choose a category; a Recipe's Variations
+ * when it has more than one; or a Meal typed, or leftovers of an earlier
+ * one. `onDone` once a Meal is planned.
  */
 export function MealPicker({
   plan,
@@ -50,11 +52,13 @@ export function MealPicker({
   onDone: () => void
 }) {
   const { food } = plan
-  const categories = valueChoices(food.values, food.recipes, 'category')
-  const start = categories.find((c) => c.toLowerCase() === slot)
+  // Only what a plannable Recipe has: a category of Ideas alone finds none.
+  const library = food.recipes.filter((r) => r.state === 'active' || r.state === 'done')
+  const categories = valueChoices([], library, 'category')
+  const viewed = useRecentViews(queue)
   const [mode, setMode] = useState<Mode>({ kind: 'recipes' })
   const [search, setSearch] = useState('')
-  const [chosen, setChosen] = useState<ReadonlySet<string>>(new Set(start ? [start] : []))
+  const [chosen, setChosen] = useState<ReadonlySet<string>>(new Set())
   const [typed, setTyped] = useState('')
 
   const choose = (r: RecipeView) => {
@@ -173,16 +177,24 @@ export function MealPicker({
   }
 
   const q = search.trim().toLowerCase()
-  const shown = food.recipes
-    .filter((r) => r.state === 'active' || r.state === 'done')
+  const picked = new Set([...chosen].map((c) => c.toLowerCase()))
+  // Searching or narrowing: every match, A–Z. Else the three I viewed last
+  // (Joe, 26 October), or those planned lately before I've viewed any.
+  const looking = q !== '' || chosen.size > 0
+  const shown = library
     .filter((r) => !q || r.item.title.toLowerCase().includes(q))
-    .filter((r) => !chosen.size || (r.heading.category !== null && chosen.has(r.heading.category)))
-  const lately = plannedLately(plan.meals, food.recipeOf)
-    .map((id) => shown.find((r) => r.item.id === id))
-    .filter((r): r is RecipeView => r !== undefined)
-  const rest = shown
-    .filter((r) => !lately.includes(r))
+    .filter(
+      (r) =>
+        !picked.size ||
+        (r.heading.category !== null && picked.has(r.heading.category.trim().toLowerCase())),
+    )
     .sort((a, b) => a.item.title.localeCompare(b.item.title))
+  const byId = new Map(library.map((r) => [r.item.id, r]))
+  const recent = viewed.map((id) => byId.get(id)).filter((r): r is RecipeView => !!r)
+  const fallback = plannedLately(plan.meals, food.recipeOf)
+    .map((id) => byId.get(id))
+    .filter((r): r is RecipeView => !!r)
+  const quick = (recent.length ? recent : fallback).slice(0, 3)
   const row = (r: RecipeView) => (
     <PickRow
       key={r.item.id}
@@ -202,25 +214,27 @@ export function MealPicker({
       {categories.length > 0 && (
         <LabelChips
           aria-label="Category"
-          icon={null}
+          icon={PlusIcon}
           labels={categories.map((c) => ({ id: c, name: c }))}
           chosen={chosen}
           onChange={(next) => setChosen(new Set(next))}
         />
       )}
-      {lately.length > 0 && (
-        <>
-          <div className="px-1 text-xs font-semibold text-muted-foreground">Planned lately</div>
-          <div className="flex flex-col">{lately.map(row)}</div>
-        </>
+      {looking
+        ? shown.length > 0 && (
+            <div className="flex max-h-60 flex-col overflow-y-auto">{shown.map(row)}</div>
+          )
+        : quick.length > 0 && (
+            <>
+              <div className="px-1 text-xs font-semibold text-muted-foreground">
+                {recent.length ? 'Recently viewed' : 'Planned lately'}
+              </div>
+              <div className="flex flex-col">{quick.map(row)}</div>
+            </>
+          )}
+      {looking && !shown.length && (
+        <p className="px-1.5 text-sm text-muted-foreground">No recipes match</p>
       )}
-      {rest.length > 0 && (
-        <>
-          <div className="px-1 text-xs font-semibold text-muted-foreground">All recipes</div>
-          <div className="flex max-h-60 flex-col overflow-y-auto">{rest.map(row)}</div>
-        </>
-      )}
-      {!shown.length && <p className="px-1.5 text-sm text-muted-foreground">No recipes match</p>}
       <div className="flex gap-1 border-t border-border pt-2">
         <Button
           variant="ghost"
@@ -250,12 +264,21 @@ const dayTitle = new Intl.DateTimeFormat('en-GB', {
 })
 
 /**
- * Plan's "+" → Meal (PLN-008 4): the day's slot, Dinner to start, then the
- * Meal plan's search in its place.
+ * Plan's "+" → Meal (PLN-008 4), and a phone's Meal plan: the day's slot,
+ * Dinner to start (or the one tapped), then the Meal plan's search in its
+ * place.
  */
-export function AddMealDialog({ day, onClose }: { day: string; onClose: () => void }) {
+export function AddMealDialog({
+  day,
+  slot: first = 'dinner',
+  onClose,
+}: {
+  day: string
+  slot?: SlotKey
+  onClose: () => void
+}) {
   const plan = useMealPlan()
-  const [slot, setSlot] = useState<SlotKey>('dinner')
+  const [slot, setSlot] = useState<SlotKey>(first)
   const date = new Date(`${day}T12:00:00`)
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>

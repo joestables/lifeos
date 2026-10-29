@@ -106,7 +106,7 @@ select throws_ok(
   '23505', null,
   'RCP-018: my list holds a value once'
 );
-select food.set_staple('00000000-0000-7000-8000-0000000000f1', '00000000-0000-7000-8000-0000000000e1', true, true);
+select food.keep_entry('00000000-0000-7000-8000-0000000000f1', '00000000-0000-7000-8000-0000000000e1', 'staple', true);
 
 -- ---------------------------------------------------------------------------
 -- States (RCP-010).
@@ -221,7 +221,7 @@ select throws_ok(
 );
 select food.add_pantry('00000000-0000-7000-8000-0000000000e4', '{"name": "Gochujang", "aisle": "cupboard", "default_unit": "tbsp"}');
 select is(
-  (select out_of_stock from food.staples where pantry_id = '00000000-0000-7000-8000-0000000000e1'),
+  (select needed from food.space_entries where pantry_id = '00000000-0000-7000-8000-0000000000e1'),
   true,
   'PAN-002: staples and out of stock are the Household''s, seen by its members'
 );
@@ -348,7 +348,7 @@ select is(
   'ADR-0051: outside the Household, nothing is seen'
 );
 select is(
-  (select count(*)::int from food.staples) + (select count(*)::int from food.values) + (select count(*)::int from food.cooks),
+  (select count(*)::int from food.space_entries) + (select count(*)::int from food.values) + (select count(*)::int from food.cooks),
   0,
   'ADR-0051: nor its staples, lists or cooks'
 );

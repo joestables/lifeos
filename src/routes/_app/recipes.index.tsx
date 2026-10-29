@@ -1,12 +1,13 @@
+import type { ImportAnswer } from '@lifeos/food'
 import { createFileRoute, useLocation, useNavigate, useRouter } from '@tanstack/react-router'
 import {
   ArchiveIcon,
   ChefHatIcon,
   LinkIcon,
   ListChecksIcon,
-  PlusIcon,
   SearchIcon,
   SlidersHorizontalIcon,
+  SparklesIcon,
   StickyNoteIcon,
   Trash2Icon,
 } from 'lucide-react'
@@ -17,12 +18,12 @@ import {
   FilterPanel,
   FilterSection,
   ItemRow,
-  PageAction,
   PageHeader,
   RecipeCard,
   RecipeGrid,
   SectionLabel,
   SelectionBar,
+  SortMenu,
   TabsRow,
   TypeScope,
   TypeTile,
@@ -32,12 +33,7 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+import { DropdownMenuItem } from '@/components/ui/dropdown-menu'
 import {
   Select,
   SelectContent,
@@ -45,11 +41,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { toast } from '@/components/ui/sonner'
 import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { useLibraryView } from '@/app/library-view'
+import { ImportDialog } from '@/app/import-dialog'
+import { AI_REFUSALS } from '@/app/ai-words'
+import { setPendingImport, type PendingImport } from '@/app/import-store'
 import { NewIdeaDialog } from '@/app/new-idea'
+import { NewRecipeMenu } from '@/app/new-recipe-menu'
 import { IdeaDialog } from '@/app/idea-dialog'
 import { archiveRecipes, deleteRecipes } from '@/app/recipe-actions'
 import { HeadingDialog } from '@/app/recipe-heading'
@@ -57,6 +58,7 @@ import { SearchField } from '@/app/search-field'
 import { queue, setMark, useFood, useFoodSpaces, usePhotoUrls } from '@/data'
 import type { RecipeView } from '@/data/food-hooks'
 import { capturedWhen } from '@/lib/dates'
+import { sharedLink } from '@/lib/share'
 import {
   FILTERS,
   IDEA_SORTS,
@@ -81,10 +83,15 @@ type Tab = 'recipes' | 'ideas'
 
 /** The Recipes library and the Ideas list (RCP-001, RCP-002, RCP-004). */
 export const Route = createFileRoute('/_app/recipes/')({
-  validateSearch: (s: Record<string, unknown>): { tab?: 'ideas'; idea?: string } => ({
+  validateSearch: (
+    s: Record<string, unknown>,
+  ): { tab?: 'ideas'; idea?: string; share?: string; name?: string } => ({
     ...(s.tab === 'ideas' ? { tab: 'ideas' as const } : {}),
     // An Idea open in its popup (RCP-002, Joe, 20 October).
     ...(typeof s.idea === 'string' ? { idea: s.idea } : {}),
+    // A link from the iOS Shortcut, to New idea filled in (RCP-003 4).
+    ...(typeof s.share === 'string' ? { share: s.share } : {}),
+    ...(typeof s.name === 'string' ? { name: s.name } : {}),
   }),
   component: Recipes,
 })
@@ -119,19 +126,76 @@ function Recipes() {
 
   const newRecipe = () => setMaking('recipe')
   const newIdea = () => setMaking('idea')
+  // Import, or an Idea imported from its link (RCP-014).
+  const [importing, setImporting] = useState<{
+    idea?: RecipeView
+    choice?: { link: string; answer: Extract<ImportAnswer, { ok: true }> }
+  } | null>(null)
+  const checkImport = (pending: PendingImport) => {
+    setPendingImport(pending)
+    setImporting(null)
+    void navigate({ to: '/recipes/import' })
+  }
+  /**
+   * Closed while it works: it goes on, and says when it's read (RCP-014 1,
+   * Joe, 26 October), as a Variation's import does.
+   */
+  const continueImport = (work: Promise<ImportAnswer>, link: string, idea?: RecipeView) =>
+    void work.then(
+      (answer) => {
+        if (!answer.ok) return void toast(AI_REFUSALS[answer.reason])
+        if (answer.recipes.length > 1)
+          return void toast(`Imported ${answer.recipes.length} recipes`, {
+            action: {
+              label: 'Choose',
+              onClick: () => setImporting({ idea, choice: { link, answer } }),
+            },
+          })
+        const recipe = answer.recipes[0]!
+        toast(`Imported "${recipe.name}"`, {
+          action: {
+            label: 'Check it',
+            onClick: () =>
+              checkImport({
+                recipe,
+                link,
+                photo: answer.photo,
+                ...(idea ? { idea: idea.item.id } : {}),
+              }),
+          },
+          duration: 60_000,
+        })
+      },
+      () => toast(AI_REFUSALS.failed),
+    )
+  const menu = (fab: boolean) => (
+    <NewRecipeMenu
+      fab={fab}
+      onRecipe={newRecipe}
+      onIdea={newIdea}
+      onImport={() => setImporting({})}
+    />
+  )
 
   return (
     <TypeScope colour="green">
-      <PageHeader
-        title="Recipes"
-        action={
-          choosing
-            ? undefined
-            : tab === 'ideas'
-              ? { label: 'New idea', onClick: newIdea }
-              : { label: 'New recipe', onClick: newRecipe }
-        }
-      />
+      <PageHeader title="Recipes" />
+      {!choosing && menu(true)}
+      {importing && (
+        <ImportDialog
+          food={food}
+          idea={importing.idea}
+          choice={importing.choice}
+          onClose={() => setImporting(null)}
+          onContinue={(work, link) => continueImport(work, link, importing.idea)}
+          onChecked={checkImport}
+          onOpen={(r) => {
+            setImporting(null)
+            if (r.state === 'idea') openIdea(r.item.id)
+            else open(r.item.id)
+          }}
+        />
+      )}
       {making === 'recipe' && (
         <HeadingDialog
           food={food}
@@ -159,6 +223,14 @@ function Recipes() {
         />
       )}
       {making === 'idea' && <NewIdeaDialog food={food} onClose={() => setMaking(null)} />}
+      {search.share && !food.isLoading && (
+        <NewIdeaDialog
+          food={food}
+          link={sharedLink({ text: search.share }) ?? search.share}
+          name={search.name}
+          onClose={() => void navigate({ to: '.', search: { tab: 'ideas' }, replace: true })}
+        />
+      )}
       {/* Both tabs alike, so the search stays put between them (Joe, 20 October). */}
       <div className="flex flex-col gap-5 px-5 pb-28 sm:px-9 sm:pb-8">
         <TabsRow>
@@ -177,11 +249,7 @@ function Recipes() {
               <TabsTrigger value="ideas">Ideas</TabsTrigger>
             </TabsList>
           </Tabs>
-          {tab === 'ideas' ? (
-            <PageAction label="New idea" onClick={newIdea} />
-          ) : (
-            <NewRecipeMenu onRecipe={newRecipe} onIdea={newIdea} />
-          )}
+          {menu(false)}
         </TabsRow>
         {tab === 'ideas' ? (
           <Ideas
@@ -189,6 +257,7 @@ function Recipes() {
             loading={food.isLoading}
             onOpen={openIdea}
             onMakeDraft={(r) => setDraftingId(r.item.id)}
+            onImport={(r) => setImporting({ idea: r })}
             onChoosing={setChoosing}
           />
         ) : (
@@ -196,25 +265,6 @@ function Recipes() {
         )}
       </div>
     </TypeScope>
-  )
-}
-
-/** New recipe, New idea; Import from a link waits for its step (plan step 9). */
-function NewRecipeMenu({ onRecipe, onIdea }: { onRecipe: () => void; onIdea: () => void }) {
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger render={<Button size="sm" className="hidden md:inline-flex" />}>
-        <PlusIcon /> New recipe
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="start">
-        <DropdownMenuItem onClick={onRecipe}>
-          <ChefHatIcon /> New recipe
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={onIdea}>
-          <StickyNoteIcon /> New idea
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
   )
 }
 
@@ -329,20 +379,20 @@ function Library({
         onValueChange={(v: string[]) => v[0] && change({ state: v[0] as StateFilter })}
         className="self-start"
       >
+        <ToggleGroupItem value="all">All</ToggleGroupItem>
         <ToggleGroupItem value="draft">Draft</ToggleGroupItem>
         <ToggleGroupItem value="complete">Complete</ToggleGroupItem>
-        <ToggleGroupItem value="all">All</ToggleGroupItem>
       </ToggleGroup>
     </FilterSection>
   )
   const sortAndGroup = (fill: boolean) => (
     <>
-      <SmallSelect<Sort>
+      <SortMenu<Sort>
         fill={fill}
-        label="Sort"
-        value={view.sort}
         options={SORTS}
-        onChange={(sort) => change({ sort })}
+        value={view.sort}
+        direction={view.sortDir}
+        onChange={(sort, sortDir) => change({ sort, sortDir })}
       />
       <SmallSelect<Grouping>
         fill={fill}
@@ -389,11 +439,14 @@ function Library({
               <Button
                 variant="outline"
                 size="sm"
-                className="lg:hidden"
+                className="relative lg:hidden"
                 onClick={() => setSheet(true)}
               >
                 <SlidersHorizontalIcon /> Filters
-                {chosenCount > 0 && <Badge className="-mr-1">{chosenCount}</Badge>}
+                {/* On its corner, so the row never moves when it comes. */}
+                {chosenCount > 0 && (
+                  <Badge className="absolute -top-2 -right-2">{chosenCount}</Badge>
+                )}
               </Button>
             </div>
             <div className="flex items-center gap-2 lg:contents">
@@ -438,6 +491,8 @@ function Library({
                   favourite={r.favourite}
                   selecting={choosing.choosing}
                   selected={choosing.chosen.has(r.item.id)}
+                  // Only my own are chosen: a member's fades, saying whose.
+                  unavailable={r.mine ? undefined : `${spaces.firstName(r.item.owner_id)}’s`}
                   onOpen={() => onOpen(r.item.id)}
                   onFavourite={(on) => setMark(r.item.id, on)}
                   onSelect={(on) => r.mine && choosing.choose(r.item.id, on)}
@@ -496,6 +551,7 @@ function IdeaRow({
   onStart,
   onOpen,
   onMakeDraft,
+  onImport,
 }: {
   idea: RecipeView
   choosing: boolean
@@ -504,6 +560,7 @@ function IdeaRow({
   onStart?: () => void
   onOpen: () => void
   onMakeDraft: () => void
+  onImport: () => void
 }) {
   const longPress = useLongPress(onStart)
   const fields = idea.defaultVariation?.fields
@@ -540,6 +597,11 @@ function IdeaRow({
               <DropdownMenuItem onClick={onMakeDraft}>
                 <ChefHatIcon /> Make it a draft
               </DropdownMenuItem>
+              {source && (
+                <DropdownMenuItem onClick={onImport}>
+                  <SparklesIcon /> Import from its link
+                </DropdownMenuItem>
+              )}
               <DropdownMenuItem variant="destructive" onClick={() => deleteRecipes([idea], 'idea')}>
                 <Trash2Icon /> Delete
               </DropdownMenuItem>
@@ -557,18 +619,20 @@ function Ideas({
   loading,
   onOpen,
   onMakeDraft,
+  onImport,
   onChoosing,
 }: {
   recipes: RecipeView[]
   loading: boolean
   onOpen: (id: string) => void
   onMakeDraft: (idea: RecipeView) => void
+  onImport: (idea: RecipeView) => void
   onChoosing: (on: boolean) => void
 }) {
   const [search, setSearch] = useState('')
-  const { ideaSort, change } = useLibraryView()
+  const { ideaSort, ideaSortDir, change } = useLibraryView()
   const choosing = useChoosing(onChoosing)
-  const ideas = ideaRecipes(recipes, search, ideaSort)
+  const ideas = ideaRecipes(recipes, search, ideaSort, ideaSortDir)
   const any = recipes.some((r) => r.state === 'idea')
   const picked = ideas.filter((r) => choosing.chosen.has(r.item.id))
   const act = (fn: (rs: RecipeView[]) => void) => () => {
@@ -595,11 +659,11 @@ function Ideas({
       ) : (
         <div className="flex items-center gap-2">
           <SearchField label="Search ideas" value={search} onChange={setSearch} />
-          <SmallSelect<IdeaSort>
-            label="Sort"
-            value={ideaSort}
+          <SortMenu<IdeaSort>
             options={IDEA_SORTS}
-            onChange={(ideaSort) => change({ ideaSort })}
+            value={ideaSort}
+            direction={ideaSortDir}
+            onChange={(ideaSort, ideaSortDir) => change({ ideaSort, ideaSortDir })}
           />
           <Button
             variant="ghost"
@@ -624,6 +688,7 @@ function Ideas({
             onStart={choosing.choosing || !i.mine ? undefined : () => choosing.start(i.item.id)}
             onOpen={() => onOpen(i.item.id)}
             onMakeDraft={() => onMakeDraft(i)}
+            onImport={() => onImport(i)}
           />
         ))}
       </div>

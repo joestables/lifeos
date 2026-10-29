@@ -46,7 +46,9 @@ export { EventFact, EventSource } from './EventFacts'
 export { RecipeCard, RecipeGrid, RecipePhoto, StarRating, type CardSize } from './RecipeCard'
 export { FilterLayout, FilterPanel, FilterSection, type FilterGroup } from './FilterPanel'
 export { SelectionBar } from './SelectionBar'
-export { PantryAisle, PantryRow } from './PantryRow'
+export { SortMenu, type SortDirection, type SortOption } from './SortMenu'
+export { KeepToggles, PantryAisle, PantryRow, type Kept } from './PantryRow'
+export { KeptRow, OfferRow, ShoppingLine } from './Shopping'
 export { PickRow } from './PickRow'
 export {
   IngredientLineEditor,

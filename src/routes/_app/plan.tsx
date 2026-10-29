@@ -1,4 +1,5 @@
 import { AddMealDialog } from '@/app/add-meal'
+import { NewListDialog } from '@/app/new-list'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { addDays, todayIn } from '@lifeos/recurrence'
 import { TYPES, hasTrait } from '@lifeos/ontology'
@@ -25,14 +26,18 @@ import { useGoogleLocked, useSyncOnOpen } from '@/app/google-source'
 import { useOpenItem } from '@/app/item-navigation'
 import { NewTaskDialog } from '@/app/new-task'
 import {
+  archiveItem,
   queue,
+  restoreItem,
   updateItem,
   updateSettings,
   useHouseholds,
   useItems,
+  useMeals,
   useSettings,
   type Item,
 } from '@/data'
+import { leftoversBefore } from '@/lib/meals'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { dayName, fromIsoDay, shortDate } from '@/lib/dates'
 import { itemTitle, offered, typeLook } from '@/lib/item-types'
@@ -132,16 +137,42 @@ function Plan() {
       plan_hidden_types: on ? hidden.filter((t) => t !== type) : [...hidden, type],
     })
 
+  const { meals } = useMeals(queue)
   const move = (item: Item, from: string, to: string) => {
     const patch = moveTo(item, from, to, settings.timezone)
     if (!patch) return
     const was = Object.fromEntries(
       Object.keys(patch).map((k) => [k, item[k as keyof typeof patch]]),
     ) as typeof patch
+    // A Meal's leftovers at or before where it goes are removed (MPL-003 2).
+    const gone =
+      item.type === 'meal' && item.slot
+        ? leftoversBefore(
+            item.id,
+            to,
+            item.slot,
+            meals.map((m) => ({
+              id: m.item.id,
+              leftoversOf: m.leftoversOf,
+              day: m.item.do_on,
+              slot: m.item.slot,
+            })),
+          )
+        : []
     updateItem(item.id, patch)
-    toast(`Moved "${itemTitle(item)}" to ${dayName(to, now)}`, {
-      action: { label: 'Undo', onClick: () => updateItem(item.id, was) },
-    })
+    for (const l of gone) archiveItem(l.id)
+    toast(
+      `Moved "${itemTitle(item)}" to ${dayName(to, now)}${gone.length ? ' and removed its leftovers' : ''}`,
+      {
+        action: {
+          label: 'Undo',
+          onClick: () => {
+            updateItem(item.id, was)
+            for (const l of gone) restoreItem(l.id)
+          },
+        },
+      },
+    )
   }
 
   const card = (p: Placed, on: string, wide = false) => {
@@ -294,6 +325,9 @@ function Plan() {
       )}
       {adding?.type === 'meal' && (
         <AddMealDialog day={adding.day} onClose={() => setAdding(null)} />
+      )}
+      {adding?.type === 'shopping_list' && (
+        <NewListDialog kind="food" day={adding.day} onClose={() => setAdding(null)} />
       )}
     </>
   )

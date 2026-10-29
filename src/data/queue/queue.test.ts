@@ -180,3 +180,15 @@ describe('the write queue', () => {
     expect(queue.entries()).toHaveLength(0)
   })
 })
+
+describe('a write sent twice (OFF-004)', () => {
+  it('is already applied when its own id is taken, and only then', async () => {
+    const { alreadyApplied } = await import('./errors')
+    const pkey = 'duplicate key value violates unique constraint "items_pkey"'
+    expect(alreadyApplied({ code: '23505', message: pkey })).toBe(true)
+    expect(
+      alreadyApplied({ code: '23505', message: 'duplicate key value violates "pantry_name"' }),
+    ).toBe(false)
+    expect(alreadyApplied({ code: '42501', message: pkey })).toBe(false)
+  })
+})

@@ -23,7 +23,7 @@ import {
 } from '@/data'
 import type { RecipeView } from '@/data/food-hooks'
 import { useOnLeave } from '@/hooks/use-on-leave'
-import { nameTaken, valueChoices } from '@/lib/recipes'
+import { nameTaken, takenMessage, valueChoices } from '@/lib/recipes'
 import { keepPhoto, type PhotoChoice } from './keep-photo'
 import { PhotoField } from './photo-field'
 import { makeDrafts } from './recipe-actions'
@@ -77,13 +77,7 @@ export function HeadingDialog({
   const [photo, setPhotoChoice] = useState<PhotoChoice>(null)
   const current = usePhotoUrls([recipe?.photo?.path]).get(recipe?.photo?.path ?? '')
   const taken = name.trim() ? nameTaken(food.recipes, name, recipe?.item.id) : undefined
-  const problem = !name.trim()
-    ? 'A recipe needs a name'
-    : taken
-      ? taken.mine
-        ? 'You already have a recipe with this name'
-        : 'A recipe in your Household has this name'
-      : null
+  const problem = !name.trim() ? 'A recipe needs a name' : taken ? takenMessage(taken) : null
   // An Idea needs neither; anything further, both.
   const needsFacts = !recipe || drafting || recipe.state !== 'idea'
   const missing = needsFacts
@@ -94,9 +88,11 @@ export function HeadingDialog({
     : null
 
   const choices = (kind: ValueKind) => valueChoices(food.values, food.recipes, kind)
-  // A new name goes into my list as it is chosen (RCP-006 5).
+  // A new name goes into my list as it is chosen (RCP-006 5): one only a
+  // Household member has is new to mine (RCP-018 1).
   const remember = (kind: ValueKind, value: string) => {
-    if (!food.values.some((v) => v.kind === kind && same(v.name, value))) addValue(kind, value)
+    const mine = food.values.filter((v) => v.person_id === food.me)
+    if (!mine.some((v) => v.kind === kind && same(v.name, value))) addValue(kind, value)
   }
 
   /**
@@ -195,7 +191,6 @@ export function HeadingDialog({
           <Field label="Name" htmlFor={nameId}>
             <Input
               id={nameId}
-              autoFocus
               autoComplete="off"
               value={name}
               aria-invalid={(tried && problem !== null) || undefined}

@@ -1,7 +1,16 @@
 import { expect, test, type Page } from '@playwright/test'
-import { DISHOOM, KATSU_AIR, KATSU_MEAL, LEFTOVERS, NOW, mealRows } from './meal-rows'
-import { KATSU, KATSU_STD, NOODLES_STD } from './recipe-rows'
-import { standIn } from './stand-in'
+import {
+  DISHOOM,
+  KATSU_AIR,
+  KATSU_MEAL,
+  LEFTOVERS,
+  NOW,
+  addMeal,
+  mealCards,
+  mealRows,
+} from './meal-rows'
+import { KATSU, KATSU_STD, NOODLES, NOODLES_STD, SHAKSHUKA } from './recipe-rows'
+import { ANN, standIn } from './stand-in'
 
 async function start(page: Page, path = '/meal-plan', { clock = true } = {}) {
   // A fixed clock stops the page's timers too, so a press and hold needs the real one.
@@ -12,16 +21,10 @@ async function start(page: Page, path = '/meal-plan', { clock = true } = {}) {
   return db
 }
 
-/** A day's slot: its MealSlot, on a computer or a phone. */
+/** A day's slot on a computer; a phone's day ("2026-10-15"). */
 const slot = (page: Page, key: string) => page.locator(`[data-drop="${key}"]`).last()
-const cards = (page: Page, key: string) => slot(page, key).locator('[data-slot="meal-card"]')
-
-async function add(page: Page, key: string) {
-  const name = key.split(':')[1]!
-  await slot(page, key)
-    .getByRole('button', { name: `Add ${name}` })
-    .click()
-}
+const cards = mealCards
+const add = addMeal
 
 const uses = (db: Awaited<ReturnType<typeof standIn>>, meal: string) =>
   db.links.find((l) => l.from_item === meal && l.link_type === 'uses')?.to_item
@@ -44,19 +47,50 @@ test.describe('The Meal plan', () => {
     await expect(cards(page, '2026-10-15:dinner')).toHaveCount(1)
   })
 
-  test('MPL-002 1, 2: a Recipe planned from the slot, narrowed by its category', async ({
-    page,
-  }) => {
-    const db = await start(page)
+  test('MPL-002 1: categories narrow to the Recipes I can plan', async ({ page }) => {
+    await page.clock.setFixedTime(NOW)
+    const base = mealRows()
+    await standIn(page, {
+      signedIn: true,
+      rows: {
+        ...base,
+        // On my list, but no Recipe I can plan has it.
+        values: [
+          {
+            id: 'v1',
+            person_id: ANN.id,
+            kind: 'category',
+            name: 'Baking',
+            created_at: '2026-10-01',
+          },
+        ],
+      },
+    })
+    await page.goto('/meal-plan')
     await add(page, '2026-10-14:dinner')
     const picker = page.getByRole('dialog')
-    // The slot's category is chosen: Shakshuka, a breakfast, isn't offered.
-    await expect(picker.getByRole('button', { name: 'Dinner' })).toHaveAttribute(
-      'aria-pressed',
-      'true',
-    )
-    await expect(picker.getByText('Planned lately')).toBeVisible()
-    await expect(picker.getByRole('button', { name: /Shakshuka/ })).toHaveCount(0)
+    const chips = picker.getByRole('group', { name: 'Category' })
+    await expect(chips.getByRole('button', { name: /Breakfast/ })).toBeVisible()
+    await expect(chips.getByRole('button', { name: /Baking/ })).toHaveCount(0)
+    await chips.getByRole('button', { name: /Breakfast/ }).click()
+    await expect(picker.getByRole('button', { name: /Shakshuka/ })).toBeVisible()
+    await expect(picker.getByRole('button', { name: /Katsu curry/ })).toHaveCount(0)
+  })
+
+  test('MPL-002 1, 2: a Recipe planned: my last viewed, or searched', async ({ page }) => {
+    const db = await start(page)
+    // Viewing a Recipe is kept (Joe, 26 October).
+    await page.goto(`/recipes/${SHAKSHUKA}`)
+    await expect.poll(() => db.recent_views.map((v) => v.recipe_id)).toEqual([SHAKSHUKA])
+    await page.goto('/meal-plan')
+    await add(page, '2026-10-14:dinner')
+    const picker = page.getByRole('dialog')
+    await expect(picker.getByText('Recently viewed')).toBeVisible()
+    await expect(picker.getByRole('button', { name: /Shakshuka/ })).toBeVisible()
+    await expect(picker.getByRole('button', { name: /Gochujang noodles/ })).toHaveCount(0)
+    // Searching shows every match.
+    await picker.getByRole('searchbox', { name: 'Search recipes' }).fill('noodles')
+    await expect(picker.getByText('Recently viewed')).toHaveCount(0)
     await picker.getByRole('button', { name: /Gochujang noodles/ }).click()
     await expect(cards(page, '2026-10-14:dinner')).toHaveText(/Gochujang noodles.*Serves 4/)
     await expect
@@ -64,10 +98,15 @@ test.describe('The Meal plan', () => {
       .toMatchObject({ do_on: '2026-10-14', slot: 'dinner' })
     const meal = db.items.find((i) => i.type === 'meal' && i.title === 'Gochujang noodles')!
     await expect.poll(() => uses(db, String(meal.id))).toBe(NOODLES_STD)
-    expect(db.meal.find((m) => m.item_id === meal.id)).toMatchObject({ servings: 4 })
+    // Its servings are its Variation's, kept on the Variation (MPL-002 2).
+    expect(db.meal.find((m) => m.item_id === meal.id)).toMatchObject({ servings: null })
 
     // A Recipe with more than one Variation asks which.
     await add(page, '2026-10-13:dinner')
+    await page
+      .getByRole('dialog')
+      .getByRole('searchbox', { name: 'Search recipes' })
+      .fill('katsu c')
     await page
       .getByRole('dialog')
       .getByRole('button', { name: /Katsu curry/ })
@@ -158,15 +197,39 @@ test.describe('The Meal plan', () => {
     await expect(cards(page, '2026-10-17:dinner')).toHaveText(/Out: Dishoom/)
   })
 
-  test('MPL-003 2: on a phone, a Meal pressed and held is dragged to another slot', async ({
+  test('MPL-003 2: a Meal moved past its leftovers removes them, and Undo brings both back', async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(isMobile, 'dragged on a computer; the rule is the same from Move to')
+    const db = await start(page)
+    // Thursday's dinner to Friday's, after its leftovers at Friday lunch.
+    const from = cards(page, '2026-10-15:dinner').first()
+    const to = slot(page, '2026-10-16:dinner')
+    const a = (await from.boundingBox())!
+    const b = (await to.boundingBox())!
+    await page.mouse.move(a.x + a.width / 2, a.y + a.height / 2)
+    await page.mouse.down()
+    await page.mouse.move(a.x + a.width / 2 + 20, a.y + a.height / 2, { steps: 4 })
+    await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2, { steps: 8 })
+    await page.mouse.up()
+    await expect(page.getByText('and removed its leftovers')).toBeVisible()
+    await expect.poll(() => db.items.find((i) => i.id === LEFTOVERS)?.archived_at).toBeTruthy()
+    await expect(cards(page, '2026-10-16:lunch')).toHaveCount(0)
+    await page.getByRole('button', { name: 'Undo' }).click()
+    await expect(cards(page, '2026-10-16:lunch')).toHaveText(/Katsu curry/)
+    await expect(cards(page, '2026-10-15:dinner')).toHaveText(/Katsu curry/)
+  })
+
+  test('MPL-003 2: on a phone, a Meal pressed and held is dragged to another day, keeping its slot', async ({
     page,
     isMobile,
   }) => {
     test.skip(!isMobile, 'a finger, on a phone')
     const db = await start(page, '/meal-plan?day=2026-10-15', { clock: false })
-    await slot(page, '2026-10-17:lunch').scrollIntoViewIfNeeded()
+    await slot(page, '2026-10-18').scrollIntoViewIfNeeded()
     const from = (await cards(page, '2026-10-17:dinner').first().boundingBox())!
-    const to = (await slot(page, '2026-10-17:lunch').boundingBox())!
+    const to = (await slot(page, '2026-10-18').boundingBox())!
     const cdp = await page.context().newCDPSession(page)
     const touch = (type: 'touchStart' | 'touchMove' | 'touchEnd', x: number, y: number) =>
       cdp.send('Input.dispatchTouchEvent', {
@@ -180,10 +243,10 @@ test.describe('The Meal plan', () => {
     for (let i = 1; i <= 6; i++)
       await touch('touchMove', x, from.y + ((to.y + to.height / 2 - from.y) * i) / 6)
     await touch('touchEnd', 0, 0)
-    await expect(cards(page, '2026-10-17:lunch')).toHaveText(/Out: Dishoom/)
+    await expect(cards(page, '2026-10-18:dinner')).toHaveText(/Out: Dishoom/)
     await expect
       .poll(() => db.items.find((i) => i.id === DISHOOM))
-      .toMatchObject({ do_on: '2026-10-17', slot: 'lunch' })
+      .toMatchObject({ do_on: '2026-10-18', slot: 'dinner' })
   })
 
   test('MPL-003 3: a Meal removed takes its leftovers, with Undo', async ({ page }) => {
@@ -206,25 +269,6 @@ test.describe('The Meal plan', () => {
     await expect(cards(page, '2026-10-16:lunch')).toHaveCount(1)
   })
 
-  test('MPL-004: a week copied to another, leftovers of their copies', async ({ page }) => {
-    const db = await start(page)
-    await page.getByRole('button', { name: 'More' }).first().click()
-    await page.getByRole('menuitem', { name: 'Copy this week…' }).click()
-    await page
-      .getByRole('dialog', { name: 'Copy this week' })
-      .getByRole('button', { name: 'Copy' })
-      .click()
-    await expect(page.getByText('Copied 3 meals')).toBeVisible()
-    await expect
-      .poll(() => db.items.filter((i) => i.type === 'meal' && String(i.do_on) >= '2026-10-19'))
-      .toHaveLength(3)
-    const copy = db.items.find((i) => i.type === 'meal' && i.do_on === '2026-10-22')!
-    expect(db.meal.find((m) => m.leftovers_of === copy.id)).toBeTruthy()
-    expect(uses(db, String(copy.id))).toBe(KATSU_STD)
-    await page.getByRole('button', { name: 'Next week' }).click()
-    await expect(cards(page, '2026-10-23:lunch')).toHaveText(/Katsu curry.*Leftovers/)
-  })
-
   test('PLN-008: Meals on Plan in slot order, and added from its "+"', async ({
     page,
     isMobile,
@@ -240,9 +284,71 @@ test.describe('The Meal plan', () => {
       .getByRole('group', { name: 'Slot' })
       .getByRole('button', { name: 'Breakfast' })
       .click()
+    await dialog.getByRole('searchbox', { name: 'Search recipes' }).fill('shak')
     await dialog.getByRole('button', { name: /Shakshuka/ }).click()
     await expect
       .poll(() => db.items.find((i) => i.type === 'meal' && i.title === 'Shakshuka'))
       .toMatchObject({ do_on: '2026-10-15', slot: 'breakfast' })
+  })
+
+  test('MPL-001 6: planning a Meal leaves the other photos as they are', async ({ page }) => {
+    await page.clock.setFixedTime(NOW)
+    const photo = `${KATSU}/p1.webp`
+    const rows = mealRows()
+    const other = `${NOODLES}/p2.webp`
+    rows.attachments = [
+      { id: 'p1', item_id: KATSU, kind: 'photo', path: photo, width: 400, height: 300 },
+      { id: 'p2', item_id: NOODLES, kind: 'photo', path: other, width: 400, height: 300 },
+    ]
+    const db = await standIn(page, { signedIn: true, rows })
+    db.files.set(photo, Buffer.from('stand-in'))
+    db.files.set(other, Buffer.from('stand-in'))
+    const signed: string[][] = []
+    page.on('request', (r) => {
+      if (r.url().includes('/storage/v1/object/sign/photos') && r.method() === 'POST')
+        signed.push((r.postDataJSON() as { paths: string[] }).paths)
+    })
+    await page.goto('/meal-plan')
+    await expect.poll(() => signed.flat()).toContain(photo)
+    const asked = signed.length
+    await add(page, '2026-10-14:dinner')
+    await page
+      .getByRole('dialog')
+      .getByRole('searchbox', { name: 'Search recipes' })
+      .fill('noodles')
+    await page
+      .getByRole('dialog')
+      .getByRole('button', { name: /Gochujang noodles/ })
+      .click()
+    await expect(cards(page, '2026-10-14:dinner')).toHaveCount(1)
+    // Only the new Meal's photo is asked for, not Katsu curry's again.
+    await expect.poll(() => signed.slice(asked).flat()).toContain(other)
+    expect(signed.slice(asked).flat()).not.toContain(photo)
+  })
+
+  test('MPL-002 1: on a phone, a day’s + opens a Dialog, its slot chosen there', async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(!isMobile, 'a phone')
+    const db = await start(page)
+    // No slots named on a phone's day (Joe, 26 October): its "+", then the slot.
+    await expect(slot(page, '2026-10-14').getByText('Lunch')).toHaveCount(0)
+    await slot(page, '2026-10-14')
+      .getByRole('button', { name: /^Add a meal/ })
+      .tap()
+    const dialog = page.getByRole('dialog', { name: /Add a meal · Wed 14 Oct/ })
+    await expect(dialog.getByLabel('Slot').getByRole('button', { name: 'Dinner' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    )
+    await dialog.getByLabel('Slot').getByRole('button', { name: 'Lunch' }).tap()
+    await dialog.getByRole('searchbox', { name: 'Search recipes' }).fill('noodles')
+    await dialog.getByRole('button', { name: /Gochujang noodles/ }).tap()
+    await expect(dialog).toBeHidden()
+    await expect(cards(page, '2026-10-14:lunch')).toHaveText(/Gochujang noodles/)
+    await expect
+      .poll(() => db.items.find((i) => i.type === 'meal' && i.title === 'Gochujang noodles'))
+      .toMatchObject({ do_on: '2026-10-14', slot: 'lunch' })
   })
 })

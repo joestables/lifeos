@@ -25,6 +25,12 @@ AppShell
   focused tasks (capture, confirming) in a Dialog.
 - No browser scrollbars: whatever scrolls is a ScrollArea.
 - Content never fills edge to edge without the 36px page padding.
+- **One reading width for rows** (Joe, 24 October): a page or tab whose
+  content is a column of rows or Cards — Inbox, Tasks, Ideas, Settings,
+  the Pantry, Plan's day, Shopping's Food and Other, a list — is at most
+  `max-w-3xl` (768px) wide, left-aligned. Grids and weeks (the library,
+  Notes, the Meal plan's week, Plan's week) and a food shop's aisles take
+  the page's width.
 
 ## The drawer
 
@@ -136,7 +142,14 @@ used the same way on every screen.
 - **Convert to** lists only the Types this Type converts into that the app
   has yet; a toast says what it became ("Converted into a Task", "Converted
   into an Event"), with Undo. A Thought's row offers Task and Note as its
-  own buttons; Event is in its "…" menu.
+  own buttons; Event is in its "…" menu. Shopping list is offered only to a
+  Thought or Note naming a Pantry ingredient; with an open food shop it
+  opens a small Dialog, "Shopping list": the lines it will add, muted and
+  separated by " · ", then "Add to" (a Select of "A new food shop", then
+  the open food shops), Cancel and Convert (Add for an open shop). With
+  none it converts at once. Either way the toast ("Converted into a
+  Shopping list", 'Added to "Big shop"') offers Open rather than Undo; a
+  Thought added to a shop goes to Recently deleted.
 - **Delete** closes the Item and says so in a toast with Undo ("Deleted
   "Renew insurance""); the Item waits in Recently deleted.
 
@@ -286,8 +299,15 @@ DateField, TimeField, RepeatField, SubtaskList and AddRow in
   email" and Invite.
 - **Food** (RCP-018, MPL-005): a titled Card: with a Household, "New meals
   are for" (`utensils`) with an `sm` Select of Personal and my Households,
-  which is also whose staples the Pantry shows; then CardRows leading to
-  "Categories, cuisines and tags" and "Archived recipes" (with its count).
+  then CardRows leading to
+  "Recipe lists" (`list`) and "Archived recipes" (with its count).
+- **Recipe lists** (RCP-018 1) has a back link to Settings and a Card per
+  list (Categories, Cuisines, Tags, Protein, Carbs), as Labels: its title,
+  an outline `sm` "New", then a CardRow per name with "3 recipes" and a
+  "…" menu (Rename, Delete). Naming one already there says "Already on the
+  list"; a rename onto another name asks first (AlertDialog, "Merge
+  "Korean" into "Japanese"?", how many Recipes move). Deleting one in use
+  says so and how many use it, with only OK.
 - A Card of CardRows leads on: Recently deleted (with its count), then Sign
   out, which acts at once and so has no chevron.
 - **Google Calendar** ([GCL-001–006](../10-requirements/cross-cutting/integrations.md#google-calendar)):
@@ -372,10 +392,9 @@ StepEditor. Agreed with Joe on 18 October on the
 (private to Joe), after three passes.
 
 - Recipes is green (TypeScope); so are its Dialogs and its Filters Sheet.
-  Tabs: **Recipes** and **Ideas**; the PageAction is "New recipe", a
-  DropdownMenu of New recipe, New idea and Import from a link (Import shows
-  once the AI service is there, plan step 9); on Ideas it is "New idea".
-  On a phone the Fab is New recipe, or New idea on Ideas. **New recipe** is
+  Tabs: **Recipes** and **Ideas**; on both, the PageAction is "New", a
+  DropdownMenu of New recipe, New idea and Import (`sparkles`; Joe, 23
+  October), and on a phone the Fab opens the same menu. **New recipe** is
   the Edit heading Dialog titled "New recipe", with Cancel and Save; Save
   makes a Draft and opens its Variation to fill, and Done there shows the
   new Recipe. A name a Recipe I can see has is refused under the field, and
@@ -386,9 +405,10 @@ StepEditor. Agreed with Joe on 18 October on the
 - **The library:** on a computer a 248px FilterPanel on the left (State and
   Category open; Cuisine, Tags, Protein, Carbs, Created by — in a Household
   only — and Favourites collapsed), and over the RecipeGrid a toolbar:
-  search, Sort and Group (`sm` Selects), S / M / L (a ToggleGroup) and a
+  search, Sort (a SortMenu) and Group (an `sm` Select), S / M / L (a ToggleGroup) and a
   ghost "Select" with `list-checks`. On a phone: search and an outline
-  "Filters" button (with a Badge counting what's chosen) on one line, Sort
+  "Filters" button (with a Badge counting what's chosen on its corner, so
+  the row never moves) on one line, Sort
   and Group sharing the next; no S / M / L, cards two across; Filters open
   in a right Sheet.
 - **Choosing several:** Select (a long press on a card or row on a phone)
@@ -397,22 +417,54 @@ StepEditor. Agreed with Joe on 18 October on the
   are outline buttons sharing a bar fixed to the foot of the screen, and
   the Fab is put away. Each card or row shows its Checkbox; Undo follows
   in a toast.
-- **Ideas** are ItemRows, up to `max-w-3xl`, under the search and an `sm`
-  Sort (Recently added, A–Z): the Recipe's TypeTile, the name, then source ·
+- **Ideas** are ItemRows, up to `max-w-3xl`, under the search and a
+  SortMenu (Recently added, A–Z): the Recipe's TypeTile, the name, then source ·
   when saved · the start of the note, muted; a "…" menu (Make it a draft,
   Delete; Import from its link with Import). **An Idea opens in a Dialog**
   over Ideas, "Idea" (its link, `?idea=`, too; never a page): Name, Links,
-  Note and its photo, kept on Done or on closing; then Delete (`ghost-destructive`)
-  on the left, "Make it a draft" (outline, `chef-hat`) and Done. **Make it
+  Note and its photo, kept on Done or on closing, the Dialog itself focused as
+  it opens, so a phone's keyboard stays down (Joe, 24 October); then Delete
+  (`ghost-destructive`) and "Make it a draft" (outline, `chef-hat`) side by
+  side at their own width, and Done at the right (on a phone, full width
+  under them). **Make it
   a draft** is the Edit heading Dialog titled so, asking the category and
   cuisine; it then opens the Variation to fill. New idea is a Dialog: Name, Links (any number, "Add a link"), Note, "Add a
   photo" (as Edit heading's); then Cancel and Save. A photo is made WebP of
   about 250 KB on the device as it is chosen, kept on Save or Done, and
   sent once its Recipe has reached the server; with no signal it is
   refused, saying so.
-- **Import** is a Dialog: Link, then its progress as three lines (done with
-  a filled check, the current one with a spinner, the next muted); it ends
-  on a Draft.
+- **Import** is a Dialog: Link, then Cancel and a primary Import side by side at the bottom right (Joe, 24 October), then its progress as
+  three lines (Reading the page, Writing it up, Matching the Pantry; done
+  with a filled check, the current one with a spinner, the next muted). A
+  link saved before says which Recipe or Idea has it first, with Open and
+  Import anyway. A page of several recipes lists them as RadioCards (its
+  name, then how many ingredients and steps), to choose one with "Check
+  it". A page that isn't a recipe, or a video that says too
+  little, ends in the Dialog on a line saying so and Close. The AI
+  unavailable (off, out of allowance, unreachable), Import is disabled in
+  the menu, saying why under it (12px, muted). It ends on **Check the
+  import** (its PageHeader title), a page laid out as Editing a Variation:
+  a Card of the Edit heading Dialog's fields (the photo, from the page's
+  picture made small on the device, beside Name, Category, Cuisine,
+  Protein and Carbs), the VariationFieldsCard's Serves, Prep and Cook,
+  then Ingredients (IngredientLineEditors, with the page's groups as
+  SubheadingEditors, and "Add an ingredient") beside Method (StepEditors,
+  and "Add a step"), spaced as editing a Variation's, then Notes (a
+  Textarea and "From" the link, muted). A name on none of my lists
+  carries an `outline` "New" Badge (" · New" in a Protein or Carbs Badge).
+  A line whose entry isn't in the Pantry has the `package-plus` mark, as
+  a typed line has when editing: it opens Add to the Pantry, the AI's
+  aisle to start, and the entry is added when the import is kept; a line
+  left so is kept as typed (Joe, 24 October). Renaming a line matches it
+  to the Pantry entry of that name. In the method, Enter starts the next
+  step and Backspace in an empty one removes it, as when editing. Cancel
+  (outline) and Keep (primary) at the top right on a computer, at the
+  foot on the right on a phone, as wide as their words. Keep saves it all and opens the
+  Recipe, or says it couldn't, keeping the page; Cancel, or leaving, asks
+  first in an AlertDialog ("Leave without keeping it?", Leave, Cancel) and
+  keeps nothing. An Idea's "…" menu has **Import from its link**, the same
+  Dialog titled so with its link filled in; kept, the Idea keeps its
+  name, photo and notes.
 - **A Recipe's page:** a BackLink to Recipes and the name as the title;
   then the heading (RecipeHeadingLayout): the RecipePhoto (288px on a
   computer; on a phone about half the width, Joe, 20 October) beside
@@ -425,15 +477,16 @@ StepEditor. Agreed with Joe on 18 October on the
   Start cooking (primary, `utensils`), Edit (outline), the heart (an `lg`
   Toggle) and a "…" menu. A member's Recipe has "Add my variation" (outline, `copy`) for
   Edit and "By Sam" first among its facts. The "…" menu as drawn: Edit
-  heading, Duplicate this variation, Compare variations (two or more), Log
-  a cook, Make it the default, then Archive and Delete variation (not the
-  last); a member's Recipe: Log a cook and Compare variations. Duplicate and Add my variation ask the copy's name in a small
-  Dialog, then open it to edit. Under it three Cards on a
+  heading, New variation, Duplicate this variation, Compare variations (two or more), Log
+  a cook, Make it the default, then Archive, Delete variation (not the
+  last) and Delete recipe; a member's Recipe: New variation, Log a cook and Compare variations. New variation,
+  Duplicate and Add my variation ask the name in a small Dialog (New's field
+  focused and empty), then open it to edit; New's is empty, a Draft. Under it three Cards on a
   computer — Ingredients (IngredientList), Method (MethodSteps), and Notes
   over the Log (three LogEntries and a ghost "See all") — stacked on a
   phone. An ingredient reads name first, its amount at the end. In the Log
   an edit says "Edited" (with the Variation's name when there are several)
-  and, under it, its note; my own entries carry a "…": "Say what changed"
+  only when its ingredients or method changed, and, under it, its note; my own entries carry a "…": "Say what changed"
   (or "Change the note") on an edit, a small Dialog "What changed?" with a
   Textarea, Cancel and Save; "Change how it went" on a cook. "See all"
   opens a Dialog of the whole log, twenty entries at a time with an outline
@@ -449,17 +502,31 @@ StepEditor. Agreed with Joe on 18 October on the
   then Prep and Cook, two across, and Done at the foot of the page, where
   the editing ends (Joe, 20 October); then
   Ingredients (IngredientLineEditors and SubheadingEditors; ghost "Add an
-  ingredient", "Add a subheading"; a ghost "Fill from method" with
-  `sparkles` in its heading, once the AI service is there, plan step 9)
-  beside Method (StepEditors, "Add a step"); then "Notes and sources", a
+  ingredient", "Add a subheading"; a ghost `sm` "Fill from method" with
+  `sparkles` at the right of its heading, disabled with no method)
+  beside Method (StepEditors, "Add a step"; on a Draft, a ghost `sm`
+  "Import from a link" with `sparkles` at the right of its heading, Joe,
+  23 October); then "Notes and sources", a
   Textarea and the links, each an Input with a ghost X, and "Add a link".
   Everything is kept as it is left, and also when the page goes some other
   way (swiped back, the app closed); there is nothing to save, so the
-  button says Done. Lines reorder by their handle (on a phone too) and
-  steps by theirs on a computer, or Alt+↑ / Alt+↓. Add "…" to the Pantry
-  opens a small Dialog, "Add to the Pantry": Name, Aisle (a Select, Cupboard
-  to start), Cancel and Add; the entry takes the line's unit as its default
-  (PAN-004 1). **Edit heading** is a Dialog: the photo
+  button says Done. Lines reorder by their handle (on a phone too), or
+  Alt+↑ / Alt+↓; steps don't reorder (Joe, 23 October). **Fill from method**
+  works in place, the card's lines replaced by Skeletons while it runs;
+  over existing lines it asks first, an AlertDialog "Replace the
+  ingredients?" (Cancel, Replace). **Import from a link** opens a small
+  Dialog, "Import from a link": Link, then Cancel and Import, the same
+  progress lines, and, over an existing method or lines, "This replaces
+  the ingredients and method" muted above the buttons; closed while it
+  works, it goes on, the Ingredients' and Method's Cards Skeletons until
+  it is kept (a page of several then opens the Dialog at its choice).
+  Either ends in a toast with Undo. Add "…" to the Pantry
+  opens a small Dialog, "Add to the Pantry", the Dialog itself focused so a
+  phone's keyboard stays down (Joe, 24 October): Name, then Aisle (a Select,
+  Cupboard to start) beside Default unit (a Select, the line's unit to
+  start), Cancel and Add (PAN-004 1); a line kept as typed opens it from
+  its mark. A Pantry entry chosen for a line with no unit gives it the
+  entry's default unit. **Edit heading** is a Dialog: the photo
   (112px wide; Change photo, or "Add a photo" with `plus` when there is
   none, a DropdownMenu of "From a file or the camera" (`image`) and "From a
   link" (`link`, which opens an Input with an outline Use under the photo);
@@ -482,27 +549,45 @@ StepEditor. Agreed with Joe on 18 October on the
 
 ## Meal plan
 
-[MPL-001–005, PAN-001–004](../10-requirements/modules/meals.md#requirements);
+[MPL-001–006, PAN-001–004](../10-requirements/modules/meals.md#requirements);
 MealCard, MealSlot, AddMealButton, MealWeek, MealDay and PantryRow in
 [components](components.md). Agreed with the Recipes screens.
 
 - Green (TypeScope). Tabs: **Week** and **Pantry** (`?tab=pantry`); the
-  PageAction is "New shopping list" on the week (with Shopping, Stage 4b;
-  until then none), "New entry" on the Pantry.
+  PageAction none on the week, "New entry" on the Pantry. The week's
+  toolbar has a ghost `sm` "Select" (`list-checks`) after Show, as the
+  library's (Stage 4b): it puts a SelectionBar in the toolbar's place with
+  "Add to shop" (`shopping-cart`), MealCards take their Checkbox (not
+  eaten Meals, leftovers, or Meals on another open shop), and the chosen
+  Meals make a new food shop, "Food shop", dated the first one's day,
+  which opens
+  ([SHP-002](../10-requirements/modules/meals.md#shp-002--a-food-shop-from-the-meal-plan)).
+  A long press still drags on a phone.
 - **The week:** the PlanToolbar (no Day / Week; `?day=` names the week), an
   `sm` Select of whose Meals show ("All my meals", Personal, each
-  Household; only with a Household, kept on the device) and a "…" menu holding Copy this
-  week…; then the MealWeek on a computer, the week's seven MealDays down a
-  phone, today's scrolled into view. A Meal's name is its Recipe's, a typed
+  Household; only with a Household, kept on the device; 160px, on a phone
+  too) and Select; on a phone those two take a row of their own under the
+  dates, so the dates show whole, and a week across two months is short
+  ("28 Sept – 4 Oct"; Joe, 26 October). Then the MealWeek on a computer,
+  the week's seven MealDays down a phone, today's scrolled into view: each
+  day its "+" and its Meals as one-line cards saying their slot, no slots
+  named (Joe, 25 and 26 October). A Meal's name is its Recipe's, a typed
   Meal's what was typed; leftovers take the name of the Meal they are of.
 - **Moving:** on a computer a MealCard is dragged to any slot, as on Plan;
-  on a phone it is pressed and held until it lifts, then dragged, the slot
-  under the finger lit, and let go there. A slot can hold several Meals.
-  Moved, a toast says where ("Moved "Katsu curry" to Sat lunch") with Undo.
-- **Adding:** a slot's "+" opens a Popover (320px): an `sm` search, my
-  categories as LabelChips with the slot's chosen when I have one, then
-  "Planned lately" (the Recipes of my latest Meals, up to five) and "All
-  recipes" (Drafts and Completes, A–Z), each a 40px line with the Recipe's
+  on a phone it is pressed and held until it lifts, then dragged to another
+  day, the day under the finger lit, and let go there, keeping its slot
+  (Move to… changes the slot). It lifts without turning (Joe, 26 October). A slot can hold several Meals.
+  Moved, a toast says where ("Moved "Katsu curry" to Sat lunch") with Undo;
+  when its leftovers were at or before there, they go, and the toast ends
+  "and removed its leftovers".
+- **Adding:** a slot's "+" opens a Popover (320px) on a computer; on a
+  phone, a day's "+" opens the Dialog Plan's "+" → Meal opens, Dinner to
+  start (Joe, 25 October: a Popover over the page let taps through). In it, an `sm` search, my
+  the categories of the Recipes I can plan as LabelChips (none chosen), then "Recently viewed": the
+  three Recipes I opened last ("Planned lately", from my latest Meals,
+  before I've opened any; Joe, 26 October). Searching or choosing a
+  category shows every match instead (Drafts and Completes, A–Z, scrolling
+  past 240px). Each is a 40px line with the Recipe's
   small TypeTile, its name and cuisine (and "· Sam") muted; a footer of
   ghost "Type a meal" (`utensils`) and "Leftovers" (`rotate-ccw`). A Recipe
   with one Variation is planned at once; with more, the list becomes its
@@ -517,62 +602,148 @@ MealCard, MealSlot, AddMealButton, MealWeek, MealDay and PantryRow in
   recipe · Standard") and, when the Recipe has more than one Variation, a
   Variation Select; Servings (and, with a Household, on a Meal I made, For: Personal or a
   Household, moving its leftovers with it) side by side; for leftovers, an ItemRow for the Meal they are
-  of; Leftovers, an ItemRow per slot they fill, each with a "…" Remove.
+  of; Leftovers, an ItemRow per slot they fill, each with a "…" Remove;
+  then, not on leftovers, **Ingredients** (a SectionLabel; "Extra
+  ingredients" on a Recipe's Meal): on a typed Meal first a Link Input with
+  an outline `sm` "Get ingredients" (`sparkles`) beside it, the link
+  opening from an `external-link` ghost icon button once kept; then
+  IngredientLineEditors (no subheadings) and a ghost "Add an ingredient".
+  Get ingredients shows a spinner in its button, asks first over existing
+  lines ("Replace the ingredients?"), and ends in a toast with Undo; a
+  page that isn't a recipe says so under the Link (MPL-006; Joe, 23
+  October). On a phone Get ingredients wraps under the Link.
   Its "…" menu: Move to…, Add leftovers… (not on leftovers) and Remove
   (red). **Move to…** and **Add leftovers…** are small Dialogs: Day (a
   DateField) and Slot (a Select; for leftovers the next lunch or dinner to
   start),
   then Cancel and Move, or Add. **Remove** takes its leftovers with it, in
   a toast with Undo.
-- **Copy this week…** is a small Dialog: "To the week of" (a DateField),
-  then Cancel and Copy. Each Meal is made again on the same weekday and
-  slot, leftovers still of their copied Meal; a toast says how many, with
-  Undo.
 - **On Plan** (PLN-008): a Meal's card says Meal, its name ("Leftovers:
   Katsu curry" for leftovers) and its slot where a time would be. Plan's
   "+" → Meal opens a Dialog, "Add a meal · Thu 15 Oct": a ToggleGroup of
   Breakfast, Lunch and Dinner (Dinner to start), then the Popover's search
-  and list in its place.
-- **The Pantry:** search and a ToggleGroup of All, Staples and Out of
-  stock; then "Ingredients" (a SectionLabel) and a Card per aisle, in aisle
-  order (its name muted, 14px weight 600, then its PantryRows); then
-  household items apart. Nothing matching: an EmptyState ("Nothing in the
-  Pantry", "No staples", "Nothing out of stock", or "Nothing matches").
+  and list in its place. "+" → Shopping list opens New shop dated that day
+  ([Shopping](#shopping)).
+- **The Pantry** ([PAN-001](../10-requirements/modules/meals.md#pan-001--the-pantry),
+  [SHP-005](../10-requirements/modules/meals.md#shp-005--staples-and-essentials);
+  Joe, 25 October): on one row whose staples and Essentials (a 160px `sm`
+  Select of Personal and my Households, only with a Household), All ·
+  Staples · Essentials (a ToggleGroup) and an outline `sm` "Pending"
+  (`clock`, and a `secondary` Badge counting the names) at the end; on a
+  phone Pending sits beside whose and the ToggleGroup, at its own width,
+  takes the next row (Joe, 26 October). Then the search and a SortMenu (By
+  aisle, Recently used, Most popular, A–Z; under Show, Aisle, Default unit
+  and Number of recipes as CheckboxItems, the last on to start). By aisle: "Ingredients" (a
+  SectionLabel) and a Card per aisle, in aisle order (its name muted,
+  14px weight 600, then its PantryRows); the other sorts, one unnamed Card.
+  Then household items apart, sorted the same. Each PantryRow carries
+  KeepToggles for the Space chosen. Staples or Essentials show only those;
+  one taken off there leaves, in a toast with Undo. Nothing matching: an
+  EmptyState ("Nothing in the Pantry", "No staples yet", "No essentials
+  yet" or "Nothing matches"). View, Space and sort are kept on the device.
+- **Pending** is a page of its own (PageHeader "Pending", back to the
+  Pantry): "Kept as typed" (a SectionLabel) with an outline `sm` "Add
+  all", then a Card of CardRows, each the name, how many Recipes, and an
+  outline `sm` "Add" opening Add to the Pantry; none, an EmptyState
+  ("Nothing pending").
   **New entry** is a Dialog: a ToggleGroup of
-  Ingredient and Household item, Name, Aisle (Cupboard to start) and
-  Default unit side by side, and a Switch "One of our staples"; then Cancel
-  and Save. A household item's Aisle reads Household and can't be changed.
+  Ingredient and Household item, Name, and Aisle (Cupboard to start) and
+  Default unit side by side; then Cancel and Save. A household item's Aisle reads Household and can't be changed.
   A name the Pantry has is refused under the field ("Already in the
   Pantry").
-- **An entry's "…" menu:** Edit, Recipes that use it, Merge with… and
+- **An entry's "…" menu:** Edit, Recipes that use it, Merge into… and
   Delete (red) on one I added; Recipes that use it alone on anyone
-  else's. **Edit** is the New entry Dialog titled "Edit entry", without the
-  Switch. **Recipes that use it** is a Dialog titled with the entry's name:
+  else's. **Edit** is the New entry Dialog titled "Edit entry". **Recipes that use it** is a Dialog titled with the entry's name:
   an ItemRow per Recipe (its TypeTile and name), opening it, or "No recipes
-  use it". **Merge with…** is a Dialog, "Merge": "Merge with" (a Select of
-  the other entries I added of the same kind, A–Z, none chosen to start)
-  and Name (this entry's to start, the name kept); then Cancel and Merge,
-  which waits for a choice. **Delete** of an entry
-  no Recipe uses says so in a toast with Undo; one in use isn't deleted,
-  and a toast names where it is used ("Used in Katsu curry and 2 more").
-- **Kept as typed** (PAN-004 2): after the household items, when any of my
-  Recipes' lines were kept as typed, a SectionLabel and a Card of CardRows,
-  A–Z: the name as typed and, as its value, how many of my Recipes use it;
-  an outline `sm` "Add" opening the Add to the Pantry Dialog (as in a
-  Recipe's editor). The SectionLabel's line ends with an outline `sm` "Add
-  all", which adds each in Cupboard. Each line kept as typed in my Recipes then uses
-  the new entry.
+  use it". **Merge into…** is a Dialog, 'Merge "Green onions"': "Merge
+  into" (a Select of the other entries I added of the same kind, A–Z, none
+  chosen to start); then Cancel and Merge, which waits for a choice and
+  ends in a toast, 'Merged "Green onions" into "Spring onions"'. **Delete** of an entry
+  nothing uses says so in a toast with Undo; one a Recipe or the own lines
+  of a Meal today or later use isn't deleted, and a toast names where it
+  is used, Recipes first ("Used in Katsu curry and 2 more"), or says "Used
+  in a deleted recipe" when only a deleted one does. A past Meal's line
+  keeps the name, as typed.
 - **Until the week is built** (plan step 7), the page is the Pantry alone:
   the title, then the Pantry, with no Tabs; on a computer its PageAction,
   "New entry", ends the row of search and ToggleGroup.
+
+## Shopping
+
+[SHP-001–005](../10-requirements/modules/meals.md#shp-001--shopping-lists);
+ShoppingLine, OfferRow, PantryAisle and ItemRow in
+[components](components.md). Agreed on the
+[Stage 4b design canvas](https://claude.ai/artifact/KZyE2VPa3jTsVZ4mjxanGk)
+(24 October), with New shop's Date and For only, and the reading width.
+
+- Yellow (TypeScope), as Notes and Thoughts. Tabs: **Food** and **Other**
+  (`?tab=lists`; named Lists until 26 October); Online waits for a later
+  stage. The PageAction is "New shop" on Food, "New list" on Other. Both tabs are at the reading width.
+- **Food:** "Shops" (a SectionLabel) and an ItemRow per open shop: a yellow
+  `shopping-cart` TypeTile, its name, and a meta line of its date, how many
+  Meals, its Space when not where my new Meals go, and "2 of 27" ticked;
+  its "…" menu Complete list (asking first while lines are unticked) and
+  Delete; then a `link` "Done shops". **Other** is the same rows, with no
+  done lists (Joe, 26 October). Staples and Essentials are kept in the
+  Pantry ([Meal plan](#meal-plan); Joe, 25 October).
+- **New shop** is a Dialog: Name, then Date and For side by side (For a
+  Select of Personal and my Households, the Household of the
+  first Household Meal chosen to start), then "Meals": the plan's Meals from
+  today, under each day (12px bold muted), a 40px row each with a yellow
+  Checkbox, the Meal's name and, muted at its end, its slot and "Personal"
+  or "On Top-up" (disabled, faded: a Meal on another open shop). Cancel and
+  Create. New list asks Name and Date only.
+- **A shop's page:** a BackLink to Shopping, its name (`text-h1`) with its
+  "…" menu (Edit details…, Complete list — Not done once done — and
+  Delete) at the title's end; a
+  muted line of its date and Space; Tabs **All · Meals · Extra**, each with
+  its count; then, on All (and on Extra, over Added), an Input "Add to the shop" with a
+  leading `plus` and the Pantry's Suggestions ("Add "chick" as typed" after
+  the line).
+  - **All:** a PantryAisle Card per aisle in aisle order, Household then
+    Other last, in two balanced columns on a wide screen; ShoppingLines,
+    a ticked one staying where it is (Joe, 26 October).
+  - **Meals:** a Card per Meal: a small green `utensils` TypeTile, its name
+    (weight 600) and, muted, "Thu · Dinner · Serves 6" (and "Personal"),
+    its "…" menu (Take off the shop), then its ShoppingLines, which have no
+    menu. Last, an outline "Add a meal", opening New shop's list of Meals.
+    A row that is one line I added, or one on the shop because it's
+    needed, ends in a ghost `icon-sm` × (no asking); no Meals are named
+    under a row (Joe, 25 October).
+  - **Extra** (Joe, 25 October): on a computer two columns, "Add staples"
+    over "Add essentials" on the left (PantryAisle Cards of OfferRows, the
+    why muted: the Meals using it, "Out of stock", "Required", or the
+    Spaces keeping it), and on the right the Input then "Added": what I
+    added and what's needed, as ShoppingLines ("Out of stock", "Required"
+    muted under the name; ×, until ticked). On a phone the Input and
+    Added come first. An empty Card says so in one muted line ("None for
+    these meals", "No essentials yet", "Nothing added").
+- **Finishing:** ticking the last line shows a toast, "Everything's ticked",
+  with Done. Complete list in the menu, with lines unticked, asks first in
+  an AlertDialog: "Complete Big shop?", "4 lines aren't ticked", Complete
+  and Cancel. Done or completed, the shop leaves the list, with Undo.
+- **A list's page:** as a shop's, with no Tabs: its subheadings as
+  PantryAisle Cards, each ending in an AddRow ("Add to Garden"; a list with
+  none yet has one untitled Card, "Add an item"), a ticked line staying in
+  its place; then an AddRow "Add a subheading"; at the reading width.
+- **Saved as an idea** (a share from another app; RCP-003): a page with no
+  drawer, green, centred about a fifth of the way down: a large `check`
+  TypeTile (`chef-hat` when saved before), "Saved as an idea" or "Already
+  saved" (`text-h2`), and a Card of the Idea's thumbnail, its name and,
+  muted, the link's site; "Already saved" adds an outline `sm` Open, which
+  opens an Idea in its popup on Ideas, a Recipe its page. A share with no
+  link says "No link to save", with an outline `sm` Recipes.
 
 ## Forms
 
 - Label above, field below, 6px apart. No help text under fields, and no
   keyboard hints in footers.
 - Fields are filled, never outlined. Two short fields may sit side by side.
-- The primary action is last on the right (full width on a phone); Cancel or
-  Close is an outline button beside it.
+- The primary action is last on the right; Cancel or Close is an outline
+  button beside it. Buttons are as wide as their words, on a phone too, and
+  sit together at the bottom right (Joe, 24 October); the one exception is
+  a page's or a popup's lone Done under its other actions, full width on a
+  phone (editing a Variation, an Idea).
 - **Choosing between options that each need explaining** (how a Task
   repeats: "On a schedule", "After it's done"): a RadioGroup of `cards`; the
   chosen card has a ring, never a fill, and a primary Save confirms.
@@ -591,7 +762,7 @@ MealCard, MealSlot, AddMealButton, MealWeek, MealDay and PantryRow in
 | Notifications off | On Inbox, while none of my devices has notifications: an Alert with `bell`, "Notifications are off", "Reminders can't reach you" (or "Add LifeOS to your Home Screen first" in an iPhone's browser), and "Not now" (ghost) and "Turn on" (outline) on the right, under the text on a phone. "Not now" puts it away on this device ([REM-001](../10-requirements/cross-cutting/reminders.md#rem-001--turn-on-notifications-for-a-device)) |
 | Offline | An Alert at the top of every page, with `cloud-off`: "Offline" (or "Can't refresh" when the server can't be reached) and "These may be out of date". What was loaded still shows (OFF-005) |
 | Error | Red text under the field, or a toast that says what went wrong and what to do |
-| A screen that crashes | Its PageHeader title says "Something went wrong", with one primary button, "Reload", under it. The crash is recorded in `ops.events` ([runbook](../40-operations/runbook.md#noticing-problems)) |
+| A screen that crashes | Its PageHeader title says "Something went wrong", with one primary button, "Reload", under it. The crash is recorded in `ops.events` ([runbook](../40-operations/runbook.md#noticing-problems)). A page whose code went with a new deploy reloads by itself instead, once a minute at most |
 | Empty | `EmptyState`: centred in the content, about a third of the way down, a 48px muted tile with the page's icon and a `text-h2` line saying so ("Nothing needs you", "Nothing deleted"). No paragraph, no button unless there's one obvious thing to do |
 
 ## Icons
@@ -630,8 +801,9 @@ sub-tasks `list-checks` with "2/5".
   pull to refresh can't reach, so pulling down from the top of any page
   shows a round indicator that turns as it follows the finger; let go past
   72px and LifeOS reloads.
-- Dialogs sit inset 18px from the sides, as tall as their content;
-  AlertDialog actions stack, full width.
+- Dialogs sit inset 18px from the sides, as tall as their content; their
+  actions, an AlertDialog's too, sit side by side at the bottom right, as
+  wide as their words (Joe, 24 October).
 - Row actions: the "…" menu is always visible; a Thought in Inbox can be
   swiped to make it a Task.
 - A long press starts choosing several where a computer has Select (the

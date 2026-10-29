@@ -2,7 +2,9 @@ import { describe, expect, it } from 'vitest'
 import {
   mergeable,
   nameKey,
-  pantryGroups,
+  pantryShown,
+  pantryUse,
+  mealsUsing,
   recipesUsing,
   typedNames,
   usedIn,
@@ -47,11 +49,9 @@ const recipe = (
 ): PantryRecipe => ({ id, name, mine, variations: [{ id: `${id}v`, mine, lines }] })
 
 describe('PAN-001 1: the Pantry by aisle, in aisle order, household items apart', () => {
-  const none = new Map<string, { out: boolean }>()
-
   it('puts ingredients under their aisles in shopping order, each A–Z', () => {
-    const { aisles, household } = pantryGroups(ENTRIES, none, 'all', '')
-    expect(aisles.map((a) => [a.label, a.entries.map((e) => e.name)])).toEqual([
+    const { groups, household } = pantryShown(ENTRIES, '')
+    expect(groups.map((a) => [a.label, a.entries.map((e) => e.name)])).toEqual([
       ['Fruit & Veg', ['Garlic', 'Onion']],
       ['Protein', ['Eggs']],
       ['Cupboard', ['Soy sauce']],
@@ -60,23 +60,57 @@ describe('PAN-001 1: the Pantry by aisle, in aisle order, household items apart'
   })
 
   it('narrows by a search, in any case and spacing', () => {
-    const { aisles, household } = pantryGroups(ENTRIES, none, 'all', '  SOY ')
-    expect(aisles.flatMap((a) => a.entries.map((e) => e.name))).toEqual(['Soy sauce'])
+    const { groups, household } = pantryShown(ENTRIES, '  SOY ')
+    expect(groups.flatMap((a) => a.entries.map((e) => e.name))).toEqual(['Soy sauce'])
     expect(household).toEqual([])
   })
 
-  it('PAN-002: shows my staples, or only those run out', () => {
-    const staples = new Map([
-      ['o', { out: true }],
-      ['s', { out: false }],
-      ['b', { out: true }],
+  it('reverses: aisles last first, each Z–A', () => {
+    const { groups } = pantryShown(ENTRIES, '', 'aisle', 'desc')
+    expect(groups.map((a) => [a.label, a.entries.map((e) => e.name)])).toEqual([
+      ['Cupboard', ['Soy sauce']],
+      ['Protein', ['Eggs']],
+      ['Fruit & Veg', ['Onion', 'Garlic']],
     ])
-    const names = (show: 'staples' | 'out') => {
-      const g = pantryGroups(ENTRIES, staples, show, '')
-      return [...g.aisles.flatMap((a) => a.entries), ...g.household].map((e) => e.name)
-    }
-    expect(names('staples')).toEqual(['Onion', 'Soy sauce', 'Bin bags'])
-    expect(names('out')).toEqual(['Onion', 'Bin bags'])
+  })
+})
+
+describe('PAN-001 1: sorted by use or A–Z, either way round (Joe, 25 October)', () => {
+  const lines = (...ids: string[]) => ids.map((pantry_id) => ({ pantry_id }))
+  const use = pantryUse(
+    [
+      { when: '2026-10-01T09:00:00Z', lines: lines('o', 'g', 'o') },
+      { when: '2026-10-02T09:00:00Z', lines: lines('o') },
+    ],
+    [{ when: '2026-10-20', lines: lines('e') }],
+    [{ when: '2026-10-25', lines: lines('s') }],
+  )
+  const names = (s: ReturnType<typeof pantryShown>) => s.groups[0]!.entries.map((e) => e.name)
+
+  it('counts Recipes and Meals, each once; shops count only towards when', () => {
+    expect(use.get('o')).toEqual({ count: 2, last: '2026-10-02T09:00:00Z' })
+    expect(use.get('s')).toEqual({ count: 0, last: '2026-10-25' })
+  })
+
+  it('sorts most popular, recently used or A–Z in one group, and reverses', () => {
+    expect(names(pantryShown(ENTRIES, '', 'popular', 'desc', use))).toEqual([
+      'Onion',
+      'Eggs',
+      'Garlic',
+      'Soy sauce',
+    ])
+    expect(names(pantryShown(ENTRIES, '', 'recent', 'desc', use))).toEqual([
+      'Soy sauce',
+      'Eggs',
+      'Onion',
+      'Garlic',
+    ])
+    expect(names(pantryShown(ENTRIES, '', 'name', 'desc', use))).toEqual([
+      'Soy sauce',
+      'Onion',
+      'Garlic',
+      'Eggs',
+    ])
   })
 })
 
@@ -98,6 +132,17 @@ describe('PAN-001 1, 4, 5: which Recipes use an entry', () => {
     expect(usedIn(used.get('o') ?? [])).toBe('Used in Bibimbap and 1 more')
     expect(usedIn(used.get('s') ?? [])).toBe('Used in Katsu curry')
     expect(usedIn([])).toBe('')
+  })
+
+  it('says a Meal’s own lines use an entry, after Recipes', () => {
+    const meals = mealsUsing([
+      { id: 'm', name: 'Cornflakes', lines: [{ pantry_id: 'milk' }, { pantry_id: 'milk' }] },
+      { id: 'n', name: 'Porridge', lines: [{ pantry_id: null }] },
+    ])
+    expect(meals.get('milk')?.map((m) => m.name)).toEqual(['Cornflakes'])
+    expect(usedIn([...(recipesUsing(recipes).get('s') ?? []), ...(meals.get('milk') ?? [])])).toBe(
+      'Used in Katsu curry and 1 more',
+    )
   })
 })
 

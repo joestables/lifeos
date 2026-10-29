@@ -73,6 +73,7 @@ export function HouseholdNameDialog({
           <FieldLabel htmlFor="household-name">Name</FieldLabel>
           <Input
             id="household-name"
+            data-autofocus={!household || undefined}
             value={name}
             maxLength={60}
             autoComplete="off"
@@ -130,6 +131,7 @@ export function InviteDialog({
           <FieldLabel htmlFor="invite-email">Google email</FieldLabel>
           <Input
             id="invite-email"
+            data-autofocus
             type="email"
             inputMode="email"
             autoComplete="off"

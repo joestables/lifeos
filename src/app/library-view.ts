@@ -1,17 +1,27 @@
 import { useState } from 'react'
 import type { CardSize } from '@/components/lifeos'
-import { DEFAULT_VIEW, type IdeaSort, type LibraryView } from '@/lib/recipes'
+import { DEFAULT_VIEW, IDEA_SORTS, SORTS, type IdeaSort, type LibraryView } from '@/lib/recipes'
+import type { SortDirection } from '@/lib/sort'
 
 const KEY = 'lifeos.recipes.library'
 
-type Kept = Omit<LibraryView, 'search'> & { size: CardSize; ideaSort: IdeaSort }
+type Kept = Omit<LibraryView, 'search'> & {
+  size: CardSize
+  ideaSort: IdeaSort
+  ideaSortDir: SortDirection
+}
 
-const DEFAULT: Kept = { ...DEFAULT_VIEW, size: 'M', ideaSort: 'added' }
+const DEFAULT: Kept = { ...DEFAULT_VIEW, size: 'M', ideaSort: 'added', ideaSortDir: 'desc' }
 
 function read(): Kept {
   try {
     const kept = JSON.parse(localStorage.getItem(KEY) ?? '{}') as Partial<Kept>
-    return { ...DEFAULT, ...kept, chosen: { ...kept.chosen } }
+    const out = { ...DEFAULT, ...kept, chosen: { ...kept.chosen } }
+    // Kept before sorts had a way round: each its own.
+    out.sortDir = kept.sortDir ?? SORTS.find((o) => o.value === out.sort)?.initial ?? 'desc'
+    out.ideaSortDir =
+      kept.ideaSortDir ?? IDEA_SORTS.find((o) => o.value === out.ideaSort)?.initial ?? 'desc'
+    return out
   } catch {
     return DEFAULT
   }
@@ -36,5 +46,12 @@ export function useLibraryView() {
       return next
     })
   const view: LibraryView = { ...kept, search }
-  return { view, size: kept.size, ideaSort: kept.ideaSort, change, setSearch }
+  return {
+    view,
+    size: kept.size,
+    ideaSort: kept.ideaSort,
+    ideaSortDir: kept.ideaSortDir,
+    change,
+    setSearch,
+  }
 }

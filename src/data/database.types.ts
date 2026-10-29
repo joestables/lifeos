@@ -1161,6 +1161,15 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      ai_failed: {
+        Args: { p_message: string; p_person: string; p_task: string }
+        Returns: undefined
+      }
+      ai_left: { Args: { p_allowance: number; p_person: string }; Returns: number }
+      ai_take: {
+        Args: { p_allowance: number; p_details?: Json; p_person: string; p_task: string }
+        Returns: boolean
+      }
       archive_item: {
         Args: { p_id: string }
         Returns: {
@@ -1994,6 +2003,7 @@ export type Database = {
           item_id: string
           leftovers_of: string | null
           servings: number | null
+          source: string | null
           updated_at: string
         }
         ComputedFields: never
@@ -2001,15 +2011,68 @@ export type Database = {
           item_id: string
           leftovers_of?: string | null
           servings?: number | null
+          source?: string | null
           updated_at?: string
         }
         Update: {
           item_id?: string
           leftovers_of?: string | null
           servings?: number | null
+          source?: string | null
           updated_at?: string
         }
         Relationships: []
+      }
+      meal_lines: {
+        Row: {
+          approx: boolean
+          created_at: string
+          id: string
+          meal_id: string
+          pantry_id: string | null
+          position: string
+          qty: number | null
+          qty_max: number | null
+          text: string | null
+          unit: string | null
+          updated_at: string
+        }
+        ComputedFields: never
+        Insert: {
+          approx?: boolean
+          created_at?: string
+          id?: string
+          meal_id: string
+          pantry_id?: string | null
+          position: string
+          qty?: number | null
+          qty_max?: number | null
+          text?: string | null
+          unit?: string | null
+          updated_at?: string
+        }
+        Update: {
+          approx?: boolean
+          created_at?: string
+          id?: string
+          meal_id?: string
+          pantry_id?: string | null
+          position?: string
+          qty?: number | null
+          qty_max?: number | null
+          text?: string | null
+          unit?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'meal_lines_pantry_id_fkey'
+            columns: ['pantry_id']
+            isOneToOne: false
+            referencedRelation: 'pantry'
+            referencedColumns: ['id']
+          },
+        ]
       }
       pantry: {
         Row: {
@@ -2042,6 +2105,25 @@ export type Database = {
           kind?: string
           name?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      recent_views: {
+        Row: {
+          person_id: string
+          recipe_id: string
+          viewed_at: string
+        }
+        ComputedFields: never
+        Insert: {
+          person_id?: string
+          recipe_id: string
+          viewed_at?: string
+        }
+        Update: {
+          person_id?: string
+          recipe_id?: string
+          viewed_at?: string
         }
         Relationships: []
       }
@@ -2079,26 +2161,29 @@ export type Database = {
         }
         Relationships: []
       }
-      staples: {
+      space_entries: {
         Row: {
-          out_of_stock: boolean
+          kind: string
+          needed: boolean
           pantry_id: string
           space_id: string
         }
         ComputedFields: never
         Insert: {
-          out_of_stock?: boolean
+          kind?: string
+          needed?: boolean
           pantry_id: string
           space_id: string
         }
         Update: {
-          out_of_stock?: boolean
+          kind?: string
+          needed?: boolean
           pantry_id?: string
           space_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: 'staples_pantry_id_fkey'
+            foreignKeyName: 'space_entries_pantry_id_fkey'
             columns: ['pantry_id']
             isOneToOne: false
             referencedRelation: 'pantry'
@@ -2275,6 +2360,28 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      add_meal_line: {
+        Args: { p_fields: Json; p_id: string; p_meal: string }
+        Returns: {
+          approx: boolean
+          created_at: string
+          id: string
+          meal_id: string
+          pantry_id: string | null
+          position: string
+          qty: number | null
+          qty_max: number | null
+          text: string | null
+          unit: string | null
+          updated_at: string
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'meal_lines'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       add_pantry: {
         Args: { p_fields: Json; p_id: string }
         Returns: {
@@ -2353,6 +2460,31 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      keep_entry: {
+        Args: { p_kind: string; p_needed?: boolean; p_pantry: string; p_space: string }
+        Returns: {
+          kind: string
+          needed: boolean
+          pantry_id: string
+          space_id: string
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'space_entries'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      keep_import: {
+        Args: { p_draft: Json; p_recipe: string; p_variation: string }
+        Returns: Database['core']['Tables']['items']['Row']
+        SetofOptions: {
+          from: '*'
+          to: 'items'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       log_cook: {
         Args: { p_fields?: Json; p_id: string; p_variation: string }
         Returns: {
@@ -2394,6 +2526,10 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      move_value_uses: {
+        Args: { p_from: string; p_kind: string; p_to: string }
+        Returns: undefined
+      }
       note_change: { Args: { p_activity: number; p_note: string }; Returns: undefined }
       plan_meal: {
         Args: { p_fields: Json; p_id: string }
@@ -2406,7 +2542,9 @@ export type Database = {
         }
       }
       remove_cook: { Args: { p_id: string }; Returns: undefined }
+      remove_entry: { Args: { p_pantry: string; p_space: string }; Returns: undefined }
       remove_line: { Args: { p_id: string }; Returns: undefined }
+      remove_meal_line: { Args: { p_id: string }; Returns: undefined }
       remove_pantry: { Args: { p_id: string }; Returns: undefined }
       remove_step: { Args: { p_id: string }; Returns: undefined }
       remove_value: { Args: { p_id: string }; Returns: undefined }
@@ -2427,10 +2565,6 @@ export type Database = {
         }
       }
       set_meal_variation: { Args: { p_meal: string; p_variation: string }; Returns: undefined }
-      set_staple: {
-        Args: { p_out_of_stock?: boolean; p_pantry: string; p_space: string; p_staple: boolean }
-        Returns: undefined
-      }
       update_cook: {
         Args: { p_id: string; p_patch: Json }
         Returns: {
@@ -2482,11 +2616,34 @@ export type Database = {
           item_id: string
           leftovers_of: string | null
           servings: number | null
+          source: string | null
           updated_at: string
         }
         SetofOptions: {
           from: '*'
           to: 'meal'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      update_meal_line: {
+        Args: { p_id: string; p_patch: Json }
+        Returns: {
+          approx: boolean
+          created_at: string
+          id: string
+          meal_id: string
+          pantry_id: string | null
+          position: string
+          qty: number | null
+          qty_max: number | null
+          text: string | null
+          unit: string | null
+          updated_at: string
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'meal_lines'
           isOneToOne: true
           isSetofReturn: false
         }
@@ -2561,6 +2718,216 @@ export type Database = {
         SetofOptions: {
           from: '*'
           to: 'variation'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      view_recipe: { Args: { p_at?: string; p_recipe: string }; Returns: undefined }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
+  shopping: {
+    Tables: {
+      lines: {
+        Row: {
+          approx: boolean
+          checked: boolean
+          created_at: string
+          heading: string | null
+          id: string
+          list_id: string
+          meal_id: string | null
+          needed_space_id: string | null
+          pantry_id: string | null
+          position: string
+          qty: number | null
+          qty_max: number | null
+          source_id: string | null
+          text: string | null
+          unit: string | null
+          updated_at: string
+        }
+        ComputedFields: never
+        Insert: {
+          approx?: boolean
+          checked?: boolean
+          created_at?: string
+          heading?: string | null
+          id?: string
+          list_id: string
+          meal_id?: string | null
+          needed_space_id?: string | null
+          pantry_id?: string | null
+          position?: string
+          qty?: number | null
+          qty_max?: number | null
+          source_id?: string | null
+          text?: string | null
+          unit?: string | null
+          updated_at?: string
+        }
+        Update: {
+          approx?: boolean
+          checked?: boolean
+          created_at?: string
+          heading?: string | null
+          id?: string
+          list_id?: string
+          meal_id?: string | null
+          needed_space_id?: string | null
+          pantry_id?: string | null
+          position?: string
+          qty?: number | null
+          qty_max?: number | null
+          source_id?: string | null
+          text?: string | null
+          unit?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      list_meals: {
+        Row: {
+          created_at: string
+          list_id: string
+          meal_id: string
+        }
+        ComputedFields: never
+        Insert: {
+          created_at?: string
+          list_id: string
+          meal_id: string
+        }
+        Update: {
+          created_at?: string
+          list_id?: string
+          meal_id?: string
+        }
+        Relationships: []
+      }
+      shopping_list: {
+        Row: {
+          created_at: string
+          item_id: string
+          kind: string
+          updated_at: string
+        }
+        ComputedFields: never
+        Insert: {
+          created_at?: string
+          item_id: string
+          kind?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          item_id?: string
+          kind?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      add_line: {
+        Args: { p_fields: Json; p_id: string; p_list: string }
+        Returns: {
+          approx: boolean
+          checked: boolean
+          created_at: string
+          heading: string | null
+          id: string
+          list_id: string
+          meal_id: string | null
+          needed_space_id: string | null
+          pantry_id: string | null
+          position: string
+          qty: number | null
+          qty_max: number | null
+          source_id: string | null
+          text: string | null
+          unit: string | null
+          updated_at: string
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'lines'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      add_meals: { Args: { p_list: string; p_meals: string[] }; Returns: undefined }
+      create_list: {
+        Args: { p_fields: Json; p_id: string }
+        Returns: Database['core']['Tables']['items']['Row']
+        SetofOptions: {
+          from: '*'
+          to: 'items'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      delete_line: { Args: { p_id: string }; Returns: undefined }
+      meals_of: {
+        Args: { p_list: string }
+        Returns: {
+          do_on: string
+          live: boolean
+          meal_id: string
+          personal: boolean
+          servings: number
+          slot: string
+          title: string
+        }[]
+      }
+      remove_meal: { Args: { p_list: string; p_meal: string }; Returns: undefined }
+      tick: { Args: { p_checked: boolean; p_ids: string[] }; Returns: undefined }
+      update_line: {
+        Args: { p_id: string; p_patch: Json }
+        Returns: {
+          approx: boolean
+          checked: boolean
+          created_at: string
+          heading: string | null
+          id: string
+          list_id: string
+          meal_id: string | null
+          needed_space_id: string | null
+          pantry_id: string | null
+          position: string
+          qty: number | null
+          qty_max: number | null
+          source_id: string | null
+          text: string | null
+          unit: string | null
+          updated_at: string
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'lines'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      update_list: {
+        Args: { p_id: string; p_patch: Json }
+        Returns: {
+          created_at: string
+          item_id: string
+          kind: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'shopping_list'
           isOneToOne: true
           isSetofReturn: false
         }
@@ -2681,6 +3048,9 @@ export const Constants = {
     Enums: {},
   },
   food: {
+    Enums: {},
+  },
+  shopping: {
     Enums: {},
   },
 } as const

@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
-import { ArchiveIcon, LogOutIcon, TagIcon, Trash2Icon, UtensilsIcon } from 'lucide-react'
+import { ArchiveIcon, ListIcon, LogOutIcon, TagIcon, Trash2Icon, UtensilsIcon } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { CardRow, PageHeader } from '@/components/lifeos'
 import {
@@ -138,8 +138,8 @@ function Settings() {
 }
 
 /**
- * Food (RCP-018, MPL-005): where new Meals go, with a Household; Archived
- * recipes. The lists come later.
+ * Food (RCP-018, MPL-005): where new Meals go, with a Household; my Recipe
+ * lists; Archived recipes.
  */
 function FoodCard() {
   const food = useFood(queue)
@@ -162,6 +162,11 @@ function FoodCard() {
           />
         </CardRow>
       )}
+      <CardRow
+        icon={<ListIcon />}
+        label="Recipe lists"
+        render={<Link to="/settings/recipe-lists" />}
+      />
       <CardRow
         icon={<ArchiveIcon />}
         label="Archived recipes"

@@ -62,7 +62,7 @@ describe('RCP-005, RCP-011: ingredients to read, scaled', () => {
   it('scales both ends of a range, rounded for showing', () => {
     const [first, sauce] = ingredientGroups(lines, pantry, 1.5)
     expect(first!.lines[0]!.amount).toBe('150 g')
-    expect(sauce!.lines[0]!.amount).toBe('1½–3 tbsp')
+    expect(sauce!.lines[0]!.amount).toBe('1.5–3 tbsp')
   })
 })
 
@@ -146,13 +146,20 @@ describe('RCP-013: the log', () => {
     act(5, '2026-10-06T08:00:00Z', 'r', { cuisine: { from: null, to: 'Japanese' } }),
     act(6, '2026-10-06T09:00:00Z', 'r', { status: { from: 'active', to: 'done' } }),
     act(7, '2026-10-07T09:00:00Z', 'v', { status: { from: 'active', to: 'done' } }),
+    act(8, '2026-10-08T09:00:00Z', 'v', { servings: { from: 2, to: 4 } }),
+    act(9, '2026-10-08T09:01:00Z', 'v', {
+      line: {
+        from: { id: 'l', text: 'Salt', position: 'a' },
+        to: { id: 'l', text: 'Salt', position: 'b' },
+      },
+    }),
   ]
 
   it('lists cooks and edits newest first; edits close together are one, with my note', () => {
     const log = recipeLog(recipe, activity, new Map([[3, 'More honey']]))
+    // Only the ingredients and method make an edit: not servings, a move or the heading.
     expect(log.map((l) => [l.what, l.detail, l.activity])).toEqual([
       ['Marked Complete', undefined, undefined],
-      ['Edited', undefined, 5],
       ['Cooked', undefined, undefined],
       ['Edited', 'More honey', 3],
       ['Added', undefined, undefined],

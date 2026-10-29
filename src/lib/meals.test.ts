@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
-  copyWeek,
   leftoverChoices,
+  leftoversBefore,
   mealName,
   nextMealSlot,
   plannedLately,
@@ -96,20 +96,19 @@ describe('MPL-002: planning a Meal', () => {
   })
 })
 
-describe('MPL-004: copying a week', () => {
-  it('makes each Meal again on the same weekday and slot, leftovers of their copies', () => {
-    let n = 0
-    const meals = [
-      meal('left', '2026-10-16', 'lunch', { leftoversOf: 'katsu' }),
-      meal('katsu', '2026-10-15', 'dinner'),
-      meal('outside', '2026-10-20', 'dinner'),
-      meal('oldLeft', '2026-10-12', 'lunch', { leftoversOf: 'sunday' }),
-    ]
-    const copies = copyWeek(meals, '2026-10-14', '2026-10-28', () => `new${++n}`)
-    expect(copies.map((c) => [c.from.id, c.id, c.day, c.leftoversOf])).toEqual([
-      ['katsu', 'new2', '2026-10-29', null],
-      ['left', 'new1', '2026-10-30', 'new2'],
-      ['oldLeft', 'new3', '2026-10-26', 'sunday'],
+describe('MPL-003 2: a Meal moved removes its leftovers at or before it (Joe, 26 October)', () => {
+  const left = (id: string, day: string, slot: string) => ({ id, leftoversOf: 'm', day, slot })
+  const meals = [
+    left('mon-lunch', '2026-10-12', 'lunch'),
+    left('tue-lunch', '2026-10-13', 'lunch'),
+    left('tue-dinner', '2026-10-13', 'dinner'),
+    left('wed-lunch', '2026-10-14', 'lunch'),
+    { id: 'other', leftoversOf: 'x', day: '2026-10-12', slot: 'lunch' },
+  ]
+  it('takes those before or in its new slot, never later the same day', () => {
+    expect(leftoversBefore('m', '2026-10-13', 'lunch', meals).map((l) => l.id)).toEqual([
+      'mon-lunch',
+      'tue-lunch',
     ])
   })
 })

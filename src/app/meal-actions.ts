@@ -2,7 +2,6 @@ import { useMemo } from 'react'
 import { toast } from '@/components/ui/sonner'
 import {
   archiveItem,
-  newId,
   planMeal,
   queue,
   restoreItem,
@@ -14,7 +13,7 @@ import {
   type FoodSpaces,
 } from '@/data'
 import type { RecipeView, VariationView } from '@/data/food-hooks'
-import { copyWeek, mealName, slotName, type PlannedMeal, type SlotKey } from '@/lib/meals'
+import { leftoversBefore, mealName, slotName, type PlannedMeal, type SlotKey } from '@/lib/meals'
 
 /** The Meal plan's Meals, with what each needs to show (MPL-001). */
 export interface MealPlanData {
@@ -44,17 +43,30 @@ export function useMealPlan(): MealPlanData {
       status: v.item.status,
       created_at: v.item.created_at,
       servings: v.servings,
+      ownServings: v.servings,
       leftoversOf: v.leftoversOf,
       variation: v.variation,
       space: v.item.space_id,
       // An unsent Meal has no owner yet: it is mine.
       mine: !v.item.owner_id || v.item.owner_id === spaces.me,
+      source: v.source,
+      lines: v.lines,
+      photo: v.photo,
     }))
-    const byId = new Map(meals.map((m) => [m.id, m]))
     const recipeOf = (m: PlannedMeal) => {
       const r = m.variation ? food.recipeOf.get(m.variation) : undefined
       return r ? food.byId.get(r) : undefined
     }
+    // A Recipe's Meal serves what its Variation does until I change it
+    // there (MPL-002 2): a change to the Variation shows on the plan.
+    for (const m of meals)
+      if (m.servings === null && m.variation)
+        m.servings =
+          recipeOf(m)?.variations.find((x) => x.item.id === m.variation)?.fields.servings ?? null
+    for (const m of meals) m.picture = m.photo?.path ?? recipeOf(m)?.photo?.path
+    const byId = new Map(meals.map((m) => [m.id, m]))
+    for (const m of meals)
+      if (m.leftoversOf) m.picture = byId.get(m.leftoversOf)?.picture ?? m.picture
     return {
       food,
       meals,
@@ -71,7 +83,10 @@ export function useMealPlan(): MealPlanData {
 /** Where a new Meal goes: my default, Personal or a Household (MPL-002 2). */
 const inSpace = (space: string | null | undefined) => (space ? { space_id: space } : {})
 
-/** A Recipe's Meal in a slot, serving what its Variation does (MPL-002 1, 2). */
+/**
+ * A Recipe's Meal in a slot (MPL-002 1, 2): with no servings of its own, it
+ * serves what its Variation does, now and after the Variation changes.
+ */
 export function planRecipe(
   day: string,
   slot: SlotKey,
@@ -84,7 +99,6 @@ export function planRecipe(
     do_on: day,
     slot,
     variation: v.item.id,
-    servings: v.fields.servings,
     ...inSpace(space),
   })
 }
@@ -114,14 +128,34 @@ export function setMealSpace(m: PlannedMeal, space: string, meals: readonly Plan
     if (x.space !== space) updateItem(x.id, { space_id: space })
 }
 
-/** A Meal moved to another day or slot, with Undo (MPL-003 2). */
-export function moveMeal(m: PlannedMeal, name: string, day: string, slot: SlotKey) {
+/**
+ * A Meal moved to another day or slot, with Undo (MPL-003 2): anywhere, its
+ * leftovers at or before where it goes removed (Joe, 26 October).
+ */
+export function moveMeal(
+  m: PlannedMeal,
+  name: string,
+  day: string,
+  slot: SlotKey,
+  meals: readonly PlannedMeal[],
+) {
   if (m.day === day && m.slot === slot) return
   const was = { do_on: m.day, slot: m.slot }
+  const gone = leftoversBefore(m.id, day, slot, meals)
   updateItem(m.id, { do_on: day, slot })
-  toast(`Moved "${name}" to ${slotName(day, slot)}`, {
-    action: { label: 'Undo', onClick: () => updateItem(m.id, was) },
-  })
+  for (const l of gone) archiveItem(l.id)
+  toast(
+    `Moved "${name}" to ${slotName(day, slot)}${gone.length ? ' and removed its leftovers' : ''}`,
+    {
+      action: {
+        label: 'Undo',
+        onClick: () => {
+          updateItem(m.id, was)
+          for (const l of gone) restoreItem(l.id)
+        },
+      },
+    },
+  )
 }
 
 /** Removes a Meal and its leftovers, with Undo (MPL-003 3, ITM-006 3). */
@@ -136,26 +170,4 @@ export function removeMeal(m: PlannedMeal, name: string, meals: readonly Planned
 /** Ticks a Meal eaten, or not: no cook is logged (MPL-003 5). */
 export function setEaten(m: PlannedMeal, eaten: boolean) {
   updateItem(m.id, { status: eaten ? 'done' : 'active' })
-}
-
-/** A week's Meals made again in another (MPL-004), with Undo. */
-export function copyMeals(meals: readonly PlannedMeal[], from: string, to: string) {
-  const copies = copyWeek(meals, from, to, newId)
-  for (const c of copies)
-    planMeal(
-      {
-        title: c.from.title,
-        do_on: c.day,
-        slot: c.from.slot as SlotKey,
-        ...(c.from.variation && { variation: c.from.variation }),
-        servings: c.from.servings,
-        ...(c.leftoversOf && { leftovers_of: c.leftoversOf }),
-        ...inSpace(c.from.space),
-      },
-      c.id,
-    )
-  toast(copies.length === 1 ? 'Copied 1 meal' : `Copied ${copies.length} meals`, {
-    action: { label: 'Undo', onClick: () => copies.forEach((c) => archiveItem(c.id)) },
-  })
-  return copies.length
 }

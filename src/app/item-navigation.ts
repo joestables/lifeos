@@ -22,6 +22,8 @@ export function useOpenItem() {
   return (item: Pick<Item, 'id' | 'type'>) => {
     if (item.type === 'recipe') {
       void navigate({ to: '/recipes/$id', params: { id: item.id } })
+    } else if (item.type === 'shopping_list') {
+      void navigate({ to: '/shopping/$id', params: { id: item.id } })
     } else if (opensAsPage(item.type, isMobile) || RECIPE_TYPES.includes(item.type)) {
       void navigate({ to: '/item/$id', params: { id: item.id } })
     } else {

@@ -24,6 +24,7 @@ import {
   TagIcon,
   UtensilsIcon,
   WifiOffIcon,
+  XIcon,
   type LucideIcon,
 } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
@@ -38,13 +39,17 @@ import {
   LogEntry,
   MealCard,
   MealDay,
-  MealSlot,
   MethodSteps,
+  KeepToggles,
+  OfferRow,
+  PantryAisle,
   PantryRow,
+  ShoppingLine,
   RecipeCard,
   RecipeFact,
   RecipeGrid,
   SelectionBar,
+  SortMenu,
   ServingsStepper,
   StarRating,
   TimerChip,
@@ -432,6 +437,7 @@ function DesignPage() {
             <Badge>Errands</Badge>
             <Badge variant="outline">Someday</Badge>
             <Badge variant="destructive">Overdue</Badge>
+            <Badge variant="warning">Out of stock</Badge>
             <Badge removeLabel="Remove Quick" onRemove={() => undefined}>
               Quick
             </Badge>
@@ -908,13 +914,24 @@ function DesignPage() {
               >
                 <FilterSection title="State">
                   <ToggleGroup aria-label="State" defaultValue={['all']} className="self-start">
+                    <ToggleGroupItem value="all">All</ToggleGroupItem>
                     <ToggleGroupItem value="draft">Draft</ToggleGroupItem>
                     <ToggleGroupItem value="complete">Complete</ToggleGroupItem>
-                    <ToggleGroupItem value="all">All</ToggleGroupItem>
                   </ToggleGroup>
                 </FilterSection>
               </FilterPanel>
               <div className="flex min-w-0 flex-col gap-3">
+                <div className="flex">
+                  <SortMenu
+                    options={[
+                      { value: 'added', label: 'Recently added', initial: 'desc' },
+                      { value: 'name', label: 'A–Z', initial: 'asc' },
+                    ]}
+                    value="added"
+                    direction="desc"
+                    onChange={() => {}}
+                  />
+                </div>
                 {/* Contained, so the phone's bar sits under its example, not on the screen's foot. */}
                 <div className="contain-layout max-md:pb-16">
                   <SelectionBar
@@ -1001,24 +1018,104 @@ function DesignPage() {
 
         <Section title="Meal plan, Pantry">
           <TypeScope colour="green" className="grid max-w-3xl gap-4 sm:grid-cols-2">
-            <MealDay name="Thu" date="15 Oct" today>
-              <MealSlot slot="Breakfast">
-                <MealCard name="Berry smoothie" servings={1} personal />
-              </MealSlot>
-              <MealSlot slot="Lunch">
-                <MealCard name="Katsu curry" kind="leftovers" />
-              </MealSlot>
-              <MealSlot slot="Dinner" />
-            </MealDay>
+            <div className="flex flex-col gap-5">
+              <MealDay
+                name="Thu"
+                date="15 Oct"
+                today
+                action={
+                  <Button variant="ghost" size="icon-sm" aria-label="Add a meal">
+                    <PlusIcon />
+                  </Button>
+                }
+              >
+                <div className="grid gap-1.5">
+                  <MealCard row slot="Breakfast" name="Berry smoothie" servings={1} personal />
+                  <MealCard row slot="Lunch" name="Katsu curry" kind="leftovers" />
+                </div>
+              </MealDay>
+              <MealDay
+                name="Fri"
+                date="16 Oct"
+                action={
+                  <Button variant="ghost" size="icon-sm" aria-label="Add a meal">
+                    <PlusIcon />
+                  </Button>
+                }
+              />
+            </div>
             <div className="flex flex-col gap-2">
               <MealCard name="Out: Dishoom" kind="typed" />
               <MealCard name="Overnight oats" servings={1} eaten />
+              <MealCard name="Chilli con carne" servings={6} selecting selected />
               <AddMealButton slot="Dinner" dropping />
               <Card className="gap-1 px-2 py-2">
                 <PantryRow name="Carrots" recipes={6} />
-                <PantryRow name="Garlic" unit="clove" recipes={14} staple />
-                <PantryRow name="Onion" recipes={18} staple out />
+                <PantryRow name="Garlic" recipes={14} />
+                <PantryRow name="Onion" recipes={18} />
               </Card>
+            </div>
+          </TypeScope>
+        </Section>
+
+        <Section title="Shopping">
+          <TypeScope colour="yellow" className="grid max-w-3xl gap-4 sm:grid-cols-2">
+            <PantryAisle label="Fruit & Veg">
+              <ShoppingLine name="Red peppers" amount="3" />
+              <ShoppingLine name="Onions" amount="3" checked />
+              <ShoppingLine
+                name="Bin bags"
+                meta="Required"
+                menu={
+                  <Button variant="ghost" size="icon-sm" aria-label="Remove Bin bags">
+                    <XIcon />
+                  </Button>
+                }
+              />
+            </PantryAisle>
+            <div className="flex flex-col gap-4">
+              <PantryAisle label="Add staples">
+                <OfferRow name="Olive oil" meta="Out of stock" onToggle={() => undefined} />
+                <OfferRow name="Milk" meta="Required" added onToggle={() => undefined} />
+                <OfferRow name="Cumin" meta="Chilli Thu" onToggle={() => undefined} />
+              </PantryAisle>
+              <PantryAisle label="Fruit & Veg">
+                <PantryRow
+                  name="Onion"
+                  meta="Fruit & Veg · g"
+                  actions={
+                    <KeepToggles
+                      name="Onion"
+                      kept="staple"
+                      needed
+                      onKept={() => undefined}
+                      onNeeded={() => undefined}
+                    />
+                  }
+                />
+                <PantryRow
+                  name="Bananas"
+                  actions={
+                    <KeepToggles
+                      name="Bananas"
+                      kept="essential"
+                      onKept={() => undefined}
+                      onNeeded={() => undefined}
+                    />
+                  }
+                />
+                <PantryRow
+                  name="Garlic"
+                  actions={
+                    <KeepToggles
+                      name="Garlic"
+                      kept={null}
+                      onKept={() => undefined}
+                      onNeeded={() => undefined}
+                    />
+                  }
+                />
+              </PantryAisle>
             </div>
           </TypeScope>
         </Section>

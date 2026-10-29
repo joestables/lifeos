@@ -4,16 +4,19 @@ import { useState } from 'react'
 import { PageAction, PageHeader, TabsRow, TypeScope } from '@/components/lifeos'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { WeekTab } from '@/app/meal-week'
-import { PantryTab } from '@/app/pantry-tab'
+import { PantryTab, PendingTab } from '@/app/pantry-tab'
 import { queue, useSettings } from '@/data'
 
 /**
- * The Meal plan (patterns.md#meal-plan): the week's Meals (MPL-001–004)
- * and the Pantry (PAN-001–004), as two tabs.
+ * The Meal plan (patterns.md#meal-plan): the week's Meals (MPL-001–006)
+ * and the Pantry (PAN-001–004), as two tabs; the Pantry's Pending a page.
  */
 export const Route = createFileRoute('/_app/meal-plan')({
-  validateSearch: (search: Record<string, unknown>): { tab?: 'pantry'; day?: string } => ({
+  validateSearch: (
+    search: Record<string, unknown>,
+  ): { tab?: 'pantry'; view?: 'pending'; day?: string } => ({
     ...(search.tab === 'pantry' ? { tab: 'pantry' as const } : {}),
+    ...(search.tab === 'pantry' && search.view === 'pending' ? { view: 'pending' as const } : {}),
     ...(typeof search.day === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(search.day)
       ? { day: search.day }
       : {}),
@@ -29,6 +32,19 @@ function MealPlanPage() {
   const tab = search.tab ?? 'week'
   const [creating, setCreating] = useState(false)
   const newEntry = () => setCreating(true)
+  const pantryView = (view?: 'pending') =>
+    void navigate({ to: '.', search: (prev) => ({ ...prev, view }) })
+
+  // Pending (PAN-004 2): a page of its own, back to the Pantry.
+  if (tab === 'pantry' && search.view === 'pending')
+    return (
+      <TypeScope colour="green">
+        <PageHeader title="Pending" back={{ label: 'Pantry', onClick: () => pantryView() }} />
+        <div className="flex flex-col gap-4 px-5 pb-28 sm:px-9 sm:pb-8">
+          <PendingTab />
+        </div>
+      </TypeScope>
+    )
 
   return (
     <TypeScope colour="green">
@@ -56,7 +72,11 @@ function MealPlanPage() {
           {tab === 'pantry' && <PageAction label="New entry" onClick={newEntry} />}
         </TabsRow>
         {tab === 'pantry' ? (
-          <PantryTab creating={creating} onCreating={setCreating} />
+          <PantryTab
+            creating={creating}
+            onCreating={setCreating}
+            onPending={() => pantryView('pending')}
+          />
         ) : (
           <WeekTab
             day={search.day ?? today}

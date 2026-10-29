@@ -22,6 +22,7 @@ export function ReferenceField({
   className,
   autoFocus,
   onEnter,
+  onEmptyBackspace,
   onKeyDown,
 }: {
   value: string
@@ -38,6 +39,8 @@ export function ReferenceField({
   autoFocus?: boolean
   /** Enter without Shift (a step: the next one). */
   onEnter?: () => void
+  /** Backspace in an empty box (a step: it goes, Joe, 24 October). */
+  onEmptyBackspace?: () => void
   onKeyDown?: (e: KeyboardEvent) => void
 }) {
   const ref = useRef<HTMLTextAreaElement>(null)
@@ -112,6 +115,11 @@ export function ReferenceField({
             if (e.key === 'Enter' && !e.shiftKey && onEnter) {
               e.preventDefault()
               onEnter()
+              return
+            }
+            if (e.key === 'Backspace' && value === '' && onEmptyBackspace) {
+              e.preventDefault()
+              onEmptyBackspace()
               return
             }
             onKeyDown?.(e)

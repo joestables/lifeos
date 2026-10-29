@@ -4,6 +4,8 @@ import type {
   HeadingPatch,
   LineFields,
   MealFields,
+  FoodValue,
+  MealLineFields,
   PantryFields,
   ValueKind,
   VariationPatch,
@@ -167,17 +169,25 @@ export function foodWrites(queue: WriteQueue) {
     removePantry(id: string): void {
       queue.enqueue('food.remove_pantry', { p_id: id }, [])
     },
-    /** Two entries I added made one (PAN-003): `merge`'s lines and staples move to `keep`. */
+    /** Two entries I added made one (PAN-003): `merge`'s lines, staples and Essentials move to `keep`. */
     mergePantry(keep: string, merge: string): void {
       queue.enqueue('food.merge_pantry', { p_keep: keep, p_merge: merge }, [])
     },
-    /** One of a Space's staples, and whether it has run out; or not a staple (PAN-002). */
-    setStaple(space: string, pantry: string, staple: boolean, outOfStock = false): void {
+    /** One of a Space's staples or Essentials kept, of a kind, needed or not (SHP-005 1, 2). */
+    keepEntry(space: string, pantry: string, kind: 'staple' | 'essential', needed = false): void {
       queue.enqueue(
-        'food.set_staple',
-        { p_space: space, p_pantry: pantry, p_staple: staple, p_out_of_stock: outOfStock },
+        'food.keep_entry',
+        { p_space: space, p_pantry: pantry, p_kind: kind, p_needed: needed },
         [],
       )
+    },
+    /** A Recipe viewed (MPL-002 1): Add a meal offers the last three. */
+    viewRecipe(recipe: string): void {
+      queue.enqueue('food.view_recipe', { p_recipe: recipe, p_at: new Date().toISOString() }, [])
+    },
+    /** One taken off its Space's staples or Essentials (SHP-005 1). */
+    removeEntry(space: string, pantry: string): void {
+      queue.enqueue('food.remove_entry', { p_space: space, p_pantry: pantry }, [])
     },
     /**
      * A Meal in a slot (MPL-002): of a Variation, typed, or leftovers of
@@ -185,7 +195,7 @@ export function foodWrites(queue: WriteQueue) {
      * Meal it is leftovers of.
      */
     planMeal(fields: MealFields, id = newId()): string {
-      const { variation, servings, leftovers_of, ...item } = fields
+      const { variation, servings, leftovers_of, source, ...item } = fields
       queue.enqueue(
         'food.plan_meal',
         {
@@ -196,6 +206,7 @@ export function foodWrites(queue: WriteQueue) {
             ...(variation && { variation }),
             ...(servings && { servings }),
             ...(leftovers_of && { leftovers_of }),
+            ...(source && { source }),
           },
         },
         [id],
@@ -203,8 +214,19 @@ export function foodWrites(queue: WriteQueue) {
       return id
     },
     /** A Meal's servings (MPL-003). */
-    updateMeal(id: string, patch: { servings?: number | null }): void {
+    updateMeal(id: string, patch: { servings?: number | null; source?: string | null }): void {
       queue.enqueue('food.update_meal', { p_id: id, p_patch: patch }, [id])
+    },
+    /** A Meal's own lines (MPL-006 1). */
+    addMealLine(meal: string, fields: MealLineFields, id = newId()): string {
+      queue.enqueue('food.add_meal_line', { p_id: id, p_meal: meal, p_fields: fields }, [meal])
+      return id
+    },
+    updateMealLine(meal: string, id: string, patch: MealLineFields): void {
+      queue.enqueue('food.update_meal_line', { p_id: id, p_patch: patch }, [meal])
+    },
+    removeMealLine(meal: string, id: string): void {
+      queue.enqueue('food.remove_meal_line', { p_id: id }, [meal])
     },
     /** Which Variation a Meal uses (MPL-003 1). */
     setMealVariation(meal: string, variation: string): void {
@@ -218,6 +240,27 @@ export function foodWrites(queue: WriteQueue) {
       const id = newId()
       queue.enqueue('food.add_value', { p_id: id, p_kind: kind, p_name: name }, [])
       return id
+    },
+    /** A new name for one of my values, on my Recipes too (RCP-018 1). */
+    renameValue(value: FoodValue, name: string): void {
+      queue.enqueue(
+        'food.move_value_uses',
+        { p_kind: value.kind, p_from: value.name, p_to: name },
+        [],
+      )
+      queue.enqueue('food.rename_value', { p_id: value.id, p_name: name }, [])
+    },
+    /** One of my values into another: my Recipes take its name, and it goes. */
+    mergeValue(value: FoodValue, into: FoodValue): void {
+      queue.enqueue(
+        'food.move_value_uses',
+        { p_kind: value.kind, p_from: value.name, p_to: into.name },
+        [],
+      )
+      queue.enqueue('food.remove_value', { p_id: value.id }, [])
+    },
+    removeValue(value: FoodValue): void {
+      queue.enqueue('food.remove_value', { p_id: value.id }, [])
     },
   }
 }

@@ -4,7 +4,8 @@ import { cn } from '@/lib/utils'
 /**
  * ScrollArea (components.md): every scrolling box — the page, the drawer, a
  * Dialog's body. No browser scrollbar; a 6px thumb, 2px from the edge,
- * shown while scrolling or hovered.
+ * always shown with a mouse while there is more to scroll (Joe, 23
+ * October), and on a touch screen while scrolling.
  */
 function ScrollArea({
   className,
@@ -22,14 +23,16 @@ function ScrollArea({
   return (
     <ScrollAreaPrimitive.Root
       data-slot="scroll-area"
-      className={cn('relative min-h-0 overflow-hidden', className)}
+      className={cn('relative flex min-h-0 flex-col overflow-hidden', className)}
       {...props}
     >
       <ScrollAreaPrimitive.Viewport
         data-slot="scroll-area-viewport"
         data-scroll-restoration-id={restorationId}
         className={cn(
-          'size-full overscroll-contain rounded-[inherit] outline-none focus-visible:ring-3 focus-visible:ring-ring-soft',
+          // A flex child, not 100% high: a box sized by its parent's flex
+          // (a Dialog's body) has no height for a percentage to take.
+          'min-h-0 w-full flex-1 overscroll-contain rounded-[inherit] outline-none focus-visible:ring-3 focus-visible:ring-ring-soft',
           viewportClassName,
         )}
       >
@@ -52,7 +55,7 @@ function ScrollBar({
       data-slot="scroll-area-scrollbar"
       orientation={orientation}
       className={cn(
-        'z-10 flex touch-none p-0.5 opacity-0 transition-opacity select-none data-hovering:opacity-100 data-scrolling:opacity-100 data-[orientation=horizontal]:h-2.5 data-[orientation=horizontal]:flex-col data-[orientation=vertical]:w-2.5',
+        'z-10 flex touch-none p-0.5 opacity-0 transition-opacity select-none pointer-fine:opacity-100 data-hovering:opacity-100 data-scrolling:opacity-100 data-[orientation=horizontal]:h-2.5 data-[orientation=horizontal]:flex-col data-[orientation=vertical]:w-2.5',
         className,
       )}
       {...props}

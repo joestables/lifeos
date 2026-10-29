@@ -3,9 +3,21 @@ import { convertTargets, itemTitle, offered, opensAsPage, typeLook } from './ite
 
 describe('Types in the app', () => {
   it('ITM-004: offers only conversions into Types the app has yet', () => {
-    // A Thought sorts into a Recipe from Stage 4 (RCP-002 4).
-    expect(convertTargets('thought').map((t) => t.key)).toEqual(['event', 'note', 'recipe', 'task'])
-    expect(convertTargets('note').map((t) => t.key)).toEqual(['event', 'recipe', 'task'])
+    // A Thought sorts into a Recipe from Stage 4 (RCP-002 4), a Shopping list
+    // from Stage 4b (offered only when it names a Pantry ingredient, SHP-003 5).
+    expect(convertTargets('thought').map((t) => t.key)).toEqual([
+      'event',
+      'note',
+      'recipe',
+      'shopping_list',
+      'task',
+    ])
+    expect(convertTargets('note').map((t) => t.key)).toEqual([
+      'event',
+      'recipe',
+      'shopping_list',
+      'task',
+    ])
     expect(convertTargets('task').map((t) => t.key)).toEqual(['event'])
     expect(convertTargets('event').map((t) => t.key)).toEqual(['task'])
   })
@@ -17,8 +29,8 @@ describe('Types in the app', () => {
       true,
       true,
     ])
-    // Not yet in the ontology: Stage 4b's.
-    expect(offered('shopping_list')).toBe(false)
+    // Stage 4b's, from its step 5; sorting a Thought into one waits for step 8.
+    expect(offered('shopping_list')).toBe(true)
   })
 
   it('ITM-001: a Task opens in a popup everywhere; a Note on its own page on a phone', () => {

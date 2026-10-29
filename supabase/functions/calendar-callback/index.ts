@@ -9,7 +9,7 @@
 import { accountOf, allowedReturn } from '../calendar-sync/run.ts'
 import { client, redirectUri, rpc } from '../calendar-sync/supabase.ts'
 
-const FALLBACK = 'https://lifeos-bice-mu.vercel.app/settings'
+const FALLBACK = 'https://joestables.uk/settings'
 const back = (to: string, outcome: string) =>
   Response.redirect(`${to}${to.includes('?') ? '&' : '?'}calendar=${outcome}`, 302)
 

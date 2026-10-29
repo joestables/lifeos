@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
-import { DISHOOM, KATSU_MEAL, LEFTOVERS, NOW, mealRows } from './meal-rows'
+import { DISHOOM, KATSU_MEAL, LEFTOVERS, NOW, addMeal, mealCards, mealRows } from './meal-rows'
 import { BIN_BAGS, GARLIC, SAM } from './pantry-rows'
 import { id } from './recipe-rows'
 import { ANN, itemRow, standIn, type Rows } from './stand-in'
@@ -11,7 +11,7 @@ const SHARED = id(82)
 
 /**
  * The Meal plan's rows, with Ann and Sam in Home: Sam's Recipe, a Meal in
- * Home, and Home's staples beside Ann's own.
+ * Home, and Home's staples beside Ann's own (SHP-005).
  */
 function rows(meals: string | null = null): Rows {
   const base = mealRows()
@@ -72,9 +72,9 @@ function rows(meals: string | null = null): Rows {
         added_by: ANN.id,
       },
     ],
-    staples: [
-      { space_id: 's', pantry_id: GARLIC, out_of_stock: false },
-      { space_id: HOME, pantry_id: BIN_BAGS, out_of_stock: true },
+    space_entries: [
+      { space_id: 's', pantry_id: GARLIC, kind: 'staple', needed: false },
+      { space_id: HOME, pantry_id: BIN_BAGS, kind: 'staple', needed: true },
     ],
   }
 }
@@ -86,8 +86,7 @@ async function start(page: Page, path: string, meals: string | null = null) {
   return db
 }
 
-const slot = (page: Page, key: string) => page.locator(`[data-drop="${key}"]`).last()
-const cards = (page: Page, key: string) => slot(page, key).locator('[data-slot="meal-card"]')
+const cards = mealCards
 
 test.describe('Food shared through a Household', () => {
   test('MPL-005: Settings → Food chooses where new Meals go', async ({ page }) => {
@@ -102,7 +101,7 @@ test.describe('Food shared through a Household', () => {
 
   test('MPL-002 2: a new Meal goes where my default says', async ({ page }) => {
     const db = await start(page, '/meal-plan', HOME)
-    await slot(page, '2026-10-18:lunch').getByRole('button', { name: 'Add lunch' }).click()
+    await addMeal(page, '2026-10-18:lunch')
     await page.getByRole('button', { name: 'Type a meal' }).click()
     await page.getByRole('textbox', { name: 'Meal' }).fill('Sunday roast')
     await page.getByRole('button', { name: 'Add', exact: true }).click()
@@ -153,22 +152,6 @@ test.describe('Food shared through a Household', () => {
     await expect(page.getByRole('combobox', { name: 'For' })).toHaveCount(0)
   })
 
-  test('PAN-002 1: the Pantry shows the staples of where my Meals go', async ({ page }) => {
-    const db = await start(page, '/meal-plan?tab=pantry', HOME)
-    await expect(page.getByRole('button', { name: 'Bin bags out of stock' })).toHaveAttribute(
-      'aria-pressed',
-      'true',
-    )
-    await expect(page.getByRole('button', { name: 'Garlic is a staple' })).toHaveAttribute(
-      'aria-pressed',
-      'false',
-    )
-    await page.getByRole('button', { name: 'Garlic is a staple' }).click()
-    await expect
-      .poll(() => db.staples.find((s) => s.pantry_id === GARLIC && s.space_id === HOME))
-      .toBeTruthy()
-  })
-
   test('RCP-001 5: Created by lists me and Home’s members; a member’s Recipe says whose', async ({
     page,
     isMobile,
@@ -191,9 +174,25 @@ test.describe('Food shared through a Household', () => {
     await expect(page.getByText('By Sam', { exact: true })).toBeVisible()
   })
 
+  test('RCP-004 1: choosing several, a member’s Recipe fades, saying whose', async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(isMobile, 'Select is a computer’s; a phone long-presses one of mine')
+    await start(page, '/recipes')
+    await page.getByRole('button', { name: 'Select' }).click()
+    const ramen = page.locator('[data-slot="recipe-card"]').filter({ hasText: 'Shoyu ramen' })
+    await expect(ramen).toContainText('Japanese · Sam’s')
+    await expect(ramen.getByRole('checkbox')).toHaveAttribute('aria-disabled', 'true')
+    const katsu = page.locator('[data-slot="recipe-card"]').filter({ hasText: 'Katsu curry' })
+    await katsu.getByRole('checkbox').click()
+    await expect(katsu.getByRole('checkbox')).toHaveAttribute('aria-checked', 'true')
+  })
+
   test('MPL-002 1: the picker says whose a member’s Recipe is', async ({ page }) => {
     await start(page, '/meal-plan')
-    await slot(page, '2026-10-18:dinner').getByRole('button', { name: 'Add dinner' }).click()
+    await addMeal(page, '2026-10-18:dinner')
+    await page.getByRole('dialog').getByRole('searchbox', { name: 'Search recipes' }).fill('ramen')
     await expect(page.getByRole('button', { name: /Shoyu ramen/ })).toContainText('Japanese · Sam')
   })
 

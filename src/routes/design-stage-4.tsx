@@ -1521,31 +1521,17 @@ const AISLES: { aisle: string; entries: [string, string, number, boolean?, boole
   },
 ]
 
-function Entry({
-  name,
-  unit,
-  used,
-  staple,
-  out,
-}: {
-  name: string
-  unit: string
-  used: number
-  staple?: boolean
-  out?: boolean
-}) {
+/** Stage 4's Pantry row, its staple marks since moved to Shopping (SHP-005). */
+function Entry({ name, used }: { name: string; used: number; staple?: boolean; out?: boolean }) {
   return (
     <PantryRow
       name={name}
-      unit={unit}
       recipes={used}
-      staple={staple}
-      out={out}
       menu={more(
         <>
           <DropdownMenuItem>Edit</DropdownMenuItem>
           <DropdownMenuItem>Recipes that use it</DropdownMenuItem>
-          <DropdownMenuItem>Merge with…</DropdownMenuItem>
+          <DropdownMenuItem>Merge into…</DropdownMenuItem>
           <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
         </>,
       )}
@@ -1579,16 +1565,16 @@ function Pantry() {
           <SectionLabel>Ingredients</SectionLabel>
           {AISLES.map((a) => (
             <PantryAisle key={a.aisle} label={a.aisle}>
-              {a.entries.map(([n, u, used, staple, out]) => (
-                <Entry key={n} name={n} unit={u} used={used} staple={staple} out={out} />
+              {a.entries.map(([n, , used, staple, out]) => (
+                <Entry key={n} name={n} used={used} staple={staple} out={out} />
               ))}
             </PantryAisle>
           ))}
           <SectionLabel>Household items</SectionLabel>
           <PantryAisle label="Household items" title={false}>
-            <Entry name="Bin bags" unit="" used={0} staple out />
-            <Entry name="Kitchen roll" unit="" used={0} staple />
-            <Entry name="Washing-up liquid" unit="" used={0} />
+            <Entry name="Bin bags" used={0} staple out />
+            <Entry name="Kitchen roll" used={0} staple />
+            <Entry name="Washing-up liquid" used={0} />
           </PantryAisle>
         </div>
       </TypeScope>

@@ -38,7 +38,9 @@ function ItemRoute() {
         : undefined
 
   useEffect(() => {
-    if (recipe)
+    if (item?.type === 'shopping_list')
+      void navigate({ to: '/shopping/$id', params: { id: item.id }, replace: true })
+    else if (recipe)
       void navigate({
         to: '/recipes/$id',
         params: { id: recipe },

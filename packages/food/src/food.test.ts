@@ -8,6 +8,8 @@ import {
   parseNumber,
   roundFor,
   scale,
+  total,
+  type Amount,
 } from './index.ts'
 
 describe('reading a typed line (RCP-007 1, 3; ADR-0053)', () => {
@@ -21,6 +23,7 @@ describe('reading a typed line (RCP-007 1, 3; ADR-0053)', () => {
     ['½ lemon', { qty: 0.5, qtyMax: null, approx: false, unit: null, name: 'Lemon' }],
     ['1½ tbsp oil', { qty: 1.5, qtyMax: null, approx: false, unit: 'tbsp', name: 'Oil' }],
     ['1 1/2 l stock', { qty: 1.5, qtyMax: null, approx: false, unit: 'l', name: 'Stock' }],
+    ['½ cup oats', { qty: 0.5, qtyMax: null, approx: false, unit: 'cup', name: 'Oats' }],
     [
       '600 ml of chicken stock',
       { qty: 600, qtyMax: null, approx: false, unit: 'ml', name: 'Chicken stock' },
@@ -51,7 +54,7 @@ describe('scaling and showing amounts (RCP-011 2; ADR-0053)', () => {
 
   it('scales both ends of a range', () => {
     expect(scale(honey, 1.5)).toEqual({ ...honey, qty: 1.5, qtyMax: 3 })
-    expect(formatAmount(scale(honey, 1.5))).toBe('1½–3 tbsp')
+    expect(formatAmount(scale(honey, 1.5))).toBe('1.5–3 tbsp')
   })
 
   it('leaves an amount-less line alone', () => {
@@ -72,7 +75,7 @@ describe('scaling and showing amounts (RCP-011 2; ADR-0053)', () => {
 
   it('shows approximate amounts and counts', () => {
     expect(formatAmount({ qty: 5, qtyMax: null, approx: true, unit: 'g' })).toBe('~5 g')
-    expect(formatAmount({ qty: 1.5, qtyMax: null, approx: false, unit: null })).toBe('1½')
+    expect(formatAmount({ qty: 1.5, qtyMax: null, approx: false, unit: null })).toBe('1.5')
     expect(formatAmount({ qty: 1.5, qtyMax: null, approx: false, unit: 'kg' })).toBe('1.5 kg')
   })
 
@@ -86,6 +89,12 @@ describe('scaling and showing amounts (RCP-011 2; ADR-0053)', () => {
       value: 1500,
     })
     expect(inBase({ qty: 2, qtyMax: null, approx: false, unit: null })).toBeNull()
+    // A cup is 250 ml (Joe, 23 October).
+    expect(inBase({ qty: 1.5, qtyMax: null, approx: false, unit: 'cup' })).toEqual({
+      kind: 'volume',
+      value: 375,
+    })
+    expect(formatAmount({ qty: 0.75, qtyMax: null, approx: false, unit: 'cup' })).toBe('0.75 cup')
   })
 })
 
@@ -111,5 +120,36 @@ describe('timers from a step (RCP-011 3; ADR-0056)', () => {
     expect(formatTimer(1200)).toBe('20:00')
     expect(formatTimer(522)).toBe('8:42')
     expect(formatTimer(3725)).toBe('1:02:05')
+  })
+})
+
+describe('total (ADR-0053; SHP-002 3)', () => {
+  const a = (
+    qty: number | null,
+    unit: Amount['unit'] = null,
+    more: Partial<Amount> = {},
+  ): Amount => ({
+    qty,
+    qtyMax: null,
+    approx: false,
+    unit,
+    ...more,
+  })
+  it('adds units of one kind, in the larger unit once it reads better', () => {
+    expect(total([a(500, 'g'), a(1, 'kg')])).toBe('1.5 kg')
+    expect(total([a(200, 'g'), a(300, 'g')])).toBe('500 g')
+    expect(total([a(2, 'tbsp'), a(1, 'tbsp')])).toBe('3 tbsp')
+    expect(total([a(1, 'tbsp'), a(100, 'ml')])).toBe('115 ml')
+  })
+  it('keeps weight, volume and counts side by side', () => {
+    expect(total([a(2), a(500, 'g'), a(100, 'ml')])).toBe('2 + 500 g + 100 ml')
+  })
+  it('counts a range as its top, and carries "~"', () => {
+    expect(total([a(1, 'tbsp', { qtyMax: 2 }), a(1, 'tbsp')])).toBe('3 tbsp')
+    expect(total([a(5, 'g', { approx: true }), a(5, 'g')])).toBe('~10 g')
+  })
+  it('shows "+" for an unmeasured line on a measured one, nothing for none measured', () => {
+    expect(total([a(5, 'g'), a(null)])).toBe('5 g +')
+    expect(total([a(null)])).toBe('')
   })
 })

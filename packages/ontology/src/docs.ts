@@ -43,7 +43,7 @@ function row(t: TypeDefinition): string {
     t.colour,
     tick(t.labels),
     t.mark ?? '—',
-    String(t.stage),
+    t.stage === 4.5 ? '4b' : String(t.stage),
   ].join(' | ')
 }
 

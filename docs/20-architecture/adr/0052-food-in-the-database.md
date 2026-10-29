@@ -1,6 +1,7 @@
 # ADR-0052: Food in the database
 
 **Status:** Provisionally agreed · 2026-10-18
+**Amended:** 2026-10-23 by Joe's answers for step 9 (a Meal's own lines and link); 2026-10-24 by Joe's answers for Stage 4b (a food shop in its own Space, its Meals' lines unchanged on it).
 
 ## Context
 
@@ -15,11 +16,14 @@ how the schema holds it and how the database enforces it
 
 - **Recipe, Variation, Meal and Shopping list are Items** (`core.items`),
   declared in `packages/ontology` under the `food` and `shopping` Modules,
-  with detail tables `food.recipe`, `food.variation`, `food.meal`,
+  with detail tables `food.recipe`, `food.variation`, `food.meal` (with an
+  optional `source` link for a typed Meal),
   `shopping.shopping_list`.
 - **Child rows:** `food.variation_lines` (amount, top of a range,
   approximate, unit, a Pantry entry or typed text, an optional subheading,
-  position), `food.variation_steps`, `food.cooks` (who, when, verdict,
+  position), `food.variation_steps`, `food.meal_lines` (a Meal's own
+  lines, shaped as a Variation's but with no subheadings; written by
+  whoever may edit the Meal), `food.cooks` (who, when, verdict,
   notes, servings, and a JSON **snapshot** of the Variation as cooked),
   `shopping.lines` (with the Meal each is *for*).
 - **Recipes seen through a Household:** `readable_item_ids()` gains one
@@ -29,21 +33,27 @@ how the schema holds it and how the database enforces it
 - **My Variation of your Recipe** is mine: in my Personal Space, linked to
   your Recipe by *variation of*. `food.add_variation()` checks I can read
   the Recipe, then makes the copy and the link.
-- **Shopping lists seen through their Meals:** a list is readable, and its
-  lines can be ticked and added to, by anyone who can read a Meal any of
-  its lines is for, as well as by its own Space. A trigger refuses deleting
-  a Meal's line or lowering it below what the Meals need
-  ([ADR-0053](0053-quantities-and-units.md)).
+- **Shopping lists are in their own Space** (amended 24 October): a food
+  shop's Space is chosen, and everyone in it reads, ticks and adds; the
+  Meals it is linked to bring their lines, whatever their Space. A Meal's
+  lines aren't changed or deleted on the shop: they follow the Meal. How
+  they are held and kept in step: [ADR-0057](0057-shopping-in-the-database.md)
+  (rows the database writes).
 - **The Pantry is not Items:** `food.pantry` (name, kind: ingredient or
   household, aisle, default unit, added by). Every signed-in person reads
   and adds; only whoever added an entry changes or deletes it; a delete is
   refused while any line points at it. `food.merge_pantry()` checks the
   merger added both, then repoints every line, everyone's.
-- **Staples:** `food.staples` (Space, entry, out of stock), changed by
-  anyone who can read the Space.
+- **Staples:** `food.space_entries` (Space, entry, kind, needed), changed by
+  anyone who can read the Space; first `food.staples` (Space, entry, out of
+  stock), given a `kind`, staple or Essential, in Stage 4b, and renamed, its
+  out of stock now `needed`, meaning Required for an Essential
+  ([ADR-0057](0057-shopping-in-the-database.md)).
 - **Lists of values** (categories, cuisines, tags, protein, carbs) are each
   person's, in `food.values`; browsing pools those of everyone in my
-  Households, the same name counting once.
+  Households, the same name counting once. A Recipe keeps the names
+  themselves, so renaming or merging one of mine renames it on my Recipes
+  too (RCP-018 1, 26 October).
 - **Unique names** are checked by the function that creates or renames a
   Recipe: refused if a Recipe I can read already has it, ignoring case and
   spaces. Names that clash only because people joined are left alone.
@@ -67,5 +77,5 @@ how the schema holds it and how the database enforces it
   past the [non-functional](../../10-requirements/non-functional.md#performance)
   limit, a table of Household peers kept by triggers replaces the lookup.
 - Database tests cover each path: seeing a Household member's Recipe, not
-  editing it, adding and keeping a Variation, a list seen through a Meal,
-  the Pantry's rules, and a Meal's protected lines.
+  editing it, adding and keeping a Variation, a list in its Space, the
+  Pantry's rules, and a Meal's lines following it onto a shop.

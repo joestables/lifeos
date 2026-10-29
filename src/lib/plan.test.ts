@@ -66,6 +66,9 @@ describe('Plan places each Item on its days', () => {
     expect(mondayOf('2026-10-12')).toBe('2026-10-12')
     expect(weekTitle('2026-10-12')).toBe('12 – 18 October')
     expect(weekTitle('2026-09-28')).toBe('28 September – 4 October')
+    // A phone's, across two months (Joe, 26 October).
+    expect(weekTitle('2026-09-28', true)).toBe('28 Sept – 4 Oct')
+    expect(weekTitle('2026-10-12', true)).toBe('12 – 18 October')
     expect(dayTitle('2026-10-15')).toBe('Thursday 15 October')
     expect(dayTitle('2026-10-15', true)).toBe('Thu 15 October')
   })

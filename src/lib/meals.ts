@@ -1,6 +1,6 @@
-import { addDays, daysBetween } from '@lifeos/recurrence'
+import { addDays } from '@lifeos/recurrence'
 import { fromIsoDay } from './dates'
-import { mondayOf } from './plan'
+import type { MealLine, Photo } from '@/data'
 
 /** A Meal's slot as kept: breakfast, lunch, dinner (Joe, 18 October). */
 export type SlotKey = 'breakfast' | 'lunch' | 'dinner'
@@ -26,13 +26,24 @@ export interface PlannedMeal {
   slot: string | null
   status: string
   created_at: string
+  /** What it serves: its own, else its Variation's (MPL-002 2). */
   servings: number | null
+  /** Its own servings, set on the Meal; null follows its Variation. */
+  ownServings?: number | null
   leftoversOf: string | null
   variation: string | null
   /** Its Space: Personal or one of my Households (MPL-002 2). */
   space?: string
   /** Whether I made it: only its maker moves it to another Space (HSH-003 2). */
   mine?: boolean
+  /** A typed Meal's recipe link (MPL-006 2). */
+  source?: string | null
+  /** Its own ingredient lines (MPL-006 1). */
+  lines?: readonly MealLine[]
+  /** Its own photo: a typed Meal's, from its link (MPL-006 6). */
+  photo?: Photo
+  /** The picture it shows: its own, its Recipe's, or that of the Meal it is leftovers of. */
+  picture?: string
 }
 
 /** A Meal's name: leftovers take the name of the Meal they are of (MPL-001 4). */
@@ -95,44 +106,27 @@ export function leftoverChoices(
     .sort((a, b) => order(b.day!, b.slot!).localeCompare(order(a.day!, a.slot!)))
 }
 
+/**
+ * A Meal's leftovers a move would put before it (MPL-003 2, Joe, 26
+ * October): those at or before its new day and slot; leftovers later the
+ * same day stay.
+ */
+export function leftoversBefore<M extends Pick<PlannedMeal, 'leftoversOf' | 'day' | 'slot'>>(
+  meal: string,
+  day: string,
+  slot: string,
+  meals: readonly M[],
+): M[] {
+  const at = order(day, slot)
+  return meals.filter(
+    (l) =>
+      l.leftoversOf === meal && l.day !== null && l.slot !== null && order(l.day, l.slot) <= at,
+  )
+}
+
 /** Where leftovers go to start: the next lunch or dinner (patterns.md#meal-plan). */
 export function nextMealSlot(day: string, slot: SlotKey): { day: string; slot: SlotKey } {
   if (slot === 'breakfast') return { day, slot: 'lunch' }
   if (slot === 'lunch') return { day, slot: 'dinner' }
   return { day: addDays(day, 1), slot: 'lunch' }
-}
-
-/** A Meal made again in another week (MPL-004): its new id, and what it is copied from. */
-export interface CopiedMeal {
-  id: string
-  from: PlannedMeal
-  day: string
-  /** The copy of the Meal it is leftovers of, when that is copied too. */
-  leftoversOf: string | null
-}
-
-/**
- * A week's Meals made again in the week of `to` (MPL-004 1): the same
- * weekday and slot; leftovers stay leftovers of their Meal's copy, or of
- * the Meal itself when it isn't in the week.
- */
-export function copyWeek(
-  meals: readonly PlannedMeal[],
-  from: string,
-  to: string,
-  newId: () => string,
-): CopiedMeal[] {
-  const shift = daysBetween(mondayOf(from), mondayOf(to))
-  const week = new Set(Array.from({ length: 7 }, (_, i) => addDays(mondayOf(from), i)))
-  const copied = meals.filter((m) => m.day && m.slot && week.has(m.day))
-  const ids = new Map(copied.map((m) => [m.id, newId()]))
-  // Meals before leftovers: the server checks the Meal leftovers are of.
-  return [...copied.filter((m) => !m.leftoversOf), ...copied.filter((m) => m.leftoversOf)].map(
-    (m) => ({
-      id: ids.get(m.id)!,
-      from: m,
-      day: addDays(m.day!, shift),
-      leftoversOf: m.leftoversOf ? (ids.get(m.leftoversOf) ?? m.leftoversOf) : null,
-    }),
-  )
 }

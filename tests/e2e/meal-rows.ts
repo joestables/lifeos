@@ -1,3 +1,4 @@
+import type { Locator, Page } from '@playwright/test'
 import { KATSU, KATSU_STD, id, rows } from './recipe-rows'
 import { itemRow } from './stand-in'
 
@@ -55,4 +56,49 @@ export function mealRows() {
       { item_id: DISHOOM, servings: null, leftovers_of: null },
     ],
   }
+}
+
+const SLOT_NAMES: Record<string, string> = {
+  breakfast: 'Breakfast',
+  lunch: 'Lunch',
+  dinner: 'Dinner',
+}
+
+/**
+ * A slot's Meals ("2026-10-15:dinner"): the week's cell on a computer; on a
+ * phone, the day's Meals saying that slot (Joe, 26 October).
+ */
+export function mealCards(page: Page, key: string): Locator {
+  const [day, slot] = key.split(':') as [string, string]
+  return page
+    .locator(`[data-drop="${key}"] [data-slot="meal-card"]`)
+    .or(
+      page
+        .locator(`section[data-drop="${day}"] [data-slot="meal-card"]`)
+        .filter({ hasText: new RegExp(`${SLOT_NAMES[slot]}( ·|$)`) }),
+    )
+}
+
+/** Opens Add a meal for a slot: its "+" on a computer; the day's "+" then the slot on a phone. */
+export async function addMeal(page: Page, key: string) {
+  const [day, slot] = key.split(':') as [string, string]
+  const cell = page.locator(`[data-drop="${key}"]`)
+  const dayOf = page.locator(`section[data-drop="${day}"]`)
+  await cell.or(dayOf).first().waitFor()
+  if (await cell.count()) {
+    await cell
+      .last()
+      .getByRole('button', { name: `Add ${slot}` })
+      .click()
+    return
+  }
+  await page
+    .locator(`section[data-drop="${day}"]`)
+    .getByRole('button', { name: /^Add a meal/ })
+    .click()
+  await page
+    .getByRole('dialog')
+    .getByLabel('Slot')
+    .getByRole('button', { name: SLOT_NAMES[slot] })
+    .click()
 }

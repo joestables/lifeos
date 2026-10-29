@@ -1,9 +1,9 @@
 /**
- * The units a line may have (ADR-0053): metric only, or none for a count or
- * an unmeasured line. The only conversion factors in LifeOS: the database's
+ * The units a line may have (ADR-0053): metric, a 250 ml cup, or none for a
+ * count or an unmeasured line. The only conversion factors in LifeOS: the database's
  * check uses the same ones.
  */
-export const UNITS = ['g', 'kg', 'ml', 'l', 'tsp', 'tbsp'] as const
+export const UNITS = ['g', 'kg', 'ml', 'l', 'tsp', 'tbsp', 'cup'] as const
 export type Unit = (typeof UNITS)[number]
 
 export type Kind = 'weight' | 'volume'
@@ -16,6 +16,7 @@ export const FACTORS: Record<Unit, { kind: Kind; base: number }> = {
   l: { kind: 'volume', base: 1000 },
   tsp: { kind: 'volume', base: 5 },
   tbsp: { kind: 'volume', base: 15 },
+  cup: { kind: 'volume', base: 250 },
 }
 
 export function isUnit(value: string): value is Unit {
@@ -53,6 +54,8 @@ const ALIASES: Record<string, Unit> = {
   tbs: 'tbsp',
   tablespoon: 'tbsp',
   tablespoons: 'tbsp',
+  cup: 'cup',
+  cups: 'cup',
 }
 
 export function unitOf(word: string): Unit | undefined {

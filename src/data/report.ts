@@ -84,11 +84,11 @@ export function describeClick(target: Element): string | undefined {
 
 /** Starts noticing: uncaught errors and rejections, clicks, and reconnecting. */
 export function startReporting(): void {
-  window.addEventListener(
-    'error',
-    (e) =>
-      void reportEvent('error', e.message, { file: e.filename ?? null, line: e.lineno ?? null }),
-  )
+  window.addEventListener('error', (e) => {
+    // The browser's notice that a resize took two frames: harmless.
+    if (/^ResizeObserver loop/.test(e.message)) return
+    void reportEvent('error', e.message, { file: e.filename ?? null, line: e.lineno ?? null })
+  })
   window.addEventListener('unhandledrejection', (e) => {
     const reason = e.reason as { message?: unknown } | undefined
     void reportEvent('error', String(reason?.message ?? e.reason))

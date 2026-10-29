@@ -167,6 +167,23 @@ export function applyPending(items: readonly ItemRow[], entries: readonly QueueE
         } else mark(a.p_id, {})
         break
       }
+      // A new Shopping list shows at once, so its page opens on it rather than
+      // on "This can't be found" until the server answers (Joe, 26 October).
+      case 'shopping.create_list': {
+        const a = entry.args as { p_id: string; p_fields: Record<string, unknown> }
+        const f = a.p_fields
+        if (!byId.has(a.p_id)) {
+          byId.set(a.p_id, {
+            ...blankItem(a.p_id, 'shopping_list', at),
+            title: String(f.title ?? '').trim(),
+            do_on: (f.do_on as string) ?? null,
+            ...(typeof f.space_id === 'string' && { space_id: f.space_id }),
+            sync,
+          })
+          order.push(a.p_id)
+        } else mark(a.p_id, {})
+        break
+      }
       case 'update_item': {
         const { p_id, p_patch } = entry.args as { p_id: string; p_patch: ItemFields }
         touch(p_id, p_patch)

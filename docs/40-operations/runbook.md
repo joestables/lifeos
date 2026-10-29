@@ -25,7 +25,11 @@ Done 9 October 2026.
     (`src/data/report.ts`). A report that can't be sent waits for the next
     try;
   - Edge Functions, `pg_cron` jobs and Integration syncs report failures to
-    the same table.
+    the same table;
+  - not reported: the browser's "ResizeObserver loop" notice (harmless),
+    and a page's code gone with a new deploy, which reloads instead;
+  - a write sent twice (a reload while the first was on its way) whose own
+    id is then taken was already applied, so it isn't refused.
 - It is queryable by Claude through the Supabase MCP, so "what broke this
   week?" is one question.
 - **No in-app bug reporting.** Joe reports a problem by telling Claude, which
@@ -91,7 +95,13 @@ Edge Functions deployed by Claude through the Supabase MCP, sharing
   token in Vault against the state (`core.calendar_received`, the state
   good once for 15 minutes) and sends me back to Settings, only at the
   app's own addresses, with `?calendar=finish&code=…` for the app to finish
-  as me, or `cancelled`, `expired` or `failed`.
+  as me, or `cancelled`, `expired` or `failed`. The app's own addresses
+  (`allowedReturn` in `calendar-sync/run.ts`): `joestables.uk` (and
+  `www.`), the old `lifeos-bice-mu.vercel.app`, previews and localhost;
+  with no good address, `https://joestables.uk/settings`.
+- **Deploying** `calendar-connect` and `calendar-callback`: from 25 October
+  each as one bundled file, `node scripts/bundle-function.mjs <name> out.js`,
+  sent through the Supabase MCP without JWT checks.
 - **`calendar-sync`** (every five minutes, `pg_cron` job `calendar-sync`,
   through `pg_net` with `calendar_secret` from Vault, only while a calendar
   is on): a fresh access token per connection; Google refusing it marks the
@@ -121,6 +131,49 @@ Edge Functions deployed by Claude through the Supabase MCP, sharing
 - **Secrets:** the client's ID and secret are Edge Function secrets
   (`GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, entered by Joe); each refresh
   token, and `calendar_secret`, are in Vault.
+
+## The AI service
+
+`ai`, an Edge Function deployed by Claude through the Supabase MCP without
+JWT checks (it asks Auth who the token is), from 26 October as one bundled
+file, `node scripts/bundle-function.mjs ai out.js` (`rules.ts`, `schema.ts`,
+`run.ts` and `packages/food`'s `imported.ts` and `units.ts`)
+([ADR-0054](../20-architecture/adr/0054-the-ai-service-and-import.md)):
+
+- **Tasks:** `status` (can the AI be used, and how much of today's
+  allowance is left), `recipe.import` (RCP-014; also what Import from a
+  link in a Draft Variation uses), `recipe.fill_lines` (RCP-007 5: the
+  Variation's method is sent, and only then) and `meal.ingredients`
+  (MPL-006 2: a link's lines and servings only). Gemini's free tier
+  only: the key and the optional settings are in
+  [integration setup](integration-setup.md#gemini-stage-4).
+- **The allowance:** each use is an `ai` row in `ops.events`
+  (`core.ai_take`, as the service role), with the prompt's version and never
+  what was sent; a day is a UTC day. A failure is an `ai_failed` row with
+  why.
+- **Checking it:** `select kind, message, count(*) from ops.events where
+  source = 'edge' and kind like 'ai%' and at > now() - interval '1 day'
+  group by 1, 2`. Many `ai_failed` with 429 mean the free quota is used
+  up; Google's limits change, so set `AI_DAILY_ALLOWANCE` from what AI
+  Studio shows.
+- **Speed:** the model is Flash-Lite, then Flash when it is busy or out
+  of quota. Each answer is asked for with little thinking (Gemini 3's
+  `thinkingLevel: low`, else 2.5's `thinkingBudget: 0`, else the model's
+  default) and may take 100 seconds at most, so the function answers
+  before its own limit; too slow is said as "took too long". Each call's
+  model, thinking and time are in the function's logs (`ai: gemini …`).
+  The first live imports (23 October) timed out at two minutes with the
+  model's default thinking.
+- **A bad import** is traced to its prompt by the version in its `ai` row
+  (`PROMPT_VERSION` in `rules.ts`).
+- **`link-preview`** (not AI, nothing counted): a link's name and picture,
+  the picture as a data URL, for a typed Meal (MPL-006 6) and a shared Idea
+  (RCP-003 1). Deployed by Claude through the Supabase MCP without JWT
+  checks (it asks Auth who the token is), as one file:
+  `node scripts/bundle-function.mjs link-preview out.js` bundles only the
+  code it uses from the `ai` function's `run.ts`, leaving the prompts and
+  schemas out (from 25 October; before, the six files were sent as they
+  are).
 
 ## The nightly series run
 

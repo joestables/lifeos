@@ -1,6 +1,7 @@
 # ADR-0053: Quantities and units
 
 **Status:** Provisionally agreed · 2026-10-18
+**Amended:** 2026-10-23 by Joe's answers for step 9 (cup, 250 ml); 2026-10-24 by Joe's answers for Stage 4b (no check on lowering a Meal's line).
 
 ## Context
 
@@ -13,10 +14,11 @@ work offline on the device and be checked in the database.
 ## Decision
 
 - **A line keeps what was typed:** an amount, an optional top of a range,
-  an *approximate* flag, and one unit — g, kg, ml, l, tsp, tbsp, or none (a
-  count, or unmeasured). Nothing is stored converted.
+  an *approximate* flag, and one unit — g, kg, ml, l, tsp, tbsp, cup, or
+  none (a count, or unmeasured). Cup is kept for what a page measures in
+  cups and can't be weighed without guessing (Joe, 23 October). Nothing is stored converted.
 - **One package, `packages/food`,** holds the only conversion factors
-  (kg = 1000 g; l = 1000 ml; tsp = 5 ml; tbsp = 15 ml), the parser ("200 g
+  (kg = 1000 g; l = 1000 ml; tsp = 5 ml; tbsp = 15 ml; cup = 250 ml), the parser ("200 g
   chorizo", "1-2 tsp", "~5 g", "½" as 0.5), scaling (both ends of a range),
   display rounding, totals, and the timer parser for Cooking
   ([ADR-0056](0056-cooking-on-the-device.md)). Pure TypeScript with unit
@@ -25,13 +27,13 @@ work offline on the device and be checked in the database.
   once it reads better (1.5 kg); weight and volume sit side by side; a range
   counts as its top; approximate carries into the total; an unmeasured line
   on a measured one shows "+".
-- **The database checks one thing:** that a Meal's line isn't lowered below
-  what the Meals need. Its SQL function uses the same factors, and one table
-  of cases is run by both the unit tests and the database tests, so the two
-  can't drift.
+- **The database does no unit arithmetic** (amended 24 October): a Meal's
+  line on a shop isn't changed there, so nothing needs checking against
+  what the Meals need. Totals are worked out on the device.
 - **Display rounding:** whole grams and millilitres up to 100, then to 5;
-  kg and l to two decimals; spoons to quarters; counts to halves; never
-  rounded to nothing.
+  kg and l to two decimals; spoons and cups to quarters; counts to halves; never
+  rounded to nothing. Always shown as decimals, "0.75 tsp" and never "¾ tsp"
+  (Joe, 23 October); a fraction is still read when typed.
 
 ## Consequences
 

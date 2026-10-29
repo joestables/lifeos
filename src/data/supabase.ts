@@ -1,6 +1,6 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from './database.types'
-import { isTransient, WriteError } from './queue/errors'
+import { alreadyApplied, isTransient, WriteError } from './queue/errors'
 import type { Transport } from './queue/queue'
 
 export type LifeosClient = SupabaseClient<Database, 'core'>
@@ -24,10 +24,12 @@ export function supabase(): LifeosClient {
 
 /** Sends one queued call as an RPC, sorting failures into retry or refuse. */
 export const rpcTransport: Transport = async (fn, args) => {
-  let result: { error: { message: string } | null; status: number }
+  let result: { error: { code?: string; message: string } | null; status: number }
   try {
     // A Module's function names its schema: "food.create_recipe".
-    const [schema, name] = fn.includes('.') ? (fn.split('.') as ['food', string]) : [null, fn]
+    const [schema, name] = fn.includes('.')
+      ? (fn.split('.') as ['food' | 'shopping', string])
+      : [null, fn]
     result = schema
       ? await supabase()
           .schema(schema)
@@ -36,6 +38,7 @@ export const rpcTransport: Transport = async (fn, args) => {
   } catch (cause) {
     throw new WriteError(String(cause), false)
   }
+  if (result.error && alreadyApplied(result.error)) return
   if (result.error) {
     throw new WriteError(result.error.message, !isTransient(result.status))
   }

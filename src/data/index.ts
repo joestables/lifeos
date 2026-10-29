@@ -24,8 +24,10 @@ import {
   applyPendingCooks,
   applyPendingLines,
   applyPendingMeals,
+  applyPendingMealLines,
   applyPendingPantry,
-  applyPendingStaples,
+  applyPendingEntries,
+  applyPendingViews,
   applyPendingRecipes,
   applyPendingSteps,
   applyPendingValues,
@@ -33,9 +35,11 @@ import {
   cooksKey,
   linesKey,
   mealsKey,
+  mealLinesKey,
   pantryKey,
   recipesKey,
-  staplesKey,
+  spaceEntriesKey,
+  recentViewsKey,
   stepsKey,
   valuesKey,
   variationsKey,
@@ -43,13 +47,27 @@ import {
   type FoodValue,
   type Line,
   type MealRow,
+  type MealLine,
   type PantryEntry,
   type RecipeHeading,
-  type Staple,
+  type SpaceEntry,
+  type RecentView,
   type Step,
   type VariationFields,
 } from './food'
 import { foodWrites } from './food-writes'
+import {
+  applyPendingListMeals,
+  applyPendingLists,
+  applyPendingShopLines,
+  listMealsKey,
+  listsKey,
+  shopLinesKey,
+  type ListDetail,
+  type ListMeal,
+  type ShopLine,
+} from './shopping'
+import { shoppingWrites } from './shopping-writes'
 import { applyPendingPhotos, photosKey, photoWrites, type Photo } from './photos'
 import { queryClient } from './queryClient'
 import { applyPendingReminders, remindersKey, type Reminder } from './reminders'
@@ -111,6 +129,7 @@ const collections: {
       'food.create_recipe',
       'food.add_variation',
       'food.plan_meal',
+      'shopping.create_list',
     ],
     fold: (rows: ItemRow[], e: QueueEntry) => foldSent(rows, e),
   },
@@ -156,7 +175,7 @@ const collections: {
   },
   {
     key: recipesKey,
-    fns: ['food.create_recipe', 'food.update_recipe'],
+    fns: ['food.create_recipe', 'food.update_recipe', 'food.move_value_uses'],
     fold: (rows: RecipeHeading[], e: QueueEntry) => applyPendingRecipes(rows, [e]),
   },
   {
@@ -192,7 +211,17 @@ const collections: {
   },
   {
     key: pantryKey,
-    fns: ['food.add_pantry', 'food.update_pantry', 'food.remove_pantry', 'food.merge_pantry'],
+    // A line's unit may become its entry's default (PAN-004 3): refetched after.
+    fns: [
+      'food.add_pantry',
+      'food.update_pantry',
+      'food.remove_pantry',
+      'food.merge_pantry',
+      'food.add_line',
+      'food.update_line',
+      'food.add_meal_line',
+      'food.update_meal_line',
+    ],
     fold: (rows: PantryEntry[], e: QueueEntry) => applyPendingPantry(rows, [e], ''),
   },
   {
@@ -201,13 +230,77 @@ const collections: {
     fold: (rows: MealRow[], e: QueueEntry) => applyPendingMeals(rows, [e]),
   },
   {
-    key: staplesKey,
-    fns: ['food.set_staple', 'food.remove_pantry', 'food.merge_pantry'],
-    fold: (rows: Staple[], e: QueueEntry) => applyPendingStaples(rows, [e]),
+    key: mealLinesKey,
+    fns: [
+      'food.add_meal_line',
+      'food.update_meal_line',
+      'food.remove_meal_line',
+      'food.merge_pantry',
+      // A past Meal's lines become typed as their entry goes (PAN-001 4).
+      'food.remove_pantry',
+    ],
+    fold: (rows: MealLine[], e: QueueEntry) => applyPendingMealLines(rows, [e]),
+  },
+  {
+    key: spaceEntriesKey,
+    // A tick clears out of stock or Required (SHP-003 4): refetched after.
+    fns: [
+      'food.keep_entry',
+      'food.remove_entry',
+      'food.remove_pantry',
+      'food.merge_pantry',
+      'shopping.tick',
+      'create_household',
+    ],
+    fold: (rows: SpaceEntry[], e: QueueEntry) => applyPendingEntries(rows, [e]),
+  },
+  {
+    key: recentViewsKey,
+    fns: ['food.view_recipe'],
+    fold: (rows: RecentView[], e: QueueEntry) => applyPendingViews(rows, [e]),
+  },
+  {
+    key: listsKey,
+    fns: ['shopping.create_list', 'shopping.update_list', 'convert_item'],
+    fold: (rows: ListDetail[], e: QueueEntry) => applyPendingLists(rows, [e]),
+  },
+  {
+    key: listMealsKey,
+    fns: ['shopping.create_list', 'shopping.add_meals', 'shopping.remove_meal'],
+    fold: (rows: ListMeal[], e: QueueEntry) => applyPendingListMeals(rows, [e]),
+  },
+  {
+    key: shopLinesKey,
+    // A Meal's lines are written by the server as the Meal changes (ADR-0057).
+    fns: [
+      'shopping.create_list',
+      'shopping.add_meals',
+      'shopping.remove_meal',
+      'shopping.add_line',
+      'shopping.update_line',
+      'shopping.delete_line',
+      'shopping.tick',
+      'food.update_meal',
+      'food.add_meal_line',
+      'food.update_meal_line',
+      'food.remove_meal_line',
+      'food.set_meal_variation',
+      'food.add_line',
+      'food.update_line',
+      'food.remove_line',
+      'food.update_variation',
+      'food.remove_pantry',
+      'food.merge_pantry',
+      'update_item',
+      'archive_item',
+      'restore_item',
+    ],
+    fold: (rows: ShopLine[], e: QueueEntry) => applyPendingShopLines(rows, [e]),
   },
   {
     key: valuesKey,
-    fns: ['food.add_value', 'food.rename_value', 'food.remove_value'],
+    // A Recipe brought back puts its names back on my lists: refetched after.
+    fns: ['food.add_value', 'food.rename_value', 'food.remove_value', 'restore_item'],
     fold: (rows: FoodValue[], e: QueueEntry) => applyPendingValues(rows, [e], ''),
   },
   {
@@ -282,6 +375,13 @@ export const queue = new WriteQueue({
       void queryClient.invalidateQueries({ queryKey: ['core', 'activity'] })
     // Joining or parting moves what I see between Spaces (HSH-004): all of it is fetched again.
     if (PARTING_FNS.includes(entry.fn)) void queryClient.invalidateQueries()
+    // A shop's Meals by name, day and slot follow what was sent (SHP-002).
+    if (
+      entry.fn.startsWith('shopping.') ||
+      entry.fn === 'food.update_meal' ||
+      entry.fn === 'update_item'
+    )
+      void queryClient.invalidateQueries({ queryKey: ['shopping', 'meals_of'] })
     if (entry.fn === 'food.note_change')
       void queryClient.invalidateQueries({ queryKey: ['food', 'change_notes'] })
   },
@@ -344,13 +444,32 @@ export const {
   updatePantry,
   removePantry,
   mergePantry,
-  setStaple,
+  keepEntry,
+  removeEntry,
+  viewRecipe,
   planMeal,
   updateMeal,
+  addMealLine,
+  updateMealLine,
+  removeMealLine,
   setMealVariation,
   addValue,
+  renameValue,
+  mergeValue,
+  removeValue,
   noteChange,
 } = foodWrites(queue)
+
+export const {
+  createList,
+  updateList,
+  addMeals,
+  removeMeal,
+  addShopLine,
+  updateShopLine,
+  deleteShopLine,
+  tick,
+} = shoppingWrites(queue)
 
 export const { setPhoto, removePhoto } = photoWrites(queue)
 
@@ -396,16 +515,37 @@ export {
 } from './hooks'
 export { googleEventUrl } from './calendar'
 export {
+  fillFromMethod,
+  importRecipe,
+  mealIngredients,
+  linkPicture,
+  linkPreview,
+  keepImport,
+  useAiStatus,
+  type KeptImport,
+} from './ai'
+export {
   useFood,
   useFoodSpaces,
   useMeals,
+  usePantryInUse,
+  useRecentViews,
   useRecipeActivity,
-  useStaples,
   type FoodData,
   type FoodSpaces,
   type MealView,
 } from './food-hooks'
 export { positionBetween, positionsFor } from './food-writes'
+export {
+  autoLineId,
+  useShopMeals,
+  useShopping,
+  type ListLine,
+  type ShoppingData,
+  type ShoppingList,
+} from './shopping-hooks'
+export { deleteIsMine, liveKeys, useLiveShopping } from './live'
+export type { ListFields, ShopLine, ShopLineFields, ShopMeal } from './shopping'
 export {
   useHouseholds,
   type Household,
@@ -423,15 +563,18 @@ export type {
   Line,
   LineFields,
   MealFields,
+  MealLine,
+  MealLineFields,
   PantryEntry,
   PantryFields,
   RecipeHeading,
-  Staple,
+  SpaceEntry,
   Step,
   ValueKind,
   VariationFields,
   VariationPatch,
 } from './food'
+export { savedSource } from './food'
 export type { Calendar, CalendarLink, Connection, ExternalRef } from './calendar'
 export { newId } from './ids'
 export { searchItemIds, searchKey } from './search'

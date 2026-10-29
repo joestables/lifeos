@@ -5,8 +5,8 @@ import {
   applyPendingCooks,
   applyPendingLines,
   applyPendingMeals,
+  applyPendingMealLines,
   applyPendingPantry,
-  applyPendingStaples,
   applyPendingRecipes,
   applyPendingSteps,
   applyPendingValues,
@@ -22,19 +22,19 @@ import {
   fetchCooks,
   fetchLines,
   fetchMeals,
+  fetchMealLines,
   fetchPantry,
   fetchPersonalSpace,
   fetchRecipes,
-  fetchStaples,
   fetchSteps,
   fetchValues,
   fetchVariations,
   linesKey,
   mealsKey,
+  mealLinesKey,
   pantryKey,
   personalSpaceKey,
   recipesKey,
-  staplesKey,
   stepsKey,
   valuesKey,
   variationsKey,
@@ -42,10 +42,14 @@ import {
   type Cook,
   type FoodValue,
   type Line,
+  type MealLine,
   type PantryEntry,
   type RecipeHeading,
   type Step,
   type VariationFields,
+  applyPendingViews,
+  fetchRecentViews,
+  recentViewsKey,
 } from './food'
 import { useItems, useLinks, useMarks, useQueueEntries, useSettings } from './hooks'
 import { useHouseholds } from './households'
@@ -147,8 +151,14 @@ export function useFood(queue: WriteQueue): FoodData {
   const photos = useQuery({ queryKey: photosKey, queryFn: fetchPhotos })
 
   return useMemo(() => {
+    const mine = new Set(
+      items.filter((i) => i.owner_id === me || i.owner_id === '').map((i) => i.id),
+    )
     const headings = new Map(
-      applyPendingRecipes(recipes.data ?? [], entries).map((r) => [r.item_id, r]),
+      applyPendingRecipes(recipes.data ?? [], entries, (id) => mine.has(id)).map((r) => [
+        r.item_id,
+        r,
+      ]),
     )
     const fields = new Map(
       applyPendingVariations(variations.data ?? [], entries).map((v) => [v.item_id, v]),
@@ -257,6 +267,12 @@ export interface MealView {
   leftoversOf: string | null
   /** The Variation it uses; none for a typed Meal or leftovers. */
   variation: string | null
+  /** A typed Meal's recipe link (MPL-006 2). */
+  source: string | null
+  /** Its own ingredient lines, in order (MPL-006 1). */
+  lines: MealLine[]
+  /** Its own photo: a typed Meal's, from its link (MPL-006 6). */
+  photo?: Photo
 }
 
 /** The Meals I can see, not removed, with unsent ones and changes laid over. */
@@ -265,8 +281,14 @@ export function useMeals(queue: WriteQueue): { meals: MealView[]; isLoading: boo
   const { items, isLoading: itemsLoading } = useItems(queue)
   const links = useLinks(queue)
   const rows = useQuery({ queryKey: mealsKey, queryFn: fetchMeals })
+  const lineRows = useQuery({ queryKey: mealLinesKey, queryFn: fetchMealLines })
+  const photos = useQuery({ queryKey: photosKey, queryFn: fetchPhotos })
   return useMemo(() => {
+    const photoOf = new Map(
+      applyPendingPhotos(photos.data ?? [], entries).map((p) => [p.item_id, p]),
+    )
     const fields = new Map(applyPendingMeals(rows.data ?? [], entries).map((r) => [r.item_id, r]))
+    const linesBy = group(applyPendingMealLines(lineRows.data ?? [], entries), (l) => l.meal_id)
     const uses = new Map(
       links.filter((l) => l.link_type === 'uses').map((l) => [l.from_item, l.to_item]),
     )
@@ -277,9 +299,12 @@ export function useMeals(queue: WriteQueue): { meals: MealView[]; isLoading: boo
         servings: fields.get(item.id)?.servings ?? null,
         leftoversOf: fields.get(item.id)?.leftovers_of ?? null,
         variation: uses.get(item.id) ?? null,
+        source: fields.get(item.id)?.source ?? null,
+        lines: linesBy.get(item.id) ?? [],
+        photo: photoOf.get(item.id),
       }))
     return { meals, isLoading: itemsLoading || rows.isLoading }
-  }, [entries, items, itemsLoading, links, rows.data, rows.isLoading])
+  }, [entries, items, itemsLoading, links, rows.data, rows.isLoading, lineRows.data, photos.data])
 }
 
 /** Where food can go: Personal, or one of my Households (MPL-005, HSH-003 2). */
@@ -290,7 +315,7 @@ export interface FoodSpaces {
   personal: string | null
   /** Personal first, then my Households, each with what to call it. */
   spaces: { id: string; name: string }[]
-  /** Where my new Meals go, and whose staples the Pantry shows (PAN-002 1). */
+  /** Where my new Meals go (MPL-005), and whose staples and Essentials show first (SHP-005). */
   home: string | null
   /** A Household's name, for an Item in it; undefined for Personal. */
   householdName: (space: string | null | undefined) => string | undefined
@@ -344,23 +369,6 @@ export function useFoodSpaces(queue: WriteQueue): FoodSpaces {
   }, [me, personal, households, settings.mealSpaceId])
 }
 
-/** The staples of where my new Meals go (PAN-002 1): a Household's, or mine. */
-export function useStaples(queue: WriteQueue): {
-  space: string | null
-  staples: ReadonlyMap<string, { out: boolean }>
-} {
-  const entries = useQueueEntries(queue)
-  const { home: space } = useFoodSpaces(queue)
-  const { data } = useQuery({ queryKey: staplesKey, queryFn: fetchStaples })
-  return useMemo(() => {
-    const mine = applyPendingStaples(data ?? [], entries).filter((s) => s.space_id === space)
-    return {
-      space,
-      staples: new Map(mine.map((s) => [s.pantry_id, { out: s.out_of_stock }])),
-    }
-  }, [data, entries, space])
-}
-
 /**
  * What happened to a Recipe and its Variations, newest first, and the notes
  * on its changes, unsent ones too (RCP-013).
@@ -384,5 +392,35 @@ export function useRecipeActivity(
   return useMemo(
     () => ({ activity: data ?? [], notes: applyPendingNotes(notes ?? [], entries) }),
     [data, notes, entries],
+  )
+}
+
+/**
+ * Every Pantry entry any Recipe's line uses, a deleted Recipe's too
+ * (PAN-001 4): those keep their entries until they are gone for good, so
+ * such an entry can't be deleted either. A past or deleted Meal's line
+ * doesn't keep it: it becomes typed when the entry goes.
+ */
+export function usePantryInUse(queue: WriteQueue): ReadonlySet<string> {
+  const entries = useQueueEntries(queue)
+  const lines = useQuery({ queryKey: linesKey, queryFn: fetchLines })
+  return useMemo(
+    () =>
+      new Set(
+        applyPendingLines(lines.data ?? [], entries)
+          .map((l) => l.pantry_id)
+          .filter((id): id is string => id !== null),
+      ),
+    [entries, lines.data],
+  )
+}
+
+/** The Recipes I viewed, latest first (MPL-002 1), unsent views laid over. */
+export function useRecentViews(queue: WriteQueue): string[] {
+  const entries = useQueueEntries(queue)
+  const { data } = useQuery({ queryKey: recentViewsKey, queryFn: fetchRecentViews })
+  return useMemo(
+    () => applyPendingViews(data ?? [], entries).map((v) => v.recipe_id),
+    [data, entries],
   )
 }

@@ -1,5 +1,5 @@
 import { createFileRoute, Navigate, useNavigate, useRouter } from '@tanstack/react-router'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { PageHeader, TypeScope } from '@/components/lifeos'
 import { Button } from '@/components/ui/button'
 import { Compare } from '@/app/compare'
@@ -7,7 +7,7 @@ import { CookDialog, Cooking } from '@/app/cooking'
 import { EditVariation } from '@/app/edit-variation'
 import { HeadingDialog } from '@/app/recipe-heading'
 import { RecipeRead, type RecipeGo } from '@/app/recipe-page'
-import { queue, useFood } from '@/data'
+import { queue, useFood, viewRecipe } from '@/data'
 
 export interface RecipeSearch {
   /** Editing my Variation; the heading's Dialog over the page. */
@@ -44,6 +44,11 @@ function RecipeRoute() {
   const food = useFood(queue)
   const [logging, setLogging] = useState(false)
   const recipe = food.byId.get(id)
+  const known = !!recipe && recipe.state !== 'idea'
+  // Viewed: Add a meal offers my last three (MPL-002 1, Joe, 26 October).
+  useEffect(() => {
+    if (known) viewRecipe(id)
+  }, [id, known])
 
   if (!recipe) {
     if (food.isLoading) return null
