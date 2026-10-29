@@ -1,9 +1,9 @@
 # Gym
 
-*Stage 5, the `fitness` Module's Gym page. **A draft for Joe to refine**,
+*Stage 5, the `fitness` Module's Gym page. **Agreed by Joe, 29 October**,
 written from Joe's notes (22 October) and his comments on the first and
-second drafts (29 October), with Claude's own suggestions marked **(suggested)**.
-Everything is *proposed* until Joe agrees it. The recovery engine, Joe's
+second drafts (29 October). Claude's own suggestions are marked
+**(suggested)**: Joe agreed them provisionally, and may change them. The recovery engine, Joe's
 own, is [Annex A](#annex-a--the-recovery-engine). Cardio is Stage 8; Goals
 follow Gym in Stage 5 with their own spec.*
 
@@ -69,7 +69,8 @@ Provisionally agreed).
   counting RIR as reps I could still have done. Only sets of 1–12 reps
   have one (Joe, 29 October). It is how sets, working sets and goals are
   compared; a working set or goal, having no RIR of its own, is taken at my
-  preferred RIR (suggested; [open point 1](#open-points-for-joe)).
+  preferred RIR, so a set matching it at that RIR equals it rather than
+  beating it (Joe, 29 October).
 - **The PR is worked out, never typed:** the set with the best Epley
   strength, with its date (Joe, 22 and 29 October).
 - **Changing an Exercise's muscle groups changes readiness at once:** the
@@ -202,14 +203,14 @@ A workout, an Exercise and a template each open on their own page.
 
 ## Requirements
 
-*Stage 5. Statuses: proposed → agreed → built → verified. All proposed.*
+*Stage 5. Statuses: proposed → agreed → built → verified. All agreed (29 October).*
 
 ### GYM-001 — Equipment types
 
 **As** Joe, **I want** to define my equipment types with their own
 increments, **so that** steppers move by what my gym's weights actually go
 up by.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given Settings → Gym → Equipment, then I add, rename and delete
@@ -228,7 +229,7 @@ Acceptance criteria
 **As** Joe, **I want** the twenty muscle groups built in, by category, and
 my own added, **so that** exercises and recovery use the groups I think
 in.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given Settings → Gym → Muscle groups, then the twenty built-in groups
@@ -246,7 +247,7 @@ Acceptance criteria
 
 **As** Joe, **I want** all my exercises in one library, **so that** I can
 find one and see where it stands.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given the library, then every Exercise I haven't archived is listed:
@@ -264,7 +265,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to describe each exercise once, **so that** logging,
 swapping and recovery all know what it trains.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given New exercise, then I give a name, an equipment type, one primary
@@ -287,7 +288,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to archive exercises I no longer do, **so that** the
 library and pickers show only what I use.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given an Exercise, when I archive it, then it leaves the library, Add
@@ -305,7 +306,7 @@ Acceptance criteria
 **As** Joe, **I want** to make, edit and delete workout templates and see
 what each covers, **so that** a planned workout starts with the right
 exercises and trains what I mean it to.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given New template, then I name it and add exercises from the library;
@@ -327,7 +328,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to plan a workout for a day, from a template or from
 scratch, **so that** it is on Plan and ready when I get to the gym.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given New workout, then I choose a template or Empty, and a day (today
@@ -347,7 +348,7 @@ Acceptance criteria
 **As** Joe, **I want** every exercise to wait in a backlog until I begin
 it, **so that** the session records what I really did, in the order I did
 it.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given a planned workout, when I press Start, then it is In progress,
@@ -374,7 +375,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to add or swap exercises mid-workout without fuss,
 **so that** a busy machine doesn't break my plan.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given Add, then a search over the library adds an exercise to the
@@ -393,7 +394,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to log weight, reps and RIR with steppers, **so
 that** logging takes a couple of taps between sets.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given an exercise in the session, then each planned set is a row of
@@ -414,7 +415,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to mark an exercise done when I've done the sets I
 want, **so that** I can see what's left.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given an exercise in the session, then I add sets to it until I mark
@@ -428,7 +429,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to record how a workout went and then review it,
 **so that** I can see what I did and move working sets on.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given End workout, then I'm asked how it went and how motivated I was
@@ -454,7 +455,7 @@ Acceptance criteria
 
 **As** Joe, **I want** every workout in one list, filtered and sorted,
 **so that** I can look back at my training.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given the Workouts tab, then workouts show newest first: name, date,
@@ -469,7 +470,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to see how each exercise is progressing, against
 the work its muscle is getting, **so that** I know what's working.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given an Exercise's page, then a chart shows, for 1 M, 3 M or 1 Y: the
@@ -490,7 +491,7 @@ Acceptance criteria
 **As** Joe, **I want** to see how each muscle group is progressing, beside
 the stimulus sets it got, **so that** I can judge how much volume works
 for it.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given the Progression tab, then every muscle group is listed by
@@ -511,7 +512,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to see how recovered I am, overall and muscle by
 muscle, **so that** I train what's ready.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given the Recovery tab, then overall readiness shows as a percentage,
@@ -531,7 +532,7 @@ Acceptance criteria
 **As** Joe, **I want** each muscle group to have a weekly frequency and
 stimulus-sets target, and to be told when I fall short, **so that**
 nothing gets left behind.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given each muscle group, then it has a frequency target (workouts a
@@ -552,7 +553,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to be told which template to do next, **so that** I
 train what is both ready and most behind.
-Priority: Should · Status: proposed
+Priority: Should · Status: agreed
 
 Acceptance criteria
 1. Given my templates, then the Recovery tab ranks the top three: each
@@ -570,7 +571,7 @@ Acceptance criteria
 **As** Joe, **I want** readiness and stimulus sets worked out by the
 recovery engine I've designed, **so that** they follow how I think muscles
 respond to training.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given logged sets, then each muscle group's readiness and each
@@ -587,7 +588,7 @@ Acceptance criteria
 
 **As** Joe, **I want** the Gym's settings in one place, **so that** it
 starts each set the way I train.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given Settings → Gym, then Preferred RIR (a stepper, 1 to start; Joe,
@@ -600,7 +601,7 @@ Acceptance criteria
 
 **As** Joe, **I want** the Gym to work without signal, **so that** a
 basement gym doesn't stop me logging.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given no signal, then I start, log, swap, end and review a workout,
@@ -615,24 +616,10 @@ templates with a Household; AI that writes programmes; warm-up sets (I
 don't log them); a time of day for a planned workout; the Exercise's goal
 as a Goal on the Goals page; suggestions on Plan or in Inbox.
 
-## Open points for Joe
-
-1. **A working set's and a goal's Epley strength.** Neither has an RIR, but
-   logged sets do. Taking them at my preferred RIR (suggested) means a set
-   at the working set's weight and reps, done at that RIR, matches it
-   rather than beating it, so a new working set is suggested only when I
-   did more. The alternative is to give a working set and a goal their own
-   RIR.
-
-The other **(suggested)** marks above still need a yes or no.
-
-Once the spec is agreed, the data model's `fitness` rows follow: the
-increment moves from the Exercise to its equipment; an Exercise has one
-primary group and secondary groups with contributions; a working set and a
-goal replace `target`; template sets carry RIR; `rpe` becomes `rir`; the
-Workout is planned for a day (`do_on`, as a Meal is) rather than a
-time, and gains its ratings; muscle groups gain a category, a recovery type
-and two weekly targets ([data model](../../20-architecture/data-model.md)).
+How it is held and worked out: [ADR-0058](../../20-architecture/adr/0058-fitness-in-the-database.md)
+and [ADR-0059](../../20-architecture/adr/0059-recovery-on-the-device.md)
+(Proposed); the [data model](../../20-architecture/data-model.md)'s
+`fitness` rows.
 
 ## Annex A — The recovery engine
 

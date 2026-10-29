@@ -66,6 +66,11 @@ templates, and starting a session opens the session-logging Screen.
 | **Mark** | A per-person flag a Type may have, under its own name: a Note is **pinned**, a Task **starred**, a Recipe **favourited**. Types without one have none. |
 | **Sub-task** | A line ticked inside a Task: a title and a tick, not a Task of its own. |
 | **Capture address** | A personal URL and secret that creates Items in its owner's Personal Space. |
+| **Working set** | An Exercise's weight and reps — "60 kg × 8" — that a workout's sets start at; changed by hand or from a workout's review ([gym](../10-requirements/modules/gym.md)). |
+| **Epley strength** | How a set is measured and compared: weight × (1 + (reps + RIR) ÷ 30), for sets of 1–12 reps. A **PR** is the set with the best. |
+| **Backlog** | A workout's exercises not yet begun; beginning one moves it into the session, so the session's order is the order they were done. |
+| **Stimulus sets** | How much training a workout gave a muscle group, worked out by the recovery engine from RIR and each Exercise's contributions. |
+| **Readiness** | How recovered a muscle group is, 0–100 %, worked out by the recovery engine. |
 | **Cook log** | The record of each time a Variation was cooked: who, when, a verdict and notes, and a snapshot of the Variation as cooked. |
 | **Ontology** | Types, Traits, statuses, link types, measures and reference data: the schema of the graph. |
 

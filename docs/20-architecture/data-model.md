@@ -71,7 +71,7 @@ core.items     id (UUIDv7, made on the device), type, title, body, space_id,
                (only the fields every View filters on)
 
 <type> detail  1:1 with items, per Type, in its Module's schema, e.g.
-               fitness.workout(item_id, actual_start, duration, readiness …)
+               fitness.workout(item_id, stage, started_at, ended_at …)
                food.meal(item_id, servings)
                shopping.shopping_list(item_id, kind)
 
@@ -99,7 +99,7 @@ core.activity  item_id, verb, changed (jsonb), at, actor — written by triggers
   ([ADR-0008](adr/0008-registries-declared-in-code.md)).
 - **Status is one small core set:** `idea | active | done | cancelled`. Each
   Type uses the subset that applies, with its own labels. Finer states, such
-  as a workout in progress, live in the detail table. Only Completable Types
+  as a workout in progress, live in the detail table (a Workout's stage). Only Completable Types
   use *done*.
 - **IDs are made on the device** (UUIDv7, so they sort by creation time).
   Postgres 17 has no built-in `uuidv7()`, so server-side inserts use a small
@@ -136,7 +136,8 @@ use.
 | Event | `starts_at`, `ends_at`, `all_day` | `starts_at` |
 | Shopping list (when dated) | `do_on` (a date, no time) | `do_on` |
 | Meal | `do_on` + `slot` | `do_on` |
-| Workout, Cardio activity | `starts_at` (planned; what happened is in the detail table) | `starts_at` |
+| Workout | `do_on` (the day it is planned for; when it started and ended is in the detail table; [ADR-0058](adr/0058-fitness-in-the-database.md)) | — |
+| Cardio activity | `starts_at` (planned; what happened is in the detail table) | `starts_at` |
 | Outfit worn | `do_on` | `do_on` |
 | Goal | none: its deadline is in `goals.goal`, so a Goal is not on Plan | — |
 
@@ -165,7 +166,7 @@ point at one entry, and staples are each Household's
 | Definition | Occurrence | Link | Snapshot copied |
 |---|---|---|---|
 | Variation (of a Recipe) | Meal | *uses* | Servings and, once added to a list, the scaled quantities on its list lines |
-| Workout template | Workout | *follows* | Each exercise's targets, at the start of the session |
+| Workout template | Workout | *follows* | Each exercise, its sets and their RIR, and each Exercise's name, equipment, increment and working set, at Start (not its muscle groups; [ADR-0058](adr/0058-fitness-in-the-database.md)) |
 | Outfit | Outfit worn on a day | *wears* | The garments in the outfit on the day |
 | Series (repeat rule) | Each occurrence | `series_id` | The series' fields, when generated |
 
@@ -204,9 +205,9 @@ these, so the database enforces them.
 
 | Module | Type | S | C | Sh | Cap | Default Space | Statuses used (labels) | Colour | Labels | Mark | Stage |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| fitness | **Exercise** | — | — | — | — | Personal | active | coral | — | — | 5 |
+| fitness | **Exercise** | — | — | — | — | Personal | active · cancelled "Archived" | coral | — | — | 5 |
 | fitness | **Workout template** | — | — | — | — | Personal | active | coral | — | — | 5 |
-| fitness | **Workout** | ✓ start | ✓ | — | — | Personal | active "Planned" · done · cancelled "Skipped" | coral | — | — | 5 |
+| fitness | **Workout** | ✓ do-on | ✓ | — | — | Personal | active "Planned" or "In progress" (its stage) · done — "Skipped" when planned and its day has passed, worked out | coral | — | — | 5 |
 | fitness | **Cardio activity** | ✓ start | ✓ | — | — | Personal | active "Planned" · done · cancelled "Skipped" | coral | — | — | 8 (manual entry earlier if wanted) |
 | goals | **Goal** | — (deadline in `goal`; not on Plan) | ✓ | ✓ | ✓ | Personal | idea · active · done "Achieved" · cancelled "Abandoned" | purple | — | — | 5 |
 | wardrobe | **Garment** | — | — | — | ✓ | Personal | idea "Wishlist" · active "Owned" · cancelled "Retired" | orange | — | — | 6 |
@@ -241,7 +242,7 @@ more than Labels).
 | core | — (Thought, Note, Task use `core.items` only; where an Event's place is kept is decided with Stage 3's schema) | `subtasks(item_id, title, done, position)` — a Task's sub-tasks |
 | shopping | `shopping_list(kind: food · list)` | `list_meals(list_id, meal_id)` (a food shop's Meals; a Meal on one open shop at most); `lines(position, heading?, pantry_id?, text?, qty?, qty_max?, approx, unit?, checked, meal_id?, source_id?, needed_space_id?)` — in the list's own Space; a Meal's lines written by the database as its Meal changes, ticked ones kept, each with the id its list, Meal and source line give it ([ADR-0057](adr/0057-shopping-in-the-database.md)) |
 | food | `recipe(category, cuisine, tags, protein, carbs, default_variation)` (its name is the Item's title; its photo is in `core.attachments`), `variation(servings, prep_min, cook_min, sources, notes, archived_from)` (its name and state are the Item's title and status; `archived_from` keeps its state while its Recipe is archived), `meal(servings, leftovers_of?, source?)` (a typed Meal is one with no *uses* link, named by its title; `source` its recipe link, MPL-006) | `variation_lines(position, heading?, pantry_id?, text?, qty?, qty_max?, approx, unit?)` (a row with a heading is a subheading and nothing else), `meal_lines(position, pantry_id?, text?, qty?, qty_max?, approx, unit?)` (a Meal's own lines, no subheadings, never on leftovers; MPL-006), `variation_steps(position, text)` (an "@" reference to a Recipe kept in the text, and in a Variation's notes, as `@[Name](recipe id)`: shown under the Recipe's name now, plain once it is gone; RCP-008), `cooks(person, cooked_at, verdict?, notes?, servings?, meal_id?, snapshot)`; each person's `values` (kind: category · cuisine · tag · protein · carb; renamed with `food.rename_value`, which renames them on their Recipes, unlogged, and merged with `food.move_value_uses` then `food.remove_value`; a Recipe restored from Recently deleted puts its names back on its author's lists; RCP-018 1); each person's `recent_views(recipe_id, viewed_at)`, the Recipes they opened, the latest view kept (MPL-002 1; read and written only by them, through `food.view_recipe`); `change_notes(activity_id, item_id, note, person_id)`, the words of whoever made a change on what it changed, by the activity entry it starts with (RCP-013; written only through `food.note_change`, by its maker); not Items: the Pantry `pantry(name, kind: ingredient · household, aisle?, default_unit?, added_by)` — one name once, ignoring case; an ingredient has an aisle (fruit_veg · bakery · protein · chilled · cupboard · frozen), a household item none — and each Space's `space_entries(pantry_id, kind: staple · essential, needed)` (needed is out of stock for a staple, Required for an Essential; Stage 4b) ([ADR-0052](adr/0052-food-in-the-database.md)) |
-| fitness | `exercise(muscle_groups, equipment, increment, target)`, `workout(actual_start, duration, readiness, stage)`, `cardio_activity(kind, distance_m, duration_s, avg_hr)` | `template_exercises(exercise_id, sets, reps, target)`, `workout_entries(exercise_id, snapshot)`, `workout_sets(entry_id, set_no, reps, weight, rpe)`; reference data: muscle groups, equipment, recovery settings per person |
+| fitness | `exercise(equipment_id, working_weight, working_reps, goal_weight?, goal_reps?, notes?)`, `workout(stage: planned · in_progress · done, started_at?, ended_at?, how_it_went?, motivation?, notes?)` (one in progress per person), `cardio_activity(kind, distance_m, duration_s, avg_hr)` (Stage 8) | `exercise_muscles(exercise_id, muscle_id, contribution)` (one primary at 1.0, secondary 0.1–0.9), `template_exercises(template_id, exercise_id, position)`, `template_sets(template_exercise_id, position, rir)`, `workout_entries(workout_id, exercise_id, place: backlog · session, begun_at?, done_at?, snapshot)`, `workout_sets(entry_id, position, weight, reps, rir, logged_at?)`; weights `numeric(7,3)` kg; reference data, each person's: `equipment(name, increment)`, `muscle_groups(name, category: push · pull · core · legs, built_in, body_part?)` (twenty built in, shared), `muscle_settings(person, muscle_id, recovery_type, frequency_target, stimulus_target)`, `settings(person, preferred_rir, points_per_fatigue_set, t_fast_h, t_normal_h, t_slow_h)`; readiness, stimulus sets and progression worked out on the device, never stored ([ADR-0058](adr/0058-fitness-in-the-database.md), [ADR-0059](adr/0059-recovery-on-the-device.md)) |
 | goals | `goal(kind, measure_key, params, target, unit, period, start_on, deadline)` | — |
 | wardrobe | `garment(category, brand, colour, size, fit, photo, url, price)`, `outfit(photo)` | `outfit_worn_garments` (the snapshot); reference data: category, brand, colour, size, fit |
 | health (later) | — | `daily_metrics(person, date, sleep_score, readiness, steps, weight …)` |
@@ -274,7 +275,7 @@ rule and create no links.
 
 | Measure | Used by |
 |---|---|
-| `fitness.e1rm(exercise)` — best estimated 1RM | Target goals |
+| `fitness.e1rm(exercise)` — best estimated 1RM, by Epley strength ([gym](../10-requirements/modules/gym.md#exercises)) | Target goals |
 | `fitness.workouts_done(period, template?)` | Habit goals |
 | `fitness.volume(exercise, period)` | Total goals |
 | `cardio.distance(kind, period)` | Total goals |

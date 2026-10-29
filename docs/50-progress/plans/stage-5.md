@@ -1,0 +1,61 @@
+# Plan: Stage 5 — Gym
+
+**Outcome** ([roadmap](../../roadmap.md)): Joe trains from LifeOS. **Gym**
+has three tabs: **Workouts**, every workout and the templates;
+**Recovery**, readiness on a body map, weekly targets and what to do
+next; and **Progression**, muscle groups and the exercise library. A
+workout is logged at the gym, offline too, exercises moving from the
+backlog into the session in the order done. Joe's recovery engine works
+out readiness and stimulus sets. Planned workouts are on Plan with no Plan
+work ([ADR-0029](../../20-architecture/adr/0029-plan-reads-core-items.md)).
+Goals and the measures registry follow, with their own spec.
+
+**State:** started 29 October 2026, on its own branch while Stage 4b's
+step 10 is still in hand ([its plan](stage-4b.md)); building waits for
+Joe's word. Step 1 is done: Joe agreed the
+[Gym spec](../../10-requirements/modules/gym.md) (GYM-001–021, with his
+recovery engine as Annex A) on 29 October, Claude's suggestions in it
+provisionally. Step 2, the decisions, is written for his agreement.
+
+## Steps
+
+Steps marked **Joe** need Joe's go-ahead or action before Claude does them.
+Every step that builds a screen follows the [design system](../../30-design/README.md)
+checklist and brings its own Playwright walks, citing the requirements it
+verifies, against a stand-in for Supabase.
+
+| # | Step | State | Produces |
+|---|---|---|---|
+| 1 | **Joe** — specs: equipment and muscle groups, exercises, templates, planning and logging a workout, the review, the workouts list, progression, readiness and the body map, weekly targets, what to do next, the recovery engine, Settings → Gym | Drafted from Joe's notes, 22 October; second draft 29 October with his comments and his recovery engine as Annex A; third draft the same day with his answers to the open points; agreed 29 October, the suggestions provisionally. **Done** | [gym](../../10-requirements/modules/gym.md) (GYM-*) |
+| 2 | Decisions: how fitness is held in the database (Items, child rows, reference data, a planned day, Skipped, one in progress, exact weights, the snapshot); where the recovery engine and progression are worked out | Written 29 October: [ADR-0058](../../20-architecture/adr/0058-fitness-in-the-database.md) (Exercise, Workout template and Workout as Personal Items; a Workout planned by `do_on`, Skipped worked out; one primary group at 1.0 and secondary groups 0.1–0.9; template sets with RIR; entries in the backlog or the session, ordered as begun, each with a snapshot but not its groups; equipment, muscle groups and settings as each person's reference data, the twenty built-in groups shared; weights `numeric` in kg and whole grams on the device), [ADR-0059](../../20-architecture/adr/0059-recovery-on-the-device.md) (`packages/fitness` works out the engine, Epley strength, coverage, targets, ranking and progression on the device, nothing stored, a year of workouts kept there); the data model and glossary updated to match. Awaiting Joe's agreement | ADRs |
+| 3 | **Joe** — design, with Claude design: the three tabs; a workout in progress (backlog, session, expanding and collapsing, steppers, set history); End and the review with its suggested working sets; New workout; a template with its coverage; an Exercise's page and chart; a muscle group's chart with its exercises' lines and stimulus-set bars; the body map, front and back, on one continuous red–amber–green scale; Settings → Gym. Into the design spec first (the body map and the scale are new), then the shared components, with the screenshot tests refreshed | — | [design system](../../30-design/README.md), components |
+| 4 | Schema: the `fitness` Module in the ontology; the detail tables, child rows and reference data of ADR-0058, the twenty built-in muscle groups; the write functions; the activity log for fitness; the generated data model; database tests | — | Migrations, database tests |
+| 5 | `packages/fitness`: Epley strength and PRs, the recovery engine (Annex A), stimulus sets, coverage, weekly targets, stalled, ranking; unit tests from Annex A's examples | — | Package, unit tests citing GYM-019 |
+| 6 | Settings → Gym and the library: equipment, muscle groups and their settings, Preferred RIR, the engine's settings; Exercises (making, editing, archiving); Gym joins its three tabs | — | Code, tests citing GYM-001–005, GYM-020 |
+| 7 | Templates: making and editing, dragging, sets and their RIR, coverage | — | Code, tests citing GYM-006 |
+| 8 | Workouts: planning (and on Plan), Start, the backlog, adding and swapping, logging, done and undone, End and the review, the workouts list; offline and in Search | — | Code, tests citing GYM-007–013, GYM-021 |
+| 9 | Recovery: readiness, the body map, weekly targets, what to do next | — | Code, tests citing GYM-016–018 |
+| 10 | Progression: an Exercise's and a muscle group's charts, stimulus sets behind, stalled exercises | — | Code, tests citing GYM-014–015 |
+| 11 | **Joe** — uses the Gym at the gym; what he trips over is fixed | — | Code, tests |
+| 12 | **Joe** — Goals and the measures registry: their own spec, then their steps here | — | Spec, then code |
+
+Each step's code goes into the specs' status as it lands (*built*, then
+*verified* when a test citing the ID passes).
+
+## Joe's brief (22 October)
+
+Joe's notes, written into the spec's first draft: equipment types with
+exact increments; built-in and custom muscle groups; exercises with an
+equipment type, primary and secondary groups and a working weight; an
+exercise library; templates; a workout planned for a day or today, from a
+template or from scratch, started with Start; every exercise starting in
+the backlog and moved into the session as it is done; easy adding and
+swapping; sets of weight, reps and RIR with steppers; an exercise marked
+done; ending with how it went and motivation beforehand, then a read-only
+review that can move working weights; a filtered, sorted list of
+workouts; progression over a month, three months and a year, with a
+working weight, a PR by Epley strength and a goal; archiving exercises;
+readiness overall and per muscle on a body map; templates recommended
+from readiness and frequency; and being told when frequency is too low.
+His comments of 29 October, and his recovery engine, are written into the
+spec as it stands.

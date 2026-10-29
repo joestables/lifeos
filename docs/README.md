@@ -8,14 +8,16 @@ Stages 0 (requirements and architecture), 1 (foundation), 2 (replacing
 Google Tasks), 3 (Plan, Events and Google Calendar) and 4 (Recipes and the
 Meal plan) are done. **Stage 4b**, Shopping, has started: its
 [plan](50-progress/plans/stage-4b.md) is written, and its specs come first
-([roadmap](roadmap.md#where-we-are)).
+([roadmap](roadmap.md#where-we-are)). **Stage 5**, Gym, has started
+alongside it: its [plan](50-progress/plans/stage-5.md) is written and its
+spec agreed.
 
 ## Index
 
 | Folder | What it holds |
 |---|---|
 | [00-foundation](00-foundation/) | [Vision](00-foundation/vision.md) · [Principles](00-foundation/principles.md) · [Glossary](00-foundation/glossary.md) |
-| [10-requirements](10-requirements/) | [Capability map](10-requirements/capability-map.md) · cross-cutting: [capture](10-requirements/cross-cutting/capture.md), [spaces and sharing](10-requirements/cross-cutting/spaces-and-sharing.md), [reminders](10-requirements/cross-cutting/reminders.md), [search](10-requirements/cross-cutting/search.md), [events](10-requirements/cross-cutting/events.md), [offline](10-requirements/cross-cutting/offline.md), [items](10-requirements/cross-cutting/items.md), [integrations](10-requirements/cross-cutting/integrations.md) · views: [Inbox](10-requirements/views/inbox.md), [Tasks](10-requirements/views/tasks.md), [Notes](10-requirements/views/notes.md), [Plan](10-requirements/views/plan.md) · [modules](10-requirements/modules/): [recipes](10-requirements/modules/recipes.md), [meals](10-requirements/modules/meals.md), [gym](10-requirements/modules/gym.md) (a draft) · [non-functional](10-requirements/non-functional.md) |
+| [10-requirements](10-requirements/) | [Capability map](10-requirements/capability-map.md) · cross-cutting: [capture](10-requirements/cross-cutting/capture.md), [spaces and sharing](10-requirements/cross-cutting/spaces-and-sharing.md), [reminders](10-requirements/cross-cutting/reminders.md), [search](10-requirements/cross-cutting/search.md), [events](10-requirements/cross-cutting/events.md), [offline](10-requirements/cross-cutting/offline.md), [items](10-requirements/cross-cutting/items.md), [integrations](10-requirements/cross-cutting/integrations.md) · views: [Inbox](10-requirements/views/inbox.md), [Tasks](10-requirements/views/tasks.md), [Notes](10-requirements/views/notes.md), [Plan](10-requirements/views/plan.md) · [modules](10-requirements/modules/): [recipes](10-requirements/modules/recipes.md), [meals](10-requirements/modules/meals.md), [gym](10-requirements/modules/gym.md) · [non-functional](10-requirements/non-functional.md) |
 | [20-architecture](20-architecture/) | [Overview](20-architecture/overview.md) · [Data model](20-architecture/data-model.md) · [Contracts](20-architecture/contracts.md) · [ADRs](#architecture-decision-records) |
 | [30-design](30-design/) | [The design system](30-design/README.md): [design language](30-design/design-language.md) · [tokens](30-design/tokens.md) · [components](30-design/components.md) · [patterns](30-design/patterns.md) · [reference](30-design/reference.html) |
 | [40-operations](40-operations/) | [Environments](40-operations/environments.md) · [Migrations](40-operations/migrations.md) · [Backups](40-operations/backups.md) · [Runbook](40-operations/runbook.md) · [Integration setup](40-operations/integration-setup.md) |
@@ -171,6 +173,8 @@ Consequences**, to a page.
 | [0055](20-architecture/adr/0055-sharing-into-lifeos.md) | Sharing into LifeOS from another app | Provisionally agreed |
 | [0056](20-architecture/adr/0056-cooking-on-the-device.md) | Cooking on the device | Provisionally agreed |
 | [0057](20-architecture/adr/0057-shopping-in-the-database.md) | Shopping in the database, and live | Provisionally agreed |
+| [0058](20-architecture/adr/0058-fitness-in-the-database.md) | Fitness in the database | Proposed |
+| [0059](20-architecture/adr/0059-recovery-on-the-device.md) | The recovery engine and progression on the device | Proposed |
 
 ## Sources
 
