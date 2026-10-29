@@ -1,6 +1,6 @@
 # ADR-0058: Fitness in the database
 
-**Status:** Proposed · 2026-10-29
+**Status:** Provisionally agreed · 2026-10-29 (Joe)
 
 ## Context
 

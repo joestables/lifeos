@@ -618,7 +618,7 @@ as a Goal on the Goals page; suggestions on Plan or in Inbox.
 
 How it is held and worked out: [ADR-0058](../../20-architecture/adr/0058-fitness-in-the-database.md)
 and [ADR-0059](../../20-architecture/adr/0059-recovery-on-the-device.md)
-(Proposed); the [data model](../../20-architecture/data-model.md)'s
+(Provisionally agreed); the [data model](../../20-architecture/data-model.md)'s
 `fitness` rows.
 
 ## Annex A — The recovery engine

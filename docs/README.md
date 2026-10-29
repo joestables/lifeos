@@ -173,8 +173,8 @@ Consequences**, to a page.
 | [0055](20-architecture/adr/0055-sharing-into-lifeos.md) | Sharing into LifeOS from another app | Provisionally agreed |
 | [0056](20-architecture/adr/0056-cooking-on-the-device.md) | Cooking on the device | Provisionally agreed |
 | [0057](20-architecture/adr/0057-shopping-in-the-database.md) | Shopping in the database, and live | Provisionally agreed |
-| [0058](20-architecture/adr/0058-fitness-in-the-database.md) | Fitness in the database | Proposed |
-| [0059](20-architecture/adr/0059-recovery-on-the-device.md) | The recovery engine and progression on the device | Proposed |
+| [0058](20-architecture/adr/0058-fitness-in-the-database.md) | Fitness in the database | Provisionally agreed |
+| [0059](20-architecture/adr/0059-recovery-on-the-device.md) | One recovery engine, on the device and the server | Provisionally agreed |
 
 ## Sources
 
