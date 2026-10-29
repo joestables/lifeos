@@ -2,11 +2,16 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = extensions, public;
-select plan(8);
+select plan(9);
 
 insert into auth.users (id, email) values ('00000000-0000-4000-8000-00000000000a', 'ann@example.com');
 
 select is((select ok from ops.health_check()), true, 'The health check finds nothing wrong on a quiet day');
+
+-- Each use of the AI is counted in ops.events (ADR-0054): a use, not a problem.
+insert into ops.events (source, kind, message, person_id) values
+  ('edge', 'ai', 'recipe.import', '00000000-0000-4000-8000-00000000000a');
+select is((select ok from ops.health_check()), true, 'A day''s uses of the AI aren''t problems');
 
 select set_config('request.jwt.claims', '{"sub": "00000000-0000-4000-8000-00000000000a", "role": "authenticated"}', true),
   set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-00000000000a', true);
@@ -29,7 +34,7 @@ select throws_ok(
 reset role;
 
 select is(
-  (select row(kind, screen, person_id::text, details ->> 'fn')::text from ops.events order by id limit 1),
+  (select row(kind, screen, person_id::text, details ->> 'fn')::text from ops.events where source = 'app' order by id limit 1),
   row('write_refused', '/inbox', '00000000-0000-4000-8000-00000000000a', 'update_item')::text,
   'OFF-004: the event records the screen, the person and what failed'
 );

@@ -35,7 +35,8 @@ Done 9 October 2026.
 - **No in-app bug reporting.** Joe reports a problem by telling Claude, which
   reads `ops.events` to find it.
 - **A nightly health check** (`pg_cron`, 03:00 UTC, `ops.health_check()`)
-  looks at the last day's events, failed jobs and the heartbeats of jobs
+  looks at the last day's events (not the AI's uses, which are counted
+  there too), failed jobs and the heartbeats of jobs
   outside the database (from Stage 2, Reminder sending and the nightly
   series run; from Stage 3, Google Calendar connections that aren't
   syncing), and records what it finds in `ops.health_runs`. **Nobody is
@@ -150,7 +151,8 @@ file, `node scripts/bundle-function.mjs ai out.js` (`rules.ts`, `schema.ts`,
 - **The allowance:** each use is an `ai` row in `ops.events`
   (`core.ai_take`, as the service role), with the prompt's version and never
   what was sent; a day is a UTC day. A failure is an `ai_failed` row with
-  why.
+  why, which the nightly health check reports; a use isn't a problem, so
+  it doesn't.
 - **Checking it:** `select kind, message, count(*) from ops.events where
   source = 'edge' and kind like 'ai%' and at > now() - interval '1 day'
   group by 1, 2`. Many `ai_failed` with 429 mean the free quota is used
