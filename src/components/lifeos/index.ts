@@ -72,3 +72,21 @@ export {
 export { AddMealButton, MealCard, MealDay, MealSlot, MealWeek, type Slot } from './MealPlan'
 export { Suggestions, type Suggestion } from './Suggestions'
 export { LINE_UNITS, STEP_FIELD } from './recipe-fields'
+export {
+  BodyMap,
+  ChartKey,
+  ExerciseBlock,
+  ProgressChart,
+  ReadinessBar,
+  ReadinessScale,
+  SetHeads,
+  SetRow,
+  StimulusRow,
+  TemplateExercise,
+  ValueStepper,
+  MuscleReadiness,
+  OverallReadiness,
+  SideColumns,
+  type ChartLine,
+} from './Gym'
+export { readinessColour } from './readiness'
