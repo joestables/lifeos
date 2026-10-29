@@ -1,55 +1,78 @@
 # Gym
 
-*Stage 5, the `fitness` Module's Gym page. **A first draft for Joe to
-refine**, written from Joe's notes (22 October), with Claude's own
-suggestions marked **(suggested)**. Everything is *proposed* until Joe
-agrees it. Cardio is Stage 8; Goals, the Goals page and the measures
-registry follow Gym in Stage 5 and have their own spec.*
+*Stage 5, the `fitness` Module's Gym page. **A draft for Joe to refine**,
+written from Joe's notes (22 October) and his comments on the first draft
+(29 October), with Claude's own suggestions marked **(suggested)**.
+Everything is *proposed* until Joe agrees it. The recovery engine, Joe's
+own, is [Annex A](#annex-a--the-recovery-engine). Cardio is Stage 8; Goals
+follow Gym in Stage 5 with their own spec.*
 
 **In one line:** my exercises, templates and workouts; logging a workout
-at the gym; how each exercise is progressing; and how recovered each
-muscle is ([ADR-0026](../../20-architecture/adr/0026-navigation-drawer.md),
+at the gym; how recovered each muscle is; and how each muscle and
+exercise is progressing
+([ADR-0026](../../20-architecture/adr/0026-navigation-drawer.md),
 Provisionally agreed).
 
 ## Decisions
 
 ### Equipment and muscle groups
 
-- **Equipment types are mine to keep**, each with an **increment**: the
-  step the weight goes up or down by (Joe, 22 October). Increments are
-  exact decimals, never rounded: 0.625 kg is 0.625 kg, and 0.625 × 3 is
-  1.875 kg. Weights are in kg (suggested, as Recipes are metric).
-- **A starting list** (suggested), each editable: Barbell 2.5, Dumbbell 2,
-  EZ bar 2.5, Smith machine 2.5, Machine 5, Cable 2.5, Kettlebell 4,
-  Bodyweight 1.25 (added weight; 0 is bodyweight alone), Band and Other
-  with no weight.
-- **Seventeen muscle groups are built in**, and I can add my own (Joe, 22
-  October). The seventeen (suggested): Chest, Front delts, Side delts, Rear
-  delts, Biceps, Triceps, Forearms, Lats, Traps, Lower back, Abs, Obliques,
-  Glutes, Quads, Hamstrings, Adductors, Calves. Built-in groups can't be
-  renamed or deleted, and each has a place on the body map; my own groups
-  show in a list beside it.
-- Equipment and muscle groups are reference data, kept in Settings → Gym
+- **All weights are in kg** (Joe, 29 October).
+- **Equipment types are all mine**, none built in, each with an
+  **increment**: the step a weight goes up or down by (Joe, 22 and 29
+  October). Increments are exact decimals, never rounded: 0.625 kg is
+  0.625 kg, and 0.625 × 3 is 1.875 kg. **No Exercise can be made until I
+  have at least one equipment type.**
+- **Twenty muscle groups are built in**, each in one of four categories
+  (Joe, 29 October):
+
+  | Category | Muscle groups |
+  |---|---|
+  | Push | Chest, Front delts, Lateral delts, Triceps |
+  | Pull | Lats, Traps, Rear delts, Biceps, Brachialis, Forearms |
+  | Core | Abs, Obliques, Erectors |
+  | Legs | Glutes, Quads, Hamstrings, Adductors, Abductors, Calves, Tibialis |
+
+- **I can add muscle groups of my own**, each with a category (Joe, 22 and
+  29 October). Built-in groups can't be renamed or deleted, and each has a
+  place on the body map; my own groups are in every full list of groups,
+  but not on the map (Joe, 29 October).
+- **Each group has a recovery type**, fast, normal or slow, which sets how
+  quickly it recovers ([Annex A](#a2-inputs-and-settings)). Defaults
+  (suggested): fast — Lateral delts, Rear delts, Biceps, Brachialis,
+  Forearms, Triceps, Abs, Obliques, Calves, Tibialis; normal — Chest, Front
+  delts, Lats, Traps, Adductors, Abductors; slow — Erectors, Glutes, Quads,
+  Hamstrings.
+- **Each group has two weekly targets:** how many workouts a week train it
+  (frequency) and how many stimulus sets a week it gets (Joe, 29 October).
+- Equipment, muscle groups and their settings are reference data, kept in
+  Settings → Gym
   ([ADR-0014](../../20-architecture/adr/0014-reference-data-and-labels.md),
   Provisionally agreed).
 
 ### Exercises
 
-- **An Exercise has a name, an equipment type, primary and secondary muscle
-  groups, a working weight and a goal** (Joe, 22 October). At least one
-  primary group; secondary groups optional. Notes (set-up, seat height)
-  optional (suggested).
-- **The working weight** is what a set's weight starts at in a workout. I
+- **An Exercise has a name, an equipment type, exactly one primary muscle
+  group, any number of secondary groups, a working set, and optionally a
+  goal** (Joe, 22 and 29 October). Notes (set-up, seat height) are optional
+  (suggested).
+- **A secondary group has a contribution**, 0.1 to 0.9 in steps of 0.1;
+  the primary group's is always 1.0 (Joe, 29 October). Bench press: Chest
+  primary, Triceps 0.4, Front delts 0.3.
+- **The working set is a weight and reps** — "60 kg × 8" — and every
+  Exercise has one (Joe, 29 October). A workout's set starts at it. I
   change it by hand, or from a workout's review when I've progressed.
+- **The goal is a weight and reps too**, optional, and the Exercise's own:
+  it is not a Goal on the Goals page, which is for the big picture (Joe,
+  29 October).
 - **The PR is worked out, never typed:** the set with the best Epley
   estimate, weight × (1 + reps ÷ 30), with its date (Joe, 22 October).
-- **The goal** is what I'm working towards (Joe, 22 October); see [open
-  point 1](#open-points-for-joe) for what it measures and how it meets
-  Goals.
+- **Changing an Exercise's muscle groups changes readiness at once:** the
+  recovery engine replays past workouts with the new groups and
+  contributions (Joe, 29 October; [Annex A](#a4-when-to-recompute)).
 - **Archived, not deleted:** an archived Exercise leaves the library,
-  pickers and swaps, and keeps its history; templates that use it say so
-  (Joe, 22 October;
-  [ADR-0032](../../20-architecture/adr/0032-delete-means-archive.md),
+  pickers and swaps, and keeps its history
+  ([ADR-0032](../../20-architecture/adr/0032-delete-means-archive.md),
   Provisionally agreed). One never used in a workout can be deleted
   (suggested).
 - **A name is unique** among my Exercises, archived ones included
@@ -58,12 +81,16 @@ Provisionally agreed).
 ### Templates
 
 - **A Workout template is a name and an ordered list of exercises**, each
-  with a number of sets and, optionally, a target RIR (Joe, 22 October).
-  Weight and reps are never part of a template: they come from the
-  working weight and from me on the day.
+  with its sets, and each set with a target RIR (Joe, 22 and 29 October).
+  Weight and reps are never part of a template.
+- **An exercise added to a template comes with one set**, its RIR at my
+  **preferred RIR**; I add more sets and change each one's RIR (Joe, 29
+  October). Preferred RIR is a Gym setting.
 - **I reorder a template's exercises by dragging** (Joe, 22 October).
-- **A template shows the sets it gives each muscle group** (suggested), so
-  I can see what it trains before I start it.
+- **A template shows its coverage:** the stimulus sets it gives each muscle
+  group, worked out as the recovery engine would from its sets' RIR and
+  each exercise's contributions ([Annex A](#a31-stimulus-per-set); Joe, 29
+  October).
 - **Deleting a template** sends it to Recently deleted; workouts that
   followed it keep their copy
   ([ADR-0013](../../20-architecture/adr/0013-occurrences-snapshot-their-definition.md),
@@ -77,75 +104,87 @@ Provisionally agreed).
   ([ADR-0029](../../20-architecture/adr/0029-plan-reads-core-items.md),
   Provisionally agreed) and always Personal
   ([spaces and sharing](../cross-cutting/spaces-and-sharing.md)).
-- **Its stages:** Planned → In progress → Done; or Skipped, when a planned
-  day passes or I skip it (suggested). One Workout is in progress at a time
-  (suggested).
-- **Starting copies the template** — each exercise, its sets and RIR, and
-  the working weight as it stood — so a workout is always read against
-  what it was, after the template or working weight has moved on
-  (ADR-0013).
+- **Its stages:** Planned → In progress → Done; or Skipped, when its day
+  passes without it starting. One Workout is in progress at a time (Joe, 29
+  October).
+- **Starting copies the template** — each exercise, its sets and their RIR
+  — and each exercise's working set as it stood, so a workout is always
+  read against what it was (ADR-0013).
 - **Every exercise starts in the backlog** (Joe, 22 October). I move one
   into the session when I begin it, so the session's order is the order I
   did them in. Nothing in a session is reordered by hand.
-- **Adding and swapping are quick** (Joe, 22 October). Add takes any
-  Exercise from the library, or makes a new one on the spot (name,
-  equipment, primary group). Swap replaces an exercise not yet done with
-  one sharing a primary muscle group, those sharing the most first; its
-  planned sets carry over.
-- **A set is weight, reps and RIR**, each with a stepper; weight steps by
-  the exercise's equipment increment, reps and RIR by 1 (Joe, 22 October).
-  A template's planned sets show as rows to fill; any set can be added,
-  changed or removed.
+- **Each exercise expands and collapses** (Joe, 29 October): collapsed, it
+  is one line (name, sets done of planned, best set); expanded, its sets.
+- **Adding and swapping are quick** (Joe, 22 October). An exercise added in
+  a session comes with one set at my preferred RIR (Joe, 29 October). Swap
+  offers exercises with the same primary muscle group first.
+- **A set is weight, reps and RIR**, each with a stepper. Weight and reps
+  start at the exercise's working set, RIR at the set's target; weight
+  steps by the equipment's increment, reps and RIR by 1 (Joe, 22 and 29
+  October).
 - **An exercise is marked done** when I've done the sets I want, whatever
   the template said (Joe, 22 October).
 - **Ending asks how it went and how motivated I was beforehand** (Joe, 22
-  October), each on a scale of 1–5 (suggested), with optional notes; then
-  the workout opens read-only for its review.
-- **The review is where working weights move**: for each exercise, I can
-  raise (or lower) its working weight there (Joe, 22 October). An exercise
-  whose every set met its reps and RIR is suggested for a raise of one
-  increment (suggested; [open point 5](#open-points-for-joe)).
+  October), each 1–5 (suggested), with optional notes; then the workout
+  opens read-only for its review.
+- **The review is where working sets move**: for each exercise, I can
+  change its working weight and reps there (Joe, 22 October).
+- **No rest timer** (Joe, 29 October).
 
-### Progress
+### Recovery
 
-- **Each exercise shows its progression over 1 month, 3 months and a
-  year** (Joe, 22 October): the best Epley estimate in each workout, the
-  working weight over time, the PR and the goal, with the trend over the
-  period — the change, and whether it is rising, flat or falling.
-- **Stalled** (suggested): an exercise whose estimate hasn't risen for four
-  weeks of training is marked as such.
-
-### Recovery and readiness
-
-- **Each muscle group has a readiness**, 0–100 %, from the sets that
-  trained it and how long ago: a primary set counts fully, a secondary set
-  half, and each group recovers over its own time (suggested; [open
-  point 2](#open-points-for-joe)). **Overall readiness** is the average of
-  the groups trained in the last week (suggested).
-- **The body map** shows each muscle's readiness, front and back, in
-  red → amber → green with the percentage, so colour is never the only
-  sign (Joe, 22 October;
+- **The recovery engine** ([Annex A](#annex-a--the-recovery-engine); Joe,
+  29 October) turns logged sets into each muscle group's **readiness**,
+  0–100 %, at any moment, and the **stimulus sets** each workout gave it.
+  It uses reps, RIR and contributions, not weight.
+- **A muscle group is trained** in a workout when it gets 0.5 stimulus sets
+  or more — the engine's own threshold
+  ([Annex A](#a35-novelty-factor)) — so a workout counts towards a group's
+  frequency only then (suggested).
+- **The week is the last seven days** for targets and warnings (suggested).
+- **The body map** shows each built-in group's readiness, front and back,
+  with its percentage, so colour is never the only sign (Joe, 22 October;
   [ADR-0043](../../20-architecture/adr/0043-colour-by-type.md),
-  Provisionally agreed).
-- **Training frequency** is how often each muscle group is trained: hard
-  sets a week, and days a week it is trained (suggested). Each group has a
-  target, with a sensible default; falling below it tells me (Joe, 22
-  October).
-- **What to do next:** templates are ranked by how ready their muscles
-  are and how far below their frequency target they are (Joe, 22 October),
-  the reason said in a few words ("Back and biceps 92 % ready, trained
-  once this week").
-- Oura's readiness joins this in Stage 8; suggestions on Plan and in Inbox
-  stay [later](../../roadmap.md#later-opportunities).
+  Provisionally agreed). Bands (suggested): under 50 % red, 50–79 % amber,
+  80 % and over green.
+- **Overall readiness** is the average readiness of the groups with a
+  weekly target above zero (suggested).
+- **What to do next:** templates are ranked by how ready the groups they
+  cover are, and how far those groups are below their weekly targets (Joe,
+  22 October).
+
+### Progression
+
+- **Progression is mainly about muscle groups**, and also about each
+  exercise (Joe, 29 October), over 1 month, 3 months and a year.
+- **An exercise's progression** is the best Epley estimate in each workout,
+  with its working set, PR and goal (Joe, 22 October).
+- **A muscle group's progression** (suggested; to discuss, [open point
+  1](#open-points-for-joe)) is the average change in the best Epley
+  estimate of the exercises it is primary for, each against its own start
+  of the period, week by week.
+- **Stimulus sets overlay progression:** the group's weekly stimulus sets
+  as bars behind its line, so I can see how volume and progress go
+  together (Joe, 29 October). An exercise's chart shows its primary
+  group's.
+- **Stalled exercises are picked out** (Joe, 29 October): suggested, no
+  rise in the best Epley estimate across four weeks of training.
 
 ## What the page shows
 
-**Gym**, coral, tabs (suggested): **Today** — the workout in progress or
-planned for today, what to do next, overall readiness and the body map,
-and any muscle trained too little; **Workouts** — every workout, newest
-first, with filters and sort; **Exercises** — the library; **Templates**.
-A workout in progress, an Exercise and a template each open on their own
-page.
+**Gym**, coral, three tabs (Joe, 29 October):
+
+- **Workouts** — the workout in progress or planned for today at the top,
+  then every workout, newest first, with filters and sort; and my
+  templates.
+- **Recovery** — overall readiness, the body map, every group in a list by
+  category (my own groups too) with its readiness and week against its
+  targets, groups below target, and what to do next.
+- **Progression** — muscle groups, and the exercise library (suggested
+  here, as each Exercise opens on its progression; [open point
+  2](#open-points-for-joe)), with stalled exercises picked out.
+
+A workout, an Exercise and a template each open on their own page.
 
 ## Requirements
 
@@ -153,32 +192,41 @@ page.
 
 ### GYM-001 — Equipment types
 
-**As** Joe, **I want** my equipment types with their own increments, **so
-that** steppers move by what my gym's weights actually go up by.
+**As** Joe, **I want** to define my equipment types with their own
+increments, **so that** steppers move by what my gym's weights actually go
+up by.
 Priority: Must · Status: proposed
 
 Acceptance criteria
 1. Given Settings → Gym → Equipment, then I add, rename and delete
-   equipment types, each with an increment; the starting list is there to
-   begin with.
+   equipment types, each with an increment in kg; there are none to begin
+   with.
 2. Given an increment of 0.625 kg, then steps of it are exact (0.625,
    1.25, 1.875…) and shown without trailing zeros.
-3. Given an equipment type in use, then it can't be deleted until no
-   Exercise uses it; changing its increment changes every Exercise using it.
+3. Given no equipment types, then New exercise says one is needed first
+   and opens Settings → Gym → Equipment.
+4. Given an equipment type in use, then it can't be deleted until no
+   Exercise uses it; changing its increment changes every Exercise using
+   it.
 
 ### GYM-002 — Muscle groups
 
-**As** Joe, **I want** the seventeen muscle groups built in, and my own
-added, **so that** exercises and recovery use the groups I think in.
+**As** Joe, **I want** the twenty muscle groups built in, by category, and
+my own added, **so that** exercises and recovery use the groups I think
+in.
 Priority: Must · Status: proposed
 
 Acceptance criteria
-1. Given Settings → Gym → Muscle groups, then the seventeen built-in groups
-   are listed and can't be renamed or deleted.
-2. Given Add, then I name a group of my own; it can be renamed, and deleted
-   once no Exercise uses it.
-3. Given a group of my own, then it has readiness and frequency like the
-   others, and shows in a list beside the body map.
+1. Given Settings → Gym → Muscle groups, then the twenty built-in groups
+   are listed under Push, Pull, Core and Legs, and can't be renamed or
+   deleted.
+2. Given Add, then I name a group of my own and choose its category; it
+   can be renamed, and deleted once no Exercise uses it.
+3. Given any group, then I set its recovery type and its two weekly
+   targets: workouts a week and stimulus sets a week (GYM-017).
+4. Given a group of my own, then it has readiness, targets and
+   progression like the others, and appears wherever all groups are
+   listed, but not on the body map.
 
 ### GYM-003 — The exercise library
 
@@ -187,15 +235,16 @@ find one and see where it stands.
 Priority: Must · Status: proposed
 
 Acceptance criteria
-1. Given the Exercises tab, then every Exercise I haven't archived is
-   listed: name, equipment, primary groups, working weight, PR, goal and
-   when last done.
+1. Given the library, then every Exercise I haven't archived is listed:
+   name, equipment, primary group, working set, PR, goal, when last done,
+   and a Stalled mark.
 2. Given a search, then Exercises match by name.
-3. Given a filter by muscle group (primary or secondary) or equipment,
-   then only matching Exercises show; sorted A–Z, by last done, or by
-   muscle group (suggested), my choice kept.
+3. Given a filter by muscle group (primary or secondary), category or
+   equipment, then only matching Exercises show; sorted A–Z, by last done
+   or by primary group, my choice kept (suggested).
 4. Given an Exercise, then its page shows its details, its progression
-   (GYM-014) and the workouts it was in, newest first, with their sets.
+   (GYM-014) and its set history: the workouts it was in, newest first,
+   with their sets and PRs marked.
 
 ### GYM-004 — Make and edit an exercise
 
@@ -204,16 +253,21 @@ swapping and recovery all know what it trains.
 Priority: Must · Status: proposed
 
 Acceptance criteria
-1. Given New exercise, then I give a name, an equipment type and at least
-   one primary muscle group; secondary groups, a working weight, a goal
-   and notes are optional.
-2. Given an Exercise, then I edit any of these; the working weight's
-   stepper moves by its equipment's increment.
-3. Given a name already used by one of my Exercises, then it is refused,
+1. Given New exercise, then I give a name, an equipment type, one primary
+   muscle group and a working set (weight and reps); secondary groups, a
+   goal (weight and reps) and notes are optional.
+2. Given a secondary group, then I set its contribution with a stepper,
+   0.1 to 0.9 in steps of 0.1; the primary group can't also be secondary.
+3. Given an Exercise, then I edit any of these; the working set's and
+   goal's weight move by its equipment's increment.
+4. Given a change to an Exercise's muscle groups or contributions, then
+   readiness, stimulus sets and template coverage use the new ones at
+   once, for past workouts too.
+5. Given a name already used by one of my Exercises, then it is refused,
    and I'm told which.
-4. Given a change to an Exercise's muscle groups, then recovery and
-   frequency use the new groups from then on; past workouts keep theirs
-   (suggested).
+6. *(Suggested)* Given a goal, then the Exercise shows how far its PR is
+   from it (by Epley estimate), and marks it reached when a set matches its
+   weight for at least its reps.
 
 ### GYM-005 — Archive an exercise
 
@@ -223,7 +277,8 @@ Priority: Must · Status: proposed
 
 Acceptance criteria
 1. Given an Exercise, when I archive it, then it leaves the library, Add
-   and Swap, with Undo; its workouts, PR and progression are kept.
+   and Swap, with Undo; its workouts, PR and progression are kept, and its
+   sets still count in recovery.
 2. Given a template containing it, then the template marks it archived,
    and a workout started from that template leaves it out (suggested).
 3. Given Settings → Gym → Archived exercises, then I can bring one back as
@@ -233,21 +288,25 @@ Acceptance criteria
 
 ### GYM-006 — Templates
 
-**As** Joe, **I want** to make, edit and delete workout templates, **so
-that** a planned workout starts with the right exercises.
+**As** Joe, **I want** to make, edit and delete workout templates and see
+what each covers, **so that** a planned workout starts with the right
+exercises and trains what I mean it to.
 Priority: Must · Status: proposed
 
 Acceptance criteria
-1. Given New template, then I name it and add exercises from the library,
-   each with a number of sets (3 to start; suggested) and an optional
-   target RIR.
-2. Given a template's exercises, then I reorder them by dragging (on a
+1. Given New template, then I name it and add exercises from the library;
+   each comes with one set at my preferred RIR.
+2. Given an exercise in a template, then I add and remove sets, and set
+   each set's RIR with a stepper.
+3. Given a template's exercises, then I reorder them by dragging (on a
    phone too) and remove them.
-3. Given a template, then it shows the sets it gives each muscle group,
-   primary and secondary.
-4. Given a template, then I can duplicate it (suggested), rename it, or
+4. Given a template, then its coverage shows the stimulus sets it gives
+   each muscle group, by category, from its sets' RIR and each exercise's
+   contributions, beside each group's weekly stimulus target; it follows
+   every change as I make it.
+5. Given a template, then I can duplicate it (suggested), rename it, or
    delete it with Undo; past workouts that followed it are unchanged.
-5. Given the Templates tab, then my templates are listed with their
+6. Given the templates on the Workouts tab, then each shows its
    exercises, sets and when last done.
 
 ### GYM-007 — Plan a workout
@@ -264,8 +323,8 @@ Acceptance criteria
    opens there.
 3. Given a planned workout, then I can change its day or template, or
    delete it, until I start it.
-4. Given its day passes without it starting, then it shows as Skipped
-   (suggested), and can still be started or deleted.
+4. Given its day passes without it starting, then it is Skipped, and can
+   still be started or deleted.
 5. Given a template, when I press Start on it, then a workout for today is
    made and started at once.
 
@@ -278,36 +337,38 @@ Priority: Must · Status: proposed
 
 Acceptance criteria
 1. Given a planned workout, when I press Start, then it is In progress,
-   its start time kept, and its template, sets, RIR and working weights
-   are copied into it.
+   its start time kept, and its template's exercises, sets and RIR, and
+   each exercise's working set, are copied into it.
 2. Given a workout in progress, then its exercises sit in the backlog, in
-   the template's order, each with its planned sets; the session above it
-   is empty.
+   the template's order, collapsed; the session above it is empty.
 3. Given an exercise in the backlog, when I begin it, then it moves to the
-   foot of the session and opens for logging.
-4. Given an exercise in the session with no sets logged, then it can go
+   foot of the session, expanded for logging, and the exercise expanded
+   before it collapses (suggested).
+4. Given any exercise, then I expand or collapse it; collapsed, it shows
+   its name, sets done of planned, and best set.
+5. Given an exercise in the session with no sets logged, then it can go
    back to the backlog.
-5. Given another workout already in progress, then Start says so and
+6. Given another workout already in progress, then Start says so and
    offers to open it.
-6. Given I leave the page or close the app, then the workout is just as I
+7. Given I leave the page or close the app, then the workout is just as I
    left it when I come back.
 
 ### GYM-009 — Add, swap and remove exercises
 
-**As** Joe, **I want** to add or swap exercises mid-workout without
-fuss, **so that** a busy machine doesn't break my plan.
+**As** Joe, **I want** to add or swap exercises mid-workout without fuss,
+**so that** a busy machine doesn't break my plan.
 Priority: Must · Status: proposed
 
 Acceptance criteria
 1. Given Add, then a search over the library adds an exercise to the
-   backlog, or straight into the session; recently done exercises come
-   first (suggested).
+   backlog, or straight into the session, with one set at my preferred
+   RIR; recently done exercises come first (suggested).
 2. Given a name not in the library, then I can make it there and then
-   (name, equipment, primary group), and it joins the library.
-3. Given Swap on an exercise not yet done, then exercises sharing a
-   primary muscle group are offered, most groups shared first, then the
-   rest by search; the planned sets carry over and the working weight is
-   the new exercise's.
+   (GYM-004 1), and it joins the library.
+3. Given Swap on an exercise not yet begun, then exercises with the same
+   primary muscle group are offered first, then the rest by search; its
+   sets and their RIR carry over, and the weight and reps are the new
+   exercise's working set.
 4. Given an exercise in the backlog, then I can remove it from this
    workout.
 
@@ -319,20 +380,17 @@ Priority: Must · Status: proposed
 
 Acceptance criteria
 1. Given an exercise in the session, then each planned set is a row of
-   weight, reps and RIR; weight starts at the working weight, RIR at the
-   template's target, and reps blank (suggested: the previous set's reps
-   once one is logged).
+   weight, reps and RIR: weight and reps start at its working set, RIR at
+   the set's target.
 2. Given a stepper, then weight moves by the equipment's increment, reps
-   and RIR by 1; each can also be typed. Weight is never below 0; RIR is
-   0 or more.
+   and RIR by 1; each can also be typed. Weight is never below 0, reps
+   below 1, or RIR below 0.
 3. Given a row, when I tick it, then the set is logged; a logged set can be
    changed or removed, and Add set adds a row with the last set's values.
-4. Given an exercise, then I see what I did last time (date, sets)
-   (suggested).
+4. Given an exercise, then its set history is a tap away: past workouts'
+   sets, newest first, with PRs marked.
 5. Given a logged set with the best Epley estimate yet for the exercise,
-   then it is marked as a PR (suggested).
-6. *(Suggested)* Given a set is logged, then a rest timer starts, which I
-   can dismiss; its length is set in Settings → Gym.
+   then it is marked as a PR.
 
 ### GYM-011 — Mark an exercise done
 
@@ -341,15 +399,14 @@ want, **so that** I can see what's left.
 Priority: Must · Status: proposed
 
 Acceptance criteria
-1. Given an exercise in the session, when I mark it done, then it closes
-   to a summary line (sets, best set) and any unlogged planned sets are
-   dropped.
+1. Given an exercise in the session, when I mark it done, then it
+   collapses and any unlogged sets are dropped.
 2. Given a done exercise, then I can reopen it to add or change sets.
 
 ### GYM-012 — End a workout and review it
 
 **As** Joe, **I want** to record how a workout went and then review it,
-**so that** I can see what I did and move working weights on.
+**so that** I can see what I did and move working sets on.
 Priority: Must · Status: proposed
 
 Acceptance criteria
@@ -359,14 +416,13 @@ Acceptance criteria
 2. Given exercises still in the backlog, then End says how many, and they
    are left out of the finished workout (suggested).
 3. Given a finished workout, then it opens read-only: date, duration,
-   ratings, notes, and each exercise in the order done with its sets, any
-   PRs, and how it compares with last time (suggested).
-4. Given the review, then each exercise shows its working weight with a
-   stepper; changing it there changes the Exercise's working weight. One
-   whose every planned set met its reps and RIR suggests one increment more
-   (suggested).
+   ratings, notes; each exercise in the order done with its sets and any
+   PRs; and the stimulus sets it gave each muscle group (suggested).
+4. Given the review, then each exercise shows its working set with
+   steppers; changing it there changes the Exercise's working set.
 5. *(Suggested)* Given a finished workout, then Edit lets me correct its
-   sets, ratings and notes; recovery and PRs follow.
+   sets, ratings and notes, or delete it; readiness, stimulus sets and PRs
+   follow.
 6. Given Discard on a workout in progress, then it is deleted, with Undo.
 
 ### GYM-013 — The workouts list
@@ -378,135 +434,468 @@ Priority: Must · Status: proposed
 Acceptance criteria
 1. Given the Workouts tab, then workouts show newest first: name, date,
    duration, exercises, sets, and how it went.
-2. Given filters by template, exercise, muscle group, stage (Planned, Done,
-   Skipped) and dates, then only matching workouts show, my filters kept.
-3. Given a sort by date, duration, sets or how it went, then the list
-   follows, my choice kept.
+2. Given filters by template, exercise, muscle group, stage (Planned, In
+   progress, Done, Skipped) and dates, then only matching workouts show, my
+   filters kept.
+3. Given a sort by date, duration, sets, how it went or motivation, then
+   the list follows, my choice kept.
 
-### GYM-014 — Progression
+### GYM-014 — An exercise's progression
 
-**As** Joe, **I want** to see how each exercise is progressing over a
-month, three months and a year, **so that** I know what's working.
+**As** Joe, **I want** to see how each exercise is progressing, against
+the work its muscle is getting, **so that** I know what's working.
 Priority: Must · Status: proposed
 
 Acceptance criteria
 1. Given an Exercise's page, then a chart shows, for 1 M, 3 M or 1 Y: the
-   best Epley estimate in each workout, the working weight over time, the
-   PR, and the goal as a line.
-2. Given the period, then I'm told the change in estimate and working
-   weight over it, and whether it is rising, flat or falling.
-3. Given the PR, then it shows weight × reps, its estimate and its date,
+   best Epley estimate in each workout, its working set's estimate over
+   time, the PR, and the goal's estimate as a line.
+2. Given the chart, then its primary group's weekly stimulus sets show as
+   bars behind it.
+3. Given the period, then I'm told the change in best estimate over it, and
+   whether it is rising, flat or falling.
+4. Given the PR, then it shows weight × reps, its estimate and its date,
    and opens that workout.
-4. *(Suggested)* Given no rise in the estimate across four weeks of
-   training, then the Exercise is marked Stalled, in the library too.
-5. *(Suggested)* Given an overview of progress, then every Exercise trained
-   in the period shows its change, best first.
+5. Given no rise in the best estimate across four weeks of training
+   (suggested), then the Exercise is marked Stalled, here, in the library
+   and on the Progression tab.
 
-### GYM-015 — Readiness and the body map
+### GYM-015 — A muscle group's progression
+
+**As** Joe, **I want** to see how each muscle group is progressing, beside
+the stimulus sets it got, **so that** I can judge how much volume works
+for it.
+Priority: Must · Status: proposed
+
+Acceptance criteria
+1. Given the Progression tab, then every muscle group is listed by
+   category with its change over the period (1 M, 3 M or 1 Y), its
+   average weekly stimulus sets, and its stalled exercises.
+2. Given a muscle group, then a chart shows its progression week by week
+   (open point 1) with its weekly stimulus sets as bars behind, and its
+   weekly target as a line.
+3. Given a muscle group, then the exercises it is primary for are listed
+   with their own change, each opening its page.
+
+### GYM-016 — Readiness and the body map
 
 **As** Joe, **I want** to see how recovered I am, overall and muscle by
 muscle, **so that** I train what's ready.
 Priority: Must · Status: proposed
 
 Acceptance criteria
-1. Given the Today tab, then overall readiness shows as a percentage, and
-   the body map, front and back, colours each muscle by its readiness.
-2. Given a muscle on the map (or a group of my own in the list), when I
-   choose it, then I see its readiness, when it was last trained, its sets
-   this week against its target, and when it will be fully recovered.
-3. Given a workout finished or edited, then readiness follows at once,
-   offline too.
-4. Given recovery settings in Settings → Gym, then each group's recovery
-   time can be changed (suggested).
+1. Given the Recovery tab, then overall readiness shows as a percentage,
+   and the body map, front and back, shows each built-in group's readiness
+   by colour and percentage.
+2. Given every group, my own included, then a list by category shows its
+   readiness.
+3. Given a group, on the map or in the list, when I choose it, then I see
+   its readiness, when it was last trained, its week against its targets,
+   and when it will be fully recovered.
+4. Given a workout finished, edited or deleted, then readiness follows at
+   once, offline too.
 
-### GYM-016 — Training frequency
+### GYM-017 — Weekly targets
 
-**As** Joe, **I want** to be told when I'm training a muscle too little,
-**so that** nothing gets left behind.
+**As** Joe, **I want** each muscle group to have a weekly frequency and
+stimulus-sets target, and to be told when I fall short, **so that**
+nothing gets left behind.
 Priority: Must · Status: proposed
 
 Acceptance criteria
-1. Given each muscle group, then it has a weekly target (suggested: 10
-   hard sets and twice a week), changeable in Settings → Gym, or off for a
-   group I don't train directly.
-2. Given a group below its target over the last 7 days (suggested: and
-   last trained more than its recovery time ago), then Today lists it, with
-   its sets this week and when it was last trained.
-3. *(Suggested)* Given a group below its target two weeks running, then a
-   nudge appears in Inbox, once a week at most.
+1. Given each muscle group, then it has a frequency target (workouts a
+   week) and a stimulus-sets target (sets a week), each changeable, or 0
+   for a group I don't train directly. Defaults (suggested): twice a week
+   and 10 stimulus sets.
+2. Given the last seven days, then a workout counts towards a group's
+   frequency when it gave it 0.5 stimulus sets or more, and every
+   workout's stimulus sets for the group add up towards its stimulus
+   target.
+3. Given a group below either target, then the Recovery tab lists it, with
+   its workouts and stimulus sets this week against its targets, and when
+   it was last trained.
+4. *(Suggested)* Given a group below a target and fully recovered, then it
+   is flagged as needing training, not just behind.
 
-### GYM-017 — What to do next
+### GYM-018 — What to do next
 
 **As** Joe, **I want** to be told which template to do next, **so that** I
 train what is both ready and most behind.
 Priority: Should · Status: proposed
 
 Acceptance criteria
-1. Given my templates, then Today ranks the top three by how ready their
-   primary muscles are and how far behind their frequency they are, each
-   with a short reason.
-2. Given a muscle under 50 % ready (suggested), then a template that works
-   it hard is not suggested first.
+1. Given my templates, then the Recovery tab ranks the top three: each
+   template scores by the readiness of the groups it covers and how far
+   those groups are below their weekly targets, weighted by its coverage
+   of each (suggested), with a short reason ("Back and biceps 92 % ready,
+   4 of 10 sets this week").
+2. Given a group under 50 % ready (suggested), then a template whose
+   coverage of it is 2 stimulus sets or more is not ranked first.
 3. Given a suggestion, when I choose it, then a workout from it is planned
    for today, ready to Start.
 
-### GYM-018 — The Gym everywhere
+### GYM-019 — The recovery engine
+
+**As** Joe, **I want** readiness and stimulus sets worked out by the
+recovery engine I've designed, **so that** they follow how I think muscles
+respond to training.
+Priority: Must · Status: proposed
+
+Acceptance criteria
+1. Given logged sets, then each muscle group's readiness and each
+   workout's stimulus sets are exactly as [Annex A](#annex-a--the-recovery-engine)
+   sets out, its worked examples passing as tests.
+2. Given a workout saved after every other, then it is applied on its own;
+   given one edited, deleted or back-dated, or a setting or an Exercise's
+   groups changed, then the last 60 days are replayed in order.
+3. Given Settings → Gym → Recovery, then I change points per fatigue set
+   and the three recovery times, and each group's recovery type; the fixed
+   constants aren't offered.
+
+### GYM-020 — Settings for the Gym
+
+**As** Joe, **I want** the Gym's settings in one place, **so that** it
+starts each set the way I train.
+Priority: Must · Status: proposed
+
+Acceptance criteria
+1. Given Settings → Gym, then Preferred RIR (a stepper, 2 to start;
+   suggested) sets the RIR a new set starts at, in a template or a session.
+2. Given Settings → Gym, then Equipment (GYM-001), Muscle groups and their
+   targets (GYM-002, GYM-017), Recovery (GYM-019) and Archived exercises
+   (GYM-005) open from there.
+
+### GYM-021 — The Gym everywhere
 
 **As** Joe, **I want** the Gym to work without signal, **so that** a
 basement gym doesn't stop me logging.
 Priority: Must · Status: proposed
 
 Acceptance criteria
-1. Given no signal, then I start, log, swap, end and review a workout, and
-   change working weights; everything is sent later.
+1. Given no signal, then I start, log, swap, end and review a workout,
+   change working sets, and see readiness; everything is sent later.
 2. Given Search, then Exercises, templates and workouts are found by name.
 3. Given a workout, an Exercise or a template, then its changes are in the
    activity log (suggested).
 
-Non-goals (Stage 5): cardio (Stage 8); Oura's readiness (Stage 8);
-supersets and circuits ([open point 3](#open-points-for-joe)); pounds;
-plate calculators; bodyweight tracking; sharing workouts or templates with
-a Household; AI that writes programmes; suggestions on Plan or in Inbox
-beyond GYM-016 3.
+Non-goals (Stage 5): cardio (Stage 8); Oura's readiness (Stage 8); a rest
+timer; pounds; plate calculators; bodyweight tracking; sharing workouts or
+templates with a Household; AI that writes programmes; the Exercise's goal
+as a Goal on the Goals page; suggestions on Plan or in Inbox.
 
 ## Open points for Joe
 
-1. **The goal against Goals.** Stage 5 also brings Goals, whose *target*
-   kind is "Bench 60 kg", measured by the best estimated 1RM
-   ([ADR-0024](../../20-architecture/adr/0024-goals.md),
-   [ADR-0025](../../20-architecture/adr/0025-goal-on-track-by-kind.md),
-   Provisionally agreed). Recommendation: an Exercise's goal **is** a
-   target Goal for that Exercise — set from the Exercise's page, shown
-   there and on the Goals page — so there is one kind of goal, not two.
-   The trade-off: a Goal Item is heavier than a field, and Gym waits on
-   Goals for it. Either way: is the goal a weight to lift for so many reps
-   (60 kg × 5), an estimated 1RM, or a working weight? And a date by
-   which, or none?
-2. **The recovery model.** The roadmap says "v1's recovery model"; for
-   Recipes you wanted first principles, not v1. Port v1's model (point me
-   at it) or use the one above: fatigue from sets (primary 1, secondary ½,
-   RIR 0–1 counting more), each group recovering over its own time
-   (suggested defaults: 48 h for small groups, 72 h for large)?
+1. **A muscle group's progression** — to discuss. Suggested above: the
+   average change in best Epley estimate of the exercises it is primary
+   for, each against its own start of the period, week by week. Others:
+   count secondary exercises too, weighted by contribution; or the
+   share of its exercises that set a PR or rose that week. And is a week
+   with no training a gap, or the last value carried on?
+2. **Where the exercise library lives**, with three tabs: on Progression
+   (suggested, as each Exercise opens on its progression), or on Workouts
+   beside the templates?
 3. **Supersets.** The backlog puts one exercise in the session at a time.
    Do you alternate two exercises (A1/A2)? If so, two can be in progress
    at once, in the order begun.
-4. **RIR in templates:** one target per exercise, or per set (e.g. 2, 1,
-   0)?
-5. **Suggesting a raise:** when every set met its reps at or above its
-   target RIR — but templates carry no reps. Use a rep target per exercise
-   (e.g. 8–12, raise at the top), or leave the raise wholly to you?
-6. **Epley and high reps:** Epley overstates sets above about 12 reps.
+4. **Suggesting a new working set:** in the review, suggest one (e.g. one
+   increment more when every set met the working reps at or above its
+   target RIR), or leave it wholly to you?
+5. **Epley and high reps:** Epley overstates sets above about 12 reps.
    Count only sets of 1–12 reps towards the PR? And should RIR count
    (reps + RIR as the reps to failure)?
-7. **Dumbbells:** is the weight per dumbbell (the usual way) or the pair?
-8. **Warm-up sets:** mark a set as warm-up, left out of PRs, volume and
-   recovery?
-9. **Time of day:** is a planned workout just a day, or a day and an
+6. **Dumbbells:** is the weight per dumbbell (the usual way) or the pair?
+7. **Warm-up sets:** mark a set as warm-up, left out of PRs and the
+   recovery engine? (The engine would otherwise count a warm-up at RIR 6
+   as 0.4 stimulus sets.)
+8. **Time of day:** is a planned workout just a day, or a day and an
    optional time (Plan then places it in the day)?
-10. **"Motivation beforehand":** asked at the end, as you wrote, or at
-    Start, when it's fresh?
+9. **"Motivation beforehand":** asked at the end, as you wrote, or at
+   Start, when it's fresh?
+10. **The suggested defaults:** recovery types, weekly targets (twice a
+    week, 10 stimulus sets), Preferred RIR 2, readiness bands, overall
+    readiness as the average of groups with a target, the last seven days
+    as the week.
 
-Once these are agreed, the data model's `fitness` rows follow: increment
-moves from the Exercise to its equipment; muscle groups become primary and
-secondary rows; `rpe` becomes `rir`; the Workout gains its ratings
-([data model](../../20-architecture/data-model.md)).
+Once these are agreed, the data model's `fitness` rows follow: the
+increment moves from the Exercise to its equipment; an Exercise has one
+primary group and secondary groups with contributions; a working set and a
+goal replace `target`; template sets carry RIR; `rpe` becomes `rir`; the
+Workout gains its ratings; muscle groups gain a category, a recovery type
+and two weekly targets ([data model](../../20-architecture/data-model.md)).
+
+## Annex A — The recovery engine
+
+*Joe's design (29 October), part of this spec: GYM-019 builds it exactly.
+It turns logged sets into two outputs for every muscle group.*
+
+- **Readiness**: a 0–100 % score for how recovered the muscle is at any
+  point in time.
+- **Stimulus sets per workout**: how much effective training stimulus each
+  workout gave the muscle.
+
+Each muscle group has a weekly stimulus target (GYM-017). Adding up
+stimulus sets across a week and comparing them with that target is not the
+recovery engine's job; it only provides the per-workout figure.
+
+### A1. Overview
+
+```
+Logged sets ──► Score each set ──► Total per muscle per workout ──► × Novelty factor ──► Readiness drop ──► Recovery over time
+                       │
+                       └──► Stimulus sets per muscle per workout (output)
+```
+
+Each working set gets two scores:
+
+| Score | Meaning | Depends on |
+|---|---|---|
+| **Stimulus** (`s`) | How much growth signal the set sent | RIR only |
+| **Fatigue** (`f`) | How much the set costs the muscle | RIR, plus a penalty for high-rep sets |
+
+Fatigue drives readiness. Stimulus is reported per workout.
+
+### A2. Inputs and settings
+
+#### What the engine needs
+
+| Input | Used for |
+|---|---|
+| Each set's **reps** and **RIR** | Set scores (A3.1–A3.3) |
+| Each exercise's **primary muscle group** (contribution fixed at 1.0) and any **secondary groups** with their contribution (0.1–0.9) | Splitting each set's scores across muscles (A3.4) |
+| Each workout's **completion time** (its end) | Start of the recovery window (A3.6–A3.8) and the novelty factor (A3.5) |
+| Each muscle group's **recovery type**: fast, normal or slow | Choosing its recovery time constant (A3.7) |
+
+Weight is logged with each set but is **not used** by the engine.
+
+#### Tunable settings
+
+In Settings → Gym → Recovery (GYM-019).
+
+| Setting | Symbol | Default | Description |
+|---|---|---|---|
+| Points per fatigue set | `a` | 20 | Readiness points lost per fatigue set |
+| Recovery time: fast | `T_fast` | 30 h | Hours for a fast-recovery muscle to recover a 50-point deficit |
+| Recovery time: normal | `T_normal` | 42 h | As above, for normal-recovery muscles |
+| Recovery time: slow | `T_slow` | 60 h | As above, for slow-recovery muscles |
+
+#### Fixed constants
+
+| Constant | Value | Description |
+|---|---|---|
+| RIR divisor | 10 | Each rep in reserve reduces a set's score by 0.1 |
+| Rep factor table | A3.2 | Extra fatigue for sets above 8 reps |
+| Novelty factor table | A3.5 | Extra fatigue when a muscle hasn't been trained for more than 7 days |
+| Novelty stimulus threshold | 0.5 | Minimum stimulus sets for a workout to count as having trained a muscle |
+| Readiness floor | 5 | Readiness never drops below 5 % |
+| Recovery curve exponent | 2 | Recovery starts slowly and accelerates |
+
+### A3. Calculations
+
+#### A3.1 Stimulus per set
+
+```
+s = max(0, 1 − RIR / 10) × contribution
+```
+
+**In plain terms:** a set to failure scores 1.0. Each rep left in reserve
+takes off 0.1, so RIR 2 scores 0.8 and RIR 5 scores 0.5. Reps don't affect
+stimulus, because the growth signal comes mainly from the hard final reps
+of a set, and every set at the same RIR contains about the same number of
+those.
+
+`contribution` is 1.0 for the exercise's primary muscle group and the
+configured value for each secondary group. One set produces one stimulus
+score **per muscle group** the exercise works.
+
+#### A3.2 Rep factor
+
+```
+R(reps) = 1.00                       if reps ≤ 8
+        = 1 + 0.05 × (reps − 8)      if 9 ≤ reps ≤ 12
+        = 1.25                       if reps ≥ 13
+```
+
+| Reps | ≤ 8 | 9 | 10 | 11 | 12 | 13+ |
+|---|---|---|---|---|---|---|
+| R | 1.00 | 1.05 | 1.10 | 1.15 | 1.20 | 1.25 |
+
+**In plain terms:** long sets involve more total work, so they cost more
+fatigue. Up to 8 reps there is no extra cost. Each rep beyond that adds 5 %,
+up to 25 % extra.
+
+#### A3.3 Fatigue per set
+
+```
+f = s × R(reps)
+```
+
+**In plain terms:** fatigue starts from the stimulus score, so proximity to
+failure stays the main factor, then gets scaled up for long sets. The rep
+factor can offset at most about 2 RIR: 13 reps at RIR 2 (1.00) costs the
+same as 8 reps at RIR 0 (1.00). A set far from failure never costs more
+than a short set close to failure (12 reps at RIR 5 = 0.60; 5 reps at RIR 1
+= 0.90).
+
+#### A3.4 Workout totals per muscle
+
+```
+S_m = Σ s     over all sets in the workout that work muscle m
+F_m = Σ f     over all sets in the workout that work muscle m
+```
+
+**In plain terms:** add up each muscle's scores across every set in the
+workout, from both primary and secondary work.
+
+`S_m` is an **output** of the engine: the stimulus sets muscle `m`
+received in this workout.
+
+#### A3.5 Novelty factor
+
+```
+d    = days between this workout and the muscle's last stimulated workout
+
+N_m  = 1                           if d ≤ 7, or there is no previous stimulated workout
+     = 1 + 0.5 × (d − 7) / 14      if 7 < d < 21
+     = 1.5                         if d ≥ 21
+
+F'_m = N_m × F_m
+```
+
+A **stimulated workout** for muscle `m` is a workout where `S_m ≥ 0.5`,
+counting both primary and secondary work. The current workout is excluded
+when looking for the previous one.
+
+| Days since last stimulated | ≤ 7 | 10 | 14 | 17 | 21+ |
+|---|---|---|---|---|---|
+| N | 1.00 | 1.11 | 1.25 | 1.36 | 1.50 |
+
+**In plain terms:** a muscle that hasn't been trained for a while takes more
+of a hit from the same workout. This is the repeated bout effect: a recent
+workout protects the muscle against damage from the next one, and that
+protection fades with time off. Up to 7 days there is no extra cost. It
+rises steadily to 25 % extra at 14 days and is capped at 50 % extra from 21
+days.
+
+- It applies to every muscle, after the workout's fatigue sets have been
+  summed (A3.4).
+- Because it multiplies fatigue, it makes both the drop and the recovery
+  time bigger.
+- A workout with less than 0.5 stimulus sets for a muscle still applies its
+  fatigue, but doesn't reset that muscle's clock. One token set doesn't
+  count as having trained it.
+- Stimulus is not affected.
+- With no training history (e.g. a new user), `N = 1`, so people who have
+  been training elsewhere aren't over-penalised.
+
+#### A3.6 Readiness drop
+
+```
+drop = a × F'_m
+R0   = max(5, R_now − drop)
+```
+
+**In plain terms:**
+
+- `R_now` is the muscle's readiness at the workout time: 100 if it is fully
+  recovered, lower if it is still recovering from a previous workout.
+- Each fatigue set, after the novelty factor, takes `a` points off
+  (default 20).
+- `R0` is the muscle's readiness immediately after the workout. It cannot
+  go below 5 %.
+
+#### A3.7 Recovery time
+
+```
+deficit = 100 − R0
+T       = T_m × deficit / 50
+```
+
+where `T_m` is `T_fast`, `T_normal` or `T_slow`, depending on the muscle's
+recovery type.
+
+**In plain terms:** the deficit is how far below 100 % the muscle is, and
+recovery time is directly proportional to it. `T_m` is how long the muscle
+takes to recover a 50-point deficit; a 25-point deficit takes half as long,
+and a 75-point deficit 1.5× as long. Each muscle therefore recovers at a
+fixed average speed of `50 / T_m` points per hour.
+
+#### A3.8 Readiness over time
+
+```
+R(t) = R0 + deficit × ((t − t0) / T)²     for t0 ≤ t < t0 + T
+R(t) = 100                                for t ≥ t0 + T
+```
+
+`t0` is the time of the workout that set `R0`.
+
+**In plain terms:** `(t − t0) / T` is the fraction of the recovery window
+that has passed. Squaring it gives the fraction of the deficit recovered so
+far:
+
+| Window elapsed | 25 % | 50 % | 75 % | 100 % |
+|---|---|---|---|---|
+| Deficit recovered | 6 % | 25 % | 56 % | 100 % |
+
+Recovery is slow at first and fastest just before full recovery, landing on
+exactly 100 % at time `t0 + T`. A muscle that has never been trained is at
+100 %.
+
+#### A3.9 Training a muscle before it has recovered
+
+When a new workout trains muscle `m`:
+
+1. Evaluate `R_now = R(workout time)` from the muscle's current recovery
+   curve.
+2. Apply A3.5 and A3.6 to get the new `R0`.
+3. Apply A3.7 to get the new `T` from the new, larger deficit.
+4. Replace the muscle's recovery curve with the new `R0`, `t0` and `T`. If
+   `S_m ≥ 0.5`, also record this workout as the muscle's last stimulated
+   workout.
+
+**In plain terms:** leftover fatigue makes the next drop go deeper and the
+next recovery take longer. Each muscle has one active recovery curve at a
+time, defined by three numbers (`R0`, `t0` and `T`), plus the time it was
+last stimulated, which the novelty factor needs.
+
+### A4. When to recompute
+
+Readiness depends on the order of workouts, so each muscle's state is built
+by processing workouts in order of completion time:
+
+- **Workout saved at the latest time:** apply it incrementally (A3.9).
+- **Workout edited, deleted or back-dated:** rebuild every muscle's state
+  by replaying all workouts from a lookback window in chronological order.
+  A 60-day window is ample. The longest possible recovery is
+  `T_m × 95 / 50 = 1.9 × T_m` (114 h at `T_slow` = 60 h), and the novelty
+  factor needs up to 21 days of earlier history to know when each muscle
+  was last stimulated.
+- **Settings changed** (`a`, any `T_m`, a muscle's recovery type, or an
+  exercise's muscle groups or contributions): full replay.
+
+Readiness is evaluated when it's needed, with `R(now)` from A3.8; nothing
+time-dependent needs to be stored.
+
+### A5. Formula summary
+
+```
+Per set, per muscle:   s = max(0, 1 − RIR/10) × contribution
+                       f = s × R(reps)         R = 1 (≤ 8 reps), +0.05 per rep above 8, max 1.25
+
+Per workout:           S_m  = Σ s              (output: stimulus sets for the muscle)
+                       F_m  = Σ f
+                       F'_m = N_m × F_m        N = 1 up to 7 days since S_m ≥ 0.5, 1.25 at 14 days, 1.5 at 21+ days
+                       R0   = max(5, R_now − a × F'_m)
+                       T    = T_m × (100 − R0) / 50
+
+Over time:             R(t) = R0 + (100 − R0) × ((t − t0)/T)²     100 % once t ≥ t0 + T
+```
+
+### A6. Not in the engine
+
+- **Weight** is logged but unused here. It could later power automatic
+  calibration of `a` and `T_m` from performance (for example, if a muscle
+  shown at 100 % performs below its recent best, lengthen its `T_m`).
+- **Very low reps (< 5)** may give less stimulus per set than the formula
+  assigns. Revisit if heavy low-rep work is common.
+- **Weekly stimulus totals and display** of readiness or stimulus are
+  outside the engine: GYM-014 to GYM-018.
