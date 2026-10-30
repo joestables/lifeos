@@ -2,6 +2,37 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#55](https://github.com/joestables/lifeos/pull/55) — Production bug hunt: one notification for one moment, a quiet health check
+
+Branch `claude/lifeos-production-bug-hunt-siwl01` · 2026-10-30
+
+**What it did**
+- **Hunted** the whole app in production: Supabase logs, advisors, cron
+  runs, `ops.events` and `ops.health_runs`; the live data checked against
+  the specs' rules; Edge Functions against the repository; every
+  `SECURITY DEFINER` function a signed-in stranger can call; the
+  signed-out app in a browser; Reminder times across the clock change of
+  25 October; and the write queue, overlay, Shopping, moving Meals, the
+  service worker and notifications read.
+- **Two notifications at once:** "Put the bins out" buzzed twice at 20:00
+  on 27 October, its default and a Reminder Joe set at its time (New task
+  doesn't show the default). `stage4b_bug_hunt`: two of a person's
+  Reminders on one Item at the same moment reach each device once, the
+  oldest's, and snoozing it doesn't send the other. Database tests in
+  `one_notification_test`.
+- **The health check was red four nights of five:** it counted each AI
+  use in `ops.events` as a problem. It now leaves them out (`ai_failed`
+  still counts); a test in `ops_events_test`. Applied by the tool;
+  advisors: nothing new.
+
+**Documents touched:** reminders (REM-004 2), ADR-0044, the runbook, the
+Stage 4b plan.
+
+**Left for later:** findings reported to Joe and not fixed: a Task's
+Reminder list still shows its default beside an identical one; leftovers
+left before their Meal by a move on 26 October, before #54; Googlebot's
+refused reports from `registerSW.js`.
+
 ## [#54](https://github.com/joestables/lifeos/pull/54) — Leftovers when a Meal moves, ticks offline, faded Recipes
 
 Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-27
