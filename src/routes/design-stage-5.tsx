@@ -2,15 +2,17 @@ import { createFileRoute, notFound } from '@tanstack/react-router'
 import {
   ArchiveIcon,
   ArrowLeftRightIcon,
+  BicepsFlexedIcon,
   CalendarDaysIcon,
   CheckIcon,
   ChefHatIcon,
+  ClipboardListIcon,
+  CopyIcon,
   DumbbellIcon,
   EllipsisIcon,
   FootprintsIcon,
   HistoryIcon,
   InboxIcon,
-  ListIcon,
   PencilIcon,
   PlusIcon,
   RotateCcwIcon,
@@ -22,47 +24,65 @@ import {
   StickyNoteIcon,
   TargetIcon,
   Trash2Icon,
+  TrophyIcon,
   UndoIcon,
   UtensilsIcon,
   WalletIcon,
   WrenchIcon,
+  GaugeIcon,
   ActivityIcon,
-  UndoDotIcon,
+  ArchiveRestoreIcon,
 } from 'lucide-react'
 import type { ReactNode } from 'react'
 import {
   AppShell,
+  BackLink,
   BodyMap,
   CardRow,
   ChartKey,
-  ExerciseBlock,
-  ItemRow,
-  MuscleReadiness,
+  ExerciseCard,
+  FilterLayout,
+  FilterPanel,
+  FilterSection,
+  FormNotes,
+  LinePill,
+  ListDetail,
+  LogSetButton,
+  LookAhead,
+  MuscleChoice,
   OverallReadiness,
   PageAction,
   PageHeader,
+  PanelFooter,
+  PanelHeading,
+  PanelRow,
   PickRow,
   ProgressChart,
-  ReadinessBar,
-  ReadinessScale,
+  RangeFilter,
+  ReadinessRing,
   SectionLabel,
-  SetHeads,
-  SetRow,
+  SetLine,
   SideColumns,
   SortMenu,
+  StarRating,
+  StatTile,
+  StepperField,
   StimulusRow,
   TabsRow,
-  TemplateExercise,
   TypeBadge,
   TypeScope,
   TypeTile,
   ValueStepper,
+  WorkoutStatePill,
+  type ChartLine,
   type DrawerPage,
+  type LineDash,
+  type WorkoutState,
 } from '@/components/lifeos'
 import { Fab } from '@/components/lifeos/Fab'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardTitle } from '@/components/ui/card'
+import { Card } from '@/components/ui/card'
 import {
   Dialog,
   DialogContent,
@@ -79,6 +99,15 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination'
+import { RadioCard, RadioGroup } from '@/components/ui/radio-group'
 import {
   Select,
   SelectContent,
@@ -100,9 +129,9 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 
 /**
  * Stage 5's screens, the Gym, drawn with the real components and made-up
- * data, for Joe to agree in the design step (Stage 5 plan, step 3). In
- * development and preview builds only, as /design is. `?screen=` chooses
- * the screen.
+ * data, for Joe to agree in the design step (Stage 5 plan, step 3; second
+ * pass after his comments of 31 October). In development and preview
+ * builds only, as /design is. `?screen=` chooses the screen.
  */
 export const Route = createFileRoute('/design-stage-5')({
   beforeLoad: () => {
@@ -166,21 +195,17 @@ function SmallSelect({
   value,
   options,
   label,
-  full = false,
+  placeholder,
 }: {
-  value: string
+  value?: string
   options: string[]
   label: string
-  full?: boolean
+  placeholder?: string
 }) {
   return (
     <Select defaultValue={value}>
-      <SelectTrigger
-        size={full ? 'default' : 'sm'}
-        aria-label={label}
-        className={full ? 'w-full' : 'w-auto'}
-      >
-        <SelectValue />
+      <SelectTrigger aria-label={label} className="w-full">
+        <SelectValue placeholder={placeholder} />
       </SelectTrigger>
       <SelectContent>
         {options.map((o) => (
@@ -193,9 +218,41 @@ function SmallSelect({
   )
 }
 
-const workout = <TypeTile colour="coral" icon={DumbbellIcon} />
-const template = <TypeTile colour="coral" icon={ListIcon} />
-const exercise = <TypeTile colour="coral" icon={ActivityIcon} />
+function Search({ placeholder }: { placeholder: string }) {
+  return (
+    <div className="relative min-w-0 flex-1">
+      <SearchIcon
+        aria-hidden
+        className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
+      />
+      <Input placeholder={placeholder} className="pl-9" aria-label={placeholder} />
+    </div>
+  )
+}
+
+/** The page body's padding, as every page has it. */
+function Body({
+  phone,
+  narrow = false,
+  children,
+}: {
+  phone?: boolean
+  narrow?: boolean
+  children: ReactNode
+}) {
+  return (
+    <div
+      className={`flex flex-col gap-5 px-5 sm:px-9 ${narrow ? 'max-w-3xl' : ''} ${phone ? 'pb-28' : 'pb-12'}`}
+    >
+      {children}
+    </div>
+  )
+}
+
+const workoutTile = <TypeTile colour="coral" icon={DumbbellIcon} />
+const templateTile = <TypeTile colour="coral" icon={ClipboardListIcon} />
+const exerciseTile = <TypeTile colour="coral" icon={BicepsFlexedIcon} />
+const smallExercise = <TypeTile size="sm" colour="coral" icon={BicepsFlexedIcon} />
 
 type Tab = 'workouts' | 'recovery' | 'progression'
 
@@ -203,22 +260,18 @@ function GymPage({
   tab,
   phone = false,
   action,
-  wide = false,
   children,
 }: {
   tab: Tab
   phone?: boolean
   action?: string
-  wide?: boolean
   children: ReactNode
 }) {
   return (
     <Shell>
       <TypeScope colour="coral">
         <PageHeader title="Gym" action={action ? { label: action, onClick: nothing } : undefined} />
-        <div
-          className={`flex flex-col gap-6 px-5 sm:px-9 ${wide ? '' : 'max-w-3xl'} ${phone ? 'pb-28' : 'pb-12'}`}
-        >
+        <Body phone={phone}>
           <TabsRow>
             <Tabs defaultValue={tab}>
               <TabsList>
@@ -230,73 +283,375 @@ function GymPage({
             {action && <PageAction label={action} onClick={nothing} />}
           </TabsRow>
           {children}
-        </div>
+        </Body>
         {phone && action && <Fab label={action} />}
       </TypeScope>
     </Shell>
   )
 }
 
-/* ---------- Workouts ---------- */
+/** A Gym page reached from another: a BackLink, its title, and its body. */
+function SubPage({
+  back,
+  title,
+  phone = false,
+  narrow = false,
+  action,
+  trailing,
+  children,
+}: {
+  back: string
+  title: string
+  phone?: boolean
+  narrow?: boolean
+  action?: string
+  trailing?: ReactNode
+  children: ReactNode
+}) {
+  return (
+    <Shell>
+      <TypeScope colour="coral">
+        <PageHeader
+          back={{ label: back, onClick: nothing }}
+          title={title}
+          trailing={trailing}
+          action={phone && action ? { label: action, onClick: nothing } : undefined}
+        />
+        <Body phone={phone} narrow={narrow}>
+          {children}
+        </Body>
+      </TypeScope>
+    </Shell>
+  )
+}
 
-const TEMPLATES = [
-  ['Push A', '5 exercises · 15 sets · Last Mon'],
-  ['Pull A', '6 exercises · 17 sets · Last Sat'],
-  ['Legs', '5 exercises · 14 sets · Last Thu 24 Oct'],
-  ['Upper', '7 exercises · 18 sets · Never'],
-] as const
+/** A workout's line of facts under its title: its state pill, then muted facts. */
+function Facts({ state, items }: { state?: WorkoutState; items: string[] }) {
+  return (
+    <div className="-mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-sm text-muted-foreground tabular-nums">
+      {state && <WorkoutStatePill state={state} />}
+      {items.map((t, i) => (
+        <span key={t} className="flex items-center gap-3">
+          {(i > 0 || state) && (
+            <span aria-hidden className="size-1 rounded-full bg-muted-foreground/50" />
+          )}
+          {t}
+        </span>
+      ))}
+    </div>
+  )
+}
 
-const WORKOUTS: [string, string[], string?][] = [
-  ['Push A', ['Mon 28 Oct', '1 h 04', '6 exercises', '17 sets', 'Went 4/5']],
-  ['Pull A', ['Sat 26 Oct', '58 min', '6 exercises', '16 sets', 'Went 3/5']],
-  ['Legs', ['Thu 24 Oct', '1 h 11', '5 exercises', '15 sets', 'Went 5/5']],
-  ['Upper', ['Tue 22 Oct'], 'Skipped'],
-  ['Push A', ['Mon 21 Oct', '1 h 02', '5 exercises', '15 sets', 'Went 4/5']],
+/* ---------- Data ---------- */
+
+const RECENT: [string, string[], WorkoutState][] = [
+  ['Push A', ['Mon 28 Oct', '1 h 04', '6 exercises', '17 sets'], 'complete'],
+  ['Pull A', ['Sat 26 Oct', '58 min', '6 exercises', '16 sets'], 'complete'],
+  ['Legs', ['Thu 24 Oct', '1 h 11', '5 exercises', '15 sets'], 'complete'],
+  ['Upper', ['Tue 22 Oct'], 'skipped'],
+  ['Push A', ['Mon 21 Oct', '1 h 02', '5 exercises', '15 sets'], 'complete'],
+  ['Pull A', ['Sat 19 Oct', '1 h 06', '6 exercises', '17 sets'], 'complete'],
+  ['Legs', ['Thu 17 Oct', '1 h 14', '5 exercises', '16 sets'], 'complete'],
+  ['Push A', ['Tue 15 Oct', '57 min', '5 exercises', '14 sets'], 'complete'],
 ]
 
-function Workouts({ phone = false }: { phone?: boolean }) {
+const TEMPLATES: [string, string][] = [
+  ['Push A', '5 exercises · 15 sets · Mon'],
+  ['Pull A', '6 exercises · 17 sets · Sat'],
+  ['Legs', '5 exercises · 14 sets · Thu 24 Oct'],
+  ['Upper', '7 exercises · 18 sets · 8 Oct'],
+  ['Push B', '5 exercises · 14 sets · 1 Oct'],
+  ['Arms and abs', '6 exercises · 15 sets · 24 Sep'],
+  ['Pull B', '6 exercises · 16 sets · 17 Sep'],
+  ['Full body', '6 exercises · 12 sets · 2 Sep'],
+]
+
+/* ---------- Workouts tab ---------- */
+
+function TodayCard({ upNext = false, phone = false }: { upNext?: boolean; phone?: boolean }) {
+  return (
+    <Card className="gap-3">
+      <PanelHeading title="Today">
+        <span className="text-sm text-muted-foreground">Thu 31 Oct</span>
+      </PanelHeading>
+      {upNext ? (
+        <div className="flex flex-col">
+          <span className="pb-1 text-sm text-muted-foreground">Nothing planned. Up next:</span>
+          {[
+            ['Legs', 'Quads and glutes 100 % · 1.4 of 4 sets this week'],
+            ['Push A', 'Chest 94 % · 2.6 of 4 sets this week'],
+            ['Upper', 'Lats 41 %, still recovering'],
+          ].map(([name, why], i) => (
+            <PanelRow
+              key={name}
+              leading={
+                <span className="grid size-8 shrink-0 place-items-center rounded-md bg-muted text-sm font-bold text-muted-foreground tabular-nums">
+                  {i + 1}
+                </span>
+              }
+              title={name}
+              meta={[why]}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="flex flex-col">
+          <PanelRow
+            leading={workoutTile}
+            title="Pull A"
+            meta={
+              phone ? ['Started 18:02', '42 min'] : ['Started 18:02', '42 min', '3 of 6 exercises']
+            }
+            trailing={<WorkoutStatePill state="in-progress" />}
+          />
+        </div>
+      )}
+    </Card>
+  )
+}
+
+function RecentCard({ count, phone = false }: { count: number; phone?: boolean }) {
+  return (
+    <Card className="gap-3">
+      <PanelHeading title="Recent workouts" />
+      <div className="flex flex-col">
+        {RECENT.slice(0, count).map(([name, meta, state], i) => (
+          <PanelRow
+            key={i}
+            leading={workoutTile}
+            title={name}
+            meta={phone ? meta.filter((m) => !m.includes('exercises')) : meta}
+            trailing={<WorkoutStatePill state={state} />}
+          />
+        ))}
+      </div>
+      <PanelFooter label="All workouts" />
+    </Card>
+  )
+}
+
+function TemplatesCard({ count }: { count: number }) {
+  return (
+    <Card className="gap-3">
+      <PanelHeading title="Templates" />
+      <div className="flex flex-col">
+        {TEMPLATES.slice(0, count).map(([name, meta]) => (
+          <PanelRow key={name} leading={templateTile} title={name} meta={[meta]} />
+        ))}
+      </div>
+      <PanelFooter label="All templates" />
+    </Card>
+  )
+}
+
+function Workouts({ phone = false, upNext = false }: { phone?: boolean; upNext?: boolean }) {
   return (
     <GymPage tab="workouts" phone={phone} action="New workout">
-      <section className="flex flex-col gap-1.5">
-        <SectionLabel>Today</SectionLabel>
-        <ItemRow
-          leading={workout}
-          title="Pull A"
-          meta={['In progress', '42 min', '3 of 6 exercises']}
-          trailing={
-            <Button variant="outline" size="sm">
-              Open
-            </Button>
-          }
-          onOpen={nothing}
+      {phone ? (
+        <div className="flex flex-col gap-4">
+          <TodayCard upNext={upNext} phone />
+          <RecentCard count={3} phone />
+          <TemplatesCard count={3} />
+        </div>
+      ) : (
+        <div className="grid items-start gap-5 lg:grid-cols-2">
+          <div className="flex flex-col gap-5">
+            <TodayCard upNext={upNext} />
+            <RecentCard count={5} />
+          </div>
+          <TemplatesCard count={6} />
+        </div>
+      )}
+    </GymPage>
+  )
+}
+
+/* ---------- All workouts ---------- */
+
+function PageNumbers() {
+  return (
+    <Pagination className="justify-center pt-1">
+      <PaginationContent>
+        <PaginationItem>
+          <PaginationPrevious href="#" />
+        </PaginationItem>
+        {[1, 2, 3].map((n) => (
+          <PaginationItem key={n}>
+            <PaginationLink href="#" isActive={n === 1}>
+              {n}
+            </PaginationLink>
+          </PaginationItem>
+        ))}
+        <PaginationItem>
+          <PaginationNext href="#" />
+        </PaginationItem>
+      </PaginationContent>
+    </Pagination>
+  )
+}
+
+const WORKOUT_SORT = [
+  { value: 'date', label: 'Date', initial: 'desc' as const },
+  { value: 'duration', label: 'Duration', initial: 'desc' as const },
+  { value: 'sets', label: 'Sets', initial: 'desc' as const },
+  { value: 'stimulus', label: 'Stimulus sets', initial: 'desc' as const },
+  { value: 'went', label: 'How it went', initial: 'desc' as const },
+  { value: 'motivation', label: 'Motivation', initial: 'desc' as const },
+]
+
+function WorkoutFilters() {
+  return (
+    <FilterPanel
+      active
+      onChange={nothing}
+      onReset={nothing}
+      groups={[
+        {
+          name: 'State',
+          values: ['Complete', 'In progress', 'Planned', 'Skipped'],
+          chosen: ['Complete'],
+          open: true,
+        },
+        {
+          name: 'Template',
+          values: ['Push A', 'Pull A', 'Legs', 'Upper', 'Push B', 'None'],
+          open: true,
+        },
+        {
+          name: 'Sets logged',
+          values: [],
+          summary: '12–24',
+          control: <RangeFilter min={0} max={30} value={[12, 24]} />,
+        },
+        {
+          name: 'Stimulus sets',
+          values: [],
+          control: <RangeFilter min={0} max={40} value={[0, 40]} />,
+        },
+        {
+          name: 'Exercises done',
+          values: [],
+          control: <RangeFilter min={0} max={10} value={[0, 10]} />,
+        },
+        {
+          name: 'Duration',
+          values: [],
+          control: <RangeFilter min={0} max={120} value={[0, 120]} format={(n) => `${n} min`} />,
+        },
+        { name: 'Exercise', values: ['Bench press', 'Lat pulldown', 'Squat', 'Romanian deadlift'] },
+        { name: 'Muscle trained', values: ['Chest', 'Lats', 'Quads', 'Hamstrings', 'Biceps'] },
+        {
+          name: 'How it went',
+          values: [],
+          control: <RangeFilter min={1} max={5} value={[1, 5]} format={(n) => `${n} ★`} />,
+        },
+        { name: 'Motivation', values: [], control: <RangeFilter min={1} max={5} value={[1, 5]} /> },
+      ]}
+    >
+      <FilterSection title="Dates">
+        <div className="grid grid-cols-2 gap-2">
+          <SmallSelect label="From" value="1 Aug" options={['1 Aug', '1 Sep', '1 Oct']} />
+          <SmallSelect label="To" value="Today" options={['Today', '1 Oct']} />
+        </div>
+      </FilterSection>
+    </FilterPanel>
+  )
+}
+
+function AllWorkouts({ phone = false }: { phone?: boolean }) {
+  const stats = (
+    <div className="grid grid-cols-3 gap-3">
+      <StatTile label="Average sets" value="16.4" />
+      <StatTile label="Average duration" value="1 h 02" />
+      <StatTile label={phone ? 'A week' : 'Workouts a week'} value="3.1" />
+    </div>
+  )
+  const list = (
+    <>
+      <div className="flex items-center gap-2">
+        <span className="flex-1 text-sm font-semibold text-muted-foreground tabular-nums">
+          48 workouts
+        </span>
+        {phone && (
+          <Button variant="outline" size="sm">
+            <SlidersHorizontalIcon /> Filters
+            <Badge variant="secondary">2</Badge>
+          </Button>
+        )}
+        <SortMenu options={WORKOUT_SORT} value="date" direction="desc" onChange={nothing} />
+      </div>
+      <Card className="gap-0 py-3">
+        {RECENT.filter((r) => r[2] === 'complete')
+          .concat(RECENT.filter((r) => r[2] === 'complete'))
+          .slice(0, phone ? 7 : 10)
+          .map(([name, meta, state], i) => (
+            <PanelRow
+              key={i}
+              leading={workoutTile}
+              title={name}
+              meta={phone ? meta.filter((m) => !m.includes('exercises')) : meta}
+              trailing={<WorkoutStatePill state={state} />}
+            />
+          ))}
+      </Card>
+      <PageNumbers />
+    </>
+  )
+  return (
+    <SubPage back="Gym" title="All workouts" phone={phone}>
+      {phone ? (
+        <>
+          {stats}
+          {list}
+        </>
+      ) : (
+        <FilterLayout filters={<WorkoutFilters />}>
+          {stats}
+          {list}
+        </FilterLayout>
+      )}
+    </SubPage>
+  )
+}
+
+/* ---------- All templates ---------- */
+
+function AllTemplates({ phone = false }: { phone?: boolean }) {
+  return (
+    <SubPage back="Gym" title="All templates" phone={phone} narrow action="New template">
+      <div className="flex items-center gap-3">
+        <span className="flex-1 text-sm font-semibold text-muted-foreground tabular-nums">
+          8 templates
+        </span>
+        <SortMenu
+          options={[
+            { value: 'recent', label: 'Most recently used', initial: 'desc' },
+            { value: 'popular', label: 'Most used this month', initial: 'desc' },
+            { value: 'exercises', label: 'Exercises', initial: 'desc' },
+            { value: 'sets', label: 'Sets', initial: 'desc' },
+            { value: 'az', label: 'A–Z', initial: 'asc' },
+          ]}
+          value="recent"
+          direction="desc"
+          onChange={nothing}
         />
-        <ItemRow
-          leading={workout}
-          title="Legs"
-          meta={['Planned', 'Thu 31 Oct']}
-          menu={more(null)}
-          onOpen={nothing}
-        />
-      </section>
-      <section className="flex flex-col gap-1.5">
-        <SectionLabel count={TEMPLATES.length}>Templates</SectionLabel>
+        <PageAction label="New template" onClick={nothing} />
+      </div>
+      <Card className="gap-0 py-3">
         {TEMPLATES.map(([name, meta]) => (
-          <ItemRow
+          <PanelRow
             key={name}
-            leading={template}
+            leading={templateTile}
             title={name}
             meta={[meta]}
-            trailing={
-              <Button variant="outline" size="sm">
-                Start
-              </Button>
-            }
-            menu={more(
+            trailing={more(
               <>
                 <DropdownMenuItem>
-                  <CalendarDaysIcon /> Plan for a day…
+                  <CopyIcon /> Duplicate
                 </DropdownMenuItem>
-                <DropdownMenuItem>Duplicate</DropdownMenuItem>
+                <DropdownMenuItem>
+                  <PencilIcon /> Rename
+                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem variant="destructive">
                   <Trash2Icon /> Delete
@@ -304,72 +659,52 @@ function Workouts({ phone = false }: { phone?: boolean }) {
               </>,
               name,
             )}
-            onOpen={nothing}
           />
         ))}
-        <Button variant="link" className="self-start pt-1">
-          New template
-        </Button>
-      </section>
-      <section className="flex flex-col gap-1.5">
-        <div className="flex items-center gap-2">
-          <SectionLabel className="mb-0 flex-1">All workouts</SectionLabel>
-          <Button variant="ghost" size="sm">
-            <SlidersHorizontalIcon /> Filters
-            <Badge variant="secondary">1</Badge>
-          </Button>
-          <SortMenu
-            options={[
-              { value: 'date', label: 'Date', initial: 'desc' },
-              { value: 'duration', label: 'Duration', initial: 'desc' },
-              { value: 'sets', label: 'Sets', initial: 'desc' },
-              { value: 'went', label: 'How it went', initial: 'desc' },
-              { value: 'motivation', label: 'Motivation', initial: 'desc' },
-            ]}
-            value="date"
-            direction="desc"
-            onChange={nothing}
-          />
-        </div>
-        {WORKOUTS.map(([name, meta, badge], i) => (
-          <ItemRow
-            key={i}
-            leading={workout}
-            title={name}
-            meta={meta}
-            trailing={badge && <Badge variant="outline">{badge}</Badge>}
-            onOpen={nothing}
-          />
-        ))}
-      </section>
-    </GymPage>
+      </Card>
+      <PageNumbers />
+    </SubPage>
   )
 }
 
-function NewWorkout() {
+/* ---------- New workout ---------- */
+
+function NewWorkout({ phone = false }: { phone?: boolean }) {
   return (
     <>
-      <Workouts />
+      <Workouts phone={phone} />
       <Dialog open>
-        <DialogContent>
+        <DialogContent data-colour="coral" className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>New workout</DialogTitle>
           </DialogHeader>
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-5">
             <Field label="Template">
+              <RadioGroup defaultValue="Push A" className="grid gap-2 sm:grid-cols-2">
+                <RadioCard
+                  value="Push A"
+                  title="Push A"
+                  description="5 exercises · 15 sets · Mon"
+                />
+                <RadioCard
+                  value="Pull A"
+                  title="Pull A"
+                  description="6 exercises · 17 sets · Sat"
+                />
+                <RadioCard value="Legs" title="Legs" description="5 exercises · 14 sets · Thu" />
+                <RadioCard value="Empty" title="Empty" description="Add exercises as you go" />
+              </RadioGroup>
               <SmallSelect
-                full
-                label="Template"
-                value="Legs"
-                options={['Empty', 'Push A', 'Pull A', 'Legs', 'Upper']}
+                label="Another template"
+                placeholder="Another template…"
+                options={['Upper', 'Push B', 'Arms and abs', 'Pull B', 'Full body']}
               />
             </Field>
             <Field label="Day">
               <SmallSelect
-                full
                 label="Day"
-                value="Today"
-                options={['Today', 'Tomorrow', 'Thu 31 Oct']}
+                value="Today, Thu 31 Oct"
+                options={['Today, Thu 31 Oct', 'Tomorrow, Fri 1 Nov', 'Sat 2 Nov']}
               />
             </Field>
           </div>
@@ -385,11 +720,11 @@ function NewWorkout() {
 
 /* ---------- A workout in progress ---------- */
 
-const exerciseMenu = (begun: boolean) =>
+const sessionMenu = (begun: boolean, name: string) =>
   more(
     <>
       <DropdownMenuItem>
-        <HistoryIcon /> Set history
+        <HistoryIcon /> Strength history
       </DropdownMenuItem>
       {!begun && (
         <DropdownMenuItem>
@@ -404,156 +739,425 @@ const exerciseMenu = (begun: boolean) =>
         <Trash2Icon /> Remove
       </DropdownMenuItem>
     </>,
-    'Exercise',
+    name,
   )
 
+const markDone = (phone?: boolean) =>
+  phone ? (
+    <Button variant="outline" size="icon-sm" aria-label="Mark done">
+      <CheckIcon />
+    </Button>
+  ) : (
+    <Button variant="outline" size="sm">
+      Mark done
+    </Button>
+  )
+
+function SessionExercises({ phone }: { phone?: boolean }) {
+  return (
+    <section className="flex flex-col gap-2">
+      <SectionLabel count={3}>Session</SectionLabel>
+      <ExerciseCard
+        name="Lat pulldown"
+        meta={['Working set 65 kg × 10', '3 of 3 sets']}
+        done
+        menu={sessionMenu(true, 'Lat pulldown')}
+      />
+      <ExerciseCard
+        name="Chest-supported row"
+        meta={['Working set 27.5 kg × 10', '2 of 3 sets']}
+        open
+        control={markDone(phone)}
+        menu={sessionMenu(true, 'Chest-supported row')}
+      >
+        <FormNotes>Chest on the pad at notch 4, elbows at 45°, pause at the top</FormNotes>
+        <div className="flex flex-col">
+          <SetLine n={1} weight="30" reps={10} rir={2} pr onRemove={nothing} />
+          <SetLine n={2} weight="30" reps={9} rir={1} onRemove={nothing} />
+        </div>
+        <LogSetButton label="Log set 3 of 3" />
+      </ExerciseCard>
+      <ExerciseCard
+        name="Incline curl"
+        meta={['Working set 12 kg × 10', '1 of 2 sets']}
+        control={markDone(phone)}
+        menu={sessionMenu(true, 'Incline curl')}
+      />
+    </section>
+  )
+}
+
+const BACKLOG = [
+  ['Face pull', 'Rear delts · 3 sets'],
+  ['Hammer curl', 'Brachialis · 2 sets'],
+  ['Shrug', 'Traps · 2 sets'],
+] as const
+
+function BacklogRows() {
+  return (
+    <>
+      {BACKLOG.map(([name, meta]) => (
+        <PanelRow
+          key={name}
+          leading={exerciseTile}
+          title={name}
+          meta={[meta]}
+          chevron={false}
+          trailing={
+            <>
+              <Button variant="outline" size="sm">
+                <PlusIcon /> Add
+              </Button>
+              {more(
+                <>
+                  <DropdownMenuItem>
+                    <HistoryIcon /> Strength history
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <ArrowLeftRightIcon /> Swap…
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem variant="destructive">
+                    <Trash2Icon /> Remove
+                  </DropdownMenuItem>
+                </>,
+                name,
+              )}
+            </>
+          }
+        />
+      ))}
+    </>
+  )
+}
+
+function SessionHeader({ phone }: { phone?: boolean }) {
+  return (
+    <PageHeader
+      back={{ label: 'Workouts', onClick: nothing }}
+      title="Pull A"
+      trailing={
+        <div className="flex items-center gap-1">
+          <Button size={phone ? 'sm' : 'default'}>End workout</Button>
+          {more(
+            <>
+              <DropdownMenuItem>
+                <PencilIcon /> Rename
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem variant="destructive">
+                <Trash2Icon /> Discard workout
+              </DropdownMenuItem>
+            </>,
+            'Workout',
+          )}
+        </div>
+      }
+    />
+  )
+}
+
+/** Option A: one column — the session, then the backlog under it. */
 function Session({ phone = false }: { phone?: boolean }) {
   return (
     <Shell>
       <TypeScope colour="coral">
-        <PageHeader
-          back={{ label: 'Workouts', onClick: nothing }}
-          eyebrow="In progress · 42 min"
-          title="Pull A"
-          trailing={<Button size={phone ? 'sm' : 'default'}>End workout</Button>}
-        />
-        <div className={`flex max-w-3xl flex-col gap-6 px-5 sm:px-9 ${phone ? 'pb-28' : 'pb-12'}`}>
-          <section className="flex flex-col gap-1.5">
-            <SectionLabel count={3}>Session</SectionLabel>
-            <ExerciseBlock
-              name="Lat pulldown"
-              meta="Lats · 3 of 3 · Best 65 × 10"
-              done
-              action={
-                <Button variant="ghost" size="sm" aria-label="Undo done">
-                  <CheckIcon /> Done
-                </Button>
-              }
-              menu={exerciseMenu(true)}
-            />
-            <ExerciseBlock
-              name="Chest-supported row"
-              meta="Traps · 2 of 3 · Best 30 × 10"
-              open
-              action={
-                <Button variant="outline" size="sm">
-                  Done
-                </Button>
-              }
-              menu={exerciseMenu(true)}
-            >
-              <SetHeads />
-              <SetRow n={1} weight="30" reps={10} rir={2} logged pr onRemove={nothing} />
-              <SetRow n={2} weight="30" reps={9} rir={1} logged onRemove={nothing} />
-              <SetRow n={3} weight="30" reps={10} rir={1} onRemove={nothing} />
-              <div className="flex items-center gap-2 pt-1">
-                <Button variant="ghost" size="sm">
-                  <PlusIcon /> Add set
-                </Button>
-                <span className="flex-1" />
-                <Button variant="link" className="text-sm">
-                  Last time: 27.5 × 10, 10, 9
-                </Button>
-              </div>
-            </ExerciseBlock>
-            <ExerciseBlock
-              name="Incline curl"
-              meta="Biceps · 1 of 2 · Best 12 × 11"
-              action={
-                <Button variant="outline" size="sm">
-                  Done
-                </Button>
-              }
-              menu={exerciseMenu(true)}
-            />
-          </section>
-          <section className="flex flex-col gap-1.5">
+        <SessionHeader phone={phone} />
+        <Body phone={phone} narrow>
+          <Facts state="in-progress" items={['Started 18:02', '42 min', '8 sets']} />
+          <SessionExercises phone={phone} />
+          <section className="flex flex-col gap-2">
             <SectionLabel count={3}>Backlog</SectionLabel>
-            {[
-              ['Face pull', 'Rear delts · 3 sets'],
-              ['Hammer curl', 'Brachialis · 2 sets'],
-              ['Shrug', 'Traps · 2 sets'],
-            ].map(([name, meta]) => (
-              <ItemRow
-                key={name}
-                leading={exercise}
-                title={name}
-                meta={[meta]}
-                trailing={
-                  <Button variant="outline" size="sm">
-                    Begin
-                  </Button>
-                }
-                menu={more(
-                  <>
-                    <DropdownMenuItem>
-                      <HistoryIcon /> Set history
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <ArrowLeftRightIcon /> Swap…
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem variant="destructive">
-                      <Trash2Icon /> Remove
-                    </DropdownMenuItem>
-                  </>,
-                  name,
-                )}
-              />
-            ))}
-            <Button variant="outline" size="sm" className="mt-1 self-start">
-              <PlusIcon /> Add exercise
-            </Button>
+            <Card className="gap-1 py-3">
+              <BacklogRows />
+              <Button variant="ghost" className="-mx-2 -mb-1 justify-start text-muted-foreground">
+                <PlusIcon /> Add exercise
+              </Button>
+            </Card>
           </section>
-        </div>
+        </Body>
       </TypeScope>
     </Shell>
   )
 }
 
-function Swap() {
+/** Option B: on a computer the backlog stays beside the session. */
+function SessionB() {
+  return (
+    <Shell>
+      <TypeScope colour="coral">
+        <SessionHeader />
+        <Body>
+          <Facts state="in-progress" items={['Started 18:02', '42 min', '8 sets']} />
+          <SideColumns>
+            <SessionExercises />
+            <Card className="gap-2">
+              <PanelHeading title="Backlog" count={3} />
+              <div className="flex flex-col">
+                <BacklogRows />
+              </div>
+              <Button variant="outline" size="sm" className="mt-1 self-start">
+                <PlusIcon /> Add exercise
+              </Button>
+            </Card>
+          </SideColumns>
+        </Body>
+      </TypeScope>
+    </Shell>
+  )
+}
+
+/* ---------- Logging a set ---------- */
+
+function LogSet({ phone = false, chips = false }: { phone?: boolean; chips?: boolean }) {
+  return (
+    <>
+      <Session phone={phone} />
+      <Dialog open>
+        <DialogContent data-colour="coral" className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Chest-supported row</DialogTitle>
+            <span className="text-sm text-muted-foreground tabular-nums">
+              Set 3 · Working set 27.5 kg × 10
+            </span>
+          </DialogHeader>
+          <div className="flex flex-col gap-4 py-1">
+            <StepperField label="Weight" hint="Steps of 2.5 kg">
+              <ValueStepper size="lg" label="Weight" value="30" unit="kg" />
+            </StepperField>
+            <StepperField label="Reps">
+              <ValueStepper size="lg" label="Reps" value="10" />
+            </StepperField>
+            {chips ? (
+              <div className="flex flex-col gap-2">
+                <span className="font-semibold">RIR</span>
+                <ToggleGroup
+                  defaultValue={['1']}
+                  aria-label="RIR"
+                  className="grid w-full grid-cols-6 self-stretch"
+                >
+                  {['0', '1', '2', '3', '4', '5'].map((n) => (
+                    <ToggleGroupItem
+                      key={n}
+                      value={n}
+                      className="h-10 justify-center text-base tabular-nums"
+                    >
+                      {n}
+                    </ToggleGroupItem>
+                  ))}
+                </ToggleGroup>
+              </div>
+            ) : (
+              <StepperField label="RIR" hint="Reps in reserve">
+                <ValueStepper size="lg" label="RIR" value="1" />
+              </StepperField>
+            )}
+            <Button variant="link" className="self-start">
+              Log without numbers
+            </Button>
+          </div>
+          <DialogFooter>
+            <Button variant="outline">Cancel</Button>
+            <Button>Log set</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
+  )
+}
+
+/* ---------- Adding and swapping ---------- */
+
+const GROUPS: [string, [string, number][]][] = [
+  [
+    'Push',
+    [
+      ['Chest', 6],
+      ['Front delts', 3],
+      ['Lateral delts', 3],
+      ['Triceps', 5],
+      ['Serratus', 1],
+    ],
+  ],
+  [
+    'Pull',
+    [
+      ['Lats', 5],
+      ['Traps', 3],
+      ['Rear delts', 3],
+      ['Biceps', 4],
+      ['Brachialis', 2],
+      ['Forearms', 2],
+    ],
+  ],
+  [
+    'Core',
+    [
+      ['Abs', 4],
+      ['Obliques', 2],
+      ['Erectors', 2],
+    ],
+  ],
+  [
+    'Legs',
+    [
+      ['Glutes', 4],
+      ['Quads', 5],
+      ['Hamstrings', 4],
+      ['Adductors', 2],
+      ['Abductors', 2],
+      ['Calves', 2],
+      ['Tibialis', 1],
+    ],
+  ],
+]
+
+function MuscleGroups() {
+  return (
+    <div className="flex flex-col gap-4">
+      {GROUPS.map(([cat, muscles]) => (
+        <section key={cat} className="flex flex-col gap-2">
+          <span className="text-xs font-semibold text-muted-foreground">{cat}</span>
+          <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3">
+            {muscles.map(([m, n]) => (
+              <MuscleChoice key={m} name={m} count={n} />
+            ))}
+          </div>
+        </section>
+      ))}
+    </div>
+  )
+}
+
+function MuscleExercises({ muscle }: { muscle: 'Chest' | 'Rear delts' }) {
+  const lists =
+    muscle === 'Chest'
+      ? {
+          primary: [
+            ['Bench press', 'Barbell · 60 kg × 8'],
+            ['Incline dumbbell press', 'Dumbbell · 24 kg × 10'],
+            ['Cable fly', 'Cable · 15 kg × 12'],
+            ['Machine chest press', 'Machine · 55 kg × 10'],
+          ],
+          secondary: [
+            ['Dips', 'Bodyweight · Chest 0.5'],
+            ['Push-up', 'Bodyweight · Chest 0.6'],
+          ],
+        }
+      : {
+          primary: [
+            ['Reverse pec deck', 'Machine · 45 kg × 12'],
+            ['Cable rear delt fly', 'Cable · 7.5 kg × 15'],
+          ],
+          secondary: [
+            ['Chest-supported row', 'Machine · Rear delts 0.4'],
+            ['Seated cable row', 'Cable · Rear delts 0.3'],
+          ],
+        }
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="flex flex-col">
+        <span className="px-1.5 pb-1 text-xs font-semibold text-muted-foreground">Primary</span>
+        {lists.primary.map(([n, m]) => (
+          <PickRow key={n} leading={smallExercise} title={n} meta={m} />
+        ))}
+      </div>
+      <div className="flex flex-col">
+        <span className="px-1.5 pb-1 text-xs font-semibold text-muted-foreground">Secondary</span>
+        {lists.secondary.map(([n, m]) => (
+          <PickRow key={n} leading={smallExercise} title={n} meta={m} />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function AddExercise({
+  phone = false,
+  muscle,
+  swap = false,
+}: {
+  phone?: boolean
+  muscle?: 'Chest' | 'Rear delts'
+  swap?: boolean
+}) {
+  return (
+    <>
+      <Session phone={phone} />
+      <Dialog open>
+        <DialogContent data-colour="coral" className="sm:max-w-lg">
+          <DialogHeader>
+            {muscle && <BackLink label="All muscle groups" className="-mb-1 self-start" />}
+            <DialogTitle>{swap ? 'Swap Face pull' : (muscle ?? 'Add exercise')}</DialogTitle>
+            {swap && <span className="text-sm text-muted-foreground">{muscle}</span>}
+          </DialogHeader>
+          <Search placeholder="Find an exercise" />
+          {muscle ? <MuscleExercises muscle={muscle} /> : <MuscleGroups />}
+        </DialogContent>
+      </Dialog>
+    </>
+  )
+}
+
+/* ---------- Strength history ---------- */
+
+function History() {
+  const days: [string, [string, number, number, boolean, string][]][] = [
+    [
+      'Sat 26 Oct · Pull A',
+      [
+        ['27.5', 10, 2, false, '38.5'],
+        ['27.5', 10, 1, false, '37.6'],
+        ['27.5', 9, 0, false, '35.8'],
+      ],
+    ],
+    [
+      'Thu 17 Oct · Pull A',
+      [
+        ['27.5', 9, 1, false, '36.7'],
+        ['27.5', 8, 1, false, '35.8'],
+        ['25', 10, 1, false, '34.2'],
+      ],
+    ],
+    [
+      'Mon 7 Oct · Upper',
+      [
+        ['30', 8, 0, true, '38.0'],
+        ['25', 10, 1, false, '34.2'],
+        ['25', 10, 2, false, '35.0'],
+        ['25', 9, 1, false, '33.3'],
+      ],
+    ],
+  ]
   return (
     <>
       <Session />
       <Dialog open>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent data-colour="coral" className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Swap Face pull</DialogTitle>
+            <DialogTitle>Chest-supported row</DialogTitle>
+            <span className="text-sm text-muted-foreground">Strength history · last 10 sets</span>
           </DialogHeader>
-          <div className="relative">
-            <SearchIcon
-              aria-hidden
-              className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
-            />
-            <Input placeholder="Find an exercise" className="pl-9" aria-label="Find an exercise" />
-          </div>
-          <div className="flex flex-col">
-            <span className="px-1.5 pt-1 pb-1 text-xs font-semibold text-muted-foreground">
-              Rear delts
-            </span>
-            <PickRow
-              leading={<TypeTile size="sm" colour="coral" icon={ActivityIcon} />}
-              title="Reverse pec deck"
-              meta="Machine · 45 × 12"
-            />
-            <PickRow
-              leading={<TypeTile size="sm" colour="coral" icon={ActivityIcon} />}
-              title="Cable rear delt fly"
-              meta="Cable · 7.5 × 15"
-            />
-            <PickRow
-              leading={<TypeTile size="sm" colour="coral" icon={ActivityIcon} />}
-              title="Rear delt raise"
-              meta="Dumbbell · 8 × 15"
-            />
-            <span className="px-1.5 pt-3 pb-1 text-xs font-semibold text-muted-foreground">
-              Others
-            </span>
-            <PickRow
-              leading={<TypeTile size="sm" colour="coral" icon={ActivityIcon} />}
-              title="Band pull-apart"
-              meta="Band"
-            />
+          <div className="flex flex-col gap-4">
+            {days.map(([day, sets]) => (
+              <section key={day} className="flex flex-col">
+                <div className="flex items-center justify-between px-1 pb-1 text-xs font-semibold text-muted-foreground">
+                  <span>{day}</span>
+                  <span>Strength</span>
+                </div>
+                {sets.map(([w, reps, rir, pr, s], i) => (
+                  <SetLine
+                    key={i}
+                    n={i + 1}
+                    weight={w}
+                    reps={reps}
+                    rir={rir}
+                    pr={pr}
+                    strength={s}
+                  />
+                ))}
+              </section>
+            ))}
           </div>
         </DialogContent>
       </Dialog>
@@ -561,36 +1165,42 @@ function Swap() {
   )
 }
 
-function OneToFive({ label, value }: { label: string; value: string }) {
-  return (
-    <Field label={label}>
-      <ToggleGroup defaultValue={[value]} aria-label={label} className="self-start">
-        {['1', '2', '3', '4', '5'].map((n) => (
-          <ToggleGroupItem key={n} value={n} className="w-10 justify-center tabular-nums">
-            {n}
-          </ToggleGroupItem>
-        ))}
-      </ToggleGroup>
-    </Field>
-  )
-}
+/* ---------- Ending ---------- */
 
-function End() {
+function End({ phone = false }: { phone?: boolean }) {
   return (
     <>
-      <Session />
+      <Session phone={phone} />
       <Dialog open>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent data-colour="coral" className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>End workout</DialogTitle>
           </DialogHeader>
-          <div className="flex flex-col gap-4">
-            <OneToFive label="How it went" value="4" />
-            <OneToFive label="Motivation beforehand" value="3" />
+          <div className="flex flex-col gap-5">
+            <Field label="How it went">
+              <div className="-ml-1.5">
+                <StarRating value={4} onChange={nothing} />
+              </div>
+            </Field>
+            <Field label="Motivation beforehand">
+              <ToggleGroup
+                defaultValue={['3']}
+                aria-label="Motivation beforehand"
+                className="grid w-full grid-cols-5 self-stretch"
+              >
+                {['1', '2', '3', '4', '5'].map((n) => (
+                  <ToggleGroupItem key={n} value={n} className="h-9 justify-center tabular-nums">
+                    {n}
+                  </ToggleGroupItem>
+                ))}
+              </ToggleGroup>
+            </Field>
             <Field label="Notes">
               <Textarea placeholder="Notes" />
             </Field>
-            <span className="text-sm text-muted-foreground">3 in the backlog are left out</span>
+            <Badge variant="outline" className="self-start">
+              3 in the backlog are left out
+            </Badge>
           </div>
           <DialogFooter>
             <Button variant="outline">Cancel</Button>
@@ -602,343 +1212,329 @@ function End() {
   )
 }
 
-function History() {
+/* ---------- The review ---------- */
+
+function ReviewExercise({
+  name,
+  working,
+  pr,
+  prSub,
+  sets,
+}: {
+  name: string
+  working: string
+  pr: string
+  prSub: string
+  sets: [string, number, number, boolean, string][]
+}) {
+  return (
+    <Card className="gap-4">
+      <h2 className="text-h2">{name}</h2>
+      <div className="grid grid-cols-2 gap-2">
+        <StatTile inset label="Working set" value={working} sub="Since 12 Oct" />
+        <StatTile inset icon={<TrophyIcon />} label="PR" value={pr} sub={prSub} />
+      </div>
+      <div className="flex flex-col">
+        <div className="flex items-center justify-between px-1 pb-1 text-xs font-semibold text-muted-foreground">
+          <span>This workout</span>
+          <span>Strength</span>
+        </div>
+        {sets.map(([w, reps, rir, isPr, s], i) => (
+          <SetLine key={i} n={i + 1} weight={w} reps={reps} rir={rir} pr={isPr} strength={s} />
+        ))}
+      </div>
+      <Button variant="outline" size="sm" className="self-start">
+        Update working set
+      </Button>
+    </Card>
+  )
+}
+
+function ReviewBody({ phone }: { phone?: boolean }) {
+  const stimulus = (
+    <Card className="gap-2">
+      <PanelHeading title="Stimulus sets" />
+      <StimulusRow muscle="Lats" sets={4.6} target={4} />
+      <StimulusRow muscle="Traps" sets={3.1} target={4} />
+      <StimulusRow muscle="Biceps" sets={3.4} target={4} />
+      <StimulusRow muscle="Rear delts" sets={2.2} target={4} />
+      <StimulusRow muscle="Brachialis" sets={1.6} target={3} />
+      <StimulusRow muscle="Forearms" sets={0.9} target={2} />
+    </Card>
+  )
+  const main = (
+    <div className="flex min-w-0 flex-col gap-4">
+      <Card className="gap-3">
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+          <StatTile inset label="Duration" value="58 min" />
+          <StatTile inset label="Sets" value="16" />
+          <StatTile inset label="How it went" value={<StarRating value={4} />} />
+          <StatTile inset label="Motivation" value="3 / 5" />
+        </div>
+        <p className="text-sm text-muted-foreground">Grip went on the last row set</p>
+      </Card>
+      <ReviewExercise
+        name="Chest-supported row"
+        working="27.5 kg × 10"
+        pr="30 kg × 10 @ 2"
+        prSub="Strength 42.0 · today"
+        sets={[
+          ['30', 10, 2, true, '42.0'],
+          ['30', 9, 1, false, '40.0'],
+          ['30', 10, 1, false, '41.0'],
+        ]}
+      />
+      <ReviewExercise
+        name="Lat pulldown"
+        working="65 kg × 10"
+        pr="70 kg × 9 @ 1"
+        prSub="Strength 93.3 · 12 Oct"
+        sets={[
+          ['65', 10, 2, false, '91.0'],
+          ['65', 9, 1, false, '86.7'],
+          ['65', 8, 1, false, '84.5'],
+        ]}
+      />
+    </div>
+  )
+  return phone ? (
+    <>
+      {main}
+      {stimulus}
+    </>
+  ) : (
+    <SideColumns>
+      {main}
+      {stimulus}
+    </SideColumns>
+  )
+}
+
+function Review({ phone = false }: { phone?: boolean }) {
+  return (
+    <SubPage
+      back="Workouts"
+      title="Pull A"
+      phone={phone}
+      trailing={more(
+        <>
+          <DropdownMenuItem>
+            <PencilIcon /> Edit
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem variant="destructive">
+            <Trash2Icon /> Delete
+          </DropdownMenuItem>
+        </>,
+        'Workout',
+      )}
+    >
+      <Facts state="complete" items={['Sat 26 Oct', '18:02–19:00']} />
+      <ReviewBody phone={phone} />
+    </SubPage>
+  )
+}
+
+function UpdateWorkingSet({ phone = false }: { phone?: boolean }) {
   return (
     <>
-      <Session />
+      <Review phone={phone} />
       <Dialog open>
-        <DialogContent>
+        <DialogContent data-colour="coral" className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Chest-supported row</DialogTitle>
+            <DialogTitle>Update working set</DialogTitle>
+            <span className="text-sm text-muted-foreground">Chest-supported row</span>
           </DialogHeader>
-          <div className="flex flex-col gap-4">
-            {[
-              [
-                'Sat 26 Oct',
-                [
-                  ['27.5', 10, 2, false],
-                  ['27.5', 10, 1, false],
-                  ['27.5', 9, 0, false],
-                ],
-              ],
-              [
-                'Thu 17 Oct',
-                [
-                  ['27.5', 9, 1, false],
-                  ['27.5', 8, 1, false],
-                ],
-              ],
-              [
-                'Mon 7 Oct',
-                [
-                  ['30', 8, 0, true],
-                  ['25', 10, 1, false],
-                ],
-              ],
-            ].map(([day, sets]) => (
-              <section key={day as string} className="flex flex-col gap-1">
-                <span className="text-sm font-semibold">{day as string}</span>
-                <SetsTable sets={sets as [string, number, number, boolean][]} />
-              </section>
-            ))}
+          <div className="grid grid-cols-2 gap-2">
+            <StatTile inset label="Now" value="27.5 kg × 10" />
+            <StatTile inset label="Best set today" value="30 kg × 10" sub="RIR 2 · Strength 42.0" />
           </div>
+          <div className="flex flex-col gap-4 py-1">
+            <StepperField label="Weight" hint="Steps of 2.5 kg">
+              <ValueStepper size="lg" label="Weight" value="30" unit="kg" />
+            </StepperField>
+            <StepperField label="Reps">
+              <ValueStepper size="lg" label="Reps" value="10" />
+            </StepperField>
+          </div>
+          <DialogFooter>
+            <Button variant="outline">Cancel</Button>
+            <Button>Update</Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </>
   )
 }
 
-function epley(w: string, reps: number, rir: number) {
-  return (Number(w) * (1 + (reps + rir) / 30)).toFixed(1)
-}
-
-function SetsTable({ sets }: { sets: [string, number, number, boolean][] }) {
-  return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Set</TableHead>
-          <TableHead className="text-right">kg</TableHead>
-          <TableHead className="text-right">Reps</TableHead>
-          <TableHead className="text-right">RIR</TableHead>
-          <TableHead className="text-right">Epley</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {sets.map(([w, reps, rir, pr], i) => (
-          <TableRow key={i}>
-            <TableCell className="tabular-nums">
-              {i + 1}{' '}
-              {pr && (
-                <TypeBadge colour="coral" className="ml-1">
-                  PR
-                </TypeBadge>
-              )}
-            </TableCell>
-            <TableCell className="text-right tabular-nums">{w}</TableCell>
-            <TableCell className="text-right tabular-nums">{reps}</TableCell>
-            <TableCell className="text-right tabular-nums">{rir}</TableCell>
-            <TableCell className="text-right text-muted-foreground tabular-nums">
-              {epley(w, reps, rir)}
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
-  )
-}
-
-/* ---------- The review ---------- */
-
-function Review({ phone = false }: { phone?: boolean }) {
-  return (
-    <Shell>
-      <TypeScope colour="coral">
-        <PageHeader
-          back={{ label: 'Workouts', onClick: nothing }}
-          eyebrow="Done · Sat 26 Oct · 58 min"
-          title="Pull A"
-          trailing={more(
-            <>
-              <DropdownMenuItem>
-                <PencilIcon /> Edit
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem variant="destructive">
-                <Trash2Icon /> Delete
-              </DropdownMenuItem>
-            </>,
-            'Workout',
-          )}
-        />
-        <div className={`flex flex-col gap-5 px-5 sm:px-9 ${phone ? 'pb-28' : 'pb-12'}`}>
-          <SideColumns>
-            <div className="flex min-w-0 flex-col gap-4">
-              <Card className="flex-row flex-wrap gap-x-8 gap-y-2">
-                {[
-                  ['How it went', '4 / 5'],
-                  ['Motivation beforehand', '3 / 5'],
-                  ['Sets', '16'],
-                ].map(([k, v]) => (
-                  <div key={k} className="flex flex-col">
-                    <span className="text-sm text-muted-foreground">{k}</span>
-                    <span className="text-h2 tabular-nums">{v}</span>
-                  </div>
-                ))}
-                <p className="w-full text-sm text-muted-foreground">
-                  Grip went on the last row set
-                </p>
-              </Card>
-              <Card className="gap-3">
-                <div className="flex items-center gap-2">
-                  <CardTitle className="flex-1">Chest-supported row</CardTitle>
-                  <TypeBadge colour="coral">PR</TypeBadge>
-                </div>
-                <SetsTable
-                  sets={[
-                    ['30', 10, 2, true],
-                    ['30', 9, 1, false],
-                    ['30', 10, 1, false],
-                  ]}
-                />
-                <WorkingSet now={['27.5', 10]} suggest="30 × 10" />
-              </Card>
-              <Card className="gap-3">
-                <CardTitle>Lat pulldown</CardTitle>
-                <SetsTable
-                  sets={[
-                    ['65', 10, 2, false],
-                    ['65', 9, 1, false],
-                    ['65', 8, 1, false],
-                  ]}
-                />
-                <WorkingSet now={['65', 10]} />
-              </Card>
-            </div>
-            <Card className="gap-2 self-start">
-              <CardTitle>Stimulus sets</CardTitle>
-              <StimulusRow muscle="Lats" sets={4.6} target={4} />
-              <StimulusRow muscle="Traps" sets={3.1} target={4} />
-              <StimulusRow muscle="Biceps" sets={3.4} target={4} />
-              <StimulusRow muscle="Rear delts" sets={2.2} target={4} />
-              <StimulusRow muscle="Brachialis" sets={1.6} target={3} />
-              <StimulusRow muscle="Forearms" sets={0.9} target={0} />
-            </Card>
-          </SideColumns>
-        </div>
-      </TypeScope>
-    </Shell>
-  )
-}
-
-function WorkingSet({ now, suggest }: { now: [string, number]; suggest?: string }) {
-  return (
-    <div className="flex flex-col gap-2 rounded-control bg-muted/50 p-3">
-      <div className="flex flex-wrap items-center gap-3">
-        <span className="flex-1 text-sm font-semibold">Working set</span>
-        <ValueStepper label="Weight" width="lg" value={`${now[0]} kg`} />
-        <ValueStepper label="Reps" value={`× ${now[1]}`} />
-      </div>
-      {suggest && (
-        <div className="flex items-center gap-2 text-sm">
-          <span className="flex-1 text-muted-foreground">Beat it with 30 × 10 @ 2</span>
-          <Button variant="outline" size="sm">
-            Use {suggest}
-          </Button>
-        </div>
-      )}
-    </div>
-  )
-}
-
 /* ---------- A template ---------- */
 
 function TemplatePage({ phone = false }: { phone?: boolean }) {
-  return (
-    <Shell>
-      <TypeScope colour="coral">
-        <PageHeader
-          back={{ label: 'Workouts', onClick: nothing }}
-          title="Push A"
-          trailing={more(
-            <>
-              <DropdownMenuItem>
-                <PencilIcon /> Rename
-              </DropdownMenuItem>
-              <DropdownMenuItem>Duplicate</DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem variant="destructive">
-                <Trash2Icon /> Delete
-              </DropdownMenuItem>
-            </>,
-            'Template',
-          )}
+  const setsStepper = (n: number) => (
+    <ValueStepper size="sm" label="Sets" value={String(n)} unit="sets" canDown={n > 1} />
+  )
+  const tmplMenu = (name: string) =>
+    more(
+      <>
+        <DropdownMenuItem>
+          <ArrowLeftRightIcon /> Swap…
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem variant="destructive">
+          <Trash2Icon /> Remove
+        </DropdownMenuItem>
+      </>,
+      name,
+    )
+  const exercises = (
+    <section className="flex min-w-0 flex-col gap-2">
+      <SectionLabel count={5}>Exercises</SectionLabel>
+      {[
+        ['Bench press', 'Chest · Barbell', 3],
+        ['Overhead press', 'Front delts · Barbell', 3],
+        ['Incline dumbbell press', 'Chest · Dumbbell', 3],
+        ['Cable lateral raise', 'Lateral delts · Cable', 3],
+        ['Overhead triceps extension', 'Triceps · Cable', 3],
+      ].map(([name, meta, n]) => (
+        <ExerciseCard
+          key={name as string}
+          drag
+          name={name as string}
+          meta={[meta as string]}
+          control={setsStepper(n as number)}
+          menu={tmplMenu(name as string)}
         />
-        <div className={`flex flex-col gap-5 px-5 sm:px-9 ${phone ? 'pb-28' : 'pb-12'}`}>
-          <SideColumns>
-            <section className="flex min-w-0 flex-col gap-1.5">
-              <SectionLabel count={4}>Exercises</SectionLabel>
-              <TemplateExercise name="Bench press" meta="Chest · Barbell" rirs={[2, 1, 1]} />
-              <TemplateExercise name="Overhead press" meta="Front delts · Barbell" rirs={[2, 1]} />
-              <TemplateExercise
-                name="Cable lateral raise"
-                meta="Lateral delts · Cable"
-                rirs={[1, 1, 0]}
-              />
-              <TemplateExercise
-                name="Overhead triceps extension"
-                meta="Triceps · Cable"
-                rirs={[1]}
-              />
-              <Button variant="outline" size="sm" className="mt-1 self-start">
-                <PlusIcon /> Add exercise
-              </Button>
-            </section>
-            <Card className="gap-1 self-start">
-              <CardTitle className="pb-2">Coverage</CardTitle>
-              <span className="pt-1 text-xs font-semibold text-muted-foreground">Push</span>
-              <StimulusRow muscle="Chest" sets={2.6} target={4} />
-              <StimulusRow muscle="Front delts" sets={2.5} target={3} />
-              <StimulusRow muscle="Lateral delts" sets={2.7} target={4} />
-              <StimulusRow muscle="Triceps" sets={2.0} target={4} />
-              <span className="pt-2 text-xs font-semibold text-muted-foreground">Core</span>
-              <StimulusRow muscle="Abs" sets={0.2} target={3} />
-            </Card>
-          </SideColumns>
-        </div>
-      </TypeScope>
-    </Shell>
+      ))}
+      <Button variant="outline" size="sm" className="mt-1 self-start">
+        <PlusIcon /> Add exercise
+      </Button>
+    </section>
+  )
+  const coverage = (
+    <Card className="gap-1">
+      <PanelHeading title="Coverage">
+        <span className="text-sm text-muted-foreground">at RIR 1</span>
+      </PanelHeading>
+      <span className="pt-2 text-xs font-semibold text-muted-foreground">Push</span>
+      <StimulusRow muscle="Chest" sets={5.4} target={4} />
+      <StimulusRow muscle="Front delts" sets={4.3} target={3} />
+      <StimulusRow muscle="Lateral delts" sets={2.7} target={4} />
+      <StimulusRow muscle="Triceps" sets={4.0} target={4} />
+      <span className="pt-3 text-xs font-semibold text-muted-foreground">Core</span>
+      <StimulusRow muscle="Abs" sets={0.3} target={3} />
+    </Card>
+  )
+  return (
+    <SubPage
+      back="Workouts"
+      title="Push A"
+      phone={phone}
+      trailing={more(
+        <>
+          <DropdownMenuItem>
+            <PencilIcon /> Rename
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            <CopyIcon /> Duplicate
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem variant="destructive">
+            <Trash2Icon /> Delete
+          </DropdownMenuItem>
+        </>,
+        'Template',
+      )}
+    >
+      <Facts items={['5 exercises', '15 sets', 'Last used Mon 28 Oct']} />
+      {phone ? (
+        <>
+          {exercises}
+          {coverage}
+        </>
+      ) : (
+        <SideColumns>
+          {exercises}
+          {coverage}
+        </SideColumns>
+      )}
+    </SubPage>
   )
 }
 
 /* ---------- Recovery ---------- */
 
-const READINESS: Record<string, number> = {
-  Chest: 94,
-  'Front delts': 88,
-  'Lateral delts': 100,
-  Triceps: 97,
-  Lats: 41,
-  Traps: 56,
-  'Rear delts': 63,
-  Biceps: 48,
-  Brachialis: 72,
-  Forearms: 85,
-  Abs: 100,
-  Obliques: 100,
-  Erectors: 80,
-  Glutes: 100,
-  Quads: 100,
-  Hamstrings: 100,
-  Adductors: 100,
-  Abductors: 100,
-  Calves: 100,
-  Tibialis: 100,
-  Serratus: 90,
+const MUSCLES: [string, number, string, string, boolean?][] = [
+  ['Lats', 41, 'Push', 'Sat · 2 of 2 this week · 7.8 of 5 sets'],
+  ['Biceps', 48, 'Pull', 'Sat · 2 of 2 · 5.6 of 4 sets'],
+  ['Traps', 56, 'Pull', 'Sat · 2 of 2 · 4.4 of 4 sets'],
+  ['Rear delts', 63, 'Pull', 'Sat · 1 of 2 · 2.2 of 4 sets', true],
+  ['Brachialis', 72, 'Pull', 'Sat · 2 of 2 · 3.0 of 3 sets'],
+  ['Erectors', 80, 'Core', 'Thu · 1 of 2 · 1.4 of 3 sets', true],
+  ['Forearms', 85, 'Pull', 'Sat · 2 of 2 · 1.8 of 0 sets'],
+  ['Front delts', 88, 'Push', 'Mon · 1 of 2 · 2.5 of 3 sets', true],
+  ['Serratus', 90, 'Push', 'Mon · 1 of 1 · 1.2 of 1 set'],
+  ['Chest', 94, 'Push', 'Mon · 1 of 2 · 2.6 of 4 sets', true],
+  ['Triceps', 97, 'Push', 'Mon · 1 of 2 · 2.0 of 4 sets', true],
+  ['Lateral delts', 100, 'Push', 'Mon · 1 of 2 · 2.7 of 4 sets', true],
+  ['Quads', 100, 'Legs', 'Thu · 1 of 2 · 1.4 of 4 sets', true],
+  ['Glutes', 100, 'Legs', 'Thu · 1 of 2 · 2.4 of 4 sets', true],
+  ['Hamstrings', 100, 'Legs', 'Thu · 1 of 2 · 2.2 of 4 sets', true],
+]
+
+const READINESS: Record<string, number> = Object.fromEntries(MUSCLES.map(([m, p]) => [m, p]))
+
+function MuscleList({ selected }: { selected?: string }) {
+  return (
+    <Card className="gap-3">
+      <PanelHeading title="Muscle groups" count={21}>
+        <SortMenu
+          options={[
+            { value: 'readiness', label: 'Readiness', initial: 'asc' },
+            { value: 'recent', label: 'Most recently trained', initial: 'desc' },
+            { value: 'month', label: 'Most trained this month', initial: 'desc' },
+            { value: 'below', label: 'Furthest below target', initial: 'desc' },
+            { value: 'az', label: 'A–Z', initial: 'asc' },
+          ]}
+          value="readiness"
+          direction="asc"
+          onChange={nothing}
+        />
+      </PanelHeading>
+      <div className="flex flex-col">
+        {MUSCLES.map(([m, p, , meta, below]) => (
+          <PanelRow
+            key={m}
+            selected={selected === m}
+            leading={<ReadinessRing percent={p} />}
+            title={m}
+            meta={[meta]}
+            trailing={below ? <Badge variant="warning">Below target</Badge> : undefined}
+          />
+        ))}
+      </div>
+    </Card>
+  )
 }
 
-const CATEGORIES: [string, string[]][] = [
-  ['Push', ['Chest', 'Front delts', 'Lateral delts', 'Triceps', 'Serratus']],
-  ['Pull', ['Lats', 'Traps', 'Rear delts', 'Biceps', 'Brachialis', 'Forearms']],
-  ['Core', ['Abs', 'Obliques', 'Erectors']],
-  ['Legs', ['Glutes', 'Quads', 'Hamstrings', 'Adductors', 'Abductors', 'Calves', 'Tibialis']],
-]
+function MapCard({ selected }: { selected?: string }) {
+  return (
+    <Card className="gap-5">
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <OverallReadiness percent={82} when="Now" />
+      </div>
+      <LookAhead hours={0} />
+      <BodyMap readiness={READINESS} selected={selected} className="mx-auto w-full max-w-md py-2" />
+    </Card>
+  )
+}
 
 function Recovery({ phone = false, selected }: { phone?: boolean; selected?: string }) {
   return (
-    <GymPage tab="recovery" phone={phone} wide>
-      <div className="grid gap-5 lg:grid-cols-2">
-        <Card className="items-stretch gap-4">
-          <OverallReadiness percent={82} />
-          <BodyMap readiness={READINESS} selected={selected} className="mx-auto w-full max-w-md" />
-          <ReadinessScale className="mx-auto w-full max-w-xs" />
-        </Card>
-        <div className="flex min-w-0 flex-col gap-5">
-          <section className="flex flex-col gap-1.5">
-            <SectionLabel>Up next</SectionLabel>
-            {[
-              ['Legs', 'Quads and glutes 100 % · 1.4 of 4 sets this week'],
-              ['Push A', 'Chest 94 % · 2.6 of 4 sets this week'],
-              ['Upper', 'Lats 41 %, still recovering'],
-            ].map(([name, why], i) => (
-              <ItemRow
-                key={name}
-                leading={template}
-                title={`${i + 1}. ${name}`}
-                meta={[why]}
-                trailing={
-                  i === 0 ? (
-                    <Button variant="outline" size="sm">
-                      Plan for today
-                    </Button>
-                  ) : undefined
-                }
-              />
-            ))}
-          </section>
-          <section className="flex flex-col gap-1.5">
-            <SectionLabel count={3}>Below target</SectionLabel>
-            <Card className="gap-1 py-3">
-              <StimulusRow muscle="Quads" meta="1 of 2 workouts" sets={1.4} target={4} />
-              <StimulusRow muscle="Hamstrings" meta="1 of 2 workouts" sets={2.2} target={4} />
-              <StimulusRow muscle="Calves" meta="0 of 2 workouts" sets={0} target={3} />
-            </Card>
-          </section>
-        </div>
+    <GymPage tab="recovery" phone={phone}>
+      <div className="grid items-start gap-5 lg:grid-cols-2">
+        <MapCard selected={selected} />
+        <MuscleList selected={selected} />
       </div>
-      <section className="flex flex-col gap-2">
-        <SectionLabel>All muscle groups</SectionLabel>
-        <div className="grid gap-4 md:grid-cols-2">
-          {CATEGORIES.map(([cat, muscles]) => (
-            <Card key={cat} className="gap-1.5 py-4">
-              <CardTitle className="pb-1 text-sm text-muted-foreground">{cat}</CardTitle>
-              {muscles.map((m) => (
-                <MuscleReadiness key={m} muscle={m} percent={READINESS[m] ?? 100} />
-              ))}
-            </Card>
-          ))}
-        </div>
-      </section>
     </GymPage>
   )
 }
@@ -948,26 +1544,24 @@ function Muscle() {
     <>
       <Recovery selected="Lats" />
       <Dialog open>
-        <DialogContent className="sm:max-w-sm">
+        <DialogContent data-colour="coral" className="sm:max-w-sm">
           <DialogHeader>
             <DialogTitle>Lats</DialogTitle>
+            <span className="text-sm text-muted-foreground">Pull · recovers normally</span>
           </DialogHeader>
-          <div className="flex flex-col gap-4">
-            <ReadinessBar percent={41} />
+          <div className="flex items-center gap-4">
+            <ReadinessRing percent={41} size={64} />
             <div className="flex flex-col">
-              {[
-                ['Last trained', 'Sat 26 Oct'],
-                ['Workouts this week', '2 of 2'],
-                ['Stimulus sets this week', '7.8 of 4'],
-                ['Fully recovered', 'Wed 30 Oct, 21:00'],
-                ['Recovers', 'Normal · 42 h'],
-              ].map(([k, v]) => (
-                <div key={k} className="flex min-h-9 items-center justify-between gap-3 text-sm">
-                  <span className="text-muted-foreground">{k}</span>
-                  <span className="font-semibold tabular-nums">{v}</span>
-                </div>
-              ))}
+              <span className="text-h2 tabular-nums">41 % ready</span>
+              <span className="text-sm text-muted-foreground">
+                Fully recovered Sat 2 Nov, 09:00
+              </span>
             </div>
+          </div>
+          <div className="grid grid-cols-3 gap-2">
+            <StatTile inset label="Last trained" value="Sat" />
+            <StatTile inset label="Workouts" value="2 / 2" sub="this week" />
+            <StatTile inset label="Stimulus" value="7.8 / 5" sub="sets this week" />
           </div>
           <DialogFooter>
             <Button variant="outline">Progression</Button>
@@ -978,127 +1572,27 @@ function Muscle() {
   )
 }
 
-/* ---------- Progression ---------- */
-
-function Period() {
+function RecoveryAhead() {
   return (
-    <ToggleGroup defaultValue={['3m']} aria-label="Period">
-      <ToggleGroupItem value="1m">1 M</ToggleGroupItem>
-      <ToggleGroupItem value="3m">3 M</ToggleGroupItem>
-      <ToggleGroupItem value="1y">1 Y</ToggleGroupItem>
-    </ToggleGroup>
-  )
-}
-
-function ProgressionMuscles({ phone = false }: { phone?: boolean }) {
-  const rows: Record<string, [string, string, number?][]> = {
-    Push: [
-      ['Chest', '4.2 a week · 3 of 3 rising'],
-      ['Front delts', '2.9 a week · 1 of 2 rising'],
-      ['Lateral delts', '3.8 a week · 2 of 2 rising'],
-      ['Triceps', '3.1 a week · 1 of 3 rising', 1],
-    ],
-    Pull: [
-      ['Lats', '5.1 a week · 2 of 3 rising'],
-      ['Traps', '3.3 a week · 2 of 2 rising'],
-      ['Biceps', '3.6 a week · 0 of 2 rising', 2],
-    ],
-  }
-  return (
-    <GymPage tab="progression" phone={phone}>
-      <div className="flex flex-wrap items-center gap-3">
-        <ToggleGroup defaultValue={['muscles']} aria-label="Show">
-          <ToggleGroupItem value="muscles">Muscle groups</ToggleGroupItem>
-          <ToggleGroupItem value="exercises">Exercises</ToggleGroupItem>
-        </ToggleGroup>
-        <Period />
-      </div>
-      {Object.entries(rows).map(([cat, list]) => (
-        <section key={cat} className="flex flex-col gap-1.5">
-          <SectionLabel>{cat}</SectionLabel>
-          {list.map(([m, meta, stalled]) => (
-            <ItemRow
-              key={m}
-              leading={<TypeTile colour="coral" icon={ActivityIcon} />}
-              title={m}
-              meta={[meta]}
-              trailing={stalled ? <Badge variant="warning">{stalled} stalled</Badge> : undefined}
-              onOpen={nothing}
-            />
-          ))}
-        </section>
-      ))}
-    </GymPage>
-  )
-}
-
-const LIBRARY: [string, string, string?][] = [
-  ['Bench press', 'Barbell · Chest · 60 × 8 · PR 65 × 6 · Mon'],
-  ['Cable lateral raise', 'Cable · Lateral delts · 7.5 × 12 · Mon'],
-  ['Close-grip bench', 'Barbell · Triceps · 50 × 8 · 9 Oct', 'Stalled'],
-  ['Incline curl', 'Dumbbell · Biceps · 12 × 10 · Sat', 'Stalled'],
-  ['Lat pulldown', 'Cable · Lats · 65 × 10 · Sat'],
-  ['Overhead press', 'Barbell · Front delts · 40 × 6 · Mon'],
-]
-
-function Library({ phone = false }: { phone?: boolean }) {
-  return (
-    <GymPage tab="progression" phone={phone} action="New exercise">
-      <div className="flex flex-wrap items-center gap-3">
-        <ToggleGroup defaultValue={['exercises']} aria-label="Show">
-          <ToggleGroupItem value="muscles">Muscle groups</ToggleGroupItem>
-          <ToggleGroupItem value="exercises">Exercises</ToggleGroupItem>
-        </ToggleGroup>
-        <Period />
-      </div>
-      <div className="flex items-center gap-2">
-        <div className="relative flex-1">
-          <SearchIcon
-            aria-hidden
-            className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
-          />
-          <Input placeholder="Search exercises" className="pl-9" aria-label="Search exercises" />
-        </div>
-        <Button variant="ghost" size="sm">
-          <SlidersHorizontalIcon /> Filters
-        </Button>
-        <SortMenu
-          options={[
-            { value: 'az', label: 'A–Z', initial: 'asc' },
-            { value: 'last', label: 'Last done', initial: 'desc' },
-            { value: 'muscle', label: 'Primary muscle', initial: 'asc' },
-          ]}
-          value="az"
-          direction="asc"
-          onChange={nothing}
-        />
-      </div>
-      <section className="flex flex-col gap-1.5">
-        {LIBRARY.map(([name, meta, badge]) => (
-          <ItemRow
-            key={name}
-            leading={exercise}
-            title={name}
-            meta={[meta]}
-            trailing={badge && <Badge variant="warning">{badge}</Badge>}
-            menu={more(
-              <>
-                <DropdownMenuItem>
-                  <PencilIcon /> Edit
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <ArchiveIcon /> Archive
-                </DropdownMenuItem>
-              </>,
-              name,
+    <GymPage tab="recovery">
+      <div className="grid items-start gap-5 lg:grid-cols-2">
+        <Card className="gap-5">
+          <OverallReadiness percent={93} when="+18 h · Fri 12:00" />
+          <LookAhead hours={18} />
+          <BodyMap
+            readiness={Object.fromEntries(
+              MUSCLES.map(([m, p]) => [m, Math.min(100, Math.round(p + (100 - p) * 0.7))]),
             )}
-            onOpen={nothing}
+            className="mx-auto w-full max-w-md py-2"
           />
-        ))}
-      </section>
+        </Card>
+        <MuscleList />
+      </div>
     </GymPage>
   )
 }
+
+/* ---------- Progression ---------- */
 
 const WEEKS = [
   '5 Aug',
@@ -1115,197 +1609,412 @@ const WEEKS = [
   '21 Oct',
   '28 Oct',
 ]
+const CHEST_BARS = [3.8, 4.2, 4.4, 0, 3.9, 4.6, 4.1, 3.2, 4.8, 5.1, 4.4, 4.2, 3.6]
 
-function ExercisePage({ phone = false }: { phone?: boolean }) {
+function Period() {
   return (
-    <Shell>
-      <TypeScope colour="coral">
-        <PageHeader
-          back={{ label: 'Progression', onClick: nothing }}
-          title="Bench press"
-          trailing={more(
-            <>
-              <DropdownMenuItem>
-                <PencilIcon /> Edit
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <ArchiveIcon /> Archive
-              </DropdownMenuItem>
-            </>,
-            'Exercise',
-          )}
-        />
-        <div className={`flex flex-col gap-5 px-5 sm:px-9 ${phone ? 'pb-28' : 'pb-12'}`}>
-          <div className="flex flex-wrap gap-1.5">
-            <Badge variant="secondary">Barbell · 2.5 kg</Badge>
-            <TypeBadge colour="coral">Chest</TypeBadge>
-            <Badge variant="secondary">Triceps 0.4</Badge>
-            <Badge variant="secondary">Front delts 0.3</Badge>
-          </div>
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-            {[
-              ['Working set', '60 × 8', '78.0 at RIR 1'],
-              ['PR', '65 × 6 @ 1', '80.2 · 7 Oct'],
-              ['Goal', '70 × 8', '91.0 at RIR 1'],
-              ['3 months', '+6.4 %', 'Rising'],
-            ].map(([k, v, sub]) => (
-              <Card key={k} className="gap-0.5 p-4">
-                <span className="text-sm text-muted-foreground">{k}</span>
-                <span className="text-h2 tabular-nums">{v}</span>
-                <span className="text-xs text-muted-foreground tabular-nums">{sub}</span>
-              </Card>
-            ))}
-          </div>
-          <Card className="gap-3">
-            <div className="flex flex-wrap items-center gap-3">
-              <CardTitle className="flex-1">Epley strength</CardTitle>
-              <Period />
-            </div>
-            <ProgressChart
-              weeks={WEEKS}
-              lines={[
-                {
-                  id: 'best',
-                  label: 'Best set',
-                  style: 'strong',
-                  values: [71.5, 72, 72.6, null, 73.3, 74, 74.8, 74.2, 76, 80.2, 77.5, 78, 80],
-                  mark: 9,
-                },
-                {
-                  id: 'ws',
-                  label: 'Working set',
-                  style: 'dash',
-                  values: [72, 72, 72, 72, 74.4, 74.4, 74.4, 74.4, 74.7, 74.7, 78, 78, 78],
-                },
-              ]}
-              refs={[{ label: 'Goal 91.0', value: 91 }]}
-              bars={[3.8, 4.2, 4.4, 0, 3.9, 4.6, 4.1, 3.2, 4.8, 5.1, 4.4, 4.2, 3.6]}
-              target={4}
-              barsLabel="Chest · stimulus sets a week"
-            />
-            <ChartKey
-              items={[
-                { label: 'Best set', style: 'strong' },
-                { label: 'Working set', style: 'dash' },
-                { label: 'Goal', style: 'ref' },
-                { label: 'Stimulus sets', style: 'bar' },
-              ]}
-            />
-          </Card>
-          <Card className="gap-3">
-            <CardTitle>History</CardTitle>
-            <span className="text-sm font-semibold">Mon 28 Oct · Push A</span>
-            <SetsTable
-              sets={[
-                ['60', 8, 2, false],
-                ['60', 8, 1, false],
-                ['60', 7, 1, false],
-              ]}
-            />
-            <Button variant="link" className="self-start">
-              Show more
-            </Button>
-          </Card>
-        </div>
-      </TypeScope>
-    </Shell>
+    <ToggleGroup defaultValue={['3m']} aria-label="Period">
+      <ToggleGroupItem value="1m">1 M</ToggleGroupItem>
+      <ToggleGroupItem value="3m">3 M</ToggleGroupItem>
+      <ToggleGroupItem value="1y">1 Y</ToggleGroupItem>
+    </ToggleGroup>
   )
 }
 
-function MuscleProgress({ phone = false }: { phone?: boolean }) {
+function ProgressionBar({ view }: { view: 'muscles' | 'exercises' }) {
   return (
-    <Shell>
-      <TypeScope colour="coral">
-        <PageHeader back={{ label: 'Progression', onClick: nothing }} title="Chest" />
-        <div className={`flex flex-col gap-5 px-5 sm:px-9 ${phone ? 'pb-28' : 'pb-12'}`}>
-          <Card className="gap-3">
-            <div className="flex flex-wrap items-center gap-3">
-              <CardTitle className="flex-1">Change in Epley strength</CardTitle>
-              <Period />
-            </div>
-            <ProgressChart
-              weeks={WEEKS}
-              unit=" %"
-              lines={[
-                {
-                  id: 'bench',
-                  label: 'Bench press',
-                  style: 'strong',
-                  values: [0, 0.7, 1.5, null, 2.5, 3.5, 4.6, 3.8, 6.3, 12.2, 8.4, 9.1, 10.6],
-                },
-                {
-                  id: 'incline',
-                  label: 'Incline DB press',
-                  style: 'dash',
-                  values: [0, 1.2, null, 2.4, 2.4, 3.6, null, 4.9, 6.1, 6.1, 7.3, 8.5, 8.5],
-                },
-                {
-                  id: 'fly',
-                  label: 'Cable fly',
-                  style: 'dot',
-                  values: [0, null, 2, 2, 4, null, 4, 6, 6, 6, 6, 6, 6],
-                },
-                {
-                  id: 'dips',
-                  label: 'Dips (secondary 0.5)',
-                  style: 'muted',
-                  values: [0, 1, 1, 2, null, 2, 3, 3, 4, 4, null, 5, 5],
-                },
-              ]}
-              bars={[3.8, 4.2, 4.4, 0, 3.9, 4.6, 4.1, 3.2, 4.8, 5.1, 4.4, 4.2, 3.6]}
-              target={4}
-              barsLabel="Stimulus sets a week"
-            />
-            <ChartKey
-              items={[
-                { label: 'Bench press', style: 'strong' },
-                { label: 'Incline DB press', style: 'dash' },
-                { label: 'Cable fly', style: 'dot' },
-                { label: 'Dips', style: 'muted' },
-                { label: 'Stimulus sets', style: 'bar' },
-              ]}
-            />
-          </Card>
-          <section className="flex max-w-3xl flex-col gap-1.5">
-            <SectionLabel>Primary</SectionLabel>
-            {[
-              ['Bench press', '+10.6 % · Rising'],
-              ['Incline DB press', '+8.5 % · Rising'],
-              ['Cable fly', '+6.0 % · Flat for 5 weeks'],
-            ].map(([n, m]) => (
-              <ItemRow key={n} leading={exercise} title={n} meta={[m]} onOpen={nothing} />
-            ))}
-            <SectionLabel className="pt-3">Secondary</SectionLabel>
-            {[
-              ['Dips', 'Chest 0.5 · +5.0 % · Rising'],
-              ['Push-up', 'Chest 0.6 · No sets in 3 months'],
-            ].map(([n, m]) => (
-              <ItemRow key={n} leading={exercise} title={n} meta={[m]} onOpen={nothing} />
-            ))}
-          </section>
-        </div>
-      </TypeScope>
-    </Shell>
+    <div className="flex flex-wrap items-center justify-between gap-3">
+      <ToggleGroup defaultValue={[view]} aria-label="Show">
+        <ToggleGroupItem value="muscles">Muscles</ToggleGroupItem>
+        <ToggleGroupItem value="exercises">Exercises</ToggleGroupItem>
+      </ToggleGroup>
+      <Period />
+    </div>
   )
 }
 
-function ExerciseEditor() {
+const MUSCLE_ROWS: [string, [string, string, number?][]][] = [
+  [
+    'Push',
+    [
+      ['Chest', '4.2 sets a week · 3 of 4 rising'],
+      ['Front delts', '2.9 a week · 1 of 2 rising'],
+      ['Lateral delts', '3.8 a week · 2 of 2 rising'],
+      ['Triceps', '3.1 a week · 1 of 3 rising', 1],
+    ],
+  ],
+  [
+    'Pull',
+    [
+      ['Lats', '5.1 a week · 2 of 3 rising'],
+      ['Traps', '3.3 a week · 2 of 2 rising'],
+      ['Rear delts', '2.4 a week · 1 of 2 rising'],
+      ['Biceps', '3.6 a week · 0 of 2 rising', 2],
+    ],
+  ],
+]
+
+function MusclesList({ selected }: { selected?: string }) {
+  return (
+    <Card className="gap-1">
+      {MUSCLE_ROWS.map(([cat, rows], i) => (
+        <section key={cat} className="flex flex-col">
+          <span className={`text-xs font-semibold text-muted-foreground ${i ? 'pt-3' : ''} pb-1`}>
+            {cat}
+          </span>
+          {rows.map(([m, meta, stalled]) => (
+            <PanelRow
+              key={m}
+              selected={selected === m}
+              title={m}
+              meta={[meta]}
+              trailing={stalled ? <Badge variant="warning">{stalled} stalled</Badge> : undefined}
+            />
+          ))}
+        </section>
+      ))}
+    </Card>
+  )
+}
+
+type Pill = { name: string; sub?: string; on: boolean; dash?: LineDash }
+
+const PRIMARY: Pill[] = [
+  { name: 'Bench press', on: true, dash: 'solid' },
+  { name: 'Incline dumbbell press', on: true, dash: 'dash' },
+  { name: 'Cable fly', on: true, dash: 'dot' },
+  { name: 'Machine chest press', on: false },
+]
+const SECONDARY: Pill[] = [
+  { name: 'Dips', sub: '0.5', on: true, dash: 'solid' },
+  { name: 'Push-up', sub: '0.6', on: false },
+  { name: 'Overhead press', sub: '0.2', on: false },
+  { name: 'Close-grip bench', sub: '0.5', on: false },
+]
+
+const MUSCLE_LINES: ChartLine[] = [
+  {
+    id: 'bench',
+    label: 'Bench press',
+    tone: 'coral',
+    dash: 'solid',
+    values: [0, 0.7, 1.5, null, 2.5, 3.5, 4.6, 3.8, 6.3, 12.2, 8.4, 9.1, 10.6],
+  },
+  {
+    id: 'incline',
+    label: 'Incline dumbbell press',
+    tone: 'coral',
+    dash: 'dash',
+    values: [0, 1.2, null, 2.4, 2.4, 3.6, null, 4.9, 6.1, 6.1, 7.3, 8.5, 8.5],
+  },
+  {
+    id: 'fly',
+    label: 'Cable fly',
+    tone: 'coral',
+    dash: 'dot',
+    values: [0, null, 2, 2, 4, null, 4, 6, 6, 6, 6, 6, 6],
+  },
+  {
+    id: 'dips',
+    label: 'Dips',
+    tone: 'grey',
+    dash: 'solid',
+    values: [0, 1, 1, 2, null, 2, 3, 3, 4, 4, null, 5, 5],
+  },
+]
+
+function Pills({ title, pills, tone }: { title: string; pills: Pill[]; tone: 'coral' | 'grey' }) {
+  const full = pills.filter((p) => p.on).length >= 3
+  return (
+    <div className="flex flex-col gap-2">
+      <span className="text-xs font-semibold text-muted-foreground">
+        {title} · {pills.filter((p) => p.on).length} of 3 shown
+      </span>
+      <div className="flex flex-wrap gap-1.5">
+        {pills.map((p) => (
+          <LinePill
+            key={p.name}
+            label={p.name}
+            sub={p.sub}
+            on={p.on}
+            tone={tone}
+            dash={p.dash}
+            disabled={full && !p.on}
+          />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function MuscleDetail({ phone = false }: { phone?: boolean }) {
   return (
     <>
-      <Library />
+      <Card className="gap-5">
+        {!phone && (
+          <PanelHeading title="Chest">
+            <span className="text-sm text-muted-foreground">Change in strength · 3 months</span>
+          </PanelHeading>
+        )}
+        <div className="flex flex-col gap-4">
+          <Pills title="Primary" pills={PRIMARY} tone="coral" />
+          <Pills title="Secondary" pills={SECONDARY} tone="grey" />
+        </div>
+        <ProgressChart
+          weeks={WEEKS}
+          unit=" %"
+          lines={MUSCLE_LINES}
+          bars={CHEST_BARS}
+          target={4}
+          barsLabel="Chest · stimulus sets a week"
+        />
+      </Card>
+      <div className="grid grid-cols-3 gap-3">
+        <StatTile label="Stimulus sets" value="4.2" sub="a week, target 4" />
+        <StatTile label="Workouts" value="1.8" sub="a week, target 2" />
+        <StatTile label="Rising" value="3 of 4" sub="primary exercises" />
+      </div>
+    </>
+  )
+}
+
+function ProgressionMuscles() {
+  return (
+    <GymPage tab="progression">
+      <ProgressionBar view="muscles" />
+      <ListDetail list={<MusclesList selected="Chest" />} detail={<MuscleDetail />} />
+    </GymPage>
+  )
+}
+
+const LIBRARY: [string, string, boolean?][] = [
+  ['Bench press', 'Chest · 60 kg × 8 · Mon'],
+  ['Cable fly', 'Chest · 15 kg × 12 · Mon'],
+  ['Cable lateral raise', 'Lateral delts · 7.5 kg × 12 · Mon'],
+  ['Chest-supported row', 'Traps · 27.5 kg × 10 · Sat'],
+  ['Close-grip bench', 'Triceps · 50 kg × 8 · 9 Oct', true],
+  ['Incline curl', 'Biceps · 12 kg × 10 · Sat', true],
+  ['Incline dumbbell press', 'Chest · 24 kg × 10 · Mon'],
+  ['Lat pulldown', 'Lats · 65 kg × 10 · Sat'],
+  ['Overhead press', 'Front delts · 40 kg × 6 · Mon'],
+]
+
+function ExerciseList({ selected, phone = false }: { selected?: string; phone?: boolean }) {
+  return (
+    <Card className="gap-3">
+      <div className="flex items-center gap-2">
+        <Search placeholder="Search" />
+        <Button variant="ghost" size="icon-sm" aria-label="Filters">
+          <SlidersHorizontalIcon />
+        </Button>
+        <SortMenu
+          options={[
+            { value: 'az', label: 'A–Z', initial: 'asc' },
+            { value: 'last', label: 'Last done', initial: 'desc' },
+            { value: 'muscle', label: 'Primary muscle', initial: 'asc' },
+          ]}
+          value="az"
+          direction="asc"
+          onChange={nothing}
+        />
+      </div>
+      <div className="flex flex-col">
+        {LIBRARY.slice(0, phone ? 7 : 9).map(([n, meta, stalled]) => (
+          <PanelRow
+            key={n}
+            selected={selected === n}
+            leading={exerciseTile}
+            title={n}
+            meta={[meta]}
+            trailing={stalled ? <Badge variant="warning">Stalled</Badge> : undefined}
+          />
+        ))}
+      </div>
+    </Card>
+  )
+}
+
+const BEST_SETS: [string, string, string, number, number, string, boolean?][] = [
+  ['Mon 28 Oct', 'Push A', '60', 8, 2, '80.0'],
+  ['Mon 21 Oct', 'Push A', '60', 8, 1, '78.0'],
+  ['Mon 14 Oct', 'Push A', '57.5', 9, 1, '76.7'],
+  ['Mon 7 Oct', 'Upper', '65', 6, 1, '80.2', true],
+  ['Mon 30 Sep', 'Push A', '57.5', 8, 2, '76.7'],
+  ['Mon 23 Sep', 'Push A', '57.5', 8, 1, '74.8'],
+  ['Mon 16 Sep', 'Push A', '55', 9, 2, '75.2'],
+  ['Mon 9 Sep', 'Push A', '55', 9, 1, '73.3'],
+  ['Mon 2 Sep', 'Push A', '55', 8, 2, '73.3'],
+  ['Mon 19 Aug', 'Push A', '55', 8, 1, '71.5'],
+]
+
+function ExerciseDetail({ phone = false }: { phone?: boolean }) {
+  return (
+    <>
+      <Card className="gap-5">
+        {!phone && (
+          <div className="flex items-start gap-2">
+            <div className="flex min-w-0 flex-1 flex-col gap-2">
+              <h2 className="text-h2">Bench press</h2>
+              <div className="flex flex-wrap gap-1.5">
+                <TypeBadge colour="coral">Chest</TypeBadge>
+                <Badge variant="secondary">Triceps 0.4</Badge>
+                <Badge variant="secondary">Front delts 0.3</Badge>
+                <Badge variant="outline">Barbell · 2.5 kg</Badge>
+              </div>
+            </div>
+            {exerciseMenu}
+          </div>
+        )}
+        <ProgressChart
+          weeks={WEEKS}
+          lines={[
+            {
+              id: 'best',
+              label: 'Best set',
+              tone: 'coral',
+              dash: 'solid',
+              values: [71.5, 72, 73.3, null, 73.3, 73.3, 75.2, 74.8, 76.7, 80.2, 76.7, 78, 80],
+              mark: 9,
+            },
+            {
+              id: 'ws',
+              label: 'Working set',
+              tone: 'grey',
+              dash: 'dash',
+              values: [71.5, 71.5, 71.5, 71.5, 71.5, 71.5, 74.8, 74.8, 74.8, 74.8, 74.8, 78, 78],
+            },
+          ]}
+          bars={CHEST_BARS}
+          target={4}
+          barsLabel="Chest · stimulus sets a week"
+        />
+        <ChartKey
+          items={[
+            { label: 'Best set', tone: 'coral', dash: 'solid' },
+            { label: 'Working set', tone: 'grey', dash: 'dash' },
+          ]}
+        />
+      </Card>
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        <StatTile label="Working set" value="60 kg × 8" sub="Strength 78.0 at RIR 1" />
+        <StatTile icon={<TrophyIcon />} label="PR" value="65 kg × 6" sub="RIR 1 · 80.2 · 7 Oct" />
+        <StatTile label="3 months" value="+11.9 %" sub="Rising" />
+        <StatTile label="Last done" value="Mon" sub="28 Oct · Push A" />
+      </div>
+      <Card className="gap-2">
+        <PanelHeading title="Best sets" />
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Workout</TableHead>
+              <TableHead className="text-right">kg</TableHead>
+              <TableHead className="text-right">Reps</TableHead>
+              <TableHead className="text-right">RIR</TableHead>
+              <TableHead className="text-right">Strength</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {BEST_SETS.map(([day, w, kg, reps, rir, s, pr]) => (
+              <TableRow key={day}>
+                <TableCell>
+                  <span className="font-semibold">{day}</span>
+                  {!phone && <span className="text-muted-foreground"> · {w}</span>}
+                </TableCell>
+                <TableCell className="text-right tabular-nums">{kg}</TableCell>
+                <TableCell className="text-right tabular-nums">{reps}</TableCell>
+                <TableCell className="text-right tabular-nums">{rir}</TableCell>
+                <TableCell className="text-right tabular-nums">
+                  <span className="inline-flex items-center justify-end gap-1.5">
+                    {pr && <TrophyIcon aria-label="PR" className="size-3.5 text-tc-text" />}
+                    <span className="font-semibold">{s}</span>
+                  </span>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </Card>
+    </>
+  )
+}
+
+const exerciseMenu = more(
+  <>
+    <DropdownMenuItem>
+      <PencilIcon /> Edit
+    </DropdownMenuItem>
+    <DropdownMenuItem>
+      <ArchiveIcon /> Archive
+    </DropdownMenuItem>
+  </>,
+  'Exercise',
+)
+
+function ProgressionExercises() {
+  return (
+    <GymPage tab="progression" action="New exercise">
+      <ProgressionBar view="exercises" />
+      <ListDetail list={<ExerciseList selected="Bench press" />} detail={<ExerciseDetail />} />
+    </GymPage>
+  )
+}
+
+function PhoneProgression({ view }: { view: 'muscles' | 'exercises' }) {
+  return (
+    <GymPage tab="progression" phone action={view === 'exercises' ? 'New exercise' : undefined}>
+      <ProgressionBar view={view} />
+      {view === 'muscles' ? <MusclesList /> : <ExerciseList phone />}
+    </GymPage>
+  )
+}
+
+function PhoneMuscle() {
+  return (
+    <SubPage back="Progression" title="Chest" phone>
+      <div className="-mt-2 flex items-center justify-between">
+        <span className="text-sm text-muted-foreground">Change in strength</span>
+        <Period />
+      </div>
+      <MuscleDetail phone />
+    </SubPage>
+  )
+}
+
+function PhoneExercise() {
+  return (
+    <SubPage back="Progression" title="Bench press" phone trailing={exerciseMenu}>
+      <div className="-mt-2 flex flex-wrap gap-1.5">
+        <TypeBadge colour="coral">Chest</TypeBadge>
+        <Badge variant="secondary">Triceps 0.4</Badge>
+        <Badge variant="secondary">Front delts 0.3</Badge>
+        <Badge variant="outline">Barbell · 2.5 kg</Badge>
+      </div>
+      <div className="flex justify-end">
+        <Period />
+      </div>
+      <ExerciseDetail phone />
+    </SubPage>
+  )
+}
+
+/* ---------- New exercise ---------- */
+
+function ExerciseEditor({ phone = false }: { phone?: boolean }) {
+  return (
+    <>
+      {phone ? <PhoneProgression view="exercises" /> : <ProgressionExercises />}
       <Dialog open>
-        <DialogContent>
+        <DialogContent data-colour="coral" className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>New exercise</DialogTitle>
           </DialogHeader>
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-5">
             <Field label="Name">
               <Input defaultValue="Bench press" />
             </Field>
             <div className="grid grid-cols-2 gap-3">
               <Field label="Equipment">
                 <SmallSelect
-                  full
                   label="Equipment"
                   value="Barbell"
                   options={['Barbell', 'Dumbbell', 'Cable', 'Machine']}
@@ -1313,7 +2022,6 @@ function ExerciseEditor() {
               </Field>
               <Field label="Primary muscle">
                 <SmallSelect
-                  full
                   label="Primary muscle"
                   value="Chest"
                   options={['Chest', 'Front delts', 'Triceps']}
@@ -1321,40 +2029,36 @@ function ExerciseEditor() {
               </Field>
             </div>
             <Field label="Secondary muscles">
-              <div className="flex flex-col gap-1.5">
+              <div className="flex flex-col gap-1">
                 {[
                   ['Triceps', '0.4'],
                   ['Front delts', '0.3'],
                 ].map(([m, c]) => (
-                  <div key={m} className="flex items-center gap-2">
+                  <div key={m} className="flex h-10 items-center gap-2">
                     <span className="flex-1 text-sm font-semibold">{m}</span>
-                    <ValueStepper compact label="Contribution" value={c!} />
+                    <ValueStepper size="sm" label="Contribution" value={c!} />
                     <Button variant="ghost" size="icon-sm" aria-label={`Take ${m} off`}>
                       <Trash2Icon />
                     </Button>
                   </div>
                 ))}
-                <Button variant="ghost" size="sm" className="self-start">
+                <Button variant="ghost" size="sm" className="-ml-2 self-start">
                   <PlusIcon /> Add a muscle
                 </Button>
               </div>
             </Field>
-            <div className="grid grid-cols-2 gap-3">
-              <Field label="Working set">
-                <div className="flex flex-wrap gap-1.5">
-                  <ValueStepper label="Weight" width="lg" value="60 kg" />
-                  <ValueStepper label="Reps" value="× 8" />
-                </div>
-              </Field>
-              <Field label="Goal">
-                <div className="flex flex-wrap gap-1.5">
-                  <ValueStepper label="Goal weight" width="lg" value="70 kg" />
-                  <ValueStepper label="Goal reps" value="× 8" />
-                </div>
-              </Field>
-            </div>
+            <Field label="Working set">
+              <div className="flex flex-wrap items-center gap-2">
+                <ValueStepper label="Weight" value="60" unit="kg" />
+                <span className="text-muted-foreground">×</span>
+                <ValueStepper label="Reps" value="8" unit="reps" />
+              </div>
+            </Field>
             <Field label="Notes">
-              <Textarea placeholder="Notes" defaultValue="Bench at 4, safeties on 3" />
+              <Textarea
+                placeholder="Setup / form notes"
+                defaultValue="Bench at 4, safeties on 3, feet tucked"
+              />
             </Field>
           </div>
           <DialogFooter>
@@ -1369,15 +2073,17 @@ function ExerciseEditor() {
 
 /* ---------- Settings → Gym ---------- */
 
-function Settings({ phone = false }: { phone?: boolean }) {
+function SettingsPage({ phone = false }: { phone?: boolean }) {
   return (
     <Shell page="">
       <PageHeader title="Settings" />
-      <div className={`flex max-w-3xl flex-col gap-5 px-5 sm:px-9 ${phone ? 'pb-28' : 'pb-12'}`}>
+      <Body phone={phone} narrow>
         <Card className="gap-1 px-2 py-3">
-          <CardTitle className="px-3 pb-2">Gym</CardTitle>
-          <CardRow icon={<UndoDotIcon />} label="Preferred RIR" chevron={false}>
-            <ValueStepper compact label="Preferred RIR" value="1" />
+          <div className="px-3 pb-2">
+            <PanelHeading title="Gym" />
+          </div>
+          <CardRow icon={<GaugeIcon />} label="Preferred RIR" chevron={false} className="px-3">
+            <ValueStepper size="sm" label="Preferred RIR" value="1" />
           </CardRow>
           <CardRow
             icon={<WrenchIcon />}
@@ -1393,47 +2099,54 @@ function Settings({ phone = false }: { phone?: boolean }) {
           />
           <CardRow icon={<RotateCcwIcon />} label="Recovery" render={<button type="button" />} />
           <CardRow
-            icon={<ArchiveIcon />}
+            icon={<ArchiveRestoreIcon />}
             label="Archived exercises"
             value="2"
             render={<button type="button" />}
           />
         </Card>
-      </div>
+      </Body>
     </Shell>
   )
 }
 
-function SettingsMuscles({ phone = false }: { phone?: boolean }) {
+const SETTINGS_GROUPS: [string, string[]][] = [
+  ['Push', ['Chest', 'Front delts', 'Lateral delts', 'Triceps', 'Serratus']],
+  ['Pull', ['Lats', 'Traps', 'Rear delts', 'Biceps', 'Brachialis', 'Forearms']],
+]
+
+function SettingsMuscles() {
   return (
     <Shell page="">
-      <PageHeader
-        back={{ label: 'Settings', onClick: nothing }}
-        title="Muscle groups"
-        action={phone ? { label: 'New muscle group', onClick: nothing } : undefined}
-      />
-      <div className={`flex max-w-3xl flex-col gap-5 px-5 sm:px-9 ${phone ? 'pb-28' : 'pb-12'}`}>
-        {CATEGORIES.slice(0, 2).map(([cat, muscles]) => (
+      <PageHeader back={{ label: 'Settings', onClick: nothing }} title="Muscle groups" />
+      <Body narrow>
+        <div className="flex justify-end">
+          <Button variant="outline" size="sm">
+            <PlusIcon /> New muscle group
+          </Button>
+        </div>
+        {SETTINGS_GROUPS.map(([cat, muscles]) => (
           <Card key={cat} className="gap-1 px-2 py-3">
-            <div className="flex items-center gap-2 px-3 pb-2">
-              <CardTitle className="flex-1">{cat}</CardTitle>
-              {cat === 'Push' && !phone && (
-                <Button variant="outline" size="sm">
-                  <PlusIcon /> New
-                </Button>
-              )}
+            <div className="px-3 pb-2">
+              <PanelHeading title={cat} />
             </div>
             {muscles.map((m) => (
               <CardRow
                 key={m}
                 label={m}
-                value={m === 'Lats' ? 'Normal · 2 a week · 5 sets' : 'Normal · 2 a week · 4 sets'}
+                value={
+                  m === 'Lats'
+                    ? 'Normal · 2 a week · 5 sets'
+                    : m === 'Serratus'
+                      ? 'Yours · Fast · 1 a week · 1 set'
+                      : 'Normal · 2 a week · 4 sets'
+                }
                 render={<button type="button" />}
               />
             ))}
           </Card>
         ))}
-      </div>
+      </Body>
     </Shell>
   )
 }
@@ -1443,26 +2156,34 @@ function MuscleSettings() {
     <>
       <SettingsMuscles />
       <Dialog open>
-        <DialogContent className="sm:max-w-sm">
+        <DialogContent data-colour="coral" className="sm:max-w-sm">
           <DialogHeader>
             <DialogTitle>Lats</DialogTitle>
           </DialogHeader>
           <div className="flex flex-col gap-4">
             <Field label="Recovers">
-              <ToggleGroup defaultValue={['normal']} aria-label="Recovers" className="self-start">
-                <ToggleGroupItem value="fast">Fast</ToggleGroupItem>
-                <ToggleGroupItem value="normal">Normal</ToggleGroupItem>
-                <ToggleGroupItem value="slow">Slow</ToggleGroupItem>
+              <ToggleGroup
+                defaultValue={['normal']}
+                aria-label="Recovers"
+                className="grid w-full grid-cols-3 self-stretch"
+              >
+                <ToggleGroupItem value="fast" className="justify-center">
+                  Fast
+                </ToggleGroupItem>
+                <ToggleGroupItem value="normal" className="justify-center">
+                  Normal
+                </ToggleGroupItem>
+                <ToggleGroupItem value="slow" className="justify-center">
+                  Slow
+                </ToggleGroupItem>
               </ToggleGroup>
             </Field>
-            <div className="grid grid-cols-2 gap-3">
-              <Field label="Workouts a week">
-                <ValueStepper label="Workouts a week" value="2" />
-              </Field>
-              <Field label="Stimulus sets a week">
-                <ValueStepper label="Stimulus sets a week" value="5" />
-              </Field>
-            </div>
+            <StepperField label="Workouts a week">
+              <ValueStepper label="Workouts a week" value="2" />
+            </StepperField>
+            <StepperField label="Stimulus sets a week">
+              <ValueStepper label="Stimulus sets a week" value="5" />
+            </StepperField>
           </div>
           <DialogFooter>
             <Button variant="outline">Cancel</Button>
@@ -1478,22 +2199,22 @@ function SettingsRecovery() {
   return (
     <Shell page="">
       <PageHeader back={{ label: 'Settings', onClick: nothing }} title="Recovery" />
-      <div className="flex max-w-3xl flex-col gap-5 px-5 pb-12 sm:px-9">
+      <Body narrow>
         <Card className="gap-1 px-2 py-3">
-          <CardRow label="Points per fatigue set" chevron={false}>
-            <ValueStepper compact label="Points per fatigue set" value="20" />
+          <CardRow label="Points per fatigue set" chevron={false} className="px-3">
+            <ValueStepper size="sm" label="Points per fatigue set" value="20" />
           </CardRow>
-          <CardRow label="Fast muscles recover 50 points in" chevron={false}>
-            <ValueStepper compact width="lg" label="Fast" value="30 h" />
+          <CardRow label="Fast muscles, 50 points in" chevron={false} className="px-3">
+            <ValueStepper size="sm" label="Fast" value="30" unit="h" />
           </CardRow>
-          <CardRow label="Normal muscles" chevron={false}>
-            <ValueStepper compact width="lg" label="Normal" value="42 h" />
+          <CardRow label="Normal muscles, 50 points in" chevron={false} className="px-3">
+            <ValueStepper size="sm" label="Normal" value="42" unit="h" />
           </CardRow>
-          <CardRow label="Slow muscles" chevron={false}>
-            <ValueStepper compact width="lg" label="Slow" value="60 h" />
+          <CardRow label="Slow muscles, 50 points in" chevron={false} className="px-3">
+            <ValueStepper size="sm" label="Slow" value="60" unit="h" />
           </CardRow>
         </Card>
-      </div>
+      </Body>
     </Shell>
   )
 }
@@ -1502,34 +2223,52 @@ function SettingsRecovery() {
 
 const SCREENS: Record<string, () => ReactNode> = {
   workouts: () => <Workouts />,
+  'workouts-up-next': () => <Workouts upNext />,
+  'all-workouts': () => <AllWorkouts />,
+  'all-templates': () => <AllTemplates />,
   'new-workout': () => <NewWorkout />,
   session: () => <Session />,
-  swap: () => <Swap />,
+  'session-b': () => <SessionB />,
+  'log-set': () => <LogSet />,
+  'log-set-b': () => <LogSet chips />,
+  'add-exercise': () => <AddExercise />,
+  'add-exercise-muscle': () => <AddExercise muscle="Chest" />,
+  swap: () => <AddExercise muscle="Rear delts" swap />,
   history: () => <History />,
   end: () => <End />,
   review: () => <Review />,
+  'update-working-set': () => <UpdateWorkingSet />,
   template: () => <TemplatePage />,
   recovery: () => <Recovery />,
+  'recovery-ahead': () => <RecoveryAhead />,
   muscle: () => <Muscle />,
-  progression: () => <ProgressionMuscles />,
-  library: () => <Library />,
-  exercise: () => <ExercisePage />,
+  'progression-muscles': () => <ProgressionMuscles />,
+  'progression-exercises': () => <ProgressionExercises />,
   'exercise-new': () => <ExerciseEditor />,
-  'muscle-progress': () => <MuscleProgress />,
-  settings: () => <Settings />,
+  settings: () => <SettingsPage />,
   'settings-muscles': () => <SettingsMuscles />,
   'muscle-settings': () => <MuscleSettings />,
   'settings-recovery': () => <SettingsRecovery />,
   'm-workouts': () => <Workouts phone />,
+  'm-all-workouts': () => <AllWorkouts phone />,
+  'm-all-templates': () => <AllTemplates phone />,
+  'm-new-workout': () => <NewWorkout phone />,
   'm-session': () => <Session phone />,
+  'm-log-set': () => <LogSet phone />,
+  'm-log-set-b': () => <LogSet phone chips />,
+  'm-add-exercise': () => <AddExercise phone />,
+  'm-add-exercise-muscle': () => <AddExercise phone muscle="Chest" />,
+  'm-end': () => <End phone />,
   'm-review': () => <Review phone />,
+  'm-update-working-set': () => <UpdateWorkingSet phone />,
   'm-template': () => <TemplatePage phone />,
   'm-recovery': () => <Recovery phone />,
-  'm-progression': () => <ProgressionMuscles phone />,
-  'm-library': () => <Library phone />,
-  'm-exercise': () => <ExercisePage phone />,
-  'm-muscle-progress': () => <MuscleProgress phone />,
-  'm-settings': () => <Settings phone />,
+  'm-progression-muscles': () => <PhoneProgression view="muscles" />,
+  'm-progression-exercises': () => <PhoneProgression view="exercises" />,
+  'm-muscle': () => <PhoneMuscle />,
+  'm-exercise': () => <PhoneExercise />,
+  'm-exercise-new': () => <ExerciseEditor phone />,
+  'm-settings': () => <SettingsPage phone />,
 }
 
 function Screens() {

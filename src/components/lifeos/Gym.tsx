@@ -1,340 +1,235 @@
 import {
+  CheckIcon,
   ChevronDownIcon,
+  ChevronRightIcon,
   GripVerticalIcon,
   MinusIcon,
+  NotebookPenIcon,
   PlusIcon,
   TrophyIcon,
   XIcon,
 } from 'lucide-react'
 import { useLayoutEffect, useRef, useState, type ReactNode } from 'react'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
+import { Slider } from '@/components/ui/slider'
 import { cn } from '@/lib/utils'
 import { readinessColour } from './readiness'
 
-/* ---------- Readiness ---------- */
+/* ---------- Layout ---------- */
 
-/** The readiness scale itself, 0 to 100, for a key under the body map. */
-export function ReadinessScale({ className }: { className?: string }) {
+/**
+ * A Card's heading row (Today, Recent workouts, Templates): its title
+ * (`text-h2`), an optional count, then anything at its end (a sort).
+ */
+export function PanelHeading({
+  title,
+  count,
+  children,
+}: {
+  title: ReactNode
+  count?: number
+  children?: ReactNode
+}) {
   return (
-    <div className={cn('flex flex-col gap-1', className)}>
-      <div className="h-2 rounded-full bg-[linear-gradient(to_right,var(--destructive),var(--warning),var(--success))]" />
-      <div className="flex justify-between text-xs text-muted-foreground tabular-nums">
-        <span>0 %</span>
-        <span>50 %</span>
-        <span>100 %</span>
-      </div>
-    </div>
-  )
-}
-
-/** A muscle group's readiness: a bar in its colour on the scale, and the percentage. */
-export function ReadinessBar({ percent, className }: { percent: number; className?: string }) {
-  return (
-    <div className={cn('flex items-center gap-2.5', className)}>
-      <div className="h-2 flex-1 overflow-hidden rounded-full bg-muted">
-        <div
-          className="h-full rounded-full"
-          // A computed width and its colour on the readiness scale.
-          style={{ width: `${percent}%`, background: readinessColour(percent) }}
-        />
-      </div>
-      <span className="w-10 text-right text-sm font-semibold tabular-nums">{percent} %</span>
-    </div>
-  )
-}
-
-/** A muscle group's name beside its ReadinessBar, in a list by category (GYM-016 2). */
-export function MuscleReadiness({ muscle, percent }: { muscle: string; percent: number }) {
-  return (
-    <div className="grid grid-cols-[minmax(0,7rem)_1fr] items-center gap-3">
-      <span className="truncate text-sm font-semibold">{muscle}</span>
-      <ReadinessBar percent={percent} />
-    </div>
-  )
-}
-
-/** Overall readiness (GYM-016 1): the percentage as a page title is set, and its name. */
-export function OverallReadiness({ percent }: { percent: number }) {
-  return (
-    <div className="flex items-baseline gap-3">
-      <span className="text-h1 tabular-nums">{percent} %</span>
-      <span className="text-sm text-muted-foreground">Overall readiness</span>
+    <div className="flex min-h-8 items-center gap-2">
+      <h2 className="text-h2">{title}</h2>
+      {count !== undefined && (
+        <Badge variant="outline" className="tabular-nums">
+          {count}
+        </Badge>
+      )}
+      <span className="flex-1" />
+      {children}
     </div>
   )
 }
 
 /**
- * A Gym page's two columns on a computer (a review, a template): the main
- * one, and a narrower one beside it (360px) for stimulus sets or coverage;
- * stacked on a phone.
+ * A row inside a Card (components.md, PanelRow): a leading tile or ring,
+ * the title (weight 600) and a muted meta line joined by "·", anything at
+ * its end, and a chevron when it leads somewhere. Hover and the chosen row
+ * fill `--accent`; no card of its own, so a list in a Card stays calm.
  */
-export function SideColumns({ children }: { children: ReactNode }) {
-  return <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_360px]">{children}</div>
-}
-
-/* ---------- The body map ---------- */
-
-type Shape =
-  | { e: [number, number, number, number] }
-  | { r: [number, number, number, number, number] }
-  | { p: string }
-
-/** Each built-in muscle group's place on the front and the back (GYM-002). */
-const MUSCLE_SHAPES: { muscle: string; view: 'front' | 'back'; shapes: Shape[] }[] = [
-  {
-    muscle: 'Traps',
-    view: 'front',
-    shapes: [{ p: 'M60,55 L72,45 L73,54 Z' }, { p: 'M100,55 L88,45 L87,54 Z' }],
-  },
-  {
-    muscle: 'Front delts',
-    view: 'front',
-    shapes: [{ e: [51, 66, 8, 11] }, { e: [109, 66, 8, 11] }],
-  },
-  {
-    muscle: 'Lateral delts',
-    view: 'front',
-    shapes: [{ e: [42, 64, 5, 10] }, { e: [118, 64, 5, 10] }],
-  },
-  {
-    muscle: 'Chest',
-    view: 'front',
-    shapes: [{ r: [59, 55, 20, 27, 8] }, { r: [81, 55, 20, 27, 8] }],
-  },
-  {
-    muscle: 'Biceps',
-    view: 'front',
-    shapes: [{ e: [45, 96, 6.5, 15] }, { e: [115, 96, 6.5, 15] }],
-  },
-  {
-    muscle: 'Brachialis',
-    view: 'front',
-    shapes: [{ e: [37.5, 104, 3, 9] }, { e: [122.5, 104, 3, 9] }],
-  },
-  {
-    muscle: 'Forearms',
-    view: 'front',
-    shapes: [{ e: [41, 138, 6.5, 19] }, { e: [119, 138, 6.5, 19] }],
-  },
-  { muscle: 'Abs', view: 'front', shapes: [{ r: [70, 86, 20, 50, 6] }] },
-  {
-    muscle: 'Obliques',
-    view: 'front',
-    shapes: [{ r: [59, 88, 9, 42, 4.5] }, { r: [92, 88, 9, 42, 4.5] }],
-  },
-  {
-    muscle: 'Abductors',
-    view: 'front',
-    shapes: [{ e: [58, 152, 4.5, 10] }, { e: [102, 152, 4.5, 10] }],
-  },
-  {
-    muscle: 'Quads',
-    view: 'front',
-    shapes: [{ e: [67, 194, 9.5, 33] }, { e: [93, 194, 9.5, 33] }],
-  },
-  {
-    muscle: 'Adductors',
-    view: 'front',
-    shapes: [{ e: [77.5, 178, 3, 17] }, { e: [82.5, 178, 3, 17] }],
-  },
-  {
-    muscle: 'Tibialis',
-    view: 'front',
-    shapes: [{ e: [65, 268, 4.5, 23] }, { e: [95, 268, 4.5, 23] }],
-  },
-  { muscle: 'Traps', view: 'back', shapes: [{ p: 'M80,44 L61,58 L80,94 L99,58 Z' }] },
-  { muscle: 'Rear delts', view: 'back', shapes: [{ e: [51, 66, 8, 11] }, { e: [109, 66, 8, 11] }] },
-  {
-    muscle: 'Lateral delts',
-    view: 'back',
-    shapes: [{ e: [42, 64, 5, 10] }, { e: [118, 64, 5, 10] }],
-  },
-  {
-    muscle: 'Lats',
-    view: 'back',
-    shapes: [{ p: 'M60,72 L76,96 L73,124 L61,106 Z' }, { p: 'M100,72 L84,96 L87,124 L99,106 Z' }],
-  },
-  {
-    muscle: 'Erectors',
-    view: 'back',
-    shapes: [{ r: [74, 96, 5, 44, 2.5] }, { r: [81, 96, 5, 44, 2.5] }],
-  },
-  {
-    muscle: 'Triceps',
-    view: 'back',
-    shapes: [{ e: [44, 96, 6.5, 15] }, { e: [116, 96, 6.5, 15] }],
-  },
-  {
-    muscle: 'Forearms',
-    view: 'back',
-    shapes: [{ e: [41, 138, 6.5, 19] }, { e: [119, 138, 6.5, 19] }],
-  },
-  {
-    muscle: 'Glutes',
-    view: 'back',
-    shapes: [{ e: [70, 156, 10.5, 12.5] }, { e: [90, 156, 10.5, 12.5] }],
-  },
-  {
-    muscle: 'Abductors',
-    view: 'back',
-    shapes: [{ e: [57, 149, 4.5, 10] }, { e: [103, 149, 4.5, 10] }],
-  },
-  {
-    muscle: 'Hamstrings',
-    view: 'back',
-    shapes: [{ e: [68, 202, 9.5, 28] }, { e: [92, 202, 9.5, 28] }],
-  },
-  {
-    muscle: 'Adductors',
-    view: 'back',
-    shapes: [{ e: [78, 186, 2.8, 14] }, { e: [82, 186, 2.8, 14] }],
-  },
-  {
-    muscle: 'Calves',
-    view: 'back',
-    shapes: [{ e: [66, 266, 7.5, 22] }, { e: [94, 266, 7.5, 22] }],
-  },
-]
-
-/** The figure the muscles sit on, in the muted fill. */
-const BODY: Shape[] = [
-  { e: [80, 24, 13, 16] },
-  { r: [73, 38, 14, 12, 4] },
-  { r: [55, 48, 50, 98, 18] },
-  { r: [58, 136, 44, 26, 10] },
-  { r: [34, 54, 18, 70, 9] },
-  { r: [108, 54, 18, 70, 9] },
-  { r: [33, 114, 16, 50, 8] },
-  { r: [111, 114, 16, 50, 8] },
-  { e: [40, 168, 6, 7] },
-  { e: [120, 168, 6, 7] },
-  { r: [56, 156, 23, 82, 11] },
-  { r: [81, 156, 23, 82, 11] },
-  { r: [57, 236, 17, 62, 8] },
-  { r: [86, 236, 17, 62, 8] },
-  { e: [65, 302, 8, 5] },
-  { e: [95, 302, 8, 5] },
-]
-
-function ShapeEl({ shape, ...props }: { shape: Shape } & React.SVGProps<SVGElement>) {
-  if ('e' in shape) {
-    const [cx, cy, rx, ry] = shape.e
-    return (
-      <ellipse cx={cx} cy={cy} rx={rx} ry={ry} {...(props as React.SVGProps<SVGEllipseElement>)} />
-    )
-  }
-  if ('r' in shape) {
-    const [x, y, width, height, r] = shape.r
-    return (
-      <rect
-        x={x}
-        y={y}
-        width={width}
-        height={height}
-        rx={r}
-        {...(props as React.SVGProps<SVGRectElement>)}
-      />
-    )
-  }
-  return <path d={shape.p} {...(props as React.SVGProps<SVGPathElement>)} />
-}
-
-/**
- * The body map (GYM-016): the built-in muscle groups, front and back, each
- * filled with its readiness on the continuous scale. A muscle is a button:
- * choosing it opens its readiness. Groups of my own aren't on it.
- */
-export function BodyMap({
-  readiness,
-  selected,
-  onSelect,
+export function PanelRow({
+  leading,
+  title,
+  meta = [],
+  trailing,
+  chevron = true,
+  selected = false,
   className,
 }: {
-  readiness: Record<string, number>
-  selected?: string
-  onSelect?: (muscle: string) => void
+  leading?: ReactNode
+  title: ReactNode
+  meta?: ReactNode[]
+  trailing?: ReactNode
+  chevron?: boolean
+  selected?: boolean
   className?: string
 }) {
   return (
-    <div className={cn('grid grid-cols-2 gap-4', className)}>
-      {(['front', 'back'] as const).map((view) => (
-        <figure key={view} className="flex flex-col items-center gap-1">
-          <svg
-            viewBox="22 4 116 306"
-            className="h-auto w-full max-w-[180px]"
-            role="group"
-            aria-label={view === 'front' ? 'Front' : 'Back'}
-          >
-            {BODY.map((s, i) => (
-              <ShapeEl key={i} shape={s} className="fill-muted" />
+    <div
+      role="button"
+      tabIndex={0}
+      aria-current={selected || undefined}
+      className={cn(
+        '-mx-2 flex min-h-14 cursor-pointer items-center gap-3 rounded-row px-2 py-2 outline-none hover:bg-accent/60 focus-visible:ring-3 focus-visible:ring-ring-soft',
+        selected && 'bg-accent hover:bg-accent',
+        className,
+      )}
+    >
+      {leading}
+      <span className="flex min-w-0 flex-1 flex-col">
+        <span className="truncate font-semibold">{title}</span>
+        {meta.length > 0 && (
+          <span className="truncate text-sm text-muted-foreground tabular-nums">
+            {meta.map((m, i) => (
+              <span key={i}>
+                {i > 0 && <span aria-hidden> · </span>}
+                {m}
+              </span>
             ))}
-            {MUSCLE_SHAPES.filter((m) => m.view === view).map((m) => {
-              const p = readiness[m.muscle] ?? 100
-              const on = selected === m.muscle
-              return (
-                <g
-                  key={m.muscle}
-                  role="button"
-                  tabIndex={0}
-                  aria-label={`${m.muscle} ${p} %`}
-                  onClick={() => onSelect?.(m.muscle)}
-                  className="cursor-pointer outline-none [&:focus-visible>*]:stroke-ring"
-                >
-                  <title>{`${m.muscle} · ${p} %`}</title>
-                  {m.shapes.map((s, i) => (
-                    <ShapeEl
-                      key={i}
-                      shape={s}
-                      // Its colour on the readiness scale.
-                      style={{ fill: readinessColour(p) }}
-                      className={cn(
-                        'stroke-card transition-opacity hover:opacity-80',
-                        on ? 'stroke-foreground [stroke-width:1.5]' : '[stroke-width:1]',
-                      )}
-                    />
-                  ))}
-                </g>
-              )
-            })}
-          </svg>
-          <figcaption className="text-xs font-semibold text-muted-foreground">
-            {view === 'front' ? 'Front' : 'Back'}
-          </figcaption>
-        </figure>
-      ))}
+          </span>
+        )}
+      </span>
+      {trailing}
+      {chevron && (
+        <ChevronRightIcon aria-hidden className="size-4 shrink-0 text-muted-foreground" />
+      )}
     </div>
+  )
+}
+
+/** "All workouts" at a Card's foot: a ghost button the Card's width with a chevron. */
+export function PanelFooter({ label, onClick }: { label: string; onClick?: () => void }) {
+  return (
+    <Button variant="ghost" className="-mx-2 -mb-2 justify-between" onClick={onClick}>
+      {label}
+      <ChevronRightIcon className="text-muted-foreground" />
+    </Button>
+  )
+}
+
+/**
+ * A figure (components.md, StatTile): a 12px muted label, the value
+ * (`text-h2`, tabular) and an optional muted line. `inset`, inside a Card,
+ * on a `--muted` fill; otherwise a Card of its own.
+ */
+export function StatTile({
+  label,
+  value,
+  sub,
+  inset = false,
+  icon,
+}: {
+  label: string
+  value: ReactNode
+  sub?: ReactNode
+  inset?: boolean
+  icon?: ReactNode
+}) {
+  return (
+    <div
+      className={cn(
+        'flex min-w-0 flex-col gap-0.5 px-4 py-3',
+        inset ? 'rounded-row bg-accent/60' : 'rounded-lg bg-card shadow-card',
+      )}
+    >
+      <span className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground [&_svg]:size-3.5">
+        {icon}
+        {label}
+      </span>
+      <span className="truncate text-h2 tabular-nums">{value}</span>
+      {sub && <span className="truncate text-xs text-muted-foreground tabular-nums">{sub}</span>}
+    </div>
+  )
+}
+
+/**
+ * A Gym page's two columns on a computer: the main one and a 360px one
+ * beside it (stimulus sets, coverage); stacked on a phone.
+ */
+export function SideColumns({ children }: { children: ReactNode }) {
+  return <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_360px]">{children}</div>
+}
+
+/**
+ * A list beside what is chosen from it (Progression on a computer): a
+ * 340px column, then the rest; on a phone only the list, and the chosen
+ * one opens its own page.
+ */
+export function ListDetail({ list, detail }: { list: ReactNode; detail?: ReactNode }) {
+  return (
+    <div className="grid items-start gap-5 lg:grid-cols-[340px_minmax(0,1fr)]">
+      <div className="min-w-0">{list}</div>
+      {detail && <div className="hidden min-w-0 flex-col gap-5 lg:flex">{detail}</div>}
+    </div>
+  )
+}
+
+/* ---------- Workouts ---------- */
+
+export type WorkoutState = 'complete' | 'in-progress' | 'planned' | 'skipped'
+
+const STATE: Record<
+  WorkoutState,
+  { label: string; variant: 'success' | 'warning' | 'outline' | 'destructive' }
+> = {
+  complete: { label: 'Complete', variant: 'success' },
+  'in-progress': { label: 'In progress', variant: 'warning' },
+  planned: { label: 'Planned', variant: 'outline' },
+  skipped: { label: 'Skipped', variant: 'destructive' },
+}
+
+/** A workout's state as a pill with a dot and its word (GYM-007 5; Joe, 31 October). */
+export function WorkoutStatePill({ state }: { state: WorkoutState }) {
+  const s = STATE[state]
+  return (
+    <Badge variant={s.variant}>
+      <span aria-hidden className="size-1.5 rounded-full bg-current" />
+      {s.label}
+    </Badge>
   )
 }
 
 /* ---------- Steppers and sets ---------- */
 
 /**
- * A value moved by − and +, or typed: a `--muted` box with ghost buttons.
- * `compact`, in a set's row: 28px buttons, so weight, reps and RIR fit a
- * phone's width.
+ * A value moved by − and +, or typed: a `--muted` box with ghost buttons
+ * either side of the value at a fixed width. `sm`, 32px; default, 40px;
+ * `lg`, 52px with the value at `text-day`, for the set popup.
  */
 export function ValueStepper({
   value,
+  unit,
   label,
   onStep,
   canDown = true,
-  width = 'md',
-  compact = false,
+  size = 'default',
 }: {
   value: string
+  /** After the value, muted ("kg"). */
+  unit?: string
   /** What it changes ("Weight"): its buttons say "Less weight", "More weight". */
   label: string
   onStep?: (direction: -1 | 1) => void
   canDown?: boolean
-  width?: 'sm' | 'md' | 'lg'
-  compact?: boolean
+  size?: 'sm' | 'default' | 'lg'
 }) {
+  const button = cn(
+    size === 'sm' && 'size-7 [&_svg]:size-3.5',
+    size === 'lg' && 'size-11 rounded-[10px] [&_svg]:size-5',
+  )
   return (
     <div
+      role="group"
+      aria-label={label}
       className={cn(
-        'inline-flex shrink-0 items-center rounded-control bg-muted',
-        compact ? 'h-8 gap-0 p-0.5' : 'h-10 gap-1 p-1',
+        'inline-flex shrink-0 items-center justify-between rounded-control bg-muted',
+        size === 'sm' && 'h-8 p-0.5',
+        size === 'default' && 'h-10 gap-1 p-1',
+        size === 'lg' && 'h-[52px] w-full max-w-60 gap-1 p-1',
       )}
     >
       <Button
@@ -343,28 +238,28 @@ export function ValueStepper({
         aria-label={`Less ${label.toLowerCase()}`}
         disabled={!canDown}
         onClick={() => onStep?.(-1)}
-        className={cn(compact && 'size-7 [&_svg]:size-3.5')}
+        className={button}
       >
         <MinusIcon />
       </Button>
       <span
-        aria-label={label}
         aria-live="polite"
         className={cn(
-          'text-center text-sm font-semibold tabular-nums',
-          width === 'sm' && 'w-6',
-          width === 'md' && 'w-8',
-          width === 'lg' && 'w-12',
+          'flex items-baseline justify-center gap-1 font-semibold tabular-nums',
+          size === 'sm' && 'min-w-9 text-sm',
+          size === 'default' && 'min-w-12 text-sm',
+          size === 'lg' && 'min-w-20 text-day',
         )}
       >
         {value}
+        {unit && <span className="text-sm font-semibold text-muted-foreground">{unit}</span>}
       </span>
       <Button
         variant="ghost"
         size="icon-sm"
         aria-label={`More ${label.toLowerCase()}`}
         onClick={() => onStep?.(1)}
-        className={cn(compact && 'size-7 [&_svg]:size-3.5')}
+        className={button}
       >
         <PlusIcon />
       </Button>
@@ -372,62 +267,87 @@ export function ValueStepper({
   )
 }
 
-/** The heads over a column of SetRows: Set, kg, Reps, RIR. */
-export function SetHeads() {
+/** A field in the set popup: its label (and a muted line) on the left, a large stepper on the right. */
+export function StepperField({
+  label,
+  hint,
+  children,
+}: {
+  label: string
+  hint?: ReactNode
+  children: ReactNode
+}) {
   return (
-    <div className="flex items-center gap-1 px-1 text-xs font-semibold text-muted-foreground sm:gap-2">
-      <span className="w-5 text-center">Set</span>
-      <span className="w-[100px] text-center sm:w-[108px]">kg</span>
-      <span className="w-[82px] text-center sm:w-[90px]">Reps</span>
-      <span className="w-[78px] text-center sm:w-[86px]">RIR</span>
+    <div className="flex items-center gap-4">
+      <span className="flex min-w-0 flex-1 flex-col">
+        <span className="font-semibold">{label}</span>
+        {hint && <span className="text-sm text-muted-foreground tabular-nums">{hint}</span>}
+      </span>
+      <div className="w-[58%] max-w-60">{children}</div>
     </div>
   )
 }
 
 /**
- * A set in a workout (GYM-010): its number, weight, reps and RIR as
- * compact ValueSteppers, then a Checkbox in the Gym's coral that logs it. A
- * logged set that is the best Epley strength yet carries a trophy.
+ * A logged set, read as text (GYM-010 3): its number in a 28px circle (a
+ * trophy on a coral tint for a PR), "60 kg × 8", "RIR 1" muted, a PR
+ * badge, then an × that removes it. Choosing the line opens it to change.
+ * A set logged without numbers says so, muted.
  */
-export function SetRow({
+export function SetLine({
   n,
   weight,
   reps,
   rir,
-  logged = false,
   pr = false,
+  strength,
   onRemove,
 }: {
   n: number
-  weight: string
-  reps: number
-  rir: number
-  logged?: boolean
+  /** Missing for a set logged without numbers. */
+  weight?: string
+  reps?: number
+  rir?: number
   pr?: boolean
+  /** Its strength, at the end (the review). */
+  strength?: string
   onRemove?: () => void
 }) {
+  const bare = weight === undefined
   return (
-    <div
-      data-logged={logged || undefined}
-      className="flex items-center gap-1 rounded-control px-1 py-0.5 sm:gap-2"
-    >
-      <span className="grid w-5 shrink-0 place-items-center text-sm font-semibold text-muted-foreground tabular-nums">
-        {pr ? <TrophyIcon aria-label="PR" className="size-3.5 text-tc-text" /> : n}
+    <div className="flex h-11 items-center gap-3 rounded-control pr-1 pl-1 hover:bg-accent/50">
+      <span className="grid size-7 shrink-0 place-items-center rounded-full bg-muted text-xs font-bold text-muted-foreground tabular-nums">
+        {n}
       </span>
-      <ValueStepper compact width="lg" label="Weight" value={weight} />
-      <ValueStepper compact width="md" label="Reps" value={String(reps)} />
-      <ValueStepper compact width="sm" label="RIR" value={String(rir)} canDown={rir > 0} />
-      <span className="grid size-8 place-items-center">
-        <Checkbox colour="coral" checked={logged} aria-label={`Log set ${n}`} />
-      </span>
+      <button
+        type="button"
+        className="flex min-w-0 flex-1 items-baseline gap-1.5 text-left outline-none"
+      >
+        {bare ? (
+          <span className="text-sm text-muted-foreground">Logged, no numbers</span>
+        ) : (
+          <>
+            <span className="font-semibold tabular-nums">{weight}</span>
+            <span className="text-sm text-muted-foreground">kg</span>
+            <span className="px-0.5 text-muted-foreground">×</span>
+            <span className="font-semibold tabular-nums">{reps}</span>
+            <span className="pl-2 text-sm text-muted-foreground tabular-nums">RIR {rir}</span>
+          </>
+        )}
+      </button>
+      {pr && (
+        <Badge variant="type">
+          <TrophyIcon aria-hidden />
+          PR
+        </Badge>
+      )}
+      {strength && (
+        <span className="w-12 text-right text-sm text-muted-foreground tabular-nums">
+          {strength}
+        </span>
+      )}
       {onRemove && (
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          aria-label={`Remove set ${n}`}
-          onClick={onRemove}
-          className="max-sm:hidden"
-        >
+        <Button variant="ghost" size="icon-sm" aria-label={`Remove set ${n}`} onClick={onRemove}>
           <XIcon />
         </Button>
       )}
@@ -436,27 +356,59 @@ export function SetRow({
 }
 
 /**
- * An exercise in a workout (GYM-008): a header — its name, a muted line
- * (primary group, sets done of planned, best set), a Done button and the
- * chevron that expands or collapses it — then, expanded, its sets. A done
- * exercise's name is muted with a tick.
+ * The next set to log (GYM-010 1): a 44px dashed box, muted "+ Log set 3
+ * of 3"; `--accent` on hover.
  */
-export function ExerciseBlock({
+export function LogSetButton({ label, onClick }: { label: string; onClick?: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex h-11 w-full items-center gap-2 rounded-control border-[1.5px] border-dashed border-border px-3 text-sm font-semibold text-muted-foreground outline-none hover:bg-accent hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring-soft"
+    >
+      <PlusIcon className="size-4" />
+      {label}
+    </button>
+  )
+}
+
+/** An exercise's setup and form notes, muted with a `notebook-pen`. */
+export function FormNotes({ children }: { children: ReactNode }) {
+  return (
+    <p className="flex gap-2 text-sm text-muted-foreground">
+      <NotebookPenIcon aria-hidden className="mt-0.5 size-3.5 shrink-0" />
+      <span>{children}</span>
+    </p>
+  )
+}
+
+/**
+ * An exercise in a workout or a template (GYM-008, GYM-006): a card-filled
+ * `--radius-row` box. First its expand button (a workout) or drag handle (a
+ * template), then its name (weight 600) and a muted line, then its own
+ * control (Done, or a template's sets stepper) and its "…". A done
+ * exercise shows a green tick and "Done", which undoes it. Expanded, what
+ * it holds sits under its name.
+ */
+export function ExerciseCard({
   name,
   meta,
   open = false,
+  drag = false,
   done = false,
+  control,
   menu,
-  action,
   children,
 }: {
   name: string
-  meta: ReactNode
+  /** Its muted line's parts, joined by "·"; a line breaks only between parts. */
+  meta: ReactNode[]
   open?: boolean
+  /** A template's: a drag handle where the expand button is. */
+  drag?: boolean
   done?: boolean
+  control?: ReactNode
   menu?: ReactNode
-  /** Done, or Undo done. */
-  action?: ReactNode
   children?: ReactNode
 }) {
   return (
@@ -464,78 +416,47 @@ export function ExerciseBlock({
       data-open={open || undefined}
       className="flex flex-col rounded-row bg-card shadow-card"
     >
-      <div className="flex min-h-14 items-center gap-2 py-2 pr-2 pl-3.5">
-        <button
-          type="button"
-          aria-expanded={open}
-          className="flex min-w-0 flex-1 items-center gap-2 text-left outline-none focus-visible:ring-3 focus-visible:ring-ring-soft"
-        >
-          <span className="flex min-w-0 flex-1 flex-col">
-            <span className={cn('truncate font-semibold', done && 'text-muted-foreground')}>
-              {name}
-            </span>
-            <span className="truncate text-sm text-muted-foreground tabular-nums">{meta}</span>
+      <div className="flex min-h-[60px] items-center gap-2 py-2 pr-2 pl-2">
+        {drag ? (
+          <span
+            aria-label="Drag to reorder"
+            className="grid size-8 shrink-0 cursor-grab place-items-center rounded-control text-muted-foreground hover:bg-accent"
+          >
+            <GripVerticalIcon className="size-4" />
           </span>
-          <ChevronDownIcon
-            aria-hidden
-            className={cn(
-              'size-4 shrink-0 text-muted-foreground transition-transform',
-              open && 'rotate-180',
-            )}
-          />
-        </button>
-        {action}
+        ) : (
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            aria-expanded={open}
+            aria-label={open ? `Collapse ${name}` : `Expand ${name}`}
+          >
+            <ChevronDownIcon className={cn('transition-transform', !open && '-rotate-90')} />
+          </Button>
+        )}
+        <span className="flex min-w-0 flex-1 flex-col">
+          <span className={cn('font-semibold', done && 'text-muted-foreground')}>{name}</span>
+          <span className="text-sm text-muted-foreground tabular-nums">
+            {meta.map((m, i) => (
+              <span key={i} className="whitespace-nowrap">
+                {i > 0 && <span aria-hidden> · </span>}
+                {m}
+              </span>
+            ))}
+          </span>
+        </span>
+        {done ? (
+          <Button variant="ghost" size="sm" aria-label="Undo done" className="text-success">
+            <CheckIcon /> Done
+          </Button>
+        ) : (
+          control
+        )}
         {menu}
       </div>
-      {open && <div className="flex flex-col gap-1.5 px-2.5 pb-3 sm:px-3.5">{children}</div>}
-    </section>
-  )
-}
-
-/**
- * A row to reorder in a template (GYM-006): a drag handle, the exercise's
- * name and its primary group, its sets each with an RIR stepper, Add set,
- * and an X that takes it off the template.
- */
-export function TemplateExercise({
-  name,
-  meta,
-  rirs,
-  onRemove,
-}: {
-  name: string
-  meta: string
-  rirs: number[]
-  onRemove?: () => void
-}) {
-  return (
-    <section className="flex flex-col gap-2 rounded-row bg-card p-3 shadow-card">
-      <div className="flex items-center gap-2">
-        <GripVerticalIcon
-          aria-label="Drag to reorder"
-          className="size-4 shrink-0 cursor-grab text-muted-foreground"
-        />
-        <span className="flex min-w-0 flex-1 flex-col">
-          <span className="truncate font-semibold">{name}</span>
-          <span className="truncate text-sm text-muted-foreground">{meta}</span>
-        </span>
-        <Button variant="ghost" size="icon-sm" aria-label={`Take ${name} off`} onClick={onRemove}>
-          <XIcon />
-        </Button>
-      </div>
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-2 pl-6">
-        {rirs.map((rir, i) => (
-          <span key={i} className="flex items-center gap-1.5">
-            <span className="text-xs font-semibold text-muted-foreground tabular-nums">
-              Set {i + 1} · RIR
-            </span>
-            <ValueStepper compact width="sm" label="RIR" value={String(rir)} canDown={rir > 0} />
-          </span>
-        ))}
-        <Button variant="ghost" size="sm">
-          <PlusIcon /> Set
-        </Button>
-      </div>
+      {open && children && (
+        <div className="flex flex-col gap-2 pr-3 pb-3 pl-3 sm:pl-12">{children}</div>
+      )}
     </section>
   )
 }
@@ -543,9 +464,9 @@ export function TemplateExercise({
 /* ---------- Coverage and targets ---------- */
 
 /**
- * Stimulus sets against a target (GYM-006 4, GYM-017): the muscle group's
- * name, a bar filled to the sets (the target marked as a tick), and
- * "3.2 / 4". Over the target, the bar is full.
+ * Stimulus sets against a target (GYM-006 4): the muscle group's name (and
+ * a muted line), an 8px bar filled `--primary` to its stimulus sets with
+ * the target as a 2px tick, and "2.6 / 4" (tabular).
  */
 export function StimulusRow({
   muscle,
@@ -588,7 +509,180 @@ export function StimulusRow({
   )
 }
 
+/* ---------- Readiness ---------- */
+
+/**
+ * Readiness as a ring (GYM-016 3): a 4px `--muted` track and an arc in
+ * its colour on the readiness scale, the percentage in the middle.
+ */
+export function ReadinessRing({ percent, size = 40 }: { percent: number; size?: number }) {
+  const r = (size - 5) / 2
+  const c = 2 * Math.PI * r
+  return (
+    <span className="relative grid shrink-0 place-items-center" aria-label={`${percent} % ready`}>
+      <svg width={size} height={size} className="-rotate-90" aria-hidden>
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={r}
+          fill="none"
+          className="stroke-muted [stroke-width:4]"
+        />
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={r}
+          fill="none"
+          strokeDasharray={`${(c * percent) / 100} ${c}`}
+          className="[stroke-linecap:round] [stroke-width:4]"
+          // Its colour on the readiness scale.
+          style={{ stroke: readinessColour(percent) }}
+        />
+      </svg>
+      <span
+        className={cn('absolute font-bold tabular-nums', size >= 56 ? 'text-base' : 'text-[11px]')}
+      >
+        {percent}
+      </span>
+    </span>
+  )
+}
+
+/** A muscle group's readiness as a bar and its percentage. */
+export function ReadinessBar({ percent, className }: { percent: number; className?: string }) {
+  return (
+    <div className={cn('flex items-center gap-2.5', className)}>
+      <div className="h-2 flex-1 overflow-hidden rounded-full bg-muted">
+        <div
+          className="h-full rounded-full"
+          // A computed width and its colour on the readiness scale.
+          style={{ width: `${percent}%`, background: readinessColour(percent) }}
+        />
+      </div>
+      <span className="w-10 text-right text-sm font-semibold tabular-nums">{percent} %</span>
+    </div>
+  )
+}
+
+/** Overall readiness (GYM-016 1): the figure at `text-display`, its name, and when it stands for. */
+export function OverallReadiness({ percent, when }: { percent: number; when: string }) {
+  return (
+    <div className="flex flex-col gap-0.5">
+      <span className="text-sm font-semibold text-muted-foreground">
+        Overall readiness · {when}
+      </span>
+      <span className="text-display tabular-nums">{percent} %</span>
+    </div>
+  )
+}
+
+/**
+ * Looking ahead (GYM-016 2): a Slider from Now to +48 hours, in hours,
+ * with its ends named under it.
+ */
+export function LookAhead({ hours }: { hours: number }) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <Slider defaultValue={hours} min={0} max={48} step={1} aria-label="Look ahead" />
+      <div className="flex justify-between text-xs font-semibold text-muted-foreground">
+        <span>Now</span>
+        <span>+24 h</span>
+        <span>+48 h</span>
+      </div>
+    </div>
+  )
+}
+
+/* ---------- Choosing ---------- */
+
+/**
+ * A muscle group to choose (GYM-009 1): a 44px button on a `--muted` fill,
+ * its name (weight 600) and, muted at its end, how many exercises it has.
+ */
+export function MuscleChoice({ name, count }: { name: string; count: number }) {
+  return (
+    <button
+      type="button"
+      className="flex h-11 items-center justify-between gap-2 rounded-control bg-secondary px-3 text-left text-sm font-semibold outline-none hover:bg-accent focus-visible:ring-3 focus-visible:ring-ring-soft"
+    >
+      <span className="truncate">{name}</span>
+      <span className="text-xs text-muted-foreground tabular-nums">{count}</span>
+    </button>
+  )
+}
+
 /* ---------- Charts ---------- */
+
+export type LineTone = 'coral' | 'grey'
+export type LineDash = 'solid' | 'dash' | 'dot'
+
+const dashClass = (dash: LineDash) =>
+  dash === 'dash' ? '[stroke-dasharray:6_4]' : dash === 'dot' ? '[stroke-dasharray:1_4]' : ''
+
+/** A line's stroke drawn small, for a pill or a key. */
+export function LineSample({ tone, dash }: { tone: LineTone; dash: LineDash }) {
+  return (
+    <svg width="18" height="8" aria-hidden className="shrink-0">
+      <line
+        x1="2"
+        x2="16"
+        y1="4"
+        y2="4"
+        className={cn(
+          '[stroke-linecap:round] [stroke-width:2]',
+          tone === 'coral' ? 'stroke-tc' : 'stroke-muted-foreground',
+          dashClass(dash),
+        )}
+      />
+    </svg>
+  )
+}
+
+/**
+ * An exercise's line on a muscle group's chart, shown or hidden
+ * (GYM-015 3): a 32px pill; on, `--selected` with its LineSample and its
+ * name; off, the hairline edge, a muted "+" and its name; disabled while
+ * three of its kind are on.
+ */
+export function LinePill({
+  label,
+  sub,
+  on,
+  tone,
+  dash,
+  disabled = false,
+}: {
+  label: string
+  sub?: string
+  on: boolean
+  tone: LineTone
+  dash?: LineDash
+  disabled?: boolean
+}) {
+  return (
+    <button
+      type="button"
+      aria-pressed={on}
+      disabled={disabled}
+      className={cn(
+        'inline-flex h-8 shrink-0 items-center gap-1.5 rounded-full px-3 text-sm font-semibold whitespace-nowrap outline-none focus-visible:ring-3 focus-visible:ring-ring-soft disabled:opacity-45',
+        on
+          ? tone === 'coral'
+            ? 'bg-selected text-selected-foreground'
+            : 'bg-accent text-foreground'
+          : 'text-muted-foreground shadow-[inset_0_0_0_1px_var(--hairline)] hover:bg-accent/60',
+      )}
+    >
+      {on && dash ? (
+        <LineSample tone={tone} dash={dash} />
+      ) : (
+        <PlusIcon aria-hidden className="size-3.5" />
+      )}
+      {label}
+      {sub && <span className="font-normal text-muted-foreground tabular-nums">{sub}</span>}
+    </button>
+  )
+}
 
 function useWidth() {
   const ref = useRef<HTMLDivElement>(null)
@@ -608,77 +702,94 @@ export type ChartLine = {
   id: string
   label: string
   values: (number | null)[]
-  /** strong: the Gym's coral, 2px; dash: coral, dashed; muted: grey, 1.5px. */
-  style: 'strong' | 'dash' | 'dot' | 'muted'
-  /** A marker on one point (the PR). */
+  tone: LineTone
+  dash: LineDash
+  /** A dot on one point (the PR). */
   mark?: number
 }
 
 /**
- * Progression over time (GYM-014, GYM-015): one axis only, Epley strength
- * (or its change, %) by week, with a crosshair and the values on hover; and,
- * under it on the same weeks, the muscle group's weekly stimulus sets as
- * bars with its target as a dashed line — two panels, never a second axis.
+ * Progression (GYM-014, GYM-015): one scale only — strength, or its change
+ * in %, by week — lines in coral or grey, solid, dashed or dotted, a soft
+ * area under the first, a dot on the PR, a foreground-7% grid; under it,
+ * on the same weeks, a muscle's stimulus sets a week as bars with the
+ * target dashed. A crosshair and a `--popover` tooltip on hover.
  */
 export function ProgressChart({
   weeks,
   lines,
-  refs = [],
   bars,
   target,
   barsLabel,
   unit = '',
+  height = 200,
 }: {
   weeks: string[]
   lines: ChartLine[]
-  /** Flat lines with a label (the goal). */
-  refs?: { label: string; value: number }[]
   bars: number[]
   target: number
   barsLabel: string
   unit?: string
+  height?: number
 }) {
   const [ref, width] = useWidth()
   const [hover, setHover] = useState<number | null>(null)
-  const left = 40
-  const right = 12
-  const h = 180
-  const bh = 96
-  const all = [
-    ...lines.flatMap((l) => l.values.filter((v): v is number => v !== null)),
-    ...refs.map((r) => r.value),
-  ]
+  const left = 44
+  const right = 8
+  const h = height
+  const bh = 84
+  const all = lines.flatMap((l) => l.values.filter((v): v is number => v !== null))
   const lo = Math.min(...all)
   const hi = Math.max(...all)
-  const pad = (hi - lo) * 0.12 || 1
-  const y0 = lo - pad
-  const y1 = hi + pad
-  const n = weeks.length
-  const x = (i: number) => left + ((width - left - right) * i) / Math.max(1, n - 1)
-  const y = (v: number) => 8 + (h - 24) * (1 - (v - y0) / (y1 - y0))
-  const raw = (y1 - y0) / 4
+  const raw = (hi - lo) / 4 || 1
   const mag = 10 ** Math.floor(Math.log10(raw))
   const tick = [1, 2, 2.5, 5, 10].map((m) => m * mag).find((t) => t >= raw) ?? raw
+  const y0 = Math.floor(lo / tick) * tick
+  const y1 = Math.ceil(hi / tick) * tick
   const ticks: number[] = []
-  for (let t = Math.ceil(y0 / tick) * tick; t <= y1; t += tick) ticks.push(t)
-  const bmax = Math.max(target * 1.5, ...bars)
-  const by = (v: number) => bh - 14 - ((bh - 20) * v) / bmax
-  const step = (width - left - right) / Math.max(1, n - 1)
+  for (let t = y0; t <= y1 + tick / 2; t += tick) ticks.push(t)
+  const n = weeks.length
+  const plotW = width - left - right
+  const step = plotW / Math.max(1, n - 1)
+  const x = (i: number) => left + step * i
+  const top = 10
+  const bottom = h - 26
+  const y = (v: number) => top + (bottom - top) * (1 - (v - y0) / (y1 - y0 || 1))
+  const bmax = Math.max(target * 1.4, ...bars, 1)
+  const bBase = bh - 6
+  const by = (v: number) => bBase - ((bBase - 8) * v) / bmax
   const fmt = (v: number) => `${Math.round(v * 10) / 10}${unit}`
+  const every = Math.ceil(n / Math.max(2, Math.floor(plotW / 72)))
+  const first = lines[0]
+  let area = ''
+  if (first) {
+    const pts = first.values
+      .map((v, i) => (v === null ? null : ([x(i), y(v)] as const)))
+      .filter(Boolean) as (readonly [number, number])[]
+    if (pts.length > 1)
+      area = `M${pts[0]![0]},${bottom} ${pts.map(([px, py]) => `L${px},${py}`).join(' ')} L${pts[pts.length - 1]![0]},${bottom} Z`
+  }
+  const move = (e: React.PointerEvent<SVGSVGElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect()
+    const i = Math.round((e.clientX - rect.left - left) / step)
+    setHover(i >= 0 && i < n ? i : null)
+  }
 
   return (
-    <div ref={ref} className="relative flex w-full flex-col gap-1">
+    <div ref={ref} className="relative flex w-full flex-col">
       <svg
         width={width}
         height={h}
         className="overflow-visible"
-        onPointerMove={(e) => {
-          const rect = e.currentTarget.getBoundingClientRect()
-          const i = Math.round((e.clientX - rect.left - left) / step)
-          setHover(i >= 0 && i < n ? i : null)
-        }}
+        onPointerMove={move}
         onPointerLeave={() => setHover(null)}
       >
+        <defs>
+          <linearGradient id="gym-area" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" className="[stop-color:var(--tc)] [stop-opacity:0.22]" />
+            <stop offset="100%" className="[stop-color:var(--tc)] [stop-opacity:0]" />
+          </linearGradient>
+        </defs>
         {ticks.map((t) => (
           <g key={t}>
             <line
@@ -689,7 +800,7 @@ export function ProgressChart({
               className="stroke-foreground/7"
             />
             <text
-              x={left - 6}
+              x={left - 8}
               y={y(t) + 4}
               textAnchor="end"
               className="fill-muted-foreground text-[11px] tabular-nums"
@@ -698,25 +809,7 @@ export function ProgressChart({
             </text>
           </g>
         ))}
-        {refs.map((r) => (
-          <g key={r.label}>
-            <line
-              x1={left}
-              x2={width - right}
-              y1={y(r.value)}
-              y2={y(r.value)}
-              className="stroke-muted-foreground [stroke-dasharray:2_4] [stroke-width:1.5]"
-            />
-            <text
-              x={width - right}
-              y={y(r.value) - 5}
-              textAnchor="end"
-              className="fill-muted-foreground text-[11px] font-semibold"
-            >
-              {r.label}
-            </text>
-          </g>
-        ))}
+        {area && <path d={area} fill="url(#gym-area)" />}
         {lines.map((l) => {
           let d = ''
           l.values.forEach((v, i) => {
@@ -730,11 +823,10 @@ export function ProgressChart({
                 fill="none"
                 className={cn(
                   '[stroke-linecap:round] [stroke-linejoin:round]',
-                  l.style === 'muted'
-                    ? 'stroke-muted-foreground [stroke-width:1.5]'
-                    : 'stroke-tc [stroke-width:2]',
-                  l.style === 'dash' && '[stroke-dasharray:6_4]',
-                  l.style === 'dot' && '[stroke-dasharray:1_4]',
+                  l.tone === 'coral'
+                    ? 'stroke-tc [stroke-width:2.25]'
+                    : 'stroke-muted-foreground [stroke-width:1.75]',
+                  dashClass(l.dash),
                 )}
               />
               {l.mark !== undefined && l.values[l.mark] !== null && (
@@ -742,21 +834,43 @@ export function ProgressChart({
                   cx={x(l.mark)}
                   cy={y(l.values[l.mark]!)}
                   r={5}
-                  className="fill-tc stroke-card [stroke-width:2]"
+                  className="fill-tc stroke-card [stroke-width:2.5]"
                 />
               )}
             </g>
           )
         })}
         {hover !== null && (
-          <line x1={x(hover)} x2={x(hover)} y1={4} y2={h - 16} className="stroke-foreground/25" />
+          <>
+            <line
+              x1={x(hover)}
+              x2={x(hover)}
+              y1={top}
+              y2={bottom}
+              className="stroke-foreground/25"
+            />
+            {lines.map((l) =>
+              l.values[hover] === null ? null : (
+                <circle
+                  key={l.id}
+                  cx={x(hover)}
+                  cy={y(l.values[hover]!)}
+                  r={3.5}
+                  className={cn(
+                    'stroke-card [stroke-width:2]',
+                    l.tone === 'coral' ? 'fill-tc' : 'fill-muted-foreground',
+                  )}
+                />
+              ),
+            )}
+          </>
         )}
         {weeks.map((w, i) =>
-          i % Math.ceil(n / Math.max(2, Math.floor(width / 80))) === 0 ? (
+          i % every === 0 ? (
             <text
               key={w + i}
               x={x(i)}
-              y={h - 2}
+              y={h - 6}
               textAnchor="middle"
               className="fill-muted-foreground text-[11px]"
             >
@@ -765,59 +879,78 @@ export function ProgressChart({
           ) : null,
         )}
       </svg>
-      <div className="pl-10 text-xs font-semibold text-muted-foreground">{barsLabel}</div>
-      <svg width={width} height={bh} className="overflow-visible">
-        {bars.map((b, i) => (
-          <rect
-            key={i}
-            x={x(i) - Math.min(10, step * 0.35)}
-            y={by(b)}
-            width={Math.min(20, step * 0.7)}
-            height={Math.max(0, bh - 14 - by(b))}
-            rx={3}
-            className={cn('fill-tc/45', hover === i && 'fill-tc/80')}
-          />
-        ))}
+      <div className="flex items-center justify-between pt-3 pb-1 pl-11 text-xs font-semibold text-muted-foreground">
+        <span>{barsLabel}</span>
+        <span className="flex items-center gap-1.5">
+          <svg width="16" height="6" aria-hidden>
+            <line
+              x1="1"
+              x2="15"
+              y1="3"
+              y2="3"
+              className="stroke-foreground [stroke-dasharray:3_2] [stroke-width:1.5]"
+            />
+          </svg>
+          Target {target}
+        </span>
+      </div>
+      <svg
+        width={width}
+        height={bh}
+        className="overflow-visible"
+        onPointerMove={move}
+        onPointerLeave={() => setHover(null)}
+      >
+        <line x1={left} x2={width - right} y1={bBase} y2={bBase} className="stroke-foreground/12" />
+        {bars.map((b, i) => {
+          const bw = Math.max(4, Math.min(22, step * 0.62))
+          return (
+            <rect
+              key={i}
+              x={x(i) - bw / 2}
+              y={by(b)}
+              width={bw}
+              height={Math.max(0, bBase - by(b))}
+              rx={Math.min(4, bw / 2)}
+              className={cn('transition-[fill-opacity]', hover === i ? 'fill-tc' : 'fill-tc/40')}
+            />
+          )
+        })}
         <line
           x1={left}
           x2={width - right}
           y1={by(target)}
           y2={by(target)}
-          className="stroke-foreground [stroke-dasharray:4_3] [stroke-width:1.5]"
+          className="stroke-foreground [stroke-dasharray:3_2] [stroke-width:1.5]"
         />
         <text
-          x={left - 6}
+          x={left - 8}
           y={by(target) + 4}
           textAnchor="end"
           className="fill-muted-foreground text-[11px] tabular-nums"
         >
           {target}
         </text>
-        <line
-          x1={left}
-          x2={width - right}
-          y1={bh - 14}
-          y2={bh - 14}
-          className="stroke-foreground/12"
-        />
       </svg>
       {hover !== null && (
         <div
-          className="pointer-events-none absolute top-0 z-10 flex min-w-36 flex-col gap-0.5 rounded-sm bg-popover p-2.5 text-xs shadow-pop"
+          className="pointer-events-none absolute top-0 z-10 flex min-w-44 flex-col gap-1 rounded-sm bg-popover p-2.5 text-xs shadow-pop"
           // Beside the crosshair.
-          style={{ left: Math.min(x(hover) + 10, width - 160) }}
+          style={{ left: Math.max(0, Math.min(x(hover) + 12, width - 190)) }}
         >
           <span className="font-semibold">Week of {weeks[hover]}</span>
           {lines.map((l) =>
             l.values[hover] === null ? null : (
-              <span key={l.id} className="flex justify-between gap-3 tabular-nums">
-                <span className="text-muted-foreground">{l.label}</span>
+              <span key={l.id} className="flex items-center gap-2 tabular-nums">
+                <LineSample tone={l.tone} dash={l.dash} />
+                <span className="flex-1 text-muted-foreground">{l.label}</span>
                 <span className="font-semibold">{fmt(l.values[hover]!)}</span>
               </span>
             ),
           )}
-          <span className="flex justify-between gap-3 tabular-nums">
-            <span className="text-muted-foreground">Stimulus sets</span>
+          <span className="flex items-center gap-2 tabular-nums">
+            <span className="mx-1 size-2.5 rounded-[3px] bg-tc/40" aria-hidden />
+            <span className="flex-1 text-muted-foreground">Stimulus sets</span>
             <span className="font-semibold">{bars[hover]}</span>
           </span>
         </div>
@@ -826,38 +959,17 @@ export function ProgressChart({
   )
 }
 
-/** A chart's key: each line's stroke beside its name, in text colours. */
+/** A chart's key: each line's stroke beside its name, muted. */
 export function ChartKey({
   items,
 }: {
-  items: { label: string; style: ChartLine['style'] | 'ref' | 'bar' }[]
+  items: { label: string; tone: LineTone; dash: LineDash }[]
 }) {
   return (
-    <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+    <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs font-semibold text-muted-foreground">
       {items.map((it) => (
         <span key={it.label} className="flex items-center gap-1.5">
-          <svg width="18" height="8" aria-hidden>
-            {it.style === 'bar' ? (
-              <rect x="5" y="0" width="8" height="8" rx="2" className="fill-tc/45" />
-            ) : (
-              <line
-                x1="1"
-                x2="17"
-                y1="4"
-                y2="4"
-                className={cn(
-                  '[stroke-linecap:round]',
-                  it.style === 'muted' || it.style === 'ref'
-                    ? 'stroke-muted-foreground'
-                    : 'stroke-tc',
-                  it.style === 'muted' ? '[stroke-width:1.5]' : '[stroke-width:2]',
-                  it.style === 'dash' && '[stroke-dasharray:5_3]',
-                  it.style === 'dot' && '[stroke-dasharray:1_3]',
-                  it.style === 'ref' && '[stroke-dasharray:2_3]',
-                )}
-              />
-            )}
-          </svg>
+          <LineSample tone={it.tone} dash={it.dash} />
           {it.label}
         </span>
       ))}

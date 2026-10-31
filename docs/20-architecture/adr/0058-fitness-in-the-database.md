@@ -1,6 +1,7 @@
 # ADR-0058: Fitness in the database
 
 **Status:** Provisionally agreed · 2026-10-29 (Joe)
+**Amended:** 2026-10-31 by Joe's comments on the first design pass (no goal on an Exercise; a template's exercises carry a number of sets, not sets with RIR; a set may be logged without numbers; Complete for done).
 
 ## Context
 
@@ -22,22 +23,25 @@ started from ([ADR-0013](0013-occurrences-snapshot-their-definition.md)).
   ([ADR-0032](0032-delete-means-archive.md)).
 - **A Workout is planned for a day:** `core.items.do_on`, as a Meal is,
   never `starts_at`. Its stage is in `fitness.workout` (planned ·
-  in_progress · done), its status *active* until done. **Skipped is worked
+  in_progress · complete), its status *active* until complete, then
+  *done*. **Skipped is worked
   out, not stored:** a planned Workout whose day has passed. **One in
   progress per person**, by a unique index.
 - **Detail tables:** `fitness.exercise(equipment_id, working_weight,
-  working_reps, goal_weight?, goal_reps?, notes?)`;
+  working_reps, notes?)` — no goal: goals are the Goals app's;
   `fitness.workout(stage, started_at?, ended_at?, how_it_went?,
   motivation?, notes?)`.
 - **Child rows:** `exercise_muscles(exercise_id, muscle_id,
   contribution)` — exactly one row of 1.0 (the primary), the rest 0.1–0.9
   in steps of 0.1, checked by the function that writes them;
-  `template_exercises(template_id, exercise_id, position)` and
-  `template_sets(template_exercise_id, position, rir)`;
+  `template_exercises(template_id, exercise_id, position, sets)`;
   `workout_entries(workout_id, exercise_id, place: backlog · session,
-  begun_at?, done_at?, snapshot)`, the session's order being `begun_at`'s;
-  `workout_sets(entry_id, position, weight, reps, rir, logged_at?)`, a
-  planned set being one not yet logged.
+  planned_sets, begun_at?, done_at?, snapshot)`, the session's order
+  being `begun_at`'s;
+  `workout_sets(entry_id, position, weight?, reps?, rir?, logged_at)`,
+  each logged when it is written; weight, reps and RIR are all there or
+  all missing, a set **logged without numbers** having none (the engine
+  counts it as 10 reps at RIR 2).
 - **The snapshot** an entry takes at Start, or when added, is its
   Exercise's name, equipment, increment and working set. **Muscle groups
   are not copied:** readiness and stimulus sets always use an Exercise's
@@ -56,8 +60,8 @@ started from ([ADR-0013](0013-occurrences-snapshot-their-definition.md)).
 - **Every write is a database function**
   ([ADR-0009](0009-cross-table-writes-are-database-functions.md),
   [ADR-0042](0042-data-layer.md)): making and editing an Exercise with its
-  groups, a template with its sets, planning, `start_workout` (copying the
-  template, its sets and each working set), beginning an entry, logging,
+  groups, a template with its numbers of sets, planning, `start_workout` (copying the
+  template, its numbers of sets and each working set), beginning an entry, logging,
   changing and removing a set, marking an entry done and undoing it,
   ending, and setting a working set from the review.
 - **The activity log grows to fitness**, by triggers on the detail tables
@@ -68,7 +72,7 @@ started from ([ADR-0013](0013-occurrences-snapshot-their-definition.md)).
 - Workouts join Plan through `do_on`, with no Plan work
   ([ADR-0029](0029-plan-reads-core-items.md)); the data model's time-field
   table changes Workout from `starts_at` to `do_on`.
-- Readiness, stimulus sets, Epley strength and progression are not stored:
+- Readiness, stimulus sets, strength and progression are not stored:
   [ADR-0059](0059-recovery-on-the-device.md).
 - Database tests cover each rule: one primary, contributions in range, one
   workout in progress, the snapshot at Start, owner-only writes, equipment

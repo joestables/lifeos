@@ -5,8 +5,8 @@
 ## Context
 
 The [Gym spec](../../10-requirements/modules/gym.md) asks for readiness,
-stimulus sets, template coverage, weekly targets, what to do next, Epley
-strength, PRs and progression, offline too (GYM-016 4, GYM-021 1), and
+stimulus sets, template coverage, weekly targets, what to do next,
+strength (Epley's formula), PRs and progression, offline too (GYM-016 4, GYM-021 1), and
 for readiness to follow at once when a workout or an Exercise's groups
 change (GYM-004 4). Its recovery engine
 ([Annex A](../../10-requirements/modules/gym.md#annex-a--the-recovery-engine))
@@ -17,7 +17,7 @@ Goal measuring strength, a nudge sent while LifeOS is closed, the AI.
 ## Decision
 
 - **One package, `packages/fitness`, holds every calculation** as pure
-  TypeScript functions of sets, Exercises and settings: Epley strength and
+  TypeScript functions of sets, Exercises and settings: strength and
   PRs, the recovery engine exactly as Annex A, stimulus sets per workout,
   template coverage, weekly targets, stalled exercises, ranking templates,
   and progression.
