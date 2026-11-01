@@ -158,12 +158,12 @@ test.describe('the exercise library', () => {
     await expect(dialog.getByText('You already have Bench press')).toBeVisible()
     await dialog.getByRole('textbox', { name: 'Name' }).fill('Cable fly')
     await dialog.getByRole('combobox', { name: 'Equipment' }).click()
-    await page.getByRole('option', { name: 'Cable' }).click()
+    await page.getByRole('option', { name: 'Cable' }).filter({ visible: true }).click()
     await dialog.getByRole('combobox', { name: 'Primary muscle' }).click()
-    await page.getByRole('option', { name: 'Chest' }).click()
+    await page.getByRole('option', { name: 'Chest' }).filter({ visible: true }).click()
     await dialog.getByRole('button', { name: 'Add a muscle' }).click()
     await dialog.getByRole('combobox', { name: 'Add a muscle' }).click()
-    await page.getByRole('option', { name: 'Front delts' }).click()
+    await page.getByRole('option', { name: 'Front delts' }).filter({ visible: true }).click()
     await dialog.getByRole('button', { name: 'Less front delts contribution' }).click()
     await expect(dialog.getByRole('group', { name: 'Front delts contribution' })).toContainText(
       '0.4',
