@@ -9,8 +9,8 @@ Google Tasks), 3 (Plan, Events and Google Calendar) and 4 (Recipes and the
 Meal plan) are done. **Stage 4b**, Shopping, has started: its
 [plan](50-progress/plans/stage-4b.md) is written, and its specs come first
 ([roadmap](roadmap.md#where-we-are)). **Stage 5**, Gym, has started
-alongside it: its [plan](50-progress/plans/stage-5.md) is written and its
-spec agreed.
+alongside it: its [plan](50-progress/plans/stage-5.md) is written, its
+spec and design agreed, and its schema in the database.
 
 ## Index
 
