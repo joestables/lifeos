@@ -73,7 +73,7 @@ templates, and starting a session opens the session-logging Screen.
 | **Average frequency** | How many workouts a week trained a muscle group, averaged over the last 28 days ("×2.1"). |
 | **Stimulus sets** | How much training a workout gave a muscle group, worked out by the recovery engine from RIR and each Exercise's contributions. |
 | **Readiness** | How recovered a muscle group is, 0–100 %, worked out by the recovery engine. |
-| **Stalled** | An Exercise whose best strength hasn't risen across four weeks of training ([gym](../10-requirements/modules/gym.md#progression)). |
+| **Stalled** | An Exercise none of whose last few workouts (Workouts to stall, a Gym setting, 5 to start) beat the oldest one's best strength ([gym](../10-requirements/modules/gym.md#progression)). |
 | **Cook log** | The record of each time a Variation was cooked: who, when, a verdict and notes, and a snapshot of the Variation as cooked. |
 | **Ontology** | Types, Traits, statuses, link types, measures and reference data: the schema of the graph. |
 

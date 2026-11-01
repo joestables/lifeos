@@ -53,7 +53,7 @@ started from ([ADR-0013](0013-occurrences-snapshot-their-definition.md)).
   shared by everyone and read-only, a person's own beside them;
   `fitness.muscle_settings(person, muscle_id, recovery_type,
   frequency_target, stimulus_target)`, the defaults when there is no row;
-  `fitness.settings(person, preferred_rir, points_per_fatigue_set,
+  `fitness.settings(person, preferred_rir, workouts_to_stall, points_per_fatigue_set,
   t_fast_h, t_normal_h, t_slow_h)`.
 - **Weights are exact:** `numeric(7,3)` kg in the database, and whole
   grams (integers) on the device, so 0.625 × 3 is 1.875 with no rounding;

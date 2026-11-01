@@ -4,7 +4,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = extensions, public;
-select plan(53);
+select plan(55);
 
 -- Ann and Ben share a Household; Cat is on her own.
 insert into auth.users (id, email) values
@@ -360,6 +360,17 @@ select is(
   (select array[preferred_rir::text, t_normal_h::text] from fitness.settings),
   array['2', '42.0'],
   'GYM-020 1: Preferred RIR set; the engine''s settings start at their defaults'
+);
+select is(
+  (select workouts_to_stall from fitness.settings),
+  5::smallint,
+  'GYM-020 3: Workouts to stall starts at 5'
+);
+select fitness.update_settings('{"workouts_to_stall": 4}');
+select throws_ok(
+  $$select fitness.update_settings('{"workouts_to_stall": 1}')$$,
+  '23514', null,
+  'GYM-020 3: Workouts to stall is 2 to 20, here 4'
 );
 select throws_ok(
   $$select fitness.update_settings('{"goal": 1}')$$,

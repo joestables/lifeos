@@ -2,7 +2,6 @@
 // workout, its trend, its last workouts and whether it has stalled; a
 // muscle group's lines.
 
-import { DAY_MS } from './engine.ts'
 import { bestSet, type LoggedSet } from './strength.ts'
 
 /** An exercise's sets in one finished workout. */
@@ -77,24 +76,23 @@ export function relativeChange(
   }))
 }
 
-/** Four weeks of training (GYM-014 5). */
-export const STALLED_DAYS = 28
-/** At least three workouts in them, the first at least three weeks before now. */
-export const STALLED_MIN_WORKOUTS = 3
-export const STALLED_MIN_SPAN_DAYS = 21
+/** Workouts to stall, a Gym setting (GYM-020 3; Joe, 1 November). */
+export const DEFAULT_WORKOUTS_TO_STALL = 5
 
 /**
- * Stalled (GYM-014 5, suggested): no rise in the best strength across four
- * weeks of training — done three times or more in the last 28 days, the
- * first of them 21 days ago or more, and no later workout beating the
- * first's best.
+ * Stalled (GYM-014 5): among an exercise's last `workoutsToStall` workouts
+ * with a strength, none after the oldest beats its best (matching it isn't
+ * beating it). Fewer workouts than that is never stalled; there is no time
+ * limit.
  */
-export function stalled(points: readonly BestPoint[], now: number): boolean {
-  const recent = points.filter((p) => p.endedAt > now - STALLED_DAYS * DAY_MS && p.endedAt <= now)
-  const first = recent[0]
-  if (!first || recent.length < STALLED_MIN_WORKOUTS) return false
-  if (now - first.endedAt < STALLED_MIN_SPAN_DAYS * DAY_MS) return false
-  return recent.slice(1).every((p) => p.strength <= first.strength)
+export function stalled(
+  points: readonly BestPoint[],
+  workoutsToStall: number = DEFAULT_WORKOUTS_TO_STALL,
+): boolean {
+  if (workoutsToStall < 2 || points.length < workoutsToStall) return false
+  const last = [...points].sort((a, b) => a.endedAt - b.endedAt).slice(-workoutsToStall)
+  const [first, ...later] = last
+  return first !== undefined && later.every((p) => p.strength <= first.strength)
 }
 
 /** At most three primary and three secondary lines at once (GYM-015 4). */

@@ -241,10 +241,12 @@ Provisionally agreed).
 - **Stimulus sets sit under each chart**, on the same weeks, as bars with
   the weekly target, so I can see how volume and progress go together
   (Joe, 29 and 31 October). An exercise's chart shows its primary group's.
-- **Stalled exercises are picked out** (Joe, 29 October): suggested, no
-  rise in the best strength across four weeks of training — done three
-  times or more in the last 28 days, the first of them 21 days ago or
-  more, and no later workout's best beating the first's.
+- **Stalled exercises are picked out** (Joe, 29 October): an exercise is
+  Stalled when, of its last few workouts — **Workouts to stall**, one Gym
+  setting for every exercise, 5 to start — none after the oldest beats the
+  oldest's best strength; matching it isn't beating it. An exercise done
+  fewer times than that is never Stalled, a workout of quick sets alone
+  doesn't count as one, and there is no time limit (Joe, 1 November).
 - **An exercise's trend** over the period is its best strength in its last
   workout against its first: rising or falling by more than 1 %, flat
   within it (suggested).
@@ -578,8 +580,9 @@ Acceptance criteria
    in best strength over the period, rising, flat (within 1 %) or falling.
 4. Given its last ten workouts, then the best set of each is listed:
    date, weight, reps, RIR and strength.
-5. Given no rise in the best strength across four weeks of training
-   (suggested), then the Exercise is marked Stalled, here and in the list.
+5. Given its last workouts, as many as Workouts to stall (GYM-020 3), and
+   none after the oldest beating the oldest's best strength, then the
+   Exercise is marked Stalled, here and in the list.
 
 ### GYM-015 — A muscle group's progression
 
@@ -704,7 +707,10 @@ Acceptance criteria
 1. Given Settings → Gym, then Preferred RIR (a stepper, 1 to start; Joe,
    29 October) sets the RIR a set's popup starts at, and the RIR a
    template's coverage assumes.
-2. Given Settings → Gym, then Equipment (GYM-001), Muscle groups and their
+3. Given Settings → Gym, then Workouts to stall (a stepper, 2 to 20, 5 to
+   start; Joe, 1 November) sets how many of an exercise's last workouts
+   Stalled looks at, for every exercise (GYM-014 5).
+4. Given Settings → Gym, then Equipment (GYM-001), Muscle groups and their
    targets (GYM-002, GYM-017), Recovery (GYM-019) and Archived exercises
    (GYM-005) open from there.
 

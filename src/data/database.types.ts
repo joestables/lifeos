@@ -2103,6 +2103,7 @@ export type Database = {
           t_normal_h: number
           t_slow_h: number
           updated_at: string
+          workouts_to_stall: number
         }
         ComputedFields: never
         Insert: {
@@ -2113,6 +2114,7 @@ export type Database = {
           t_normal_h?: number
           t_slow_h?: number
           updated_at?: string
+          workouts_to_stall?: number
         }
         Update: {
           person_id?: string
@@ -2122,6 +2124,7 @@ export type Database = {
           t_normal_h?: number
           t_slow_h?: number
           updated_at?: string
+          workouts_to_stall?: number
         }
         Relationships: []
       }
@@ -2647,6 +2650,7 @@ export type Database = {
           t_normal_h: number
           t_slow_h: number
           updated_at: string
+          workouts_to_stall: number
         }
         SetofOptions: {
           from: '*'

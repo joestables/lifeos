@@ -26,8 +26,9 @@ Branch `claude/eloquent-darwin-gudbuj` · 2026-11-01
   (a workout applied on its own, or the last 60 days replayed), strength,
   the best set, Beat current and the PR, template coverage, weekly targets,
   average frequency, an exercise's progression and Stalled, a muscle
-  group's lines, and what to do next; weights in whole grams. 68 unit
-  tests, Annex A's tables value by value.
+  group's lines, and what to do next; weights in whole grams. 70 unit
+  tests, Annex A's tables value by value. Joe's Stalled rule adds
+  Workouts to stall to the Gym settings (`stage5_workouts_to_stall`).
 
 **Documents touched:** gym, ADR-0058, ADR-0059, the data model, glossary,
 components, patterns, tokens, the design system's README, integration

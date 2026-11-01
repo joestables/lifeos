@@ -204,11 +204,32 @@ describe('progression (GYM-014, GYM-015)', () => {
     strength: s,
   })
 
-  it('stalled: three workouts over four weeks with no rise on the first (GYM-014 5)', () => {
-    expect(stalled([point(25, 80), point(14, 80), point(3, 79)], now)).toBe(true)
-    expect(stalled([point(25, 80), point(14, 80), point(3, 81)], now)).toBe(false)
-    expect(stalled([point(25, 80), point(3, 79)], now)).toBe(false)
-    expect(stalled([point(18, 80), point(10, 79), point(3, 79)], now)).toBe(false)
+  it('stalled: no later workout of the last five beats the oldest’s best (GYM-014 5)', () => {
+    const five = [point(40, 80), point(30, 79), point(20, 80), point(10, 78), point(3, 79.5)]
+    expect(stalled(five)).toBe(true)
+    expect(stalled([...five.slice(0, 4), point(3, 80.5)])).toBe(false)
+  })
+
+  it('matching the oldest’s best isn’t beating it; fewer workouts is never stalled', () => {
+    expect(stalled([point(5, 80), point(4, 80), point(3, 80), point(2, 80), point(1, 80)])).toBe(
+      true,
+    )
+    expect(stalled([point(4, 80), point(3, 79), point(2, 79), point(1, 79)])).toBe(false)
+  })
+
+  it('looks at the last workouts only, however long ago, in the setting’s number', () => {
+    const history = [
+      point(400, 70),
+      point(300, 90),
+      point(200, 85),
+      point(100, 85),
+      point(90, 84),
+      point(80, 89),
+    ]
+    expect(stalled(history)).toBe(true)
+    expect(stalled(history, 3)).toBe(false)
+    expect(stalled(history, 6)).toBe(false)
+    expect(stalled(history.slice().reverse())).toBe(true)
   })
 
   it('a group’s chart starts with its three primary exercises with the most sets', () => {
