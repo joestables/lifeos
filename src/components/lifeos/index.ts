@@ -89,6 +89,7 @@ export {
   ListDetail,
   LogSetButton,
   LookAhead,
+  MotivationBadge,
   MotivationChoice,
   MuscleChoice,
   OverallReadiness,
@@ -110,6 +111,7 @@ export {
   type LineDash,
   type LineTone,
   type LoggedSet,
+  type Motivation,
   type WorkoutState,
 } from './Gym'
 export { readinessColour } from './readiness'

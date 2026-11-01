@@ -30,7 +30,7 @@ started from ([ADR-0013](0013-occurrences-snapshot-their-definition.md)).
 - **Detail tables:** `fitness.exercise(equipment_id, current_weight,
   current_reps, notes?)` — no goal: goals are the Goals app's;
   `fitness.workout(stage, started_at?, ended_at?, how_it_went? (1–5),
-  motivation? (1–3: down, sideways, up), notes?)`.
+  motivation? (1–3: low, okay, high), notes?)`.
 - **Child rows:** `exercise_muscles(exercise_id, muscle_id,
   contribution)` — exactly one row of 1.0 (the primary), the rest 0.1–0.9
   in steps of 0.1, checked by the function that writes them;

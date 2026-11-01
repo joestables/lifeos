@@ -132,17 +132,19 @@ Provisionally agreed).
   session takes more sets until I mark it done, and marking it done can be
   undone (Joe, 29 October). Supersets need nothing more.
 - **Each exercise in the session expands and collapses**, its button first
-  on its card (Joe, 29 and 31 October). Under its name: sets logged of the
-  template's number ("2 of 3 sets"), then its **Current** set on a line of
-  its own with a weight icon; expanded, its form notes and its sets,
-  nothing more: no best set, no "last time" (Joe, 31 October and 1
-  November).
+  on its card (Joe, 29 and 31 October). Under its name, collapsed or not:
+  sets logged of the template's number ("2 of 3 sets"). Expanded: its form
+  notes, then its **Current** set in the same style with a dumbbell icon,
+  then its sets; nothing more: no best set, no "last time" (Joe, 31
+  October, 1 and 2 November).
 - **The template's number of sets is a guide, not a limit:** no empty sets
   wait to be filled; **Log set** is always there, for as many sets as I do
   (Joe, 1 November).
 - **A set is logged in a popup**, Tracked or Quick, chosen at its top
-  (Tracked to start; Joe, 1 November). Tracked: weight and reps as
-  steppers side by side, each headed, then RIR as buttons 0 to 5; they
+  (Tracked to start; a toggle as wide as its words; Joe, 1 and 2 November).
+  Tracked: weight and reps as steppers side by side, headed "Weight (kg)"
+  and "Reps", the steppers showing only the numbers, then RIR as buttons 0
+  to 5; they
   start at the Current set and my preferred RIR; weight steps by the
   equipment's increment, reps by 1 (Joe, 22, 29 and 31 October, 1
   November). Quick: only Log set.
@@ -151,9 +153,11 @@ Provisionally agreed).
   for the recovery engine, as 10 reps at RIR 2
   ([Annex A](#a2-inputs-and-settings)); it has no strength, so is never a
   PR, and is left out of progression and Strength history.
-- **A logged set reads as text, with an edit button** that opens it in the
-  same popup to change, or Delete (Joe, 1 November). RIR reads in brackets,
-  "(2 RIR)", wherever a set is shown.
+- **Logged sets are a quiet table** — Set, kg, Reps, RIR — on a phone and a
+  computer, each row with an edit button that opens it in the same popup to
+  change, or Delete; a quick set's row shows dashes (Joe, 1 and 2
+  November). Where a set is written as text (Strength history), RIR reads
+  in brackets, "(2 RIR)".
 - **Adding and swapping go by muscle group** (Joe, 31 October): all the
   groups first, with a search; a group lists the exercises it is primary
   for, then those it is secondary for, a secondary's contribution in
@@ -162,11 +166,13 @@ Provisionally agreed).
 - **An exercise is marked done** when I've done the sets I want, whatever
   the template said (Joe, 22 October).
 - **Ending asks how it went, as stars, and my motivation beforehand, as
-  thumbs down, sideways or up** (Joe, 22, 29 and 31 October, 1 November),
-  each labelled, with optional notes; then the workout opens read-only for
+  Low, Okay or High** — three pills as wide as their words, each a face and
+  its word, coloured red, amber and green when chosen (Joe, 22, 29 and 31
+  October, 1 and 2 November), with optional notes; then the workout opens read-only for
   its review.
-- **The review shows each exercise's Current set, its PR and what I
-  logged**, clearly apart. **Update current** opens a popup offering the
+- **The review shows each exercise's Current set and PR as two figures,
+  then what I logged as the same table, with each set's strength** (Joe, 2
+  November). **Update current** opens a popup offering the
   workout's best set by strength, weight and reps side by side to change
   before saving; the choice is mine (Joe, 22, 29 and 31 October, 1
   November). An exercise whose best set beat its Current set says so beside
@@ -422,9 +428,9 @@ Acceptance criteria
    they are.
 4. Given an exercise in the session, then its expand button comes first
    on its card; under its name, sets logged of the template's number ("2
-   of 3 sets"), then "Current 27.5 kg × 10" on its own line with a weight
-   icon; expanded, its form notes, its sets and Log set, always there
-   whatever the template's number.
+   of 3 sets"), collapsed or not; expanded, its form notes, then "Current
+   27.5 kg × 10" in the same style with a dumbbell icon, its sets and Log
+   set, always there whatever the template's number.
 5. Given several exercises in the session not yet done, then I log sets
    on any of them, in any order, so alternating two (a superset) needs
    nothing more.
@@ -464,8 +470,9 @@ session isn't cluttered.
 Priority: Must · Status: agreed
 
 Acceptance criteria
-1. Given Log set on an exercise, then a popup opens on Tracked: weight and
-   reps as steppers side by side, each headed, starting at its Current
+1. Given Log set on an exercise, then a popup opens on Tracked (Tracked ·
+   Quick a toggle at its top): weight and reps as steppers side by side,
+   headed "Weight (kg)" and "Reps", starting at its Current
    set, then RIR as buttons 0 to 5, starting at my preferred RIR (or the
    last set I logged on it this workout; suggested).
 2. Given a stepper, then weight moves by the equipment's increment and
@@ -474,9 +481,9 @@ Acceptance criteria
 3. Given Quick at the popup's top, then only Log set shows, and the set is
    kept with no weight, reps or RIR; it counts towards sets done and in
    the recovery engine as 10 reps at RIR 2, and nowhere in the record.
-4. Given a logged set, then it reads as text — "30 kg × 10 (2 RIR)", or
-   "Quick set" — with an edit button that opens it in the same popup to
-   change, or Delete (with Undo).
+4. Given logged sets, then they are a table of kg, Reps and RIR, a quick
+   set's row showing dashes, each row with an edit button that opens it in
+   the same popup to change, or Delete (with Undo).
 5. Given an exercise, then its Strength history is in its "…": its ten
    most recent sets, under their workouts, newest first, RIR in brackets,
    PRs marked.
@@ -505,13 +512,14 @@ Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given End workout, then I'm asked "How it went", as one to five stars,
-   and "Motivation beforehand", as thumbs down, sideways or up, and notes,
-   all optional; End ends it, Complete, with its end time and duration.
+   and "Motivation beforehand", as Low, Okay or High, and notes, all
+   optional; End ends it, Complete, with its end time and duration.
 2. Given exercises still in the backlog, then End says how many, and they
    are left out of the finished workout (suggested).
 3. Given a finished workout, then it opens read-only: date, duration,
-   ratings, notes; each exercise in the order done with its Current set,
-   its PR and the sets I logged, clearly apart; and the stimulus sets it
+   ratings, notes; each exercise in the order done with its Current set and
+   PR as two figures, then the sets I logged as a table with their
+   strength; and the stimulus sets it
    gave each muscle group (suggested).
 4. Given Update current on an exercise, then a popup offers the
    workout's best set by strength as the new Current set, weight and reps
@@ -540,13 +548,13 @@ Acceptance criteria
    to a page with pages to move between.
 3. Given its filters (the Recipes library's FilterPanel), then I narrow by
    state, dates, template (any of the current ones, or none), exercise,
-   muscle group trained, motivation (down, sideways, up), sets logged,
+   muscle group trained, motivation (low, okay, high), sets logged,
    stimulus sets, exercises done, duration and how it went (the last five
    as ranges); my filters are kept.
 4. Given a sort by date, duration, sets, stimulus sets, how it went or
    motivation, either way round, then the list follows, my choice kept.
 5. Given what the filters show, then its average sets, average duration
-   and weekly sessions (workouts a week) are shown above the list.
+   and weekly sessions ("×3.1", workouts a week) are shown above the list.
 
 ### GYM-014 — An exercise's progression
 
@@ -645,8 +653,9 @@ Priority: Should · Status: agreed
 
 Acceptance criteria
 1. Given nothing in progress or planned for today, then the Workouts tab's
-   Today suggests one template, the most suitable, with a short reason
-   ("Quads and glutes 100 % ready · last trained Thu").
+   Today suggests one template, the most suitable, with its readiness
+   (the average readiness of the muscles it covers) and when they were
+   last trained: "Readiness 96 % · last trained Thu".
 2. Given my templates, then each is scored by the average readiness of
    the groups it covers, its coverage of each, and how long since those
    groups were last trained (Joe, 1 November); a group under 50 % ready

@@ -1,5 +1,6 @@
 import {
   CheckIcon,
+  DumbbellIcon,
   ChevronDownIcon,
   ChevronRightIcon,
   GripVerticalIcon,
@@ -7,16 +8,15 @@ import {
   NotebookPenIcon,
   PencilIcon,
   PlusIcon,
-  ThumbsDownIcon,
-  ThumbsUpIcon,
+  FrownIcon,
+  MehIcon,
+  SmileIcon,
   TrophyIcon,
-  WeightIcon,
 } from 'lucide-react'
 import { useLayoutEffect, useRef, useState, type ReactNode } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Slider } from '@/components/ui/slider'
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { cn } from '@/lib/utils'
 import { readinessColour } from './readiness'
 
@@ -369,44 +369,23 @@ export function SetTable({
   sets,
   editable = false,
   strength = false,
-  current,
 }: {
   sets: LoggedSet[]
   editable?: boolean
   strength?: boolean
-  /** The Current set, as a row over the heads, so each column reads down from it (the review). */
-  current?: { weight: string; reps: number }
 }) {
   // Written out whole, so Tailwind sees each.
-  const grid = current
-    ? strength
-      ? editable
-        ? 'grid-cols-[64px_1fr_1fr_1fr_60px_56px_32px]'
-        : 'grid-cols-[64px_1fr_1fr_1fr_60px_56px]'
-      : editable
-        ? 'grid-cols-[64px_1fr_1fr_1fr_60px_32px]'
-        : 'grid-cols-[64px_1fr_1fr_1fr_60px]'
-    : strength
-      ? editable
-        ? 'grid-cols-[28px_1fr_1fr_1fr_60px_56px_32px]'
-        : 'grid-cols-[28px_1fr_1fr_1fr_60px_56px]'
-      : editable
-        ? 'grid-cols-[28px_1fr_1fr_1fr_60px_32px]'
-        : 'grid-cols-[28px_1fr_1fr_1fr_60px]'
+  // On a computer the figures keep 80px columns, so they don't drift apart.
+  const grid = strength
+    ? editable
+      ? 'grid-cols-[28px_1fr_1fr_1fr_60px_56px_32px] sm:grid-cols-[28px_80px_80px_80px_1fr_56px_32px]'
+      : 'grid-cols-[28px_1fr_1fr_1fr_60px_56px] sm:grid-cols-[28px_80px_80px_80px_1fr_56px]'
+    : editable
+      ? 'grid-cols-[28px_1fr_1fr_1fr_60px_32px] sm:grid-cols-[28px_80px_80px_80px_1fr_32px]'
+      : 'grid-cols-[28px_1fr_1fr_1fr_60px] sm:grid-cols-[28px_80px_80px_80px_1fr]'
   const cols = cn('grid items-center gap-2', grid)
   return (
     <div role="table" className="flex flex-col">
-      {current && (
-        <div role="row" className={cn(cols, 'mb-1 h-10 rounded-control bg-accent/60 px-1')}>
-          <span className="text-xs font-semibold text-muted-foreground">Current</span>
-          <span className="font-semibold tabular-nums">{current.weight}</span>
-          <span className="font-semibold tabular-nums">{current.reps}</span>
-          <span className="text-muted-foreground">–</span>
-          <span />
-          {strength && <span />}
-          {editable && <span />}
-        </div>
-      )}
       <div
         role="row"
         className={cn(
@@ -430,7 +409,13 @@ export function SetTable({
         <div key={i} role="row" className={cn(cols, 'h-11 px-1')}>
           <span className="text-sm font-semibold text-muted-foreground tabular-nums">{i + 1}</span>
           {set.weight === undefined ? (
-            <span className="col-span-3 text-sm text-muted-foreground">Quick set</span>
+            <>
+              <span className="text-muted-foreground" aria-label="Quick set">
+                –
+              </span>
+              <span className="text-muted-foreground">–</span>
+              <span className="text-muted-foreground">–</span>
+            </>
           ) : (
             <>
               <span className="font-semibold tabular-nums">{set.weight}</span>
@@ -472,7 +457,7 @@ export function LogSetButton({ label, onClick }: { label: string; onClick?: () =
 export function CurrentLine({ children }: { children: ReactNode }) {
   return (
     <span className="flex items-center gap-2 text-sm text-muted-foreground tabular-nums">
-      <WeightIcon aria-hidden className="size-3.5 shrink-0" />
+      <DumbbellIcon aria-hidden className="size-3.5 shrink-0" />
       <span>Current {children}</span>
     </span>
   )
@@ -499,7 +484,6 @@ export function FormNotes({ children }: { children: ReactNode }) {
 export function ExerciseCard({
   name,
   meta,
-  current,
   open = false,
   drag = false,
   done = false,
@@ -510,8 +494,6 @@ export function ExerciseCard({
   name: string
   /** Its muted line's parts, joined by "·"; a line breaks only between parts. */
   meta: ReactNode[]
-  /** Its Current set ("27.5 kg × 10"), on a line of its own under the meta. */
-  current?: string
   open?: boolean
   /** A template's: a drag handle where the expand button is. */
   drag?: boolean
@@ -553,11 +535,6 @@ export function ExerciseCard({
               </span>
             ))}
           </span>
-          {current && (
-            <span className="pt-0.5">
-              <CurrentLine>{current}</CurrentLine>
-            </span>
-          )}
         </span>
         {done ? (
           <Button variant="ghost" size="sm" aria-label="Undo done" className="text-success">
@@ -575,34 +552,67 @@ export function ExerciseCard({
   )
 }
 
+const MOTIVATION = {
+  low: { label: 'Low', icon: FrownIcon, tint: 'destructive' },
+  okay: { label: 'Okay', icon: MehIcon, tint: 'warning' },
+  high: { label: 'High', icon: SmileIcon, tint: 'success' },
+} as const
+
+export type Motivation = keyof typeof MOTIVATION
+
 /**
- * Motivation beforehand (GYM-012 1; Joe, 1 November): three choices in a
- * ToggleGroup's track, thumbs down, sideways and up, 44px high, each named
- * for screen readers.
+ * Motivation beforehand (GYM-012 1; Joe, 1 and 2 November): three 40px
+ * pills side by side, as wide as their words: a face and its word, Low
+ * (red), Okay (amber) and High (green). Chosen, a pill takes its colour's
+ * tint, text and a 1.5px ring; the others stay muted. Never colour alone:
+ * each has its face and word.
  */
-export function MotivationChoice({ value }: { value: 'down' | 'side' | 'up' }) {
-  const items = [
-    { v: 'down', label: 'Low', icon: <ThumbsDownIcon /> },
-    { v: 'side', label: 'So-so', icon: <ThumbsUpIcon className="-rotate-90" /> },
-    { v: 'up', label: 'High', icon: <ThumbsUpIcon /> },
-  ] as const
+export function MotivationChoice({ value }: { value: Motivation }) {
   return (
-    <ToggleGroup
-      defaultValue={[value]}
-      aria-label="Motivation beforehand"
-      className="grid w-full grid-cols-3 self-stretch"
-    >
-      {items.map((it) => (
-        <ToggleGroupItem
-          key={it.v}
-          value={it.v}
-          aria-label={it.label}
-          className="h-11 justify-center data-pressed:text-tc-text [&_svg]:size-5"
-        >
-          {it.icon}
-        </ToggleGroupItem>
-      ))}
-    </ToggleGroup>
+    <div role="radiogroup" aria-label="Motivation beforehand" className="flex flex-wrap gap-2">
+      {(Object.keys(MOTIVATION) as Motivation[]).map((k) => {
+        const m = MOTIVATION[k]
+        const on = k === value
+        return (
+          <button
+            key={k}
+            type="button"
+            role="radio"
+            aria-checked={on}
+            className={cn(
+              'inline-flex h-10 items-center gap-2 rounded-full px-4 text-sm font-semibold outline-none focus-visible:ring-3 focus-visible:ring-ring-soft [&_svg]:size-[18px]',
+              !on && 'bg-muted text-muted-foreground hover:bg-accent hover:text-foreground',
+              !on && m.tint === 'destructive' && '[&_svg]:text-destructive',
+              !on && m.tint === 'warning' && '[&_svg]:text-warning',
+              !on && m.tint === 'success' && '[&_svg]:text-success',
+              on &&
+                m.tint === 'destructive' &&
+                'bg-[color-mix(in_oklch,var(--destructive)_15%,transparent)] text-destructive ring-[1.5px] ring-destructive',
+              on &&
+                m.tint === 'warning' &&
+                'bg-[color-mix(in_oklch,var(--warning)_16%,transparent)] text-warning ring-[1.5px] ring-warning',
+              on &&
+                m.tint === 'success' &&
+                'bg-[color-mix(in_oklch,var(--success)_15%,transparent)] text-success ring-[1.5px] ring-success',
+            )}
+          >
+            <m.icon aria-hidden />
+            {m.label}
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
+/** A workout's motivation as read (the review): its face and word in its colour. */
+export function MotivationBadge({ value }: { value: Motivation }) {
+  const m = MOTIVATION[value]
+  return (
+    <Badge variant={m.tint} className="h-7 px-3 text-sm [&_svg]:size-4">
+      <m.icon aria-hidden />
+      {m.label}
+    </Badge>
   )
 }
 

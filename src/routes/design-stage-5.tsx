@@ -23,7 +23,6 @@ import {
   SquareCheckBigIcon,
   StickyNoteIcon,
   TargetIcon,
-  ThumbsUpIcon,
   Trash2Icon,
   TrophyIcon,
   UndoIcon,
@@ -42,6 +41,7 @@ import {
   BodyMap,
   CardRow,
   ChartKey,
+  CurrentLine,
   ExerciseCard,
   FilterLayout,
   FilterPanel,
@@ -51,6 +51,7 @@ import {
   ListDetail,
   LogSetButton,
   LookAhead,
+  MotivationBadge,
   MotivationChoice,
   MuscleChoice,
   OverallReadiness,
@@ -387,7 +388,7 @@ function TodayCard({ upNext = false, phone = false }: { upNext?: boolean; phone?
           <PanelRow
             leading={templateTile}
             title="Legs"
-            meta={['Quads 100 % ready', 'trained Thu']}
+            meta={['Readiness 96 %', 'last trained Thu']}
           />
         </div>
       ) : (
@@ -559,7 +560,7 @@ function AllWorkouts({ phone = false }: { phone?: boolean }) {
     <div className="grid grid-cols-3 gap-3">
       <StatTile label="Average sets" value="16.4" />
       <StatTile label="Average duration" value="1 h 02" />
-      <StatTile label="Weekly sessions" value="3.1" />
+      <StatTile label="Weekly sessions" value="×3.1" />
     </div>
   )
   const list = (
@@ -755,41 +756,33 @@ const ROW_SETS: LoggedSet[] = [
   {},
 ]
 
-function SessionExercises({ phone, table = false }: { phone?: boolean; table?: boolean }) {
+function SessionExercises({ phone }: { phone?: boolean }) {
   return (
     <section className="flex flex-col gap-2">
       <SectionLabel count={3}>Session</SectionLabel>
       <ExerciseCard
         name="Lat pulldown"
         meta={['3 of 3 sets']}
-        current="65 kg × 10"
         done
         menu={sessionMenu(true, 'Lat pulldown')}
       />
       <ExerciseCard
         name="Chest-supported row"
         meta={['3 of 3 sets']}
-        current="27.5 kg × 10"
         open
         control={markDone(phone)}
         menu={sessionMenu(true, 'Chest-supported row')}
       >
-        <FormNotes>Chest on the pad at notch 4, elbows at 45°, pause at the top</FormNotes>
-        {table ? (
-          <SetTable sets={ROW_SETS} editable />
-        ) : (
-          <div className="flex flex-col">
-            {ROW_SETS.map((set, i) => (
-              <SetLine key={i} n={i + 1} set={set} onEdit={nothing} />
-            ))}
-          </div>
-        )}
+        <div className="flex flex-col gap-1.5">
+          <FormNotes>Chest on the pad at notch 4, elbows at 45°, pause at the top</FormNotes>
+          <CurrentLine>27.5 kg × 10</CurrentLine>
+        </div>
+        <SetTable sets={ROW_SETS} editable />
         <LogSetButton label="Log set" />
       </ExerciseCard>
       <ExerciseCard
         name="Incline curl"
         meta={['1 of 2 sets']}
-        current="12 kg × 10"
         control={markDone(phone)}
         menu={sessionMenu(true, 'Incline curl')}
       />
@@ -868,14 +861,14 @@ function SessionHeader({ phone }: { phone?: boolean }) {
 }
 
 /** One column, the backlog under the session (Joe, 1 November): logged on a phone. */
-function Session({ phone = false, table = false }: { phone?: boolean; table?: boolean }) {
+function Session({ phone = false }: { phone?: boolean }) {
   return (
     <Shell>
       <TypeScope colour="coral">
         <SessionHeader phone={phone} />
         <Body phone={phone} narrow>
           <Facts state="in-progress" items={['Started 18:02', '42 min', '8 sets']} />
-          <SessionExercises phone={phone} table={table} />
+          <SessionExercises phone={phone} />
           <section className="flex flex-col gap-2">
             <SectionLabel count={3}>Backlog</SectionLabel>
             <Card className="gap-1 py-3">
@@ -898,8 +891,8 @@ function TrackedFields({ weight, reps, rir }: { weight: string; reps: number; ri
   return (
     <div className="flex flex-col gap-4">
       <div className="grid grid-cols-2 gap-3">
-        <Field label="Weight">
-          <ValueStepper size="lg" label="Weight" value={weight} unit="kg" />
+        <Field label="Weight (kg)">
+          <ValueStepper size="lg" label="Weight" value={weight} />
         </Field>
         <Field label="Reps">
           <ValueStepper size="lg" label="Reps" value={String(reps)} />
@@ -945,17 +938,9 @@ function LogSet({
               {edit ? 'Chest-supported row' : 'Set 4 · Current 27.5 kg × 10'}
             </span>
           </DialogHeader>
-          <ToggleGroup
-            defaultValue={[edit ? 'tracked' : mode]}
-            aria-label="How to log it"
-            className="grid w-full grid-cols-2 self-stretch"
-          >
-            <ToggleGroupItem value="tracked" className="h-9 justify-center">
-              Tracked
-            </ToggleGroupItem>
-            <ToggleGroupItem value="quick" className="h-9 justify-center">
-              Quick
-            </ToggleGroupItem>
+          <ToggleGroup defaultValue={[edit ? 'tracked' : mode]} aria-label="How to log it">
+            <ToggleGroupItem value="tracked">Tracked</ToggleGroupItem>
+            <ToggleGroupItem value="quick">Quick</ToggleGroupItem>
           </ToggleGroup>
           {mode === 'quick' ? (
             <span className="text-sm text-muted-foreground">No weight, reps or RIR</span>
@@ -1186,7 +1171,7 @@ function End({ phone = false }: { phone?: boolean }) {
               </div>
             </Field>
             <Field label="Motivation beforehand">
-              <MotivationChoice value="side" />
+              <MotivationChoice value="okay" />
             </Field>
             <Field label="Notes">
               <Textarea placeholder="Notes" />
@@ -1214,7 +1199,6 @@ function ReviewExercise({
   prSub,
   sets,
   beat = false,
-  table = false,
 }: {
   name: string
   current: [string, number]
@@ -1222,38 +1206,20 @@ function ReviewExercise({
   prSub: string
   sets: LoggedSet[]
   beat?: boolean
-  table?: boolean
 }) {
   return (
     <Card className="gap-4">
       <h2 className="text-h2">{name}</h2>
-      {table ? (
-        <>
-          <StatTile inset icon={<TrophyIcon />} label="PR" value={pr} sub={prSub} />
-          <SetTable sets={sets} strength current={{ weight: current[0], reps: current[1] }} />
-        </>
-      ) : (
-        <>
-          <div className="grid grid-cols-2 gap-2">
-            <StatTile
-              inset
-              label="Current"
-              value={`${current[0]} kg × ${current[1]}`}
-              sub="Since 12 Oct"
-            />
-            <StatTile inset icon={<TrophyIcon />} label="PR" value={pr} sub={prSub} />
-          </div>
-          <div className="flex flex-col">
-            <div className="flex items-center justify-between px-1 pb-1 text-xs font-semibold text-muted-foreground">
-              <span>This workout</span>
-              <span>Strength</span>
-            </div>
-            {sets.map((set, i) => (
-              <SetLine key={i} n={i + 1} set={set} />
-            ))}
-          </div>
-        </>
-      )}
+      <div className="grid grid-cols-2 gap-2">
+        <StatTile
+          inset
+          label="Current"
+          value={`${current[0]} kg × ${current[1]}`}
+          sub="Since 12 Oct"
+        />
+        <StatTile inset icon={<TrophyIcon />} label="PR" value={pr} sub={prSub} />
+      </div>
+      <SetTable sets={sets} strength />
       <div className="flex flex-wrap items-center gap-2">
         <Button variant="outline" size="sm">
           Update current
@@ -1269,7 +1235,7 @@ function ReviewExercise({
   )
 }
 
-function ReviewBody({ phone, table = false }: { phone?: boolean; table?: boolean }) {
+function ReviewBody({ phone }: { phone?: boolean }) {
   const stimulus = (
     <Card className="gap-2">
       <PanelHeading title="Stimulus sets" />
@@ -1293,7 +1259,7 @@ function ReviewBody({ phone, table = false }: { phone?: boolean; table?: boolean
             label="Motivation"
             value={
               <span className="flex h-7 items-center">
-                <ThumbsUpIcon aria-label="So-so" className="size-5 -rotate-90 text-tc-text" />
+                <MotivationBadge value="okay" />
               </span>
             }
           />
@@ -1301,12 +1267,11 @@ function ReviewBody({ phone, table = false }: { phone?: boolean; table?: boolean
         <p className="text-sm text-muted-foreground">Grip went on the last row set</p>
       </Card>
       <ReviewExercise
-        table={table}
         beat
         name="Chest-supported row"
         current={['27.5', 10]}
         pr="30 kg × 10"
-        prSub="2 RIR · Strength 42.0 · today"
+        prSub="2 RIR · 42.0 · today"
         sets={[
           { weight: '30', reps: 10, rir: 2, pr: true, strength: '42.0' },
           { weight: '30', reps: 9, rir: 1, strength: '40.0' },
@@ -1314,11 +1279,10 @@ function ReviewBody({ phone, table = false }: { phone?: boolean; table?: boolean
         ]}
       />
       <ReviewExercise
-        table={table}
         name="Lat pulldown"
         current={['65', 10]}
         pr="70 kg × 9"
-        prSub="1 RIR · Strength 93.3 · 12 Oct"
+        prSub="1 RIR · 93.3 · 12 Oct"
         sets={[
           { weight: '65', reps: 10, rir: 2, strength: '91.0' },
           { weight: '65', reps: 9, rir: 1, strength: '86.7' },
@@ -1340,7 +1304,7 @@ function ReviewBody({ phone, table = false }: { phone?: boolean; table?: boolean
   )
 }
 
-function Review({ phone = false, table = false }: { phone?: boolean; table?: boolean }) {
+function Review({ phone = false }: { phone?: boolean }) {
   return (
     <SubPage
       back="Workouts"
@@ -1360,7 +1324,7 @@ function Review({ phone = false, table = false }: { phone?: boolean; table?: boo
       )}
     >
       <Facts state="complete" items={['Sat 26 Oct', '18:02–19:00']} />
-      <ReviewBody phone={phone} table={table} />
+      <ReviewBody phone={phone} />
     </SubPage>
   )
 }
@@ -2139,11 +2103,11 @@ const SETTINGS_GROUPS: [string, string[]][] = [
   ['Pull', ['Lats', 'Traps', 'Rear delts', 'Biceps', 'Brachialis', 'Forearms']],
 ]
 
-function SettingsMuscles() {
+function SettingsMuscles({ phone = false }: { phone?: boolean }) {
   return (
     <Shell page="">
       <PageHeader back={{ label: 'Settings', onClick: nothing }} title="Muscle groups" />
-      <Body narrow>
+      <Body narrow phone={phone}>
         <div className="flex justify-end">
           <Button variant="outline" size="sm">
             <PlusIcon /> New muscle group
@@ -2259,7 +2223,6 @@ const SCREENS: Record<string, () => ReactNode> = {
   history: () => <History />,
   end: () => <End />,
   review: () => <Review />,
-  'review-table': () => <Review table />,
   'update-current': () => <UpdateCurrent />,
   template: () => <TemplatePage />,
   recovery: () => <Recovery />,
@@ -2278,7 +2241,6 @@ const SCREENS: Record<string, () => ReactNode> = {
   'm-all-templates': () => <AllTemplates phone />,
   'm-new-workout': () => <NewWorkout phone />,
   'm-session': () => <Session phone />,
-  'm-session-table': () => <Session phone table />,
   'm-log-set': () => <LogSet phone />,
   'm-log-set-quick': () => <LogSet phone mode="quick" />,
   'm-edit-set': () => <LogSet phone mode="edit" />,
@@ -2287,7 +2249,6 @@ const SCREENS: Record<string, () => ReactNode> = {
   'm-history': () => <History phone />,
   'm-end': () => <End phone />,
   'm-review': () => <Review phone />,
-  'm-review-table': () => <Review phone table />,
   'm-update-current': () => <UpdateCurrent phone />,
   'm-template': () => <TemplatePage phone />,
   'm-recovery': () => <Recovery phone />,
@@ -2297,6 +2258,7 @@ const SCREENS: Record<string, () => ReactNode> = {
   'm-exercise': () => <PhoneExercise />,
   'm-exercise-new': () => <ExerciseEditor phone />,
   'm-settings': () => <SettingsPage phone />,
+  'm-settings-muscles': () => <SettingsMuscles phone />,
 }
 
 function Screens() {
