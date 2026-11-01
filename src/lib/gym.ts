@@ -258,12 +258,15 @@ export function nextSet(
     : { ...current, rir: preferredRir }
 }
 
+/** The heaviest weight the database keeps: 1000 kg, in grams. */
+export const MAX_WEIGHT_GRAMS = 1_000_000
+
 /** "62.5" or "62,5" typed as whole grams; null unless 0 to 1000 kg. */
 export function parseWeight(text: string): number | null {
   const t = text.trim().replace(',', '.')
   if (!/^\d+(\.\d{1,3})?$|^\.\d{1,3}$/.test(t)) return null
   const grams = toGrams(t)
-  return grams <= 1_000_000 ? grams : null
+  return grams <= MAX_WEIGHT_GRAMS ? grams : null
 }
 
 /** An Exercise's Current set's strength at my preferred RIR, for Beat current (GYM-012 5). */

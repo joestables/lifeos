@@ -1,6 +1,7 @@
 import type { Database } from './database.types'
 import type { QueueEntry } from './queue/store'
 import { supabase } from './supabase'
+import { allRows } from './paging'
 
 type Shop = Database['shopping']['Tables']
 
@@ -55,26 +56,33 @@ export const shopMealsKey = (list: string) => ['shopping', 'meals_of', list] as 
 const shopping = () => supabase().schema('shopping')
 
 export async function fetchLists(): Promise<ListDetail[]> {
-  const { data, error } = await shopping().from('shopping_list').select('item_id, kind')
-  if (error) throw error
-  return data
+  return allRows((from, to) =>
+    shopping().from('shopping_list').select('item_id, kind').order('item_id').range(from, to),
+  )
 }
 
 export async function fetchShopLines(): Promise<ShopLine[]> {
-  const { data, error } = await shopping()
-    .from('lines')
-    .select(
-      'id, list_id, position, heading, pantry_id, text, qty, qty_max, approx, unit, checked, meal_id, source_id, needed_space_id',
-    )
-    .order('position')
-  if (error) throw error
-  return data
+  return allRows((from, to) =>
+    shopping()
+      .from('lines')
+      .select(
+        'id, list_id, position, heading, pantry_id, text, qty, qty_max, approx, unit, checked, meal_id, source_id, needed_space_id',
+      )
+      .order('position')
+      .order('id')
+      .range(from, to),
+  )
 }
 
 export async function fetchListMeals(): Promise<ListMeal[]> {
-  const { data, error } = await shopping().from('list_meals').select('list_id, meal_id')
-  if (error) throw error
-  return data
+  return allRows((from, to) =>
+    shopping()
+      .from('list_meals')
+      .select('list_id, meal_id')
+      .order('list_id')
+      .order('meal_id')
+      .range(from, to),
+  )
 }
 
 export async function fetchShopMeals(list: string): Promise<ShopMeal[]> {

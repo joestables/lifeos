@@ -507,9 +507,6 @@ export const queue = new WriteQueue({
     void reportEvent('write_refused', error.message, { fn: entry.fn, attempts: entry.attempts }),
 })
 
-// Back online, what is waiting goes at once, not when its backoff ends (OFF-001 2).
-if (typeof window !== 'undefined') window.addEventListener('online', () => void queue.flush())
-
 const labelsNow = () =>
   applyPendingLabels(queryClient.getQueryData<Label[]>(labelsKey) ?? [], queue.entries())
 

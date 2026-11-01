@@ -308,6 +308,24 @@ test.describe('workouts', () => {
     await expect.poll(() => db.workout_entries.map((e) => e.exercise_id)).toEqual(['x-bench'])
   })
 
+  test('GYM-007 4, GYM-008 1: a Skipped workout can still be started, and is dated today', async ({
+    page,
+  }) => {
+    const db = await standIn(page, {
+      signedIn: true,
+      rows: {
+        ...PLANNED,
+        items: PLANNED.items!.map((i) => (i.id === 'w-1' ? { ...i, do_on: daysAgo(2) } : i)),
+      },
+    })
+    await page.goto('/gym/workouts/w-1')
+    await expect(page.getByText('Skipped')).toBeVisible()
+    await page.getByRole('button', { name: 'Start' }).click()
+    await expect(page.getByText('In progress')).toBeVisible()
+    await expect.poll(() => db.items.find((i) => i.id === 'w-1')?.do_on).toBe(TODAY)
+    await expect.poll(() => db.workout.find((w) => w.item_id === 'w-1')?.stage).toBe('in_progress')
+  })
+
   test('GYM-008 7: Start says when another is in progress', async ({ page }) => {
     await standIn(page, {
       signedIn: true,
@@ -452,6 +470,18 @@ test.describe('workouts', () => {
     for (let i = 0; i < 3; i++) await from.press('ArrowRight')
     if (isMobile) await page.getByRole('button', { name: 'Show 7 workouts' }).click()
     await expect(page.getByText('7 workouts', { exact: true })).toBeVisible()
+  })
+
+  test('GYM-013 3: a kept filter naming a deleted template hides nothing', async ({ page }) => {
+    await page.addInitScript(() =>
+      localStorage.setItem(
+        'lifeos.gym.workouts',
+        JSON.stringify({ templates: ['t-deleted'], sort: 'date', direction: 'desc' }),
+      ),
+    )
+    await standIn(page, { signedIn: true, rows: HISTORY })
+    await page.goto('/gym/workouts')
+    await expect(page.getByText('23 workouts', { exact: true })).toBeVisible()
   })
 
   test('GYM-012 6: a finished workout’s sets and ratings corrected', async ({ page }) => {

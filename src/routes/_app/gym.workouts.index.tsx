@@ -87,6 +87,41 @@ function ranges(rows: readonly WorkoutRow[]) {
   }[]
 }
 
+type Option = { id: string; name: string }
+
+/** The templates, exercises and muscle groups to filter by: the current ones, and those in workouts. */
+function filterOptions(gym: GymData, rows: readonly WorkoutRow[]) {
+  const templates: Option[] = [
+    ...gym.templates.map((t) => ({ id: t.item.id, name: t.item.title })),
+    { id: NO_TEMPLATE, name: 'None' },
+  ]
+  const used = new Set(rows.flatMap((r) => r.exerciseIds))
+  const exercises: Option[] = gym.exercises
+    .filter((x) => used.has(x.item.id))
+    .map((x) => ({ id: x.item.id, name: x.item.title }))
+    .sort((a, b) => a.name.localeCompare(b.name))
+  const trained = new Set(rows.flatMap((r) => r.muscleIds))
+  const muscles: Option[] = gym.muscles
+    .filter((m) => trained.has(m.id))
+    .map((m) => ({ id: m.id, name: m.name }))
+  return { templates, exercises, muscles }
+}
+
+/**
+ * The kept filter, less any template, exercise or muscle group no longer
+ * offered (deleted, or in no workout now), so nothing hidden narrows the list.
+ */
+function shownFilter(filter: WorkoutFilter, options: ReturnType<typeof filterOptions>) {
+  const keep = (chosen: readonly string[], all: readonly Option[]) =>
+    chosen.filter((id) => all.some((o) => o.id === id))
+  return {
+    ...filter,
+    templates: keep(filter.templates, options.templates),
+    exercises: keep(filter.exercises, options.exercises),
+    muscles: keep(filter.muscles, options.muscles),
+  }
+}
+
 function WorkoutFilters({
   gym,
   rows,
@@ -103,19 +138,7 @@ function WorkoutFilters({
   bare?: boolean
 }) {
   const ids = useId()
-  const templates = [
-    ...gym.templates.map((t) => ({ id: t.item.id, name: t.item.title })),
-    { id: NO_TEMPLATE, name: 'None' },
-  ]
-  const used = new Set(rows.flatMap((r) => r.exerciseIds))
-  const exercises = gym.exercises
-    .filter((x) => used.has(x.item.id))
-    .map((x) => ({ id: x.item.id, name: x.item.title }))
-    .sort((a, b) => a.name.localeCompare(b.name))
-  const trained = new Set(rows.flatMap((r) => r.muscleIds))
-  const muscles = gym.muscles
-    .filter((m) => trained.has(m.id))
-    .map((m) => ({ id: m.id, name: m.name }))
+  const { templates, exercises, muscles } = filterOptions(gym, rows)
   const names = (all: readonly { id: string; name: string }[], chosen: readonly string[]) =>
     all.filter((o) => chosen.includes(o.id)).map((o) => o.name)
   const idsOf = (all: readonly { id: string; name: string }[], chosen: readonly string[]) =>
@@ -239,7 +262,10 @@ function AllWorkouts() {
   const today = todayIn(settings.timezone)
   const phone = useIsMobile()
   const rows = useWorkoutRows(gym, today)
-  const { filter, change, reset } = useWorkoutFilter()
+  const kept = useWorkoutFilter()
+  const { change, reset } = kept
+  // Until the workouts have loaded, keep what was chosen as it is.
+  const filter = gym.isLoading ? kept.filter : shownFilter(kept.filter, filterOptions(gym, rows))
   const [page, setPage] = useState(1)
   const [sheet, setSheet] = useState(false)
   const shownRows = sortWorkouts(filterWorkouts(rows, filter), filter.sort, filter.direction)

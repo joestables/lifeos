@@ -29,7 +29,7 @@ import {
   type WorkoutView,
 } from '@/data'
 import { shortDate } from '@/lib/dates'
-import { currentText, nextSet, parseWeight, shownSet } from '@/lib/gym'
+import { currentText, MAX_WEIGHT_GRAMS, nextSet, parseWeight, shownSet } from '@/lib/gym'
 import { Field } from './task-details'
 
 const RIRS = [0, 1, 2, 3, 4, 5] as const
@@ -61,6 +61,7 @@ function WeightReps({
           value={formatKg(weight)}
           unit={unit ? 'kg' : undefined}
           canDown={weight > 0}
+          canUp={weight + increment <= MAX_WEIGHT_GRAMS}
           onStep={(d) => onWeight(stepWeight(weight, increment, d))}
           onType={(t) => {
             const g = parseWeight(t)
@@ -129,11 +130,13 @@ export function LogSetDialog({
       action: {
         label: 'Undo',
         onClick: () =>
-          logSet(entry.workoutId, entry.id, set.position, {
-            weightGrams: set.weightGrams,
-            reps: set.reps,
-            rir: set.rir,
-          }),
+          logSet(
+            entry.workoutId,
+            entry.id,
+            set.position,
+            { weightGrams: set.weightGrams, reps: set.reps, rir: set.rir },
+            set.loggedAt,
+          ),
       },
     })
     onClose()

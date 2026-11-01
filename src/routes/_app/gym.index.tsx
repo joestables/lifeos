@@ -18,6 +18,7 @@ import { queue, useGym, useSettings, type ExerciseView } from '@/data'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { useIsWide } from '@/hooks/use-wide'
 import { lastUsedText } from '@/lib/gym'
+import { useNow } from '@/hooks/use-now'
 
 type Tab = 'workouts' | 'recovery' | 'progression'
 type View = 'muscles' | 'exercises'
@@ -70,8 +71,8 @@ function Gym() {
   const settings = useSettings(queue)
   const today = todayIn(settings.timezone)
   const [planning, setPlanning] = useState<{ template?: string } | null>(null)
-  // Readiness as the page opened (ADR-0059: worked out on the device).
-  const [now] = useState(() => Date.now())
+  // Kept current, so readiness and progression move on while the page is open.
+  const now = useNow()
   const recovery = useRecovery(gym, now)
   const suggestion = recovery.suggestion && {
     template: recovery.suggestion.template,

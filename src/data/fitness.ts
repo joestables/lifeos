@@ -3,6 +3,7 @@ import { DEFAULT_ENGINE_SETTINGS, DEFAULT_WORKOUTS_TO_STALL } from '@lifeos/fitn
 import type { Database } from './database.types'
 import type { QueueEntry } from './queue/store'
 import { supabase } from './supabase'
+import { allRows } from './paging'
 
 type Fitness = Database['fitness']['Tables']
 
@@ -69,29 +70,35 @@ export const exerciseMusclesKey = ['fitness', 'exercise_muscles'] as const
 const fitness = () => supabase().schema('fitness')
 
 export async function fetchEquipment(): Promise<Equipment[]> {
-  const { data, error } = await fitness()
-    .from('equipment')
-    .select('id, name, increment')
-    .order('name')
-  if (error) throw error
-  return data
+  return allRows((from, to) =>
+    fitness()
+      .from('equipment')
+      .select('id, name, increment')
+      .order('name')
+      .order('id')
+      .range(from, to),
+  )
 }
 
 export async function fetchMuscleGroups(): Promise<MuscleGroup[]> {
-  const { data, error } = await fitness()
-    .from('muscle_groups')
-    .select('id, person_id, name, category, body_part, default_recovery, position')
-    .order('position')
-  if (error) throw error
-  return data
+  return allRows((from, to) =>
+    fitness()
+      .from('muscle_groups')
+      .select('id, person_id, name, category, body_part, default_recovery, position')
+      .order('position')
+      .order('id')
+      .range(from, to),
+  )
 }
 
 export async function fetchMuscleSettings(): Promise<MuscleSettingsRow[]> {
-  const { data, error } = await fitness()
-    .from('muscle_settings')
-    .select('muscle_id, recovery_type, frequency_target, stimulus_target')
-  if (error) throw error
-  return data
+  return allRows((from, to) =>
+    fitness()
+      .from('muscle_settings')
+      .select('muscle_id, recovery_type, frequency_target, stimulus_target')
+      .order('muscle_id')
+      .range(from, to),
+  )
 }
 
 export async function fetchGymSettings(): Promise<GymSettings> {
@@ -115,19 +122,24 @@ export async function fetchGymSettings(): Promise<GymSettings> {
 }
 
 export async function fetchExercises(): Promise<ExerciseRow[]> {
-  const { data, error } = await fitness()
-    .from('exercise')
-    .select('item_id, equipment_id, current_weight, current_reps, notes')
-  if (error) throw error
-  return data
+  return allRows((from, to) =>
+    fitness()
+      .from('exercise')
+      .select('item_id, equipment_id, current_weight, current_reps, notes')
+      .order('item_id')
+      .range(from, to),
+  )
 }
 
 export async function fetchExerciseMuscles(): Promise<ExerciseMuscle[]> {
-  const { data, error } = await fitness()
-    .from('exercise_muscles')
-    .select('exercise_id, muscle_id, contribution')
-  if (error) throw error
-  return data
+  return allRows((from, to) =>
+    fitness()
+      .from('exercise_muscles')
+      .select('exercise_id, muscle_id, contribution')
+      .order('exercise_id')
+      .order('muscle_id')
+      .range(from, to),
+  )
 }
 
 // ---------------------------------------------------------------------------
@@ -334,12 +346,14 @@ export type TemplateLine = Omit<Fitness['template_exercises']['Row'], 'created_a
 export const templateLinesKey = ['fitness', 'template_exercises'] as const
 
 export async function fetchTemplateLines(): Promise<TemplateLine[]> {
-  const { data, error } = await fitness()
-    .from('template_exercises')
-    .select('id, template_id, exercise_id, position, sets')
-    .order('position')
-  if (error) throw error
-  return data
+  return allRows((from, to) =>
+    fitness()
+      .from('template_exercises')
+      .select('id, template_id, exercise_id, position, sets')
+      .order('position')
+      .order('id')
+      .range(from, to),
+  )
 }
 
 const byPosition = (a: TemplateLine, b: TemplateLine) =>
@@ -392,31 +406,37 @@ export const entriesKey = ['fitness', 'workout_entries'] as const
 export const setsKey = ['fitness', 'workout_sets'] as const
 
 export async function fetchWorkouts(): Promise<WorkoutRow[]> {
-  const { data, error } = await fitness()
-    .from('workout')
-    .select('item_id, stage, started_at, ended_at, how_it_went, motivation, notes, discarded')
-  if (error) throw error
-  return data
+  return allRows((from, to) =>
+    fitness()
+      .from('workout')
+      .select('item_id, stage, started_at, ended_at, how_it_went, motivation, notes, discarded')
+      .order('item_id')
+      .range(from, to),
+  )
 }
 
 export async function fetchEntries(): Promise<EntryRow[]> {
-  const { data, error } = await fitness()
-    .from('workout_entries')
-    .select(
-      'id, workout_id, exercise_id, place, position, planned_sets, begun_at, done_at, snapshot',
-    )
-    .order('position')
-  if (error) throw error
-  return data
+  return allRows((from, to) =>
+    fitness()
+      .from('workout_entries')
+      .select(
+        'id, workout_id, exercise_id, place, position, planned_sets, begun_at, done_at, snapshot',
+      )
+      .order('position')
+      .order('id')
+      .range(from, to),
+  )
 }
 
 export async function fetchSets(): Promise<SetRow[]> {
-  const { data, error } = await fitness()
-    .from('workout_sets')
-    .select('id, entry_id, position, weight, reps, rir, logged_at')
-    .order('position')
-  if (error) throw error
-  return data
+  return allRows((from, to) =>
+    fitness()
+      .from('workout_sets')
+      .select('id, entry_id, position, weight, reps, rir, logged_at')
+      .order('position')
+      .order('id')
+      .range(from, to),
+  )
 }
 
 const at = (e: QueueEntry, v: unknown) =>

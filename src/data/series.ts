@@ -1,6 +1,7 @@
 import type { Database } from './database.types'
 import type { QueueEntry } from './queue/store'
 import { supabase } from './supabase'
+import { allRows } from './paging'
 
 /** A repeat rule that makes occurrences (ADR-0022): each repeating Task's or Event's. */
 export type Series = Pick<
@@ -50,11 +51,13 @@ export type RepeatArgs = {
 export const seriesKey = ['series'] as const
 
 export async function fetchSeries(): Promise<Series[]> {
-  const { data, error } = await supabase()
-    .from('series')
-    .select('id, mode, rule, starts_on, timezone, ended_on')
-  if (error) throw error
-  return data
+  return allRows((from, to) =>
+    supabase()
+      .from('series')
+      .select('id, mode, rule, starts_on, timezone, ended_on')
+      .order('id')
+      .range(from, to),
+  )
 }
 
 /** Lays unsent repeat writes over the series the server last sent. */

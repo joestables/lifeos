@@ -10,6 +10,7 @@ import { useProgressionPeriod } from '@/app/gym-library'
 import { stalledExercises } from '@/app/progression'
 import { ExerciseProgress, PeriodToggle } from '@/app/progression-parts'
 import { queue, useGym } from '@/data'
+import { useNow } from '@/hooks/use-now'
 
 /**
  * An Exercise on its own page, on a phone (GYM-003 4): its progression
@@ -25,7 +26,8 @@ function ExercisePage() {
   const gym = useGym(queue)
   const [editing, setEditing] = useState(false)
   const { period, change } = useProgressionPeriod()
-  const [now] = useState(() => Date.now())
+  // Kept current, so readiness and progression move on while the page is open.
+  const now = useNow()
   const stalled = useMemo(() => stalledExercises(gym), [gym])
   const exercise = gym.exercises.find((x) => x.item.id === id)
   const back = () =>

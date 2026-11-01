@@ -425,8 +425,9 @@ Priority: Must · Status: verified (`gym-workouts.spec.ts`)
 
 Acceptance criteria
 1. Given a planned workout, when I press Start, then it is In progress,
-   its start time kept, and its template's exercises and their numbers of
-   sets, and each exercise's current set, are copied into it.
+   its start time kept, dated today whichever day it was planned for, and
+   its template's exercises and their numbers of sets, and each exercise's
+   current set, are copied into it.
 2. Given a workout in progress, then its exercises sit in the backlog, in
    the template's order, each with Add before its "…"; the session above
    it is empty.

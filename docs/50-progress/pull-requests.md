@@ -59,8 +59,20 @@ Branch `claude/eloquent-darwin-gudbuj` · 2026-11-01
   figures and best sets; Stalled; Progression → Muscles with a group's
   lines, three of a kind at most, over its stimulus sets; a muscle's page
   on a phone. 4 browser tests in `gym-progression.spec.ts`.
-- **The write queue** sends at once when the browser is back online,
-  instead of waiting out its backoff, up to a minute (OFF-001 2).
+- **Bug hunt before Joe uses it (step 11):**
+  - checked against the live database: every write's arguments and patch
+    keys, every column read, the limits, and two full workouts run as Joe
+    in transactions rolled back;
+  - **reads page past 1000 rows** (app-wide): the Data API returns at most
+    1000 rows a request, so sets, Items, links, reminders and the rest are
+    now read a page at a time (`src/data/paging.ts`);
+  - **the write queue sends at once when back online** (app-wide), even if
+    a send was still failing at that moment; it used to wait out its
+    backoff, up to a minute;
+  - Start dates a workout today; a deleted set's Undo keeps its time; the
+    weight steppers stop at 1000 kg; readiness and progression keep current
+    while the page stays open (`useNow`); All workouts' kept filters drop a
+    template, exercise or muscle no longer offered.
 
 **Documents touched:** gym, ADR-0058, ADR-0059, the data model, glossary,
 components, patterns, tokens, the design system's README, integration

@@ -202,6 +202,8 @@ function WorkoutPage() {
               ? [{ exerciseId: l.exercise.item.id, position: l.position, sets: l.sets }]
               : [],
           )
+    // Trained today, so dated today, whichever day it was planned for (GYM-008 1).
+    if (workout.item.do_on !== today) updateWorkout(id, { day: today })
     startWorkout(id, lines)
   }
 

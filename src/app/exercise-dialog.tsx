@@ -33,7 +33,7 @@ import {
   type GymData,
   type MuscleView,
 } from '@/data'
-import { sameName } from '@/lib/gym'
+import { MAX_WEIGHT_GRAMS, sameName } from '@/lib/gym'
 import { Field } from './task-details'
 
 const REPS_RANGE = [1, 100] as const
@@ -310,6 +310,7 @@ export function ExerciseDialog({
                 value={formatKg(weight)}
                 unit="kg"
                 canDown={weight > 0}
+                canUp={weight + (equipment?.incrementGrams ?? 2500) <= MAX_WEIGHT_GRAMS}
                 onStep={(d) => setWeight(stepWeight(weight, equipment?.incrementGrams ?? 2500, d))}
               />
               <span className="text-muted-foreground">×</span>

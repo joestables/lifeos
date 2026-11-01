@@ -311,7 +311,14 @@ export function workoutWrites(queue: WriteQueue) {
     markEntryDone(workout: string, entry: string, done = true): void {
       queue.enqueue('fitness.mark_entry_done', { p_id: entry, p_done: done }, [workout])
     },
-    logSet(workout: string, entry: string, position: string, set: SetFields): string {
+    /** A set logged now, or at `at` (a deleted set brought back with Undo keeps its time). */
+    logSet(
+      workout: string,
+      entry: string,
+      position: string,
+      set: SetFields,
+      at: string = now(),
+    ): string {
       const id = newId()
       queue.enqueue(
         'fitness.log_set',
@@ -322,7 +329,7 @@ export function workoutWrites(queue: WriteQueue) {
           p_weight: set.weightGrams === null ? (null as never) : toKg(set.weightGrams),
           p_reps: set.reps as never,
           p_rir: set.rir as never,
-          p_at: now(),
+          p_at: at,
         },
         [workout],
       )

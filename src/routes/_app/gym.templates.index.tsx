@@ -30,6 +30,7 @@ import {
   TEMPLATES_PER_PAGE,
   type TemplateSort,
 } from '@/lib/gym'
+import { useNow } from '@/hooks/use-now'
 
 /**
  * All templates (GYM-022): every template with its exercises, sets and when
@@ -46,7 +47,8 @@ function AllTemplates() {
   const { sort, direction, change } = useTemplateSort()
   const [page, setPage] = useState(1)
   const [naming, setNaming] = useState<TemplateView | 'new' | null>(null)
-  const [now] = useState(() => Date.now())
+  // Kept current, so readiness and progression move on while the page is open.
+  const now = useNow()
   const sorted = sortTemplates(templateRows(gym.templates, now), sort, direction)
   const pages = Math.max(1, Math.ceil(sorted.length / TEMPLATES_PER_PAGE))
   const at = Math.min(page, pages)

@@ -1,5 +1,6 @@
 import type { QueueEntry } from './queue/store'
 import { supabase } from './supabase'
+import { allRows } from './paging'
 
 /** A link between two Items (ADR-0007): a Task *for* an Event (EVT-006). */
 export interface Link {
@@ -11,12 +12,14 @@ export interface Link {
 export const linksKey = ['links'] as const
 
 export async function fetchLinks(): Promise<Link[]> {
-  const { data, error } = await supabase()
-    .from('links')
-    .select('from_item, to_item, link_type')
-    .order('created_at')
-  if (error) throw error
-  return data
+  return allRows((from, to) =>
+    supabase()
+      .from('links')
+      .select('from_item, to_item, link_type')
+      .order('created_at')
+      .order('id')
+      .range(from, to),
+  )
 }
 
 /** Lays unsent links and unlinks over the server's. */

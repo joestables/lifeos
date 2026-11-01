@@ -1,10 +1,10 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { ActivityIcon } from 'lucide-react'
-import { useState } from 'react'
 import { EmptyState, PageHeader, TypeScope } from '@/components/lifeos'
 import { useProgressionPeriod } from '@/app/gym-library'
 import { MuscleProgress, PeriodToggle } from '@/app/progression-parts'
 import { queue, useGym } from '@/data'
+import { useNow } from '@/hooks/use-now'
 
 /** A muscle group's progression on its own page, on a phone (GYM-015 2–5). */
 export const Route = createFileRoute('/_app/gym/muscles/$id')({
@@ -16,7 +16,8 @@ function MusclePage() {
   const navigate = useNavigate()
   const gym = useGym(queue)
   const { period, change } = useProgressionPeriod()
-  const [now] = useState(() => Date.now())
+  // Kept current, so readiness and progression move on while the page is open.
+  const now = useNow()
   const muscle = gym.muscles.find((m) => m.id === id)
   const back = () => void navigate({ to: '/gym', search: { tab: 'progression', view: 'muscles' } })
   return (

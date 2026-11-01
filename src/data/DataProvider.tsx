@@ -6,7 +6,8 @@ import { persistOptions, queryClient } from './queryClient'
 /** Wraps the app: the query cache kept on the device, and the write queue running. */
 export function DataProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
-    const flush = () => void queue.flush()
+    // Back online or opened again: what is waiting goes now, not when its backoff ends.
+    const flush = () => void queue.retryNow()
     const onVisible = () => document.visibilityState === 'visible' && flush()
     void queue.load().then(flush)
     window.addEventListener('online', flush)
