@@ -562,7 +562,7 @@ const MOTIVATION = {
 export type Motivation = keyof typeof MOTIVATION
 
 /**
- * Motivation beforehand (GYM-012 1; Joe, 1 and 2 November): three 40px
+ * Motivation beforehand (GYM-012 1; Joe, 1 November): three 40px
  * pills side by side, as wide as their words: a face and its word, Low
  * (red), Okay (amber) and High (green). Chosen, a pill takes its colour's
  * tint, text and a 1.5px ring; the others stay muted. Never colour alone:

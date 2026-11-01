@@ -736,7 +736,7 @@ ShoppingLine, OfferRow, PantryAisle and ItemRow in
 
 ## Gym
 
-Agreed with Joe on 2 November 2026, on the
+Agreed with Joe on 1 November 2026, on the
 [Stage 5 design canvas](https://claude.ai/artifact/NXxJeLcMza7iuHQjqDadmG)
 (private to Joe), after four passes ([gym](../10-requirements/modules/gym.md)).
 

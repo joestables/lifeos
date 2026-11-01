@@ -136,12 +136,12 @@ Provisionally agreed).
   sets logged of the template's number ("2 of 3 sets"). Expanded: its form
   notes, then its **Current** set in the same style with a dumbbell icon,
   then its sets; nothing more: no best set, no "last time" (Joe, 31
-  October, 1 and 2 November).
+  October, 1 November).
 - **The template's number of sets is a guide, not a limit:** no empty sets
   wait to be filled; **Log set** is always there, for as many sets as I do
   (Joe, 1 November).
 - **A set is logged in a popup**, Tracked or Quick, chosen at its top
-  (Tracked to start; a toggle as wide as its words; Joe, 1 and 2 November).
+  (Tracked to start; a toggle as wide as its words; Joe, 1 November).
   Tracked: weight and reps as steppers side by side, headed "Weight (kg)"
   and "Reps", the steppers showing only the numbers, then RIR as buttons 0
   to 5; they
@@ -168,7 +168,7 @@ Provisionally agreed).
 - **Ending asks how it went, as stars, and my motivation beforehand, as
   Low, Okay or High** — three pills as wide as their words, each a face and
   its word, coloured red, amber and green when chosen (Joe, 22, 29 and 31
-  October, 1 and 2 November), with optional notes; then the workout opens read-only for
+  October, 1 November), with optional notes; then the workout opens read-only for
   its review.
 - **The review shows each exercise's Current set and PR as two figures,
   then what I logged as the same table, with each set's strength** (Joe, 2
