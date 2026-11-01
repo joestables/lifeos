@@ -2161,6 +2161,7 @@ export type Database = {
       }
       workout: {
         Row: {
+          discarded: boolean
           ended_at: string | null
           how_it_went: number | null
           item_id: string
@@ -2173,6 +2174,7 @@ export type Database = {
         }
         ComputedFields: never
         Insert: {
+          discarded?: boolean
           ended_at?: string | null
           how_it_went?: number | null
           item_id: string
@@ -2184,6 +2186,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          discarded?: boolean
           ended_at?: string | null
           how_it_went?: number | null
           item_id?: string
@@ -2408,6 +2411,7 @@ export type Database = {
           p_notes?: string
         }
         Returns: {
+          discarded: boolean
           ended_at: string | null
           how_it_went: number | null
           item_id: string
@@ -2565,6 +2569,7 @@ export type Database = {
       start_workout: {
         Args: { p_at?: string; p_id: string }
         Returns: {
+          discarded: boolean
           ended_at: string | null
           how_it_went: number | null
           item_id: string
@@ -2680,6 +2685,7 @@ export type Database = {
       update_workout: {
         Args: { p_id: string; p_patch: Json }
         Returns: {
+          discarded: boolean
           ended_at: string | null
           how_it_went: number | null
           item_id: string

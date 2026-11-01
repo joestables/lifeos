@@ -3,6 +3,14 @@ import type { MuscleView } from '@/data'
 import {
   copyName,
   counted,
+  duration,
+  nextSet,
+  parseWeight,
+  pillState,
+  setsOf,
+  shownSet,
+  since,
+  templateRows,
   sortTemplates,
   type TemplateSort,
   currentText,
@@ -174,5 +182,75 @@ describe('templates (GYM-006, GYM-022)', () => {
   it('counts with their words', () => {
     expect(counted(1, 'set')).toBe('1 set')
     expect(counted(15, 'set')).toBe('15 sets')
+  })
+})
+
+describe('workouts (GYM-007–GYM-012)', () => {
+  it('GYM-022 2: a template’s uses over the last month', () => {
+    const day = 24 * 60 * 60 * 1000
+    const now = Date.parse('2026-11-01T12:00:00Z')
+    const [row] = templateRows(
+      [{ item: { title: 'Push A' }, uses: [now - day, now - 29 * day, now - 31 * day] }],
+      now,
+    )
+    expect(row).toMatchObject({ name: 'Push A', usesThisMonth: 2 })
+  })
+
+  it('GYM-007 4, 5: a planned workout whose day has passed is Skipped', () => {
+    expect(pillState('planned', '2026-10-31', '2026-11-01')).toBe('skipped')
+    expect(pillState('planned', '2026-11-01', '2026-11-01')).toBe('planned')
+    expect(pillState('in_progress', '2026-10-31', '2026-11-01')).toBe('in-progress')
+    expect(pillState('complete', '2026-10-31', '2026-11-01')).toBe('complete')
+  })
+
+  it('GYM-008 4: sets logged of the planned number', () => {
+    expect(setsOf(2, 3)).toBe('2 of 3 sets')
+    expect(setsOf(0, 1)).toBe('0 of 1 set')
+  })
+
+  it('GYM-010 1: the next set starts at the last one logged, else at Current', () => {
+    const current = { weightGrams: 60_000, reps: 8 }
+    expect(nextSet([], current, 2)).toEqual({ weightGrams: 60_000, reps: 8, rir: 2 })
+    expect(
+      nextSet(
+        [
+          { weightGrams: 62_500, reps: 9, rir: 1 },
+          { weightGrams: null, reps: null, rir: null },
+        ],
+        current,
+        2,
+      ),
+    ).toEqual({ weightGrams: 62_500, reps: 9, rir: 1 })
+  })
+
+  it('GYM-010 2: a typed weight, with a point or a comma, never below 0', () => {
+    expect(parseWeight('62.5')).toBe(62_500)
+    expect(parseWeight('62,5')).toBe(62_500)
+    expect(parseWeight('0')).toBe(0)
+    expect(parseWeight('-5')).toBeNull()
+    expect(parseWeight('abc')).toBeNull()
+    expect(parseWeight('1001')).toBeNull()
+  })
+
+  it('GYM-010 3, 4: a quick set shows dashes; a tracked one its strength', () => {
+    expect(shownSet({ weightGrams: null, reps: null, rir: null })).toEqual({ pr: false })
+    expect(shownSet({ weightGrams: 62_500, reps: 9, rir: 2, pr: true, strength: 81.234 })).toEqual({
+      weight: '62.5',
+      reps: 9,
+      rir: 2,
+      pr: true,
+      strength: '81.2',
+    })
+  })
+
+  it('GYM-003 1, GYM-006 6: when, after a word', () => {
+    const now = new Date(2026, 10, 1, 12)
+    expect(since('Used', new Date(2026, 9, 31, 18).getTime(), now)).toBe('Used yesterday')
+    expect(since('Done', new Date(2026, 9, 28, 18).getTime(), now)).toBe('Done Wed 28 Oct')
+  })
+
+  it('GYM-012 1: its duration', () => {
+    expect(duration('2026-11-01T18:00:00Z', '2026-11-01T18:58:00Z')).toBe('58 min')
+    expect(duration('2026-11-01T18:00:00Z', '2026-11-01T19:04:00Z')).toBe('1 h 04')
   })
 })

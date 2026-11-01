@@ -209,6 +209,36 @@ export function applyPending(items: readonly ItemRow[], entries: readonly QueueE
         } else mark(a.p_id, {})
         break
       }
+      // A Workout is planned for a day, named after its template or "Workout" (GYM-007 1).
+      case 'fitness.plan_workout': {
+        const a = entry.args as { p_id: string; p_day: string; p_template?: string | null }
+        if (!byId.has(a.p_id)) {
+          const template = a.p_template ? byId.get(a.p_template) : undefined
+          byId.set(a.p_id, {
+            ...blankItem(a.p_id, 'workout', at),
+            title: template?.title ?? 'Workout',
+            do_on: a.p_day,
+            sync,
+          })
+          order.push(a.p_id)
+        } else mark(a.p_id, {})
+        break
+      }
+      case 'fitness.update_workout': {
+        const a = entry.args as { p_id: string; p_patch: { name?: string; day?: string } }
+        mark(a.p_id, {
+          ...(a.p_patch.name?.trim() && { title: a.p_patch.name.trim() }),
+          ...(a.p_patch.day && { do_on: a.p_patch.day }),
+        })
+        break
+      }
+      case 'fitness.start_workout':
+        mark((entry.args as { p_id: string }).p_id, {})
+        break
+      // Complete is done (ADR-0058).
+      case 'fitness.end_workout':
+        mark((entry.args as { p_id: string }).p_id, { status: 'done' })
+        break
       case 'fitness.update_exercise': {
         const a = entry.args as { p_id: string; p_patch: { name?: string } }
         mark(a.p_id, a.p_patch.name?.trim() ? { title: a.p_patch.name.trim() } : {})

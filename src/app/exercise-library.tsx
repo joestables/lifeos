@@ -32,10 +32,12 @@ import { archiveExercise, CATEGORIES, type ExerciseView, type GymData } from '@/
 import {
   currentText,
   LIBRARY_SORTS,
+  since,
   withShare,
   type LibraryFilter,
   type LibrarySort,
 } from '@/lib/gym'
+import { whenAgo } from '@/lib/dates'
 import type { SortDirection } from '@/lib/sort'
 import type { Kept } from './gym-library'
 import { SearchField } from './search-field'
@@ -125,7 +127,10 @@ export function ExerciseList({
               selected={selected === x.item.id}
               leading={<TypeTile colour="coral" icon={WeightIcon} />}
               title={x.item.title}
-              meta={[x.primary?.name ?? 'No muscle', 'Never done']}
+              meta={[
+                x.primary?.name ?? 'No muscle',
+                x.lastDone === null ? 'Never done' : since('Done', x.lastDone),
+              ]}
               onOpen={() => onOpen(x)}
             />
           ))}
@@ -210,7 +215,7 @@ export function ExerciseBadges({ exercise }: { exercise: ExerciseView }) {
 /**
  * An Exercise's figures (GYM-014 3): its Current set with its strength at
  * my preferred RIR, its PR and when it was last done. Its chart and best
- * sets come with its workouts (plan steps 8 and 10).
+ * sets come with plan step 10.
  */
 export function ExerciseFigures({
   exercise,
@@ -233,8 +238,22 @@ export function ExerciseFigures({
           sub={s === null ? undefined : `Strength ${s.toFixed(1)} at ${preferredRir} RIR`}
         />
       </div>
-      <StatTile icon={<TrophyIcon />} label="PR" value="None yet" />
-      <StatTile label="Last done" value="Never" />
+      <StatTile
+        icon={<TrophyIcon />}
+        label="PR"
+        value={
+          exercise.pr
+            ? currentText(exercise.pr.set.weightGrams ?? 0, exercise.pr.set.reps ?? 0)
+            : 'None yet'
+        }
+        sub={exercise.pr ? `Strength ${exercise.pr.strength.toFixed(1)}` : undefined}
+      />
+      <StatTile
+        label="Last done"
+        value={
+          exercise.lastDone === null ? 'Never' : whenAgo(new Date(exercise.lastDone).toISOString())
+        }
+      />
     </div>
   )
 }

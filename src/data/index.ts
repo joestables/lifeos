@@ -72,6 +72,15 @@ import {
   applyPendingTemplateLines,
   templateLinesKey,
   type TemplateLine,
+  applyPendingWorkouts,
+  applyPendingEntries as applyPendingWorkoutEntries,
+  applyPendingSets,
+  workoutsKey,
+  entriesKey,
+  setsKey,
+  type WorkoutRow,
+  type EntryRow,
+  type SetRow,
   type Equipment,
   type ExerciseMuscle,
   type ExerciseRow,
@@ -79,7 +88,7 @@ import {
   type MuscleGroup,
   type MuscleSettingsRow,
 } from './fitness'
-import { fitnessWrites, templateWrites } from './fitness-writes'
+import { fitnessWrites, templateWrites, workoutWrites } from './fitness-writes'
 import {
   applyPendingListMeals,
   applyPendingLists,
@@ -158,6 +167,10 @@ const collections: {
       'fitness.update_exercise',
       'fitness.archive_exercise',
       'fitness.create_template',
+      'fitness.plan_workout',
+      'fitness.update_workout',
+      'fitness.start_workout',
+      'fitness.end_workout',
     ],
     fold: (rows: ItemRow[], e: QueueEntry) => foldSent(rows, e),
   },
@@ -340,6 +353,7 @@ const collections: {
       'food.add_variation',
       'food.plan_meal',
       'food.set_meal_variation',
+      'fitness.plan_workout',
     ],
     fold: (rows: Link[], e: QueueEntry) => applyPendingLinks(rows, [e]),
   },
@@ -386,6 +400,37 @@ const collections: {
       'fitness.remove_template_exercise',
     ],
     fold: (rows: TemplateLine[], e: QueueEntry) => applyPendingTemplateLines(rows, [e]),
+  },
+  {
+    key: workoutsKey,
+    // Discard ends a workout on the server (GYM-012 7): refetched after.
+    fns: [
+      'fitness.plan_workout',
+      'fitness.start_workout',
+      'fitness.end_workout',
+      'fitness.update_workout',
+      'archive_item',
+      'restore_item',
+    ],
+    fold: (rows: WorkoutRow[], e: QueueEntry) => applyPendingWorkouts(rows, [e]),
+  },
+  {
+    key: entriesKey,
+    // The server takes each entry's snapshot (ADR-0013): refetched after.
+    fns: [
+      'fitness.add_entry',
+      'fitness.begin_entry',
+      'fitness.swap_entry',
+      'fitness.remove_entry',
+      'fitness.mark_entry_done',
+      'fitness.start_workout',
+    ],
+    fold: (rows: EntryRow[], e: QueueEntry) => applyPendingWorkoutEntries(rows, [e]),
+  },
+  {
+    key: setsKey,
+    fns: ['fitness.log_set', 'fitness.update_set', 'fitness.remove_set'],
+    fold: (rows: SetRow[], e: QueueEntry) => applyPendingSets(rows, [e]),
   },
   {
     key: subtasksKey,
@@ -569,6 +614,22 @@ export const {
 } = templateWrites(queue)
 
 export const {
+  planWorkout,
+  updateWorkout,
+  changeWorkoutTemplate,
+  startWorkout,
+  addEntry,
+  beginEntry,
+  swapEntry,
+  removeEntry: removeWorkoutEntry,
+  markEntryDone,
+  logSet,
+  updateSet,
+  removeSet,
+  endWorkout,
+} = workoutWrites(queue)
+
+export const {
   createHousehold,
   renameHousehold,
   invite,
@@ -676,6 +737,9 @@ export {
   type ExerciseView,
   type GymData,
   type TemplateView,
+  type WorkoutView,
+  type EntryView,
+  type SetView,
 } from './fitness-hooks'
 export {
   CATEGORIES,
@@ -684,7 +748,7 @@ export {
   type MuscleCategory,
   type MuscleView,
 } from './fitness'
-export type { ExercisePatch, NewExercise } from './fitness-writes'
+export type { ExercisePatch, NewExercise, SetFields } from './fitness-writes'
 export type { Calendar, CalendarLink, Connection, ExternalRef } from './calendar'
 export { newId } from './ids'
 export { searchItemIds, searchKey } from './search'

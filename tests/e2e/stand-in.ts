@@ -61,6 +61,10 @@ export interface Rows {
   gym_settings?: Record<string, unknown>
   exercise?: Record<string, unknown>[]
   exercise_muscles?: { exercise_id: string; muscle_id: string; contribution: number }[]
+  /** Workouts' own fields (fitness.workout), entries and sets. */
+  workout?: Record<string, unknown>[]
+  workout_entries?: Record<string, unknown>[]
+  workout_sets?: Record<string, unknown>[]
   template_exercises?: {
     id: string
     template_id: string
@@ -311,6 +315,31 @@ export async function standIn(
     })),
     exercise_muscles: (rows.exercise_muscles ?? []).map((r) => ({ ...r })),
     template_exercises: (rows.template_exercises ?? []).map((r) => ({ ...r })),
+    workout: (rows.workout ?? []).map((r): Record<string, unknown> => ({
+      stage: 'planned',
+      started_at: null,
+      ended_at: null,
+      how_it_went: null,
+      motivation: null,
+      notes: null,
+      discarded: false,
+      ...r,
+    })),
+    workout_entries: (rows.workout_entries ?? []).map((r): Record<string, unknown> => ({
+      place: 'backlog',
+      planned_sets: 1,
+      begun_at: null,
+      done_at: null,
+      snapshot: {},
+      ...r,
+    })),
+    workout_sets: (rows.workout_sets ?? []).map((r): Record<string, unknown> => ({
+      weight: null,
+      reps: null,
+      rir: null,
+      logged_at: '2026-10-01T09:00:00Z',
+      ...r,
+    })),
     /** Storage's `photos` bucket: each file's bytes by its path. */
     files: new Map<string, Buffer>(),
     /** The calendar chosen for each new Event (set_event_calendar). */
@@ -366,6 +395,15 @@ export async function standIn(
     return { connections: 1, saved: 0, broken: 0, failed: [] }
   }
   const item = (id: unknown) => db.items.find((i) => i.id === id)
+  /** What `fitness_private.snapshot` copies from an Exercise. */
+  const snapshot = (id: unknown) => {
+    const row = db.exercise.find((r) => r.item_id === id)
+    return {
+      name: item(id)?.title,
+      current_weight: row?.current_weight,
+      current_reps: row?.current_reps,
+    }
+  }
   const now = () => new Date().toISOString()
   // Repeats, as core.set_repeat, stop_repeat and complete_occurrence make them.
   const endSeries = (seriesId: unknown, last: string, keep?: unknown) => {
@@ -1176,6 +1214,118 @@ export async function standIn(
     remove_template_exercise: (a) => {
       db.template_exercises = db.template_exercises.filter((t) => t.id !== a.p_id)
     },
+    plan_workout: (a) => {
+      if (item(a.p_id)) return
+      const template = a.p_template ? item(a.p_template) : undefined
+      db.items.push(
+        itemRow({
+          id: String(a.p_id),
+          type: 'workout',
+          title: String(template?.title ?? 'Workout'),
+          do_on: a.p_day,
+          created_at: now(),
+          updated_at: now(),
+        }),
+      )
+      db.workout.push({
+        item_id: a.p_id,
+        stage: 'planned',
+        started_at: null,
+        ended_at: null,
+        how_it_went: null,
+        motivation: null,
+        notes: null,
+        discarded: false,
+      })
+      if (a.p_template)
+        db.links.push({
+          from_item: String(a.p_id),
+          to_item: String(a.p_template),
+          link_type: 'follows',
+        })
+    },
+    update_workout: (a) => {
+      const p = a.p_patch as Record<string, unknown>
+      const i = item(a.p_id)
+      const w = db.workout.find((x) => x.item_id === a.p_id)
+      if (!i || !w) return
+      if (typeof p.name === 'string' && p.name.trim()) i.title = p.name.trim()
+      if (typeof p.day === 'string' && w.stage === 'planned') i.do_on = p.day
+      for (const k of ['how_it_went', 'motivation', 'notes']) if (k in p) w[k] = p[k]
+    },
+    start_workout: (a) => {
+      const w = db.workout.find((x) => x.item_id === a.p_id)
+      if (!w || w.stage !== 'planned') return
+      w.stage = 'in_progress'
+      w.started_at = a.p_at ?? now()
+    },
+    add_entry: (a) => {
+      if (db.workout_entries.some((e) => e.id === a.p_id)) return
+      db.workout_entries.push({
+        id: a.p_id,
+        workout_id: a.p_workout,
+        exercise_id: a.p_exercise,
+        place: a.p_begin ? 'session' : 'backlog',
+        position: a.p_position,
+        planned_sets: a.p_planned_sets ?? 1,
+        begun_at: a.p_begin ? now() : null,
+        done_at: null,
+        snapshot: snapshot(a.p_exercise),
+      })
+    },
+    begin_entry: (a) => {
+      const e = db.workout_entries.find((x) => x.id === a.p_id)
+      if (!e) return
+      const begin = a.p_begin !== false
+      e.place = begin ? 'session' : 'backlog'
+      e.begun_at = begin ? (e.begun_at ?? a.p_at ?? now()) : null
+      if (!begin) e.done_at = null
+    },
+    swap_entry: (a) => {
+      const e = db.workout_entries.find((x) => x.id === a.p_id && x.place === 'backlog')
+      if (!e) return
+      e.exercise_id = a.p_exercise
+      e.snapshot = snapshot(a.p_exercise)
+    },
+    remove_entry: (a) => {
+      db.workout_entries = db.workout_entries.filter((x) => x.id !== a.p_id)
+    },
+    mark_entry_done: (a) => {
+      const e = db.workout_entries.find((x) => x.id === a.p_id)
+      if (e) e.done_at = a.p_done === false ? null : now()
+    },
+    log_set: (a) => {
+      if (db.workout_sets.some((s) => s.id === a.p_id)) return
+      db.workout_sets.push({
+        id: a.p_id,
+        entry_id: a.p_entry,
+        position: a.p_position,
+        weight: a.p_weight ?? null,
+        reps: a.p_reps ?? null,
+        rir: a.p_rir ?? null,
+        logged_at: a.p_at ?? now(),
+      })
+    },
+    update_set: (a) => {
+      const s = db.workout_sets.find((x) => x.id === a.p_id)
+      if (s) Object.assign(s, { weight: a.p_weight, reps: a.p_reps, rir: a.p_rir })
+    },
+    remove_set: (a) => {
+      db.workout_sets = db.workout_sets.filter((x) => x.id !== a.p_id)
+    },
+    end_workout: (a) => {
+      const w = db.workout.find((x) => x.item_id === a.p_id)
+      if (!w || w.stage !== 'in_progress') return
+      Object.assign(w, {
+        stage: 'complete',
+        ended_at: a.p_at ?? now(),
+        how_it_went: a.p_how_it_went ?? null,
+        motivation: a.p_motivation ?? null,
+        notes: a.p_notes || null,
+      })
+      const i = item(a.p_id)
+      if (i) i.status = 'done'
+    },
     archive_exercise: (a) => {
       const i = item(a.p_id)
       if (!i) return
@@ -1327,8 +1477,12 @@ export async function standIn(
     remove_reminder: (a) => {
       db.reminders = db.reminders.filter((r) => r.id !== a.p_id)
     },
-    archive_item: (a) =>
-      Object.assign(item(a.p_id) ?? {}, { archived_at: new Date().toISOString() }),
+    archive_item: (a) => {
+      Object.assign(item(a.p_id) ?? {}, { archived_at: new Date().toISOString() })
+      // A workout in progress deleted ends (GYM-012 7).
+      const w = db.workout.find((x) => x.item_id === a.p_id && x.stage === 'in_progress')
+      if (w) Object.assign(w, { stage: 'complete', ended_at: now(), discarded: true })
+    },
     restore_item: (a) => Object.assign(item(a.p_id) ?? {}, { archived_at: null }),
     // The status is kept where the new Type has it, else active (ITM-004).
     convert_item: (a) => {

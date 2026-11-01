@@ -42,8 +42,7 @@ export function useLibrary(gym: GymData, filter: LibraryFilter) {
       primary: x.primary,
       secondaries: x.secondaries.map((s) => s.muscle.name),
       equipment: x.equipment?.name,
-      // Workouts come with plan step 8.
-      lastDone: null,
+      lastDone: x.lastDone,
       view: x,
     }))
     return libraryRows(rows, filter).map((r) => r.view)

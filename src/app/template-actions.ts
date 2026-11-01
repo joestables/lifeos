@@ -1,14 +1,13 @@
 import { toast } from '@/components/ui/sonner'
 import { archiveItem, duplicateTemplate, restoreItem, type TemplateView } from '@/data'
-import { whenAgo } from '@/lib/dates'
-import { copyName, counted } from '@/lib/gym'
+import { copyName, counted, since } from '@/lib/gym'
 
 /** "5 exercises · 15 sets · Never used" (GYM-006 6, GYM-022 1). */
 export function templateMeta(t: TemplateView): string[] {
   return [
     counted(t.exerciseCount, 'exercise'),
     counted(t.setCount, 'set'),
-    t.lastUsed === null ? 'Never used' : `Used ${whenAgo(new Date(t.lastUsed).toISOString())}`,
+    t.lastUsed === null ? 'Never used' : since('Used', t.lastUsed),
   ]
 }
 

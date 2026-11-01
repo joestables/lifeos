@@ -46,6 +46,7 @@ import { Route as AppShoppingIdRouteImport } from './routes/_app/shopping.$id'
 import { Route as AppGymExercisesIdRouteImport } from './routes/_app/gym.exercises.$id'
 import { Route as AppGymTemplatesIndexRouteImport } from './routes/_app/gym.templates.index'
 import { Route as AppGymTemplatesIdRouteImport } from './routes/_app/gym.templates.$id'
+import { Route as AppGymWorkoutsIdRouteImport } from './routes/_app/gym.workouts.$id'
 import { Route as AppSettingsHouseholdsIdRouteImport } from './routes/_app/settings.households.$id'
 
 const IndexRoute = IndexRouteImport.update({
@@ -234,6 +235,11 @@ const AppGymTemplatesIdRoute = AppGymTemplatesIdRouteImport.update({
   path: '/gym/templates/$id',
   getParentRoute: () => AppRoute,
 } as any)
+const AppGymWorkoutsIdRoute = AppGymWorkoutsIdRouteImport.update({
+  id: '/gym/workouts/$id',
+  path: '/gym/workouts/$id',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppSettingsHouseholdsIdRoute = AppSettingsHouseholdsIdRouteImport.update({
   id: '/settings/households/$id',
   path: '/settings/households/$id',
@@ -276,6 +282,7 @@ export interface FileRoutesByFullPath {
   '/shopping/': typeof AppShoppingIndexRoute
   '/gym/exercises/$id': typeof AppGymExercisesIdRoute
   '/gym/templates/$id': typeof AppGymTemplatesIdRoute
+  '/gym/workouts/$id': typeof AppGymWorkoutsIdRoute
   '/settings/households/$id': typeof AppSettingsHouseholdsIdRoute
   '/gym/templates/': typeof AppGymTemplatesIndexRoute
 }
@@ -315,6 +322,7 @@ export interface FileRoutesByTo {
   '/shopping': typeof AppShoppingIndexRoute
   '/gym/exercises/$id': typeof AppGymExercisesIdRoute
   '/gym/templates/$id': typeof AppGymTemplatesIdRoute
+  '/gym/workouts/$id': typeof AppGymWorkoutsIdRoute
   '/settings/households/$id': typeof AppSettingsHouseholdsIdRoute
   '/gym/templates': typeof AppGymTemplatesIndexRoute
 }
@@ -356,6 +364,7 @@ export interface FileRoutesById {
   '/_app/shopping/': typeof AppShoppingIndexRoute
   '/_app/gym/exercises/$id': typeof AppGymExercisesIdRoute
   '/_app/gym/templates/$id': typeof AppGymTemplatesIdRoute
+  '/_app/gym/workouts/$id': typeof AppGymWorkoutsIdRoute
   '/_app/settings/households/$id': typeof AppSettingsHouseholdsIdRoute
   '/_app/gym/templates/': typeof AppGymTemplatesIndexRoute
 }
@@ -397,6 +406,7 @@ export interface FileRouteTypes {
     | '/shopping/'
     | '/gym/exercises/$id'
     | '/gym/templates/$id'
+    | '/gym/workouts/$id'
     | '/settings/households/$id'
     | '/gym/templates/'
   fileRoutesByTo: FileRoutesByTo
@@ -436,6 +446,7 @@ export interface FileRouteTypes {
     | '/shopping'
     | '/gym/exercises/$id'
     | '/gym/templates/$id'
+    | '/gym/workouts/$id'
     | '/settings/households/$id'
     | '/gym/templates'
   id:
@@ -476,6 +487,7 @@ export interface FileRouteTypes {
     | '/_app/shopping/'
     | '/_app/gym/exercises/$id'
     | '/_app/gym/templates/$id'
+    | '/_app/gym/workouts/$id'
     | '/_app/settings/households/$id'
     | '/_app/gym/templates/'
   fileRoutesById: FileRoutesById
@@ -754,6 +766,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppGymTemplatesIdRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/gym/workouts/$id': {
+      id: '/_app/gym/workouts/$id'
+      path: '/gym/workouts/$id'
+      fullPath: '/gym/workouts/$id'
+      preLoaderRoute: typeof AppGymWorkoutsIdRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/settings/households/$id': {
       id: '/_app/settings/households/$id'
       path: '/settings/households/$id'
@@ -791,6 +810,7 @@ interface AppRouteChildren {
   AppShoppingIndexRoute: typeof AppShoppingIndexRoute
   AppGymExercisesIdRoute: typeof AppGymExercisesIdRoute
   AppGymTemplatesIdRoute: typeof AppGymTemplatesIdRoute
+  AppGymWorkoutsIdRoute: typeof AppGymWorkoutsIdRoute
   AppSettingsHouseholdsIdRoute: typeof AppSettingsHouseholdsIdRoute
   AppGymTemplatesIndexRoute: typeof AppGymTemplatesIndexRoute
 }
@@ -822,6 +842,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppShoppingIndexRoute: AppShoppingIndexRoute,
   AppGymExercisesIdRoute: AppGymExercisesIdRoute,
   AppGymTemplatesIdRoute: AppGymTemplatesIdRoute,
+  AppGymWorkoutsIdRoute: AppGymWorkoutsIdRoute,
   AppSettingsHouseholdsIdRoute: AppSettingsHouseholdsIdRoute,
   AppGymTemplatesIndexRoute: AppGymTemplatesIndexRoute,
 }

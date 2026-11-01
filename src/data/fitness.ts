@@ -379,3 +379,173 @@ export function applyPendingTemplateLines(
   }
   return [...byId.values()].sort(byPosition)
 }
+
+/** A Workout's own fields (GYM-008, GYM-012): its stage, start and end, and how it went. */
+export type WorkoutRow = Omit<Fitness['workout']['Row'], 'updated_at' | 'owner_id'>
+/** One of a workout's exercises: in the backlog or the session, with what it copied. */
+export type EntryRow = Omit<Fitness['workout_entries']['Row'], 'created_at' | 'updated_at'>
+/** A set: weight, reps and RIR, or none for a quick set (GYM-010). */
+export type SetRow = Omit<Fitness['workout_sets']['Row'], 'updated_at'>
+
+export const workoutsKey = ['fitness', 'workout'] as const
+export const entriesKey = ['fitness', 'workout_entries'] as const
+export const setsKey = ['fitness', 'workout_sets'] as const
+
+export async function fetchWorkouts(): Promise<WorkoutRow[]> {
+  const { data, error } = await fitness()
+    .from('workout')
+    .select('item_id, stage, started_at, ended_at, how_it_went, motivation, notes, discarded')
+  if (error) throw error
+  return data
+}
+
+export async function fetchEntries(): Promise<EntryRow[]> {
+  const { data, error } = await fitness()
+    .from('workout_entries')
+    .select(
+      'id, workout_id, exercise_id, place, position, planned_sets, begun_at, done_at, snapshot',
+    )
+    .order('position')
+  if (error) throw error
+  return data
+}
+
+export async function fetchSets(): Promise<SetRow[]> {
+  const { data, error } = await fitness()
+    .from('workout_sets')
+    .select('id, entry_id, position, weight, reps, rir, logged_at')
+    .order('position')
+  if (error) throw error
+  return data
+}
+
+const at = (e: QueueEntry, v: unknown) =>
+  typeof v === 'string' ? v : new Date(e.createdAt).toISOString()
+
+export function applyPendingWorkouts(
+  rows: readonly WorkoutRow[],
+  entries: readonly QueueEntry[],
+): WorkoutRow[] {
+  const byId = new Map(rows.map((r) => [r.item_id, r]))
+  const blank = (id: string): WorkoutRow => ({
+    item_id: id,
+    stage: 'planned',
+    started_at: null,
+    ended_at: null,
+    how_it_went: null,
+    motivation: null,
+    notes: null,
+    discarded: false,
+  })
+  for (const e of entries) {
+    const a = args(e)
+    const id = String(a.p_id)
+    const row = byId.get(id)
+    if (e.fn === 'fitness.plan_workout') {
+      if (!row) byId.set(id, blank(id))
+    } else if (e.fn === 'fitness.start_workout') {
+      if (row?.stage === 'planned')
+        byId.set(id, { ...row, stage: 'in_progress', started_at: at(e, a.p_at) })
+    } else if (e.fn === 'fitness.end_workout') {
+      if (row?.stage === 'in_progress')
+        byId.set(id, {
+          ...row,
+          stage: 'complete',
+          ended_at: at(e, a.p_at),
+          how_it_went: (a.p_how_it_went as number | null) ?? null,
+          motivation: (a.p_motivation as number | null) ?? null,
+          notes: typeof a.p_notes === 'string' && a.p_notes.trim() ? a.p_notes.trim() : null,
+        })
+    } else if (e.fn === 'fitness.update_workout' && row) {
+      const p = (a.p_patch ?? {}) as Args
+      byId.set(id, {
+        ...row,
+        ...('how_it_went' in p && { how_it_went: (p.how_it_went as number | null) ?? null }),
+        ...('motivation' in p && { motivation: (p.motivation as number | null) ?? null }),
+        ...('notes' in p && {
+          notes: typeof p.notes === 'string' && p.notes.trim() ? p.notes.trim() : null,
+        }),
+      })
+    }
+  }
+  return [...byId.values()]
+}
+
+export function applyPendingEntries(
+  rows: readonly EntryRow[],
+  entries: readonly QueueEntry[],
+): EntryRow[] {
+  const byId = new Map(rows.map((r) => [r.id, r]))
+  // Sets logged, so an entry with sets stays in the session.
+  for (const e of entries) {
+    const a = args(e)
+    const id = String(a.p_id)
+    const row = byId.get(id)
+    if (e.fn === 'fitness.add_entry') {
+      if (row) continue
+      const begin = a.p_begin === true
+      byId.set(id, {
+        id,
+        workout_id: String(a.p_workout),
+        exercise_id: String(a.p_exercise),
+        place: begin ? 'session' : 'backlog',
+        position: String(a.p_position),
+        planned_sets: num(a.p_planned_sets, 1),
+        begun_at: begin ? new Date(e.createdAt).toISOString() : null,
+        done_at: null,
+        // Taken by the server; the screens read the Exercise until it comes.
+        snapshot: {},
+      })
+    } else if (e.fn === 'fitness.begin_entry' && row) {
+      const begin = a.p_begin !== false
+      byId.set(id, {
+        ...row,
+        place: begin ? 'session' : 'backlog',
+        begun_at: begin ? (row.begun_at ?? at(e, a.p_at)) : null,
+        done_at: begin ? row.done_at : null,
+      })
+    } else if (e.fn === 'fitness.swap_entry' && row?.place === 'backlog') {
+      byId.set(id, { ...row, exercise_id: String(a.p_exercise), snapshot: {} })
+    } else if (e.fn === 'fitness.mark_entry_done' && row?.place === 'session') {
+      byId.set(id, {
+        ...row,
+        done_at: a.p_done === false ? null : (row.done_at ?? new Date(e.createdAt).toISOString()),
+      })
+    } else if (e.fn === 'fitness.remove_entry' && e.state === 'pending') {
+      byId.delete(id)
+    }
+  }
+  return [...byId.values()]
+}
+
+export function applyPendingSets(
+  rows: readonly SetRow[],
+  entries: readonly QueueEntry[],
+): SetRow[] {
+  const byId = new Map(rows.map((r) => [r.id, r]))
+  const n = (v: unknown) => (v === null || v === undefined ? null : Number(v))
+  for (const e of entries) {
+    const a = args(e)
+    const id = String(a.p_id)
+    if (e.fn === 'fitness.log_set') {
+      if (byId.has(id)) continue
+      byId.set(id, {
+        id,
+        entry_id: String(a.p_entry),
+        position: String(a.p_position),
+        weight: n(a.p_weight),
+        reps: n(a.p_reps),
+        rir: n(a.p_rir),
+        logged_at: at(e, a.p_at),
+      })
+    } else if (e.fn === 'fitness.update_set') {
+      const row = byId.get(id)
+      if (row) byId.set(id, { ...row, weight: n(a.p_weight), reps: n(a.p_reps), rir: n(a.p_rir) })
+    } else if (e.fn === 'fitness.remove_set' && e.state === 'pending') {
+      byId.delete(id)
+    }
+  }
+  return [...byId.values()].sort((x, y) =>
+    x.position < y.position ? -1 : x.position > y.position ? 1 : x.id < y.id ? -1 : 1,
+  )
+}

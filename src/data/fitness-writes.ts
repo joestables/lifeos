@@ -183,3 +183,182 @@ export function templateWrites(queue: WriteQueue) {
     },
   }
 }
+
+/** A set's numbers: weight in whole grams, reps and RIR; all null for a quick set. */
+export interface SetFields {
+  weightGrams: number | null
+  reps: number | null
+  rir: number | null
+}
+
+/**
+ * Workouts (GYM-007–GYM-012): each queues one function and returns at once,
+ * ids made here, so a workout is planned, started, logged and ended with
+ * no signal (GYM-021 1).
+ */
+export function workoutWrites(queue: WriteQueue) {
+  const now = () => new Date().toISOString()
+  const addEntry = (
+    workout: string,
+    exercise: string,
+    position: string,
+    begin: boolean,
+    plannedSets = 1,
+  ): string => {
+    const id = newId()
+    queue.enqueue(
+      'fitness.add_entry',
+      {
+        p_id: id,
+        p_workout: workout,
+        p_exercise: exercise,
+        p_position: position,
+        p_begin: begin,
+        p_planned_sets: plannedSets,
+      },
+      [workout],
+    )
+    return id
+  }
+  return {
+    /** Planned for a day, from a template or empty (GYM-007 1). */
+    planWorkout(day: string, template?: string): string {
+      const id = newId()
+      queue.enqueue(
+        'fitness.plan_workout',
+        { p_id: id, p_day: day, ...(template && { p_template: template }) },
+        [id],
+      )
+      return id
+    },
+    /** Its name or, while planned, its day (GYM-007 3); how it went, afterwards (GYM-012 6). */
+    updateWorkout(
+      id: string,
+      patch: {
+        name?: string
+        day?: string
+        howItWent?: number | null
+        motivation?: number | null
+        notes?: string | null
+      },
+    ): void {
+      queue.enqueue(
+        'fitness.update_workout',
+        {
+          p_id: id,
+          p_patch: {
+            ...(patch.name !== undefined && { name: patch.name.trim() }),
+            ...(patch.day !== undefined && { day: patch.day }),
+            ...(patch.howItWent !== undefined && { how_it_went: patch.howItWent }),
+            ...(patch.motivation !== undefined && { motivation: patch.motivation }),
+            ...(patch.notes !== undefined && { notes: patch.notes ?? '' }),
+          } as never,
+        },
+        [id],
+      )
+    },
+    /**
+     * A planned workout's template changed (GYM-007 3): its *follows* link
+     * moved with core's link writes; a name still its old template's (or
+     * "Workout") takes the new one's.
+     */
+    changeWorkoutTemplate(
+      id: string,
+      title: string,
+      from: { id: string; title: string } | null,
+      to: { id: string; title: string } | null,
+    ): void {
+      if (from?.id === to?.id) return
+      if (from)
+        queue.enqueue('unlink_items', { p_from: id, p_to: from.id, p_link_type: 'follows' }, [
+          id,
+          from.id,
+        ])
+      if (to)
+        queue.enqueue(
+          'link_items',
+          { p_id: newId(), p_from: id, p_to: to.id, p_link_type: 'follows' },
+          [id, to.id],
+        )
+      const name = to?.title ?? 'Workout'
+      if (title === (from?.title ?? 'Workout') && name !== title)
+        queue.enqueue('fitness.update_workout', { p_id: id, p_patch: { name } as never }, [id])
+    },
+    /**
+     * Start (GYM-008 1): its template's exercises added to the backlog here,
+     * with ids made on the device, before the server is told it started, so
+     * they can be logged on with no signal; the server copies nothing then.
+     */
+    startWorkout(
+      id: string,
+      lines: readonly { exerciseId: string; position: string; sets: number }[],
+    ): void {
+      for (const l of lines) addEntry(id, l.exerciseId, l.position, false, l.sets)
+      queue.enqueue('fitness.start_workout', { p_id: id, p_at: now() }, [id])
+    },
+    /** An exercise added, to the backlog or straight into the session, with one set (GYM-009 2). */
+    addEntry,
+    /** Add moves it into the session; back to the backlog while it has no sets (GYM-008 3, 6). */
+    beginEntry(workout: string, entry: string, begin = true): void {
+      queue.enqueue('fitness.begin_entry', { p_id: entry, p_begin: begin, p_at: now() }, [workout])
+    },
+    swapEntry(workout: string, entry: string, exercise: string): void {
+      queue.enqueue('fitness.swap_entry', { p_id: entry, p_exercise: exercise }, [workout])
+    },
+    removeEntry(workout: string, entry: string): void {
+      queue.enqueue('fitness.remove_entry', { p_id: entry }, [workout])
+    },
+    markEntryDone(workout: string, entry: string, done = true): void {
+      queue.enqueue('fitness.mark_entry_done', { p_id: entry, p_done: done }, [workout])
+    },
+    logSet(workout: string, entry: string, position: string, set: SetFields): string {
+      const id = newId()
+      queue.enqueue(
+        'fitness.log_set',
+        {
+          p_id: id,
+          p_entry: entry,
+          p_position: position,
+          p_weight: set.weightGrams === null ? (null as never) : toKg(set.weightGrams),
+          p_reps: set.reps as never,
+          p_rir: set.rir as never,
+          p_at: now(),
+        },
+        [workout],
+      )
+      return id
+    },
+    updateSet(workout: string, id: string, set: SetFields): void {
+      queue.enqueue(
+        'fitness.update_set',
+        {
+          p_id: id,
+          p_weight: set.weightGrams === null ? (null as never) : toKg(set.weightGrams),
+          p_reps: set.reps as never,
+          p_rir: set.rir as never,
+        },
+        [workout],
+      )
+    },
+    removeSet(workout: string, id: string): void {
+      queue.enqueue('fitness.remove_set', { p_id: id }, [workout])
+    },
+    /** End (GYM-012 1): Complete, with how it went (1–5), motivation (1–3) and notes. */
+    endWorkout(
+      id: string,
+      fields: { howItWent: number | null; motivation: number | null; notes: string },
+    ): void {
+      queue.enqueue(
+        'fitness.end_workout',
+        {
+          p_id: id,
+          p_how_it_went: fields.howItWent as never,
+          p_motivation: fields.motivation as never,
+          p_notes: fields.notes,
+          p_at: now(),
+        },
+        [id],
+      )
+    },
+  }
+}

@@ -319,7 +319,7 @@ Acceptance criteria
 
 **As** Joe, **I want** all my exercises in one library, **so that** I can
 find one and see where it stands.
-Priority: Must · Status: built (2 and 3 verified by `gym.spec.ts`; when last done, Stalled and the figures from workouts come with plan steps 8 and 10)
+Priority: Must · Status: built (2 and 3 verified by `gym.spec.ts`; 1's when last done, its Current set and PR from workouts; Stalled and the rest of the figures with plan step 10)
 
 Acceptance criteria
 1. Given Progression → Exercises, then every Exercise I haven't archived
@@ -358,7 +358,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to archive exercises I no longer do, **so that** the
 library and pickers show only what I use.
-Priority: Must · Status: built (verified for the library and a template's Add and Swap by `gym.spec.ts`; a workout's with plan step 8)
+Priority: Must · Status: verified (the library and a template's Add and Swap by `gym.spec.ts`; a workout's by `gym-workouts.spec.ts`)
 
 Acceptance criteria
 1. Given an Exercise, when I archive it, then it leaves the library, Add
@@ -376,7 +376,7 @@ Acceptance criteria
 **As** Joe, **I want** to make, edit and delete workout templates and see
 what each covers, **so that** a planned workout starts with the right
 exercises and trains what I mean it to.
-Priority: Must · Status: built (1–5 verified by `gym-templates.spec.ts`; 6's "when last used" comes with workouts, plan step 8)
+Priority: Must · Status: verified (`gym-templates.spec.ts`; 6's when last used by `gym-workouts.spec.ts`)
 
 Acceptance criteria
 1. Given New template (on All templates), then I name it and add
@@ -400,7 +400,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to plan a workout for a day, from a template or from
 scratch, **so that** it is on Plan and ready when I get to the gym.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified (`gym-workouts.spec.ts`; 4 and 5 also by `src/lib/gym.test.ts`)
 
 Acceptance criteria
 1. Given New workout, then the three templates I used most recently are
@@ -421,7 +421,7 @@ Acceptance criteria
 **As** Joe, **I want** every exercise to wait in a backlog until I begin
 it, **so that** the session records what I really did, in the order I did
 it.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified (`gym-workouts.spec.ts`)
 
 Acceptance criteria
 1. Given a planned workout, when I press Start, then it is In progress,
@@ -452,7 +452,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to add or swap exercises by muscle group, **so
 that** a busy machine doesn't break my plan.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified (`gym-workouts.spec.ts`; in a template, `gym-templates.spec.ts`)
 
 Acceptance criteria
 1. Given Add exercise, in a workout or a template, then every muscle group
@@ -474,7 +474,7 @@ Acceptance criteria
 **As** Joe, **I want** to log a set in a popup, tracked or quick, and see
 and edit my sets as plain text, **so that** logging is quick and the
 session isn't cluttered.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified (`gym-workouts.spec.ts`, `src/lib/gym.test.ts`)
 
 Acceptance criteria
 1. Given Log set on an exercise, then a popup opens on Tracked (Tracked ·
@@ -502,7 +502,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to mark an exercise done when I've done the sets I
 want, **so that** I can see what's left.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified (`gym-workouts.spec.ts`)
 
 Acceptance criteria
 1. Given an exercise in the session, then I log sets on it until I mark
@@ -515,7 +515,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to record how a workout went and then review it,
 **so that** I can see what I did and move current sets on.
-Priority: Must · Status: agreed
+Priority: Must · Status: built (1–5 and 7 verified by `gym-workouts.spec.ts`; 6, Edit, with plan step 8b)
 
 Acceptance criteria
 1. Given End workout, then I'm asked "How it went", as one to five stars,
@@ -544,7 +544,7 @@ Acceptance criteria
 **As** Joe, **I want** my recent workouts at hand and every workout in a
 list I can filter, sort and summarise, **so that** I can look back at my
 training.
-Priority: Must · Status: agreed
+Priority: Must · Status: built (1's Today and Recent workouts; All workouts, 2–5, with plan step 8b)
 
 Acceptance criteria
 1. Given the Workouts tab, then Today shows the workout in progress or
@@ -731,7 +731,7 @@ Acceptance criteria
 
 **As** Joe, **I want** every template in one list I can sort, **so that** I
 can find and tidy them.
-Priority: Must · Status: built (verified by `gym-templates.spec.ts`; when last used and uses this month come with workouts, plan step 8)
+Priority: Must · Status: verified (`gym-templates.spec.ts`; uses over the last month by `src/lib/gym.test.ts`)
 
 Acceptance criteria
 1. Given All templates, then every template is listed — its name,

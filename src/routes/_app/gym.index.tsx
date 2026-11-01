@@ -7,7 +7,6 @@ import {
   ListDetail,
   PageAction,
   PageHeader,
-  PanelHeading,
   PanelRow,
   TabsRow,
   TypeScope,
@@ -16,10 +15,13 @@ import { Card, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { ExerciseDialog } from '@/app/exercise-dialog'
+import { NewWorkoutDialog } from '@/app/new-workout'
 import { TemplatesCard } from '@/app/template-parts'
+import { RecentCard, TodayCard } from '@/app/workout-cards'
 import { ExerciseDetail, ExerciseList } from '@/app/exercise-library'
 import { useLibrary, useLibraryFilter } from '@/app/gym-library'
-import { CATEGORIES, queue, useGym, type ExerciseView } from '@/data'
+import { todayIn } from '@lifeos/recurrence'
+import { CATEGORIES, queue, useGym, useSettings, type ExerciseView } from '@/data'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { useIsWide } from '@/hooks/use-wide'
 
@@ -68,10 +70,15 @@ function Gym() {
     wide
       ? set({ exercise: x.item.id })
       : void navigate({ to: '/gym/exercises/$id', params: { id: x.item.id } })
+  const settings = useSettings(queue)
+  const today = todayIn(settings.timezone)
+  const [planning, setPlanning] = useState(false)
   const newExercise =
     tab === 'progression' && view === 'exercises'
       ? { label: 'New exercise', onClick: () => setEditing('new') }
-      : undefined
+      : tab === 'workouts'
+        ? { label: 'New workout', onClick: () => setPlanning(true) }
+        : undefined
 
   return (
     <TypeScope colour="coral">
@@ -89,10 +96,10 @@ function Gym() {
         </TabsRow>
         {tab === 'workouts' && (
           <div className="grid items-start gap-5 lg:grid-cols-2">
-            <Card className="gap-3">
-              <PanelHeading title="Recent workouts" />
-              <p className="text-sm text-muted-foreground">No workouts yet</p>
-            </Card>
+            <div className="flex flex-col gap-5">
+              <TodayCard gym={gym} today={today} phone={phone} />
+              <RecentCard gym={gym} today={today} phone={phone} />
+            </div>
             <TemplatesCard gym={gym} count={phone ? 3 : 6} />
           </div>
         )}
@@ -135,6 +142,14 @@ function Gym() {
           </>
         )}
       </div>
+      {planning && (
+        <NewWorkoutDialog
+          gym={gym}
+          today={today}
+          onClose={() => setPlanning(false)}
+          onMade={(id) => void navigate({ to: '/gym/workouts/$id', params: { id } })}
+        />
+      )}
       {editing && (
         <ExerciseDialog
           gym={gym}

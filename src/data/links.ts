@@ -34,6 +34,13 @@ export function applyPendingLinks(rows: readonly Link[], entries: readonly Queue
         out.push(link)
       continue
     }
+    // A Workout follows the template it was planned from (ADR-0058).
+    if (entry.fn === 'fitness.plan_workout') {
+      const a = entry.args as { p_id: string; p_template?: string | null }
+      if (a.p_template && !out.some((l) => l.from_item === a.p_id && l.link_type === 'follows'))
+        out.push({ from_item: a.p_id, to_item: a.p_template, link_type: 'follows' })
+      continue
+    }
     // A Meal uses the Variation it plans (MPL-002); one at most.
     if (entry.fn === 'food.plan_meal' || entry.fn === 'food.set_meal_variation') {
       const a = entry.args as {

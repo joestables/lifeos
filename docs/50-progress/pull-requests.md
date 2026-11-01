@@ -2,7 +2,7 @@
 
 Newest first. Each entry is added in its own pull request.
 
-## [#56](https://github.com/joestables/lifeos/pull/56) — The Gym's schema, calculations, settings, exercise library and templates
+## [#56](https://github.com/joestables/lifeos/pull/56) — The Gym's schema, calculations, settings, exercise library, templates and workouts
 
 Branch `claude/eloquent-darwin-gudbuj` · 2026-11-01
 
@@ -39,10 +39,19 @@ Branch `claude/eloquent-darwin-gudbuj` · 2026-11-01
   template's page (drag to reorder, sets, Swap, Remove, coverage, Rename,
   Duplicate, Delete); All templates (sort, pages, New template); the
   Workouts tab's Templates card. 10 browser tests.
+- **Workouts (step 8a):** New workout; a planned workout's page (Start,
+  Change day, Change template, Rename, Delete) and on Plan; Start, offline
+  too; the backlog and the session (Add, back to the backlog, Swap,
+  Remove, Add exercise); the set popup (Tracked · Quick) and the set
+  table; Strength history; done and undone; End and the review (Update
+  current, Beat current, stimulus sets); Discard with Undo
+  (`stage5_workout_discard`); Today and Recent workouts; an Exercise's
+  last done and PR. 8 browser tests, 60 database tests.
 
 **Documents touched:** gym, ADR-0058, ADR-0059, the data model, glossary,
 components, patterns, tokens, the design system's README, integration
-setup (the `fitness` schema to expose), the Stage 5 plan, the roadmap.
+setup (the `fitness` schema to expose), the Stage 5 plan, the roadmap,
+the README and CLAUDE.md.
 
 **Left for later:** workouts, recovery and progression (steps 8–10).
 

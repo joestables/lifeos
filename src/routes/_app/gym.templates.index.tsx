@@ -25,6 +25,7 @@ import { queue, useGym, type TemplateView } from '@/data'
 import {
   counted,
   sortTemplates,
+  templateRows,
   TEMPLATE_SORTS,
   TEMPLATES_PER_PAGE,
   type TemplateSort,
@@ -45,11 +46,8 @@ function AllTemplates() {
   const { sort, direction, change } = useTemplateSort()
   const [page, setPage] = useState(1)
   const [naming, setNaming] = useState<TemplateView | 'new' | null>(null)
-  const sorted = sortTemplates(
-    gym.templates.map((t) => ({ ...t, name: t.item.title, usesThisMonth: 0 })),
-    sort,
-    direction,
-  )
+  const [now] = useState(() => Date.now())
+  const sorted = sortTemplates(templateRows(gym.templates, now), sort, direction)
   const pages = Math.max(1, Math.ceil(sorted.length / TEMPLATES_PER_PAGE))
   const at = Math.min(page, pages)
   const shown = sorted.slice((at - 1) * TEMPLATES_PER_PAGE, at * TEMPLATES_PER_PAGE)

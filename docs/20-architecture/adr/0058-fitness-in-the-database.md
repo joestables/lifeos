@@ -1,7 +1,7 @@
 # ADR-0058: Fitness in the database
 
 **Status:** Provisionally agreed · 2026-10-29 (Joe)
-**Amended:** 2026-10-31 by Joe's comments on the first design pass (no goal on an Exercise; a template's exercises carry a number of sets, not sets with RIR; a set may be logged without numbers; Complete for done); 2026-11-01 (the working set called the current set; a quick set; motivation as three levels).
+**Amended:** 2026-10-31 by Joe's comments on the first design pass (no goal on an Exercise; a template's exercises carry a number of sets, not sets with RIR; a set may be logged without numbers; Complete for done); 2026-11-01 (the working set called the current set; a quick set; motivation as three levels); 2026-11-01, plan step 8 (a workout in progress discarded; Start offline).
 
 ## Context
 
@@ -26,11 +26,14 @@ started from ([ADR-0013](0013-occurrences-snapshot-their-definition.md)).
   in_progress · complete), its status *active* until complete, then
   *done*. **Skipped is worked
   out, not stored:** a planned Workout whose day has passed. **One in
-  progress per person**, by a unique index.
+  progress per person**, by a unique index. **Discarding a workout in
+  progress** (GYM-012 7) deletes its Item; a trigger then ends it, marked
+  `discarded`, so another can start, and brings it back in progress if it
+  is restored while no other workout is.
 - **Detail tables:** `fitness.exercise(equipment_id, current_weight,
   current_reps, notes?)` — no goal: goals are the Goals app's;
   `fitness.workout(stage, started_at?, ended_at?, how_it_went? (1–5),
-  motivation? (1–3: low, okay, high), notes?)`.
+  motivation? (1–3: low, okay, high), notes?, discarded)`.
 - **Child rows:** `exercise_muscles(exercise_id, muscle_id,
   contribution)` — exactly one row of 1.0 (the primary), the rest 0.1–0.9
   in steps of 0.1, checked by the function that writes them;
@@ -64,7 +67,11 @@ started from ([ADR-0013](0013-occurrences-snapshot-their-definition.md)).
   groups, a template with its numbers of sets, planning, `start_workout` (copying the
   template, its numbers of sets and each current set), beginning an entry, logging,
   changing and removing a set, marking an entry done and undoing it,
-  ending, and setting a current set from the review.
+  ending, and setting a current set from the review. A planned
+  workout's template is changed with core's link writes (its *follows*
+  link moved). **Start works offline:** the device adds the template's
+  exercises to the backlog itself, with ids it makes, before
+  `start_workout`, which then copies nothing.
 - **The activity log grows to fitness**, by triggers
   ([ADR-0030](0030-activity-log-by-triggers.md)): an Exercise's fields and
   muscle groups, a workout's fields, and a template's exercises. A
@@ -84,4 +91,5 @@ started from ([ADR-0013](0013-occurrences-snapshot-their-definition.md)).
   [ADR-0059](0059-recovery-on-the-device.md).
 - Database tests cover each rule: one primary, contributions in range, one
   workout in progress, the snapshot at Start, owner-only writes, equipment
-  and groups not deleted while in use.
+  and groups not deleted while in use, a discarded workout ending and
+  coming back.

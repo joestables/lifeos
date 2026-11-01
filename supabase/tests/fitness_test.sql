@@ -4,7 +4,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = extensions, public;
-select plan(55);
+select plan(60);
 
 -- Ann and Ben share a Household; Cat is on her own.
 insert into auth.users (id, email) values
@@ -213,6 +213,19 @@ select is(
   'Workout',
   'GYM-007 1: an empty one is called "Workout"'
 );
+select fitness.plan_workout('00000000-0000-7000-8000-000000000029', '2026-11-03',
+  '00000000-0000-7000-8000-000000000010');
+select core.unlink_items('00000000-0000-7000-8000-000000000029',
+  '00000000-0000-7000-8000-000000000010', 'follows');
+select core.link_items('00000000-0000-7000-8000-00000000002a', '00000000-0000-7000-8000-000000000029',
+  '00000000-0000-7000-8000-000000000010', 'follows');
+select is(
+  (select count(*)::int from core.links where from_item = '00000000-0000-7000-8000-000000000029'
+     and link_type = 'follows'),
+  1,
+  'GYM-007 3: a planned workout''s template is changed with core''s link writes'
+);
+select core.archive_item('00000000-0000-7000-8000-000000000029');
 select fitness.start_workout('00000000-0000-7000-8000-000000000020', '2026-11-02 18:02+00');
 select is(
   (select array[stage, (started_at = '2026-11-02 18:02+00')::text] from fitness.workout
@@ -320,6 +333,32 @@ select throws_ok(
 select lives_ok(
   $$select fitness.start_workout('00000000-0000-7000-8000-000000000021')$$,
   'GYM-008 7: once ended, another can start'
+);
+select core.archive_item('00000000-0000-7000-8000-000000000021');
+select is(
+  (select array[stage, discarded::text] from fitness.workout
+   where item_id = '00000000-0000-7000-8000-000000000021'),
+  array['complete', 'true'],
+  'GYM-012 7: a workout in progress discarded ends'
+);
+select fitness.plan_workout('00000000-0000-7000-8000-000000000022', '2026-11-04');
+select lives_ok(
+  $$select fitness.start_workout('00000000-0000-7000-8000-000000000022')$$,
+  'GYM-008 7: so another can start'
+);
+select core.restore_item('00000000-0000-7000-8000-000000000021');
+select is(
+  (select stage from fitness.workout where item_id = '00000000-0000-7000-8000-000000000021'),
+  'complete',
+  'GYM-012 7: brought back while another is in progress, it stays ended'
+);
+select core.archive_item('00000000-0000-7000-8000-000000000022');
+select core.restore_item('00000000-0000-7000-8000-000000000022');
+select is(
+  (select array[stage, discarded::text, (ended_at is null)::text] from fitness.workout
+   where item_id = '00000000-0000-7000-8000-000000000022'),
+  array['in_progress', 'false', 'true'],
+  'GYM-012 7: Undo brings it back in progress'
 );
 
 -- ---------------------------------------------------------------------------

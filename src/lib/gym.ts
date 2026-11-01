@@ -1,5 +1,13 @@
-import { formatKg, toGrams, type RecoveryType } from '@lifeos/fitness'
+import {
+  currentStrength,
+  formatKg,
+  toGrams,
+  workoutState,
+  type RecoveryType,
+  type WorkoutStage,
+} from '@lifeos/fitness'
 import type { MuscleView } from '@/data'
+import { whenAgo } from './dates'
 import { directed, type SortDirection } from './sort'
 
 /** Preferred RIR and Workouts to stall, as Settings → Gym offers them (GYM-020 1, 3). */
@@ -132,6 +140,21 @@ export const TEMPLATE_SORTS: readonly {
   { value: 'az', label: 'A–Z', initial: 'asc' },
 ]
 
+/** A month, for a template's uses over the last month (GYM-022 2). */
+const MONTH_MS = 30 * 24 * 60 * 60 * 1000
+
+/** Templates as sorting needs them: named, with their uses over the last month at `now`. */
+export function templateRows<T extends { item: { title: string }; uses: readonly number[] }>(
+  templates: readonly T[],
+  now: number,
+): (T & { name: string; usesThisMonth: number })[] {
+  return templates.map((t) => ({
+    ...t,
+    name: t.item.title,
+    usesThisMonth: t.uses.filter((u) => u > now - MONTH_MS && u <= now).length,
+  }))
+}
+
 /** What sorting a template needs. */
 export interface TemplateRow {
   name: string
@@ -186,3 +209,78 @@ export function copyName(name: string, names: readonly string[]): string {
 
 /** Templates are twenty to a page (GYM-022 1). */
 export const TEMPLATES_PER_PAGE = 20
+
+/** A workout's state as its pill says it (GYM-007 5): Skipped when planned and its day has passed. */
+export function pillState(
+  stage: WorkoutStage,
+  doOn: string | null,
+  today: string,
+): 'complete' | 'in-progress' | 'planned' | 'skipped' {
+  const s = workoutState(stage, doOn ?? today, today)
+  return s === 'in_progress' ? 'in-progress' : s
+}
+
+/** "58 min", "1 h 04": how long it took (GYM-012 1). */
+export function duration(from: string, to: string): string {
+  const minutes = Math.max(0, Math.round((Date.parse(to) - Date.parse(from)) / 60_000))
+  if (minutes < 60) return `${minutes} min`
+  return `${Math.floor(minutes / 60)} h ${String(minutes % 60).padStart(2, '0')}`
+}
+
+/** "2 of 3 sets" (GYM-008 4): sets logged of the template's number. */
+export const setsOf = (logged: number, planned: number) =>
+  `${logged} of ${planned} ${planned === 1 ? 'set' : 'sets'}`
+
+/** A set as the SetTable shows it: kg without trailing zeros, its strength to one place. */
+export function shownSet(s: {
+  weightGrams: number | null
+  reps: number | null
+  rir: number | null
+  pr?: boolean
+  strength?: number | null
+}): { weight?: string; reps?: number; rir?: number; pr?: boolean; strength?: string } {
+  if (s.weightGrams === null || s.reps === null || s.rir === null) return { pr: false }
+  return {
+    weight: formatKg(s.weightGrams),
+    reps: s.reps,
+    rir: s.rir,
+    pr: s.pr,
+    ...(s.strength !== null && s.strength !== undefined && { strength: s.strength.toFixed(1) }),
+  }
+}
+
+/**
+ * Where a new set's popup starts (GYM-010 1): the last tracked set logged
+ * on it this workout, else its Current set at my preferred RIR.
+ */
+export function nextSet(
+  sets: readonly { weightGrams: number | null; reps: number | null; rir: number | null }[],
+  current: { weightGrams: number; reps: number },
+  preferredRir: number,
+): { weightGrams: number; reps: number; rir: number } {
+  const last = [...sets].reverse().find((s) => s.weightGrams !== null && s.reps !== null)
+  return last && last.weightGrams !== null && last.reps !== null
+    ? { weightGrams: last.weightGrams, reps: last.reps, rir: last.rir ?? preferredRir }
+    : { ...current, rir: preferredRir }
+}
+
+/** "62.5" or "62,5" typed as whole grams; null unless 0 to 1000 kg. */
+export function parseWeight(text: string): number | null {
+  const t = text.trim().replace(',', '.')
+  if (!/^\d+(\.\d{1,3})?$|^\.\d{1,3}$/.test(t)) return null
+  const grams = toGrams(t)
+  return grams <= 1_000_000 ? grams : null
+}
+
+/** An Exercise's Current set's strength at my preferred RIR, for Beat current (GYM-012 5). */
+export const strengthOfCurrent = (x: { weightGrams: number; reps: number }, preferredRir: number) =>
+  currentStrength({ weightGrams: x.weightGrams, reps: x.reps }, preferredRir)
+
+/**
+ * "Used yesterday", "Done Mon 28 Oct": when, after a word (GYM-003 1,
+ * GYM-006 6); `whenAgo`'s Today, Yesterday and Just now lower-cased.
+ */
+export function since(word: string, ms: number, now: Date = new Date()): string {
+  const when = whenAgo(new Date(ms).toISOString(), now)
+  return `${word} ${/^(Today|Yesterday|Just)/.test(when) ? when[0]!.toLowerCase() + when.slice(1) : when}`
+}

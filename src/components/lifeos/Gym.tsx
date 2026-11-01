@@ -78,8 +78,9 @@ export function PanelRow({
 }) {
   return (
     <div
-      role="button"
-      tabIndex={0}
+      // A button only when choosing it does something.
+      role={onOpen ? 'button' : undefined}
+      tabIndex={onOpen ? 0 : undefined}
       aria-current={selected || undefined}
       onClick={onOpen}
       onKeyDown={(e) => {
@@ -88,7 +89,9 @@ export function PanelRow({
         onOpen?.()
       }}
       className={cn(
-        '-mx-2 flex min-h-14 cursor-pointer items-center gap-3 rounded-row px-2 py-2 outline-none hover:bg-accent/60 focus-visible:ring-3 focus-visible:ring-ring-soft',
+        '-mx-2 flex min-h-14 items-center gap-3 rounded-row px-2 py-2 outline-none',
+        onOpen &&
+          'cursor-pointer hover:bg-accent/60 focus-visible:ring-3 focus-visible:ring-ring-soft',
         selected && 'bg-accent hover:bg-accent',
         className,
       )}
@@ -222,6 +225,7 @@ export function ValueStepper({
   canDown = true,
   canUp = true,
   size = 'default',
+  onType,
 }: {
   value: string
   /** After the value, muted ("kg"). */
@@ -232,7 +236,10 @@ export function ValueStepper({
   canDown?: boolean
   canUp?: boolean
   size?: 'sm' | 'default' | 'lg'
+  /** The value typed too (GYM-010 2): each keystroke's text, the shown value kept while typing. */
+  onType?: (text: string) => void
 }) {
+  const [draft, setDraft] = useState<string | null>(null)
   const button = cn(
     size === 'sm' && 'size-7 [&_svg]:size-3.5',
     size === 'lg' && 'size-10 shrink-0 rounded-[10px] [&_svg]:size-5',
@@ -267,7 +274,22 @@ export function ValueStepper({
           size === 'lg' && 'min-w-0 flex-1 text-day',
         )}
       >
-        {value}
+        {onType ? (
+          <input
+            aria-label={label}
+            inputMode="decimal"
+            value={draft ?? value}
+            onFocus={(e) => e.currentTarget.select()}
+            onChange={(e) => {
+              setDraft(e.target.value)
+              onType(e.target.value)
+            }}
+            onBlur={() => setDraft(null)}
+            className="w-full min-w-0 bg-transparent text-center outline-none"
+          />
+        ) : (
+          value
+        )}
         {unit && <span className="text-sm font-semibold text-muted-foreground">{unit}</span>}
       </span>
       <Button
@@ -382,10 +404,13 @@ export function SetTable({
   sets,
   editable = false,
   strength = false,
+  onEdit,
 }: {
   sets: LoggedSet[]
   editable?: boolean
   strength?: boolean
+  /** A row's edit button: opens set `i` in the popup. */
+  onEdit?: (i: number) => void
 }) {
   // Written out whole, so Tailwind sees each.
   // Figures up to 80px wide, so they don't drift apart on a computer, and
@@ -443,7 +468,7 @@ export function SetTable({
               {set.strength}
             </span>
           )}
-          {editable && <EditSet n={i + 1} />}
+          {editable && <EditSet n={i + 1} onEdit={() => onEdit?.(i)} />}
         </div>
       ))}
     </div>
@@ -504,6 +529,8 @@ export function ExerciseCard({
   control,
   menu,
   reorder,
+  onToggle,
+  onUndoDone,
   children,
 }: {
   name: string
@@ -514,6 +541,10 @@ export function ExerciseCard({
   drag?: boolean
   /** The handle's drag (useReorder): the card under it is ringed, the dragged one faded. */
   reorder?: Reorder
+  /** The expand button: open or close it. */
+  onToggle?: () => void
+  /** Done's button: undoes it (GYM-011 3). */
+  onUndoDone?: () => void
   done?: boolean
   control?: ReactNode
   menu?: ReactNode
@@ -541,6 +572,7 @@ export function ExerciseCard({
             size="icon-sm"
             aria-expanded={open}
             aria-label={open ? `Collapse ${name}` : `Expand ${name}`}
+            onClick={onToggle}
           >
             <ChevronDownIcon className={cn('transition-transform', !open && '-rotate-90')} />
           </Button>
@@ -557,7 +589,13 @@ export function ExerciseCard({
           </span>
         </span>
         {done ? (
-          <Button variant="ghost" size="sm" aria-label="Undo done" className="text-success">
+          <Button
+            variant="ghost"
+            size="sm"
+            aria-label={`Undo ${name} done`}
+            className="text-success"
+            onClick={onUndoDone}
+          >
             <CheckIcon /> Done
           </Button>
         ) : (
@@ -587,7 +625,14 @@ export type Motivation = keyof typeof MOTIVATION
  * tint, text and a 1.5px ring; the others stay muted. Never colour alone:
  * each has its face and word.
  */
-export function MotivationChoice({ value }: { value: Motivation }) {
+export function MotivationChoice({
+  value,
+  onChange,
+}: {
+  value: Motivation | null
+  /** Chosen again, it is unchosen (optional, GYM-012 1). */
+  onChange?: (value: Motivation | null) => void
+}) {
   return (
     <div role="radiogroup" aria-label="Motivation beforehand" className="flex flex-wrap gap-2">
       {(Object.keys(MOTIVATION) as Motivation[]).map((k) => {
@@ -599,6 +644,7 @@ export function MotivationChoice({ value }: { value: Motivation }) {
             type="button"
             role="radio"
             aria-checked={on}
+            onClick={() => onChange?.(on ? null : k)}
             className={cn(
               'inline-flex h-10 items-center gap-2 rounded-full px-4 text-sm font-semibold outline-none focus-visible:ring-3 focus-visible:ring-ring-soft [&_svg]:size-[18px]',
               !on && 'bg-muted text-muted-foreground hover:bg-accent hover:text-foreground',
