@@ -375,14 +375,15 @@ export function SetTable({
   strength?: boolean
 }) {
   // Written out whole, so Tailwind sees each.
-  // On a computer the figures keep 80px columns, so they don't drift apart.
+  // Figures up to 80px wide, so they don't drift apart on a computer, and
+  // narrower when the card is; the PR column takes what is left.
   const grid = strength
     ? editable
-      ? 'grid-cols-[28px_1fr_1fr_1fr_60px_56px_32px] sm:grid-cols-[28px_80px_80px_80px_1fr_56px_32px]'
-      : 'grid-cols-[28px_1fr_1fr_1fr_60px_56px] sm:grid-cols-[28px_80px_80px_80px_1fr_56px]'
+      ? 'grid-cols-[28px_repeat(3,minmax(0,80px))_minmax(60px,1fr)_56px_32px]'
+      : 'grid-cols-[28px_repeat(3,minmax(0,80px))_minmax(60px,1fr)_56px]'
     : editable
-      ? 'grid-cols-[28px_1fr_1fr_1fr_60px_32px] sm:grid-cols-[28px_80px_80px_80px_1fr_32px]'
-      : 'grid-cols-[28px_1fr_1fr_1fr_60px] sm:grid-cols-[28px_80px_80px_80px_1fr]'
+      ? 'grid-cols-[28px_repeat(3,minmax(0,80px))_minmax(60px,1fr)_32px]'
+      : 'grid-cols-[28px_repeat(3,minmax(0,80px))_minmax(60px,1fr)]'
   const cols = cn('grid items-center gap-2', grid)
   return (
     <div role="table" className="flex flex-col">

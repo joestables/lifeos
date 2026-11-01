@@ -734,6 +734,49 @@ ShoppingLine, OfferRow, PantryAisle and ItemRow in
   opens an Idea in its popup on Ideas, a Recipe its page. A share with no
   link says "No link to save", with an outline `sm` Recipes.
 
+## Gym
+
+Agreed with Joe on 2 November 2026, on the
+[Stage 5 design canvas](https://claude.ai/artifact/NXxJeLcMza7iuHQjqDadmG)
+(private to Joe), after four passes ([gym](../10-requirements/modules/gym.md)).
+
+- **Three tabs** in coral: Workouts, Recovery, Progression. Lists inside a
+  Card are PanelRows under a PanelHeading, with a PanelFooter leading on
+  ("All workouts"); never a Card per row.
+- **Workouts:** on a computer two columns — Today, then Recent workouts
+  (five) on the left; Templates (six) on the right; on a phone stacked,
+  five recent and three templates. Every workout carries its
+  WorkoutStatePill. Nothing planned: one PanelRow, the most suitable
+  template with its readiness. **All workouts** and **All templates** are
+  pages of their own: StatTiles over the list, the FilterPanel (with
+  RangeFilters) beside it on a computer, Pagination under it.
+- **A workout in progress is designed for a phone**, one column on a
+  computer too: the title with End workout (primary) and "…"; the state
+  pill and facts under it; the Session's ExerciseCards, expand button
+  first, "2 of 3 sets" under the name; expanded, FormNotes and the
+  CurrentLine, the SetTable with a pencil on each row, and the dashed
+  LogSetButton; then the Backlog, a Card of PanelRows with Add and "…".
+- **Popups:** a set is logged or edited in one Dialog — Tracked · Quick, a
+  toggle as wide as its words; "Weight (kg)" and "Reps" side by side as
+  `lg` ValueSteppers; RIR as a ToggleGroup 0 to 5; Delete when editing.
+  Add exercise and Swap go by MuscleChoice, then primary and secondary
+  PickRows; long lists use the Dialog's `list` size on a phone. End
+  workout: StarRating and MotivationChoice.
+- **The review:** StatTiles for the workout, then per exercise its Current
+  and PR StatTiles, the SetTable with strength, and Update current with a
+  `success` "Beat current" Badge where it applies; stimulus sets beside.
+- **Templates** look like a workout: ExerciseCards with a drag handle and
+  a sets stepper; coverage beside them.
+- **Recovery:** overall readiness at `text-display`, the LookAhead slider,
+  the BodyMap (a stand-in), and every muscle as a PanelRow with its
+  ReadinessRing, last trained and average frequency, sorted with SortMenu.
+- **Progression:** Muscles · Exercises and the period as ToggleGroups;
+  ListDetail on a computer (a page per item on a phone); ProgressChart with
+  stimulus sets under it, LinePills for a muscle's exercises, StatTiles
+  and a Table of best sets for an exercise.
+- **Readiness colours** run continuously from `--destructive` through
+  `--warning` to `--success`, always with the number.
+
 ## Forms
 
 - Label above, field below, 6px apart. No help text under fields, and no
