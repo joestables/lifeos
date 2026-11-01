@@ -66,9 +66,11 @@ templates, and starting a session opens the session-logging Screen.
 | **Mark** | A per-person flag a Type may have, under its own name: a Note is **pinned**, a Task **starred**, a Recipe **favourited**. Types without one have none. |
 | **Sub-task** | A line ticked inside a Task: a title and a tick, not a Task of its own. |
 | **Capture address** | A personal URL and secret that creates Items in its owner's Personal Space. |
-| **Working set** | An Exercise's weight and reps — "60 kg × 8" — that a workout's sets start at; changed by hand or from a workout's review ([gym](../10-requirements/modules/gym.md)). |
-| **Strength** | How a set is measured and compared: weight × (1 + (reps + RIR) ÷ 30) — Epley's formula, never named in the app — for sets of 1–12 reps. A **PR** is the set with the best. A set logged without numbers has none. |
+| **Current set** | An Exercise's weight and reps — "60 kg × 8" — that a workout's sets start at, called **Current** in the app; changed by hand or from a workout's review ([gym](../10-requirements/modules/gym.md)). |
+| **Strength** | How a set is measured and compared: weight × (1 + (reps + RIR) ÷ 30) — Epley's formula, never named in the app — for sets of 1–12 reps. A **PR** is the set with the best. A quick set has none. |
 | **Backlog** | A workout's exercises not yet begun; beginning one moves it into the session, so the session's order is the order they were done. |
+| **Quick set** | A set logged with no weight, reps or RIR (a deload); it counts as done and, in the recovery engine, as 10 reps at RIR 2, and nowhere in the record. |
+| **Average frequency** | How many workouts a week trained a muscle group, averaged over the last 28 days ("×2.1"). |
 | **Stimulus sets** | How much training a workout gave a muscle group, worked out by the recovery engine from RIR and each Exercise's contributions. |
 | **Readiness** | How recovered a muscle group is, 0–100 %, worked out by the recovery engine. |
 | **Cook log** | The record of each time a Variation was cooked: who, when, a verdict and notes, and a snapshot of the Variation as cooked. |

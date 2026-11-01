@@ -81,6 +81,7 @@ export { LINE_UNITS, STEP_FIELD } from './recipe-fields'
 export { BodyMap } from './BodyMap'
 export {
   ChartKey,
+  CurrentLine,
   ExerciseCard,
   FormNotes,
   LinePill,
@@ -88,6 +89,7 @@ export {
   ListDetail,
   LogSetButton,
   LookAhead,
+  MotivationChoice,
   MuscleChoice,
   OverallReadiness,
   PanelFooter,
@@ -97,6 +99,7 @@ export {
   ReadinessBar,
   ReadinessRing,
   SetLine,
+  SetTable,
   SideColumns,
   StatTile,
   StepperField,
@@ -106,6 +109,7 @@ export {
   type ChartLine,
   type LineDash,
   type LineTone,
+  type LoggedSet,
   type WorkoutState,
 } from './Gym'
 export { readinessColour } from './readiness'

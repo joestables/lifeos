@@ -5,14 +5,18 @@ import {
   GripVerticalIcon,
   MinusIcon,
   NotebookPenIcon,
+  PencilIcon,
   PlusIcon,
+  ThumbsDownIcon,
+  ThumbsUpIcon,
   TrophyIcon,
-  XIcon,
+  WeightIcon,
 } from 'lucide-react'
 import { useLayoutEffect, useRef, useState, type ReactNode } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Slider } from '@/components/ui/slider'
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { cn } from '@/lib/utils'
 import { readinessColour } from './readiness'
 
@@ -219,7 +223,7 @@ export function ValueStepper({
 }) {
   const button = cn(
     size === 'sm' && 'size-7 [&_svg]:size-3.5',
-    size === 'lg' && 'size-11 rounded-[10px] [&_svg]:size-5',
+    size === 'lg' && 'size-10 shrink-0 rounded-[10px] [&_svg]:size-5',
   )
   return (
     <div
@@ -229,7 +233,7 @@ export function ValueStepper({
         'inline-flex shrink-0 items-center justify-between rounded-control bg-muted',
         size === 'sm' && 'h-8 p-0.5',
         size === 'default' && 'h-10 gap-1 p-1',
-        size === 'lg' && 'h-[52px] w-full max-w-60 gap-1 p-1',
+        size === 'lg' && 'h-[52px] w-full gap-1 p-1',
       )}
     >
       <Button
@@ -248,7 +252,7 @@ export function ValueStepper({
           'flex items-baseline justify-center gap-1 font-semibold tabular-nums',
           size === 'sm' && 'min-w-9 text-sm',
           size === 'default' && 'min-w-12 text-sm',
-          size === 'lg' && 'min-w-20 text-day',
+          size === 'lg' && 'min-w-0 flex-1 text-day',
         )}
       >
         {value}
@@ -288,69 +292,161 @@ export function StepperField({
   )
 }
 
-/**
- * A logged set, read as text (GYM-010 3): its number in a 28px circle (a
- * trophy on a coral tint for a PR), "60 kg × 8", "RIR 1" muted, a PR
- * badge, then an × that removes it. Choosing the line opens it to change.
- * A set logged without numbers says so, muted.
- */
-export function SetLine({
-  n,
-  weight,
-  reps,
-  rir,
-  pr = false,
-  strength,
-  onRemove,
-}: {
-  n: number
-  /** Missing for a set logged without numbers. */
+export type LoggedSet = {
+  /** Missing for a quick set. */
   weight?: string
   reps?: number
   rir?: number
   pr?: boolean
-  /** Its strength, at the end (the review). */
+  /** Its strength (the review, Strength history). */
   strength?: string
-  onRemove?: () => void
-}) {
-  const bare = weight === undefined
+}
+
+/**
+ * A logged set, read as text (GYM-010 4): its number in a 28px `--muted`
+ * circle, "30 kg × 10" (weight 600, units muted) and "(2 RIR)" muted, a PR
+ * badge, its strength where shown, then an edit button that opens it. A
+ * quick set says "Quick set", muted.
+ */
+export function SetLine({ n, set, onEdit }: { n: number; set: LoggedSet; onEdit?: () => void }) {
+  const quick = set.weight === undefined
   return (
-    <div className="flex h-11 items-center gap-3 rounded-control pr-1 pl-1 hover:bg-accent/50">
+    <div className="flex h-11 items-center gap-3 rounded-control pr-1 pl-1">
       <span className="grid size-7 shrink-0 place-items-center rounded-full bg-muted text-xs font-bold text-muted-foreground tabular-nums">
         {n}
       </span>
-      <button
-        type="button"
-        className="flex min-w-0 flex-1 items-baseline gap-1.5 text-left outline-none"
-      >
-        {bare ? (
-          <span className="text-sm text-muted-foreground">Logged, no numbers</span>
+      <span className="flex min-w-0 flex-1 items-baseline gap-1">
+        {quick ? (
+          <span className="text-sm text-muted-foreground">Quick set</span>
         ) : (
           <>
-            <span className="font-semibold tabular-nums">{weight}</span>
+            <span className="font-semibold tabular-nums">{set.weight}</span>
             <span className="text-sm text-muted-foreground">kg</span>
             <span className="px-0.5 text-muted-foreground">×</span>
-            <span className="font-semibold tabular-nums">{reps}</span>
-            <span className="pl-2 text-sm text-muted-foreground tabular-nums">RIR {rir}</span>
+            <span className="font-semibold tabular-nums">{set.reps}</span>
+            <span className="pl-1.5 text-sm whitespace-nowrap text-muted-foreground tabular-nums">
+              ({set.rir} RIR)
+            </span>
           </>
         )}
-      </button>
-      {pr && (
-        <Badge variant="type">
-          <TrophyIcon aria-hidden />
-          PR
-        </Badge>
-      )}
-      {strength && (
+      </span>
+      {set.pr && <PrBadge />}
+      {set.strength && (
         <span className="w-12 text-right text-sm text-muted-foreground tabular-nums">
-          {strength}
+          {set.strength}
         </span>
       )}
-      {onRemove && (
-        <Button variant="ghost" size="icon-sm" aria-label={`Remove set ${n}`} onClick={onRemove}>
-          <XIcon />
-        </Button>
+      {onEdit && <EditSet n={n} onEdit={onEdit} />}
+    </div>
+  )
+}
+
+function PrBadge() {
+  return (
+    <Badge variant="type">
+      <TrophyIcon aria-hidden />
+      PR
+    </Badge>
+  )
+}
+
+function EditSet({ n, onEdit }: { n: number; onEdit?: () => void }) {
+  return (
+    <Button variant="ghost" size="icon-sm" aria-label={`Edit set ${n}`} onClick={onEdit}>
+      <PencilIcon />
+    </Button>
+  )
+}
+
+/**
+ * Logged sets as a quiet table (GYM-010 4, the other option): Set, kg,
+ * Reps and RIR as 12px muted heads, a row each with the figures in
+ * tabular weight 600 (a quick set's row says so across them), a PR badge
+ * and strength where shown, and an edit button. No lines but a hairline
+ * under the heads.
+ */
+export function SetTable({
+  sets,
+  editable = false,
+  strength = false,
+  current,
+}: {
+  sets: LoggedSet[]
+  editable?: boolean
+  strength?: boolean
+  /** The Current set, as a row over the heads, so each column reads down from it (the review). */
+  current?: { weight: string; reps: number }
+}) {
+  // Written out whole, so Tailwind sees each.
+  const grid = current
+    ? strength
+      ? editable
+        ? 'grid-cols-[64px_1fr_1fr_1fr_60px_56px_32px]'
+        : 'grid-cols-[64px_1fr_1fr_1fr_60px_56px]'
+      : editable
+        ? 'grid-cols-[64px_1fr_1fr_1fr_60px_32px]'
+        : 'grid-cols-[64px_1fr_1fr_1fr_60px]'
+    : strength
+      ? editable
+        ? 'grid-cols-[28px_1fr_1fr_1fr_60px_56px_32px]'
+        : 'grid-cols-[28px_1fr_1fr_1fr_60px_56px]'
+      : editable
+        ? 'grid-cols-[28px_1fr_1fr_1fr_60px_32px]'
+        : 'grid-cols-[28px_1fr_1fr_1fr_60px]'
+  const cols = cn('grid items-center gap-2', grid)
+  return (
+    <div role="table" className="flex flex-col">
+      {current && (
+        <div role="row" className={cn(cols, 'mb-1 h-10 rounded-control bg-accent/60 px-1')}>
+          <span className="text-xs font-semibold text-muted-foreground">Current</span>
+          <span className="font-semibold tabular-nums">{current.weight}</span>
+          <span className="font-semibold tabular-nums">{current.reps}</span>
+          <span className="text-muted-foreground">–</span>
+          <span />
+          {strength && <span />}
+          {editable && <span />}
+        </div>
       )}
+      <div
+        role="row"
+        className={cn(
+          cols,
+          'h-8 border-b border-foreground/7 px-1 text-xs font-semibold text-muted-foreground',
+        )}
+      >
+        <span role="columnheader">Set</span>
+        <span role="columnheader">kg</span>
+        <span role="columnheader">Reps</span>
+        <span role="columnheader">RIR</span>
+        <span />
+        {strength && (
+          <span role="columnheader" className="text-right">
+            Strength
+          </span>
+        )}
+        {editable && <span />}
+      </div>
+      {sets.map((set, i) => (
+        <div key={i} role="row" className={cn(cols, 'h-11 px-1')}>
+          <span className="text-sm font-semibold text-muted-foreground tabular-nums">{i + 1}</span>
+          {set.weight === undefined ? (
+            <span className="col-span-3 text-sm text-muted-foreground">Quick set</span>
+          ) : (
+            <>
+              <span className="font-semibold tabular-nums">{set.weight}</span>
+              <span className="font-semibold tabular-nums">{set.reps}</span>
+              <span className="font-semibold tabular-nums">{set.rir}</span>
+            </>
+          )}
+          <span>{set.pr && <PrBadge />}</span>
+          {strength && (
+            <span className="text-right text-sm text-muted-foreground tabular-nums">
+              {set.strength}
+            </span>
+          )}
+          {editable && <EditSet n={i + 1} />}
+        </div>
+      ))}
     </div>
   )
 }
@@ -369,6 +465,16 @@ export function LogSetButton({ label, onClick }: { label: string; onClick?: () =
       <PlusIcon className="size-4" />
       {label}
     </button>
+  )
+}
+
+/** An exercise's Current set on a line of its own, muted with a `weight` (GYM-008 4). */
+export function CurrentLine({ children }: { children: ReactNode }) {
+  return (
+    <span className="flex items-center gap-2 text-sm text-muted-foreground tabular-nums">
+      <WeightIcon aria-hidden className="size-3.5 shrink-0" />
+      <span>Current {children}</span>
+    </span>
   )
 }
 
@@ -393,6 +499,7 @@ export function FormNotes({ children }: { children: ReactNode }) {
 export function ExerciseCard({
   name,
   meta,
+  current,
   open = false,
   drag = false,
   done = false,
@@ -403,6 +510,8 @@ export function ExerciseCard({
   name: string
   /** Its muted line's parts, joined by "·"; a line breaks only between parts. */
   meta: ReactNode[]
+  /** Its Current set ("27.5 kg × 10"), on a line of its own under the meta. */
+  current?: string
   open?: boolean
   /** A template's: a drag handle where the expand button is. */
   drag?: boolean
@@ -444,6 +553,11 @@ export function ExerciseCard({
               </span>
             ))}
           </span>
+          {current && (
+            <span className="pt-0.5">
+              <CurrentLine>{current}</CurrentLine>
+            </span>
+          )}
         </span>
         {done ? (
           <Button variant="ghost" size="sm" aria-label="Undo done" className="text-success">
@@ -458,6 +572,37 @@ export function ExerciseCard({
         <div className="flex flex-col gap-2 pr-3 pb-3 pl-3 sm:pl-12">{children}</div>
       )}
     </section>
+  )
+}
+
+/**
+ * Motivation beforehand (GYM-012 1; Joe, 1 November): three choices in a
+ * ToggleGroup's track, thumbs down, sideways and up, 44px high, each named
+ * for screen readers.
+ */
+export function MotivationChoice({ value }: { value: 'down' | 'side' | 'up' }) {
+  const items = [
+    { v: 'down', label: 'Low', icon: <ThumbsDownIcon /> },
+    { v: 'side', label: 'So-so', icon: <ThumbsUpIcon className="-rotate-90" /> },
+    { v: 'up', label: 'High', icon: <ThumbsUpIcon /> },
+  ] as const
+  return (
+    <ToggleGroup
+      defaultValue={[value]}
+      aria-label="Motivation beforehand"
+      className="grid w-full grid-cols-3 self-stretch"
+    >
+      {items.map((it) => (
+        <ToggleGroupItem
+          key={it.v}
+          value={it.v}
+          aria-label={it.label}
+          className="h-11 justify-center data-pressed:text-tc-text [&_svg]:size-5"
+        >
+          {it.icon}
+        </ToggleGroupItem>
+      ))}
+    </ToggleGroup>
   )
 }
 

@@ -2,7 +2,7 @@ import { createFileRoute, notFound } from '@tanstack/react-router'
 import {
   ArchiveIcon,
   ArrowLeftRightIcon,
-  BicepsFlexedIcon,
+  ArrowUpIcon,
   CalendarDaysIcon,
   CheckIcon,
   ChefHatIcon,
@@ -23,11 +23,13 @@ import {
   SquareCheckBigIcon,
   StickyNoteIcon,
   TargetIcon,
+  ThumbsUpIcon,
   Trash2Icon,
   TrophyIcon,
   UndoIcon,
   UtensilsIcon,
   WalletIcon,
+  WeightIcon,
   WrenchIcon,
   GaugeIcon,
   ActivityIcon,
@@ -49,6 +51,7 @@ import {
   ListDetail,
   LogSetButton,
   LookAhead,
+  MotivationChoice,
   MuscleChoice,
   OverallReadiness,
   PageAction,
@@ -62,6 +65,7 @@ import {
   ReadinessRing,
   SectionLabel,
   SetLine,
+  SetTable,
   SideColumns,
   SortMenu,
   StarRating,
@@ -76,6 +80,7 @@ import {
   WorkoutStatePill,
   type ChartLine,
   type DrawerPage,
+  type LoggedSet,
   type LineDash,
   type WorkoutState,
 } from '@/components/lifeos'
@@ -251,8 +256,8 @@ function Body({
 
 const workoutTile = <TypeTile colour="coral" icon={DumbbellIcon} />
 const templateTile = <TypeTile colour="coral" icon={ClipboardListIcon} />
-const exerciseTile = <TypeTile colour="coral" icon={BicepsFlexedIcon} />
-const smallExercise = <TypeTile size="sm" colour="coral" icon={BicepsFlexedIcon} />
+const exerciseTile = <TypeTile colour="coral" icon={WeightIcon} />
+const smallExercise = <TypeTile size="sm" colour="coral" icon={WeightIcon} />
 
 type Tab = 'workouts' | 'recovery' | 'progression'
 
@@ -376,23 +381,14 @@ function TodayCard({ upNext = false, phone = false }: { upNext?: boolean; phone?
       </PanelHeading>
       {upNext ? (
         <div className="flex flex-col">
-          <span className="pb-1 text-sm text-muted-foreground">Nothing planned. Up next:</span>
-          {[
-            ['Legs', 'Quads and glutes 100 % · 1.4 of 4 sets this week'],
-            ['Push A', 'Chest 94 % · 2.6 of 4 sets this week'],
-            ['Upper', 'Lats 41 %, still recovering'],
-          ].map(([name, why], i) => (
-            <PanelRow
-              key={name}
-              leading={
-                <span className="grid size-8 shrink-0 place-items-center rounded-md bg-muted text-sm font-bold text-muted-foreground tabular-nums">
-                  {i + 1}
-                </span>
-              }
-              title={name}
-              meta={[why]}
-            />
-          ))}
+          <span className="pb-1 text-sm text-muted-foreground">
+            Nothing planned. Most suitable:
+          </span>
+          <PanelRow
+            leading={templateTile}
+            title="Legs"
+            meta={['Quads 100 % ready', 'trained Thu']}
+          />
         </div>
       ) : (
         <div className="flex flex-col">
@@ -420,7 +416,7 @@ function RecentCard({ count, phone = false }: { count: number; phone?: boolean }
             key={i}
             leading={workoutTile}
             title={name}
-            meta={phone ? meta.filter((m) => !m.includes('exercises')) : meta}
+            meta={meta.filter((m) => !/ h |min/.test(m) && !(phone && m.includes('exercises')))}
             trailing={<WorkoutStatePill state={state} />}
           />
         ))}
@@ -450,7 +446,7 @@ function Workouts({ phone = false, upNext = false }: { phone?: boolean; upNext?:
       {phone ? (
         <div className="flex flex-col gap-4">
           <TodayCard upNext={upNext} phone />
-          <RecentCard count={3} phone />
+          <RecentCard count={5} phone />
           <TemplatesCard count={3} />
         </div>
       ) : (
@@ -545,7 +541,7 @@ function WorkoutFilters() {
           values: [],
           control: <RangeFilter min={1} max={5} value={[1, 5]} format={(n) => `${n} ★`} />,
         },
-        { name: 'Motivation', values: [], control: <RangeFilter min={1} max={5} value={[1, 5]} /> },
+        { name: 'Motivation', values: ['Low', 'So-so', 'High'] },
       ]}
     >
       <FilterSection title="Dates">
@@ -563,7 +559,7 @@ function AllWorkouts({ phone = false }: { phone?: boolean }) {
     <div className="grid grid-cols-3 gap-3">
       <StatTile label="Average sets" value="16.4" />
       <StatTile label="Average duration" value="1 h 02" />
-      <StatTile label={phone ? 'A week' : 'Workouts a week'} value="3.1" />
+      <StatTile label="Weekly sessions" value="3.1" />
     </div>
   )
   const list = (
@@ -753,33 +749,47 @@ const markDone = (phone?: boolean) =>
     </Button>
   )
 
-function SessionExercises({ phone }: { phone?: boolean }) {
+const ROW_SETS: LoggedSet[] = [
+  { weight: '30', reps: 10, rir: 2, pr: true },
+  { weight: '30', reps: 9, rir: 1 },
+  {},
+]
+
+function SessionExercises({ phone, table = false }: { phone?: boolean; table?: boolean }) {
   return (
     <section className="flex flex-col gap-2">
       <SectionLabel count={3}>Session</SectionLabel>
       <ExerciseCard
         name="Lat pulldown"
-        meta={['Working set 65 kg × 10', '3 of 3 sets']}
+        meta={['3 of 3 sets']}
+        current="65 kg × 10"
         done
         menu={sessionMenu(true, 'Lat pulldown')}
       />
       <ExerciseCard
         name="Chest-supported row"
-        meta={['Working set 27.5 kg × 10', '2 of 3 sets']}
+        meta={['3 of 3 sets']}
+        current="27.5 kg × 10"
         open
         control={markDone(phone)}
         menu={sessionMenu(true, 'Chest-supported row')}
       >
         <FormNotes>Chest on the pad at notch 4, elbows at 45°, pause at the top</FormNotes>
-        <div className="flex flex-col">
-          <SetLine n={1} weight="30" reps={10} rir={2} pr onRemove={nothing} />
-          <SetLine n={2} weight="30" reps={9} rir={1} onRemove={nothing} />
-        </div>
-        <LogSetButton label="Log set 3 of 3" />
+        {table ? (
+          <SetTable sets={ROW_SETS} editable />
+        ) : (
+          <div className="flex flex-col">
+            {ROW_SETS.map((set, i) => (
+              <SetLine key={i} n={i + 1} set={set} onEdit={nothing} />
+            ))}
+          </div>
+        )}
+        <LogSetButton label="Log set" />
       </ExerciseCard>
       <ExerciseCard
         name="Incline curl"
-        meta={['Working set 12 kg × 10', '1 of 2 sets']}
+        meta={['1 of 2 sets']}
+        current="12 kg × 10"
         control={markDone(phone)}
         menu={sessionMenu(true, 'Incline curl')}
       />
@@ -857,15 +867,15 @@ function SessionHeader({ phone }: { phone?: boolean }) {
   )
 }
 
-/** Option A: one column — the session, then the backlog under it. */
-function Session({ phone = false }: { phone?: boolean }) {
+/** One column, the backlog under the session (Joe, 1 November): logged on a phone. */
+function Session({ phone = false, table = false }: { phone?: boolean; table?: boolean }) {
   return (
     <Shell>
       <TypeScope colour="coral">
         <SessionHeader phone={phone} />
         <Body phone={phone} narrow>
           <Facts state="in-progress" items={['Started 18:02', '42 min', '8 sets']} />
-          <SessionExercises phone={phone} />
+          <SessionExercises phone={phone} table={table} />
           <section className="flex flex-col gap-2">
             <SectionLabel count={3}>Backlog</SectionLabel>
             <Card className="gap-1 py-3">
@@ -881,84 +891,85 @@ function Session({ phone = false }: { phone?: boolean }) {
   )
 }
 
-/** Option B: on a computer the backlog stays beside the session. */
-function SessionB() {
+/* ---------- Logging a set ---------- */
+
+/** Weight and reps side by side, each headed, over RIR as buttons 0 to 5. */
+function TrackedFields({ weight, reps, rir }: { weight: string; reps: number; rir: number }) {
   return (
-    <Shell>
-      <TypeScope colour="coral">
-        <SessionHeader />
-        <Body>
-          <Facts state="in-progress" items={['Started 18:02', '42 min', '8 sets']} />
-          <SideColumns>
-            <SessionExercises />
-            <Card className="gap-2">
-              <PanelHeading title="Backlog" count={3} />
-              <div className="flex flex-col">
-                <BacklogRows />
-              </div>
-              <Button variant="outline" size="sm" className="mt-1 self-start">
-                <PlusIcon /> Add exercise
-              </Button>
-            </Card>
-          </SideColumns>
-        </Body>
-      </TypeScope>
-    </Shell>
+    <div className="flex flex-col gap-4">
+      <div className="grid grid-cols-2 gap-3">
+        <Field label="Weight">
+          <ValueStepper size="lg" label="Weight" value={weight} unit="kg" />
+        </Field>
+        <Field label="Reps">
+          <ValueStepper size="lg" label="Reps" value={String(reps)} />
+        </Field>
+      </div>
+      <Field label="RIR">
+        <ToggleGroup
+          defaultValue={[String(rir)]}
+          aria-label="RIR"
+          className="grid w-full grid-cols-6 self-stretch"
+        >
+          {['0', '1', '2', '3', '4', '5'].map((n) => (
+            <ToggleGroupItem
+              key={n}
+              value={n}
+              className="h-10 justify-center text-base tabular-nums"
+            >
+              {n}
+            </ToggleGroupItem>
+          ))}
+        </ToggleGroup>
+      </Field>
+    </div>
   )
 }
 
-/* ---------- Logging a set ---------- */
-
-function LogSet({ phone = false, chips = false }: { phone?: boolean; chips?: boolean }) {
+function LogSet({
+  phone = false,
+  mode = 'tracked',
+}: {
+  phone?: boolean
+  mode?: 'tracked' | 'quick' | 'edit'
+}) {
+  const edit = mode === 'edit'
   return (
     <>
       <Session phone={phone} />
       <Dialog open>
         <DialogContent data-colour="coral" className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Chest-supported row</DialogTitle>
+            <DialogTitle>{edit ? 'Set 2' : 'Chest-supported row'}</DialogTitle>
             <span className="text-sm text-muted-foreground tabular-nums">
-              Set 3 · Working set 27.5 kg × 10
+              {edit ? 'Chest-supported row' : 'Set 4 · Current 27.5 kg × 10'}
             </span>
           </DialogHeader>
-          <div className="flex flex-col gap-4 py-1">
-            <StepperField label="Weight" hint="Steps of 2.5 kg">
-              <ValueStepper size="lg" label="Weight" value="30" unit="kg" />
-            </StepperField>
-            <StepperField label="Reps">
-              <ValueStepper size="lg" label="Reps" value="10" />
-            </StepperField>
-            {chips ? (
-              <div className="flex flex-col gap-2">
-                <span className="font-semibold">RIR</span>
-                <ToggleGroup
-                  defaultValue={['1']}
-                  aria-label="RIR"
-                  className="grid w-full grid-cols-6 self-stretch"
-                >
-                  {['0', '1', '2', '3', '4', '5'].map((n) => (
-                    <ToggleGroupItem
-                      key={n}
-                      value={n}
-                      className="h-10 justify-center text-base tabular-nums"
-                    >
-                      {n}
-                    </ToggleGroupItem>
-                  ))}
-                </ToggleGroup>
-              </div>
-            ) : (
-              <StepperField label="RIR" hint="Reps in reserve">
-                <ValueStepper size="lg" label="RIR" value="1" />
-              </StepperField>
-            )}
-            <Button variant="link" className="self-start">
-              Log without numbers
-            </Button>
-          </div>
+          <ToggleGroup
+            defaultValue={[edit ? 'tracked' : mode]}
+            aria-label="How to log it"
+            className="grid w-full grid-cols-2 self-stretch"
+          >
+            <ToggleGroupItem value="tracked" className="h-9 justify-center">
+              Tracked
+            </ToggleGroupItem>
+            <ToggleGroupItem value="quick" className="h-9 justify-center">
+              Quick
+            </ToggleGroupItem>
+          </ToggleGroup>
+          {mode === 'quick' ? (
+            <span className="text-sm text-muted-foreground">No weight, reps or RIR</span>
+          ) : (
+            <TrackedFields weight="30" reps={edit ? 9 : 10} rir={edit ? 1 : 1} />
+          )}
           <DialogFooter>
+            {edit && (
+              <Button variant="ghost-destructive" className="mr-auto">
+                <Trash2Icon /> Delete
+              </Button>
+            )}
             <Button variant="outline">Cancel</Button>
-            <Button>Log set</Button>
+            <Button>{edit ? 'Save' : 'Log set'}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -1040,8 +1051,8 @@ function MuscleExercises({ muscle }: { muscle: 'Chest' | 'Rear delts' }) {
             ['Machine chest press', 'Machine · 55 kg × 10'],
           ],
           secondary: [
-            ['Dips', 'Bodyweight · Chest 0.5'],
-            ['Push-up', 'Bodyweight · Chest 0.6'],
+            ['Dips', 'Bodyweight · Chest (0.5)'],
+            ['Push-up', 'Bodyweight · Chest (0.6)'],
           ],
         }
       : {
@@ -1050,8 +1061,8 @@ function MuscleExercises({ muscle }: { muscle: 'Chest' | 'Rear delts' }) {
             ['Cable rear delt fly', 'Cable · 7.5 kg × 15'],
           ],
           secondary: [
-            ['Chest-supported row', 'Machine · Rear delts 0.4'],
-            ['Seated cable row', 'Cable · Rear delts 0.3'],
+            ['Chest-supported row', 'Machine · Rear delts (0.4)'],
+            ['Seated cable row', 'Cable · Rear delts (0.3)'],
           ],
         }
   return (
@@ -1085,7 +1096,7 @@ function AddExercise({
     <>
       <Session phone={phone} />
       <Dialog open>
-        <DialogContent data-colour="coral" className="sm:max-w-lg">
+        <DialogContent list data-colour="coral" className="sm:max-w-lg">
           <DialogHeader>
             {muscle && <BackLink label="All muscle groups" className="-mb-1 self-start" />}
             <DialogTitle>{swap ? 'Swap Face pull' : (muscle ?? 'Add exercise')}</DialogTitle>
@@ -1101,39 +1112,39 @@ function AddExercise({
 
 /* ---------- Strength history ---------- */
 
-function History() {
-  const days: [string, [string, number, number, boolean, string][]][] = [
+function History({ phone = false }: { phone?: boolean }) {
+  const days: [string, LoggedSet[]][] = [
     [
       'Sat 26 Oct · Pull A',
       [
-        ['27.5', 10, 2, false, '38.5'],
-        ['27.5', 10, 1, false, '37.6'],
-        ['27.5', 9, 0, false, '35.8'],
+        { weight: '27.5', reps: 10, rir: 2, strength: '38.5' },
+        { weight: '27.5', reps: 10, rir: 1, strength: '37.6' },
+        { weight: '27.5', reps: 9, rir: 0, strength: '35.8' },
       ],
     ],
     [
       'Thu 17 Oct · Pull A',
       [
-        ['27.5', 9, 1, false, '36.7'],
-        ['27.5', 8, 1, false, '35.8'],
-        ['25', 10, 1, false, '34.2'],
+        { weight: '27.5', reps: 9, rir: 1, strength: '36.7' },
+        { weight: '27.5', reps: 8, rir: 1, strength: '35.8' },
+        { weight: '25', reps: 10, rir: 1, strength: '34.2' },
       ],
     ],
     [
       'Mon 7 Oct · Upper',
       [
-        ['30', 8, 0, true, '38.0'],
-        ['25', 10, 1, false, '34.2'],
-        ['25', 10, 2, false, '35.0'],
-        ['25', 9, 1, false, '33.3'],
+        { weight: '30', reps: 8, rir: 0, pr: true, strength: '38.0' },
+        { weight: '25', reps: 10, rir: 1, strength: '34.2' },
+        { weight: '25', reps: 10, rir: 2, strength: '35.0' },
+        { weight: '25', reps: 9, rir: 1, strength: '33.3' },
       ],
     ],
   ]
   return (
     <>
-      <Session />
+      <Session phone={phone} />
       <Dialog open>
-        <DialogContent data-colour="coral" className="sm:max-w-md">
+        <DialogContent list data-colour="coral" className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Chest-supported row</DialogTitle>
             <span className="text-sm text-muted-foreground">Strength history · last 10 sets</span>
@@ -1145,16 +1156,8 @@ function History() {
                   <span>{day}</span>
                   <span>Strength</span>
                 </div>
-                {sets.map(([w, reps, rir, pr, s], i) => (
-                  <SetLine
-                    key={i}
-                    n={i + 1}
-                    weight={w}
-                    reps={reps}
-                    rir={rir}
-                    pr={pr}
-                    strength={s}
-                  />
+                {sets.map((set, i) => (
+                  <SetLine key={i} n={i + 1} set={set} />
                 ))}
               </section>
             ))}
@@ -1183,17 +1186,7 @@ function End({ phone = false }: { phone?: boolean }) {
               </div>
             </Field>
             <Field label="Motivation beforehand">
-              <ToggleGroup
-                defaultValue={['3']}
-                aria-label="Motivation beforehand"
-                className="grid w-full grid-cols-5 self-stretch"
-              >
-                {['1', '2', '3', '4', '5'].map((n) => (
-                  <ToggleGroupItem key={n} value={n} className="h-9 justify-center tabular-nums">
-                    {n}
-                  </ToggleGroupItem>
-                ))}
-              </ToggleGroup>
+              <MotivationChoice value="side" />
             </Field>
             <Field label="Notes">
               <Textarea placeholder="Notes" />
@@ -1216,41 +1209,67 @@ function End({ phone = false }: { phone?: boolean }) {
 
 function ReviewExercise({
   name,
-  working,
+  current,
   pr,
   prSub,
   sets,
+  beat = false,
+  table = false,
 }: {
   name: string
-  working: string
+  current: [string, number]
   pr: string
   prSub: string
-  sets: [string, number, number, boolean, string][]
+  sets: LoggedSet[]
+  beat?: boolean
+  table?: boolean
 }) {
   return (
     <Card className="gap-4">
       <h2 className="text-h2">{name}</h2>
-      <div className="grid grid-cols-2 gap-2">
-        <StatTile inset label="Working set" value={working} sub="Since 12 Oct" />
-        <StatTile inset icon={<TrophyIcon />} label="PR" value={pr} sub={prSub} />
+      {table ? (
+        <>
+          <StatTile inset icon={<TrophyIcon />} label="PR" value={pr} sub={prSub} />
+          <SetTable sets={sets} strength current={{ weight: current[0], reps: current[1] }} />
+        </>
+      ) : (
+        <>
+          <div className="grid grid-cols-2 gap-2">
+            <StatTile
+              inset
+              label="Current"
+              value={`${current[0]} kg × ${current[1]}`}
+              sub="Since 12 Oct"
+            />
+            <StatTile inset icon={<TrophyIcon />} label="PR" value={pr} sub={prSub} />
+          </div>
+          <div className="flex flex-col">
+            <div className="flex items-center justify-between px-1 pb-1 text-xs font-semibold text-muted-foreground">
+              <span>This workout</span>
+              <span>Strength</span>
+            </div>
+            {sets.map((set, i) => (
+              <SetLine key={i} n={i + 1} set={set} />
+            ))}
+          </div>
+        </>
+      )}
+      <div className="flex flex-wrap items-center gap-2">
+        <Button variant="outline" size="sm">
+          Update current
+        </Button>
+        {beat && (
+          <Badge variant="success">
+            <ArrowUpIcon aria-hidden />
+            Beat current
+          </Badge>
+        )}
       </div>
-      <div className="flex flex-col">
-        <div className="flex items-center justify-between px-1 pb-1 text-xs font-semibold text-muted-foreground">
-          <span>This workout</span>
-          <span>Strength</span>
-        </div>
-        {sets.map(([w, reps, rir, isPr, s], i) => (
-          <SetLine key={i} n={i + 1} weight={w} reps={reps} rir={rir} pr={isPr} strength={s} />
-        ))}
-      </div>
-      <Button variant="outline" size="sm" className="self-start">
-        Update working set
-      </Button>
     </Card>
   )
 }
 
-function ReviewBody({ phone }: { phone?: boolean }) {
+function ReviewBody({ phone, table = false }: { phone?: boolean; table?: boolean }) {
   const stimulus = (
     <Card className="gap-2">
       <PanelHeading title="Stimulus sets" />
@@ -1269,30 +1288,41 @@ function ReviewBody({ phone }: { phone?: boolean }) {
           <StatTile inset label="Duration" value="58 min" />
           <StatTile inset label="Sets" value="16" />
           <StatTile inset label="How it went" value={<StarRating value={4} />} />
-          <StatTile inset label="Motivation" value="3 / 5" />
+          <StatTile
+            inset
+            label="Motivation"
+            value={
+              <span className="flex h-7 items-center">
+                <ThumbsUpIcon aria-label="So-so" className="size-5 -rotate-90 text-tc-text" />
+              </span>
+            }
+          />
         </div>
         <p className="text-sm text-muted-foreground">Grip went on the last row set</p>
       </Card>
       <ReviewExercise
+        table={table}
+        beat
         name="Chest-supported row"
-        working="27.5 kg × 10"
-        pr="30 kg × 10 @ 2"
-        prSub="Strength 42.0 · today"
+        current={['27.5', 10]}
+        pr="30 kg × 10"
+        prSub="2 RIR · Strength 42.0 · today"
         sets={[
-          ['30', 10, 2, true, '42.0'],
-          ['30', 9, 1, false, '40.0'],
-          ['30', 10, 1, false, '41.0'],
+          { weight: '30', reps: 10, rir: 2, pr: true, strength: '42.0' },
+          { weight: '30', reps: 9, rir: 1, strength: '40.0' },
+          { weight: '30', reps: 10, rir: 1, strength: '41.0' },
         ]}
       />
       <ReviewExercise
+        table={table}
         name="Lat pulldown"
-        working="65 kg × 10"
-        pr="70 kg × 9 @ 1"
-        prSub="Strength 93.3 · 12 Oct"
+        current={['65', 10]}
+        pr="70 kg × 9"
+        prSub="1 RIR · Strength 93.3 · 12 Oct"
         sets={[
-          ['65', 10, 2, false, '91.0'],
-          ['65', 9, 1, false, '86.7'],
-          ['65', 8, 1, false, '84.5'],
+          { weight: '65', reps: 10, rir: 2, strength: '91.0' },
+          { weight: '65', reps: 9, rir: 1, strength: '86.7' },
+          { weight: '65', reps: 8, rir: 1, strength: '84.5' },
         ]}
       />
     </div>
@@ -1310,7 +1340,7 @@ function ReviewBody({ phone }: { phone?: boolean }) {
   )
 }
 
-function Review({ phone = false }: { phone?: boolean }) {
+function Review({ phone = false, table = false }: { phone?: boolean; table?: boolean }) {
   return (
     <SubPage
       back="Workouts"
@@ -1330,32 +1360,32 @@ function Review({ phone = false }: { phone?: boolean }) {
       )}
     >
       <Facts state="complete" items={['Sat 26 Oct', '18:02–19:00']} />
-      <ReviewBody phone={phone} />
+      <ReviewBody phone={phone} table={table} />
     </SubPage>
   )
 }
 
-function UpdateWorkingSet({ phone = false }: { phone?: boolean }) {
+function UpdateCurrent({ phone = false }: { phone?: boolean }) {
   return (
     <>
       <Review phone={phone} />
       <Dialog open>
         <DialogContent data-colour="coral" className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Update working set</DialogTitle>
+            <DialogTitle>Update current</DialogTitle>
             <span className="text-sm text-muted-foreground">Chest-supported row</span>
           </DialogHeader>
           <div className="grid grid-cols-2 gap-2">
-            <StatTile inset label="Now" value="27.5 kg × 10" />
-            <StatTile inset label="Best set today" value="30 kg × 10" sub="RIR 2 · Strength 42.0" />
+            <StatTile inset label="Current" value="27.5 kg × 10" />
+            <StatTile inset label="Best set today" value="30 kg × 10" sub="2 RIR · Strength 42.0" />
           </div>
-          <div className="flex flex-col gap-4 py-1">
-            <StepperField label="Weight" hint="Steps of 2.5 kg">
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="Weight">
               <ValueStepper size="lg" label="Weight" value="30" unit="kg" />
-            </StepperField>
-            <StepperField label="Reps">
+            </Field>
+            <Field label="Reps">
               <ValueStepper size="lg" label="Reps" value="10" />
-            </StepperField>
+            </Field>
           </div>
           <DialogFooter>
             <Button variant="outline">Cancel</Button>
@@ -1463,22 +1493,22 @@ function TemplatePage({ phone = false }: { phone?: boolean }) {
 
 /* ---------- Recovery ---------- */
 
-const MUSCLES: [string, number, string, string, boolean?][] = [
-  ['Lats', 41, 'Push', 'Sat · 2 of 2 this week · 7.8 of 5 sets'],
-  ['Biceps', 48, 'Pull', 'Sat · 2 of 2 · 5.6 of 4 sets'],
-  ['Traps', 56, 'Pull', 'Sat · 2 of 2 · 4.4 of 4 sets'],
-  ['Rear delts', 63, 'Pull', 'Sat · 1 of 2 · 2.2 of 4 sets', true],
-  ['Brachialis', 72, 'Pull', 'Sat · 2 of 2 · 3.0 of 3 sets'],
-  ['Erectors', 80, 'Core', 'Thu · 1 of 2 · 1.4 of 3 sets', true],
-  ['Forearms', 85, 'Pull', 'Sat · 2 of 2 · 1.8 of 0 sets'],
-  ['Front delts', 88, 'Push', 'Mon · 1 of 2 · 2.5 of 3 sets', true],
-  ['Serratus', 90, 'Push', 'Mon · 1 of 1 · 1.2 of 1 set'],
-  ['Chest', 94, 'Push', 'Mon · 1 of 2 · 2.6 of 4 sets', true],
-  ['Triceps', 97, 'Push', 'Mon · 1 of 2 · 2.0 of 4 sets', true],
-  ['Lateral delts', 100, 'Push', 'Mon · 1 of 2 · 2.7 of 4 sets', true],
-  ['Quads', 100, 'Legs', 'Thu · 1 of 2 · 1.4 of 4 sets', true],
-  ['Glutes', 100, 'Legs', 'Thu · 1 of 2 · 2.4 of 4 sets', true],
-  ['Hamstrings', 100, 'Legs', 'Thu · 1 of 2 · 2.2 of 4 sets', true],
+const MUSCLES: [string, number, string, string][] = [
+  ['Lats', 41, 'Sat', '×2.4'],
+  ['Biceps', 48, 'Sat', '×2.1'],
+  ['Traps', 56, 'Sat', '×2.3'],
+  ['Rear delts', 63, 'Sat', '×1.4'],
+  ['Brachialis', 72, 'Sat', '×2.0'],
+  ['Erectors', 80, 'Thu', '×1.2'],
+  ['Forearms', 85, 'Sat', '×2.2'],
+  ['Front delts', 88, 'Mon', '×1.6'],
+  ['Serratus', 90, 'Mon', '×0.9'],
+  ['Chest', 94, 'Mon', '×1.8'],
+  ['Triceps', 97, 'Mon', '×1.9'],
+  ['Lateral delts', 100, 'Mon', '×1.7'],
+  ['Quads', 100, 'Thu', '×1.1'],
+  ['Glutes', 100, 'Thu', '×1.2'],
+  ['Hamstrings', 100, 'Thu', '×1.1'],
 ]
 
 const READINESS: Record<string, number> = Object.fromEntries(MUSCLES.map(([m, p]) => [m, p]))
@@ -1491,9 +1521,7 @@ function MuscleList({ selected }: { selected?: string }) {
           options={[
             { value: 'readiness', label: 'Readiness', initial: 'asc' },
             { value: 'recent', label: 'Most recently trained', initial: 'desc' },
-            { value: 'month', label: 'Most trained this month', initial: 'desc' },
-            { value: 'below', label: 'Furthest below target', initial: 'desc' },
-            { value: 'az', label: 'A–Z', initial: 'asc' },
+            { value: 'frequent', label: 'Most frequently trained', initial: 'desc' },
           ]}
           value="readiness"
           direction="asc"
@@ -1501,14 +1529,13 @@ function MuscleList({ selected }: { selected?: string }) {
         />
       </PanelHeading>
       <div className="flex flex-col">
-        {MUSCLES.map(([m, p, , meta, below]) => (
+        {MUSCLES.map(([m, p, last, freq]) => (
           <PanelRow
             key={m}
             selected={selected === m}
             leading={<ReadinessRing percent={p} />}
             title={m}
-            meta={[meta]}
-            trailing={below ? <Badge variant="warning">Below target</Badge> : undefined}
+            meta={[`Trained ${last}`, `${freq} a week`]}
           />
         ))}
       </div>
@@ -1560,7 +1587,7 @@ function Muscle() {
           </div>
           <div className="grid grid-cols-3 gap-2">
             <StatTile inset label="Last trained" value="Sat" />
-            <StatTile inset label="Workouts" value="2 / 2" sub="this week" />
+            <StatTile inset label="Frequency" value="×2.4" sub="a week, 28 days" />
             <StatTile inset label="Stimulus" value="7.8 / 5" sub="sets this week" />
           </div>
           <DialogFooter>
@@ -1637,19 +1664,19 @@ const MUSCLE_ROWS: [string, [string, string, number?][]][] = [
   [
     'Push',
     [
-      ['Chest', '4.2 sets a week · 3 of 4 rising'],
-      ['Front delts', '2.9 a week · 1 of 2 rising'],
-      ['Lateral delts', '3.8 a week · 2 of 2 rising'],
-      ['Triceps', '3.1 a week · 1 of 3 rising', 1],
+      ['Chest', '×1.8 a week'],
+      ['Front delts', '×1.6 a week'],
+      ['Lateral delts', '×1.7 a week'],
+      ['Triceps', '×1.9 a week', 1],
     ],
   ],
   [
     'Pull',
     [
-      ['Lats', '5.1 a week · 2 of 3 rising'],
-      ['Traps', '3.3 a week · 2 of 2 rising'],
-      ['Rear delts', '2.4 a week · 1 of 2 rising'],
-      ['Biceps', '3.6 a week · 0 of 2 rising', 2],
+      ['Lats', '×2.4 a week'],
+      ['Traps', '×2.3 a week'],
+      ['Rear delts', '×1.4 a week'],
+      ['Biceps', '×2.1 a week', 2],
     ],
   ],
 ]
@@ -1686,10 +1713,10 @@ const PRIMARY: Pill[] = [
   { name: 'Machine chest press', on: false },
 ]
 const SECONDARY: Pill[] = [
-  { name: 'Dips', sub: '0.5', on: true, dash: 'solid' },
-  { name: 'Push-up', sub: '0.6', on: false },
-  { name: 'Overhead press', sub: '0.2', on: false },
-  { name: 'Close-grip bench', sub: '0.5', on: false },
+  { name: 'Dips', sub: '(0.5)', on: true, dash: 'solid' },
+  { name: 'Push-up', sub: '(0.6)', on: false },
+  { name: 'Overhead press', sub: '(0.2)', on: false },
+  { name: 'Close-grip bench', sub: '(0.5)', on: false },
 ]
 
 const MUSCLE_LINES: ChartLine[] = [
@@ -1788,15 +1815,15 @@ function ProgressionMuscles() {
 }
 
 const LIBRARY: [string, string, boolean?][] = [
-  ['Bench press', 'Chest · 60 kg × 8 · Mon'],
-  ['Cable fly', 'Chest · 15 kg × 12 · Mon'],
-  ['Cable lateral raise', 'Lateral delts · 7.5 kg × 12 · Mon'],
-  ['Chest-supported row', 'Traps · 27.5 kg × 10 · Sat'],
-  ['Close-grip bench', 'Triceps · 50 kg × 8 · 9 Oct', true],
-  ['Incline curl', 'Biceps · 12 kg × 10 · Sat', true],
-  ['Incline dumbbell press', 'Chest · 24 kg × 10 · Mon'],
-  ['Lat pulldown', 'Lats · 65 kg × 10 · Sat'],
-  ['Overhead press', 'Front delts · 40 kg × 6 · Mon'],
+  ['Bench press', 'Chest · Mon'],
+  ['Cable fly', 'Chest · Mon'],
+  ['Cable lateral raise', 'Lateral delts · Mon'],
+  ['Chest-supported row', 'Traps · Sat'],
+  ['Close-grip bench', 'Triceps · 9 Oct', true],
+  ['Incline curl', 'Biceps · Sat', true],
+  ['Incline dumbbell press', 'Chest · Mon'],
+  ['Lat pulldown', 'Lats · Sat'],
+  ['Overhead press', 'Front delts · Mon'],
 ]
 
 function ExerciseList({ selected, phone = false }: { selected?: string; phone?: boolean }) {
@@ -1857,8 +1884,8 @@ function ExerciseDetail({ phone = false }: { phone?: boolean }) {
               <h2 className="text-h2">Bench press</h2>
               <div className="flex flex-wrap gap-1.5">
                 <TypeBadge colour="coral">Chest</TypeBadge>
-                <Badge variant="secondary">Triceps 0.4</Badge>
-                <Badge variant="secondary">Front delts 0.3</Badge>
+                <Badge variant="secondary">Triceps (0.4)</Badge>
+                <Badge variant="secondary">Front delts (0.3)</Badge>
                 <Badge variant="outline">Barbell · 2.5 kg</Badge>
               </div>
             </div>
@@ -1878,7 +1905,7 @@ function ExerciseDetail({ phone = false }: { phone?: boolean }) {
             },
             {
               id: 'ws',
-              label: 'Working set',
+              label: 'Current',
               tone: 'grey',
               dash: 'dash',
               values: [71.5, 71.5, 71.5, 71.5, 71.5, 71.5, 74.8, 74.8, 74.8, 74.8, 74.8, 78, 78],
@@ -1891,13 +1918,13 @@ function ExerciseDetail({ phone = false }: { phone?: boolean }) {
         <ChartKey
           items={[
             { label: 'Best set', tone: 'coral', dash: 'solid' },
-            { label: 'Working set', tone: 'grey', dash: 'dash' },
+            { label: 'Current', tone: 'grey', dash: 'dash' },
           ]}
         />
       </Card>
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <StatTile label="Working set" value="60 kg × 8" sub="Strength 78.0 at RIR 1" />
-        <StatTile icon={<TrophyIcon />} label="PR" value="65 kg × 6" sub="RIR 1 · 80.2 · 7 Oct" />
+        <StatTile label="Current" value="60 kg × 8" sub="Strength 78.0 at 1 RIR" />
+        <StatTile icon={<TrophyIcon />} label="PR" value="65 kg × 6" sub="1 RIR · 80.2 · 7 Oct" />
         <StatTile label="3 months" value="+11.9 %" sub="Rising" />
         <StatTile label="Last done" value="Mon" sub="28 Oct · Push A" />
       </div>
@@ -1985,8 +2012,8 @@ function PhoneExercise() {
     <SubPage back="Progression" title="Bench press" phone trailing={exerciseMenu}>
       <div className="-mt-2 flex flex-wrap gap-1.5">
         <TypeBadge colour="coral">Chest</TypeBadge>
-        <Badge variant="secondary">Triceps 0.4</Badge>
-        <Badge variant="secondary">Front delts 0.3</Badge>
+        <Badge variant="secondary">Triceps (0.4)</Badge>
+        <Badge variant="secondary">Front delts (0.3)</Badge>
         <Badge variant="outline">Barbell · 2.5 kg</Badge>
       </div>
       <div className="flex justify-end">
@@ -2047,7 +2074,7 @@ function ExerciseEditor({ phone = false }: { phone?: boolean }) {
                 </Button>
               </div>
             </Field>
-            <Field label="Working set">
+            <Field label="Current">
               <div className="flex flex-wrap items-center gap-2">
                 <ValueStepper label="Weight" value="60" unit="kg" />
                 <span className="text-muted-foreground">×</span>
@@ -2055,10 +2082,7 @@ function ExerciseEditor({ phone = false }: { phone?: boolean }) {
               </div>
             </Field>
             <Field label="Notes">
-              <Textarea
-                placeholder="Setup / form notes"
-                defaultValue="Bench at 4, safeties on 3, feet tucked"
-              />
+              <Textarea placeholder="Setup / form notes" />
             </Field>
           </div>
           <DialogFooter>
@@ -2178,8 +2202,8 @@ function MuscleSettings() {
                 </ToggleGroupItem>
               </ToggleGroup>
             </Field>
-            <StepperField label="Workouts a week">
-              <ValueStepper label="Workouts a week" value="2" />
+            <StepperField label="Desired weekly frequency">
+              <ValueStepper label="Desired weekly frequency" value="2" />
             </StepperField>
             <StepperField label="Stimulus sets a week">
               <ValueStepper label="Stimulus sets a week" value="5" />
@@ -2228,16 +2252,15 @@ const SCREENS: Record<string, () => ReactNode> = {
   'all-templates': () => <AllTemplates />,
   'new-workout': () => <NewWorkout />,
   session: () => <Session />,
-  'session-b': () => <SessionB />,
   'log-set': () => <LogSet />,
-  'log-set-b': () => <LogSet chips />,
   'add-exercise': () => <AddExercise />,
   'add-exercise-muscle': () => <AddExercise muscle="Chest" />,
   swap: () => <AddExercise muscle="Rear delts" swap />,
   history: () => <History />,
   end: () => <End />,
   review: () => <Review />,
-  'update-working-set': () => <UpdateWorkingSet />,
+  'review-table': () => <Review table />,
+  'update-current': () => <UpdateCurrent />,
   template: () => <TemplatePage />,
   recovery: () => <Recovery />,
   'recovery-ahead': () => <RecoveryAhead />,
@@ -2250,17 +2273,22 @@ const SCREENS: Record<string, () => ReactNode> = {
   'muscle-settings': () => <MuscleSettings />,
   'settings-recovery': () => <SettingsRecovery />,
   'm-workouts': () => <Workouts phone />,
+  'm-workouts-up-next': () => <Workouts phone upNext />,
   'm-all-workouts': () => <AllWorkouts phone />,
   'm-all-templates': () => <AllTemplates phone />,
   'm-new-workout': () => <NewWorkout phone />,
   'm-session': () => <Session phone />,
+  'm-session-table': () => <Session phone table />,
   'm-log-set': () => <LogSet phone />,
-  'm-log-set-b': () => <LogSet phone chips />,
+  'm-log-set-quick': () => <LogSet phone mode="quick" />,
+  'm-edit-set': () => <LogSet phone mode="edit" />,
   'm-add-exercise': () => <AddExercise phone />,
   'm-add-exercise-muscle': () => <AddExercise phone muscle="Chest" />,
+  'm-history': () => <History phone />,
   'm-end': () => <End phone />,
   'm-review': () => <Review phone />,
-  'm-update-working-set': () => <UpdateWorkingSet phone />,
+  'm-review-table': () => <Review phone table />,
+  'm-update-current': () => <UpdateCurrent phone />,
   'm-template': () => <TemplatePage phone />,
   'm-recovery': () => <Recovery phone />,
   'm-progression-muscles': () => <PhoneProgression view="muscles" />,
