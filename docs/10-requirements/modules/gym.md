@@ -612,7 +612,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to see how recovered I am, now and over the next
 two days, overall and muscle by muscle, **so that** I train what's ready.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified (`gym-recovery.spec.ts`; 2–4's figures also by `src/lib/gym.test.ts`, the engine by `packages/fitness`'s tests)
 
 Acceptance criteria
 1. Given the Recovery tab, then overall readiness shows as a percentage,
@@ -639,7 +639,7 @@ Acceptance criteria
 **As** Joe, **I want** each muscle group to have a desired weekly
 frequency and a stimulus-sets target, **so that** coverage and what to do
 next know what I'm aiming for.
-Priority: Must · Status: built (1 verified by `gym.spec.ts`; 2 and 3 with plan steps 7 and 9)
+Priority: Must · Status: verified (1 by `gym.spec.ts`, 2 by `gym-recovery.spec.ts` and `packages/fitness`'s tests, 3 by `gym-templates.spec.ts`)
 
 Acceptance criteria
 1. Given each muscle group, then it has a desired weekly frequency
@@ -657,7 +657,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to be told which template suits me best today, **so
 that** I train what is ready and due.
-Priority: Should · Status: agreed
+Priority: Should · Status: verified (`gym-recovery.spec.ts`; the score by `packages/fitness`'s tests, the time since last used by `src/lib/gym.test.ts`)
 
 Acceptance criteria
 1. Given nothing in progress or planned for today, then the Workouts tab's
@@ -701,7 +701,7 @@ Acceptance criteria
 
 **As** Joe, **I want** the Gym's settings in one place, **so that** it
 starts each set the way I train.
-Priority: Must · Status: verified (`gym.spec.ts`; the set popup and coverage use Preferred RIR with plan steps 7 and 8)
+Priority: Must · Status: verified (`gym.spec.ts`; the set popup and coverage by `gym-workouts.spec.ts` and `gym-templates.spec.ts`)
 
 Acceptance criteria
 1. Given Settings → Gym, then Preferred RIR (a stepper, 1 to start; Joe,
@@ -718,7 +718,7 @@ Acceptance criteria
 
 **As** Joe, **I want** the Gym to work without signal, **so that** a
 basement gym doesn't stop me logging.
-Priority: Must · Status: built (1 and 2 verified by `gym-workouts.spec.ts`; 1's readiness with plan step 9; 3's changes kept in the database's activity log, by its triggers)
+Priority: Must · Status: built (1 and 2 verified by `gym-workouts.spec.ts`, 1's readiness by `gym-recovery.spec.ts`; 3's changes kept in the database's activity log, by its triggers)
 
 Acceptance criteria
 1. Given no signal, then I start, log, swap, end and review a workout,

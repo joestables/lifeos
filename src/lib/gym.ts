@@ -457,3 +457,92 @@ export function workoutAverages(
     weekly: `×${(done.length / weeks).toFixed(1)}`,
   }
 }
+
+// ---------------------------------------------------------------------------
+// Recovery (GYM-016, GYM-018).
+
+const weekday = new Intl.DateTimeFormat('en-GB', { weekday: 'short' })
+const dayMonth = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short' })
+const clockTime = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit' })
+const DAY = 86_400_000
+const startOf = (ms: number) => {
+  const d = new Date(ms)
+  d.setHours(0, 0, 0, 0)
+  return d.getTime()
+}
+const daysBetween = (from: number, to: number) => Math.round((startOf(to) - startOf(from)) / DAY)
+
+/** When a group was last trained, short: "today", "Sat" within the week, else "28 Oct". */
+export function trainedWhen(ms: number, now: number): string {
+  const days = daysBetween(ms, now)
+  if (days <= 0) return 'today'
+  if (days === 1) return 'yesterday'
+  if (days < 7) return weekday.format(ms)
+  return dayMonth.format(ms)
+}
+
+/** "last used 5 days ago", "never used" (GYM-018 1). */
+export function lastUsedText(ms: number | null, now: number): string {
+  if (ms === null) return 'never used'
+  const days = daysBetween(ms, now)
+  if (days <= 0) return 'last used today'
+  if (days === 1) return 'last used yesterday'
+  return `last used ${days} days ago`
+}
+
+/** The moment the slider stands for (GYM-016 2): "Now", or "+18 h · Fri 12:00". */
+export function aheadText(hours: number, at: number): string {
+  return hours === 0 ? 'Now' : `+${hours} h · ${weekday.format(at)} ${clockTime.format(at)}`
+}
+
+/** "Sat 2 Nov, 09:00": when a group will be fully recovered (GYM-016 5). */
+export function recoveredText(ms: number): string {
+  return `${weekday.format(ms)} ${dayMonth.format(ms)}, ${clockTime.format(ms)}`
+}
+
+/** The muscle list's sorts (GYM-016 4), each its own way to start. */
+export type MuscleSort = 'readiness' | 'recent' | 'frequent'
+export const MUSCLE_SORTS: readonly {
+  value: MuscleSort
+  label: string
+  initial: SortDirection
+}[] = [
+  { value: 'readiness', label: 'Readiness', initial: 'asc' },
+  { value: 'recent', label: 'Most recently trained', initial: 'desc' },
+  { value: 'frequent', label: 'Most frequently trained', initial: 'desc' },
+]
+
+/** What sorting a muscle group needs. */
+export interface MuscleRow {
+  name: string
+  readiness: number
+  lastTrained: number | null
+  frequency: number
+}
+
+/** Muscle groups sorted (GYM-016 4), either way round; never trained last; ties by name. */
+export function sortMuscles<T extends MuscleRow>(
+  rows: readonly T[],
+  sort: MuscleSort,
+  direction: SortDirection,
+): T[] {
+  const option = MUSCLE_SORTS.find((s) => s.value === sort) ?? MUSCLE_SORTS[0]!
+  const byName = (a: T, b: T) => a.name.localeCompare(b.name)
+  if (sort === 'recent') {
+    const trained = rows.filter((r) => r.lastTrained !== null)
+    const never = rows.filter((r) => r.lastTrained === null).sort(byName)
+    trained.sort(
+      directed(
+        (a, b) => b.lastTrained! - a.lastTrained! || byName(a, b),
+        option.initial,
+        direction,
+      ),
+    )
+    return [...trained, ...never]
+  }
+  const compare =
+    sort === 'readiness'
+      ? (a: T, b: T) => a.readiness - b.readiness || byName(a, b)
+      : (a: T, b: T) => b.frequency - a.frequency || byName(a, b)
+  return [...rows].sort(directed(compare, option.initial, direction))
+}

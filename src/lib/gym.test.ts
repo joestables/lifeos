@@ -1,7 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import type { MuscleView } from '@/data'
 import {
+  aheadText,
   copyName,
+  lastUsedText,
+  sortMuscles,
+  trainedWhen,
   filterWorkouts,
   NO_WORKOUT_FILTER,
   sortWorkouts,
@@ -328,5 +332,40 @@ describe('All workouts (GYM-013 2–5)', () => {
       duration: '–',
       weekly: '–',
     })
+  })
+})
+
+describe('Recovery (GYM-016, GYM-018)', () => {
+  const at = (d: number, h = 12) => new Date(2026, 10, d, h).getTime()
+  const now = at(1)
+
+  it('GYM-016 2, 3: when last trained, and the time the slider stands for', () => {
+    expect(trainedWhen(at(1, 8), now)).toBe('today')
+    expect(trainedWhen(new Date(2026, 9, 31, 8).getTime(), now)).toBe('yesterday')
+    expect(trainedWhen(new Date(2026, 9, 29, 8).getTime(), now)).toBe('Thu')
+    expect(trainedWhen(new Date(2026, 9, 20, 8).getTime(), now)).toBe('20 Oct')
+    expect(aheadText(0, now)).toBe('Now')
+    expect(aheadText(18, at(2, 6))).toBe('+18 h · Mon 06:00')
+  })
+
+  it('GYM-016 4: sorted by readiness, most recently or most frequently trained', () => {
+    const rows = [
+      { name: 'Chest', readiness: 40, lastTrained: 3, frequency: 2 },
+      { name: 'Lats', readiness: 90, lastTrained: 5, frequency: 1 },
+      { name: 'Quads', readiness: 100, lastTrained: null, frequency: 0 },
+    ]
+    const names = (s: Parameters<typeof sortMuscles>[1], d: 'asc' | 'desc') =>
+      sortMuscles(rows, s, d).map((r) => r.name)
+    expect(names('readiness', 'asc')).toEqual(['Chest', 'Lats', 'Quads'])
+    expect(names('readiness', 'desc')).toEqual(['Quads', 'Lats', 'Chest'])
+    expect(names('recent', 'desc')).toEqual(['Lats', 'Chest', 'Quads'])
+    expect(names('recent', 'asc')).toEqual(['Chest', 'Lats', 'Quads'])
+    expect(names('frequent', 'desc')).toEqual(['Chest', 'Lats', 'Quads'])
+  })
+
+  it('GYM-018 1: how long since a template was last used', () => {
+    expect(lastUsedText(null, now)).toBe('never used')
+    expect(lastUsedText(at(1, 8), now)).toBe('last used today')
+    expect(lastUsedText(new Date(2026, 9, 27, 8).getTime(), now)).toBe('last used 5 days ago')
   })
 })

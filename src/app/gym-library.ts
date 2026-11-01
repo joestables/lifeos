@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import type { GymData } from '@/data'
-import { libraryRows, type LibraryFilter, type TemplateSort } from '@/lib/gym'
+import { libraryRows, type LibraryFilter, type MuscleSort, type TemplateSort } from '@/lib/gym'
 import type { SortDirection } from '@/lib/sort'
 
 const KEY = 'lifeos.gym.library'
@@ -68,6 +68,32 @@ export function useTemplateSort() {
     setKept({ sort, direction })
     try {
       localStorage.setItem(TEMPLATE_KEY, JSON.stringify({ sort, direction }))
+    } catch {
+      // Kept for this visit only.
+    }
+  }
+  return { ...kept, change }
+}
+
+const MUSCLE_KEY = 'lifeos.gym.muscles'
+
+/** The Recovery tab's muscle sort, kept for next time on this device (GYM-016 4). */
+export function useMuscleSort() {
+  const [kept, setKept] = useState<{ sort: MuscleSort; direction: SortDirection }>(() => {
+    try {
+      return {
+        sort: 'readiness',
+        direction: 'asc',
+        ...(JSON.parse(localStorage.getItem(MUSCLE_KEY) ?? '{}') as object),
+      }
+    } catch {
+      return { sort: 'readiness', direction: 'asc' }
+    }
+  })
+  const change = (sort: MuscleSort, direction: SortDirection) => {
+    setKept({ sort, direction })
+    try {
+      localStorage.setItem(MUSCLE_KEY, JSON.stringify({ sort, direction }))
     } catch {
       // Kept for this visit only.
     }

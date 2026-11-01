@@ -801,10 +801,23 @@ export function OverallReadiness({ percent, when }: { percent: number; when: str
  * Looking ahead (GYM-016 2): a Slider from Now to +48 hours, in hours,
  * with its ends named under it.
  */
-export function LookAhead({ hours }: { hours: number }) {
+export function LookAhead({
+  hours,
+  onChange,
+}: {
+  hours: number
+  onChange?: (hours: number) => void
+}) {
   return (
     <div className="flex flex-col gap-1.5">
-      <Slider defaultValue={hours} min={0} max={48} step={1} aria-label="Look ahead" />
+      <Slider
+        value={hours}
+        min={0}
+        max={48}
+        step={1}
+        aria-label="Look ahead"
+        onValueChange={(v) => onChange?.(Array.isArray(v) ? v[0]! : v)}
+      />
       <div className="flex justify-between text-xs font-semibold text-muted-foreground">
         <span>Now</span>
         <span>+24 h</span>

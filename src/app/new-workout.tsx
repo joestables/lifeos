@@ -34,6 +34,7 @@ export function NewWorkoutDialog({
   gym,
   today,
   day: startDay,
+  template: startTemplate,
   onClose,
   onMade,
 }: {
@@ -41,11 +42,15 @@ export function NewWorkoutDialog({
   today: string
   /** The day to start at (Plan's day). */
   day?: string
+  /** The template to start at (the suggestion, GYM-018 3). */
+  template?: string
   onClose: () => void
   onMade: (id: string) => void
 }) {
   const ids = useId()
-  const [template, setTemplate] = useState(() => recentTemplates(gym)[0]?.item.id ?? EMPTY)
+  const [template, setTemplate] = useState(
+    () => startTemplate ?? recentTemplates(gym)[0]?.item.id ?? EMPTY,
+  )
   const [day, setDay] = useState(startDay && startDay >= today ? startDay : today)
   const days = Array.from({ length: DAYS }, (_, i) => addDays(today, i))
   if (!days.includes(day)) days.push(day)

@@ -1,9 +1,6 @@
-import { averageFrequency } from '@lifeos/fitness'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { ActivityIcon } from 'lucide-react'
 import { useState } from 'react'
 import {
-  EmptyState,
   ListDetail,
   PageAction,
   PageHeader,
@@ -18,12 +15,15 @@ import { ExerciseDialog } from '@/app/exercise-dialog'
 import { NewWorkoutDialog } from '@/app/new-workout'
 import { TemplatesCard } from '@/app/template-parts'
 import { RecentCard, TodayCard } from '@/app/workout-cards'
+import { RecoveryTab } from '@/app/recovery-tab'
+import { useRecovery, type Recovery } from '@/app/recovery'
 import { ExerciseDetail, ExerciseList } from '@/app/exercise-library'
 import { useLibrary, useLibraryFilter } from '@/app/gym-library'
 import { todayIn } from '@lifeos/recurrence'
 import { CATEGORIES, queue, useGym, useSettings, type ExerciseView } from '@/data'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { useIsWide } from '@/hooks/use-wide'
+import { lastUsedText } from '@/lib/gym'
 
 type Tab = 'workouts' | 'recovery' | 'progression'
 type View = 'muscles' | 'exercises'
@@ -36,9 +36,10 @@ interface GymSearch {
 
 /**
  * The Gym (gym.md, What the page shows): Workouts, Recovery and Progression.
- * Workouts shows my templates (GYM-006 6); Progression → Exercises is the
- * exercise library (GYM-003); workouts, recovery and progression's charts
- * come with plan steps 8–10.
+ * Workouts shows today, my recent workouts and my templates (GYM-013,
+ * GYM-006 6), with what to do next (GYM-018); Recovery my readiness
+ * (GYM-016); Progression → Exercises is the exercise library (GYM-003);
+ * progression's charts come with plan step 10.
  */
 export const Route = createFileRoute('/_app/gym/')({
   validateSearch: (s: Record<string, unknown>): GymSearch => ({
@@ -72,12 +73,20 @@ function Gym() {
       : void navigate({ to: '/gym/exercises/$id', params: { id: x.item.id } })
   const settings = useSettings(queue)
   const today = todayIn(settings.timezone)
-  const [planning, setPlanning] = useState(false)
+  const [planning, setPlanning] = useState<{ template?: string } | null>(null)
+  // Readiness as the page opened (ADR-0059: worked out on the device).
+  const [now] = useState(() => Date.now())
+  const recovery = useRecovery(gym, now)
+  const suggestion = recovery.suggestion && {
+    template: recovery.suggestion.template,
+    readiness: recovery.suggestion.readiness,
+    lastUsed: lastUsedText(recovery.suggestion.template.lastUsed, now),
+  }
   const newExercise =
     tab === 'progression' && view === 'exercises'
       ? { label: 'New exercise', onClick: () => setEditing('new') }
       : tab === 'workouts'
-        ? { label: 'New workout', onClick: () => setPlanning(true) }
+        ? { label: 'New workout', onClick: () => setPlanning({}) }
         : undefined
 
   return (
@@ -97,13 +106,19 @@ function Gym() {
         {tab === 'workouts' && (
           <div className="grid items-start gap-5 lg:grid-cols-2">
             <div className="flex flex-col gap-5">
-              <TodayCard gym={gym} today={today} phone={phone} />
+              <TodayCard
+                gym={gym}
+                today={today}
+                phone={phone}
+                suggestion={suggestion}
+                onSuggestion={(template) => setPlanning({ template })}
+              />
               <RecentCard gym={gym} today={today} phone={phone} />
             </div>
             <TemplatesCard gym={gym} count={phone ? 3 : 6} />
           </div>
         )}
-        {tab === 'recovery' && <EmptyState icon={ActivityIcon} title="Nothing trained yet" />}
+        {tab === 'recovery' && <RecoveryTab recovery={recovery} />}
         {tab === 'progression' && (
           <>
             <ToggleGroup
@@ -116,7 +131,7 @@ function Gym() {
               <ToggleGroupItem value="exercises">Exercises</ToggleGroupItem>
             </ToggleGroup>
             {view === 'muscles' ? (
-              <Muscles gym={gym} />
+              <Muscles gym={gym} recovery={recovery} />
             ) : (
               <ListDetail
                 list={
@@ -146,7 +161,8 @@ function Gym() {
         <NewWorkoutDialog
           gym={gym}
           today={today}
-          onClose={() => setPlanning(false)}
+          template={planning.template}
+          onClose={() => setPlanning(null)}
           onMade={(id) => void navigate({ to: '/gym/workouts/$id', params: { id } })}
         />
       )}
@@ -166,9 +182,8 @@ function Gym() {
  * Progression → Muscles (GYM-015 1): every group by category with its
  * average frequency; its chart comes with plan step 10.
  */
-function Muscles({ gym }: { gym: ReturnType<typeof useGym> }) {
-  // The last 28 days to now, as the page opened.
-  const [now] = useState(() => Date.now())
+function Muscles({ gym, recovery }: { gym: ReturnType<typeof useGym>; recovery: Recovery }) {
+  const frequency = new Map(recovery.muscles.map((m) => [m.muscle.id, m.frequency]))
   return (
     <div className="grid items-start gap-4 md:grid-cols-2">
       {CATEGORIES.map((c) => {
@@ -183,7 +198,7 @@ function Muscles({ gym }: { gym: ReturnType<typeof useGym> }) {
                   key={m.id}
                   chevron={false}
                   title={m.name}
-                  meta={[`×${averageFrequency([], m.id, now).toFixed(1)}`]}
+                  meta={[`×${(frequency.get(m.id) ?? 0).toFixed(1)}`]}
                 />
               ))}
             </div>

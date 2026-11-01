@@ -8,10 +8,11 @@ import {
   WorkoutStatePill,
 } from '@/components/lifeos'
 import { Card } from '@/components/ui/card'
-import type { GymData } from '@/data'
+import type { GymData, TemplateView } from '@/data'
 import { fromIsoDay, shortDate } from '@/lib/dates'
 import { counted, pillState } from '@/lib/gym'
 import { workoutMeta } from './all-workouts'
+import { TemplateTile } from './template-parts'
 
 const time = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit' })
 
@@ -23,7 +24,20 @@ export function WorkoutTile() {
  * Today (GYM-013 1): the workout in progress, or those planned for today;
  * what to do next comes with plan step 9 (GYM-018).
  */
-export function TodayCard({ gym, today, phone }: { gym: GymData; today: string; phone: boolean }) {
+export function TodayCard({
+  gym,
+  today,
+  phone,
+  suggestion,
+  onSuggestion,
+}: {
+  gym: GymData
+  today: string
+  phone: boolean
+  /** The most suitable template, when nothing is planned for today (GYM-018). */
+  suggestion?: { template: TemplateView; readiness: number; lastUsed: string } | null
+  onSuggestion?: (templateId: string) => void
+}) {
   const navigate = useNavigate()
   const shown = gym.workouts.filter(
     (w) => w.stage === 'in_progress' || (w.stage === 'planned' && w.item.do_on === today),
@@ -33,7 +47,19 @@ export function TodayCard({ gym, today, phone }: { gym: GymData; today: string; 
       <PanelHeading title="Today">
         <span className="text-sm text-muted-foreground">{shortDate(fromIsoDay(today))}</span>
       </PanelHeading>
-      {shown.length === 0 ? (
+      {shown.length === 0 && suggestion ? (
+        <div className="flex flex-col">
+          <span className="pb-1 text-sm text-muted-foreground">
+            Nothing planned. Most suitable:
+          </span>
+          <PanelRow
+            leading={<TemplateTile />}
+            title={suggestion.template.item.title}
+            meta={[`Readiness ${Math.round(suggestion.readiness)} %`, suggestion.lastUsed]}
+            onOpen={() => onSuggestion?.(suggestion.template.item.id)}
+          />
+        </div>
+      ) : shown.length === 0 ? (
         <p className="text-sm text-muted-foreground">Nothing planned</p>
       ) : (
         <div className="flex flex-col">

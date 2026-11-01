@@ -774,6 +774,10 @@ Agreed with Joe on 1 November 2026, on the
 - **Recovery:** overall readiness at `text-display`, the LookAhead slider,
   the BodyMap (a stand-in), and every muscle as a PanelRow with its
   ReadinessRing, last trained and average frequency, sorted with SortMenu.
+  A muscle, on the map or in the list, opens a Dialog of its readiness,
+  when it is fully recovered and its week against its targets. With
+  nothing planned for today, Today offers the most suitable template as a
+  PanelRow under "Nothing planned. Most suitable:"; it opens New workout.
 - **Progression:** Muscles · Exercises and the period as ToggleGroups;
   ListDetail on a computer (a page per item on a phone); ProgressChart with
   stimulus sets under it, LinePills for a muscle's exercises, StatTiles
