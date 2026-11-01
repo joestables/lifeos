@@ -155,7 +155,7 @@ Provisionally agreed).
   PR, and is left out of progression and Strength history.
 - **Logged sets are a quiet table** — Set, kg, Reps, RIR — on a phone and a
   computer, each row with an edit button that opens it in the same popup to
-  change, or Delete; a quick set's row shows dashes (Joe, 1 and 2
+  change, or Delete; a quick set's row shows dashes (Joe, 1
   November). Where a set is written as text (Strength history), RIR reads
   in brackets, "(2 RIR)".
 - **Adding and swapping go by muscle group** (Joe, 31 October): all the
@@ -171,7 +171,7 @@ Provisionally agreed).
   October, 1 November), with optional notes; then the workout opens read-only for
   its review.
 - **The review shows each exercise's Current set and PR as two figures,
-  then what I logged as the same table, with each set's strength** (Joe, 2
+  then what I logged as the same table, with each set's strength** (Joe, 1
   November). **Update current** opens a popup offering the
   workout's best set by strength, weight and reps side by side to change
   before saving; the choice is mine (Joe, 22, 29 and 31 October, 1
@@ -242,7 +242,12 @@ Provisionally agreed).
   the weekly target, so I can see how volume and progress go together
   (Joe, 29 and 31 October). An exercise's chart shows its primary group's.
 - **Stalled exercises are picked out** (Joe, 29 October): suggested, no
-  rise in the best strength across four weeks of training.
+  rise in the best strength across four weeks of training — done three
+  times or more in the last 28 days, the first of them 21 days ago or
+  more, and no later workout's best beating the first's.
+- **An exercise's trend** over the period is its best strength in its last
+  workout against its first: rising or falling by more than 1 %, flat
+  within it (suggested).
 
 ## What the page shows
 
@@ -570,7 +575,7 @@ Acceptance criteria
    bars under it, on the same weeks, with the weekly target.
 3. Given the chart, then under it are its current set, its PR (weight ×
    reps @ RIR, its strength and date, opening that workout) and the change
-   in best strength over the period, rising, flat or falling.
+   in best strength over the period, rising, flat (within 1 %) or falling.
 4. Given its last ten workouts, then the best set of each is listed:
    date, weight, reps, RIR and strength.
 5. Given no rise in the best strength across four weeks of training
@@ -660,7 +665,12 @@ Acceptance criteria
    the groups it covers, its coverage of each, and how long since those
    groups were last trained (Joe, 1 November); a group under 50 % ready
    with 2 stimulus sets or more of coverage keeps a template from being
-   suggested (suggested).
+   suggested (suggested). *(Suggested)* The groups it covers are those it
+   gives 0.5 stimulus sets or more; each counts by its coverage, its
+   readiness, and how due it is: fully once the days between its desired
+   workouts (7 ÷ desired weekly frequency) have passed since it was last
+   trained, or if never, half just after, and half for a group with no
+   frequency target. Its "last trained" is the latest any of them was.
 3. Given the suggestion, when I choose it, then New workout opens with it
    chosen for today.
 
@@ -669,7 +679,7 @@ Acceptance criteria
 **As** Joe, **I want** readiness and stimulus sets worked out by the
 recovery engine I've designed, **so that** they follow how I think muscles
 respond to training.
-Priority: Must · Status: agreed
+Priority: Must · Status: built (1 and 2 verified by `packages/fitness`'s tests; 3, its settings, with plan step 6)
 
 Acceptance criteria
 1. Given logged sets, then each muscle group's readiness and each

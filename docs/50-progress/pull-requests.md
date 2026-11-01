@@ -2,7 +2,7 @@
 
 Newest first. Each entry is added in its own pull request.
 
-## [#56](https://github.com/joestables/lifeos/pull/56) — The Gym's schema
+## [#56](https://github.com/joestables/lifeos/pull/56) — The Gym's schema and its calculations
 
 Branch `claude/eloquent-darwin-gudbuj` · 2026-11-01
 
@@ -22,13 +22,18 @@ Branch `claude/eloquent-darwin-gudbuj` · 2026-11-01
   progress, equipment and groups of the owner's, stage and status
   together); the activity log; 22 write functions, and six removals for
   Joe to run. 53 database tests in `fitness_test`.
+- **`packages/fitness` (step 5):** the recovery engine exactly as Annex A
+  (a workout applied on its own, or the last 60 days replayed), strength,
+  the best set, Beat current and the PR, template coverage, weekly targets,
+  average frequency, an exercise's progression and Stalled, a muscle
+  group's lines, and what to do next; weights in whole grams. 68 unit
+  tests, Annex A's tables value by value.
 
 **Documents touched:** gym, ADR-0058, ADR-0059, the data model, glossary,
 components, patterns, tokens, the design system's README, integration
 setup (the `fitness` schema to expose), the Stage 5 plan, the roadmap.
 
-**Left for later:** `packages/fitness`, the recovery engine (step 5), and
-the screens (steps 6–10).
+**Left for later:** the screens (steps 6–10).
 
 ## [#54](https://github.com/joestables/lifeos/pull/54) — Leftovers when a Meal moves, ticks offline, faded Recipes
 
