@@ -518,29 +518,45 @@ function WorkoutFilters() {
           name: 'Sets logged',
           values: [],
           summary: '12–24',
-          control: <RangeFilter min={0} max={30} value={[12, 24]} />,
+          control: <RangeFilter label="Sets logged" min={0} max={30} value={[12, 24]} />,
         },
         {
           name: 'Stimulus sets',
           values: [],
-          control: <RangeFilter min={0} max={40} value={[0, 40]} />,
+          control: <RangeFilter label="Stimulus sets" min={0} max={40} value={[0, 40]} />,
         },
         {
           name: 'Exercises done',
           values: [],
-          control: <RangeFilter min={0} max={10} value={[0, 10]} />,
+          control: <RangeFilter label="Exercises done" min={0} max={10} value={[0, 10]} />,
         },
         {
           name: 'Duration',
           values: [],
-          control: <RangeFilter min={0} max={120} value={[0, 120]} format={(n) => `${n} min`} />,
+          control: (
+            <RangeFilter
+              label="Duration"
+              min={0}
+              max={120}
+              value={[0, 120]}
+              format={(n) => `${n} min`}
+            />
+          ),
         },
         { name: 'Exercise', values: ['Bench press', 'Lat pulldown', 'Squat', 'Romanian deadlift'] },
         { name: 'Muscle trained', values: ['Chest', 'Lats', 'Quads', 'Hamstrings', 'Biceps'] },
         {
           name: 'How it went',
           values: [],
-          control: <RangeFilter min={1} max={5} value={[1, 5]} format={(n) => `${n} ★`} />,
+          control: (
+            <RangeFilter
+              label="How it went"
+              min={1}
+              max={5}
+              value={[1, 5]}
+              format={(n) => `${n} ★`}
+            />
+          ),
         },
         { name: 'Motivation', values: ['Low', 'So-so', 'High'] },
       ]}

@@ -169,7 +169,8 @@ export async function standIn(
   { signedIn = false, rows = {}, ai }: { signedIn?: boolean; rows?: Rows; ai?: Rows['ai'] } = {},
 ) {
   const db = {
-    items: [...(rows.items ?? [])],
+    // Each row copied, so a test's changes never reach the next test's rows.
+    items: (rows.items ?? []).map((r) => ({ ...r })),
     labels: (rows.labels ?? []).map((l) => ({
       space_id: 's',
       created_by: ANN.id,

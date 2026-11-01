@@ -1,26 +1,22 @@
 import { useNavigate } from '@tanstack/react-router'
 import { DumbbellIcon } from 'lucide-react'
-import { PanelHeading, PanelRow, TypeTile, WorkoutStatePill } from '@/components/lifeos'
+import {
+  PanelFooter,
+  PanelHeading,
+  PanelRow,
+  TypeTile,
+  WorkoutStatePill,
+} from '@/components/lifeos'
 import { Card } from '@/components/ui/card'
-import type { GymData, WorkoutView } from '@/data'
+import type { GymData } from '@/data'
 import { fromIsoDay, shortDate } from '@/lib/dates'
 import { counted, pillState } from '@/lib/gym'
+import { workoutMeta } from './all-workouts'
 
 const time = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit' })
 
-function WorkoutTile() {
+export function WorkoutTile() {
   return <TypeTile colour="coral" icon={DumbbellIcon} />
-}
-
-/** "Mon 28 Oct · 6 exercises · 17 sets" (GYM-013 1). */
-function meta(w: WorkoutView, phone: boolean): string[] {
-  const exercises = w.session.filter((e) => e.sets.length > 0).length
-  return [
-    w.item.do_on ? shortDate(fromIsoDay(w.item.do_on)) : '',
-    ...(w.stage === 'planned'
-      ? []
-      : [...(phone ? [] : [counted(exercises, 'exercise')]), counted(w.setCount, 'set')]),
-  ].filter(Boolean)
 }
 
 /**
@@ -69,7 +65,7 @@ export function TodayCard({ gym, today, phone }: { gym: GymData; today: string; 
   )
 }
 
-/** Recent workouts (GYM-013 1): the last five up to today, each with its state pill. */
+/** Recent workouts (GYM-013 1): the last five up to today, each with its state pill, then All workouts. */
 export function RecentCard({ gym, today, phone }: { gym: GymData; today: string; phone: boolean }) {
   const navigate = useNavigate()
   const recent = gym.workouts.filter((w) => (w.item.do_on ?? '') <= today).slice(0, 5)
@@ -85,13 +81,14 @@ export function RecentCard({ gym, today, phone }: { gym: GymData; today: string;
               key={w.item.id}
               leading={<WorkoutTile />}
               title={w.item.title}
-              meta={meta(w, phone)}
+              meta={workoutMeta(w, phone)}
               trailing={<WorkoutStatePill state={pillState(w.stage, w.item.do_on, today)} />}
               onOpen={() => void navigate({ to: '/gym/workouts/$id', params: { id: w.item.id } })}
             />
           ))}
         </div>
       )}
+      <PanelFooter label="All workouts" onClick={() => void navigate({ to: '/gym/workouts' })} />
     </Card>
   )
 }

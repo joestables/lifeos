@@ -57,6 +57,83 @@ async function startPushA(page: Page) {
   await expect(page.getByText('In progress')).toBeVisible()
 }
 
+/** A day `n` before today, "2026-10-28". */
+const daysAgo = (n: number) => {
+  const d = new Date(`${TODAY}T12:00:00Z`)
+  d.setUTCDate(d.getUTCDate() - n)
+  return d.toISOString().slice(0, 10)
+}
+
+/**
+ * Twenty-two finished workouts, one a day back from yesterday, each with
+ * bench press (one to three sets); every other one followed Push A; and a
+ * planned one from a month ago, Skipped.
+ */
+const HISTORY: Rows = (() => {
+  const n = 22
+  const ids = Array.from({ length: n }, (_, i) => i)
+  return {
+    ...GYM,
+    items: [
+      ...GYM.items!,
+      ...ids.map((i) =>
+        itemRow({
+          id: `h-${i}`,
+          type: 'workout',
+          title: i % 2 ? 'Workout' : 'Push A',
+          do_on: daysAgo(i + 1),
+          status: 'done',
+        }),
+      ),
+      itemRow({ id: 'h-skipped', type: 'workout', title: 'Legs', do_on: daysAgo(30) }),
+    ],
+    workout: [
+      ...ids.map((i) => ({
+        item_id: `h-${i}`,
+        stage: 'complete',
+        started_at: `${daysAgo(i + 1)}T18:00:00Z`,
+        ended_at: `${daysAgo(i + 1)}T${i === 0 ? '19:30' : '19:00'}:00Z`,
+        how_it_went: i === 0 ? 5 : 3,
+        motivation: i === 0 ? 3 : 2,
+      })),
+      { item_id: 'h-skipped' },
+    ],
+    links: ids
+      .filter((i) => i % 2 === 0)
+      .map((i) => ({ from_item: `h-${i}`, to_item: 't-push', link_type: 'follows' })),
+    workout_entries: ids.map((i) => ({
+      id: `he-${i}`,
+      workout_id: `h-${i}`,
+      exercise_id: 'x-bench',
+      place: 'session',
+      position: 'h',
+      planned_sets: 3,
+      begun_at: `${daysAgo(i + 1)}T18:05:00Z`,
+      snapshot: { name: 'Bench press', current_weight: 60, current_reps: 8 },
+    })),
+    workout_sets: ids.flatMap((i) =>
+      Array.from({ length: (i % 3) + 1 }, (_, k) => ({
+        id: `hs-${i}-${k}`,
+        entry_id: `he-${i}`,
+        position: String.fromCharCode(104 + k),
+        weight: 60,
+        reps: 8,
+        rir: 2,
+        logged_at: `${daysAgo(i + 1)}T18:1${k}:00Z`,
+      })),
+    ),
+  }
+})()
+
+/** All workouts' filters: beside the list on a computer, in a Sheet on a phone. */
+async function workoutFilters(page: Page, isMobile: boolean) {
+  if (isMobile) {
+    await page.getByRole('button', { name: /^Filters/ }).click()
+    return page.getByRole('dialog')
+  }
+  return page.locator('main')
+}
+
 test.describe('workouts', () => {
   test('GYM-007 1, 2: a workout planned from a template, and on Plan', async ({ page }) => {
     const db = await standIn(page, { signedIn: true, rows: GYM })
@@ -310,5 +387,144 @@ test.describe('workouts', () => {
     await page.getByRole('menuitem', { name: 'Discard workout' }).click()
     await expect(page.getByText('Discarded "Push A"')).toBeVisible()
     await expect.poll(() => db.items.find((i) => i.id === 'w-1')?.archived_at).not.toBeNull()
+  })
+
+  test('GYM-013 1, 2, 5: All workouts from Recent, newest first, twenty to a page, with its figures', async ({
+    page,
+  }) => {
+    await standIn(page, { signedIn: true, rows: HISTORY })
+    await page.goto('/gym')
+    await page.getByRole('button', { name: 'All workouts' }).click()
+    await expect(page.getByRole('heading', { name: 'All workouts', level: 1 })).toBeVisible()
+    await expect(page.getByText('23 workouts', { exact: true })).toBeVisible()
+    // 43 sets ÷ 22; 1350 minutes ÷ 22; 22 over the 23 days since the first.
+    await expect(page.getByText('Average sets')).toBeVisible()
+    await expect(page.locator('main')).toContainText('2.0')
+    await expect(page.locator('main')).toContainText('1 h 01')
+    await expect(page.locator('main')).toContainText('×6.7')
+    const rows = page.locator('main [data-slot="card"]').last().getByRole('button')
+    await expect(rows).toHaveCount(20)
+    await expect(rows.first()).toContainText('Push A')
+    await expect(rows.first()).toContainText('Complete')
+    await page.getByRole('navigation', { name: 'Pages' }).getByRole('button', { name: '2' }).click()
+    await expect(rows).toHaveCount(3)
+    await expect(rows.last()).toContainText('Skipped')
+  })
+
+  test('GYM-013 3, 4: filtered and sorted, and both kept', async ({ page, isMobile }) => {
+    await standIn(page, { signedIn: true, rows: HISTORY })
+    await page.goto('/gym/workouts')
+    await expect(page.getByText('23 workouts', { exact: true })).toBeVisible()
+    let filters = await workoutFilters(page, isMobile)
+    await filters
+      .getByRole('group', { name: 'State' })
+      .getByRole('button', { name: 'Skipped' })
+      .click()
+    if (isMobile) await page.getByRole('button', { name: 'Show 1 workout' }).click()
+    await expect(page.getByText('1 workout', { exact: true })).toBeVisible()
+    await expect(page.locator('main')).toContainText('Legs')
+
+    filters = await workoutFilters(page, isMobile)
+    await filters
+      .getByRole('group', { name: 'State' })
+      .getByRole('button', { name: 'Skipped' })
+      .click()
+    await filters
+      .getByRole('group', { name: 'Template' })
+      .getByRole('button', { name: 'None' })
+      .click()
+    if (isMobile) await page.getByRole('button', { name: 'Show 12 workouts' }).click()
+    await expect(page.getByText('12 workouts', { exact: true })).toBeVisible()
+
+    await page.getByRole('button', { name: /^Sort/ }).click()
+    await page.getByRole('menuitem', { name: 'Duration' }).click()
+    await page.reload()
+    await expect(page.getByText('12 workouts', { exact: true })).toBeVisible()
+    const first = page.locator('main [data-slot="card"]').last().getByRole('button').first()
+    await expect(first).toContainText('Workout')
+
+    // A range: sets logged from 3, by its slider's keys.
+    filters = await workoutFilters(page, isMobile)
+    await filters.getByRole('button', { name: 'Reset' }).click()
+    await filters.getByRole('button', { name: /^Sets logged/ }).click()
+    const from = filters.getByRole('slider').first()
+    await from.focus()
+    for (let i = 0; i < 3; i++) await from.press('ArrowRight')
+    if (isMobile) await page.getByRole('button', { name: 'Show 7 workouts' }).click()
+    await expect(page.getByText('7 workouts', { exact: true })).toBeVisible()
+  })
+
+  test('GYM-012 6: a finished workout’s sets and ratings corrected', async ({ page }) => {
+    const db = await standIn(page, { signedIn: true, rows: HISTORY })
+    await page.goto('/gym/workouts/h-1')
+    await expect(page.getByText('Complete')).toBeVisible()
+    await page.getByRole('button', { name: 'Workout', exact: true }).click()
+    await page.getByRole('menuitem', { name: 'Edit' }).click()
+    await page.getByRole('button', { name: 'Edit set 2' }).click()
+    const dialog = page.getByRole('dialog')
+    await dialog.getByRole('textbox', { name: 'Reps' }).fill('10')
+    await dialog.getByRole('button', { name: 'Save' }).click()
+    await expect.poll(() => db.workout_sets.find((s) => s.id === 'hs-1-1')?.reps).toBe(10)
+
+    await page.getByRole('button', { name: 'How it went' }).click()
+    await expect(dialog.getByRole('radio', { name: '3 out of 5' })).toBeChecked()
+    await dialog.getByRole('radio', { name: '5 out of 5' }).click()
+    await dialog.getByRole('textbox', { name: 'Notes' }).fill('Sore shoulder')
+    await dialog.getByRole('button', { name: 'Save' }).click()
+    await expect(page.getByText('Sore shoulder')).toBeVisible()
+    await expect
+      .poll(() => db.workout.find((w) => w.item_id === 'h-1'))
+      .toMatchObject({ how_it_went: 5, notes: 'Sore shoulder' })
+    await page.getByRole('button', { name: 'Done' }).click()
+    await expect(page.getByRole('button', { name: 'Edit set 2' })).toHaveCount(0)
+  })
+
+  test('GYM-021 2: Exercises, templates and workouts found in Search', async ({
+    page,
+    isMobile,
+  }) => {
+    await standIn(page, { signedIn: true, rows: PLANNED })
+    await page.goto('/gym')
+    if (isMobile) await page.getByRole('button', { name: 'Menu' }).click()
+    await page.getByRole('button', { name: 'Search', exact: true }).click()
+    await page.getByRole('combobox', { name: 'Search' }).fill('push')
+    const list = page.getByRole('listbox', { name: 'Search' })
+    await expect(list.getByRole('option', { name: /Pushdown/ })).toBeVisible()
+    await expect(list.getByRole('option', { name: /Push A/ })).toHaveCount(2)
+    await list.getByRole('option', { name: /Pushdown/ }).click()
+    await expect(page.getByRole('heading', { name: 'Pushdown' }).first()).toBeVisible()
+  })
+
+  test('GYM-021 1: offline, a workout is started, logged and ended, and sent later', async ({
+    page,
+    context,
+  }) => {
+    const db = await standIn(page, { signedIn: true, rows: PLANNED })
+    await page.goto('/gym/workouts/w-1')
+    await expect(page.getByRole('button', { name: 'Start' })).toBeVisible()
+    // The stand-in answers before the network, so its writes are refused too.
+    const noSignal = (route: Parameters<Parameters<Page['route']>[1]>[0]) =>
+      route.abort('internetdisconnected')
+    await page.route('**/rest/v1/rpc/**', noSignal)
+    await context.setOffline(true)
+
+    await page.getByRole('button', { name: 'Start' }).click()
+    await expect(page.getByText('In progress')).toBeVisible()
+    await page.getByRole('button', { name: 'Add Bench press' }).click()
+    const card = session(page).locator('section').filter({ hasText: 'Bench press' })
+    await card.getByRole('button', { name: 'Log set' }).click()
+    await page.getByRole('dialog').getByRole('button', { name: 'Log set' }).click()
+    await expect(card).toContainText('1 of 3 sets')
+    await page.getByRole('button', { name: 'End workout' }).click()
+    await page.getByRole('dialog').getByRole('button', { name: 'End workout' }).click()
+    await expect(page.getByText('Complete')).toBeVisible()
+    await expect(page.locator('main')).toContainText('Stimulus sets')
+    expect(db.workout_sets).toHaveLength(0)
+
+    await page.unroute('**/rest/v1/rpc/**', noSignal)
+    await context.setOffline(false)
+    await expect.poll(() => db.workout.find((w) => w.item_id === 'w-1')?.stage).toBe('complete')
+    expect(db.workout_sets).toHaveLength(1)
+    expect(db.workout_entries.map((e) => e.exercise_id).sort()).toEqual(['x-bench', 'x-pushdown'])
   })
 })

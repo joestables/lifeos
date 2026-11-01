@@ -12,6 +12,7 @@ import {
   HistoryIcon,
   PencilIcon,
   PlusIcon,
+  SquarePenIcon,
   Trash2Icon,
   TrophyIcon,
   UndoIcon,
@@ -167,6 +168,8 @@ function WorkoutPage() {
   const [moving, setMoving] = useState(false)
   const [retemplating, setRetemplating] = useState(false)
   const [ending, setEnding] = useState(false)
+  // Correcting a finished workout (GYM-012 6).
+  const [editing, setEditing] = useState(false)
   const [blocked, setBlocked] = useState<WorkoutView | null>(null)
   const back = () => void navigate({ to: '/gym' })
 
@@ -239,9 +242,13 @@ function WorkoutPage() {
         </More>
       </div>
     )
+  else if (editing) trailing = <Button onClick={() => setEditing(false)}>Done</Button>
   else
     trailing = (
       <More label="Workout">
+        <DropdownMenuItem onClick={() => setEditing(true)}>
+          <SquarePenIcon /> Edit
+        </DropdownMenuItem>
         <DropdownMenuItem onClick={() => setRenaming(true)}>
           <PencilIcon /> Rename
         </DropdownMenuItem>
@@ -280,7 +287,9 @@ function WorkoutPage() {
         <Facts pill={<WorkoutStatePill state={state} />} items={facts.filter(Boolean)} />
         {workout.stage === 'planned' && <Planned workout={workout} gym={gym} />}
         {workout.stage === 'in_progress' && <Session workout={workout} gym={gym} />}
-        {workout.stage === 'complete' && <Review workout={workout} gym={gym} />}
+        {workout.stage === 'complete' && (
+          <Review workout={workout} gym={gym} editing={editing} onRate={() => setEnding(true)} />
+        )}
       </div>
       {renaming && <RenameDialog workout={workout} onClose={() => setRenaming(false)} />}
       {moving && <DayDialog workout={workout} today={today} onClose={() => setMoving(false)} />}
@@ -542,8 +551,20 @@ function Session({ workout, gym }: { workout: WorkoutView; gym: GymData }) {
  * its sets with their strength and Update current; beside them, the
  * stimulus sets it gave each muscle group.
  */
-function Review({ workout, gym }: { workout: WorkoutView; gym: GymData }) {
+function Review({
+  workout,
+  gym,
+  editing,
+  onRate,
+}: {
+  workout: WorkoutView
+  gym: GymData
+  /** Its sets, ratings and notes being corrected (GYM-012 6). */
+  editing: boolean
+  onRate: () => void
+}) {
   const [updating, setUpdating] = useState<{ exercise: ExerciseView; best: SetView } | null>(null)
+  const [logging, setLogging] = useState<{ entry: EntryView; set?: SetView } | null>(null)
   const done = workout.session.filter((e) => e.sets.length > 0)
   const stimulus = stimulusSets(
     done.flatMap((e) =>
@@ -585,6 +606,11 @@ function Review({ workout, gym }: { workout: WorkoutView; gym: GymData }) {
         {workout.notes && (
           <p className="text-sm whitespace-pre-line text-muted-foreground">{workout.notes}</p>
         )}
+        {editing && (
+          <Button variant="outline" size="sm" className="self-start" onClick={onRate}>
+            <PencilIcon /> How it went
+          </Button>
+        )}
       </Card>
       {done.map((e) => {
         const x = e.exercise
@@ -614,7 +640,13 @@ function Review({ workout, gym }: { workout: WorkoutView; gym: GymData }) {
                 />
               </div>
             )}
-            <SetTable sets={e.sets.map(shownSet)} strength />
+            <SetTable
+              sets={e.sets.map(shownSet)}
+              strength
+              editable={editing}
+              onEdit={(i) => setLogging({ entry: e, set: e.sets[i] })}
+            />
+            {editing && <LogSetButton label="Log set" onClick={() => setLogging({ entry: e })} />}
             {x && best && (
               <div className="flex flex-wrap items-center gap-2">
                 <Button
@@ -662,6 +694,14 @@ function Review({ workout, gym }: { workout: WorkoutView; gym: GymData }) {
           exercise={updating.exercise}
           best={updating.best}
           onClose={() => setUpdating(null)}
+        />
+      )}
+      {logging && (
+        <LogSetDialog
+          entry={workout.session.find((e) => e.id === logging.entry.id) ?? logging.entry}
+          set={logging.set}
+          preferredRir={gym.settings.preferredRir}
+          onClose={() => setLogging(null)}
         />
       )}
     </>

@@ -515,7 +515,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to record how a workout went and then review it,
 **so that** I can see what I did and move current sets on.
-Priority: Must · Status: built (1–5 and 7 verified by `gym-workouts.spec.ts`; 6, Edit, with plan step 8b)
+Priority: Must · Status: verified (`gym-workouts.spec.ts`)
 
 Acceptance criteria
 1. Given End workout, then I'm asked "How it went", as one to five stars,
@@ -544,7 +544,7 @@ Acceptance criteria
 **As** Joe, **I want** my recent workouts at hand and every workout in a
 list I can filter, sort and summarise, **so that** I can look back at my
 training.
-Priority: Must · Status: built (1's Today and Recent workouts; All workouts, 2–5, with plan step 8b)
+Priority: Must · Status: verified (`gym-workouts.spec.ts`; 3–5's filters, sort and figures also by `src/lib/gym.test.ts`)
 
 Acceptance criteria
 1. Given the Workouts tab, then Today shows the workout in progress or
@@ -718,7 +718,7 @@ Acceptance criteria
 
 **As** Joe, **I want** the Gym to work without signal, **so that** a
 basement gym doesn't stop me logging.
-Priority: Must · Status: agreed
+Priority: Must · Status: built (1 and 2 verified by `gym-workouts.spec.ts`; 1's readiness with plan step 9; 3's changes kept in the database's activity log, by its triggers)
 
 Acceptance criteria
 1. Given no signal, then I start, log, swap, end and review a workout,

@@ -150,14 +150,21 @@ export function FilterLayout({ filters, children }: { filters: ReactNode; childr
  * Badge while it is narrower than the whole.
  */
 export function RangeFilter({
+  label,
   min,
   max,
   value,
+  onChange,
+  step = 1,
   format = String,
 }: {
+  /** The group's name, for its thumbs ("Sets logged"). */
+  label: string
   min: number
   max: number
-  value: [number, number]
+  value: readonly [number, number]
+  onChange?: (value: [number, number]) => void
+  step?: number
   format?: (n: number) => string
 }) {
   return (
@@ -166,7 +173,16 @@ export function RangeFilter({
         <span>{format(value[0])}</span>
         <span>{format(value[1])}</span>
       </div>
-      <Slider defaultValue={value} min={min} max={max} aria-label="Range" />
+      <Slider
+        value={[...value]}
+        min={min}
+        max={max}
+        step={step}
+        aria-label={label}
+        onValueChange={(v) => {
+          if (Array.isArray(v) && v.length === 2) onChange?.([v[0]!, v[1]!])
+        }}
+      />
     </div>
   )
 }

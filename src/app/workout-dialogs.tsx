@@ -1,4 +1,4 @@
-import { formatKg, stepWeight, type Motivation } from '@lifeos/fitness'
+import { formatKg, motivationOf, stepWeight, type Motivation } from '@lifeos/fitness'
 import { Trash2Icon } from 'lucide-react'
 import { useId, useState } from 'react'
 import { MotivationChoice, SetLine, StarRating, StatTile, ValueStepper } from '@/components/lifeos'
@@ -21,6 +21,7 @@ import {
   removeSet,
   updateExercise,
   updateSet,
+  updateWorkout,
   type EntryView,
   type ExerciseView,
   type GymData,
@@ -209,6 +210,7 @@ const MOTIVATIONS: Motivation[] = ['low', 'okay', 'high']
 /**
  * End workout (GYM-012 1, 2): how it went as stars, motivation beforehand,
  * notes, all optional; what is left in the backlog is said, and left out.
+ * A finished workout's ratings and notes are corrected in it too (GYM-012 6).
  */
 export function EndWorkoutDialog({
   workout,
@@ -218,15 +220,16 @@ export function EndWorkoutDialog({
   onClose: () => void
 }) {
   const ids = useId()
-  const [stars, setStars] = useState(0)
-  const [motivation, setMotivation] = useState<Motivation | null>(null)
-  const [notes, setNotes] = useState('')
-  const left = workout.backlog.length
+  const finished = workout.stage === 'complete'
+  const [stars, setStars] = useState(workout.howItWent ?? 0)
+  const [motivation, setMotivation] = useState<Motivation | null>(motivationOf(workout.motivation))
+  const [notes, setNotes] = useState(workout.notes ?? '')
+  const left = finished ? 0 : workout.backlog.length
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent data-colour="coral" className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>End workout</DialogTitle>
+          <DialogTitle>{finished ? 'How it went' : 'End workout'}</DialogTitle>
         </DialogHeader>
         <div className="flex flex-col gap-5">
           <Field label="How it went">
@@ -258,15 +261,17 @@ export function EndWorkoutDialog({
           </Button>
           <Button
             onClick={() => {
-              endWorkout(workout.item.id, {
+              const fields = {
                 howItWent: stars || null,
                 motivation: motivation ? MOTIVATIONS.indexOf(motivation) + 1 : null,
                 notes,
-              })
+              }
+              if (finished) updateWorkout(workout.item.id, fields)
+              else endWorkout(workout.item.id, fields)
               onClose()
             }}
           >
-            End workout
+            {finished ? 'Save' : 'End workout'}
           </Button>
         </DialogFooter>
       </DialogContent>

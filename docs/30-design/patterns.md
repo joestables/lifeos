@@ -749,7 +749,11 @@ Agreed with Joe on 1 November 2026, on the
   WorkoutStatePill. Nothing planned: one PanelRow, the most suitable
   template with its readiness. **All workouts** and **All templates** are
   pages of their own: StatTiles over the list, the FilterPanel (with
-  RangeFilters) beside it on a computer, Pagination under it.
+  RangeFilters, and Dates as two DateFields) beside it on a wide screen
+  and an outline `sm` Filters button opening it in a Sheet where it doesn't
+  fit, Pagination under it. A finished workout's Edit puts a pencil on each
+  set, Log set under them and How it went under its figures, with Done in
+  place of its "…".
 - **A workout in progress is designed for a phone**, one column on a
   computer too: the title with End workout (primary) and "…"; the state
   pill and facts under it; the Session's ExerciseCards, expand button

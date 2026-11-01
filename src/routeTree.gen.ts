@@ -46,6 +46,7 @@ import { Route as AppShoppingIdRouteImport } from './routes/_app/shopping.$id'
 import { Route as AppGymExercisesIdRouteImport } from './routes/_app/gym.exercises.$id'
 import { Route as AppGymTemplatesIndexRouteImport } from './routes/_app/gym.templates.index'
 import { Route as AppGymTemplatesIdRouteImport } from './routes/_app/gym.templates.$id'
+import { Route as AppGymWorkoutsIndexRouteImport } from './routes/_app/gym.workouts.index'
 import { Route as AppGymWorkoutsIdRouteImport } from './routes/_app/gym.workouts.$id'
 import { Route as AppSettingsHouseholdsIdRouteImport } from './routes/_app/settings.households.$id'
 
@@ -235,6 +236,11 @@ const AppGymTemplatesIdRoute = AppGymTemplatesIdRouteImport.update({
   path: '/gym/templates/$id',
   getParentRoute: () => AppRoute,
 } as any)
+const AppGymWorkoutsIndexRoute = AppGymWorkoutsIndexRouteImport.update({
+  id: '/gym/workouts/',
+  path: '/gym/workouts/',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppGymWorkoutsIdRoute = AppGymWorkoutsIdRouteImport.update({
   id: '/gym/workouts/$id',
   path: '/gym/workouts/$id',
@@ -285,6 +291,7 @@ export interface FileRoutesByFullPath {
   '/gym/workouts/$id': typeof AppGymWorkoutsIdRoute
   '/settings/households/$id': typeof AppSettingsHouseholdsIdRoute
   '/gym/templates/': typeof AppGymTemplatesIndexRoute
+  '/gym/workouts/': typeof AppGymWorkoutsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -325,6 +332,7 @@ export interface FileRoutesByTo {
   '/gym/workouts/$id': typeof AppGymWorkoutsIdRoute
   '/settings/households/$id': typeof AppSettingsHouseholdsIdRoute
   '/gym/templates': typeof AppGymTemplatesIndexRoute
+  '/gym/workouts': typeof AppGymWorkoutsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -367,6 +375,7 @@ export interface FileRoutesById {
   '/_app/gym/workouts/$id': typeof AppGymWorkoutsIdRoute
   '/_app/settings/households/$id': typeof AppSettingsHouseholdsIdRoute
   '/_app/gym/templates/': typeof AppGymTemplatesIndexRoute
+  '/_app/gym/workouts/': typeof AppGymWorkoutsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -409,6 +418,7 @@ export interface FileRouteTypes {
     | '/gym/workouts/$id'
     | '/settings/households/$id'
     | '/gym/templates/'
+    | '/gym/workouts/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -449,6 +459,7 @@ export interface FileRouteTypes {
     | '/gym/workouts/$id'
     | '/settings/households/$id'
     | '/gym/templates'
+    | '/gym/workouts'
   id:
     | '__root__'
     | '/'
@@ -490,6 +501,7 @@ export interface FileRouteTypes {
     | '/_app/gym/workouts/$id'
     | '/_app/settings/households/$id'
     | '/_app/gym/templates/'
+    | '/_app/gym/workouts/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -766,6 +778,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppGymTemplatesIdRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/gym/workouts/': {
+      id: '/_app/gym/workouts/'
+      path: '/gym/workouts'
+      fullPath: '/gym/workouts/'
+      preLoaderRoute: typeof AppGymWorkoutsIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/gym/workouts/$id': {
       id: '/_app/gym/workouts/$id'
       path: '/gym/workouts/$id'
@@ -813,6 +832,7 @@ interface AppRouteChildren {
   AppGymWorkoutsIdRoute: typeof AppGymWorkoutsIdRoute
   AppSettingsHouseholdsIdRoute: typeof AppSettingsHouseholdsIdRoute
   AppGymTemplatesIndexRoute: typeof AppGymTemplatesIndexRoute
+  AppGymWorkoutsIndexRoute: typeof AppGymWorkoutsIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
@@ -845,6 +865,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppGymWorkoutsIdRoute: AppGymWorkoutsIdRoute,
   AppSettingsHouseholdsIdRoute: AppSettingsHouseholdsIdRoute,
   AppGymTemplatesIndexRoute: AppGymTemplatesIndexRoute,
+  AppGymWorkoutsIndexRoute: AppGymWorkoutsIndexRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)

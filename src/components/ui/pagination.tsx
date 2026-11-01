@@ -29,26 +29,29 @@ function PaginationItem(props: React.ComponentProps<'li'>) {
   return <li data-slot="pagination-item" {...props} />
 }
 
-function PaginationLink({
-  className,
-  isActive,
-  ...props
-}: React.ComponentProps<'a'> & { isActive?: boolean }) {
+type PaginationLinkProps = React.ComponentProps<'a'> & { isActive?: boolean }
+
+/**
+ * A page: a link with an `href`; without one, a button, so it can be
+ * reached and pressed from the keyboard.
+ */
+function PaginationLink({ className, isActive, href, ...props }: PaginationLinkProps) {
+  const shared = {
+    'aria-current': isActive ? ('page' as const) : undefined,
+    'data-slot': 'pagination-link',
+    className: cn(
+      buttonVariants({ variant: 'ghost', size: 'icon-sm' }),
+      'tabular-nums aria-[current=page]:bg-accent',
+      className,
+    ),
+  }
+  if (href !== undefined) return <a href={href} {...shared} {...props} />
   return (
-    <a
-      aria-current={isActive ? 'page' : undefined}
-      data-slot="pagination-link"
-      className={cn(
-        buttonVariants({ variant: 'ghost', size: 'icon-sm' }),
-        'tabular-nums aria-[current=page]:bg-accent',
-        className,
-      )}
-      {...props}
-    />
+    <button type="button" {...shared} {...(props as unknown as React.ComponentProps<'button'>)} />
   )
 }
 
-function PaginationPrevious(props: React.ComponentProps<'a'>) {
+function PaginationPrevious(props: PaginationLinkProps) {
   return (
     <PaginationLink aria-label="Previous page" {...props}>
       <ChevronLeftIcon />
@@ -56,7 +59,7 @@ function PaginationPrevious(props: React.ComponentProps<'a'>) {
   )
 }
 
-function PaginationNext(props: React.ComponentProps<'a'>) {
+function PaginationNext(props: PaginationLinkProps) {
   return (
     <PaginationLink aria-label="Next page" {...props}>
       <ChevronRightIcon />

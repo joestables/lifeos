@@ -47,6 +47,10 @@ Branch `claude/eloquent-darwin-gudbuj` · 2026-11-01
   current, Beat current, stimulus sets); Discard with Undo
   (`stage5_workout_discard`); Today and Recent workouts; an Exercise's
   last done and PR. 8 browser tests, 60 database tests.
+- **Workouts (step 8b):** All workouts (figures, filters with ranges and
+  dates, sorts, pages, all kept); Edit on a finished workout; Search and
+  offline tested for the Gym; Pagination's pages buttons when they aren't
+  links. 13 browser tests in `gym-workouts.spec.ts` in all.
 
 **Documents touched:** gym, ADR-0058, ADR-0059, the data model, glossary,
 components, patterns, tokens, the design system's README, integration

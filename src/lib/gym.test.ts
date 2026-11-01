@@ -2,6 +2,11 @@ import { describe, expect, it } from 'vitest'
 import type { MuscleView } from '@/data'
 import {
   copyName,
+  filterWorkouts,
+  NO_WORKOUT_FILTER,
+  sortWorkouts,
+  workoutAverages,
+  type WorkoutListRow,
   counted,
   duration,
   nextSet,
@@ -252,5 +257,76 @@ describe('workouts (GYM-007–GYM-012)', () => {
   it('GYM-012 1: its duration', () => {
     expect(duration('2026-11-01T18:00:00Z', '2026-11-01T18:58:00Z')).toBe('58 min')
     expect(duration('2026-11-01T18:00:00Z', '2026-11-01T19:04:00Z')).toBe('1 h 04')
+  })
+})
+
+describe('All workouts (GYM-013 2–5)', () => {
+  const w = (id: string, patch: Partial<WorkoutListRow>): WorkoutListRow => ({
+    id,
+    name: id,
+    day: '2026-10-28',
+    state: 'complete',
+    templateId: 't-push',
+    exerciseIds: ['x-bench'],
+    muscleIds: ['mg-chest'],
+    sets: 12,
+    stimulus: 10,
+    exercisesDone: 4,
+    minutes: 60,
+    howItWent: 4,
+    motivation: 2,
+    startedAt: Date.parse('2026-10-28T18:00:00Z'),
+    ...patch,
+  })
+  const rows = [
+    w('a', { day: '2026-10-29', sets: 18, minutes: 70, howItWent: 5, motivation: 3 }),
+    w('b', { day: '2026-10-27', templateId: null, muscleIds: ['mg-lats'], exerciseIds: ['x-row'] }),
+    w('c', {
+      day: '2026-11-02',
+      state: 'planned',
+      sets: 0,
+      stimulus: 0,
+      exercisesDone: 0,
+      minutes: null,
+      howItWent: null,
+      motivation: null,
+      startedAt: null,
+    }),
+  ]
+
+  it('3: any of a group, every group together; a range leaves out what has no value', () => {
+    const ids = (f: Partial<typeof NO_WORKOUT_FILTER>) =>
+      filterWorkouts(rows, { ...NO_WORKOUT_FILTER, ...f }).map((r) => r.id)
+    expect(ids({})).toEqual(['a', 'b', 'c'])
+    expect(ids({ states: ['planned', 'skipped'] })).toEqual(['c'])
+    expect(ids({ templates: ['none'] })).toEqual(['b'])
+    expect(ids({ muscles: ['mg-lats', 'mg-quads'] })).toEqual(['b'])
+    expect(ids({ exercises: ['x-bench'], from: '2026-10-28' })).toEqual(['a', 'c'])
+    expect(ids({ sets: [15, 30] })).toEqual(['a'])
+    expect(ids({ duration: [0, 120] })).toEqual(['a', 'b'])
+    expect(ids({ motivation: [3] })).toEqual(['a'])
+  })
+
+  it('4: sorted either way round, those without the value last', () => {
+    const ids = (s: Parameters<typeof sortWorkouts>[1], d: 'asc' | 'desc') =>
+      sortWorkouts(rows, s, d).map((r) => r.id)
+    expect(ids('date', 'desc')).toEqual(['c', 'a', 'b'])
+    expect(ids('date', 'asc')).toEqual(['b', 'a', 'c'])
+    expect(ids('duration', 'desc')).toEqual(['a', 'b', 'c'])
+    expect(ids('duration', 'asc')).toEqual(['b', 'a', 'c'])
+  })
+
+  it('5: average sets and duration, and weekly sessions, from the complete ones', () => {
+    expect(workoutAverages(rows, '2026-11-01')).toEqual({
+      sets: '15.0',
+      duration: '1 h 05',
+      weekly: '×2.0',
+    })
+    expect(workoutAverages(rows, '2026-11-09')).toMatchObject({ weekly: '×1.0' })
+    expect(workoutAverages([rows[2]!], '2026-11-01')).toEqual({
+      sets: '–',
+      duration: '–',
+      weekly: '–',
+    })
   })
 })

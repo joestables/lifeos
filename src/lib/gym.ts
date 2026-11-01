@@ -211,20 +211,14 @@ export function copyName(name: string, names: readonly string[]): string {
 export const TEMPLATES_PER_PAGE = 20
 
 /** A workout's state as its pill says it (GYM-007 5): Skipped when planned and its day has passed. */
-export function pillState(
-  stage: WorkoutStage,
-  doOn: string | null,
-  today: string,
-): 'complete' | 'in-progress' | 'planned' | 'skipped' {
+export function pillState(stage: WorkoutStage, doOn: string | null, today: string): PillState {
   const s = workoutState(stage, doOn ?? today, today)
   return s === 'in_progress' ? 'in-progress' : s
 }
 
 /** "58 min", "1 h 04": how long it took (GYM-012 1). */
 export function duration(from: string, to: string): string {
-  const minutes = Math.max(0, Math.round((Date.parse(to) - Date.parse(from)) / 60_000))
-  if (minutes < 60) return `${minutes} min`
-  return `${Math.floor(minutes / 60)} h ${String(minutes % 60).padStart(2, '0')}`
+  return minutesText((Date.parse(to) - Date.parse(from)) / 60_000)
 }
 
 /** "2 of 3 sets" (GYM-008 4): sets logged of the template's number. */
@@ -283,4 +277,183 @@ export const strengthOfCurrent = (x: { weightGrams: number; reps: number }, pref
 export function since(word: string, ms: number, now: Date = new Date()): string {
   const when = whenAgo(new Date(ms).toISOString(), now)
   return `${word} ${/^(Today|Yesterday|Just)/.test(when) ? when[0]!.toLowerCase() + when.slice(1) : when}`
+}
+
+// ---------------------------------------------------------------------------
+// All workouts (GYM-013 2–5).
+
+export type PillState = 'complete' | 'in-progress' | 'planned' | 'skipped'
+export const PILL_STATES: readonly { value: PillState; label: string }[] = [
+  { value: 'complete', label: 'Complete' },
+  { value: 'in-progress', label: 'In progress' },
+  { value: 'planned', label: 'Planned' },
+  { value: 'skipped', label: 'Skipped' },
+]
+
+export const WORKOUTS_PER_PAGE = 20
+
+/** All workouts' sorts (GYM-013 4), each its own way to start. */
+export type WorkoutSort = 'date' | 'duration' | 'sets' | 'stimulus' | 'went' | 'motivation'
+export const WORKOUT_SORTS: readonly {
+  value: WorkoutSort
+  label: string
+  initial: SortDirection
+}[] = [
+  { value: 'date', label: 'Date', initial: 'desc' },
+  { value: 'duration', label: 'Duration', initial: 'desc' },
+  { value: 'sets', label: 'Sets', initial: 'desc' },
+  { value: 'stimulus', label: 'Stimulus sets', initial: 'desc' },
+  { value: 'went', label: 'How it went', initial: 'desc' },
+  { value: 'motivation', label: 'Motivation', initial: 'desc' },
+]
+
+/** A range chosen, both ends included; null is the whole range. */
+export type Range = readonly [number, number]
+
+/** What All workouts shows (GYM-013 3, 4): its filters and its sort. */
+export interface WorkoutFilter {
+  states: PillState[]
+  /** Days, "2026-10-01", both included. */
+  from: string | null
+  to: string | null
+  /** Template ids, or NO_TEMPLATE. */
+  templates: string[]
+  exercises: string[]
+  muscles: string[]
+  /** 1 low, 2 okay, 3 high. */
+  motivation: number[]
+  sets: Range | null
+  stimulus: Range | null
+  exercisesDone: Range | null
+  /** Minutes. */
+  duration: Range | null
+  went: Range | null
+  sort: WorkoutSort
+  direction: SortDirection
+}
+
+export const NO_TEMPLATE = 'none'
+
+export const NO_WORKOUT_FILTER: Omit<WorkoutFilter, 'sort' | 'direction'> = {
+  states: [],
+  from: null,
+  to: null,
+  templates: [],
+  exercises: [],
+  muscles: [],
+  motivation: [],
+  sets: null,
+  stimulus: null,
+  exercisesDone: null,
+  duration: null,
+  went: null,
+}
+
+/** A workout as All workouts filters, sorts and averages it. */
+export interface WorkoutListRow {
+  id: string
+  name: string
+  day: string
+  state: PillState
+  templateId: string | null
+  /** Exercises with sets logged, and the muscle groups they trained. */
+  exerciseIds: readonly string[]
+  muscleIds: readonly string[]
+  sets: number
+  stimulus: number
+  exercisesDone: number
+  /** Minutes, once finished. */
+  minutes: number | null
+  howItWent: number | null
+  motivation: number | null
+  /** When it started, ms; null until it does. */
+  startedAt: number | null
+}
+
+const within = (range: Range | null, value: number | null) =>
+  range === null || (value !== null && value >= range[0] && value <= range[1])
+const anyOf = <V>(chosen: readonly V[], value: V) => chosen.length === 0 || chosen.includes(value)
+const anyIn = <V>(chosen: readonly V[], values: readonly V[]) =>
+  chosen.length === 0 || values.some((v) => chosen.includes(v))
+
+/** Filtered (GYM-013 3): any of a group, every group together; a range leaves out what has no value. */
+export function filterWorkouts<T extends WorkoutListRow>(
+  rows: readonly T[],
+  f: Omit<WorkoutFilter, 'sort' | 'direction'>,
+): T[] {
+  return rows.filter(
+    (r) =>
+      anyOf(f.states, r.state) &&
+      (f.from === null || r.day >= f.from) &&
+      (f.to === null || r.day <= f.to) &&
+      anyOf(f.templates, r.templateId ?? NO_TEMPLATE) &&
+      anyIn(f.exercises, r.exerciseIds) &&
+      anyIn(f.muscles, r.muscleIds) &&
+      (f.motivation.length === 0 ||
+        (r.motivation !== null && f.motivation.includes(r.motivation))) &&
+      within(f.sets, r.sets) &&
+      within(f.stimulus, r.stimulus) &&
+      within(f.exercisesDone, r.exercisesDone) &&
+      within(f.duration, r.minutes) &&
+      within(f.went, r.howItWent),
+  )
+}
+
+/** Newest first: by day, then by when it started. */
+const byDate = (a: WorkoutListRow, b: WorkoutListRow) =>
+  b.day.localeCompare(a.day) || (b.startedAt ?? 0) - (a.startedAt ?? 0)
+
+/** Sorted (GYM-013 4), either way round; those without the value last, newest first. */
+export function sortWorkouts<T extends WorkoutListRow>(
+  rows: readonly T[],
+  sort: WorkoutSort,
+  direction: SortDirection,
+): T[] {
+  const option = WORKOUT_SORTS.find((s) => s.value === sort) ?? WORKOUT_SORTS[0]!
+  if (sort === 'date') return [...rows].sort(directed(byDate, option.initial, direction))
+  const value: Record<Exclude<WorkoutSort, 'date'>, (r: T) => number | null> = {
+    duration: (r) => r.minutes,
+    sets: (r) => r.sets,
+    stimulus: (r) => r.stimulus,
+    went: (r) => r.howItWent,
+    motivation: (r) => r.motivation,
+  }
+  const of = value[sort]
+  const valued = rows.filter((r) => of(r) !== null)
+  const without = rows.filter((r) => of(r) === null).sort(byDate)
+  valued.sort(directed((a, b) => of(b)! - of(a)! || byDate(a, b), option.initial, direction))
+  return [...valued, ...without]
+}
+
+/** "58 min", "1 h 04". */
+export function minutesText(minutes: number): string {
+  const m = Math.max(0, Math.round(minutes))
+  if (m < 60) return `${m} min`
+  return `${Math.floor(m / 60)} h ${String(m % 60).padStart(2, '0')}`
+}
+
+/**
+ * What the filters show, in three figures (GYM-013 5), from its complete
+ * workouts: average sets, average duration, and weekly sessions — complete
+ * workouts a week, from the first shown (or From) to To (or today), a week
+ * at least.
+ */
+export function workoutAverages(
+  rows: readonly WorkoutListRow[],
+  today: string,
+  range: { from: string | null; to: string | null } = { from: null, to: null },
+): { sets: string; duration: string; weekly: string } {
+  const done = rows.filter((r) => r.state === 'complete')
+  if (done.length === 0) return { sets: '–', duration: '–', weekly: '–' }
+  const mean = (xs: number[]) => xs.reduce((n, x) => n + x, 0) / xs.length
+  const minutes = done.flatMap((r) => (r.minutes === null ? [] : [r.minutes]))
+  const first = range.from ?? done.reduce((d, r) => (r.day < d ? r.day : d), done[0]!.day)
+  const last = range.to !== null && range.to < today ? range.to : today
+  const days = (Date.parse(last) - Date.parse(first)) / 86_400_000 + 1
+  const weeks = Math.max(1, days / 7)
+  return {
+    sets: mean(done.map((r) => r.sets)).toFixed(1),
+    duration: minutes.length ? minutesText(mean(minutes)) : '–',
+    weekly: `×${(done.length / weeks).toFixed(1)}`,
+  }
 }
