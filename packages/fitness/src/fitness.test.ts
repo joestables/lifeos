@@ -263,7 +263,6 @@ describe('what to do next (GYM-018 2)', () => {
     )
     expect(ranked.map((r) => r.id)).toEqual(['legs', 'push'])
     expect(ranked[1]?.readiness).toBeCloseTo(80, 10)
-    expect(ranked[1]?.lastTrained).toBe(daysAgo(1))
   })
 
   it('a group under 50 % given 2 stimulus sets or more keeps a template out', () => {

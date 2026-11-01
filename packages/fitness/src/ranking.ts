@@ -28,8 +28,6 @@ export interface RankedTemplate {
   score: number
   /** The average readiness of the groups it covers: "Readiness 96 %". */
   readiness: number
-  /** The latest any of them was trained: "last trained Thu"; null if never. */
-  lastTrained: number | null
 }
 
 /**
@@ -65,16 +63,14 @@ export function rankTemplates(
     const weight = groups.reduce((sum, g) => sum + g.sets, 0)
     const score =
       groups.reduce((sum, g) => sum + g.sets * (g.readiness / 100) * due(g, now), 0) / weight
-    const times = groups.map((g) => g.lastTrained).filter((x): x is number => x !== null)
     ranked.push({
       id: t.id,
       name: t.name,
       score,
       readiness: groups.reduce((sum, g) => sum + g.readiness, 0) / groups.length,
-      lastTrained: times.length ? Math.max(...times) : null,
     })
   }
   return ranked
     .sort((a, b) => b.score - a.score || a.name.localeCompare(b.name))
-    .map(({ id, score, readiness, lastTrained }) => ({ id, score, readiness, lastTrained }))
+    .map(({ id, score, readiness }) => ({ id, score, readiness }))
 }

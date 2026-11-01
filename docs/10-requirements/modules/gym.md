@@ -659,8 +659,9 @@ Priority: Should · Status: agreed
 Acceptance criteria
 1. Given nothing in progress or planned for today, then the Workouts tab's
    Today suggests one template, the most suitable, with its readiness
-   (the average readiness of the muscles it covers) and when they were
-   last trained: "Readiness 96 % · last trained Thu".
+   (the average readiness of the muscles it covers) and how long since I
+   last used it: "Readiness 96 % · last used 5 days ago", or "never used"
+   (Joe, 1 November).
 2. Given my templates, then each is scored by the average readiness of
    the groups it covers, its coverage of each, and how long since those
    groups were last trained (Joe, 1 November); a group under 50 % ready
@@ -670,7 +671,7 @@ Acceptance criteria
    readiness, and how due it is: fully once the days between its desired
    workouts (7 ÷ desired weekly frequency) have passed since it was last
    trained, or if never, half just after, and half for a group with no
-   frequency target. Its "last trained" is the latest any of them was.
+   frequency target.
 3. Given the suggestion, when I choose it, then New workout opens with it
    chosen for today.
 

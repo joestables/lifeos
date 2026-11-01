@@ -388,7 +388,7 @@ function TodayCard({ upNext = false, phone = false }: { upNext?: boolean; phone?
           <PanelRow
             leading={templateTile}
             title="Legs"
-            meta={['Readiness 96 %', 'last trained Thu']}
+            meta={['Readiness 96 %', 'last used 5 days ago']}
           />
         </div>
       ) : (
