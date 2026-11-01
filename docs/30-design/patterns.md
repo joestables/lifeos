@@ -779,9 +779,12 @@ Agreed with Joe on 1 November 2026, on the
   nothing planned for today, Today offers the most suitable template as a
   PanelRow under "Nothing planned. Most suitable:"; it opens New workout.
 - **Progression:** Muscles · Exercises and the period as ToggleGroups;
-  ListDetail on a computer (a page per item on a phone); ProgressChart with
-  stimulus sets under it, LinePills for a muscle's exercises, StatTiles
-  and a Table of best sets for an exercise.
+  ListDetail on a computer (a page per item on a phone, the period on that
+  page; the period kept on the device, 3 months to start); ProgressChart
+  with stimulus sets under it, LinePills for a muscle's exercises, StatTiles
+  (stacked on a phone for a muscle) and a Table of best sets for an
+  exercise, each row opening its workout; a `warning` Badge marks a Stalled
+  Exercise and a muscle's stalled count ("2 stalled").
 - **Readiness colours** run continuously from `--destructive` through
   `--warning` to `--success`, always with the number.
 

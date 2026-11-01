@@ -11,8 +11,8 @@ Meal plan) are done. **Stage 4b**, Shopping, has started: its
 ([roadmap](roadmap.md#where-we-are)). **Stage 5**, Gym, has started
 alongside it: its [plan](50-progress/plans/stage-5.md) is written, its
 spec and design agreed, its schema in the database and its calculations
-in `packages/fitness`; its settings, exercise library, templates, workouts and recovery are
-built; progression is next.
+in `packages/fitness`; its settings, exercise library, templates, workouts, recovery and
+progression are built; Joe using it is next.
 
 ## Index
 

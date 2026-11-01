@@ -2,7 +2,7 @@
 
 Newest first. Each entry is added in its own pull request.
 
-## [#56](https://github.com/joestables/lifeos/pull/56) — The Gym's schema, calculations, settings, exercise library, templates, workouts and recovery
+## [#56](https://github.com/joestables/lifeos/pull/56) — The Gym: schema, calculations, settings, exercise library, templates, workouts, recovery and progression
 
 Branch `claude/eloquent-darwin-gudbuj` · 2026-11-01
 
@@ -55,6 +55,12 @@ Branch `claude/eloquent-darwin-gudbuj` · 2026-11-01
   60 days; the Recovery tab (overall readiness, look-ahead, body map, every
   group sorted and kept, a group's readiness and week); Today's suggested
   template. Slider thumbs named. 4 browser tests in `gym-recovery.spec.ts`.
+- **Progression (step 10):** the period; an Exercise's Strength chart,
+  figures and best sets; Stalled; Progression → Muscles with a group's
+  lines, three of a kind at most, over its stimulus sets; a muscle's page
+  on a phone. 4 browser tests in `gym-progression.spec.ts`.
+- **The write queue** sends at once when the browser is back online,
+  instead of waiting out its backoff, up to a minute (OFF-001 2).
 
 **Documents touched:** gym, ADR-0058, ADR-0059, the data model, glossary,
 components, patterns, tokens, the design system's README, integration

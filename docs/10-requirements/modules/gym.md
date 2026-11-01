@@ -301,7 +301,7 @@ Acceptance criteria
 **As** Joe, **I want** the twenty muscle groups built in, by category, and
 my own added, **so that** exercises and recovery use the groups I think
 in.
-Priority: Must · Status: built (1–3 verified by `gym.spec.ts`; 4, readiness and progression for my own groups, with plan steps 9 and 10)
+Priority: Must · Status: built (1–3 verified by `gym.spec.ts`; 4 built, Recovery and Progression listing every group, the body map the built-in ones)
 
 Acceptance criteria
 1. Given Settings → Gym → Muscle groups, then the twenty built-in groups
@@ -319,7 +319,7 @@ Acceptance criteria
 
 **As** Joe, **I want** all my exercises in one library, **so that** I can
 find one and see where it stands.
-Priority: Must · Status: built (2 and 3 verified by `gym.spec.ts`; 1's when last done, its Current set and PR from workouts; Stalled and the rest of the figures with plan step 10)
+Priority: Must · Status: verified (`gym.spec.ts`; 1's Stalled by `gym-progression.spec.ts`)
 
 Acceptance criteria
 1. Given Progression → Exercises, then every Exercise I haven't archived
@@ -337,7 +337,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to describe each exercise once, **so that** logging,
 swapping and recovery all know what it trains.
-Priority: Must · Status: built (1–3 and 5 verified by `gym.spec.ts`; 4, readiness and coverage following, with plan steps 7 and 9)
+Priority: Must · Status: built (1–3 and 5 verified by `gym.spec.ts`; 4 built: readiness, stimulus sets and coverage worked out on the device from each Exercise's groups as they are)
 
 Acceptance criteria
 1. Given New exercise, then I give a name, an equipment type, one primary
@@ -567,7 +567,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to see how each exercise is progressing, against
 the work its muscle is getting, **so that** I know what's working.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified (`gym-progression.spec.ts`; Stalled, the trend and the lines by `packages/fitness`'s tests)
 
 Acceptance criteria
 1. Given an Exercise chosen, then a Strength chart shows, for 1 M, 3 M or
@@ -589,7 +589,7 @@ Acceptance criteria
 **As** Joe, **I want** to see how each muscle group is progressing, beside
 the stimulus sets it got, **so that** I can judge how much volume works
 for it.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified (`gym-progression.spec.ts`; the starting lines and three of a kind by `packages/fitness`'s tests)
 
 Acceptance criteria
 1. Given Progression → Muscles, then every muscle group is listed by

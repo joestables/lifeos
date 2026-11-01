@@ -139,18 +139,25 @@ export function StatTile({
   sub,
   inset = false,
   icon,
+  onClick,
 }: {
   label: string
   value: ReactNode
   sub?: ReactNode
   inset?: boolean
   icon?: ReactNode
+  /** A figure that leads somewhere (a PR to its workout) is a button. */
+  onClick?: () => void
 }) {
+  const Tag = onClick ? 'button' : 'div'
   return (
-    <div
+    <Tag
+      {...(onClick && { type: 'button' as const, onClick })}
       className={cn(
-        'flex min-w-0 flex-col gap-0.5 px-4 py-3',
+        'flex min-w-0 flex-col gap-0.5 px-4 py-3 text-left',
         inset ? 'rounded-row bg-accent/60' : 'rounded-lg bg-card shadow-card',
+        onClick &&
+          'cursor-pointer outline-none hover:bg-accent focus-visible:ring-3 focus-visible:ring-ring-soft',
       )}
     >
       <span className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground [&_svg]:size-3.5">
@@ -159,7 +166,7 @@ export function StatTile({
       </span>
       <span className="truncate text-h2 tabular-nums">{value}</span>
       {sub && <span className="truncate text-xs text-muted-foreground tabular-nums">{sub}</span>}
-    </div>
+    </Tag>
   )
 }
 
@@ -376,7 +383,8 @@ export function SetLine({ n, set, onEdit }: { n: number; set: LoggedSet; onEdit?
   )
 }
 
-function PrBadge() {
+/** A PR's mark: a `type` Badge with a trophy (SetTable, Best sets). */
+export function PrBadge() {
   return (
     <Badge variant="type">
       <TrophyIcon aria-hidden />
@@ -894,6 +902,7 @@ export function LinePill({
   tone,
   dash,
   disabled = false,
+  onClick,
 }: {
   label: string
   sub?: string
@@ -901,12 +910,14 @@ export function LinePill({
   tone: LineTone
   dash?: LineDash
   disabled?: boolean
+  onClick?: () => void
 }) {
   return (
     <button
       type="button"
       aria-pressed={on}
       disabled={disabled}
+      onClick={onClick}
       className={cn(
         'inline-flex h-8 shrink-0 items-center gap-1.5 rounded-full px-3 text-sm font-semibold whitespace-nowrap outline-none focus-visible:ring-3 focus-visible:ring-ring-soft disabled:opacity-45',
         on

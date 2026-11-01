@@ -43,7 +43,9 @@ TanStack DB collections, whose core is still pre-1.0.
     order, by one tab (Web Locks).
   - Entries waiting to be sent are laid over the query cache, so a change
     shows at once, survives a reload and is marked as not yet sent (OFF-001).
-  - A network failure or server error retries with backoff. A rejection
+  - A network failure or server error retries with backoff (1 s, 2 s, 4 s …
+    up to a minute), and at once when the browser says it is back online
+    (OFF-001 2). A rejection
     marks the entry failed and keeps it: the Item and `SyncStatus` show it,
     and `ops.events` records it without the Item's content (OFF-004).
   - Once an entry is sent, the queries it touched are refreshed.

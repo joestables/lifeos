@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import type { Period } from './progression'
 import type { GymData } from '@/data'
 import { libraryRows, type LibraryFilter, type MuscleSort, type TemplateSort } from '@/lib/gym'
 import type { SortDirection } from '@/lib/sort'
@@ -99,4 +100,27 @@ export function useMuscleSort() {
     }
   }
   return { ...kept, change }
+}
+
+const PERIOD_KEY = 'lifeos.gym.period'
+
+/** Progression's period, kept for next time on this device; 3 months to start. */
+export function useProgressionPeriod() {
+  const [period, setPeriod] = useState<Period>(() => {
+    try {
+      const kept = localStorage.getItem(PERIOD_KEY)
+      return kept === '1m' || kept === '1y' ? kept : '3m'
+    } catch {
+      return '3m'
+    }
+  })
+  const change = (next: Period) => {
+    setPeriod(next)
+    try {
+      localStorage.setItem(PERIOD_KEY, next)
+    } catch {
+      // Kept for this visit only.
+    }
+  }
+  return { period, change }
 }

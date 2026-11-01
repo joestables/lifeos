@@ -1,14 +1,6 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useState } from 'react'
-import {
-  ListDetail,
-  PageAction,
-  PageHeader,
-  PanelRow,
-  TabsRow,
-  TypeScope,
-} from '@/components/lifeos'
-import { Card, CardTitle } from '@/components/ui/card'
+import { useMemo, useState } from 'react'
+import { ListDetail, PageAction, PageHeader, TabsRow, TypeScope } from '@/components/lifeos'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { ExerciseDialog } from '@/app/exercise-dialog'
@@ -16,11 +8,13 @@ import { NewWorkoutDialog } from '@/app/new-workout'
 import { TemplatesCard } from '@/app/template-parts'
 import { RecentCard, TodayCard } from '@/app/workout-cards'
 import { RecoveryTab } from '@/app/recovery-tab'
-import { useRecovery, type Recovery } from '@/app/recovery'
+import { useRecovery } from '@/app/recovery'
 import { ExerciseDetail, ExerciseList } from '@/app/exercise-library'
-import { useLibrary, useLibraryFilter } from '@/app/gym-library'
+import { useLibrary, useLibraryFilter, useProgressionPeriod } from '@/app/gym-library'
+import { stalledExercises } from '@/app/progression'
+import { MuscleProgress, MusclesList, PeriodToggle } from '@/app/progression-parts'
 import { todayIn } from '@lifeos/recurrence'
-import { CATEGORIES, queue, useGym, useSettings, type ExerciseView } from '@/data'
+import { queue, useGym, useSettings, type ExerciseView } from '@/data'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { useIsWide } from '@/hooks/use-wide'
 import { lastUsedText } from '@/lib/gym'
@@ -32,6 +26,7 @@ interface GymSearch {
   tab?: Tab
   view?: View
   exercise?: string
+  muscle?: string
 }
 
 /**
@@ -48,6 +43,7 @@ export const Route = createFileRoute('/_app/gym/')({
       : {}),
     ...(s.view === 'muscles' || s.view === 'exercises' ? { view: s.view } : {}),
     ...(typeof s.exercise === 'string' ? { exercise: s.exercise } : {}),
+    ...(typeof s.muscle === 'string' ? { muscle: s.muscle } : {}),
   }),
   component: Gym,
 })
@@ -82,6 +78,11 @@ function Gym() {
     readiness: recovery.suggestion.readiness,
     lastUsed: lastUsedText(recovery.suggestion.template.lastUsed, now),
   }
+  const { period, change: changePeriod } = useProgressionPeriod()
+  const stalled = useMemo(() => stalledExercises(gym), [gym])
+  const muscleId = wide ? (search.muscle ?? gym.muscles[0]?.id) : undefined
+  const openMuscle = (id: string) =>
+    wide ? set({ muscle: id }) : void navigate({ to: '/gym/muscles/$id', params: { id } })
   const newExercise =
     tab === 'progression' && view === 'exercises'
       ? { label: 'New exercise', onClick: () => setEditing('new') }
@@ -121,17 +122,40 @@ function Gym() {
         {tab === 'recovery' && <RecoveryTab recovery={recovery} />}
         {tab === 'progression' && (
           <>
-            <ToggleGroup
-              value={[view]}
-              aria-label="Show"
-              className="self-start"
-              onValueChange={(v: string[]) => v[0] && set({ view: v[0] as View })}
-            >
-              <ToggleGroupItem value="muscles">Muscles</ToggleGroupItem>
-              <ToggleGroupItem value="exercises">Exercises</ToggleGroupItem>
-            </ToggleGroup>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <ToggleGroup
+                value={[view]}
+                aria-label="Show"
+                onValueChange={(v: string[]) => v[0] && set({ view: v[0] as View })}
+              >
+                <ToggleGroupItem value="muscles">Muscles</ToggleGroupItem>
+                <ToggleGroupItem value="exercises">Exercises</ToggleGroupItem>
+              </ToggleGroup>
+              {wide && <PeriodToggle value={period} onChange={changePeriod} />}
+            </div>
             {view === 'muscles' ? (
-              <Muscles gym={gym} recovery={recovery} />
+              <ListDetail
+                list={
+                  <MusclesList
+                    gym={gym}
+                    frequency={new Map(recovery.muscles.map((m) => [m.muscle.id, m.frequency]))}
+                    stalled={stalled}
+                    selected={muscleId}
+                    onOpen={openMuscle}
+                  />
+                }
+                detail={
+                  muscleId && (
+                    <MuscleProgress
+                      key={`${muscleId}-${period}`}
+                      gym={gym}
+                      muscleId={muscleId}
+                      period={period}
+                      now={now}
+                    />
+                  )
+                }
+              />
             ) : (
               <ListDetail
                 list={
@@ -140,6 +164,7 @@ function Gym() {
                     {...library}
                     shown={shown}
                     selected={selected?.item.id}
+                    stalled={stalled}
                     onOpen={open}
                   />
                 }
@@ -147,7 +172,10 @@ function Gym() {
                   selected && (
                     <ExerciseDetail
                       exercise={selected}
-                      preferredRir={gym.settings.preferredRir}
+                      gym={gym}
+                      period={period}
+                      now={now}
+                      stalled={stalled.has(selected.item.id)}
                       onEdit={() => setEditing(selected)}
                     />
                   )
@@ -175,36 +203,5 @@ function Gym() {
         />
       )}
     </TypeScope>
-  )
-}
-
-/**
- * Progression → Muscles (GYM-015 1): every group by category with its
- * average frequency; its chart comes with plan step 10.
- */
-function Muscles({ gym, recovery }: { gym: ReturnType<typeof useGym>; recovery: Recovery }) {
-  const frequency = new Map(recovery.muscles.map((m) => [m.muscle.id, m.frequency]))
-  return (
-    <div className="grid items-start gap-4 md:grid-cols-2">
-      {CATEGORIES.map((c) => {
-        const muscles = gym.muscles.filter((m) => m.category === c.key)
-        if (!muscles.length) return null
-        return (
-          <Card key={c.key} className="gap-1">
-            <CardTitle>{c.label}</CardTitle>
-            <div className="flex flex-col">
-              {muscles.map((m) => (
-                <PanelRow
-                  key={m.id}
-                  chevron={false}
-                  title={m.name}
-                  meta={[`×${(frequency.get(m.id) ?? 0).toFixed(1)}`]}
-                />
-              ))}
-            </div>
-          </Card>
-        )
-      })}
-    </div>
   )
 }

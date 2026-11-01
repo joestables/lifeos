@@ -1,10 +1,9 @@
-import { currentStrength, formatKg } from '@lifeos/fitness'
+import { formatKg } from '@lifeos/fitness'
 import {
   ArchiveIcon,
   EllipsisIcon,
   PencilIcon,
   SlidersHorizontalIcon,
-  TrophyIcon,
   WeightIcon,
 } from 'lucide-react'
 import { useState } from 'react'
@@ -12,7 +11,6 @@ import {
   FilterPanel,
   PanelRow,
   SortMenu,
-  StatTile,
   TypeBadge,
   TypeTile,
   type FilterGroup,
@@ -29,17 +27,11 @@ import {
 import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { toast } from '@/components/ui/sonner'
 import { archiveExercise, CATEGORIES, type ExerciseView, type GymData } from '@/data'
-import {
-  currentText,
-  LIBRARY_SORTS,
-  since,
-  withShare,
-  type LibraryFilter,
-  type LibrarySort,
-} from '@/lib/gym'
-import { whenAgo } from '@/lib/dates'
+import { LIBRARY_SORTS, since, withShare, type LibraryFilter, type LibrarySort } from '@/lib/gym'
 import type { SortDirection } from '@/lib/sort'
 import type { Kept } from './gym-library'
+import { ExerciseProgress } from './progression-parts'
+import type { Period } from './progression'
 import { SearchField } from './search-field'
 
 const GROUP = { muscles: 'Muscle group', categories: 'Category', equipment: 'Equipment' } as const
@@ -55,6 +47,7 @@ export function ExerciseList({
   setSearch,
   shown,
   selected,
+  stalled,
   onOpen,
 }: {
   gym: GymData
@@ -63,6 +56,8 @@ export function ExerciseList({
   setSearch: (s: string) => void
   shown: readonly ExerciseView[]
   selected?: string
+  /** Exercises marked Stalled (GYM-014 5). */
+  stalled?: ReadonlySet<string>
   onOpen: (x: ExerciseView) => void
 }) {
   const [sheet, setSheet] = useState(false)
@@ -131,6 +126,9 @@ export function ExerciseList({
                 x.primary?.name ?? 'No muscle',
                 x.lastDone === null ? 'Never done' : since('Done', x.lastDone),
               ]}
+              trailing={
+                stalled?.has(x.item.id) ? <Badge variant="warning">Stalled</Badge> : undefined
+              }
               onOpen={() => onOpen(x)}
             />
           ))}
@@ -212,61 +210,21 @@ export function ExerciseBadges({ exercise }: { exercise: ExerciseView }) {
   )
 }
 
-/**
- * An Exercise's figures (GYM-014 3): its Current set with its strength at
- * my preferred RIR, its PR and when it was last done. Its chart and best
- * sets come with plan step 10.
- */
-export function ExerciseFigures({
-  exercise,
-  preferredRir,
-}: {
-  exercise: ExerciseView
-  preferredRir: number
-}) {
-  const s = currentStrength(
-    { weightGrams: exercise.weightGrams, reps: exercise.reps },
-    preferredRir,
-  )
-  return (
-    <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
-      {/* On a phone the Current set has the row to itself. */}
-      <div className="col-span-2 grid md:col-span-1">
-        <StatTile
-          label="Current"
-          value={currentText(exercise.weightGrams, exercise.reps)}
-          sub={s === null ? undefined : `Strength ${s.toFixed(1)} at ${preferredRir} RIR`}
-        />
-      </div>
-      <StatTile
-        icon={<TrophyIcon />}
-        label="PR"
-        value={
-          exercise.pr
-            ? currentText(exercise.pr.set.weightGrams ?? 0, exercise.pr.set.reps ?? 0)
-            : 'None yet'
-        }
-        sub={exercise.pr ? `Strength ${exercise.pr.strength.toFixed(1)}` : undefined}
-      />
-      <StatTile
-        label="Last done"
-        value={
-          exercise.lastDone === null ? 'Never' : whenAgo(new Date(exercise.lastDone).toISOString())
-        }
-      />
-    </div>
-  )
-}
-
 /** An Exercise beside the library on a computer (GYM-003 4). */
 export function ExerciseDetail({
   exercise,
-  preferredRir,
+  gym,
+  period,
+  now,
+  stalled,
   onEdit,
   onArchived,
 }: {
   exercise: ExerciseView
-  preferredRir: number
+  gym: GymData
+  period: Period
+  now: number
+  stalled: boolean
   onEdit: () => void
   onArchived?: () => void
 }) {
@@ -275,7 +233,10 @@ export function ExerciseDetail({
       <Card className="gap-4">
         <div className="flex items-start gap-2">
           <div className="flex min-w-0 flex-1 flex-col gap-2">
-            <h2 className="text-h2">{exercise.item.title}</h2>
+            <h2 className="flex items-center gap-2 text-h2">
+              {exercise.item.title}
+              {stalled && <Badge variant="warning">Stalled</Badge>}
+            </h2>
             <ExerciseBadges exercise={exercise} />
           </div>
           <ExerciseMenu exercise={exercise} onEdit={onEdit} onArchived={onArchived} />
@@ -284,7 +245,7 @@ export function ExerciseDetail({
           <p className="text-sm whitespace-pre-line text-muted-foreground">{exercise.notes}</p>
         )}
       </Card>
-      <ExerciseFigures exercise={exercise} preferredRir={preferredRir} />
+      <ExerciseProgress gym={gym} exercise={exercise} period={period} now={now} />
     </>
   )
 }

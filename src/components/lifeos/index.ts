@@ -96,6 +96,7 @@ export {
   PanelFooter,
   PanelHeading,
   PanelRow,
+  PrBadge,
   ProgressChart,
   ReadinessBar,
   ReadinessRing,
