@@ -2,6 +2,34 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#56](https://github.com/joestables/lifeos/pull/56) — The Gym's schema
+
+Branch `claude/eloquent-darwin-gudbuj` · 2026-11-01
+
+**What it did**
+- **Stage 5 steps 1–3:** the Gym spec (GYM-001–022, with Joe's recovery
+  engine as Annex A), ADR-0058 and ADR-0059, and the design, agreed by Joe
+  over four passes (design canvas, `/design-stage-5`, the Gym section of
+  `/design`, components and patterns).
+- **The ontology's `fitness` Module:** Exercise, Workout template and
+  Workout, always Personal, coral; a Workout planned for a day (`do_on`)
+  and completable; a Workout *follows* its template.
+- **The schema (step 4):** equipment, the twenty built-in muscle groups,
+  each person's muscle settings and Gym settings; `fitness.exercise` and
+  `fitness.workout`; an Exercise's muscle groups (one primary), a
+  template's exercises, a workout's entries and sets (a quick set has no
+  numbers); the rules (Personal only, unique Exercise names, one workout in
+  progress, equipment and groups of the owner's, stage and status
+  together); the activity log; 22 write functions, and six removals for
+  Joe to run. 53 database tests in `fitness_test`.
+
+**Documents touched:** gym, ADR-0058, ADR-0059, the data model, glossary,
+components, patterns, tokens, the design system's README, integration
+setup (the `fitness` schema to expose), the Stage 5 plan, the roadmap.
+
+**Left for later:** `packages/fitness`, the recovery engine (step 5), and
+the screens (steps 6–10).
+
 ## [#54](https://github.com/joestables/lifeos/pull/54) — Leftovers when a Meal moves, ticks offline, faded Recipes
 
 Branch `claude/kind-dijkstra-kf2zvz` · 2026-10-27

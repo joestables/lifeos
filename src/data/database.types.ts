@@ -1928,6 +1928,779 @@ export type Database = {
       [_ in never]: never
     }
   }
+  fitness: {
+    Tables: {
+      equipment: {
+        Row: {
+          created_at: string
+          id: string
+          increment: number
+          name: string
+          person_id: string
+          updated_at: string
+        }
+        ComputedFields: never
+        Insert: {
+          created_at?: string
+          id?: string
+          increment: number
+          name: string
+          person_id?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          increment?: number
+          name?: string
+          person_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      exercise: {
+        Row: {
+          current_reps: number
+          current_weight: number
+          equipment_id: string | null
+          item_id: string
+          notes: string | null
+          updated_at: string
+        }
+        ComputedFields: never
+        Insert: {
+          current_reps?: number
+          current_weight?: number
+          equipment_id?: string | null
+          item_id: string
+          notes?: string | null
+          updated_at?: string
+        }
+        Update: {
+          current_reps?: number
+          current_weight?: number
+          equipment_id?: string | null
+          item_id?: string
+          notes?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'exercise_equipment_id_fkey'
+            columns: ['equipment_id']
+            isOneToOne: false
+            referencedRelation: 'equipment'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      exercise_muscles: {
+        Row: {
+          contribution: number
+          exercise_id: string
+          muscle_id: string
+        }
+        ComputedFields: never
+        Insert: {
+          contribution: number
+          exercise_id: string
+          muscle_id: string
+        }
+        Update: {
+          contribution?: number
+          exercise_id?: string
+          muscle_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'exercise_muscles_muscle_id_fkey'
+            columns: ['muscle_id']
+            isOneToOne: false
+            referencedRelation: 'muscle_groups'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      muscle_groups: {
+        Row: {
+          body_part: string | null
+          category: string
+          created_at: string
+          default_recovery: string
+          id: string
+          name: string
+          person_id: string | null
+          position: number
+          updated_at: string
+        }
+        ComputedFields: never
+        Insert: {
+          body_part?: string | null
+          category: string
+          created_at?: string
+          default_recovery?: string
+          id?: string
+          name: string
+          person_id?: string | null
+          position?: number
+          updated_at?: string
+        }
+        Update: {
+          body_part?: string | null
+          category?: string
+          created_at?: string
+          default_recovery?: string
+          id?: string
+          name?: string
+          person_id?: string | null
+          position?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      muscle_settings: {
+        Row: {
+          frequency_target: number
+          muscle_id: string
+          person_id: string
+          recovery_type: string
+          stimulus_target: number
+          updated_at: string
+        }
+        ComputedFields: never
+        Insert: {
+          frequency_target?: number
+          muscle_id: string
+          person_id?: string
+          recovery_type: string
+          stimulus_target?: number
+          updated_at?: string
+        }
+        Update: {
+          frequency_target?: number
+          muscle_id?: string
+          person_id?: string
+          recovery_type?: string
+          stimulus_target?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'muscle_settings_muscle_id_fkey'
+            columns: ['muscle_id']
+            isOneToOne: false
+            referencedRelation: 'muscle_groups'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      settings: {
+        Row: {
+          person_id: string
+          points_per_fatigue_set: number
+          preferred_rir: number
+          t_fast_h: number
+          t_normal_h: number
+          t_slow_h: number
+          updated_at: string
+        }
+        ComputedFields: never
+        Insert: {
+          person_id?: string
+          points_per_fatigue_set?: number
+          preferred_rir?: number
+          t_fast_h?: number
+          t_normal_h?: number
+          t_slow_h?: number
+          updated_at?: string
+        }
+        Update: {
+          person_id?: string
+          points_per_fatigue_set?: number
+          preferred_rir?: number
+          t_fast_h?: number
+          t_normal_h?: number
+          t_slow_h?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      template_exercises: {
+        Row: {
+          created_at: string
+          exercise_id: string
+          id: string
+          position: string
+          sets: number
+          template_id: string
+          updated_at: string
+        }
+        ComputedFields: never
+        Insert: {
+          created_at?: string
+          exercise_id: string
+          id?: string
+          position: string
+          sets?: number
+          template_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          exercise_id?: string
+          id?: string
+          position?: string
+          sets?: number
+          template_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      workout: {
+        Row: {
+          ended_at: string | null
+          how_it_went: number | null
+          item_id: string
+          motivation: number | null
+          notes: string | null
+          owner_id: string
+          stage: string
+          started_at: string | null
+          updated_at: string
+        }
+        ComputedFields: never
+        Insert: {
+          ended_at?: string | null
+          how_it_went?: number | null
+          item_id: string
+          motivation?: number | null
+          notes?: string | null
+          owner_id: string
+          stage?: string
+          started_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          ended_at?: string | null
+          how_it_went?: number | null
+          item_id?: string
+          motivation?: number | null
+          notes?: string | null
+          owner_id?: string
+          stage?: string
+          started_at?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      workout_entries: {
+        Row: {
+          begun_at: string | null
+          created_at: string
+          done_at: string | null
+          exercise_id: string
+          id: string
+          place: string
+          planned_sets: number
+          position: string
+          snapshot: NonNullable<Json>
+          updated_at: string
+          workout_id: string
+        }
+        ComputedFields: never
+        Insert: {
+          begun_at?: string | null
+          created_at?: string
+          done_at?: string | null
+          exercise_id: string
+          id?: string
+          place?: string
+          planned_sets?: number
+          position: string
+          snapshot?: NonNullable<Json>
+          updated_at?: string
+          workout_id: string
+        }
+        Update: {
+          begun_at?: string | null
+          created_at?: string
+          done_at?: string | null
+          exercise_id?: string
+          id?: string
+          place?: string
+          planned_sets?: number
+          position?: string
+          snapshot?: NonNullable<Json>
+          updated_at?: string
+          workout_id?: string
+        }
+        Relationships: []
+      }
+      workout_sets: {
+        Row: {
+          entry_id: string
+          id: string
+          logged_at: string
+          position: string
+          reps: number | null
+          rir: number | null
+          updated_at: string
+          weight: number | null
+        }
+        ComputedFields: never
+        Insert: {
+          entry_id: string
+          id?: string
+          logged_at?: string
+          position: string
+          reps?: number | null
+          rir?: number | null
+          updated_at?: string
+          weight?: number | null
+        }
+        Update: {
+          entry_id?: string
+          id?: string
+          logged_at?: string
+          position?: string
+          reps?: number | null
+          rir?: number | null
+          updated_at?: string
+          weight?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'workout_sets_entry_id_fkey'
+            columns: ['entry_id']
+            isOneToOne: false
+            referencedRelation: 'workout_entries'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      add_entry: {
+        Args: {
+          p_begin?: boolean
+          p_exercise: string
+          p_id: string
+          p_planned_sets?: number
+          p_position: string
+          p_workout: string
+        }
+        Returns: {
+          begun_at: string | null
+          created_at: string
+          done_at: string | null
+          exercise_id: string
+          id: string
+          place: string
+          planned_sets: number
+          position: string
+          snapshot: NonNullable<Json>
+          updated_at: string
+          workout_id: string
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'workout_entries'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      add_template_exercise: {
+        Args: {
+          p_exercise: string
+          p_id: string
+          p_position: string
+          p_sets?: number
+          p_template: string
+        }
+        Returns: {
+          created_at: string
+          exercise_id: string
+          id: string
+          position: string
+          sets: number
+          template_id: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'template_exercises'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      archive_exercise: {
+        Args: { p_archived?: boolean; p_id: string }
+        Returns: Database['core']['Tables']['items']['Row']
+        SetofOptions: {
+          from: '*'
+          to: 'items'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      begin_entry: {
+        Args: { p_at?: string; p_begin?: boolean; p_id: string }
+        Returns: {
+          begun_at: string | null
+          created_at: string
+          done_at: string | null
+          exercise_id: string
+          id: string
+          place: string
+          planned_sets: number
+          position: string
+          snapshot: NonNullable<Json>
+          updated_at: string
+          workout_id: string
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'workout_entries'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      create_exercise: {
+        Args: {
+          p_equipment: string
+          p_id: string
+          p_name: string
+          p_notes?: string
+          p_primary: string
+          p_reps: number
+          p_weight: number
+        }
+        Returns: Database['core']['Tables']['items']['Row']
+        SetofOptions: {
+          from: '*'
+          to: 'items'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      create_template: {
+        Args: { p_id: string; p_name: string }
+        Returns: Database['core']['Tables']['items']['Row']
+        SetofOptions: {
+          from: '*'
+          to: 'items'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      end_workout: {
+        Args: {
+          p_at?: string
+          p_how_it_went?: number
+          p_id: string
+          p_motivation?: number
+          p_notes?: string
+        }
+        Returns: {
+          ended_at: string | null
+          how_it_went: number | null
+          item_id: string
+          motivation: number | null
+          notes: string | null
+          owner_id: string
+          stage: string
+          started_at: string | null
+          updated_at: string
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'workout'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      log_set: {
+        Args: {
+          p_at?: string
+          p_entry: string
+          p_id: string
+          p_position: string
+          p_reps?: number
+          p_rir?: number
+          p_weight?: number
+        }
+        Returns: {
+          entry_id: string
+          id: string
+          logged_at: string
+          position: string
+          reps: number | null
+          rir: number | null
+          updated_at: string
+          weight: number | null
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'workout_sets'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      mark_entry_done: {
+        Args: { p_done?: boolean; p_id: string }
+        Returns: {
+          begun_at: string | null
+          created_at: string
+          done_at: string | null
+          exercise_id: string
+          id: string
+          place: string
+          planned_sets: number
+          position: string
+          snapshot: NonNullable<Json>
+          updated_at: string
+          workout_id: string
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'workout_entries'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      plan_workout: {
+        Args: { p_day: string; p_id: string; p_template?: string }
+        Returns: Database['core']['Tables']['items']['Row']
+        SetofOptions: {
+          from: '*'
+          to: 'items'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      remove_entry: { Args: { p_id: string }; Returns: undefined }
+      remove_equipment: { Args: { p_id: string }; Returns: undefined }
+      remove_muscle_group: { Args: { p_id: string }; Returns: undefined }
+      remove_secondary_muscle: {
+        Args: { p_exercise: string; p_muscle: string }
+        Returns: undefined
+      }
+      remove_set: { Args: { p_id: string }; Returns: undefined }
+      remove_template_exercise: { Args: { p_id: string }; Returns: undefined }
+      save_equipment: {
+        Args: { p_id: string; p_increment: number; p_name: string }
+        Returns: {
+          created_at: string
+          id: string
+          increment: number
+          name: string
+          person_id: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'equipment'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      save_muscle_group: {
+        Args: { p_category: string; p_id: string; p_name: string }
+        Returns: {
+          body_part: string | null
+          category: string
+          created_at: string
+          default_recovery: string
+          id: string
+          name: string
+          person_id: string | null
+          position: number
+          updated_at: string
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'muscle_groups'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      set_muscle_settings: {
+        Args: { p_frequency: number; p_muscle: string; p_recovery: string; p_stimulus: number }
+        Returns: {
+          frequency_target: number
+          muscle_id: string
+          person_id: string
+          recovery_type: string
+          stimulus_target: number
+          updated_at: string
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'muscle_settings'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      set_primary_muscle: { Args: { p_exercise: string; p_muscle: string }; Returns: undefined }
+      set_secondary_muscle: {
+        Args: { p_contribution: number; p_exercise: string; p_muscle: string }
+        Returns: {
+          contribution: number
+          exercise_id: string
+          muscle_id: string
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'exercise_muscles'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      start_workout: {
+        Args: { p_at?: string; p_id: string }
+        Returns: {
+          ended_at: string | null
+          how_it_went: number | null
+          item_id: string
+          motivation: number | null
+          notes: string | null
+          owner_id: string
+          stage: string
+          started_at: string | null
+          updated_at: string
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'workout'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      swap_entry: {
+        Args: { p_exercise: string; p_id: string }
+        Returns: {
+          begun_at: string | null
+          created_at: string
+          done_at: string | null
+          exercise_id: string
+          id: string
+          place: string
+          planned_sets: number
+          position: string
+          snapshot: NonNullable<Json>
+          updated_at: string
+          workout_id: string
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'workout_entries'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      update_exercise: {
+        Args: { p_id: string; p_patch: Json }
+        Returns: {
+          current_reps: number
+          current_weight: number
+          equipment_id: string | null
+          item_id: string
+          notes: string | null
+          updated_at: string
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'exercise'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      update_set: {
+        Args: { p_id: string; p_reps: number; p_rir: number; p_weight: number }
+        Returns: {
+          entry_id: string
+          id: string
+          logged_at: string
+          position: string
+          reps: number | null
+          rir: number | null
+          updated_at: string
+          weight: number | null
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'workout_sets'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      update_settings: {
+        Args: { p_patch: Json }
+        Returns: {
+          person_id: string
+          points_per_fatigue_set: number
+          preferred_rir: number
+          t_fast_h: number
+          t_normal_h: number
+          t_slow_h: number
+          updated_at: string
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'settings'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      update_template_exercise: {
+        Args: { p_id: string; p_patch: Json }
+        Returns: {
+          created_at: string
+          exercise_id: string
+          id: string
+          position: string
+          sets: number
+          template_id: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'template_exercises'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      update_workout: {
+        Args: { p_id: string; p_patch: Json }
+        Returns: {
+          ended_at: string | null
+          how_it_went: number | null
+          item_id: string
+          motivation: number | null
+          notes: string | null
+          owner_id: string
+          stage: string
+          started_at: string | null
+          updated_at: string
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'workout'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   food: {
     Tables: {
       change_notes: {
@@ -3045,6 +3818,9 @@ export type CompositeTypes<
 
 export const Constants = {
   core: {
+    Enums: {},
+  },
+  fitness: {
     Enums: {},
   },
   food: {

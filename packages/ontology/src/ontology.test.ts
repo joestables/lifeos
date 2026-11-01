@@ -88,7 +88,21 @@ describe('ontology', () => {
       ['variation', 4],
       ['meal', 4],
       ['shopping_list', 4.5],
+      ['exercise', 5],
+      ['workout_template', 5],
+      ['workout', 5],
     ])
+  })
+
+  it('keeps the Gym Personal, a Workout planned for a day and following its template (ADR-0058)', () => {
+    for (const key of ['exercise', 'workout_template', 'workout'])
+      expect(typeByKey(key)!.defaultSpace).toBe('personal')
+    expect(typeByKey('workout')!.timeFields).toEqual(['do_on'])
+    expect(typeByKey('workout')!.statuses).toEqual(['active', 'done'])
+    expect(LINK_TYPES.find((l) => l.key === 'follows')).toMatchObject({
+      from: ['workout'],
+      to: ['workout_template'],
+    })
   })
 
   it("keeps Recipes and Variations in their author's Space, and Meals in the Household (ADR-0051)", () => {

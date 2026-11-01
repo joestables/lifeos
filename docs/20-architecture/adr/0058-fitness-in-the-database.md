@@ -47,9 +47,10 @@ started from ([ADR-0013](0013-occurrences-snapshot-their-definition.md)).
   are not copied:** readiness and stimulus sets always use an Exercise's
   current groups (GYM-004 4).
 - **Reference data, each person's:** `fitness.equipment(name,
-  increment)`, none to begin with; `fitness.muscle_groups(name, category:
-  push · pull · core · legs, built_in, body_part?)`, the twenty built-in
-  rows shared by everyone and read-only, a person's own beside them;
+  increment)`, none to begin with; `fitness.muscle_groups(person?, name, category:
+  push · pull · core · legs, body_part?, default_recovery, position)`, the
+  twenty built-in rows (no person, each with its place on the body map)
+  shared by everyone and read-only, a person's own beside them;
   `fitness.muscle_settings(person, muscle_id, recovery_type,
   frequency_target, stimulus_target)`, the defaults when there is no row;
   `fitness.settings(person, preferred_rir, points_per_fatigue_set,
@@ -64,8 +65,15 @@ started from ([ADR-0013](0013-occurrences-snapshot-their-definition.md)).
   template, its numbers of sets and each current set), beginning an entry, logging,
   changing and removing a set, marking an entry done and undoing it,
   ending, and setting a current set from the review.
-- **The activity log grows to fitness**, by triggers on the detail tables
-  and child rows ([ADR-0030](0030-activity-log-by-triggers.md)).
+- **The activity log grows to fitness**, by triggers
+  ([ADR-0030](0030-activity-log-by-triggers.md)): an Exercise's fields and
+  muscle groups, a workout's fields, and a template's exercises. A
+  workout's entries and sets are its own record, and aren't logged one by
+  one.
+- **Removals** (equipment and groups of my own while unused, a secondary
+  group, a template's exercise, an entry without sets, a set) are
+  functions in a migration of their own, which Joe runs in the SQL editor
+  ([migrations](../../40-operations/migrations.md)).
 
 ## Consequences
 

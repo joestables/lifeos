@@ -184,6 +184,58 @@ export const TYPES = [
     place: false,
     stage: 4.5,
   },
+  {
+    // An exercise in my library (ADR-0058): its equipment, muscle groups and
+    // current set in fitness.exercise. Archived, not deleted, once used.
+    key: 'exercise',
+    module: 'fitness',
+    label: 'Exercise',
+    statusNote: 'archived when I no longer do it',
+    traits: [],
+    statuses: ['active', 'cancelled'],
+    statusLabels: { cancelled: 'Archived' },
+    defaultSpace: 'personal',
+    timeFields: [],
+    colour: 'coral',
+    labels: false,
+    subtasks: false,
+    place: false,
+    stage: 5,
+  },
+  {
+    // A name and its exercises, each with a number of sets (ADR-0058).
+    key: 'workout_template',
+    module: 'fitness',
+    label: 'Workout template',
+    traits: [],
+    statuses: ['active'],
+    defaultSpace: 'personal',
+    timeFields: [],
+    colour: 'coral',
+    labels: false,
+    subtasks: false,
+    place: false,
+    stage: 5,
+  },
+  {
+    // A workout planned for a day (ADR-0058): planned, in progress or
+    // complete in fitness.workout; Skipped is worked out, never stored.
+    key: 'workout',
+    module: 'fitness',
+    label: 'Workout',
+    statusNote:
+      '"In progress" is its stage; "Skipped" when planned and its day has passed, worked out',
+    traits: ['schedulable', 'completable'],
+    statuses: ['active', 'done'],
+    statusLabels: { active: 'Planned', done: 'Complete' },
+    defaultSpace: 'personal',
+    timeFields: ['do_on'],
+    colour: 'coral',
+    labels: false,
+    subtasks: false,
+    place: false,
+    stage: 5,
+  },
 ] as const satisfies readonly TypeDefinition[]
 
 export type TypeKey = (typeof TYPES)[number]['key']

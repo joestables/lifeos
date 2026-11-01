@@ -22,8 +22,8 @@ export const TIME_FIELDS = [
 ] as const
 export type TimeField = (typeof TIME_FIELDS)[number]
 
-/** Code packaging (glossary: Module). The core, then food (Stage 4) and shopping (4b). */
-export const MODULES = ['core', 'food', 'shopping'] as const
+/** Code packaging (glossary: Module). The core, then food (Stage 4), shopping (4b) and fitness (5). */
+export const MODULES = ['core', 'food', 'shopping', 'fitness'] as const
 export type ModuleKey = (typeof MODULES)[number]
 
 /** Each Type's colour; related Types share one (ADR-0043, tokens.md#colour-types). */
