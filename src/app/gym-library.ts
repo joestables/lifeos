@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import type { GymData } from '@/data'
-import { libraryRows, type LibraryFilter } from '@/lib/gym'
+import { libraryRows, type LibraryFilter, type TemplateSort } from '@/lib/gym'
+import type { SortDirection } from '@/lib/sort'
 
 const KEY = 'lifeos.gym.library'
 export type Kept = Omit<LibraryFilter, 'search'>
@@ -47,4 +48,30 @@ export function useLibrary(gym: GymData, filter: LibraryFilter) {
     }))
     return libraryRows(rows, filter).map((r) => r.view)
   }, [gym.exercises, filter])
+}
+
+const TEMPLATE_KEY = 'lifeos.gym.templates'
+
+/** All templates' sort, kept for next time on this device (GYM-022 2). */
+export function useTemplateSort() {
+  const [kept, setKept] = useState<{ sort: TemplateSort; direction: SortDirection }>(() => {
+    try {
+      return {
+        sort: 'recent',
+        direction: 'desc',
+        ...(JSON.parse(localStorage.getItem(TEMPLATE_KEY) ?? '{}') as object),
+      }
+    } catch {
+      return { sort: 'recent', direction: 'desc' }
+    }
+  })
+  const change = (sort: TemplateSort, direction: SortDirection) => {
+    setKept({ sort, direction })
+    try {
+      localStorage.setItem(TEMPLATE_KEY, JSON.stringify({ sort, direction }))
+    } catch {
+      // Kept for this visit only.
+    }
+  }
+  return { ...kept, change }
 }

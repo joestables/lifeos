@@ -327,3 +327,55 @@ export function muscleViews(
         a.name.localeCompare(b.name),
     )
 }
+
+/** One of a template's exercises with its number of sets (GYM-006). */
+export type TemplateLine = Omit<Fitness['template_exercises']['Row'], 'created_at' | 'updated_at'>
+
+export const templateLinesKey = ['fitness', 'template_exercises'] as const
+
+export async function fetchTemplateLines(): Promise<TemplateLine[]> {
+  const { data, error } = await fitness()
+    .from('template_exercises')
+    .select('id, template_id, exercise_id, position, sets')
+    .order('position')
+  if (error) throw error
+  return data
+}
+
+const byPosition = (a: TemplateLine, b: TemplateLine) =>
+  a.position < b.position ? -1 : a.position > b.position ? 1 : a.id < b.id ? -1 : 1
+
+/** A template's exercises with unsent additions, changes and removals laid over. */
+export function applyPendingTemplateLines(
+  rows: readonly TemplateLine[],
+  entries: readonly QueueEntry[],
+): TemplateLine[] {
+  const byId = new Map(rows.map((r) => [r.id, r]))
+  for (const e of entries) {
+    const a = args(e)
+    if (e.fn === 'fitness.add_template_exercise') {
+      const id = String(a.p_id)
+      if (!byId.has(id))
+        byId.set(id, {
+          id,
+          template_id: String(a.p_template),
+          exercise_id: String(a.p_exercise),
+          position: String(a.p_position),
+          sets: num(a.p_sets, 1),
+        })
+    } else if (e.fn === 'fitness.update_template_exercise') {
+      const row = byId.get(String(a.p_id))
+      if (!row) continue
+      const p = (a.p_patch ?? {}) as Args
+      byId.set(row.id, {
+        ...row,
+        ...(typeof p.position === 'string' && { position: p.position }),
+        ...(p.sets !== undefined && { sets: Number(p.sets) }),
+        ...(typeof p.exercise_id === 'string' && { exercise_id: p.exercise_id }),
+      })
+    } else if (e.fn === 'fitness.remove_template_exercise' && e.state === 'pending') {
+      byId.delete(String(a.p_id))
+    }
+  }
+  return [...byId.values()].sort(byPosition)
+}

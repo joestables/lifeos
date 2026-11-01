@@ -117,3 +117,72 @@ export const withShare = (name: string, contribution: number) =>
 /** A Current set: "60 kg × 8". */
 export const currentText = (weightGrams: number, reps: number) =>
   `${formatKg(weightGrams)} kg × ${reps}`
+
+/** All templates' sorts (GYM-022 2), each its own way to start. */
+export type TemplateSort = 'recent' | 'popular' | 'exercises' | 'sets' | 'az'
+export const TEMPLATE_SORTS: readonly {
+  value: TemplateSort
+  label: string
+  initial: SortDirection
+}[] = [
+  { value: 'recent', label: 'Most recently used', initial: 'desc' },
+  { value: 'popular', label: 'Most used this month', initial: 'desc' },
+  { value: 'exercises', label: 'Exercises', initial: 'desc' },
+  { value: 'sets', label: 'Sets', initial: 'desc' },
+  { value: 'az', label: 'A–Z', initial: 'asc' },
+]
+
+/** What sorting a template needs. */
+export interface TemplateRow {
+  name: string
+  exerciseCount: number
+  setCount: number
+  /** When last used, ms; null if never. */
+  lastUsed: number | null
+  /** Workouts that followed it in the last month. */
+  usesThisMonth: number
+}
+
+/**
+ * Templates sorted (GYM-022 2): by when last used (never used last, either
+ * way round), uses this month, exercises, sets or A–Z; ties by name.
+ */
+export function sortTemplates<T extends TemplateRow>(
+  rows: readonly T[],
+  sort: TemplateSort,
+  direction: SortDirection,
+): T[] {
+  const byName = (a: T, b: T) => a.name.localeCompare(b.name)
+  const option = TEMPLATE_SORTS.find((s) => s.value === sort) ?? TEMPLATE_SORTS[0]!
+  if (sort === 'recent') {
+    const used = rows.filter((r) => r.lastUsed !== null)
+    const never = rows.filter((r) => r.lastUsed === null).sort(byName)
+    used.sort(
+      directed((a, b) => b.lastUsed! - a.lastUsed! || byName(a, b), option.initial, direction),
+    )
+    return [...used, ...never]
+  }
+  const key: Record<Exclude<TemplateSort, 'recent' | 'az'>, (r: T) => number> = {
+    popular: (r) => r.usesThisMonth,
+    exercises: (r) => r.exerciseCount,
+    sets: (r) => r.setCount,
+  }
+  const compare =
+    sort === 'az' ? byName : (a: T, b: T) => key[sort](b) - key[sort](a) || byName(a, b)
+  return [...rows].sort(directed(compare, option.initial, direction))
+}
+
+/** "5 exercises", "1 set": a count and its word. */
+export const counted = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`
+
+/** A copy's name: "Push A (copy)", then "Push A (copy 2)"… among the names there are. */
+export function copyName(name: string, names: readonly string[]): string {
+  const taken = new Set(names.map((n) => n.trim().toLowerCase()))
+  for (let i = 1; ; i++) {
+    const next = `${name.trim()} (copy${i === 1 ? '' : ` ${i}`})`
+    if (!taken.has(next.toLowerCase())) return next
+  }
+}
+
+/** Templates are twenty to a page (GYM-022 1). */
+export const TEMPLATES_PER_PAGE = 20

@@ -358,7 +358,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to archive exercises I no longer do, **so that** the
 library and pickers show only what I use.
-Priority: Must · Status: built (verified for the library by `gym.spec.ts`; Add and Swap leave it out with plan step 8)
+Priority: Must · Status: built (verified for the library and a template's Add and Swap by `gym.spec.ts`; a workout's with plan step 8)
 
 Acceptance criteria
 1. Given an Exercise, when I archive it, then it leaves the library, Add
@@ -376,7 +376,7 @@ Acceptance criteria
 **As** Joe, **I want** to make, edit and delete workout templates and see
 what each covers, **so that** a planned workout starts with the right
 exercises and trains what I mean it to.
-Priority: Must · Status: agreed
+Priority: Must · Status: built (1–5 verified by `gym-templates.spec.ts`; 6's "when last used" comes with workouts, plan step 8)
 
 Acceptance criteria
 1. Given New template (on All templates), then I name it and add
@@ -731,7 +731,7 @@ Acceptance criteria
 
 **As** Joe, **I want** every template in one list I can sort, **so that** I
 can find and tidy them.
-Priority: Must · Status: agreed
+Priority: Must · Status: built (verified by `gym-templates.spec.ts`; when last used and uses this month come with workouts, plan step 8)
 
 Acceptance criteria
 1. Given All templates, then every template is listed — its name,

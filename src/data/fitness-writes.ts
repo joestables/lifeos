@@ -125,3 +125,61 @@ export function fitnessWrites(queue: WriteQueue) {
     },
   }
 }
+
+/**
+ * Templates (GYM-006): each queues one function and returns at once. A
+ * template's name is its Item's title; deleting it is archiving the Item
+ * (Recently deleted, ADR-0032).
+ */
+export function templateWrites(queue: WriteQueue) {
+  const addLine = (template: string, exercise: string, position: string, sets = 1): string => {
+    const id = newId()
+    queue.enqueue(
+      'fitness.add_template_exercise',
+      { p_id: id, p_template: template, p_exercise: exercise, p_position: position, p_sets: sets },
+      [template],
+    )
+    return id
+  }
+  return {
+    createTemplate(name: string): string {
+      const id = newId()
+      queue.enqueue('fitness.create_template', { p_id: id, p_name: name.trim() }, [id])
+      return id
+    },
+    /** An exercise added with one set (GYM-006 1), or as many as a copy had. */
+    addTemplateExercise: addLine,
+    /** Its place (dragged), its number of sets, or its exercise (swapped). */
+    updateTemplateExercise(
+      template: string,
+      id: string,
+      patch: { position?: string; sets?: number; exerciseId?: string },
+    ): void {
+      queue.enqueue(
+        'fitness.update_template_exercise',
+        {
+          p_id: id,
+          p_patch: {
+            ...(patch.position !== undefined && { position: patch.position }),
+            ...(patch.sets !== undefined && { sets: patch.sets }),
+            ...(patch.exerciseId !== undefined && { exercise_id: patch.exerciseId }),
+          } as never,
+        },
+        [template],
+      )
+    },
+    removeTemplateExercise(template: string, id: string): void {
+      queue.enqueue('fitness.remove_template_exercise', { p_id: id }, [template])
+    },
+    /** A copy under a new name, its exercises and sets as they are (GYM-006 5). */
+    duplicateTemplate(
+      name: string,
+      lines: readonly { exerciseId: string; position: string; sets: number }[],
+    ): string {
+      const id = newId()
+      queue.enqueue('fitness.create_template', { p_id: id, p_name: name.trim() }, [id])
+      for (const l of lines) addLine(id, l.exerciseId, l.position, l.sets)
+      return id
+    },
+  }
+}

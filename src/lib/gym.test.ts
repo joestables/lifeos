@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import type { MuscleView } from '@/data'
 import {
+  copyName,
+  counted,
+  sortTemplates,
+  type TemplateSort,
   currentText,
   libraryRows,
   muscleSummary,
@@ -124,5 +128,51 @@ describe('the exercise library (GYM-003)', () => {
       'Lat pulldown',
     ])
     expect(names({ sort: 'muscle' })).toEqual(['Bench press', 'Pushdown', 'Lat pulldown', 'Squat'])
+  })
+})
+
+describe('templates (GYM-006, GYM-022)', () => {
+  const t = (
+    name: string,
+    exerciseCount: number,
+    setCount: number,
+    lastUsed: number | null,
+    usesThisMonth = 0,
+  ) => ({
+    name,
+    exerciseCount,
+    setCount,
+    lastUsed,
+    usesThisMonth,
+  })
+  const rows = [
+    t('Push A', 5, 15, 30, 4),
+    t('Legs', 6, 18, null),
+    t('Pull A', 4, 12, 50, 2),
+    t('Arms', 4, 10, null),
+  ]
+  const names = (sort: TemplateSort, dir: 'asc' | 'desc') =>
+    sortTemplates(rows, sort, dir).map((r) => r.name)
+
+  it('most recently used first, never used last either way (GYM-022 2)', () => {
+    expect(names('recent', 'desc')).toEqual(['Pull A', 'Push A', 'Arms', 'Legs'])
+    expect(names('recent', 'asc')).toEqual(['Push A', 'Pull A', 'Arms', 'Legs'])
+  })
+
+  it('by uses this month, exercises, sets, or A–Z, either way round', () => {
+    expect(names('popular', 'desc')).toEqual(['Push A', 'Pull A', 'Arms', 'Legs'])
+    expect(names('exercises', 'desc')).toEqual(['Legs', 'Push A', 'Arms', 'Pull A'])
+    expect(names('sets', 'asc')).toEqual(['Arms', 'Pull A', 'Push A', 'Legs'])
+    expect(names('az', 'asc')).toEqual(['Arms', 'Legs', 'Pull A', 'Push A'])
+  })
+
+  it('a copy takes a name not yet used (GYM-006 5)', () => {
+    expect(copyName('Push A', ['Push A'])).toBe('Push A (copy)')
+    expect(copyName('Push A', ['Push A', 'push a (copy)'])).toBe('Push A (copy 2)')
+  })
+
+  it('counts with their words', () => {
+    expect(counted(1, 'set')).toBe('1 set')
+    expect(counted(15, 'set')).toBe('15 sets')
   })
 })

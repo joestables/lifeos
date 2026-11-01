@@ -1,12 +1,13 @@
 import { averageFrequency } from '@lifeos/fitness'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { ActivityIcon, DumbbellIcon } from 'lucide-react'
+import { ActivityIcon } from 'lucide-react'
 import { useState } from 'react'
 import {
   EmptyState,
   ListDetail,
   PageAction,
   PageHeader,
+  PanelHeading,
   PanelRow,
   TabsRow,
   TypeScope,
@@ -15,9 +16,11 @@ import { Card, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { ExerciseDialog } from '@/app/exercise-dialog'
+import { TemplatesCard } from '@/app/template-parts'
 import { ExerciseDetail, ExerciseList } from '@/app/exercise-library'
 import { useLibrary, useLibraryFilter } from '@/app/gym-library'
 import { CATEGORIES, queue, useGym, type ExerciseView } from '@/data'
+import { useIsMobile } from '@/hooks/use-mobile'
 import { useIsWide } from '@/hooks/use-wide'
 
 type Tab = 'workouts' | 'recovery' | 'progression'
@@ -31,8 +34,9 @@ interface GymSearch {
 
 /**
  * The Gym (gym.md, What the page shows): Workouts, Recovery and Progression.
- * Progression → Exercises is the exercise library (GYM-003); workouts,
- * recovery and progression's charts come with plan steps 8–10.
+ * Workouts shows my templates (GYM-006 6); Progression → Exercises is the
+ * exercise library (GYM-003); workouts, recovery and progression's charts
+ * come with plan steps 8–10.
  */
 export const Route = createFileRoute('/_app/gym/')({
   validateSearch: (s: Record<string, unknown>): GymSearch => ({
@@ -56,6 +60,7 @@ function Gym() {
   const [editing, setEditing] = useState<ExerciseView | 'new' | null>(null)
   // On a computer the chosen Exercise shows beside the list; on a phone it opens its own page.
   const wide = useIsWide()
+  const phone = useIsMobile()
   const selected = wide ? (shown.find((x) => x.item.id === search.exercise) ?? shown[0]) : undefined
   const set = (next: GymSearch) =>
     void navigate({ search: (s) => ({ ...s, ...next }), replace: true })
@@ -82,7 +87,15 @@ function Gym() {
           </Tabs>
           {newExercise && <PageAction label={newExercise.label} onClick={newExercise.onClick} />}
         </TabsRow>
-        {tab === 'workouts' && <EmptyState icon={DumbbellIcon} title="No workouts yet" />}
+        {tab === 'workouts' && (
+          <div className="grid items-start gap-5 lg:grid-cols-2">
+            <Card className="gap-3">
+              <PanelHeading title="Recent workouts" />
+              <p className="text-sm text-muted-foreground">No workouts yet</p>
+            </Card>
+            <TemplatesCard gym={gym} count={phone ? 3 : 6} />
+          </div>
+        )}
         {tab === 'recovery' && <EmptyState icon={ActivityIcon} title="Nothing trained yet" />}
         {tab === 'progression' && (
           <>

@@ -6,6 +6,7 @@ import {
   applyPendingGymSettings,
   applyPendingMuscleGroups,
   applyPendingMuscleSettings,
+  applyPendingTemplateLines,
   DEFAULT_GYM_SETTINGS,
   muscleViews,
   type MuscleGroup,
@@ -179,6 +180,33 @@ describe('the Gym’s unsent changes show at once (OFF-001)', () => {
       { exercise_id: 'x', muscle_id: 'chest', contribution: 1 },
       { exercise_id: 'x', muscle_id: 'tri', contribution: 0.4 },
       { exercise_id: 'x', muscle_id: 'delts', contribution: 0.3 },
+    ])
+  })
+
+  it('a template’s exercises added, moved, set, swapped and removed, in order (GYM-006)', () => {
+    const add = (id: string, exercise: string, position: string) =>
+      entry('fitness.add_template_exercise', {
+        p_id: id,
+        p_template: 't',
+        p_exercise: exercise,
+        p_position: position,
+        p_sets: 1,
+      })
+    const rows = applyPendingTemplateLines(
+      [],
+      [
+        add('a', 'bench', 'h'),
+        add('b', 'fly', 'p'),
+        add('c', 'dips', 't'),
+        entry('fitness.update_template_exercise', { p_id: 'c', p_patch: { position: 'd' } }),
+        entry('fitness.update_template_exercise', { p_id: 'a', p_patch: { sets: 3 } }),
+        entry('fitness.update_template_exercise', { p_id: 'b', p_patch: { exercise_id: 'pec' } }),
+        entry('fitness.remove_template_exercise', { p_id: 'b' }),
+      ],
+    )
+    expect(rows.map((r) => [r.id, r.exercise_id, r.sets])).toEqual([
+      ['c', 'dips', 1],
+      ['a', 'bench', 3],
     ])
   })
 })

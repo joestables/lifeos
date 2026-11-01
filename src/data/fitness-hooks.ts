@@ -1,4 +1,4 @@
-import { toGrams } from '@lifeos/fitness'
+import { toGrams, type ExerciseMuscles, type MuscleShare } from '@lifeos/fitness'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { useAuth } from './auth'
@@ -23,6 +23,9 @@ import {
   muscleGroupsKey,
   muscleSettingsKey,
   muscleViews,
+  applyPendingTemplateLines,
+  fetchTemplateLines,
+  templateLinesKey,
   type GymSettings,
   type MuscleView,
 } from './fitness'
@@ -52,6 +55,17 @@ export interface ExerciseView {
   archived: boolean
 }
 
+/** A Workout template (GYM-006): its exercises in order, each with its number of sets. */
+export interface TemplateView {
+  item: Item
+  lines: { id: string; position: string; sets: number; exercise: ExerciseView | undefined }[]
+  /** Its exercises and sets, together. */
+  exerciseCount: number
+  setCount: number
+  /** When a workout last followed it; null if never (workouts come with plan step 8). */
+  lastUsed: number | null
+}
+
 export interface GymData {
   equipment: EquipmentView[]
   /** Every group, by category: built in first, then mine. */
@@ -63,6 +77,10 @@ export interface GymData {
   /** The equipment and groups an Exercise uses, which can't be removed (GYM-001 4, GYM-002 2). */
   equipmentInUse: ReadonlySet<string>
   musclesInUse: ReadonlySet<string>
+  /** Each Exercise's groups and shares, as the recovery engine and coverage read them. */
+  exerciseMuscles: ExerciseMuscles
+  /** My templates, A–Z. */
+  templates: TemplateView[]
   isLoading: boolean
 }
 
@@ -78,6 +96,7 @@ export function useGym(queue: WriteQueue): GymData {
   const settings = useQuery({ queryKey: gymSettingsKey, queryFn: fetchGymSettings })
   const exercises = useQuery({ queryKey: exercisesKey, queryFn: fetchExercises })
   const exerciseMuscles = useQuery({ queryKey: exerciseMusclesKey, queryFn: fetchExerciseMuscles })
+  const templateLines = useQuery({ queryKey: templateLinesKey, queryFn: fetchTemplateLines })
 
   return useMemo(() => {
     const kit = applyPendingEquipment(equipment.data ?? [], entries).map((e) => ({
@@ -121,6 +140,40 @@ export function useGym(queue: WriteQueue): GymData {
       })
     }
     views.sort((a, b) => a.item.title.localeCompare(b.item.title))
+    const viewById = new Map(views.map((v) => [v.item.id, v]))
+    const linesBy = new Map<string, TemplateView['lines']>()
+    for (const l of applyPendingTemplateLines(templateLines.data ?? [], entries)) {
+      const list = linesBy.get(l.template_id) ?? []
+      list.push({
+        id: l.id,
+        position: l.position,
+        sets: l.sets,
+        exercise: viewById.get(l.exercise_id),
+      })
+      linesBy.set(l.template_id, list)
+    }
+    const templates: TemplateView[] = items
+      .filter((i) => i.type === 'workout_template')
+      .map((item) => {
+        const lines = linesBy.get(item.id) ?? []
+        return {
+          item,
+          lines,
+          exerciseCount: lines.length,
+          setCount: lines.reduce((n, l) => n + l.sets, 0),
+          lastUsed: null,
+        }
+      })
+      .sort((a, b) => a.item.title.localeCompare(b.item.title))
+    const exerciseMusclesMap = new Map<string, MuscleShare[]>(
+      views.map((v) => [
+        v.item.id,
+        [
+          ...(v.primary ? [{ muscleId: v.primary.id, contribution: 1 }] : []),
+          ...v.secondaries.map((s) => ({ muscleId: s.muscle.id, contribution: s.contribution })),
+        ],
+      ]),
+    )
     return {
       equipment: kit,
       muscles,
@@ -131,12 +184,15 @@ export function useGym(queue: WriteQueue): GymData {
         [...rows.values()].flatMap((r) => (r.equipment_id ? [r.equipment_id] : [])),
       ),
       musclesInUse: new Set(shares.map((s) => s.muscle_id)),
+      exerciseMuscles: exerciseMusclesMap,
+      templates,
       isLoading:
         itemsLoading ||
         equipment.isLoading ||
         groups.isLoading ||
         exercises.isLoading ||
-        exerciseMuscles.isLoading,
+        exerciseMuscles.isLoading ||
+        templateLines.isLoading,
     }
   }, [
     me,
@@ -153,5 +209,7 @@ export function useGym(queue: WriteQueue): GymData {
     exercises.isLoading,
     exerciseMuscles.data,
     exerciseMuscles.isLoading,
+    templateLines.data,
+    templateLines.isLoading,
   ])
 }

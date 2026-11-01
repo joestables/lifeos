@@ -69,6 +69,9 @@ import {
   gymSettingsKey,
   muscleGroupsKey,
   muscleSettingsKey,
+  applyPendingTemplateLines,
+  templateLinesKey,
+  type TemplateLine,
   type Equipment,
   type ExerciseMuscle,
   type ExerciseRow,
@@ -76,7 +79,7 @@ import {
   type MuscleGroup,
   type MuscleSettingsRow,
 } from './fitness'
-import { fitnessWrites } from './fitness-writes'
+import { fitnessWrites, templateWrites } from './fitness-writes'
 import {
   applyPendingListMeals,
   applyPendingLists,
@@ -154,6 +157,7 @@ const collections: {
       'fitness.create_exercise',
       'fitness.update_exercise',
       'fitness.archive_exercise',
+      'fitness.create_template',
     ],
     fold: (rows: ItemRow[], e: QueueEntry) => foldSent(rows, e),
   },
@@ -375,6 +379,15 @@ const collections: {
     fold: (rows: ExerciseMuscle[], e: QueueEntry) => applyPendingExerciseMuscles(rows, [e]),
   },
   {
+    key: templateLinesKey,
+    fns: [
+      'fitness.add_template_exercise',
+      'fitness.update_template_exercise',
+      'fitness.remove_template_exercise',
+    ],
+    fold: (rows: TemplateLine[], e: QueueEntry) => applyPendingTemplateLines(rows, [e]),
+  },
+  {
     key: subtasksKey,
     fns: ['add_subtask', 'update_subtask', 'remove_subtask'],
     fold: (rows: Subtask[], e: QueueEntry) => applyPendingSubtasks(rows, [e]),
@@ -548,6 +561,14 @@ export const {
 } = fitnessWrites(queue)
 
 export const {
+  createTemplate,
+  addTemplateExercise,
+  updateTemplateExercise,
+  removeTemplateExercise,
+  duplicateTemplate,
+} = templateWrites(queue)
+
+export const {
   createHousehold,
   renameHousehold,
   invite,
@@ -649,7 +670,13 @@ export type {
   VariationPatch,
 } from './food'
 export { savedSource } from './food'
-export { useGym, type EquipmentView, type ExerciseView, type GymData } from './fitness-hooks'
+export {
+  useGym,
+  type EquipmentView,
+  type ExerciseView,
+  type GymData,
+  type TemplateView,
+} from './fitness-hooks'
 export {
   CATEGORIES,
   type GymSettings,

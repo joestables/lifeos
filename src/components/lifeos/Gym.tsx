@@ -17,6 +17,7 @@ import { useLayoutEffect, useRef, useState, type ReactNode } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Slider } from '@/components/ui/slider'
+import type { Reorder } from '@/hooks/use-reorder'
 import { cn } from '@/lib/utils'
 import { readinessColour } from './readiness'
 
@@ -502,6 +503,7 @@ export function ExerciseCard({
   done = false,
   control,
   menu,
+  reorder,
   children,
 }: {
   name: string
@@ -510,6 +512,8 @@ export function ExerciseCard({
   open?: boolean
   /** A template's: a drag handle where the expand button is. */
   drag?: boolean
+  /** The handle's drag (useReorder): the card under it is ringed, the dragged one faded. */
+  reorder?: Reorder
   done?: boolean
   control?: ReactNode
   menu?: ReactNode
@@ -518,13 +522,16 @@ export function ExerciseCard({
   return (
     <section
       data-open={open || undefined}
-      className="flex flex-col rounded-row bg-card shadow-card"
+      data-reorder-id={reorder?.id}
+      data-reorder={reorder?.state}
+      className="flex flex-col rounded-row bg-card shadow-card data-[reorder=dragging]:opacity-50 data-[reorder=over]:ring-2 data-[reorder=over]:ring-ring"
     >
       <div className="flex min-h-[60px] items-center gap-2 py-2 pr-2 pl-2">
         {drag ? (
           <span
-            aria-label="Drag to reorder"
-            className="grid size-8 shrink-0 cursor-grab place-items-center rounded-control text-muted-foreground hover:bg-accent"
+            {...reorder?.handle}
+            aria-label={`Drag ${name} to reorder`}
+            className="grid size-8 shrink-0 cursor-grab touch-none place-items-center rounded-control text-muted-foreground hover:bg-accent"
           >
             <GripVerticalIcon className="size-4" />
           </span>
@@ -767,10 +774,19 @@ export function LookAhead({ hours }: { hours: number }) {
  * A muscle group to choose (GYM-009 1): a 44px button on a `--muted` fill,
  * its name (weight 600) and, muted at its end, how many exercises it has.
  */
-export function MuscleChoice({ name, count }: { name: string; count: number }) {
+export function MuscleChoice({
+  name,
+  count,
+  onClick,
+}: {
+  name: string
+  count: number
+  onClick?: () => void
+}) {
   return (
     <button
       type="button"
+      onClick={onClick}
       className="flex h-11 items-center justify-between gap-2 rounded-control bg-secondary px-3 text-left text-sm font-semibold outline-none hover:bg-accent focus-visible:ring-3 focus-visible:ring-ring-soft"
     >
       <span className="truncate">{name}</span>

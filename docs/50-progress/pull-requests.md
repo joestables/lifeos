@@ -2,7 +2,7 @@
 
 Newest first. Each entry is added in its own pull request.
 
-## [#56](https://github.com/joestables/lifeos/pull/56) — The Gym's schema, calculations, settings and exercise library
+## [#56](https://github.com/joestables/lifeos/pull/56) — The Gym's schema, calculations, settings, exercise library and templates
 
 Branch `claude/eloquent-darwin-gudbuj` · 2026-11-01
 
@@ -35,12 +35,16 @@ Branch `claude/eloquent-darwin-gudbuj` · 2026-11-01
   Exercises the library (search, filters, sort; the chosen Exercise beside
   the list or on its own page) and New, Edit and Archive exercise. The data
   layer for the Gym, the stand-in's fitness tables, 18 browser tests.
+- **Templates (step 7):** the add-exercise picker by muscle group; a
+  template's page (drag to reorder, sets, Swap, Remove, coverage, Rename,
+  Duplicate, Delete); All templates (sort, pages, New template); the
+  Workouts tab's Templates card. 10 browser tests.
 
 **Documents touched:** gym, ADR-0058, ADR-0059, the data model, glossary,
 components, patterns, tokens, the design system's README, integration
 setup (the `fitness` schema to expose), the Stage 5 plan, the roadmap.
 
-**Left for later:** templates, workouts, recovery and progression (steps 7–10).
+**Left for later:** workouts, recovery and progression (steps 8–10).
 
 ## [#54](https://github.com/joestables/lifeos/pull/54) — Leftovers when a Meal moves, ticks offline, faded Recipes
 

@@ -61,6 +61,13 @@ export interface Rows {
   gym_settings?: Record<string, unknown>
   exercise?: Record<string, unknown>[]
   exercise_muscles?: { exercise_id: string; muscle_id: string; contribution: number }[]
+  template_exercises?: {
+    id: string
+    template_id: string
+    exercise_id: string
+    position: string
+    sets: number
+  }[]
   /** Households (HSH-001–004): their Spaces, members (with names), and invitations. */
   spaces?: { id: string; name: string; created_by: string }[]
   space_members?: {
@@ -274,7 +281,7 @@ export async function standIn(
     activity: [...(rows.activity ?? [])],
     attachments: [...(rows.attachments ?? [])],
     change_notes: [...(rows.change_notes ?? [])],
-    equipment: [...(rows.equipment ?? [])],
+    equipment: (rows.equipment ?? []).map((r) => ({ ...r })),
     muscle_groups: [
       ...MUSCLE_GROUPS.map(([name, category, body_part, default_recovery], i) => ({
         id: `mg-${body_part}`,
@@ -293,8 +300,8 @@ export async function standIn(
         ...g,
       })),
     ] as Record<string, unknown>[],
-    muscle_settings: [...(rows.muscle_settings ?? [])],
-    settings: (rows.gym_settings ? [rows.gym_settings] : []) as Record<string, unknown>[],
+    muscle_settings: (rows.muscle_settings ?? []).map((r) => ({ ...r })),
+    settings: (rows.gym_settings ? [{ ...rows.gym_settings }] : []) as Record<string, unknown>[],
     exercise: (rows.exercise ?? []).map((x): Record<string, unknown> => ({
       equipment_id: null,
       current_weight: 0,
@@ -302,7 +309,8 @@ export async function standIn(
       notes: null,
       ...x,
     })),
-    exercise_muscles: [...(rows.exercise_muscles ?? [])],
+    exercise_muscles: (rows.exercise_muscles ?? []).map((r) => ({ ...r })),
+    template_exercises: (rows.template_exercises ?? []).map((r) => ({ ...r })),
     /** Storage's `photos` bucket: each file's bytes by its path. */
     files: new Map<string, Buffer>(),
     /** The calendar chosen for each new Event (set_event_calendar). */
@@ -1133,6 +1141,40 @@ export async function standIn(
         (m) =>
           !(m.exercise_id === a.p_exercise && m.muscle_id === a.p_muscle && m.contribution < 1),
       )
+    },
+    create_template: (a) => {
+      if (item(a.p_id)) return
+      const at = now()
+      db.items.push(
+        itemRow({
+          id: String(a.p_id),
+          type: 'workout_template',
+          title: String(a.p_name).trim(),
+          created_at: at,
+          updated_at: at,
+        }),
+      )
+    },
+    add_template_exercise: (a) => {
+      if (db.template_exercises.some((t) => t.id === a.p_id)) return
+      db.template_exercises.push({
+        id: String(a.p_id),
+        template_id: String(a.p_template),
+        exercise_id: String(a.p_exercise),
+        position: String(a.p_position),
+        sets: Number(a.p_sets ?? 1),
+      })
+    },
+    update_template_exercise: (a) => {
+      const row = db.template_exercises.find((t) => t.id === a.p_id)
+      const p = a.p_patch as Record<string, unknown>
+      if (!row) return
+      if (typeof p.position === 'string') row.position = p.position
+      if (p.sets !== undefined) row.sets = Number(p.sets)
+      if (typeof p.exercise_id === 'string') row.exercise_id = p.exercise_id
+    },
+    remove_template_exercise: (a) => {
+      db.template_exercises = db.template_exercises.filter((t) => t.id !== a.p_id)
     },
     archive_exercise: (a) => {
       const i = item(a.p_id)
