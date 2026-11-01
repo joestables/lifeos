@@ -57,6 +57,27 @@ import {
 } from './food'
 import { foodWrites } from './food-writes'
 import {
+  applyPendingEquipment,
+  applyPendingExerciseMuscles,
+  applyPendingExercises,
+  applyPendingGymSettings,
+  applyPendingMuscleGroups,
+  applyPendingMuscleSettings,
+  equipmentKey,
+  exerciseMusclesKey,
+  exercisesKey,
+  gymSettingsKey,
+  muscleGroupsKey,
+  muscleSettingsKey,
+  type Equipment,
+  type ExerciseMuscle,
+  type ExerciseRow,
+  type GymSettings,
+  type MuscleGroup,
+  type MuscleSettingsRow,
+} from './fitness'
+import { fitnessWrites } from './fitness-writes'
+import {
   applyPendingListMeals,
   applyPendingLists,
   applyPendingShopLines,
@@ -130,6 +151,9 @@ const collections: {
       'food.add_variation',
       'food.plan_meal',
       'shopping.create_list',
+      'fitness.create_exercise',
+      'fitness.update_exercise',
+      'fitness.archive_exercise',
     ],
     fold: (rows: ItemRow[], e: QueueEntry) => foldSent(rows, e),
   },
@@ -316,6 +340,41 @@ const collections: {
     fold: (rows: Link[], e: QueueEntry) => applyPendingLinks(rows, [e]),
   },
   {
+    key: equipmentKey,
+    fns: ['fitness.save_equipment', 'fitness.remove_equipment'],
+    fold: (rows: Equipment[], e: QueueEntry) => applyPendingEquipment(rows, [e]),
+  },
+  {
+    key: muscleGroupsKey,
+    fns: ['fitness.save_muscle_group', 'fitness.remove_muscle_group'],
+    fold: (rows: MuscleGroup[], e: QueueEntry) => applyPendingMuscleGroups(rows, [e], ''),
+  },
+  {
+    key: muscleSettingsKey,
+    fns: ['fitness.set_muscle_settings'],
+    fold: (rows: MuscleSettingsRow[], e: QueueEntry) => applyPendingMuscleSettings(rows, [e]),
+  },
+  {
+    key: gymSettingsKey,
+    fns: ['fitness.update_settings'],
+    fold: (settings: GymSettings, e: QueueEntry) => applyPendingGymSettings(settings, [e]),
+  },
+  {
+    key: exercisesKey,
+    fns: ['fitness.create_exercise', 'fitness.update_exercise'],
+    fold: (rows: ExerciseRow[], e: QueueEntry) => applyPendingExercises(rows, [e]),
+  },
+  {
+    key: exerciseMusclesKey,
+    fns: [
+      'fitness.create_exercise',
+      'fitness.set_primary_muscle',
+      'fitness.set_secondary_muscle',
+      'fitness.remove_secondary_muscle',
+    ],
+    fold: (rows: ExerciseMuscle[], e: QueueEntry) => applyPendingExerciseMuscles(rows, [e]),
+  },
+  {
     key: subtasksKey,
     fns: ['add_subtask', 'update_subtask', 'remove_subtask'],
     fold: (rows: Subtask[], e: QueueEntry) => applyPendingSubtasks(rows, [e]),
@@ -474,6 +533,21 @@ export const {
 export const { setPhoto, removePhoto } = photoWrites(queue)
 
 export const {
+  saveEquipment,
+  removeEquipment,
+  saveMuscleGroup,
+  removeMuscleGroup,
+  setMuscleSettings,
+  updateGymSettings,
+  createExercise,
+  updateExercise,
+  setPrimaryMuscle,
+  setSecondaryMuscle,
+  removeSecondaryMuscle,
+  archiveExercise,
+} = fitnessWrites(queue)
+
+export const {
   createHousehold,
   renameHousehold,
   invite,
@@ -575,6 +649,15 @@ export type {
   VariationPatch,
 } from './food'
 export { savedSource } from './food'
+export { useGym, type EquipmentView, type ExerciseView, type GymData } from './fitness-hooks'
+export {
+  CATEGORIES,
+  type GymSettings,
+  type GymSettingsPatch,
+  type MuscleCategory,
+  type MuscleView,
+} from './fitness'
+export type { ExercisePatch, NewExercise } from './fitness-writes'
 export type { Calendar, CalendarLink, Connection, ExternalRef } from './calendar'
 export { newId } from './ids'
 export { searchItemIds, searchKey } from './search'

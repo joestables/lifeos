@@ -38,8 +38,8 @@ started**: [its plan](50-progress/plans/stage-4b.md) is written, and its
 specs, drafted with Stage 4's, come first. **Stage 5 (Gym) has
 started** alongside it: [its plan](50-progress/plans/stage-5.md) is
 written, its spec (29 October) and design (1 November) agreed by Joe, and
-its schema in the database and its calculations in `packages/fitness` (1
-November). Lists and Shops moved from Stage 3 to Stage 4b, after Recipes (Joe,
+its schema in the database, its calculations in `packages/fitness`, and
+its settings and exercise library built (1 November). Lists and Shops moved from Stage 3 to Stage 4b, after Recipes (Joe,
 14 October); on 17 October Joe set out Recipes, Meal plan and Shopping as
 three pages, with one Shopping list Type taking the place of List and Shop
 ([ADR-0050](20-architecture/adr/0050-shopping-list.md)), and moved Cardio

@@ -2,7 +2,7 @@
 
 Newest first. Each entry is added in its own pull request.
 
-## [#56](https://github.com/joestables/lifeos/pull/56) — The Gym's schema and its calculations
+## [#56](https://github.com/joestables/lifeos/pull/56) — The Gym's schema, calculations, settings and exercise library
 
 Branch `claude/eloquent-darwin-gudbuj` · 2026-11-01
 
@@ -29,12 +29,18 @@ Branch `claude/eloquent-darwin-gudbuj` · 2026-11-01
   group's lines, and what to do next; weights in whole grams. 70 unit
   tests, Annex A's tables value by value. Joe's Stalled rule adds
   Workouts to stall to the Gym settings (`stage5_workouts_to_stall`).
+- **Settings → Gym and the exercise library (step 6):** Preferred RIR
+  and Workouts to stall; Equipment, Muscle groups and their targets,
+  Recovery and Archived exercises; the Gym's three tabs, with Progression →
+  Exercises the library (search, filters, sort; the chosen Exercise beside
+  the list or on its own page) and New, Edit and Archive exercise. The data
+  layer for the Gym, the stand-in's fitness tables, 18 browser tests.
 
 **Documents touched:** gym, ADR-0058, ADR-0059, the data model, glossary,
 components, patterns, tokens, the design system's README, integration
 setup (the `fitness` schema to expose), the Stage 5 plan, the roadmap.
 
-**Left for later:** the screens (steps 6–10).
+**Left for later:** templates, workouts, recovery and progression (steps 7–10).
 
 ## [#54](https://github.com/joestables/lifeos/pull/54) — Leftovers when a Meal moves, ticks offline, faded Recipes
 

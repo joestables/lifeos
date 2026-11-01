@@ -53,6 +53,14 @@ export interface Rows {
   /** Photos (core.attachments) and their files in Storage's `photos` bucket. */
   attachments?: Record<string, unknown>[]
   change_notes?: Record<string, unknown>[]
+  /** The fitness schema (ADR-0058); the twenty built-in muscle groups are there already. */
+  equipment?: { id: string; name: string; increment: number }[]
+  muscle_groups?: Record<string, unknown>[]
+  muscle_settings?: Record<string, unknown>[]
+  /** My Gym settings (fitness.settings), one row or none. */
+  gym_settings?: Record<string, unknown>
+  exercise?: Record<string, unknown>[]
+  exercise_muscles?: { exercise_id: string; muscle_id: string; contribution: number }[]
   /** Households (HSH-001–004): their Spaces, members (with names), and invitations. */
   spaces?: { id: string; name: string; created_by: string }[]
   space_members?: {
@@ -89,6 +97,30 @@ export interface Rows {
     events: Record<string, unknown>[]
   }
 }
+
+/** The twenty built-in muscle groups (GYM-002), ids `mg-<body part>`, as the schema seeds them. */
+export const MUSCLE_GROUPS: [string, string, string, string][] = [
+  ['Chest', 'push', 'chest', 'normal'],
+  ['Front delts', 'push', 'front_delts', 'normal'],
+  ['Lateral delts', 'push', 'lateral_delts', 'fast'],
+  ['Triceps', 'push', 'triceps', 'fast'],
+  ['Lats', 'pull', 'lats', 'normal'],
+  ['Traps', 'pull', 'traps', 'normal'],
+  ['Rear delts', 'pull', 'rear_delts', 'fast'],
+  ['Biceps', 'pull', 'biceps', 'fast'],
+  ['Brachialis', 'pull', 'brachialis', 'fast'],
+  ['Forearms', 'pull', 'forearms', 'fast'],
+  ['Abs', 'core', 'abs', 'fast'],
+  ['Obliques', 'core', 'obliques', 'fast'],
+  ['Erectors', 'core', 'erectors', 'slow'],
+  ['Glutes', 'legs', 'glutes', 'slow'],
+  ['Quads', 'legs', 'quads', 'slow'],
+  ['Hamstrings', 'legs', 'hamstrings', 'slow'],
+  ['Adductors', 'legs', 'adductors', 'normal'],
+  ['Abductors', 'legs', 'abductors', 'normal'],
+  ['Calves', 'legs', 'calves', 'fast'],
+  ['Tibialis', 'legs', 'tibialis', 'fast'],
+]
 
 /** An Item row with everything but what a test names. */
 export const itemRow = (fields: Record<string, unknown> & { id: string; type: string }) => ({
@@ -242,6 +274,35 @@ export async function standIn(
     activity: [...(rows.activity ?? [])],
     attachments: [...(rows.attachments ?? [])],
     change_notes: [...(rows.change_notes ?? [])],
+    equipment: [...(rows.equipment ?? [])],
+    muscle_groups: [
+      ...MUSCLE_GROUPS.map(([name, category, body_part, default_recovery], i) => ({
+        id: `mg-${body_part}`,
+        person_id: null,
+        name,
+        category,
+        body_part,
+        default_recovery,
+        position: i + 1,
+      })),
+      ...(rows.muscle_groups ?? []).map((g) => ({
+        person_id: ANN.id,
+        body_part: null,
+        default_recovery: 'normal',
+        position: 0,
+        ...g,
+      })),
+    ] as Record<string, unknown>[],
+    muscle_settings: [...(rows.muscle_settings ?? [])],
+    settings: (rows.gym_settings ? [rows.gym_settings] : []) as Record<string, unknown>[],
+    exercise: (rows.exercise ?? []).map((x): Record<string, unknown> => ({
+      equipment_id: null,
+      current_weight: 0,
+      current_reps: 8,
+      notes: null,
+      ...x,
+    })),
+    exercise_muscles: [...(rows.exercise_muscles ?? [])],
     /** Storage's `photos` bucket: each file's bytes by its path. */
     files: new Map<string, Buffer>(),
     /** The calendar chosen for each new Event (set_event_calendar). */
@@ -955,6 +1016,131 @@ export async function standIn(
     },
     meals_of: (a) => shopMeals(a.p_list),
   }
+  // The Gym, as the fitness schema's functions do it (ADR-0058).
+  const trimmedOrNull = (v: unknown) => (typeof v === 'string' && v.trim() ? v.trim() : null)
+  const fitnessWrite: Record<string, (a: Record<string, unknown>) => unknown> = {
+    save_equipment: (a) => {
+      const row = db.equipment.find((e) => e.id === a.p_id)
+      const fields = { name: String(a.p_name).trim(), increment: Number(a.p_increment) }
+      if (row) Object.assign(row, fields)
+      else db.equipment.push({ id: String(a.p_id), ...fields })
+    },
+    remove_equipment: (a) => {
+      if (db.exercise.some((x) => x.equipment_id === a.p_id)) return 'in use'
+      db.equipment = db.equipment.filter((e) => e.id !== a.p_id)
+    },
+    save_muscle_group: (a) => {
+      const row = db.muscle_groups.find((g) => g.id === a.p_id)
+      if (row && row.person_id === null) return
+      const fields = { name: String(a.p_name).trim(), category: a.p_category }
+      if (row) Object.assign(row, fields)
+      else
+        db.muscle_groups.push({
+          id: a.p_id,
+          person_id: ANN.id,
+          body_part: null,
+          default_recovery: 'normal',
+          position: 0,
+          ...fields,
+        })
+    },
+    remove_muscle_group: (a) => {
+      if (db.exercise_muscles.some((m) => m.muscle_id === a.p_id)) return 'in use'
+      db.muscle_groups = db.muscle_groups.filter((g) => g.id !== a.p_id || g.person_id === null)
+    },
+    set_muscle_settings: (a) => {
+      const fields = {
+        recovery_type: a.p_recovery,
+        frequency_target: a.p_frequency,
+        stimulus_target: a.p_stimulus,
+      }
+      const row = db.muscle_settings.find((m) => m.muscle_id === a.p_muscle)
+      if (row) Object.assign(row, fields)
+      else db.muscle_settings.push({ muscle_id: a.p_muscle, ...fields })
+    },
+    update_settings: (a) => {
+      if (!db.settings[0])
+        db.settings.push({
+          preferred_rir: 1,
+          workouts_to_stall: 5,
+          points_per_fatigue_set: 20,
+          t_fast_h: 30,
+          t_normal_h: 42,
+          t_slow_h: 60,
+        })
+      Object.assign(db.settings[0]!, a.p_patch)
+    },
+    create_exercise: (a) => {
+      if (item(a.p_id)) return
+      const at = now()
+      db.items.push(
+        itemRow({
+          id: String(a.p_id),
+          type: 'exercise',
+          title: String(a.p_name).trim(),
+          created_at: at,
+          updated_at: at,
+        }),
+      )
+      db.exercise.push({
+        item_id: a.p_id,
+        equipment_id: a.p_equipment,
+        current_weight: Number(a.p_weight),
+        current_reps: Number(a.p_reps),
+        notes: trimmedOrNull(a.p_notes),
+      })
+      db.exercise_muscles.push({
+        exercise_id: String(a.p_id),
+        muscle_id: String(a.p_primary),
+        contribution: 1,
+      })
+    },
+    update_exercise: (a) => {
+      const p = a.p_patch as Record<string, unknown>
+      const i = item(a.p_id)
+      if (i && typeof p.name === 'string') {
+        i.title = p.name.trim()
+        i.updated_at = now()
+      }
+      const row = db.exercise.find((x) => x.item_id === a.p_id)
+      if (!row) return
+      if (p.equipment_id !== undefined) row.equipment_id = p.equipment_id
+      if (p.current_weight !== undefined) row.current_weight = Number(p.current_weight)
+      if (p.current_reps !== undefined) row.current_reps = Number(p.current_reps)
+      if ('notes' in p) row.notes = trimmedOrNull(p.notes)
+    },
+    set_primary_muscle: (a) => {
+      const primary = db.exercise_muscles.find(
+        (m) => m.exercise_id === a.p_exercise && m.contribution === 1,
+      )
+      if (primary) primary.muscle_id = String(a.p_muscle)
+    },
+    set_secondary_muscle: (a) => {
+      const row = db.exercise_muscles.find(
+        (m) => m.exercise_id === a.p_exercise && m.muscle_id === a.p_muscle,
+      )
+      if (row?.contribution === 1) return
+      if (row) row.contribution = Number(a.p_contribution)
+      else
+        db.exercise_muscles.push({
+          exercise_id: String(a.p_exercise),
+          muscle_id: String(a.p_muscle),
+          contribution: Number(a.p_contribution),
+        })
+    },
+    remove_secondary_muscle: (a) => {
+      db.exercise_muscles = db.exercise_muscles.filter(
+        (m) =>
+          !(m.exercise_id === a.p_exercise && m.muscle_id === a.p_muscle && m.contribution < 1),
+      )
+    },
+    archive_exercise: (a) => {
+      const i = item(a.p_id)
+      if (!i) return
+      i.status = a.p_archived === false ? 'active' : 'cancelled'
+      i.updated_at = now()
+    },
+  }
   const write: Record<string, (a: Record<string, unknown>) => unknown> = {
     // The sender's public key (a made-up one: nothing is really sent).
     vapid_public_key: () =>
@@ -1403,7 +1589,13 @@ export async function standIn(
       // A Module's functions come with its profile (supabase.schema('food')).
       const profile = route.request().headers()['content-profile']
       const result = (
-        profile === 'food' ? foodWrite : profile === 'shopping' ? shoppingWrite : write
+        profile === 'food'
+          ? foodWrite
+          : profile === 'shopping'
+            ? shoppingWrite
+            : profile === 'fitness'
+              ? fitnessWrite
+              : write
       )[rpc[1]!]?.(route.request().postDataJSON() ?? {})
       refreshShops()
       if (result === 'in use')

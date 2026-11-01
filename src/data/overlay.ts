@@ -184,6 +184,30 @@ export function applyPending(items: readonly ItemRow[], entries: readonly QueueE
         } else mark(a.p_id, {})
         break
       }
+      // An Exercise is an Item, always mine (ADR-0058); its name is its title.
+      case 'fitness.create_exercise': {
+        const a = entry.args as { p_id: string; p_name: string }
+        if (!byId.has(a.p_id)) {
+          byId.set(a.p_id, {
+            ...blankItem(a.p_id, 'exercise', at),
+            title: a.p_name.trim(),
+            sync,
+          })
+          order.push(a.p_id)
+        } else mark(a.p_id, {})
+        break
+      }
+      case 'fitness.update_exercise': {
+        const a = entry.args as { p_id: string; p_patch: { name?: string } }
+        mark(a.p_id, a.p_patch.name?.trim() ? { title: a.p_patch.name.trim() } : {})
+        break
+      }
+      // Archived is its status (GYM-005), not Recently deleted.
+      case 'fitness.archive_exercise': {
+        const a = entry.args as { p_id: string; p_archived?: boolean }
+        mark(a.p_id, { status: a.p_archived === false ? 'active' : 'cancelled' })
+        break
+      }
       case 'update_item': {
         const { p_id, p_patch } = entry.args as { p_id: string; p_patch: ItemFields }
         touch(p_id, p_patch)

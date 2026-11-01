@@ -282,7 +282,7 @@ waiting for Joe's yes.*
 **As** Joe, **I want** to define my equipment types with their own
 increments, **so that** steppers move by what my gym's weights actually go
 up by.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified (`gym.spec.ts`)
 
 Acceptance criteria
 1. Given Settings → Gym → Equipment, then I add, rename and delete
@@ -301,7 +301,7 @@ Acceptance criteria
 **As** Joe, **I want** the twenty muscle groups built in, by category, and
 my own added, **so that** exercises and recovery use the groups I think
 in.
-Priority: Must · Status: agreed
+Priority: Must · Status: built (1–3 verified by `gym.spec.ts`; 4, readiness and progression for my own groups, with plan steps 9 and 10)
 
 Acceptance criteria
 1. Given Settings → Gym → Muscle groups, then the twenty built-in groups
@@ -319,7 +319,7 @@ Acceptance criteria
 
 **As** Joe, **I want** all my exercises in one library, **so that** I can
 find one and see where it stands.
-Priority: Must · Status: agreed
+Priority: Must · Status: built (2 and 3 verified by `gym.spec.ts`; when last done, Stalled and the figures from workouts come with plan steps 8 and 10)
 
 Acceptance criteria
 1. Given Progression → Exercises, then every Exercise I haven't archived
@@ -337,7 +337,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to describe each exercise once, **so that** logging,
 swapping and recovery all know what it trains.
-Priority: Must · Status: agreed
+Priority: Must · Status: built (1–3 and 5 verified by `gym.spec.ts`; 4, readiness and coverage following, with plan steps 7 and 9)
 
 Acceptance criteria
 1. Given New exercise, then I give a name, an equipment type, one primary
@@ -358,7 +358,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to archive exercises I no longer do, **so that** the
 library and pickers show only what I use.
-Priority: Must · Status: agreed
+Priority: Must · Status: built (verified for the library by `gym.spec.ts`; Add and Swap leave it out with plan step 8)
 
 Acceptance criteria
 1. Given an Exercise, when I archive it, then it leaves the library, Add
@@ -639,7 +639,7 @@ Acceptance criteria
 **As** Joe, **I want** each muscle group to have a desired weekly
 frequency and a stimulus-sets target, **so that** coverage and what to do
 next know what I'm aiming for.
-Priority: Must · Status: agreed
+Priority: Must · Status: built (1 verified by `gym.spec.ts`; 2 and 3 with plan steps 7 and 9)
 
 Acceptance criteria
 1. Given each muscle group, then it has a desired weekly frequency
@@ -683,7 +683,7 @@ Acceptance criteria
 **As** Joe, **I want** readiness and stimulus sets worked out by the
 recovery engine I've designed, **so that** they follow how I think muscles
 respond to training.
-Priority: Must · Status: built (1 and 2 verified by `packages/fitness`'s tests; 3, its settings, with plan step 6)
+Priority: Must · Status: verified (1 and 2 by `packages/fitness`'s tests, 3 by `gym.spec.ts`)
 
 Acceptance criteria
 1. Given logged sets, then each muscle group's readiness and each
@@ -701,7 +701,7 @@ Acceptance criteria
 
 **As** Joe, **I want** the Gym's settings in one place, **so that** it
 starts each set the way I train.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified (`gym.spec.ts`; the set popup and coverage use Preferred RIR with plan steps 7 and 8)
 
 Acceptance criteria
 1. Given Settings → Gym, then Preferred RIR (a stepper, 1 to start; Joe,

@@ -62,6 +62,7 @@ export function PanelRow({
   trailing,
   chevron = true,
   selected = false,
+  onOpen,
   className,
 }: {
   leading?: ReactNode
@@ -70,6 +71,8 @@ export function PanelRow({
   trailing?: ReactNode
   chevron?: boolean
   selected?: boolean
+  /** What choosing it does: Enter and Space too. */
+  onOpen?: () => void
   className?: string
 }) {
   return (
@@ -77,6 +80,12 @@ export function PanelRow({
       role="button"
       tabIndex={0}
       aria-current={selected || undefined}
+      onClick={onOpen}
+      onKeyDown={(e) => {
+        if (e.target !== e.currentTarget || (e.key !== 'Enter' && e.key !== ' ')) return
+        e.preventDefault()
+        onOpen?.()
+      }}
       className={cn(
         '-mx-2 flex min-h-14 cursor-pointer items-center gap-3 rounded-row px-2 py-2 outline-none hover:bg-accent/60 focus-visible:ring-3 focus-visible:ring-ring-soft',
         selected && 'bg-accent hover:bg-accent',
@@ -210,6 +219,7 @@ export function ValueStepper({
   label,
   onStep,
   canDown = true,
+  canUp = true,
   size = 'default',
 }: {
   value: string
@@ -219,6 +229,7 @@ export function ValueStepper({
   label: string
   onStep?: (direction: -1 | 1) => void
   canDown?: boolean
+  canUp?: boolean
   size?: 'sm' | 'default' | 'lg'
 }) {
   const button = cn(
@@ -262,6 +273,7 @@ export function ValueStepper({
         variant="ghost"
         size="icon-sm"
         aria-label={`More ${label.toLowerCase()}`}
+        disabled={!canUp}
         onClick={() => onStep?.(1)}
         className={button}
       >

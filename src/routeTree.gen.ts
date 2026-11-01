@@ -21,24 +21,29 @@ import { Route as ShareRouteImport } from './routes/share'
 import { Route as SignInRouteImport } from './routes/sign-in'
 import { Route as AppCardioRouteImport } from './routes/_app/cardio'
 import { Route as AppGoalsRouteImport } from './routes/_app/goals'
-import { Route as AppGymRouteImport } from './routes/_app/gym'
 import { Route as AppInboxRouteImport } from './routes/_app/inbox'
 import { Route as AppMealPlanRouteImport } from './routes/_app/meal-plan'
 import { Route as AppNotesRouteImport } from './routes/_app/notes'
 import { Route as AppPlanRouteImport } from './routes/_app/plan'
 import { Route as AppTasksRouteImport } from './routes/_app/tasks'
 import { Route as AppWardrobeRouteImport } from './routes/_app/wardrobe'
+import { Route as AppGymIndexRouteImport } from './routes/_app/gym.index'
 import { Route as AppItemIdRouteImport } from './routes/_app/item.$id'
 import { Route as AppRecipesIndexRouteImport } from './routes/_app/recipes.index'
 import { Route as AppRecipesIdRouteImport } from './routes/_app/recipes.$id'
 import { Route as AppRecipesImportRouteImport } from './routes/_app/recipes.import'
 import { Route as AppSettingsIndexRouteImport } from './routes/_app/settings.index'
+import { Route as AppSettingsArchivedExercisesRouteImport } from './routes/_app/settings.archived-exercises'
 import { Route as AppSettingsArchivedRecipesRouteImport } from './routes/_app/settings.archived-recipes'
 import { Route as AppSettingsDeletedRouteImport } from './routes/_app/settings.deleted'
+import { Route as AppSettingsEquipmentRouteImport } from './routes/_app/settings.equipment'
 import { Route as AppSettingsLabelsRouteImport } from './routes/_app/settings.labels'
+import { Route as AppSettingsMuscleGroupsRouteImport } from './routes/_app/settings.muscle-groups'
 import { Route as AppSettingsRecipeListsRouteImport } from './routes/_app/settings.recipe-lists'
+import { Route as AppSettingsRecoveryRouteImport } from './routes/_app/settings.recovery'
 import { Route as AppShoppingIndexRouteImport } from './routes/_app/shopping.index'
 import { Route as AppShoppingIdRouteImport } from './routes/_app/shopping.$id'
+import { Route as AppGymExercisesIdRouteImport } from './routes/_app/gym.exercises.$id'
 import { Route as AppSettingsHouseholdsIdRouteImport } from './routes/_app/settings.households.$id'
 
 const IndexRoute = IndexRouteImport.update({
@@ -100,11 +105,6 @@ const AppGoalsRoute = AppGoalsRouteImport.update({
   path: '/goals',
   getParentRoute: () => AppRoute,
 } as any)
-const AppGymRoute = AppGymRouteImport.update({
-  id: '/gym',
-  path: '/gym',
-  getParentRoute: () => AppRoute,
-} as any)
 const AppInboxRoute = AppInboxRouteImport.update({
   id: '/inbox',
   path: '/inbox',
@@ -135,6 +135,11 @@ const AppWardrobeRoute = AppWardrobeRouteImport.update({
   path: '/wardrobe',
   getParentRoute: () => AppRoute,
 } as any)
+const AppGymIndexRoute = AppGymIndexRouteImport.update({
+  id: '/gym/',
+  path: '/gym/',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppItemIdRoute = AppItemIdRouteImport.update({
   id: '/item/$id',
   path: '/item/$id',
@@ -160,6 +165,12 @@ const AppSettingsIndexRoute = AppSettingsIndexRouteImport.update({
   path: '/settings/',
   getParentRoute: () => AppRoute,
 } as any)
+const AppSettingsArchivedExercisesRoute =
+  AppSettingsArchivedExercisesRouteImport.update({
+    id: '/settings/archived-exercises',
+    path: '/settings/archived-exercises',
+    getParentRoute: () => AppRoute,
+  } as any)
 const AppSettingsArchivedRecipesRoute =
   AppSettingsArchivedRecipesRouteImport.update({
     id: '/settings/archived-recipes',
@@ -171,14 +182,29 @@ const AppSettingsDeletedRoute = AppSettingsDeletedRouteImport.update({
   path: '/settings/deleted',
   getParentRoute: () => AppRoute,
 } as any)
+const AppSettingsEquipmentRoute = AppSettingsEquipmentRouteImport.update({
+  id: '/settings/equipment',
+  path: '/settings/equipment',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppSettingsLabelsRoute = AppSettingsLabelsRouteImport.update({
   id: '/settings/labels',
   path: '/settings/labels',
   getParentRoute: () => AppRoute,
 } as any)
+const AppSettingsMuscleGroupsRoute = AppSettingsMuscleGroupsRouteImport.update({
+  id: '/settings/muscle-groups',
+  path: '/settings/muscle-groups',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppSettingsRecipeListsRoute = AppSettingsRecipeListsRouteImport.update({
   id: '/settings/recipe-lists',
   path: '/settings/recipe-lists',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSettingsRecoveryRoute = AppSettingsRecoveryRouteImport.update({
+  id: '/settings/recovery',
+  path: '/settings/recovery',
   getParentRoute: () => AppRoute,
 } as any)
 const AppShoppingIndexRoute = AppShoppingIndexRouteImport.update({
@@ -189,6 +215,11 @@ const AppShoppingIndexRoute = AppShoppingIndexRouteImport.update({
 const AppShoppingIdRoute = AppShoppingIdRouteImport.update({
   id: '/shopping/$id',
   path: '/shopping/$id',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppGymExercisesIdRoute = AppGymExercisesIdRouteImport.update({
+  id: '/gym/exercises/$id',
+  path: '/gym/exercises/$id',
   getParentRoute: () => AppRoute,
 } as any)
 const AppSettingsHouseholdsIdRoute = AppSettingsHouseholdsIdRouteImport.update({
@@ -209,7 +240,6 @@ export interface FileRoutesByFullPath {
   '/sign-in': typeof SignInRoute
   '/cardio': typeof AppCardioRoute
   '/goals': typeof AppGoalsRoute
-  '/gym': typeof AppGymRoute
   '/inbox': typeof AppInboxRoute
   '/meal-plan': typeof AppMealPlanRoute
   '/notes': typeof AppNotesRoute
@@ -219,14 +249,20 @@ export interface FileRoutesByFullPath {
   '/item/$id': typeof AppItemIdRoute
   '/recipes/$id': typeof AppRecipesIdRoute
   '/recipes/import': typeof AppRecipesImportRoute
+  '/settings/archived-exercises': typeof AppSettingsArchivedExercisesRoute
   '/settings/archived-recipes': typeof AppSettingsArchivedRecipesRoute
   '/settings/deleted': typeof AppSettingsDeletedRoute
+  '/settings/equipment': typeof AppSettingsEquipmentRoute
   '/settings/labels': typeof AppSettingsLabelsRoute
+  '/settings/muscle-groups': typeof AppSettingsMuscleGroupsRoute
   '/settings/recipe-lists': typeof AppSettingsRecipeListsRoute
+  '/settings/recovery': typeof AppSettingsRecoveryRoute
   '/shopping/$id': typeof AppShoppingIdRoute
+  '/gym/': typeof AppGymIndexRoute
   '/recipes/': typeof AppRecipesIndexRoute
   '/settings/': typeof AppSettingsIndexRoute
   '/shopping/': typeof AppShoppingIndexRoute
+  '/gym/exercises/$id': typeof AppGymExercisesIdRoute
   '/settings/households/$id': typeof AppSettingsHouseholdsIdRoute
 }
 export interface FileRoutesByTo {
@@ -241,7 +277,6 @@ export interface FileRoutesByTo {
   '/sign-in': typeof SignInRoute
   '/cardio': typeof AppCardioRoute
   '/goals': typeof AppGoalsRoute
-  '/gym': typeof AppGymRoute
   '/inbox': typeof AppInboxRoute
   '/meal-plan': typeof AppMealPlanRoute
   '/notes': typeof AppNotesRoute
@@ -251,14 +286,20 @@ export interface FileRoutesByTo {
   '/item/$id': typeof AppItemIdRoute
   '/recipes/$id': typeof AppRecipesIdRoute
   '/recipes/import': typeof AppRecipesImportRoute
+  '/settings/archived-exercises': typeof AppSettingsArchivedExercisesRoute
   '/settings/archived-recipes': typeof AppSettingsArchivedRecipesRoute
   '/settings/deleted': typeof AppSettingsDeletedRoute
+  '/settings/equipment': typeof AppSettingsEquipmentRoute
   '/settings/labels': typeof AppSettingsLabelsRoute
+  '/settings/muscle-groups': typeof AppSettingsMuscleGroupsRoute
   '/settings/recipe-lists': typeof AppSettingsRecipeListsRoute
+  '/settings/recovery': typeof AppSettingsRecoveryRoute
   '/shopping/$id': typeof AppShoppingIdRoute
+  '/gym': typeof AppGymIndexRoute
   '/recipes': typeof AppRecipesIndexRoute
   '/settings': typeof AppSettingsIndexRoute
   '/shopping': typeof AppShoppingIndexRoute
+  '/gym/exercises/$id': typeof AppGymExercisesIdRoute
   '/settings/households/$id': typeof AppSettingsHouseholdsIdRoute
 }
 export interface FileRoutesById {
@@ -275,7 +316,6 @@ export interface FileRoutesById {
   '/sign-in': typeof SignInRoute
   '/_app/cardio': typeof AppCardioRoute
   '/_app/goals': typeof AppGoalsRoute
-  '/_app/gym': typeof AppGymRoute
   '/_app/inbox': typeof AppInboxRoute
   '/_app/meal-plan': typeof AppMealPlanRoute
   '/_app/notes': typeof AppNotesRoute
@@ -285,14 +325,20 @@ export interface FileRoutesById {
   '/_app/item/$id': typeof AppItemIdRoute
   '/_app/recipes/$id': typeof AppRecipesIdRoute
   '/_app/recipes/import': typeof AppRecipesImportRoute
+  '/_app/settings/archived-exercises': typeof AppSettingsArchivedExercisesRoute
   '/_app/settings/archived-recipes': typeof AppSettingsArchivedRecipesRoute
   '/_app/settings/deleted': typeof AppSettingsDeletedRoute
+  '/_app/settings/equipment': typeof AppSettingsEquipmentRoute
   '/_app/settings/labels': typeof AppSettingsLabelsRoute
+  '/_app/settings/muscle-groups': typeof AppSettingsMuscleGroupsRoute
   '/_app/settings/recipe-lists': typeof AppSettingsRecipeListsRoute
+  '/_app/settings/recovery': typeof AppSettingsRecoveryRoute
   '/_app/shopping/$id': typeof AppShoppingIdRoute
+  '/_app/gym/': typeof AppGymIndexRoute
   '/_app/recipes/': typeof AppRecipesIndexRoute
   '/_app/settings/': typeof AppSettingsIndexRoute
   '/_app/shopping/': typeof AppShoppingIndexRoute
+  '/_app/gym/exercises/$id': typeof AppGymExercisesIdRoute
   '/_app/settings/households/$id': typeof AppSettingsHouseholdsIdRoute
 }
 export interface FileRouteTypes {
@@ -309,7 +355,6 @@ export interface FileRouteTypes {
     | '/sign-in'
     | '/cardio'
     | '/goals'
-    | '/gym'
     | '/inbox'
     | '/meal-plan'
     | '/notes'
@@ -319,14 +364,20 @@ export interface FileRouteTypes {
     | '/item/$id'
     | '/recipes/$id'
     | '/recipes/import'
+    | '/settings/archived-exercises'
     | '/settings/archived-recipes'
     | '/settings/deleted'
+    | '/settings/equipment'
     | '/settings/labels'
+    | '/settings/muscle-groups'
     | '/settings/recipe-lists'
+    | '/settings/recovery'
     | '/shopping/$id'
+    | '/gym/'
     | '/recipes/'
     | '/settings/'
     | '/shopping/'
+    | '/gym/exercises/$id'
     | '/settings/households/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -341,7 +392,6 @@ export interface FileRouteTypes {
     | '/sign-in'
     | '/cardio'
     | '/goals'
-    | '/gym'
     | '/inbox'
     | '/meal-plan'
     | '/notes'
@@ -351,14 +401,20 @@ export interface FileRouteTypes {
     | '/item/$id'
     | '/recipes/$id'
     | '/recipes/import'
+    | '/settings/archived-exercises'
     | '/settings/archived-recipes'
     | '/settings/deleted'
+    | '/settings/equipment'
     | '/settings/labels'
+    | '/settings/muscle-groups'
     | '/settings/recipe-lists'
+    | '/settings/recovery'
     | '/shopping/$id'
+    | '/gym'
     | '/recipes'
     | '/settings'
     | '/shopping'
+    | '/gym/exercises/$id'
     | '/settings/households/$id'
   id:
     | '__root__'
@@ -374,7 +430,6 @@ export interface FileRouteTypes {
     | '/sign-in'
     | '/_app/cardio'
     | '/_app/goals'
-    | '/_app/gym'
     | '/_app/inbox'
     | '/_app/meal-plan'
     | '/_app/notes'
@@ -384,14 +439,20 @@ export interface FileRouteTypes {
     | '/_app/item/$id'
     | '/_app/recipes/$id'
     | '/_app/recipes/import'
+    | '/_app/settings/archived-exercises'
     | '/_app/settings/archived-recipes'
     | '/_app/settings/deleted'
+    | '/_app/settings/equipment'
     | '/_app/settings/labels'
+    | '/_app/settings/muscle-groups'
     | '/_app/settings/recipe-lists'
+    | '/_app/settings/recovery'
     | '/_app/shopping/$id'
+    | '/_app/gym/'
     | '/_app/recipes/'
     | '/_app/settings/'
     | '/_app/shopping/'
+    | '/_app/gym/exercises/$id'
     | '/_app/settings/households/$id'
   fileRoutesById: FileRoutesById
 }
@@ -494,13 +555,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppGoalsRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/gym': {
-      id: '/_app/gym'
-      path: '/gym'
-      fullPath: '/gym'
-      preLoaderRoute: typeof AppGymRouteImport
-      parentRoute: typeof AppRoute
-    }
     '/_app/inbox': {
       id: '/_app/inbox'
       path: '/inbox'
@@ -543,6 +597,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppWardrobeRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/gym/': {
+      id: '/_app/gym/'
+      path: '/gym'
+      fullPath: '/gym/'
+      preLoaderRoute: typeof AppGymIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/item/$id': {
       id: '/_app/item/$id'
       path: '/item/$id'
@@ -578,6 +639,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppSettingsIndexRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/settings/archived-exercises': {
+      id: '/_app/settings/archived-exercises'
+      path: '/settings/archived-exercises'
+      fullPath: '/settings/archived-exercises'
+      preLoaderRoute: typeof AppSettingsArchivedExercisesRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/settings/archived-recipes': {
       id: '/_app/settings/archived-recipes'
       path: '/settings/archived-recipes'
@@ -592,6 +660,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppSettingsDeletedRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/settings/equipment': {
+      id: '/_app/settings/equipment'
+      path: '/settings/equipment'
+      fullPath: '/settings/equipment'
+      preLoaderRoute: typeof AppSettingsEquipmentRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/settings/labels': {
       id: '/_app/settings/labels'
       path: '/settings/labels'
@@ -599,11 +674,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppSettingsLabelsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/settings/muscle-groups': {
+      id: '/_app/settings/muscle-groups'
+      path: '/settings/muscle-groups'
+      fullPath: '/settings/muscle-groups'
+      preLoaderRoute: typeof AppSettingsMuscleGroupsRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/settings/recipe-lists': {
       id: '/_app/settings/recipe-lists'
       path: '/settings/recipe-lists'
       fullPath: '/settings/recipe-lists'
       preLoaderRoute: typeof AppSettingsRecipeListsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/settings/recovery': {
+      id: '/_app/settings/recovery'
+      path: '/settings/recovery'
+      fullPath: '/settings/recovery'
+      preLoaderRoute: typeof AppSettingsRecoveryRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/shopping/': {
@@ -620,6 +709,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppShoppingIdRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/gym/exercises/$id': {
+      id: '/_app/gym/exercises/$id'
+      path: '/gym/exercises/$id'
+      fullPath: '/gym/exercises/$id'
+      preLoaderRoute: typeof AppGymExercisesIdRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/settings/households/$id': {
       id: '/_app/settings/households/$id'
       path: '/settings/households/$id'
@@ -633,7 +729,6 @@ declare module '@tanstack/react-router' {
 interface AppRouteChildren {
   AppCardioRoute: typeof AppCardioRoute
   AppGoalsRoute: typeof AppGoalsRoute
-  AppGymRoute: typeof AppGymRoute
   AppInboxRoute: typeof AppInboxRoute
   AppMealPlanRoute: typeof AppMealPlanRoute
   AppNotesRoute: typeof AppNotesRoute
@@ -643,21 +738,26 @@ interface AppRouteChildren {
   AppItemIdRoute: typeof AppItemIdRoute
   AppRecipesIdRoute: typeof AppRecipesIdRoute
   AppRecipesImportRoute: typeof AppRecipesImportRoute
+  AppSettingsArchivedExercisesRoute: typeof AppSettingsArchivedExercisesRoute
   AppSettingsArchivedRecipesRoute: typeof AppSettingsArchivedRecipesRoute
   AppSettingsDeletedRoute: typeof AppSettingsDeletedRoute
+  AppSettingsEquipmentRoute: typeof AppSettingsEquipmentRoute
   AppSettingsLabelsRoute: typeof AppSettingsLabelsRoute
+  AppSettingsMuscleGroupsRoute: typeof AppSettingsMuscleGroupsRoute
   AppSettingsRecipeListsRoute: typeof AppSettingsRecipeListsRoute
+  AppSettingsRecoveryRoute: typeof AppSettingsRecoveryRoute
   AppShoppingIdRoute: typeof AppShoppingIdRoute
+  AppGymIndexRoute: typeof AppGymIndexRoute
   AppRecipesIndexRoute: typeof AppRecipesIndexRoute
   AppSettingsIndexRoute: typeof AppSettingsIndexRoute
   AppShoppingIndexRoute: typeof AppShoppingIndexRoute
+  AppGymExercisesIdRoute: typeof AppGymExercisesIdRoute
   AppSettingsHouseholdsIdRoute: typeof AppSettingsHouseholdsIdRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppCardioRoute: AppCardioRoute,
   AppGoalsRoute: AppGoalsRoute,
-  AppGymRoute: AppGymRoute,
   AppInboxRoute: AppInboxRoute,
   AppMealPlanRoute: AppMealPlanRoute,
   AppNotesRoute: AppNotesRoute,
@@ -667,14 +767,20 @@ const AppRouteChildren: AppRouteChildren = {
   AppItemIdRoute: AppItemIdRoute,
   AppRecipesIdRoute: AppRecipesIdRoute,
   AppRecipesImportRoute: AppRecipesImportRoute,
+  AppSettingsArchivedExercisesRoute: AppSettingsArchivedExercisesRoute,
   AppSettingsArchivedRecipesRoute: AppSettingsArchivedRecipesRoute,
   AppSettingsDeletedRoute: AppSettingsDeletedRoute,
+  AppSettingsEquipmentRoute: AppSettingsEquipmentRoute,
   AppSettingsLabelsRoute: AppSettingsLabelsRoute,
+  AppSettingsMuscleGroupsRoute: AppSettingsMuscleGroupsRoute,
   AppSettingsRecipeListsRoute: AppSettingsRecipeListsRoute,
+  AppSettingsRecoveryRoute: AppSettingsRecoveryRoute,
   AppShoppingIdRoute: AppShoppingIdRoute,
+  AppGymIndexRoute: AppGymIndexRoute,
   AppRecipesIndexRoute: AppRecipesIndexRoute,
   AppSettingsIndexRoute: AppSettingsIndexRoute,
   AppShoppingIndexRoute: AppShoppingIndexRoute,
+  AppGymExercisesIdRoute: AppGymExercisesIdRoute,
   AppSettingsHouseholdsIdRoute: AppSettingsHouseholdsIdRoute,
 }
 
