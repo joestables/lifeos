@@ -159,8 +159,12 @@ test.describe('the exercise library', () => {
     await dialog.getByRole('textbox', { name: 'Name' }).fill('Cable fly')
     await dialog.getByRole('combobox', { name: 'Equipment' }).click()
     await page.getByRole('option', { name: 'Cable' }).filter({ visible: true }).click()
+    // The list has gone before the next opens: a closing one's options are still in the page.
+    await expect(page.getByRole('listbox')).toHaveCount(0)
     await dialog.getByRole('combobox', { name: 'Primary muscle' }).click()
     await page.getByRole('option', { name: 'Chest' }).filter({ visible: true }).click()
+    // The list has gone before the next opens: a closing one's options are still in the page.
+    await expect(page.getByRole('listbox')).toHaveCount(0)
     await dialog.getByRole('button', { name: 'Add a muscle' }).click()
     await dialog.getByRole('combobox', { name: 'Add a muscle' }).click()
     await page.getByRole('option', { name: 'Front delts' }).filter({ visible: true }).click()
