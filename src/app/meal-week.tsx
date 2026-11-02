@@ -182,12 +182,10 @@ export function WeekTab({
         slot={SLOT_LABEL[s]}
         drop={key}
         adding={adding === key}
-        dropping={drag.over === key}
+        dragging={drag.dragging !== null}
         add={
           <Popover open={adding === key} onOpenChange={(on) => setAdding(on ? key : null)}>
-            <PopoverTrigger
-              render={<AddMealButton slot={SLOT_LABEL[s]} dropping={drag.over === key} />}
-            />
+            <PopoverTrigger render={<AddMealButton slot={SLOT_LABEL[s]} />} />
             <PopoverContent align="start" className="w-80 p-2.5">
               <MealPicker plan={plan} day={d} slot={s} onDone={() => setAdding(null)} />
             </PopoverContent>

@@ -53,6 +53,25 @@ export interface Rows {
   /** Photos (core.attachments) and their files in Storage's `photos` bucket. */
   attachments?: Record<string, unknown>[]
   change_notes?: Record<string, unknown>[]
+  /** The fitness schema (ADR-0058); the twenty built-in muscle groups are there already. */
+  equipment?: { id: string; name: string; increment: number }[]
+  muscle_groups?: Record<string, unknown>[]
+  muscle_settings?: Record<string, unknown>[]
+  /** My Gym settings (fitness.settings), one row or none. */
+  gym_settings?: Record<string, unknown>
+  exercise?: Record<string, unknown>[]
+  exercise_muscles?: { exercise_id: string; muscle_id: string; contribution: number }[]
+  /** Workouts' own fields (fitness.workout), entries and sets. */
+  workout?: Record<string, unknown>[]
+  workout_entries?: Record<string, unknown>[]
+  workout_sets?: Record<string, unknown>[]
+  template_exercises?: {
+    id: string
+    template_id: string
+    exercise_id: string
+    position: string
+    sets: number
+  }[]
   /** Households (HSH-001–004): their Spaces, members (with names), and invitations. */
   spaces?: { id: string; name: string; created_by: string }[]
   space_members?: {
@@ -90,6 +109,30 @@ export interface Rows {
   }
 }
 
+/** The twenty built-in muscle groups (GYM-002), ids `mg-<body part>`, as the schema seeds them. */
+export const MUSCLE_GROUPS: [string, string, string, string][] = [
+  ['Chest', 'push', 'chest', 'normal'],
+  ['Front delts', 'push', 'front_delts', 'normal'],
+  ['Lateral delts', 'push', 'lateral_delts', 'fast'],
+  ['Triceps', 'push', 'triceps', 'fast'],
+  ['Lats', 'pull', 'lats', 'normal'],
+  ['Traps', 'pull', 'traps', 'normal'],
+  ['Rear delts', 'pull', 'rear_delts', 'fast'],
+  ['Biceps', 'pull', 'biceps', 'fast'],
+  ['Brachialis', 'pull', 'brachialis', 'fast'],
+  ['Forearms', 'pull', 'forearms', 'fast'],
+  ['Abs', 'core', 'abs', 'fast'],
+  ['Obliques', 'core', 'obliques', 'fast'],
+  ['Erectors', 'core', 'erectors', 'slow'],
+  ['Glutes', 'legs', 'glutes', 'slow'],
+  ['Quads', 'legs', 'quads', 'slow'],
+  ['Hamstrings', 'legs', 'hamstrings', 'slow'],
+  ['Adductors', 'legs', 'adductors', 'normal'],
+  ['Abductors', 'legs', 'abductors', 'normal'],
+  ['Calves', 'legs', 'calves', 'fast'],
+  ['Tibialis', 'legs', 'tibialis', 'fast'],
+]
+
 /** An Item row with everything but what a test names. */
 export const itemRow = (fields: Record<string, unknown> & { id: string; type: string }) => ({
   title: '',
@@ -126,7 +169,8 @@ export async function standIn(
   { signedIn = false, rows = {}, ai }: { signedIn?: boolean; rows?: Rows; ai?: Rows['ai'] } = {},
 ) {
   const db = {
-    items: [...(rows.items ?? [])],
+    // Each row copied, so a test's changes never reach the next test's rows.
+    items: (rows.items ?? []).map((r) => ({ ...r })),
     labels: (rows.labels ?? []).map((l) => ({
       space_id: 's',
       created_by: ANN.id,
@@ -242,6 +286,61 @@ export async function standIn(
     activity: [...(rows.activity ?? [])],
     attachments: [...(rows.attachments ?? [])],
     change_notes: [...(rows.change_notes ?? [])],
+    equipment: (rows.equipment ?? []).map((r) => ({ ...r })),
+    muscle_groups: [
+      ...MUSCLE_GROUPS.map(([name, category, body_part, default_recovery], i) => ({
+        id: `mg-${body_part}`,
+        person_id: null,
+        name,
+        category,
+        body_part,
+        default_recovery,
+        position: i + 1,
+      })),
+      ...(rows.muscle_groups ?? []).map((g) => ({
+        person_id: ANN.id,
+        body_part: null,
+        default_recovery: 'normal',
+        position: 0,
+        ...g,
+      })),
+    ] as Record<string, unknown>[],
+    muscle_settings: (rows.muscle_settings ?? []).map((r) => ({ ...r })),
+    settings: (rows.gym_settings ? [{ ...rows.gym_settings }] : []) as Record<string, unknown>[],
+    exercise: (rows.exercise ?? []).map((x): Record<string, unknown> => ({
+      equipment_id: null,
+      current_weight: 0,
+      current_reps: 8,
+      notes: null,
+      ...x,
+    })),
+    exercise_muscles: (rows.exercise_muscles ?? []).map((r) => ({ ...r })),
+    template_exercises: (rows.template_exercises ?? []).map((r) => ({ ...r })),
+    workout: (rows.workout ?? []).map((r): Record<string, unknown> => ({
+      stage: 'planned',
+      started_at: null,
+      ended_at: null,
+      how_it_went: null,
+      motivation: null,
+      notes: null,
+      discarded: false,
+      ...r,
+    })),
+    workout_entries: (rows.workout_entries ?? []).map((r): Record<string, unknown> => ({
+      place: 'backlog',
+      planned_sets: 1,
+      begun_at: null,
+      done_at: null,
+      snapshot: {},
+      ...r,
+    })),
+    workout_sets: (rows.workout_sets ?? []).map((r): Record<string, unknown> => ({
+      weight: null,
+      reps: null,
+      rir: null,
+      logged_at: '2026-10-01T09:00:00Z',
+      ...r,
+    })),
     /** Storage's `photos` bucket: each file's bytes by its path. */
     files: new Map<string, Buffer>(),
     /** The calendar chosen for each new Event (set_event_calendar). */
@@ -297,6 +396,15 @@ export async function standIn(
     return { connections: 1, saved: 0, broken: 0, failed: [] }
   }
   const item = (id: unknown) => db.items.find((i) => i.id === id)
+  /** What `fitness_private.snapshot` copies from an Exercise. */
+  const snapshot = (id: unknown) => {
+    const row = db.exercise.find((r) => r.item_id === id)
+    return {
+      name: item(id)?.title,
+      current_weight: row?.current_weight,
+      current_reps: row?.current_reps,
+    }
+  }
   const now = () => new Date().toISOString()
   // Repeats, as core.set_repeat, stop_repeat and complete_occurrence make them.
   const endSeries = (seriesId: unknown, last: string, keep?: unknown) => {
@@ -955,6 +1063,277 @@ export async function standIn(
     },
     meals_of: (a) => shopMeals(a.p_list),
   }
+  // The Gym, as the fitness schema's functions do it (ADR-0058).
+  const trimmedOrNull = (v: unknown) => (typeof v === 'string' && v.trim() ? v.trim() : null)
+  const fitnessWrite: Record<string, (a: Record<string, unknown>) => unknown> = {
+    save_equipment: (a) => {
+      const row = db.equipment.find((e) => e.id === a.p_id)
+      const fields = { name: String(a.p_name).trim(), increment: Number(a.p_increment) }
+      if (row) Object.assign(row, fields)
+      else db.equipment.push({ id: String(a.p_id), ...fields })
+    },
+    remove_equipment: (a) => {
+      if (db.exercise.some((x) => x.equipment_id === a.p_id)) return 'in use'
+      db.equipment = db.equipment.filter((e) => e.id !== a.p_id)
+    },
+    save_muscle_group: (a) => {
+      const row = db.muscle_groups.find((g) => g.id === a.p_id)
+      if (row && row.person_id === null) return
+      const fields = { name: String(a.p_name).trim(), category: a.p_category }
+      if (row) Object.assign(row, fields)
+      else
+        db.muscle_groups.push({
+          id: a.p_id,
+          person_id: ANN.id,
+          body_part: null,
+          default_recovery: 'normal',
+          position: 0,
+          ...fields,
+        })
+    },
+    remove_muscle_group: (a) => {
+      if (db.exercise_muscles.some((m) => m.muscle_id === a.p_id)) return 'in use'
+      db.muscle_groups = db.muscle_groups.filter((g) => g.id !== a.p_id || g.person_id === null)
+    },
+    set_muscle_settings: (a) => {
+      const fields = {
+        recovery_type: a.p_recovery,
+        frequency_target: a.p_frequency,
+        stimulus_target: a.p_stimulus,
+      }
+      const row = db.muscle_settings.find((m) => m.muscle_id === a.p_muscle)
+      if (row) Object.assign(row, fields)
+      else db.muscle_settings.push({ muscle_id: a.p_muscle, ...fields })
+    },
+    update_settings: (a) => {
+      if (!db.settings[0])
+        db.settings.push({
+          preferred_rir: 1,
+          workouts_to_stall: 5,
+          points_per_fatigue_set: 20,
+          t_fast_h: 30,
+          t_normal_h: 42,
+          t_slow_h: 60,
+        })
+      Object.assign(db.settings[0]!, a.p_patch)
+    },
+    create_exercise: (a) => {
+      if (item(a.p_id)) return
+      const at = now()
+      db.items.push(
+        itemRow({
+          id: String(a.p_id),
+          type: 'exercise',
+          title: String(a.p_name).trim(),
+          created_at: at,
+          updated_at: at,
+        }),
+      )
+      db.exercise.push({
+        item_id: a.p_id,
+        equipment_id: a.p_equipment,
+        current_weight: Number(a.p_weight),
+        current_reps: Number(a.p_reps),
+        notes: trimmedOrNull(a.p_notes),
+      })
+      db.exercise_muscles.push({
+        exercise_id: String(a.p_id),
+        muscle_id: String(a.p_primary),
+        contribution: 1,
+      })
+    },
+    update_exercise: (a) => {
+      const p = a.p_patch as Record<string, unknown>
+      const i = item(a.p_id)
+      if (i && typeof p.name === 'string') {
+        i.title = p.name.trim()
+        i.updated_at = now()
+      }
+      const row = db.exercise.find((x) => x.item_id === a.p_id)
+      if (!row) return
+      if (p.equipment_id !== undefined) row.equipment_id = p.equipment_id
+      if (p.current_weight !== undefined) row.current_weight = Number(p.current_weight)
+      if (p.current_reps !== undefined) row.current_reps = Number(p.current_reps)
+      if ('notes' in p) row.notes = trimmedOrNull(p.notes)
+    },
+    set_primary_muscle: (a) => {
+      const primary = db.exercise_muscles.find(
+        (m) => m.exercise_id === a.p_exercise && m.contribution === 1,
+      )
+      if (primary) primary.muscle_id = String(a.p_muscle)
+    },
+    set_secondary_muscle: (a) => {
+      const row = db.exercise_muscles.find(
+        (m) => m.exercise_id === a.p_exercise && m.muscle_id === a.p_muscle,
+      )
+      if (row?.contribution === 1) return
+      if (row) row.contribution = Number(a.p_contribution)
+      else
+        db.exercise_muscles.push({
+          exercise_id: String(a.p_exercise),
+          muscle_id: String(a.p_muscle),
+          contribution: Number(a.p_contribution),
+        })
+    },
+    remove_secondary_muscle: (a) => {
+      db.exercise_muscles = db.exercise_muscles.filter(
+        (m) =>
+          !(m.exercise_id === a.p_exercise && m.muscle_id === a.p_muscle && m.contribution < 1),
+      )
+    },
+    create_template: (a) => {
+      if (item(a.p_id)) return
+      const at = now()
+      db.items.push(
+        itemRow({
+          id: String(a.p_id),
+          type: 'workout_template',
+          title: String(a.p_name).trim(),
+          created_at: at,
+          updated_at: at,
+        }),
+      )
+    },
+    add_template_exercise: (a) => {
+      if (db.template_exercises.some((t) => t.id === a.p_id)) return
+      db.template_exercises.push({
+        id: String(a.p_id),
+        template_id: String(a.p_template),
+        exercise_id: String(a.p_exercise),
+        position: String(a.p_position),
+        sets: Number(a.p_sets ?? 1),
+      })
+    },
+    update_template_exercise: (a) => {
+      const row = db.template_exercises.find((t) => t.id === a.p_id)
+      const p = a.p_patch as Record<string, unknown>
+      if (!row) return
+      if (typeof p.position === 'string') row.position = p.position
+      if (p.sets !== undefined) row.sets = Number(p.sets)
+      if (typeof p.exercise_id === 'string') row.exercise_id = p.exercise_id
+    },
+    remove_template_exercise: (a) => {
+      db.template_exercises = db.template_exercises.filter((t) => t.id !== a.p_id)
+    },
+    plan_workout: (a) => {
+      if (item(a.p_id)) return
+      const template = a.p_template ? item(a.p_template) : undefined
+      db.items.push(
+        itemRow({
+          id: String(a.p_id),
+          type: 'workout',
+          title: String(template?.title ?? 'Workout'),
+          do_on: a.p_day,
+          created_at: now(),
+          updated_at: now(),
+        }),
+      )
+      db.workout.push({
+        item_id: a.p_id,
+        stage: 'planned',
+        started_at: null,
+        ended_at: null,
+        how_it_went: null,
+        motivation: null,
+        notes: null,
+        discarded: false,
+      })
+      if (a.p_template)
+        db.links.push({
+          from_item: String(a.p_id),
+          to_item: String(a.p_template),
+          link_type: 'follows',
+        })
+    },
+    update_workout: (a) => {
+      const p = a.p_patch as Record<string, unknown>
+      const i = item(a.p_id)
+      const w = db.workout.find((x) => x.item_id === a.p_id)
+      if (!i || !w) return
+      if (typeof p.name === 'string' && p.name.trim()) i.title = p.name.trim()
+      if (typeof p.day === 'string' && w.stage === 'planned') i.do_on = p.day
+      for (const k of ['how_it_went', 'motivation', 'notes']) if (k in p) w[k] = p[k]
+    },
+    start_workout: (a) => {
+      const w = db.workout.find((x) => x.item_id === a.p_id)
+      if (!w || w.stage !== 'planned') return
+      w.stage = 'in_progress'
+      w.started_at = a.p_at ?? now()
+    },
+    add_entry: (a) => {
+      if (db.workout_entries.some((e) => e.id === a.p_id)) return
+      db.workout_entries.push({
+        id: a.p_id,
+        workout_id: a.p_workout,
+        exercise_id: a.p_exercise,
+        place: a.p_begin ? 'session' : 'backlog',
+        position: a.p_position,
+        planned_sets: a.p_planned_sets ?? 1,
+        begun_at: a.p_begin ? now() : null,
+        done_at: null,
+        snapshot: snapshot(a.p_exercise),
+      })
+    },
+    begin_entry: (a) => {
+      const e = db.workout_entries.find((x) => x.id === a.p_id)
+      if (!e) return
+      const begin = a.p_begin !== false
+      e.place = begin ? 'session' : 'backlog'
+      e.begun_at = begin ? (e.begun_at ?? a.p_at ?? now()) : null
+      if (!begin) e.done_at = null
+    },
+    swap_entry: (a) => {
+      const e = db.workout_entries.find((x) => x.id === a.p_id && x.place === 'backlog')
+      if (!e) return
+      e.exercise_id = a.p_exercise
+      e.snapshot = snapshot(a.p_exercise)
+    },
+    remove_entry: (a) => {
+      db.workout_entries = db.workout_entries.filter((x) => x.id !== a.p_id)
+    },
+    mark_entry_done: (a) => {
+      const e = db.workout_entries.find((x) => x.id === a.p_id)
+      if (e) e.done_at = a.p_done === false ? null : now()
+    },
+    log_set: (a) => {
+      if (db.workout_sets.some((s) => s.id === a.p_id)) return
+      db.workout_sets.push({
+        id: a.p_id,
+        entry_id: a.p_entry,
+        position: a.p_position,
+        weight: a.p_weight ?? null,
+        reps: a.p_reps ?? null,
+        rir: a.p_rir ?? null,
+        logged_at: a.p_at ?? now(),
+      })
+    },
+    update_set: (a) => {
+      const s = db.workout_sets.find((x) => x.id === a.p_id)
+      if (s) Object.assign(s, { weight: a.p_weight, reps: a.p_reps, rir: a.p_rir })
+    },
+    remove_set: (a) => {
+      db.workout_sets = db.workout_sets.filter((x) => x.id !== a.p_id)
+    },
+    end_workout: (a) => {
+      const w = db.workout.find((x) => x.item_id === a.p_id)
+      if (!w || w.stage !== 'in_progress') return
+      Object.assign(w, {
+        stage: 'complete',
+        ended_at: a.p_at ?? now(),
+        how_it_went: a.p_how_it_went ?? null,
+        motivation: a.p_motivation ?? null,
+        notes: a.p_notes || null,
+      })
+      const i = item(a.p_id)
+      if (i) i.status = 'done'
+    },
+    archive_exercise: (a) => {
+      const i = item(a.p_id)
+      if (!i) return
+      i.status = a.p_archived === false ? 'active' : 'cancelled'
+      i.updated_at = now()
+    },
+  }
   const write: Record<string, (a: Record<string, unknown>) => unknown> = {
     // The sender's public key (a made-up one: nothing is really sent).
     vapid_public_key: () =>
@@ -1099,8 +1478,12 @@ export async function standIn(
     remove_reminder: (a) => {
       db.reminders = db.reminders.filter((r) => r.id !== a.p_id)
     },
-    archive_item: (a) =>
-      Object.assign(item(a.p_id) ?? {}, { archived_at: new Date().toISOString() }),
+    archive_item: (a) => {
+      Object.assign(item(a.p_id) ?? {}, { archived_at: new Date().toISOString() })
+      // A workout in progress deleted ends (GYM-012 7).
+      const w = db.workout.find((x) => x.item_id === a.p_id && x.stage === 'in_progress')
+      if (w) Object.assign(w, { stage: 'complete', ended_at: now(), discarded: true })
+    },
     restore_item: (a) => Object.assign(item(a.p_id) ?? {}, { archived_at: null }),
     // The status is kept where the new Type has it, else active (ITM-004).
     convert_item: (a) => {
@@ -1403,7 +1786,13 @@ export async function standIn(
       // A Module's functions come with its profile (supabase.schema('food')).
       const profile = route.request().headers()['content-profile']
       const result = (
-        profile === 'food' ? foodWrite : profile === 'shopping' ? shoppingWrite : write
+        profile === 'food'
+          ? foodWrite
+          : profile === 'shopping'
+            ? shoppingWrite
+            : profile === 'fitness'
+              ? fitnessWrite
+              : write
       )[rpc[1]!]?.(route.request().postDataJSON() ?? {})
       refreshShops()
       if (result === 'in use')

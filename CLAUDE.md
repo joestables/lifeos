@@ -2,7 +2,7 @@
 
 LifeOS v2 is being built, stage by stage. Stage 0 settled the architecture
 (Provisionally agreed); Stage 1 built the foundation; Stage 2 replaced
-Google Tasks; Stage 3 built Plan, Events and Google Calendar; Stage 4 built Recipes and the Meal plan; Stage 4b (Shopping) has started. The current stage's plan is in
+Google Tasks; Stage 3 built Plan, Events and Google Calendar; Stage 4 built Recipes and the Meal plan; Stage 4b (Shopping) has started, and Stage 5 (Gym) has its spec, design, schema, calculations (`packages/fitness`), settings, exercise library, templates, workouts, recovery and progression. The current stage's plan is in
 [docs/50-progress/plans/](docs/50-progress/plans/);
 a stage without one starts by writing it, shaped like the last, with the
 stage's specs as its first step for Joe to agree

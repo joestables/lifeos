@@ -1,5 +1,6 @@
 import { RefreshCwIcon } from 'lucide-react'
 import { useCallback, useState, type ReactNode } from 'react'
+import { dragHeld } from '@/lib/drag-hold'
 import { cn } from '@/lib/utils'
 
 /** How far to pull before letting go reloads, and the most it moves. */
@@ -31,8 +32,9 @@ export function PullToRefresh({
       let distance = 0
       const down = (e: TouchEvent) => {
         const t = e.touches[0]
+        // A touch something else has taken — a drag's handle — isn't a pull.
         start =
-          e.touches.length === 1 && t && viewport().scrollTop <= 0
+          !e.defaultPrevented && e.touches.length === 1 && t && viewport().scrollTop <= 0
             ? { x: t.clientX, y: t.clientY }
             : null
         distance = 0
@@ -40,6 +42,12 @@ export function PullToRefresh({
       const move = (e: TouchEvent) => {
         const t = e.touches[0]
         if (!start || !t) return
+        // Nor is a drag's: a meal lifted, an exercise moved (patterns.md#dragging).
+        if (e.defaultPrevented || dragHeld()) {
+          start = null
+          setPull(0)
+          return
+        }
         const dy = t.clientY - start.y
         const dx = t.clientX - start.x
         // Only a pull straight down from the top; a sideways swipe is a row's.

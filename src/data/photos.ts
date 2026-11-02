@@ -5,6 +5,7 @@ import { newId } from './ids'
 import type { WriteQueue } from './queue/queue'
 import type { QueueEntry } from './queue/store'
 import { supabase } from './supabase'
+import { allRows } from './paging'
 
 /** An Item's photo (core.attachments; ADR-0052). */
 export type Photo = Pick<
@@ -18,12 +19,14 @@ const BUCKET = 'photos'
 const LINK_SECONDS = 7 * 24 * 3600
 
 export async function fetchPhotos(): Promise<Photo[]> {
-  const { data, error } = await supabase()
-    .from('attachments')
-    .select('id, item_id, path, width, height')
-    .eq('kind', 'photo')
-  if (error) throw error
-  return data
+  return allRows((from, to) =>
+    supabase()
+      .from('attachments')
+      .select('id, item_id, path, width, height')
+      .eq('kind', 'photo')
+      .order('id')
+      .range(from, to),
+  )
 }
 
 const pathOf = (item: string, id: string) => `${item}/${id}.webp`

@@ -44,6 +44,14 @@ export const LINK_TYPES = [
     symmetric: false,
   },
   {
+    key: 'follows',
+    label: 'follows',
+    inverseLabel: 'followed by',
+    from: ['workout'],
+    to: ['workout_template'],
+    symmetric: false,
+  },
+  {
     key: 'became',
     label: 'became',
     inverseLabel: 'came from',

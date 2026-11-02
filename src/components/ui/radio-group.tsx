@@ -53,7 +53,7 @@ function RadioCard({
     <label
       data-slot="radio-card"
       className={cn(
-        'flex cursor-pointer items-start gap-3 rounded-row bg-card px-3.5 py-3 shadow-card transition-[background-color,box-shadow] has-data-checked:bg-transparent has-data-checked:shadow-none has-data-checked:ring-[1.5px] has-data-checked:ring-foreground has-focus-visible:ring-3 has-focus-visible:ring-ring-soft',
+        'flex cursor-pointer items-start gap-3 rounded-row bg-card px-3.5 py-3 shadow-card transition-[background-color,box-shadow] has-data-checked:bg-transparent has-data-checked:shadow-none has-data-checked:ring-[1.5px] has-data-checked:ring-primary has-focus-visible:ring-3 has-focus-visible:ring-ring-soft',
         className,
       )}
     >

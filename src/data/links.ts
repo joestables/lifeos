@@ -1,5 +1,6 @@
 import type { QueueEntry } from './queue/store'
 import { supabase } from './supabase'
+import { allRows } from './paging'
 
 /** A link between two Items (ADR-0007): a Task *for* an Event (EVT-006). */
 export interface Link {
@@ -11,12 +12,14 @@ export interface Link {
 export const linksKey = ['links'] as const
 
 export async function fetchLinks(): Promise<Link[]> {
-  const { data, error } = await supabase()
-    .from('links')
-    .select('from_item, to_item, link_type')
-    .order('created_at')
-  if (error) throw error
-  return data
+  return allRows((from, to) =>
+    supabase()
+      .from('links')
+      .select('from_item, to_item, link_type')
+      .order('created_at')
+      .order('id')
+      .range(from, to),
+  )
 }
 
 /** Lays unsent links and unlinks over the server's. */
@@ -32,6 +35,13 @@ export function applyPendingLinks(rows: readonly Link[], entries: readonly Queue
           : { from_item: a.p_id, to_item: String(a.p_recipe), link_type: 'variation_of' }
       if (!out.some((l) => l.from_item === link.from_item && l.link_type === 'variation_of'))
         out.push(link)
+      continue
+    }
+    // A Workout follows the template it was planned from (ADR-0058).
+    if (entry.fn === 'fitness.plan_workout') {
+      const a = entry.args as { p_id: string; p_template?: string | null }
+      if (a.p_template && !out.some((l) => l.from_item === a.p_id && l.link_type === 'follows'))
+        out.push({ from_item: a.p_id, to_item: a.p_template, link_type: 'follows' })
       continue
     }
     // A Meal uses the Variation it plans (MPL-002); one at most.

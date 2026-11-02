@@ -2,6 +2,7 @@ import type { Database } from './database.types'
 import type { QueueEntry } from './queue/store'
 import type { RepeatArgs } from './series'
 import { supabase } from './supabase'
+import { allRows } from './paging'
 
 type Tables = Database['core']['Tables']
 
@@ -19,24 +20,31 @@ export const itemLabelsKey = ['item_labels'] as const
 export const marksKey = ['marks'] as const
 
 export async function fetchLabels(): Promise<Label[]> {
-  const { data, error } = await supabase()
-    .from('labels')
-    .select('id, name, space_id, created_by, created_at')
-    .order('name')
-  if (error) throw error
-  return data
+  return allRows((from, to) =>
+    supabase()
+      .from('labels')
+      .select('id, name, space_id, created_by, created_at')
+      .order('name')
+      .order('id')
+      .range(from, to),
+  )
 }
 
 export async function fetchItemLabels(): Promise<ItemLabel[]> {
-  const { data, error } = await supabase().from('item_labels').select('item_id, label_id')
-  if (error) throw error
-  return data
+  return allRows((from, to) =>
+    supabase()
+      .from('item_labels')
+      .select('item_id, label_id')
+      .order('item_id')
+      .order('label_id')
+      .range(from, to),
+  )
 }
 
 export async function fetchMarks(): Promise<Mark[]> {
-  const { data, error } = await supabase().from('marks').select('item_id')
-  if (error) throw error
-  return data
+  return allRows((from, to) =>
+    supabase().from('marks').select('item_id').order('item_id').order('person_id').range(from, to),
+  )
 }
 
 /** "home" is the same Label as "Home" (ITM-005). */

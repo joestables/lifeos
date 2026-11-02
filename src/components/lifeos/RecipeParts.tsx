@@ -24,6 +24,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import type { Reorder } from '@/hooks/use-reorder'
+import { REORDER_ROW } from './reorder'
 import { LINE_UNITS } from './recipe-fields'
 import { cn } from '@/lib/utils'
 
@@ -198,7 +199,7 @@ function Handle({
       {...reorder?.handle}
       aria-hidden
       className={cn(
-        'shrink-0 cursor-grab touch-none text-muted-foreground [&_svg]:size-4',
+        'shrink-0 cursor-grab touch-none text-muted-foreground select-none [-webkit-touch-callout:none] [&_svg]:size-4',
         phone ? 'max-sm:opacity-100 sm:opacity-0' : 'opacity-0 max-sm:hidden',
         className,
       )}
@@ -213,8 +214,7 @@ const rowState = (reorder?: Reorder) => ({
   'data-reorder': reorder?.state,
 })
 
-const ROW =
-  'rounded-control data-[reorder=dragging]:opacity-50 data-[reorder=over]:ring-2 data-[reorder=over]:ring-ring'
+const ROW = cn('rounded-control', REORDER_ROW)
 
 /**
  * A step being edited: its number, its text in an

@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Card, CardTitle } from '@/components/ui/card'
 import { GoogleCalendarCard } from '@/app/google-calendar'
+import { GymCard } from '@/app/gym-settings'
 import { HouseholdsCard } from '@/app/households'
 import { LabelsCard } from '@/app/labels'
 import { SpaceSelect } from '@/app/space-select'
@@ -33,8 +34,9 @@ import {
 
 /**
  * Settings: notifications and Reminders, Google Calendar, Labels,
- * Households, Recently deleted and signing out (REM-001, REM-007, REM-008,
- * GCL-001, GCL-002, ITM-003, ITM-005, HSH-001, HSH-002, ACC-003).
+ * Households, Food, the Gym, Recently deleted and signing out (REM-001,
+ * REM-007, REM-008, GCL-001, GCL-002, ITM-003, ITM-005, HSH-001, HSH-002,
+ * GYM-020, ACC-003).
  */
 export const Route = createFileRoute('/_app/settings/')({
   // Where Google sends me back after connecting (GCL-001): to finish, with
@@ -92,6 +94,7 @@ function Settings() {
         </div>
         <HouseholdsCard />
         <FoodCard />
+        <GymCard />
         <Card className="gap-0 px-2 py-1.5">
           <CardRow
             className="md:hidden"

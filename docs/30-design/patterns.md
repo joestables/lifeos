@@ -374,9 +374,9 @@ DayColumn, PlanWeek, PlanDay, PlanToolbar, WeekStrip and AddToDay in
 - **Adding:** each day's "+" on hover (AddToDay), "Add" in the toolbar (for
   today, or the day shown), the Fab on a phone; each opens a new Item of the
   chosen Type, dated that day, in its popup with Cancel and Save.
-- **Moving:** on a computer a card is dragged to another day: it lifts, the
-  day under it fills a little more, and a DropSlot shows where it will land;
-  letting go moves it, with Undo in a toast. An Event from an
+- **Moving:** on a computer a card is dragged to another day: it lifts, and
+  the day under it is shaded ([Dragging](#dragging)); letting go moves it,
+  with Undo in a toast. An Event from an
   incoming-only calendar doesn't lift.
 - A card opens its Item as it opens anywhere else; Tasks are ticked in their
   popup, not on the card.
@@ -734,6 +734,86 @@ ShoppingLine, OfferRow, PantryAisle and ItemRow in
   opens an Idea in its popup on Ideas, a Recipe its page. A share with no
   link says "No link to save", with an outline `sm` Recipes.
 
+## Gym
+
+Agreed with Joe on 1 November 2026, on the
+[Stage 5 design canvas](https://claude.ai/artifact/NXxJeLcMza7iuHQjqDadmG)
+(private to Joe), after four passes ([gym](../10-requirements/modules/gym.md)).
+
+- **Three tabs** in coral: Workouts, Recovery, Progression. Lists inside a
+  Card are PanelRows under a PanelHeading, with a PanelFooter leading on
+  ("All workouts"); never a Card per row.
+- **Workouts:** on a computer two columns — Today, then Recent workouts
+  (five) on the left; Templates (six) on the right; on a phone stacked,
+  five recent and three templates. Every workout carries its
+  WorkoutStatePill. Nothing planned: one PanelRow, the most suitable
+  template with its readiness. **All workouts** and **All templates** are
+  pages of their own: StatTiles over the list, the FilterPanel (with
+  RangeFilters, and Dates as two DateFields) beside it on a wide screen
+  and an outline `sm` Filters button opening it in a Sheet where it doesn't
+  fit, Pagination under it. A finished workout's Edit puts a pencil on each
+  set, Log set under them and How it went under its figures, with Done in
+  place of its "…".
+- **A workout in progress is designed for a phone**, one column on a
+  computer too: the title with End workout (primary) and "…"; the state
+  pill and facts under it; the Session's ExerciseCards, expand button
+  first, "2 of 3 sets" under the name; expanded, FormNotes and the
+  CurrentLine, the SetTable with a pencil on each row, and the dashed
+  LogSetButton; then the Backlog, a Card of PanelRows with Add and "…".
+- **Popups:** a set is logged or edited in one Dialog — "Weight (kg)" and
+  "Reps" side by side as `lg` ValueSteppers; RIR as a ToggleGroup 0 to 5;
+  in its footer, at the left, an `outline` Quick (a quick set) and, when
+  editing, Delete; Cancel and Log set (Save) at the right.
+  Add exercise and Swap go by MuscleChoice, then primary and secondary
+  PickRows; long lists use the Dialog's `list` size on a phone. End
+  workout: StarRating and MotivationChoice.
+- **The review:** StatTiles for the workout, then per exercise its Current
+  and PR StatTiles, the SetTable with strength, and Update current with a
+  `success` "Beat current" Badge where it applies; stimulus sets beside.
+- **Templates** look like a workout: ExerciseCards with a drag handle and
+  a sets stepper; coverage beside them.
+- **Recovery:** overall readiness at `text-display`, the BodyMap (a
+  stand-in) and the LookAhead slider under it, and every muscle as a PanelRow with its
+  ReadinessRing, last trained and average frequency, sorted with SortMenu.
+  A muscle, on the map or in the list, opens a Dialog of its readiness,
+  when it is fully recovered, its average frequency and its stimulus sets
+  this week against its target. With no
+  workout in progress, planned for or done today, Today offers the most
+  suitable template as a
+  PanelRow under "Nothing planned. Most suitable:"; it opens New workout.
+- **Progression:** Muscles · Exercises and the period as ToggleGroups;
+  ListDetail on a computer (a page per item on a phone, the period on that
+  page; the period kept on the device, 3 months to start); ProgressChart
+  with stimulus sets under it, LinePills for a muscle's exercises, StatTiles
+  (stacked on a phone for a muscle) and a Table of best sets for an
+  exercise, each row opening its workout; a `warning` Badge marks a Stalled
+  Exercise and a muscle's stalled count ("2 stalled"). Both lists are the
+  same: a SearchField, a Filters Sheet and a SortMenu over PanelRows with
+  a TypeTile — `dumbbell` for an exercise, `biceps-flexed` for a muscle
+  group — and their meta (Joe, 3 November).
+- **Readiness colours** run continuously from `--destructive` through
+  `--warning` to `--success`, always with the number.
+
+## Dragging
+
+Two kinds, the same everywhere (Joe, 2 November):
+
+- **Onto a space** (a Plan day, a Meal plan slot or day): the space under
+  the pointer is shaded, `--foreground` 7%, with nothing drawn inside it
+  (no dashed slot) on a computer; the Meal plan's slot is also outlined
+  round its edge, a 2px `--ring-soft` ring (Joe, 3 November), and Plan's
+  day isn't. On a phone the Meal plan's day under the finger is lit as it
+  is. Letting go puts the card there, with Undo in a toast.
+- **To reorder** (a template's exercises, a Variation's lines): the card
+  dragged fades, and a 2px `--ring` line, rounded, shows in the gap between
+  the two cards it will go between (above the first, below the last); no
+  line while letting go would leave it where it is.
+- **Either way:** a drag never selects text, never shows a phone's
+  long-press menu, and never scrolls or pulls to refresh the page — the
+  browser's or LifeOS's own PullToRefresh: a reorder handle takes its
+  touches from the moment they start; near the top or bottom of the
+  screen the page scrolls to the cards beyond.
+
 ## Forms
 
 - Label above, field below, 6px apart. No help text under fields, and no
@@ -771,7 +851,8 @@ Lucide only, at 16px with a 1.75 stroke (12 or 14px small, 22px large).
 Grey by default; a Type colour only in tiles, checkboxes, the drawer and
 pressed Toggles. Each Type always uses the same icon: Thought `lightbulb`, Note
 `file-text`, Task `square-check-big`, Event `calendar`, Shopping list `shopping-cart`,
-Meal `utensils`, Recipe `chef-hat`, Workout `dumbbell`, Cardio activity
+Meal `utensils`, Recipe `chef-hat`, Workout and Exercise `dumbbell`
+(Joe, 3 November), Workout template `clipboard-list`, Cardio activity
 `footprints`, Goal `target`, Outfit and Garment `shirt`. Marks: star (Task),
 pin (Note), heart (Recipe). A Task that repeats shows `repeat` in its meta;
 sub-tasks `list-checks` with "2/5".

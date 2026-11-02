@@ -128,6 +128,7 @@ keyboard shortcuts and code. Numbers that line up use tabular figures.
 
 | Token | Size / line height | Weight | Tracking | Used for |
 |---|---|---|---|---|
+| `text-display` | 32px / 1.1 | 750 | −0.03em | One figure a page leads with: the Gym's overall readiness (Joe, 31 October) |
 | `text-h1` | 24px / 1.2 | 750 | −0.025em | Page title (22px on a phone) |
 | `text-h2` | 17px / 1.3 | 700 | −0.015em | Card and section titles, dialog titles |
 | `text-day` | 20px | 750 | −0.02em | Day numbers on Plan; an Item's title in its Dialog |
