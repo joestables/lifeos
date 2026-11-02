@@ -2,6 +2,9 @@ import { expect, test, type Page } from '@playwright/test'
 import { itemRow, standIn, type Rows } from './stand-in'
 
 const TODAY = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/London' })
+const YESTERDAY = new Date(Date.now() - 86_400_000).toLocaleDateString('en-CA', {
+  timeZone: 'Europe/London',
+})
 const hoursAgo = (h: number) => new Date(Date.now() - h * 3_600_000).toISOString()
 
 /**
@@ -137,7 +140,14 @@ test.describe('recovery', () => {
   test('GYM-018: nothing planned, the most suitable template is suggested and planned for today', async ({
     page,
   }) => {
-    const db = await standIn(page, { signedIn: true, rows: TRAINED })
+    // Yesterday's workout: nothing done or planned today.
+    const db = await standIn(page, {
+      signedIn: true,
+      rows: {
+        ...TRAINED,
+        items: TRAINED.items!.map((i) => (i.id === 'w-1' ? { ...i, do_on: YESTERDAY } : i)),
+      },
+    })
     await page.goto('/gym')
     const today = page.locator('[data-slot="card"]').filter({ hasText: 'Most suitable' })
     // Chest was trained an hour ago, so Legs.
@@ -152,5 +162,16 @@ test.describe('recovery', () => {
     await expect
       .poll(() => db.links.some((l) => l.link_type === 'follows' && l.to_item === 't-legs'))
       .toBe(true)
+  })
+
+  test('GYM-013 1: a workout done today shows under Today, not a suggestion', async ({ page }) => {
+    await standIn(page, { signedIn: true, rows: TRAINED })
+    await page.goto('/gym')
+    const today = page
+      .locator('[data-slot="card"]')
+      .filter({ has: page.getByRole('heading', { name: 'Today' }) })
+    await expect(today.getByRole('button', { name: /^Push A/ })).toContainText('Complete')
+    await expect(today.getByRole('button', { name: /^Push A/ })).toContainText('4 sets')
+    await expect(today.getByText('Most suitable')).toHaveCount(0)
   })
 })

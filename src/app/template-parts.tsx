@@ -19,9 +19,25 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
-import { createTemplate, updateItem, type GymData, type TemplateView } from '@/data'
+import {
+  createTemplate,
+  updateItem,
+  type GymData,
+  type TemplateView,
+  type WorkoutView,
+} from '@/data'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
+import { fromIsoDay, shortDate } from '@/lib/dates'
 import { sameName, sortTemplates } from '@/lib/gym'
-import { deleteTemplate, duplicate, templateMeta } from './template-actions'
+import { deleteTemplate, duplicate, plannedFrom, templateMeta } from './template-actions'
 import { Field } from './task-details'
 
 /** A template's tile (patterns.md#icons). */
@@ -99,44 +115,69 @@ export function TemplateNameDialog({
 export function TemplateMenu({
   template,
   templates,
+  workouts,
   onRename,
   onDuplicated,
   onDeleted,
 }: {
   template: TemplateView
   templates: readonly TemplateView[]
+  /** Every workout: one planned to follow it keeps it from being deleted. */
+  workouts: readonly WorkoutView[]
   onRename: () => void
   onDuplicated?: (id: string) => void
   onDeleted?: () => void
 }) {
+  const [blocked, setBlocked] = useState<WorkoutView[] | null>(null)
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger
-        render={
-          <Button variant="ghost" size="icon-sm" aria-label={`${template.item.title} options`} />
-        }
-      >
-        <EllipsisIcon />
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={onRename}>
-          <PencilIcon /> Rename
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => onDuplicated?.(duplicate(template, templates))}>
-          <CopyIcon /> Duplicate
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem
-          variant="destructive"
-          onClick={() => {
-            deleteTemplate(template)
-            onDeleted?.()
-          }}
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger
+          render={
+            <Button variant="ghost" size="icon-sm" aria-label={`${template.item.title} options`} />
+          }
         >
-          <Trash2Icon /> Delete
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+          <EllipsisIcon />
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem onClick={onRename}>
+            <PencilIcon /> Rename
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => onDuplicated?.(duplicate(template, templates))}>
+            <CopyIcon /> Duplicate
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            variant="destructive"
+            onClick={() => {
+              // A planned workout follows it: change or delete that first (GYM-006 5).
+              const planned = plannedFrom(template, workouts)
+              if (planned.length) return setBlocked(planned)
+              deleteTemplate(template)
+              onDeleted?.()
+            }}
+          >
+            <Trash2Icon /> Delete
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <AlertDialog open={blocked !== null} onOpenChange={(o) => !o && setBlocked(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{template.item.title} is planned</AlertDialogTitle>
+            <AlertDialogDescription>
+              {blocked
+                ?.map((w) => (w.item.do_on ? shortDate(fromIsoDay(w.item.do_on)) : w.item.title))
+                .join(', ')}
+              . Change its template or delete it first.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => setBlocked(null)}>OK</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   )
 }
 

@@ -147,6 +147,30 @@ test.describe('templates', () => {
     await expect(page.getByText('2 templates')).toBeVisible()
   })
 
+  test('GYM-006 5: a template a planned workout follows is not deleted', async ({ page }) => {
+    const db = await standIn(page, {
+      signedIn: true,
+      rows: {
+        ...GYM,
+        items: [
+          ...GYM.items!,
+          itemRow({ id: 'w-1', type: 'workout', title: 'Push A', do_on: '2026-11-03' }),
+        ],
+        workout: [{ item_id: 'w-1' }],
+        links: [{ from_item: 'w-1', to_item: 't-push', link_type: 'follows' }],
+      },
+    })
+    await pushA(page)
+    await page.getByRole('button', { name: 'Push A options' }).click()
+    await page.getByRole('menuitem', { name: 'Delete' }).click()
+    const alert = page.getByRole('alertdialog')
+    await expect(alert.getByRole('heading', { name: 'Push A is planned' })).toBeVisible()
+    await expect(alert).toContainText('Tue 3 Nov')
+    await alert.getByRole('button', { name: 'OK' }).click()
+    await expect(page.getByRole('heading', { name: 'Push A', level: 1 })).toBeVisible()
+    expect(db.items.find((i) => i.id === 't-push')?.archived_at ?? null).toBeNull()
+  })
+
   test('GYM-006 6, GYM-022 2: on the Workouts tab, and All templates sorted', async ({ page }) => {
     await standIn(page, {
       signedIn: true,

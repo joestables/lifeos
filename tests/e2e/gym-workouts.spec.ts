@@ -157,6 +157,27 @@ test.describe('workouts', () => {
     await expect(page.getByRole('heading', { name: 'Push A', level: 1 })).toBeVisible()
   })
 
+  test('PLN-004, PLN-006: Workouts on Plan’s filter, and Add plans one', async ({ page }) => {
+    const db = await standIn(page, { signedIn: true, rows: PLANNED })
+    await page.goto('/plan')
+    const chip = page.getByRole('group', { name: 'Show on Plan' }).getByRole('button', {
+      name: 'Workouts',
+    })
+    await expect(chip).toHaveAttribute('aria-pressed', 'true')
+    await expect(page.getByRole('button', { name: /Push A/ }).first()).toBeVisible()
+    await chip.click()
+    await expect(page.getByRole('button', { name: /Push A/ })).toHaveCount(0)
+    await chip.click()
+
+    await page.getByRole('button', { name: 'Add' }).filter({ visible: true }).first().click()
+    await page.getByRole('menuitem', { name: 'Workout' }).click()
+    const dialog = page.getByRole('dialog', { name: 'New workout' })
+    await expect(dialog).toBeVisible()
+    await dialog.getByRole('button', { name: 'Plan' }).click()
+    await expect(page.getByRole('heading', { name: 'Push A', level: 1 })).toBeVisible()
+    await expect.poll(() => db.items.filter((i) => i.type === 'workout')).toHaveLength(2)
+  })
+
   test('GYM-007 3: a planned workout moved to another day, its template changed, and deleted with Undo', async ({
     page,
   }) => {
@@ -505,7 +526,20 @@ test.describe('workouts', () => {
     await expect
       .poll(() => db.workout.find((w) => w.item_id === 'h-1'))
       .toMatchObject({ how_it_went: 5, notes: 'Sore shoulder' })
+    // Its last set deleted, the exercise stays, to log again.
+    for (let i = 0; i < 2; i++) {
+      await page.getByRole('button', { name: 'Edit set 1' }).click()
+      await dialog.getByRole('button', { name: 'Delete' }).click()
+      await expect(dialog).toHaveCount(0)
+    }
+    await expect.poll(() => db.workout_sets.filter((x) => x.entry_id === 'he-1')).toHaveLength(0)
+    const bench = page
+      .locator('[data-slot="card"]')
+      .filter({ has: page.getByRole('heading', { name: 'Bench press' }) })
+    await expect(bench.getByText('No sets logged')).toBeVisible()
+    await expect(bench.getByRole('button', { name: 'Log set' })).toBeVisible()
     await page.getByRole('button', { name: 'Done' }).click()
+    await expect(bench.getByText('No sets logged')).toBeVisible()
     await expect(page.getByRole('button', { name: 'Edit set 2' })).toHaveCount(0)
   })
 

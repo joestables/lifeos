@@ -567,7 +567,8 @@ function Review({
 }) {
   const [updating, setUpdating] = useState<{ exercise: ExerciseView; best: SetView } | null>(null)
   const [logging, setLogging] = useState<{ entry: EntryView; set?: SetView } | null>(null)
-  const done = workout.session.filter((e) => e.sets.length > 0)
+  // Every exercise begun, its sets or none: one whose last set is deleted stays, to log again.
+  const done = workout.session
   const stimulus = stimulusSets(
     done.flatMap((e) =>
       e.exercise
@@ -642,12 +643,16 @@ function Review({
                 />
               </div>
             )}
-            <SetTable
-              sets={e.sets.map(shownSet)}
-              strength
-              editable={editing}
-              onEdit={(i) => setLogging({ entry: e, set: e.sets[i] })}
-            />
+            {e.sets.length ? (
+              <SetTable
+                sets={e.sets.map(shownSet)}
+                strength
+                editable={editing}
+                onEdit={(i) => setLogging({ entry: e, set: e.sets[i] })}
+              />
+            ) : (
+              <p className="text-sm text-muted-foreground">No sets logged</p>
+            )}
             {editing && <LogSetButton label="Log set" onClick={() => setLogging({ entry: e })} />}
             {x && best && (
               <div className="flex flex-wrap items-center gap-2">

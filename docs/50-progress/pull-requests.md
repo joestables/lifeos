@@ -73,6 +73,11 @@ Branch `claude/eloquent-darwin-gudbuj` · 2026-11-01
     weight steppers stop at 1000 kg; readiness and progression keep current
     while the page stays open (`useNow`); All workouts' kept filters drop a
     template, exercise or muscle no longer offered.
+- **Joe's first round (2 November):** dragging on a phone no longer
+  selects text, and the page scrolls at the edges; Today shows today's
+  done workouts rather than a suggestion; a template a planned workout
+  follows isn't deleted; Workouts on Plan's filter and Add; a finished
+  workout's exercise stays when its last set is deleted.
 
 **Documents touched:** gym, ADR-0058, ADR-0059, the data model, glossary,
 components, patterns, tokens, the design system's README, integration

@@ -196,6 +196,7 @@ function TemplatePage() {
           <TemplateMenu
             template={template}
             templates={gym.templates}
+            workouts={gym.workouts}
             onRename={() => setRenaming(true)}
             onDuplicated={(copy) =>
               void navigate({ to: '/gym/templates/$id', params: { id: copy } })

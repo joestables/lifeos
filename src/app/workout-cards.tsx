@@ -21,8 +21,8 @@ export function WorkoutTile() {
 }
 
 /**
- * Today (GYM-013 1): the workout in progress, or those planned for today;
- * what to do next comes with plan step 9 (GYM-018).
+ * Today (GYM-013 1): the workout in progress, and those planned for or done
+ * today; with none of them, the most suitable template (GYM-018).
  */
 export function TodayCard({
   gym,
@@ -34,14 +34,15 @@ export function TodayCard({
   gym: GymData
   today: string
   phone: boolean
-  /** The most suitable template, when nothing is planned for today (GYM-018). */
+  /** The most suitable template, when there is no workout today (GYM-018). */
   suggestion?: { template: TemplateView; readiness: number; lastUsed: string } | null
   onSuggestion?: (templateId: string) => void
 }) {
   const navigate = useNavigate()
-  const shown = gym.workouts.filter(
-    (w) => w.stage === 'in_progress' || (w.stage === 'planned' && w.item.do_on === today),
-  )
+  // In progress (whatever day it began), then today's, planned or done.
+  const shown = gym.workouts
+    .filter((w) => w.stage === 'in_progress' || w.item.do_on === today)
+    .sort((a, b) => Number(b.stage === 'in_progress') - Number(a.stage === 'in_progress'))
   return (
     <Card className="gap-3">
       <PanelHeading title="Today">
@@ -74,12 +75,17 @@ export function TodayCard({
                       `Started ${time.format(new Date(w.startedAt!))}`,
                       ...(phone ? [] : [counted(w.setCount, 'set')]),
                     ]
-                  : [
-                      counted(
-                        gym.templates.find((t) => t.item.id === w.templateId)?.exerciseCount ?? 0,
-                        'exercise',
-                      ),
-                    ]
+                  : w.stage === 'complete'
+                    ? [
+                        `${time.format(new Date(w.startedAt!))}–${time.format(new Date(w.endedAt!))}`,
+                        counted(w.setCount, 'set'),
+                      ]
+                    : [
+                        counted(
+                          gym.templates.find((t) => t.item.id === w.templateId)?.exerciseCount ?? 0,
+                          'exercise',
+                        ),
+                      ]
               }
               trailing={<WorkoutStatePill state={pillState(w.stage, w.item.do_on, today)} />}
               onOpen={() => void navigate({ to: '/gym/workouts/$id', params: { id: w.item.id } })}

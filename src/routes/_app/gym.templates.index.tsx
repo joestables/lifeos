@@ -91,6 +91,7 @@ function AllTemplates() {
                   <TemplateMenu
                     template={t}
                     templates={gym.templates}
+                    workouts={gym.workouts}
                     onRename={() => setNaming(t)}
                     onDuplicated={open}
                   />

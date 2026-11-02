@@ -1,5 +1,11 @@
 import { toast } from '@/components/ui/sonner'
-import { archiveItem, duplicateTemplate, restoreItem, type TemplateView } from '@/data'
+import {
+  archiveItem,
+  duplicateTemplate,
+  restoreItem,
+  type TemplateView,
+  type WorkoutView,
+} from '@/data'
 import { copyName, counted, since } from '@/lib/gym'
 
 /** "5 exercises · 15 sets · Never used" (GYM-006 6, GYM-022 1). */
@@ -33,4 +39,9 @@ export function deleteTemplate(t: TemplateView) {
   toast(`Deleted "${t.item.title}"`, {
     action: { label: 'Undo', onClick: () => restoreItem(t.item.id) },
   })
+}
+
+/** The workouts planned to follow a template, not yet started (GYM-006 5). */
+export function plannedFrom(template: TemplateView, workouts: readonly WorkoutView[]) {
+  return workouts.filter((w) => w.stage === 'planned' && w.templateId === template.item.id)
 }

@@ -198,7 +198,7 @@ function Handle({
       {...reorder?.handle}
       aria-hidden
       className={cn(
-        'shrink-0 cursor-grab touch-none text-muted-foreground [&_svg]:size-4',
+        'shrink-0 cursor-grab touch-none text-muted-foreground select-none [-webkit-touch-callout:none] [&_svg]:size-4',
         phone ? 'max-sm:opacity-100 sm:opacity-0' : 'opacity-0 max-sm:hidden',
         className,
       )}

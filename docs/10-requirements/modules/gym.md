@@ -391,7 +391,9 @@ Acceptance criteria
    each group's weekly stimulus target; it follows every change as I make
    it.
 5. Given a template, then I can duplicate it (suggested), rename it, or
-   delete it with Undo; past workouts that followed it are unchanged.
+   delete it with Undo; past workouts that followed it are unchanged. A
+   template a planned workout follows isn't deleted: I'm told which day,
+   to change that workout's template or delete it first (Joe, 2 November).
 6. Given the Workouts tab, then the six templates I used most recently
    show (three on a phone), each with its exercises, sets and when last
    used, then All templates (GYM-022).
@@ -537,7 +539,8 @@ Acceptance criteria
    "Beat current" shows beside its Update current.
 6. *(Suggested)* Given a finished workout, then Edit lets me correct its
    sets, ratings and notes, or delete it; readiness, stimulus sets and PRs
-   follow.
+   follow. An exercise whose last set I delete stays, "No sets logged", so
+   I can log one again (Joe, 2 November).
 7. Given Discard on a workout in progress, then it is deleted, with Undo.
 
 ### GYM-013 — Recent and all workouts
@@ -548,8 +551,8 @@ training.
 Priority: Must · Status: verified (`gym-workouts.spec.ts`; 3–5's filters, sort and figures also by `src/lib/gym.test.ts`)
 
 Acceptance criteria
-1. Given the Workouts tab, then Today shows the workout in progress or
-   planned for today, and Recent workouts the last five (on a phone too),
+1. Given the Workouts tab, then Today shows the workout in progress and
+   those planned for or done today (Joe, 2 November), and Recent workouts the last five (on a phone too),
    each with its name, date, exercises, sets and state pill, then All
    workouts.
 2. Given All workouts, then every workout is listed, newest first, twenty
@@ -661,7 +664,8 @@ that** I train what is ready and due.
 Priority: Should · Status: verified (`gym-recovery.spec.ts`; the score by `packages/fitness`'s tests, the time since last used by `src/lib/gym.test.ts`)
 
 Acceptance criteria
-1. Given nothing in progress or planned for today, then the Workouts tab's
+1. Given no workout in progress, planned for today or done today, then the
+   Workouts tab's
    Today suggests one template, the most suitable, with its readiness
    (the average readiness of the muscles it covers) and how long since I
    last used it: "Readiness 96 % · last used 5 days ago", or "never used"

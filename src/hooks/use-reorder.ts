@@ -1,5 +1,17 @@
 import { useRef, useState, type HTMLAttributes, type KeyboardEvent, type PointerEvent } from 'react'
 
+/** Scrolls the nearest scrolling container of `el` (else the page) by `dy`. */
+function scrollBy(el: HTMLElement, dy: number) {
+  for (let p = el.parentElement; p; p = p.parentElement) {
+    const { overflowY } = getComputedStyle(p)
+    if ((overflowY === 'auto' || overflowY === 'scroll') && p.scrollHeight > p.clientHeight) {
+      p.scrollTop += dy
+      return
+    }
+  }
+  window.scrollBy(0, dy)
+}
+
 /** What a row being reordered is told: its id, how it shows, its handle's events. */
 export interface Reorder {
   id: string
@@ -18,6 +30,13 @@ export function useReorder(ids: readonly string[], onMove: (id: string, to: numb
   const [over, setOver] = useState<string | null>(null)
   const overRef = useRef<string | null>(null)
 
+  /** While dragging, nothing on the page is selected (a phone's long press would). */
+  const holdSelection = (on: boolean) => {
+    document.documentElement.style.userSelect = on ? 'none' : ''
+    document.documentElement.style.webkitUserSelect = on ? 'none' : ''
+    if (on) window.getSelection()?.removeAllRanges()
+  }
+
   const rowAt = (x: number, y: number) =>
     document.elementFromPoint(x, y)?.closest<HTMLElement>('[data-reorder-id]')?.dataset.reorderId ??
     null
@@ -29,12 +48,19 @@ export function useReorder(ids: readonly string[], onMove: (id: string, to: numb
       onPointerDown: (e: PointerEvent<HTMLElement>) => {
         e.preventDefault()
         e.currentTarget.setPointerCapture(e.pointerId)
+        holdSelection(true)
         setDragging(id)
         overRef.current = id
         setOver(id)
       },
       onPointerMove: (e: PointerEvent<HTMLElement>) => {
         if (dragging !== id) return
+        window.getSelection()?.removeAllRanges()
+        // Near the top or bottom of the screen, the page scrolls to the rows beyond.
+        const edge = 72
+        if (e.clientY < edge) scrollBy(e.currentTarget, -(edge - e.clientY) / 4)
+        else if (e.clientY > window.innerHeight - edge)
+          scrollBy(e.currentTarget, (e.clientY - (window.innerHeight - edge)) / 4)
         const at = rowAt(e.clientX, e.clientY)
         if (at && ids.includes(at) && at !== overRef.current) {
           overRef.current = at
@@ -44,11 +70,13 @@ export function useReorder(ids: readonly string[], onMove: (id: string, to: numb
       onPointerUp: () => {
         const to = overRef.current
         if (dragging === id && to && to !== id) onMove(id, ids.indexOf(to))
+        holdSelection(false)
         setDragging(null)
         setOver(null)
         overRef.current = null
       },
       onPointerCancel: () => {
+        holdSelection(false)
         setDragging(null)
         setOver(null)
       },

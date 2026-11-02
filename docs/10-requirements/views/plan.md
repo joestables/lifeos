@@ -160,8 +160,10 @@ Priority: Must · Status: verified
 
 Acceptance criteria
 1. Given a day, when I press its "+", then I choose among the Schedulable
-   Types that exist (Task and Event in Stage 3), and a new Item of that Type
-   opens with all its fields, dated that day; it is kept only when I save it.
+   Types that exist (Task and Event in Stage 3; Meal and Shopping list in
+   Stage 4; Workout in Stage 5, opening New workout on that day), and a new
+   Item of that Type opens with all its fields, dated that day; it is kept
+   only when I save it.
 2. Given a new Task from "+", then its do-on date is that day; a new Event
    starts that day at the next whole hour on my home clock if the day is
    today (late in the evening, the next quarter hour), otherwise at my

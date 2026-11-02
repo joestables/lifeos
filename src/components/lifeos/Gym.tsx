@@ -563,14 +563,18 @@ export function ExerciseCard({
       data-open={open || undefined}
       data-reorder-id={reorder?.id}
       data-reorder={reorder?.state}
-      className="flex flex-col rounded-row bg-card shadow-card data-[reorder=dragging]:opacity-50 data-[reorder=over]:ring-2 data-[reorder=over]:ring-ring"
+      className={cn(
+        'flex flex-col rounded-row bg-card shadow-card data-[reorder=dragging]:opacity-50 data-[reorder=over]:ring-2 data-[reorder=over]:ring-ring',
+        // A long press on a phone drags; it never selects the name.
+        drag && 'select-none [-webkit-touch-callout:none]',
+      )}
     >
       <div className="flex min-h-[60px] items-center gap-2 py-2 pr-2 pl-2">
         {drag ? (
           <span
             {...reorder?.handle}
             aria-label={`Drag ${name} to reorder`}
-            className="grid size-8 shrink-0 cursor-grab touch-none place-items-center rounded-control text-muted-foreground hover:bg-accent"
+            className="grid size-8 shrink-0 cursor-grab touch-none place-items-center rounded-control text-muted-foreground select-none [-webkit-touch-callout:none] hover:bg-accent"
           >
             <GripVerticalIcon className="size-4" />
           </span>
