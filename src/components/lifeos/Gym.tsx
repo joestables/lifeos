@@ -18,6 +18,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Slider } from '@/components/ui/slider'
 import type { Reorder } from '@/hooks/use-reorder'
+import { REORDER_ROW } from './reorder'
 import { cn } from '@/lib/utils'
 import { readinessColour } from './readiness'
 
@@ -564,7 +565,8 @@ export function ExerciseCard({
       data-reorder-id={reorder?.id}
       data-reorder={reorder?.state}
       className={cn(
-        'flex flex-col rounded-row bg-card shadow-card data-[reorder=dragging]:opacity-50 data-[reorder=over]:ring-2 data-[reorder=over]:ring-ring',
+        'flex flex-col rounded-row bg-card shadow-card',
+        REORDER_ROW,
         // A long press on a phone drags; it never selects the name.
         drag && 'select-none [-webkit-touch-callout:none]',
       )}

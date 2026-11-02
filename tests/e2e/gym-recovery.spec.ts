@@ -122,8 +122,9 @@ test.describe('recovery', () => {
     await expect(dialog).toContainText(/\d+ % ready/)
     await expect(dialog).toContainText(/Fully recovered \w{3} \d+ \w{3}, \d\d:\d\d/)
     await expect(dialog).toContainText('Today')
-    // One workout this week of two wanted; 4 stimulus sets of 4.
-    await expect(dialog).toContainText('1 / 2')
+    // One workout in the last 28 days: ×0.3 a week; 4 stimulus sets this week, of 4.
+    await expect(dialog).toContainText('×0.3')
+    await expect(dialog).toContainText('a week, 28 days')
     await expect(dialog).toContainText('4.0 / 4')
   })
 

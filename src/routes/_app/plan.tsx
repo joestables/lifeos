@@ -7,7 +7,6 @@ import { TYPES, hasTrait } from '@lifeos/ontology'
 import { useState, type DragEvent, type ReactElement } from 'react'
 import {
   AddToDay,
-  DropSlot,
   Fab,
   FilterChip,
   PageAction,
@@ -254,12 +253,7 @@ function Plan() {
           setOver(null)
         },
       },
-      children: (
-        <>
-          {list.map((p) => card(p, d))}
-          {drag && over === d && drag.from !== d && <DropSlot />}
-        </>
-      ),
+      children: <>{list.map((p) => card(p, d))}</>,
     }
   })
 

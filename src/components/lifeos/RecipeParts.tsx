@@ -24,6 +24,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import type { Reorder } from '@/hooks/use-reorder'
+import { REORDER_ROW } from './reorder'
 import { LINE_UNITS } from './recipe-fields'
 import { cn } from '@/lib/utils'
 
@@ -213,8 +214,7 @@ const rowState = (reorder?: Reorder) => ({
   'data-reorder': reorder?.state,
 })
 
-const ROW =
-  'rounded-control data-[reorder=dragging]:opacity-50 data-[reorder=over]:ring-2 data-[reorder=over]:ring-ring'
+const ROW = cn('rounded-control', REORDER_ROW)
 
 /**
  * A step being edited: its number, its text in an

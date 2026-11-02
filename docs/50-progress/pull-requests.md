@@ -78,6 +78,12 @@ Branch `claude/eloquent-darwin-gudbuj` · 2026-11-01
   done workouts rather than a suggestion; a template a planned workout
   follows isn't deleted; Workouts on Plan's filter and Add; a finished
   workout's exercise stays when its last set is deleted.
+- **Joe's second round (2 November):** the Recovery popup shows the 28-day
+  average frequency again; a drag never pulls the page to refresh; dragging
+  is the same everywhere (patterns.md's new Dragging): onto a space, the
+  space is shaded and nothing is drawn inside it (Plan's week, the Meal
+  plan); to reorder, a 2px line in the gap where it will go (templates,
+  a Variation's lines). The design page's screenshots refreshed.
 
 **Documents touched:** gym, ADR-0058, ADR-0059, the data model, glossary,
 components, patterns, tokens, the design system's README, integration

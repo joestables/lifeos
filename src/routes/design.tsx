@@ -53,7 +53,6 @@ import {
   ServingsStepper,
   StarRating,
   TimerChip,
-  DropSlot,
   PageAction,
   PlanDay,
   PlanToolbar,
@@ -837,7 +836,6 @@ function DesignPage() {
               />
             </DayColumn>
             <DayColumn name="Fri" number={9} today dropping>
-              <DropSlot />
               <PlanCard
                 colour="blue"
                 icon={TYPE_ICONS.event!}
@@ -1060,7 +1058,7 @@ function DesignPage() {
               <MealCard name="Out: Dishoom" kind="typed" />
               <MealCard name="Overnight oats" servings={1} eaten />
               <MealCard name="Chilli con carne" servings={6} selecting selected />
-              <AddMealButton slot="Dinner" dropping />
+              <AddMealButton slot="Dinner" />
               <Card className="gap-1 px-2 py-2">
                 <PantryRow name="Carrots" recipes={6} />
                 <PantryRow name="Garlic" recipes={14} />

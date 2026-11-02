@@ -30,6 +30,8 @@ export function useMealDrag(onDrop: (meal: string, drop: string) => void) {
 
     function begin() {
       active = true
+      // Lifted, the page doesn't pull to refresh (patterns.md#dragging).
+      document.documentElement.style.overscrollBehavior = 'none'
       dragged.current = true
       setDragging(meal)
       navigator.vibrate?.(10)
@@ -64,6 +66,7 @@ export function useMealDrag(onDrop: (meal: string, drop: string) => void) {
     }
     function end() {
       window.clearTimeout(hold)
+      document.documentElement.style.overscrollBehavior = ''
       document.removeEventListener('pointermove', mouseMove)
       document.removeEventListener('pointerup', up)
       document.removeEventListener('pointercancel', end)

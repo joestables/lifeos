@@ -80,8 +80,8 @@ export function DayColumn({
           today
             ? 'bg-[color-mix(in_oklch,var(--foreground)_5%,transparent)]'
             : 'bg-[color-mix(in_oklch,var(--foreground)_2.5%,transparent)]',
-          dropping &&
-            'bg-[color-mix(in_oklch,var(--foreground)_7%,transparent)] ring-2 ring-ring-soft',
+          // Shaded, with nothing drawn inside it (patterns.md#dragging).
+          dropping && 'bg-[color-mix(in_oklch,var(--foreground)_7%,transparent)]',
         )}
       >
         {children}

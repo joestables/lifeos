@@ -374,9 +374,9 @@ DayColumn, PlanWeek, PlanDay, PlanToolbar, WeekStrip and AddToDay in
 - **Adding:** each day's "+" on hover (AddToDay), "Add" in the toolbar (for
   today, or the day shown), the Fab on a phone; each opens a new Item of the
   chosen Type, dated that day, in its popup with Cancel and Save.
-- **Moving:** on a computer a card is dragged to another day: it lifts, the
-  day under it fills a little more, and a DropSlot shows where it will land;
-  letting go moves it, with Undo in a toast. An Event from an
+- **Moving:** on a computer a card is dragged to another day: it lifts, and
+  the day under it is shaded ([Dragging](#dragging)); letting go moves it,
+  with Undo in a toast. An Event from an
   incoming-only calendar doesn't lift.
 - A card opens its Item as it opens anywhere else; Tasks are ticked in their
   popup, not on the card.
@@ -775,7 +775,8 @@ Agreed with Joe on 1 November 2026, on the
   the BodyMap (a stand-in), and every muscle as a PanelRow with its
   ReadinessRing, last trained and average frequency, sorted with SortMenu.
   A muscle, on the map or in the list, opens a Dialog of its readiness,
-  when it is fully recovered and its week against its targets. With no
+  when it is fully recovered, its average frequency and its stimulus sets
+  this week against its target. With no
   workout in progress, planned for or done today, Today offers the most
   suitable template as a
   PanelRow under "Nothing planned. Most suitable:"; it opens New workout.
@@ -788,6 +789,23 @@ Agreed with Joe on 1 November 2026, on the
   Exercise and a muscle's stalled count ("2 stalled").
 - **Readiness colours** run continuously from `--destructive` through
   `--warning` to `--success`, always with the number.
+
+## Dragging
+
+Two kinds, the same everywhere (Joe, 2 November):
+
+- **Onto a space** (a Plan day, a Meal plan slot or day): the space under
+  the pointer is shaded, `--foreground` 7%, and nothing is drawn inside it
+  (no dashed slot, no ring) on a computer; on a phone the Meal plan's day
+  under the finger is lit as it is. Letting go puts the card there, with
+  Undo in a toast.
+- **To reorder** (a template's exercises, a Variation's lines): the card
+  dragged fades, and a 2px `--ring` line, rounded, shows in the gap between
+  the two cards it will go between (above the first, below the last); no
+  line while letting go would leave it where it is.
+- **Either way:** a drag never selects text, never shows a phone's
+  long-press menu, and never scrolls or pulls to refresh the page; near
+  the top or bottom of the screen the page scrolls to the cards beyond.
 
 ## Forms
 

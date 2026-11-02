@@ -633,8 +633,9 @@ Acceptance criteria
 4. Given a sort by readiness, most recently trained or most frequently
    trained, either way round, then the list follows, my choice kept.
 5. Given a group, on the map or in the list, when I choose it, then I see
-   its readiness, when it was last trained, its week against its targets,
-   and when it will be fully recovered.
+   its readiness, when it was last trained, its average frequency ("×2.4",
+   a week over the last 28 days; Joe, 2 November), its stimulus sets this
+   week against its target, and when it will be fully recovered.
 6. Given a workout finished, edited or deleted, then readiness follows at
    once, offline too.
 

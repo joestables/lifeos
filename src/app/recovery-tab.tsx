@@ -108,7 +108,8 @@ export function RecoveryTab({ recovery }: { recovery: Recovery }) {
 
 /**
  * A muscle group chosen (GYM-016 5): its readiness and when it will be fully
- * recovered, when it was last trained, and its week against its targets.
+ * recovered, when it was last trained, its average frequency (Joe, 2
+ * November) and its stimulus sets this week against its target.
  */
 function MuscleDialog({
   muscle: m,
@@ -151,9 +152,9 @@ function MuscleDialog({
           />
           <StatTile
             inset
-            label="Workouts"
-            value={`${m.week.frequency} / ${m.muscle.frequencyTarget}`}
-            sub="this week"
+            label="Frequency"
+            value={`×${m.frequency.toFixed(1)}`}
+            sub="a week, 28 days"
           />
           <StatTile
             inset

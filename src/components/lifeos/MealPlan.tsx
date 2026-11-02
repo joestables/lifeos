@@ -156,7 +156,7 @@ export function MealSlot({
   children,
   add,
   adding = false,
-  dropping = false,
+  dragging = false,
   label = false,
   drop,
 }: {
@@ -169,7 +169,8 @@ export function MealSlot({
   /** The slot's "+": opens the search (MPL-002). */
   add?: ReactNode
   adding?: boolean
-  dropping?: boolean
+  /** A Meal is being dragged: the "+" stays hidden, so a slot under it is only shaded. */
+  dragging?: boolean
 }) {
   const empty = !children
   return (
@@ -184,10 +185,11 @@ export function MealSlot({
         <div
           className={cn(
             'opacity-0 transition-opacity group-hover/slot:opacity-100 focus-within:opacity-100',
-            (adding || dropping) && 'opacity-100',
+            adding && 'opacity-100',
+            dragging && 'invisible',
           )}
         >
-          {add ?? <AddMealButton slot={slot} dropping={dropping} />}
+          {add ?? <AddMealButton slot={slot} />}
         </div>
       )}
     </div>
@@ -195,11 +197,7 @@ export function MealSlot({
 }
 
 /** An empty slot's "+": a dashed, card-high box. */
-export function AddMealButton({
-  slot,
-  dropping = false,
-  ...props
-}: React.ComponentProps<'button'> & { slot: Slot; dropping?: boolean }) {
+export function AddMealButton({ slot, ...props }: React.ComponentProps<'button'> & { slot: Slot }) {
   return (
     <button
       type="button"
@@ -207,7 +205,6 @@ export function AddMealButton({
       className={cn(
         'grid w-full place-items-center rounded-control border-[1.5px] border-dashed border-muted-foreground/30 text-muted-foreground outline-none hover:bg-accent focus-visible:ring-3 focus-visible:ring-ring-soft data-popup-open:bg-accent [&_svg]:size-4',
         'h-[46px]',
-        dropping && 'border-ring bg-accent',
       )}
       {...props}
     >
@@ -331,8 +328,8 @@ export function MealWeek({
                 row === 0 && 'mt-2.5 rounded-t-lg pt-2.5',
                 row === slots.length - 1 && 'rounded-b-lg pb-2.5',
                 row > 0 && 'border-t border-dashed border-foreground/6',
-                d.dropping === slot &&
-                  'bg-[color-mix(in_oklch,var(--foreground)_7%,transparent)] ring-2 ring-ring-soft ring-inset',
+                // Shaded, with nothing drawn inside it (patterns.md#dragging).
+                d.dropping === slot && 'bg-[color-mix(in_oklch,var(--foreground)_7%,transparent)]',
               )}
             >
               {cell(d.key, slot)}

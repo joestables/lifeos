@@ -92,8 +92,12 @@ test.describe('templates', () => {
     const to = await page.getByLabel('Drag Bench press to reorder').boundingBox()
     await page.mouse.move(from!.x + from!.width / 2, from!.y + from!.height / 2)
     await page.mouse.down()
-    await page.mouse.move(to!.x + to!.width / 2, to!.y + to!.height / 2, { steps: 8 })
+    // Over the top half of Bench press: the line shows above it.
+    await page.mouse.move(to!.x + to!.width / 2, to!.y + 4, { steps: 8 })
+    await expect(cards(page).first()).toHaveAttribute('data-reorder', 'before')
+    await expect(cards(page).nth(1)).toHaveAttribute('data-reorder', 'dragging')
     await page.mouse.up()
+    await expect(cards(page).first()).not.toHaveAttribute('data-reorder')
     await expect(cards(page).first()).toContainText('Cable fly')
     await expect
       .poll(() => {
