@@ -9,6 +9,13 @@ import { DataProvider } from '@/data/DataProvider'
 import { routeTree } from './routeTree.gen'
 import '@/styles/theme.css'
 
+// Opening another page starts it at its top; the same page with other
+// search params (a tab, an Item opened over it) stays where it is; Back
+// puts a page back where it was (Joe, 3 November).
+let samePage = true
+const pageBox = () =>
+  samePage ? null : document.querySelector('[data-scroll-restoration-id="page"]')
+
 const router = createRouter({
   routeTree,
   defaultErrorComponent: RouteError,
@@ -17,6 +24,10 @@ const router = createRouter({
   // Back returns to the same place on the page (ITM-001); the page scrolls in
   // AppShell's ScrollArea, marked data-scroll-restoration-id="page".
   scrollRestoration: true,
+  scrollToTopSelectors: [pageBox],
+})
+router.subscribe('onBeforeNavigate', ({ fromLocation, toLocation }) => {
+  samePage = fromLocation?.pathname === toLocation.pathname
 })
 
 startReporting()

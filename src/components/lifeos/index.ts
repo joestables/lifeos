@@ -80,8 +80,8 @@ export { Suggestions, type Suggestion } from './Suggestions'
 export { LINE_UNITS, STEP_FIELD } from './recipe-fields'
 export { BodyMap } from './BodyMap'
 export {
-  ChartKey,
   CurrentLine,
+  DoneToggle,
   ExerciseCard,
   FormNotes,
   LinePill,
@@ -108,7 +108,9 @@ export {
   StimulusRow,
   ValueStepper,
   WorkoutStatePill,
+  type ChartBar,
   type ChartLine,
+  type ChartPoint,
   type LineDash,
   type LineTone,
   type LoggedSet,

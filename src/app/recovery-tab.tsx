@@ -13,9 +13,11 @@ import {
 import { Card } from '@/components/ui/card'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { CATEGORIES } from '@/data'
+import { useIsMobile } from '@/hooks/use-mobile'
 import {
   aheadText,
   MUSCLE_SORTS,
+  MUSCLE_SORTS_SHORT,
   recoveredText,
   sortMuscles,
   trainedWhen,
@@ -32,14 +34,15 @@ const RECOVERS: Record<string, string> = {
 }
 
 /**
- * The Recovery tab (GYM-016): overall readiness, the look-ahead slider and
- * the body map; every muscle group beside it (under it on a phone), each
+ * The Recovery tab (GYM-016): overall readiness, the body map and the
+ * look-ahead slider under it; every muscle group beside it (under it on a phone), each
  * opening its readiness and its week against its targets.
  */
 export function RecoveryTab({ recovery }: { recovery: Recovery }) {
   const [hours, setHours] = useState(0)
   const [open, setOpen] = useState<string | null>(null)
   const { sort, direction, change } = useMuscleSort()
+  const phone = useIsMobile()
   const at = recovery.now + hours * HOUR_MS
   const rows = recovery.muscles.map((m) => ({
     ...m,
@@ -55,7 +58,6 @@ export function RecoveryTab({ recovery }: { recovery: Recovery }) {
     <div className="grid items-start gap-5 lg:grid-cols-2">
       <Card className="gap-5">
         <OverallReadiness percent={percent(recovery.overallAt(at))} when={aheadText(hours, at)} />
-        <LookAhead hours={hours} onChange={setHours} />
         <BodyMap
           readiness={builtIn}
           selected={chosen?.muscle.builtIn ? chosen.name : undefined}
@@ -64,11 +66,13 @@ export function RecoveryTab({ recovery }: { recovery: Recovery }) {
           }
           className="mx-auto w-full max-w-md py-2"
         />
+        {/* Under the map (Joe, 3 November). */}
+        <LookAhead hours={hours} onChange={setHours} />
       </Card>
       <Card className="gap-3">
         <PanelHeading title="Muscle groups" count={rows.length}>
           <SortMenu<MuscleSort>
-            options={MUSCLE_SORTS}
+            options={phone ? MUSCLE_SORTS_SHORT : MUSCLE_SORTS}
             value={sort}
             direction={direction}
             onChange={(s, d: SortDirection) => change(s, d)}
@@ -99,6 +103,7 @@ export function RecoveryTab({ recovery }: { recovery: Recovery }) {
           readiness={chosen.readiness}
           at={at}
           now={recovery.now}
+          weeks={recovery.frequencyWeeks}
           onClose={() => setOpen(null)}
         />
       )}
@@ -108,20 +113,23 @@ export function RecoveryTab({ recovery }: { recovery: Recovery }) {
 
 /**
  * A muscle group chosen (GYM-016 5): its readiness and when it will be fully
- * recovered, when it was last trained, its average frequency (Joe, 2
- * November) and its stimulus sets this week against its target.
+ * recovered, when it was last trained, its average frequency over 28 days,
+ * or the weeks since my first workout (Joe, 2 and 3 November) and its stimulus sets this week against its target.
  */
 function MuscleDialog({
   muscle: m,
   readiness,
   at,
   now,
+  weeks,
   onClose,
 }: {
   muscle: MuscleRecovery
   readiness: number
   at: number
   now: number
+  /** The weeks its frequency is averaged over: "28 days", or fewer at first. */
+  weeks: number
   onClose: () => void
 }) {
   const until = recoveredBy(m, at)
@@ -154,7 +162,7 @@ function MuscleDialog({
             inset
             label="Frequency"
             value={`×${m.frequency.toFixed(1)}`}
-            sub="a week, 28 days"
+            sub={`a week, ${weeks * 7} days`}
           />
           <StatTile
             inset

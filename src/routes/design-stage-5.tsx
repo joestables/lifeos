@@ -4,7 +4,6 @@ import {
   ArrowLeftRightIcon,
   ArrowUpIcon,
   CalendarDaysIcon,
-  CheckIcon,
   ChefHatIcon,
   ClipboardListIcon,
   CopyIcon,
@@ -28,7 +27,6 @@ import {
   UndoIcon,
   UtensilsIcon,
   WalletIcon,
-  WeightIcon,
   WrenchIcon,
   GaugeIcon,
   ActivityIcon,
@@ -40,8 +38,8 @@ import {
   BackLink,
   BodyMap,
   CardRow,
-  ChartKey,
   CurrentLine,
+  DoneToggle,
   ExerciseCard,
   FilterLayout,
   FilterPanel,
@@ -79,7 +77,9 @@ import {
   TypeTile,
   ValueStepper,
   WorkoutStatePill,
+  type ChartBar,
   type ChartLine,
+  type ChartPoint,
   type DrawerPage,
   type LoggedSet,
   type LineDash,
@@ -257,8 +257,8 @@ function Body({
 
 const workoutTile = <TypeTile colour="coral" icon={DumbbellIcon} />
 const templateTile = <TypeTile colour="coral" icon={ClipboardListIcon} />
-const exerciseTile = <TypeTile colour="coral" icon={WeightIcon} />
-const smallExercise = <TypeTile size="sm" colour="coral" icon={WeightIcon} />
+const exerciseTile = <TypeTile colour="coral" icon={DumbbellIcon} />
+const smallExercise = <TypeTile size="sm" colour="coral" icon={DumbbellIcon} />
 
 type Tab = 'workouts' | 'recovery' | 'progression'
 
@@ -755,16 +755,8 @@ const sessionMenu = (begun: boolean, name: string) =>
     name,
   )
 
-const markDone = (phone?: boolean) =>
-  phone ? (
-    <Button variant="outline" size="icon-sm" aria-label="Mark done">
-      <CheckIcon />
-    </Button>
-  ) : (
-    <Button variant="outline" size="sm">
-      Mark done
-    </Button>
-  )
+// "Done" in both states, a button either way (Joe, 3 November).
+const markDone = () => <DoneToggle name="Exercise" done={false} />
 
 const ROW_SETS: LoggedSet[] = [
   { weight: '30', reps: 10, rir: 2, pr: true },
@@ -772,7 +764,7 @@ const ROW_SETS: LoggedSet[] = [
   {},
 ]
 
-function SessionExercises({ phone }: { phone?: boolean }) {
+function SessionExercises() {
   return (
     <section className="flex flex-col gap-2">
       <SectionLabel count={3}>Session</SectionLabel>
@@ -780,13 +772,14 @@ function SessionExercises({ phone }: { phone?: boolean }) {
         name="Lat pulldown"
         meta={['3 of 3 sets']}
         done
+        control={<DoneToggle name="Lat pulldown" done />}
         menu={sessionMenu(true, 'Lat pulldown')}
       />
       <ExerciseCard
         name="Chest-supported row"
         meta={['3 of 3 sets']}
         open
-        control={markDone(phone)}
+        control={markDone()}
         menu={sessionMenu(true, 'Chest-supported row')}
       >
         <div className="flex flex-col gap-1.5">
@@ -799,7 +792,7 @@ function SessionExercises({ phone }: { phone?: boolean }) {
       <ExerciseCard
         name="Incline curl"
         meta={['1 of 2 sets']}
-        control={markDone(phone)}
+        control={markDone()}
         menu={sessionMenu(true, 'Incline curl')}
       />
     </section>
@@ -884,7 +877,7 @@ function Session({ phone = false }: { phone?: boolean }) {
         <SessionHeader phone={phone} />
         <Body phone={phone} narrow>
           <Facts state="in-progress" items={['Started 18:02', '42 min', '8 sets']} />
-          <SessionExercises phone={phone} />
+          <SessionExercises />
           <section className="flex flex-col gap-2">
             <SectionLabel count={3}>Backlog</SectionLabel>
             <Card className="gap-1 py-3">
@@ -1616,7 +1609,48 @@ const WEEKS = [
   '21 Oct',
   '28 Oct',
 ]
-const CHEST_BARS = [3.8, 4.2, 4.4, 0, 3.9, 4.6, 4.1, 3.2, 4.8, 5.1, 4.4, 4.2, 3.6]
+// The canvas's fixed now, Thu 31 Oct, and its 3 months' weeks, so it never moves.
+const DESIGN_NOW = Date.UTC(2026, 9, 31, 19)
+const DESIGN_WEEK = 7 * 86_400_000
+const DESIGN_FROM = DESIGN_NOW - WEEKS.length * DESIGN_WEEK
+/** A workout in week `w` of the canvas's period, `d` days in. */
+const designAt = (w: number, d = 2) => DESIGN_FROM + w * DESIGN_WEEK + d * 86_400_000
+const CHEST_BARS: ChartBar[] = [3.8, 4.2, 4.4, 0, 3.9, 4.6, 4.1, 3.2, 4.8, 5.1, 4.4, 4.2, 3.6].map(
+  (value, i) => ({ start: DESIGN_FROM + i * DESIGN_WEEK, label: WEEKS[i]!, value }),
+)
+/** A muscle line's points: its change each week it was done, a workout a week. */
+const changes = (values: (number | null)[]): ChartPoint[] =>
+  values.flatMap((v, w) =>
+    v === null
+      ? []
+      : [{ at: designAt(w), value: v, title: `${WEEKS[w]} · Push A`, text: `+${v.toFixed(1)} %` }],
+  )
+/** Bench press's best set each workout: kg, reps, RIR; the PR in week 10. */
+const BENCH: [kg: number, reps: number, rir: number][] = [
+  [57.5, 8, 2],
+  [57.5, 9, 1],
+  [60, 7, 2],
+  [60, 8, 1],
+  [60, 8, 1],
+  [60, 9, 1],
+  [62.5, 7, 2],
+  [62.5, 8, 1],
+  [65, 6, 1],
+  [62.5, 9, 1],
+  [62.5, 9, 2],
+  [65, 7, 1],
+]
+const BENCH_POINTS: ChartPoint[] = BENCH.map(([kg, reps, rir], i) => {
+  const w = i < 3 ? i : i + 1
+  return {
+    at: designAt(w),
+    value: kg,
+    above: `×${reps}`,
+    mark: w === 9,
+    title: `${WEEKS[w]} · Push A`,
+    text: `${kg} kg × ${reps} · ${rir} RIR`,
+  }
+})
 
 function Period() {
   return (
@@ -1705,28 +1739,28 @@ const MUSCLE_LINES: ChartLine[] = [
     label: 'Bench press',
     tone: 'coral',
     dash: 'solid',
-    values: [0, 0.7, 1.5, null, 2.5, 3.5, 4.6, 3.8, 6.3, 12.2, 8.4, 9.1, 10.6],
+    points: changes([0, 0.7, 1.5, null, 2.5, 3.5, 4.6, 3.8, 6.3, 12.2, 8.4, 9.1, 10.6]),
   },
   {
     id: 'incline',
     label: 'Incline dumbbell press',
     tone: 'coral',
     dash: 'dash',
-    values: [0, 1.2, null, 2.4, 2.4, 3.6, null, 4.9, 6.1, 6.1, 7.3, 8.5, 8.5],
+    points: changes([0, 1.2, null, 2.4, 2.4, 3.6, null, 4.9, 6.1, 6.1, 7.3, 8.5, 8.5]),
   },
   {
     id: 'fly',
     label: 'Cable fly',
     tone: 'coral',
     dash: 'dot',
-    values: [0, null, 2, 2, 4, null, 4, 6, 6, 6, 6, 6, 6],
+    points: changes([0, null, 2, 2, 4, null, 4, 6, 6, 6, 6, 6, 6]),
   },
   {
     id: 'dips',
     label: 'Dips',
     tone: 'grey',
     dash: 'solid',
-    values: [0, 1, 1, 2, null, 2, 3, 3, 4, 4, null, 5, 5],
+    points: changes([0, 1, 1, 2, null, 2, 3, 3, 4, 4, null, 5, 5]),
   },
 ]
 
@@ -1734,9 +1768,7 @@ function Pills({ title, pills, tone }: { title: string; pills: Pill[]; tone: 'co
   const full = pills.filter((p) => p.on).length >= 3
   return (
     <div className="flex flex-col gap-2">
-      <span className="text-xs font-semibold text-muted-foreground">
-        {title} · {pills.filter((p) => p.on).length} of 3 shown
-      </span>
+      <span className="text-xs font-semibold text-muted-foreground">{title}</span>
       <div className="flex flex-wrap gap-1.5">
         {pills.map((p) => (
           <LinePill
@@ -1768,12 +1800,13 @@ function MuscleDetail({ phone = false }: { phone?: boolean }) {
           <Pills title="Secondary" pills={SECONDARY} tone="grey" />
         </div>
         <ProgressChart
-          weeks={WEEKS}
+          from={DESIGN_FROM}
+          to={DESIGN_NOW}
           unit=" %"
           lines={MUSCLE_LINES}
           bars={CHEST_BARS}
           target={4}
-          barsLabel="Chest · stimulus sets a week"
+          barsLabel="Chest stimulus"
         />
       </Card>
       <div className="grid grid-cols-3 gap-3">
@@ -1873,38 +1906,19 @@ function ExerciseDetail({ phone = false }: { phone?: boolean }) {
           </div>
         )}
         <ProgressChart
-          weeks={WEEKS}
+          from={DESIGN_FROM}
+          to={DESIGN_NOW}
           lines={[
-            {
-              id: 'best',
-              label: 'Best set',
-              tone: 'coral',
-              dash: 'solid',
-              values: [71.5, 72, 73.3, null, 73.3, 73.3, 75.2, 74.8, 76.7, 80.2, 76.7, 78, 80],
-              mark: 9,
-            },
-            {
-              id: 'ws',
-              label: 'Current',
-              tone: 'grey',
-              dash: 'dash',
-              values: [71.5, 71.5, 71.5, 71.5, 71.5, 71.5, 74.8, 74.8, 74.8, 74.8, 74.8, 78, 78],
-            },
+            { id: 'best', label: 'Best set', tone: 'coral', dash: 'solid', points: BENCH_POINTS },
           ]}
           bars={CHEST_BARS}
           target={4}
-          barsLabel="Chest · stimulus sets a week"
-        />
-        <ChartKey
-          items={[
-            { label: 'Best set', tone: 'coral', dash: 'solid' },
-            { label: 'Current', tone: 'grey', dash: 'dash' },
-          ]}
+          barsLabel="Chest stimulus"
         />
       </Card>
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <StatTile label="Current" value="60 kg × 8" sub="Strength 78.0 at 1 RIR" />
-        <StatTile icon={<TrophyIcon />} label="PR" value="65 kg × 6" sub="1 RIR · 80.2 · 7 Oct" />
+        <StatTile label="Current" value="60 kg × 8" />
+        <StatTile icon={<TrophyIcon />} label="PR" value="65 kg × 6" sub="1 RIR · Mon 7 Oct" />
         <StatTile label="3 months" value="+11.9 %" sub="Rising" />
         <StatTile label="Last done" value="Mon" sub="28 Oct · Push A" />
       </div>

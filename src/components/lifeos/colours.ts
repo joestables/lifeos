@@ -8,7 +8,6 @@ import {
   ShoppingCartIcon,
   SquareCheckBigIcon,
   UtensilsIcon,
-  WeightIcon,
   type LucideIcon,
 } from 'lucide-react'
 
@@ -29,7 +28,7 @@ export const TYPE_ICONS: Record<string, LucideIcon> = {
   variation: ChefHatIcon,
   meal: UtensilsIcon,
   shopping_list: ShoppingCartIcon,
-  exercise: WeightIcon,
+  exercise: DumbbellIcon,
   workout_template: ClipboardListIcon,
   workout: DumbbellIcon,
 }

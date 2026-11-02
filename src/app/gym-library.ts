@@ -1,12 +1,25 @@
 import { useMemo, useState } from 'react'
 import type { Period } from './progression'
 import type { GymData } from '@/data'
-import { libraryRows, type LibraryFilter, type MuscleSort, type TemplateSort } from '@/lib/gym'
+import {
+  libraryRows,
+  type LibraryFilter,
+  type MuscleListFilter,
+  type MuscleSort,
+  type TemplateSort,
+} from '@/lib/gym'
 import type { SortDirection } from '@/lib/sort'
 
 const KEY = 'lifeos.gym.library'
 export type Kept = Omit<LibraryFilter, 'search'>
-const DEFAULT: Kept = { muscles: [], categories: [], equipment: [], sort: 'az', direction: 'asc' }
+const DEFAULT: Kept = {
+  muscles: [],
+  categories: [],
+  equipment: [],
+  templates: [],
+  sort: 'az',
+  direction: 'asc',
+}
 
 function read(): Kept {
   try {
@@ -44,10 +57,48 @@ export function useLibrary(gym: GymData, filter: LibraryFilter) {
       secondaries: x.secondaries.map((s) => s.muscle.name),
       equipment: x.equipment?.name,
       lastDone: x.lastDone,
+      templates: gym.templates
+        .filter((t) => t.lines.some((l) => l.exercise?.item.id === x.item.id))
+        .map((t) => t.item.id),
       view: x,
     }))
     return libraryRows(rows, filter).map((r) => r.view)
-  }, [gym.exercises, filter])
+  }, [gym.exercises, gym.templates, filter])
+}
+
+const MUSCLE_LIST_KEY = 'lifeos.gym.progression-muscles'
+export type KeptMuscles = Omit<MuscleListFilter, 'search'>
+const MUSCLE_LIST_DEFAULT: KeptMuscles = {
+  categories: [],
+  muscles: [],
+  sort: 'group',
+  direction: 'asc',
+}
+
+/** Progression → Muscles' filters and sort, kept on this device; the search is for this visit. */
+export function useMuscleListFilter() {
+  const [kept, setKept] = useState<KeptMuscles>(() => {
+    try {
+      return {
+        ...MUSCLE_LIST_DEFAULT,
+        ...(JSON.parse(localStorage.getItem(MUSCLE_LIST_KEY) ?? '{}') as Partial<KeptMuscles>),
+      }
+    } catch {
+      return MUSCLE_LIST_DEFAULT
+    }
+  })
+  const [search, setSearch] = useState('')
+  const change = (patch: Partial<KeptMuscles>) =>
+    setKept((k) => {
+      const next = { ...k, ...patch }
+      try {
+        localStorage.setItem(MUSCLE_LIST_KEY, JSON.stringify(next))
+      } catch {
+        // Kept for this visit only.
+      }
+      return next
+    })
+  return { filter: { ...kept, search } as MuscleListFilter, change, setSearch }
 }
 
 const TEMPLATE_KEY = 'lifeos.gym.templates'

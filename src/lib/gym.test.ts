@@ -10,6 +10,8 @@ import {
   NO_WORKOUT_FILTER,
   sortWorkouts,
   workoutAverages,
+  muscleListRows,
+  type MuscleListFilter,
   type WorkoutListRow,
   counted,
   duration,
@@ -90,11 +92,16 @@ describe('the exercise library (GYM-003)', () => {
     secondaries: [],
     equipment: 'Barbell',
     lastDone: null,
+    templates: [],
     ...patch,
   })
   const rows = [
-    row('Squat', ['Quads', 'legs', 15], { lastDone: 3 }),
-    row('Bench press', ['Chest', 'push', 1], { secondaries: ['Triceps'], lastDone: 5 }),
+    row('Squat', ['Quads', 'legs', 15], { lastDone: 3, templates: ['t-legs'] }),
+    row('Bench press', ['Chest', 'push', 1], {
+      secondaries: ['Triceps'],
+      lastDone: 5,
+      templates: ['t-push'],
+    }),
     row('Lat pulldown', ['Lats', 'pull', 5], { equipment: 'Cable' }),
     row('Pushdown', ['Triceps', 'push', 4], { equipment: 'Cable', lastDone: 1 }),
   ]
@@ -103,6 +110,7 @@ describe('the exercise library (GYM-003)', () => {
     muscles: [],
     categories: [],
     equipment: [],
+    templates: [],
     sort: 'az',
     direction: 'asc',
   }
@@ -129,6 +137,11 @@ describe('the exercise library (GYM-003)', () => {
     expect(names({ categories: ['push'] })).toEqual(['Bench press', 'Pushdown'])
     expect(names({ equipment: ['Cable'] })).toEqual(['Lat pulldown', 'Pushdown'])
     expect(names({ categories: ['push'], equipment: ['Cable'] })).toEqual(['Pushdown'])
+  })
+
+  it('filters by the templates it is in, any of them (Joe, 3 November)', () => {
+    expect(names({ templates: ['t-push'] })).toEqual(['Bench press'])
+    expect(names({ templates: ['t-push', 't-legs'] })).toEqual(['Bench press', 'Squat'])
   })
 
   it('sorts by last done, never done last either way, or by primary muscle in the body’s order', () => {
@@ -332,6 +345,53 @@ describe('All workouts (GYM-013 2–5)', () => {
       duration: '–',
       weekly: '–',
     })
+  })
+})
+
+describe('Progression → Muscles (GYM-015 1)', () => {
+  const rows = [
+    { name: 'Chest', category: 'push', order: 0, lastTrained: 5 },
+    { name: 'Triceps', category: 'push', order: 2, lastTrained: null },
+    { name: 'Lats', category: 'pull', order: 4, lastTrained: 9 },
+    { name: 'Quads', category: 'legs', order: 8, lastTrained: 1 },
+  ]
+  const f = (patch: Partial<MuscleListFilter>): MuscleListFilter => ({
+    search: '',
+    categories: [],
+    muscles: [],
+    sort: 'az',
+    direction: 'asc',
+    ...patch,
+  })
+  const names = (patch: Partial<MuscleListFilter>) =>
+    muscleListRows(rows, f(patch)).map((r) => r.name)
+
+  it('sorts A–Z, by Recent (never trained last either way) or by Group', () => {
+    expect(names({})).toEqual(['Chest', 'Lats', 'Quads', 'Triceps'])
+    expect(names({ sort: 'recent', direction: 'desc' })).toEqual([
+      'Lats',
+      'Chest',
+      'Quads',
+      'Triceps',
+    ])
+    expect(names({ sort: 'recent', direction: 'asc' })).toEqual([
+      'Quads',
+      'Chest',
+      'Lats',
+      'Triceps',
+    ])
+    expect(names({ sort: 'group', direction: 'desc' })).toEqual([
+      'Quads',
+      'Lats',
+      'Triceps',
+      'Chest',
+    ])
+  })
+
+  it('finds by name and filters by category and muscle group', () => {
+    expect(names({ search: 'TRI' })).toEqual(['Triceps'])
+    expect(names({ categories: ['push'] })).toEqual(['Chest', 'Triceps'])
+    expect(names({ categories: ['push'], muscles: ['Chest', 'Lats'] })).toEqual(['Chest'])
   })
 })
 

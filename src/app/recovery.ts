@@ -1,4 +1,5 @@
 import {
+  availableWeeks,
   averageFrequency,
   coverage,
   fullyRecoveredAt,
@@ -9,6 +10,8 @@ import {
   replay,
   stimulusByWorkout,
   weekOf,
+  FREQUENCY_DAYS,
+  WEEK_DAYS,
   type EngineWorkout,
   type MuscleState,
   type RankedTemplate,
@@ -23,7 +26,7 @@ export interface MuscleRecovery {
   state: MuscleState | undefined
   /** When it was last trained (0.5 stimulus sets or more), ms; null if never. */
   lastTrained: number | null
-  /** Workouts a week that trained it, over the last 28 days. */
+  /** Workouts a week that trained it, over the last 28 days (or the weeks since my first workout). */
   frequency: number
   /** The last seven days: its stimulus sets, and the workouts that trained it. */
   week: { stimulus: number; frequency: number }
@@ -33,10 +36,19 @@ export interface Recovery {
   /** When it was worked out, ms. */
   now: number
   muscles: MuscleRecovery[]
+  /** The weeks each average frequency is over: 4, or fewer in my first weeks. */
+  frequencyWeeks: number
   /** Overall readiness at a time: the groups with a weekly target above zero. */
   overallAt: (at: number) => number
   /** The template that suits me best now, if any (GYM-018). */
   suggestion: (RankedTemplate & { template: TemplateView }) | null
+}
+
+/** When my first finished workout ended, ms; null before any. */
+export function firstWorkoutAt(workouts: readonly { endedAt: number }[]): number | null {
+  let first: number | null = null
+  for (const w of workouts) if (first === null || w.endedAt < first) first = w.endedAt
+  return first
 }
 
 /** Finished workouts as the engine takes them: when each ended, and its sets. */
@@ -79,11 +91,12 @@ export function recoveryOf(gym: GymData, now: number): Recovery {
   }
   const states = replay(workouts, context, now)
   const stimulus: WorkoutStimulus[] = stimulusByWorkout(workouts, gym.exerciseMuscles)
+  const since = firstWorkoutAt(workouts)
   const muscles = gym.muscles.map((muscle) => ({
     muscle,
     state: states.get(muscle.id),
     lastTrained: lastTrained(stimulus, muscle.id, now),
-    frequency: averageFrequency(stimulus, muscle.id, now),
+    frequency: averageFrequency(stimulus, muscle.id, now, since),
     week: weekOf(stimulus, muscle.id, now),
   }))
   const targeted = gym.muscles
@@ -119,6 +132,7 @@ export function recoveryOf(gym: GymData, now: number): Recovery {
   return {
     now,
     muscles,
+    frequencyWeeks: availableWeeks(since, now, FREQUENCY_DAYS / WEEK_DAYS),
     overallAt: (at) => overallReadiness(states, targeted, at),
     suggestion: best && template ? { ...best, template } : null,
   }

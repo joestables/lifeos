@@ -84,6 +84,28 @@ Branch `claude/eloquent-darwin-gudbuj` · 2026-11-01
   space is shaded and nothing is drawn inside it (Plan's week, the Meal
   plan); to reorder, a 2px line in the gap where it will go (templates,
   a Variation's lines). The design page's screenshots refreshed.
+- **Joe's third round (3 November):** the Meal plan's slot is outlined
+  again as well as shaded while a Meal is dragged over it on a computer.
+  In a workout, Done is a button in both states (Button's new `success`
+  variant once done) and a done exercise still opens to its sets; the set
+  popup's Tracked · Quick toggle is now a Quick button at its bottom
+  left. Strength as a bare figure is gone (the PR, Current and best set
+  figures say weight × reps and RIR; the tables keep their Strength
+  column). Averages a week are over the whole weeks since the first
+  workout when fewer than their span (`availableWeeks`). Today's done
+  workout shows its duration. Weight steppers never say kg (the heading
+  does), the Exercise popup's Current set uses the set popup's steppers.
+  Progression: both lists alike (search, Filters, short sorts; a Templates
+  filter for exercises; muscles with a `biceps-flexed` tile, category and
+  last trained); Exercise's icon is `dumbbell`; ProgressChart rewritten on
+  time, a point per workout with its own tooltip, bars with theirs, an
+  exercise's best set as weight with its reps over each point, a span
+  limited to the weeks with data; ChartKey removed. Recovery's slider sits
+  under the map, inset, with short sorts on a phone. App-wide: LifeOS's
+  own PullToRefresh ignores a touch a drag has taken (`drag-hold`), a
+  reorder handle cancels its touches from the start; a page opened starts
+  at its top and Back returns to where it was (`scrollToTopSelectors`).
+  The hover jump Joe reported couldn't be reproduced.
 
 **Documents touched:** gym, ADR-0058, ADR-0059, the data model, glossary,
 components, patterns, tokens, the design system's README, integration

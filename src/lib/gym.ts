@@ -51,8 +51,9 @@ export const LIBRARY_SORTS: readonly {
   initial: SortDirection
 }[] = [
   { value: 'az', label: 'A–Z', initial: 'asc' },
-  { value: 'last', label: 'Last done', initial: 'desc' },
-  { value: 'muscle', label: 'Primary muscle', initial: 'asc' },
+  // Short, so the search beside them has room (Joe, 3 November).
+  { value: 'last', label: 'Recent', initial: 'desc' },
+  { value: 'muscle', label: 'Muscle', initial: 'asc' },
 ]
 
 /** What the library shows (GYM-003 2, 3): a search, filters, and a sort. */
@@ -62,6 +63,8 @@ export interface LibraryFilter {
   muscles: readonly string[]
   categories: readonly string[]
   equipment: readonly string[]
+  /** Workout templates' ids: those it is in (Joe, 3 November). */
+  templates: readonly string[]
   sort: LibrarySort
   direction: SortDirection
 }
@@ -75,6 +78,8 @@ export interface LibraryRow {
   equipment: string | undefined
   /** When it was last done, ms; null if never. */
   lastDone: number | null
+  /** The ids of the templates it is in. */
+  templates: readonly string[]
 }
 
 /**
@@ -91,7 +96,8 @@ export function libraryRows<R extends LibraryRow>(rows: readonly R[], f: Library
       (!f.muscles.length ||
         f.muscles.some((m) => r.primary?.name === m || r.secondaries.includes(m))) &&
       (!f.categories.length || f.categories.includes(r.primary?.category ?? '')) &&
-      (!f.equipment.length || f.equipment.includes(r.equipment ?? '')),
+      (!f.equipment.length || f.equipment.includes(r.equipment ?? '')) &&
+      (!f.templates.length || f.templates.some((t) => r.templates.includes(t))),
   )
   const byName = (a: R, b: R) => a.name.localeCompare(b.name)
   const option = LIBRARY_SORTS.find((s) => s.value === f.sort) ?? LIBRARY_SORTS[0]!
@@ -438,8 +444,8 @@ export function minutesText(minutes: number): string {
 /**
  * What the filters show, in three figures (GYM-013 5), from its complete
  * workouts: average sets, average duration, and weekly sessions — complete
- * workouts a week, from the first shown (or From) to To (or today), a week
- * at least.
+ * workouts a week, from the first shown (or From) to To (or today), over
+ * the whole weeks closest, a week at least.
  */
 export function workoutAverages(
   rows: readonly WorkoutListRow[],
@@ -453,7 +459,8 @@ export function workoutAverages(
   const first = range.from ?? done.reduce((d, r) => (r.day < d ? r.day : d), done[0]!.day)
   const last = range.to !== null && range.to < today ? range.to : today
   const days = (Date.parse(last) - Date.parse(first)) / 86_400_000 + 1
-  const weeks = Math.max(1, days / 7)
+  // The whole weeks closest, one at least (Joe, 3 November).
+  const weeks = Math.max(1, Math.round(days / 7))
   return {
     sets: mean(done.map((r) => r.sets)).toFixed(1),
     duration: minutes.length ? minutesText(mean(minutes)) : '–',
@@ -514,6 +521,76 @@ export const MUSCLE_SORTS: readonly {
   { value: 'recent', label: 'Most recently trained', initial: 'desc' },
   { value: 'frequent', label: 'Most frequently trained', initial: 'desc' },
 ]
+
+/** The same, as a phone has room for them (Joe, 3 November). */
+export const MUSCLE_SORTS_SHORT: typeof MUSCLE_SORTS = [
+  { value: 'readiness', label: 'Readiness', initial: 'asc' },
+  { value: 'recent', label: 'Recent', initial: 'desc' },
+  { value: 'frequent', label: 'Frequency', initial: 'desc' },
+]
+
+// ---------------------------------------------------------------------------
+// Progression → Muscles (GYM-015 1): a list like the exercise library's.
+
+export type MuscleListSort = 'az' | 'recent' | 'group'
+export const MUSCLE_LIST_SORTS: readonly {
+  value: MuscleListSort
+  label: string
+  initial: SortDirection
+}[] = [
+  { value: 'az', label: 'A–Z', initial: 'asc' },
+  { value: 'recent', label: 'Recent', initial: 'desc' },
+  // By category, then the body's order.
+  { value: 'group', label: 'Group', initial: 'asc' },
+]
+
+export interface MuscleListFilter {
+  search: string
+  /** Category keys ("push"). */
+  categories: readonly string[]
+  /** Muscle group names. */
+  muscles: readonly string[]
+  sort: MuscleListSort
+  direction: SortDirection
+}
+
+export interface MuscleListRow {
+  name: string
+  category: string
+  /** Its place in the body's order, category first. */
+  order: number
+  lastTrained: number | null
+}
+
+/** Progression's muscle groups, searched, filtered and sorted; never trained last when by Recent. */
+export function muscleListRows<R extends MuscleListRow>(
+  rows: readonly R[],
+  f: MuscleListFilter,
+): R[] {
+  const words = f.search.trim().toLowerCase().split(/\s+/).filter(Boolean)
+  const shown = rows.filter(
+    (r) =>
+      words.every((w) => r.name.toLowerCase().includes(w)) &&
+      (!f.categories.length || f.categories.includes(r.category)) &&
+      (!f.muscles.length || f.muscles.includes(r.name)),
+  )
+  const option = MUSCLE_LIST_SORTS.find((s) => s.value === f.sort) ?? MUSCLE_LIST_SORTS[0]!
+  const byName = (a: R, b: R) => a.name.localeCompare(b.name)
+  if (f.sort === 'recent') {
+    const trained = shown.filter((r) => r.lastTrained !== null)
+    const never = shown.filter((r) => r.lastTrained === null).sort(byName)
+    trained.sort(
+      directed(
+        (a, b) => b.lastTrained! - a.lastTrained! || byName(a, b),
+        option.initial,
+        f.direction,
+      ),
+    )
+    return [...trained, ...never]
+  }
+  const compare = f.sort === 'group' ? (a: R, b: R) => a.order - b.order : byName
+  return [...shown].sort(directed(compare, option.initial, f.direction))
+}
 
 /** What sorting a muscle group needs. */
 export interface MuscleRow {

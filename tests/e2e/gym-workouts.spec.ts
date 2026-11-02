@@ -247,8 +247,9 @@ test.describe('workouts', () => {
     // The next starts at the last.
     await card.getByRole('button', { name: 'Log set' }).click()
     await expect(dialog.getByRole('textbox', { name: 'Weight' })).toHaveValue('62.5')
+    // Quick, at the bottom left, keeps a quick set at once (GYM-010 3).
     await dialog.getByRole('button', { name: 'Quick' }).click()
-    await dialog.getByRole('button', { name: 'Log set' }).click()
+    await expect(dialog).toHaveCount(0)
     await expect(card).toContainText('2 of 3 sets')
     await expect(card.getByLabel('Quick set')).toBeVisible()
 
@@ -262,14 +263,24 @@ test.describe('workouts', () => {
         [null, null, null],
       ])
 
-    await card.getByRole('button', { name: 'Mark Bench press done' }).click()
-    await expect(card.getByRole('button', { name: 'Undo Bench press done' })).toBeVisible()
-    await card.getByRole('button', { name: 'Undo Bench press done' }).click()
-    await expect(card.getByRole('button', { name: 'Mark Bench press done' })).toBeVisible()
+    const done = card.getByRole('button', { name: 'Bench press done' })
+    await expect(done).toHaveText('Done')
+    await done.click()
+    await expect(done).toHaveAttribute('aria-pressed', 'true')
+    // Done, it still opens to its sets, with no Log set until it is undone (GYM-011 2, 3).
+    await card.getByRole('button', { name: 'Expand Bench press' }).click()
+    await expect(card.getByText('62.5')).toBeVisible()
+    await expect(card.getByRole('button', { name: 'Log set' })).toHaveCount(0)
+    await done.click()
+    await expect(done).toHaveAttribute('aria-pressed', 'false')
+    await expect(card.getByRole('button', { name: 'Log set' })).toBeVisible()
 
     // GYM-008 8: left and come back to, it is just as it was.
     await page.reload()
-    await expect(session(page).getByRole('button', { name: 'Mark Bench press done' })).toBeVisible()
+    await expect(session(page).getByRole('button', { name: 'Bench press done' })).toHaveAttribute(
+      'aria-pressed',
+      'false',
+    )
     await expect(session(page).getByText('2 of 3 sets')).toBeVisible()
   })
 
@@ -436,11 +447,11 @@ test.describe('workouts', () => {
     await page.getByRole('button', { name: 'All workouts' }).click()
     await expect(page.getByRole('heading', { name: 'All workouts', level: 1 })).toBeVisible()
     await expect(page.getByText('23 workouts', { exact: true })).toBeVisible()
-    // 43 sets ÷ 22; 1350 minutes ÷ 22; 22 over the 23 days since the first.
+    // 43 sets ÷ 22; 1350 minutes ÷ 22; 22 over the 3 whole weeks closest to the 23 days since the first.
     await expect(page.getByText('Average sets')).toBeVisible()
     await expect(page.locator('main')).toContainText('2.0')
     await expect(page.locator('main')).toContainText('1 h 01')
-    await expect(page.locator('main')).toContainText('×6.7')
+    await expect(page.locator('main')).toContainText('×7.3')
     const rows = page.locator('main [data-slot="card"]').last().getByRole('button')
     await expect(rows).toHaveCount(20)
     await expect(rows.first()).toContainText('Push A')

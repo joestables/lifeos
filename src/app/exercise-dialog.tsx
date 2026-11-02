@@ -1,4 +1,3 @@
-import { formatKg, stepWeight } from '@lifeos/fitness'
 import { useNavigate } from '@tanstack/react-router'
 import { PlusIcon, Trash2Icon, WrenchIcon } from 'lucide-react'
 import { useId, useState } from 'react'
@@ -33,10 +32,9 @@ import {
   type GymData,
   type MuscleView,
 } from '@/data'
-import { MAX_WEIGHT_GRAMS, sameName } from '@/lib/gym'
+import { sameName } from '@/lib/gym'
 import { Field } from './task-details'
-
-const REPS_RANGE = [1, 100] as const
+import { WeightReps } from './workout-dialogs'
 
 /** The groups by category, for a Select (GYM-002). */
 function MuscleSelect({
@@ -303,27 +301,14 @@ export function ExerciseDialog({
               )}
             </div>
           </Field>
-          <Field label="Current">
-            <div className="flex flex-wrap items-center gap-2">
-              <ValueStepper
-                label="Weight"
-                value={formatKg(weight)}
-                unit="kg"
-                canDown={weight > 0}
-                canUp={weight + (equipment?.incrementGrams ?? 2500) <= MAX_WEIGHT_GRAMS}
-                onStep={(d) => setWeight(stepWeight(weight, equipment?.incrementGrams ?? 2500, d))}
-              />
-              <span className="text-muted-foreground">×</span>
-              <ValueStepper
-                label="Reps"
-                value={String(reps)}
-                unit="reps"
-                canDown={reps > REPS_RANGE[0]}
-                canUp={reps < REPS_RANGE[1]}
-                onStep={(d) => setReps(reps + d)}
-              />
-            </div>
-          </Field>
+          <WeightReps
+            heading="Current"
+            weight={weight}
+            reps={reps}
+            increment={equipment?.incrementGrams ?? 2500}
+            onWeight={setWeight}
+            onReps={setReps}
+          />
           <Field label="Notes" htmlFor={`${ids}-notes`}>
             <Textarea
               id={`${ids}-notes`}

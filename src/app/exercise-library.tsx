@@ -4,7 +4,7 @@ import {
   EllipsisIcon,
   PencilIcon,
   SlidersHorizontalIcon,
-  WeightIcon,
+  DumbbellIcon,
 } from 'lucide-react'
 import { useState } from 'react'
 import {
@@ -34,7 +34,12 @@ import { ExerciseProgress } from './progression-parts'
 import type { Period } from './progression'
 import { SearchField } from './search-field'
 
-const GROUP = { muscles: 'Muscle group', categories: 'Category', equipment: 'Equipment' } as const
+const GROUP = {
+  muscles: 'Muscle group',
+  categories: 'Category',
+  equipment: 'Equipment',
+  templates: 'Template',
+} as const
 
 /**
  * The exercise library's list (GYM-003): a search, filters (in a Sheet) and
@@ -61,7 +66,10 @@ export function ExerciseList({
   onOpen: (x: ExerciseView) => void
 }) {
   const [sheet, setSheet] = useState(false)
-  const chosen = filter.muscles.length + filter.categories.length + filter.equipment.length
+  // Templates no longer there drop out of the kept filter's count.
+  const templates = gym.templates.filter((t) => filter.templates.includes(t.item.id))
+  const chosen =
+    filter.muscles.length + filter.categories.length + filter.equipment.length + templates.length
   const groups: FilterGroup[] = [
     {
       name: GROUP.muscles,
@@ -79,6 +87,11 @@ export function ExerciseList({
       values: gym.equipment.map((e) => e.name),
       chosen: [...filter.equipment],
     },
+    {
+      name: GROUP.templates,
+      values: gym.templates.map((t) => t.item.title),
+      chosen: templates.map((t) => t.item.title),
+    },
   ]
   const onChange = (group: string, values: string[]) => {
     if (group === GROUP.muscles) change({ muscles: values })
@@ -86,9 +99,13 @@ export function ExerciseList({
       change({
         categories: CATEGORIES.filter((c) => values.includes(c.label)).map((c) => c.key),
       })
+    else if (group === GROUP.templates)
+      change({
+        templates: gym.templates.filter((t) => values.includes(t.item.title)).map((t) => t.item.id),
+      })
     else change({ equipment: values })
   }
-  const reset = () => change({ muscles: [], categories: [], equipment: [] })
+  const reset = () => change({ muscles: [], categories: [], equipment: [], templates: [] })
   return (
     <Card className="gap-3">
       <div className="flex items-center gap-2">
@@ -120,7 +137,7 @@ export function ExerciseList({
             <PanelRow
               key={x.item.id}
               selected={selected === x.item.id}
-              leading={<TypeTile colour="coral" icon={WeightIcon} />}
+              leading={<TypeTile colour="coral" icon={DumbbellIcon} />}
               title={x.item.title}
               meta={[
                 x.primary?.name ?? 'No muscle',

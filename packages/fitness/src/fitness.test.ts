@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  availableWeeks,
   averageFrequency,
   beatsCurrent,
   bestByWorkout,
@@ -148,6 +149,16 @@ describe('weekly targets and frequency (GYM-016 3, GYM-017 2)', () => {
 
   it('average frequency is workouts a week over the last 28 days', () => {
     expect(averageFrequency(workouts, 'chest', now)).toBeCloseTo(3 / 4, 10)
+  })
+
+  it('an average is over the whole weeks closest to my first workout, 1 to the most', () => {
+    expect(availableWeeks(null, now, 4)).toBe(4)
+    expect(availableWeeks(daysAgo(1), now, 4)).toBe(1)
+    expect(availableWeeks(daysAgo(10), now, 4)).toBe(1)
+    expect(availableWeeks(daysAgo(11), now, 4)).toBe(2)
+    expect(availableWeeks(daysAgo(60), now, 4)).toBe(4)
+    // Started 10 days ago: three workouts in about a week and a half, ×3.0.
+    expect(averageFrequency(workouts, 'chest', now, daysAgo(10))).toBeCloseTo(3, 10)
   })
 
   it('last trained is the latest workout that trained it', () => {

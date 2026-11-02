@@ -139,7 +139,7 @@ function Gym() {
                 list={
                   <MusclesList
                     gym={gym}
-                    frequency={new Map(recovery.muscles.map((m) => [m.muscle.id, m.frequency]))}
+                    lastTrained={new Map(recovery.muscles.map((m) => [m.muscle.id, m.lastTrained]))}
                     stalled={stalled}
                     selected={muscleId}
                     onOpen={openMuscle}

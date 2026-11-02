@@ -25,6 +25,7 @@ import {
   type EntryView,
   type ExerciseView,
   type GymData,
+  type SetFields,
   type SetView,
   type WorkoutView,
 } from '@/data'
@@ -35,31 +36,35 @@ import { Field } from './task-details'
 const RIRS = [0, 1, 2, 3, 4, 5] as const
 const REPS = [1, 100] as const
 
-/** Weight and reps side by side, each headed, stepped or typed (GYM-010 1, 2). */
-function WeightReps({
+/**
+ * Weight and reps side by side, each headed, stepped or typed (GYM-010 1, 2):
+ * the same wherever a weight and reps are set — logging a set, Update
+ * current, an Exercise's Current set. The unit is in the heading, never in
+ * the stepper (Joe, 3 November).
+ */
+export function WeightReps({
   weight,
   reps,
   increment,
   onWeight,
   onReps,
-  unit = false,
+  heading,
 }: {
   weight: number
   reps: number
   increment: number
   onWeight: (grams: number) => void
   onReps: (reps: number) => void
-  /** "kg" after the weight, when the heading doesn't say it. */
-  unit?: boolean
+  /** Before each heading: "Current" makes "Current weight (kg)". */
+  heading?: string
 }) {
   return (
     <div className="grid grid-cols-2 gap-3">
-      <Field label={unit ? 'Weight' : 'Weight (kg)'}>
+      <Field label={heading ? `${heading} weight (kg)` : 'Weight (kg)'}>
         <ValueStepper
           size="lg"
           label="Weight"
           value={formatKg(weight)}
-          unit={unit ? 'kg' : undefined}
           canDown={weight > 0}
           canUp={weight + increment <= MAX_WEIGHT_GRAMS}
           onStep={(d) => onWeight(stepWeight(weight, increment, d))}
@@ -69,7 +74,7 @@ function WeightReps({
           }}
         />
       </Field>
-      <Field label="Reps">
+      <Field label={heading ? `${heading} reps` : 'Reps'}>
         <ValueStepper
           size="lg"
           label="Reps"
@@ -88,10 +93,10 @@ function WeightReps({
 }
 
 /**
- * Logging a set, or changing one (GYM-010): Tracked or Quick at its top;
- * Tracked, weight and reps from the last set logged on it this workout (or
- * its Current set) and RIR as buttons from my preferred RIR; Quick, nothing
- * more. A set opened to change can be deleted, with Undo.
+ * Logging a set, or changing one (GYM-010): weight and reps from the last
+ * set logged on it this workout (or its Current set) and RIR as buttons from
+ * my preferred RIR; Log set keeps them, Quick, at the bottom left, keeps a
+ * quick set instead. A set opened to change can be deleted, with Undo.
  */
 export function LogSetDialog({
   entry,
@@ -109,15 +114,12 @@ export function LogSetDialog({
     set && set.weightGrams !== null && set.reps !== null
       ? { weightGrams: set.weightGrams, reps: set.reps, rir: set.rir ?? preferredRir }
       : nextSet(entry.sets, entry.current, preferredRir)
-  const [quick, setQuick] = useState(Boolean(set) && set?.weightGrams === null)
   const [weight, setWeight] = useState(start.weightGrams)
   const [reps, setReps] = useState(start.reps)
   const [rir, setRir] = useState(start.rir)
   const n = set ? entry.sets.findIndex((s) => s.id === set.id) + 1 : entry.sets.length + 1
-  const fields = quick
-    ? { weightGrams: null, reps: null, rir: null }
-    : { weightGrams: weight, reps, rir }
-  const save = () => {
+  const QUICK = { weightGrams: null, reps: null, rir: null }
+  const save = (fields: SetFields = { weightGrams: weight, reps, rir }) => {
     if (set) updateSet(entry.workoutId, set.id, fields)
     else
       logSet(entry.workoutId, entry.id, positionBetween(entry.sets.at(-1)?.position, null), fields)
@@ -152,56 +154,49 @@ export function LogSetDialog({
               : `Set ${n} · Current ${currentText(entry.current.weightGrams, entry.current.reps)}`}
           </span>
         </DialogHeader>
-        <ToggleGroup
-          value={[quick ? 'quick' : 'tracked']}
-          onValueChange={(v: string[]) => v[0] && setQuick(v[0] === 'quick')}
-          aria-label="How to log it"
-          className="self-start"
-        >
-          <ToggleGroupItem value="tracked">Tracked</ToggleGroupItem>
-          <ToggleGroupItem value="quick">Quick</ToggleGroupItem>
-        </ToggleGroup>
-        {quick ? (
-          <span className="text-sm text-muted-foreground">No weight, reps or RIR</span>
-        ) : (
-          <div className="flex flex-col gap-4">
-            <WeightReps
-              weight={weight}
-              reps={reps}
-              increment={entry.exercise?.equipment?.incrementGrams ?? 2500}
-              onWeight={setWeight}
-              onReps={setReps}
-            />
-            <Field label="RIR">
-              <ToggleGroup
-                value={[String(rir)]}
-                onValueChange={(v: string[]) => v[0] !== undefined && setRir(Number(v[0]))}
-                aria-label="RIR"
-                className="grid w-full grid-cols-6 self-stretch"
-              >
-                {RIRS.map((r) => (
-                  <ToggleGroupItem
-                    key={r}
-                    value={String(r)}
-                    className="h-10 justify-center text-base tabular-nums"
-                  >
-                    {r}
-                  </ToggleGroupItem>
-                ))}
-              </ToggleGroup>
-            </Field>
-          </div>
-        )}
+        <div className="flex flex-col gap-4">
+          <WeightReps
+            weight={weight}
+            reps={reps}
+            increment={entry.exercise?.equipment?.incrementGrams ?? 2500}
+            onWeight={setWeight}
+            onReps={setReps}
+          />
+          <Field label="RIR">
+            <ToggleGroup
+              value={[String(rir)]}
+              onValueChange={(v: string[]) => v[0] !== undefined && setRir(Number(v[0]))}
+              aria-label="RIR"
+              className="grid w-full grid-cols-6 self-stretch"
+            >
+              {RIRS.map((r) => (
+                <ToggleGroupItem
+                  key={r}
+                  value={String(r)}
+                  className="h-10 justify-center text-base tabular-nums"
+                >
+                  {r}
+                </ToggleGroupItem>
+              ))}
+            </ToggleGroup>
+          </Field>
+        </div>
         <DialogFooter>
-          {set && (
-            <Button variant="ghost-destructive" className="sm:mr-auto" onClick={remove}>
-              <Trash2Icon /> Delete
+          <div className="mr-auto flex gap-2">
+            {set && (
+              <Button variant="ghost-destructive" onClick={remove}>
+                <Trash2Icon /> Delete
+              </Button>
+            )}
+            {/* A quick set: no weight, reps or RIR (GYM-010 3). */}
+            <Button variant="outline" onClick={() => save(QUICK)}>
+              Quick
             </Button>
-          )}
+          </div>
           <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button onClick={save}>{set ? 'Save' : 'Log set'}</Button>
+          <Button onClick={() => save()}>{set ? 'Save' : 'Log set'}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -315,11 +310,10 @@ export function UpdateCurrentDialog({
             inset
             label="Best set"
             value={currentText(best.weightGrams ?? 0, best.reps ?? 0)}
-            sub={`${best.rir} RIR · Strength ${best.strength?.toFixed(1)}`}
+            sub={`${best.rir} RIR`}
           />
         </div>
         <WeightReps
-          unit
           weight={weight}
           reps={reps}
           increment={exercise.equipment?.incrementGrams ?? 2500}
@@ -395,7 +389,12 @@ export function StrengthHistoryDialog({
                   <span>Strength</span>
                 </div>
                 {sets.map((s, i) => (
-                  <SetLine key={s.id} n={sets.length - i} set={shownSet(s)} />
+                  // No strength figure: a bare number says little (Joe, 3 November).
+                  <SetLine
+                    key={s.id}
+                    n={sets.length - i}
+                    set={{ ...shownSet(s), strength: undefined }}
+                  />
                 ))}
               </section>
             ))}

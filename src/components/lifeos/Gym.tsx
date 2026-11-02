@@ -13,7 +13,7 @@ import {
   SmileIcon,
   TrophyIcon,
 } from 'lucide-react'
-import { useLayoutEffect, useRef, useState, type ReactNode } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Slider } from '@/components/ui/slider'
@@ -186,7 +186,7 @@ export function SideColumns({ children }: { children: ReactNode }) {
  */
 export function ListDetail({ list, detail }: { list: ReactNode; detail?: ReactNode }) {
   return (
-    <div className="grid items-start gap-5 lg:grid-cols-[340px_minmax(0,1fr)]">
+    <div className="grid items-start gap-5 lg:grid-cols-[360px_minmax(0,1fr)]">
       <div className="min-w-0">{list}</div>
       {detail && <div className="hidden min-w-0 flex-col gap-5 lg:flex">{detail}</div>}
     </div>
@@ -525,8 +525,8 @@ export function FormNotes({ children }: { children: ReactNode }) {
  * An exercise in a workout or a template (GYM-008, GYM-006): a card-filled
  * `--radius-row` box. First its expand button (a workout) or drag handle (a
  * template), then its name (weight 600) and a muted line, then its own
- * control (Done, or a template's sets stepper) and its "…". A done
- * exercise shows a green tick and "Done", which undoes it. Expanded, what
+ * control (a workout's DoneToggle, or a template's sets stepper) and its
+ * "…". A done exercise's name is muted; it still expands. Expanded, what
  * it holds sits under its name.
  */
 export function ExerciseCard({
@@ -539,7 +539,6 @@ export function ExerciseCard({
   menu,
   reorder,
   onToggle,
-  onUndoDone,
   children,
 }: {
   name: string
@@ -552,8 +551,6 @@ export function ExerciseCard({
   reorder?: Reorder
   /** The expand button: open or close it. */
   onToggle?: () => void
-  /** Done's button: undoes it (GYM-011 3). */
-  onUndoDone?: () => void
   done?: boolean
   control?: ReactNode
   menu?: ReactNode
@@ -602,25 +599,40 @@ export function ExerciseCard({
             ))}
           </span>
         </span>
-        {done ? (
-          <Button
-            variant="ghost"
-            size="sm"
-            aria-label={`Undo ${name} done`}
-            className="text-success"
-            onClick={onUndoDone}
-          >
-            <CheckIcon /> Done
-          </Button>
-        ) : (
-          control
-        )}
+        {control}
         {menu}
       </div>
       {open && children && (
         <div className="flex flex-col gap-2 pr-3 pb-3 pl-3 sm:pl-12">{children}</div>
       )}
     </section>
+  )
+}
+
+/**
+ * An exercise's Done (GYM-011; Joe, 3 November): an `sm` toggle named "Done"
+ * in both states, `outline` with a check until pressed, then `success`;
+ * pressed again, it is undone, so more sets can be logged.
+ */
+export function DoneToggle({
+  name,
+  done,
+  onChange,
+}: {
+  name: string
+  done: boolean
+  onChange?: (done: boolean) => void
+}) {
+  return (
+    <Button
+      variant={done ? 'success' : 'outline'}
+      size="sm"
+      aria-pressed={done}
+      aria-label={`${name} done`}
+      onClick={() => onChange?.(!done)}
+    >
+      <CheckIcon /> Done
+    </Button>
   )
 }
 
@@ -823,7 +835,8 @@ export function LookAhead({
   onChange?: (hours: number) => void
 }) {
   return (
-    <div className="flex flex-col gap-1.5">
+    // In from each side by an hour's width (Joe, 3 November).
+    <div className="flex flex-col gap-1.5 px-[calc(100%/48)]">
       <Slider
         value={hours}
         min={0}
@@ -958,25 +971,70 @@ function useWidth() {
   return [ref, width] as const
 }
 
+export type ChartPoint = {
+  /** When the workout ended, ms. */
+  at: number
+  value: number
+  /** Over the point, small and muted: an exercise's reps. */
+  above?: string
+  /** A larger dot: the PR. */
+  mark?: boolean
+  /** Its tooltip: a heading ("Mon 28 Oct · Push A") and the line's value as said. */
+  title: string
+  text: string
+}
+
 export type ChartLine = {
   id: string
   label: string
-  values: (number | null)[]
+  points: ChartPoint[]
   tone: LineTone
   dash: LineDash
-  /** A dot on one point (the PR). */
-  mark?: number
+}
+
+/** A week's bar under a chart: its start, its label ("5 Aug") and its stimulus sets. */
+export type ChartBar = { start: number; label: string; value: number }
+
+const WEEK_MS = 7 * 86_400_000
+
+/** A tooltip over a chart: `--popover`, beside what it is about. */
+function ChartTip({
+  left,
+  top,
+  bottom,
+  width,
+  children,
+}: {
+  left: number
+  top?: number
+  bottom?: number
+  width: number
+  children: ReactNode
+}) {
+  return (
+    <div
+      role="tooltip"
+      className="pointer-events-none absolute z-10 flex w-max max-w-64 min-w-44 flex-col gap-1 rounded-sm bg-popover p-2.5 text-xs shadow-pop"
+      style={{ left: Math.max(0, Math.min(left, width - 256)), top, bottom }}
+    >
+      {children}
+    </div>
+  )
 }
 
 /**
- * Progression (GYM-014, GYM-015): one scale only — strength, or its change
- * in %, by week — lines in coral or grey, solid, dashed or dotted, a soft
- * area under the first, a dot on the PR, a foreground-7% grid; under it,
- * on the same weeks, a muscle's stimulus sets a week as bars with the
- * target dashed. A crosshair and a `--popover` tooltip on hover.
+ * Progression (GYM-014, GYM-015), on time: a point for each workout — an
+ * exercise's best set's weight with its reps over it, or a muscle group's
+ * exercises' change in %, one scale only — joined by lines in coral or grey,
+ * solid, dashed or dotted, a soft area under the first, a larger dot on the
+ * PR, a foreground-7% grid; under it, on the same weeks, a muscle's stimulus
+ * sets a week as bars with the target dashed. A point and a bar each have
+ * their own tooltip (Joe, 3 November): a crosshair and the workout's points
+ * over the chart, the week's sets over the bars.
  */
 export function ProgressChart({
-  weeks,
+  from,
+  to,
   lines,
   bars,
   target,
@@ -984,9 +1042,10 @@ export function ProgressChart({
   unit = '',
   height = 200,
 }: {
-  weeks: string[]
+  from: number
+  to: number
   lines: ChartLine[]
-  bars: number[]
+  bars: ChartBar[]
   target: number
   barsLabel: string
   unit?: string
@@ -994,55 +1053,96 @@ export function ProgressChart({
 }) {
   const [ref, width] = useWidth()
   const [hover, setHover] = useState<number | null>(null)
+  const [bar, setBar] = useState<number | null>(null)
+  // A tap shows a tooltip until the next tap elsewhere.
+  useEffect(() => {
+    if (hover === null && bar === null) return
+    const away = (e: PointerEvent) => {
+      if (!ref.current?.contains(e.target as Node)) {
+        setHover(null)
+        setBar(null)
+      }
+    }
+    document.addEventListener('pointerdown', away)
+    return () => document.removeEventListener('pointerdown', away)
+  }, [hover, bar, ref])
   const left = 44
-  const right = 8
+  const right = 12
   const h = height
   const bh = 84
-  const all = lines.flatMap((l) => l.values.filter((v): v is number => v !== null))
+  const points = lines.flatMap((l) => l.points)
+  const all = points.map((p) => p.value)
   const lo = Math.min(...all)
   const hi = Math.max(...all)
   const raw = (hi - lo) / 4 || 1
   const mag = 10 ** Math.floor(Math.log10(raw))
   const tick = [1, 2, 2.5, 5, 10].map((m) => m * mag).find((t) => t >= raw) ?? raw
   const y0 = Math.floor(lo / tick) * tick
-  const y1 = Math.ceil(hi / tick) * tick
+  const y1 = Math.max(Math.ceil(hi / tick) * tick, y0 + tick)
   const ticks: number[] = []
   for (let t = y0; t <= y1 + tick / 2; t += tick) ticks.push(t)
-  const n = weeks.length
-  const plotW = width - left - right
-  const step = plotW / Math.max(1, n - 1)
-  const x = (i: number) => left + step * i
-  const top = 10
+  const plotW = Math.max(1, width - left - right)
+  const x = (t: number) => left + (plotW * (t - from)) / (to - from || 1)
+  const top = points.some((p) => p.above) ? 26 : 10
   const bottom = h - 26
-  const y = (v: number) => top + (bottom - top) * (1 - (v - y0) / (y1 - y0 || 1))
-  const bmax = Math.max(target * 1.4, ...bars, 1)
+  const y = (v: number) => top + (bottom - top) * (1 - (v - y0) / (y1 - y0))
+  const bmax = Math.max(target * 1.4, ...bars.map((b) => b.value), 1)
   const bBase = bh - 6
   const by = (v: number) => bBase - ((bBase - 8) * v) / bmax
   const fmt = (v: number) => `${Math.round(v * 10) / 10}${unit}`
-  const every = Math.ceil(n / Math.max(2, Math.floor(plotW / 72)))
+  const weekW = (plotW * WEEK_MS) / (to - from || 1)
+  const every = Math.max(1, Math.ceil(72 / weekW))
+  const mid = (b: ChartBar) => x(b.start + WEEK_MS / 2)
   const first = lines[0]
   let area = ''
-  if (first) {
-    const pts = first.values
-      .map((v, i) => (v === null ? null : ([x(i), y(v)] as const)))
-      .filter(Boolean) as (readonly [number, number])[]
-    if (pts.length > 1)
-      area = `M${pts[0]![0]},${bottom} ${pts.map(([px, py]) => `L${px},${py}`).join(' ')} L${pts[pts.length - 1]![0]},${bottom} Z`
+  if (first && first.points.length > 1) {
+    const pts = first.points.map((p) => [x(p.at), y(p.value)] as const)
+    area = `M${pts[0]![0]},${bottom} ${pts.map(([px, py]) => `L${px},${py}`).join(' ')} L${pts[pts.length - 1]![0]},${bottom} Z`
   }
-  const move = (e: React.PointerEvent<SVGSVGElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect()
-    const i = Math.round((e.clientX - rect.left - left) / step)
-    setHover(i >= 0 && i < n ? i : null)
+  // Reps over the points, where there is room for them.
+  const above = new Set<ChartPoint>()
+  let lastX = -Infinity
+  for (const p of first?.points ?? []) {
+    if (p.above && x(p.at) - lastX >= 18) {
+      above.add(p)
+      lastX = x(p.at)
+    }
   }
+  const pointerX = (e: React.PointerEvent<SVGSVGElement>) =>
+    e.clientX - e.currentTarget.getBoundingClientRect().left
+  const onLines = (e: React.PointerEvent<SVGSVGElement>) => {
+    const px = pointerX(e)
+    let best: number | null = null
+    for (const p of points)
+      if (best === null || Math.abs(x(p.at) - px) < Math.abs(x(best) - px)) best = p.at
+    setHover(best)
+    setBar(null)
+  }
+  const onBars = (e: React.PointerEvent<SVGSVGElement>) => {
+    const t = from + ((pointerX(e) - left) / plotW) * (to - from)
+    const i = bars.findIndex((b) => t >= b.start && t < b.start + WEEK_MS)
+    setBar(i >= 0 ? i : t >= to && bars.length ? bars.length - 1 : null)
+    setHover(null)
+  }
+  // A mouse leaving clears it; a finger lifting leaves it, until a tap elsewhere.
+  const leave = (e: React.PointerEvent) => {
+    if (e.pointerType === 'mouse') {
+      setHover(null)
+      setBar(null)
+    }
+  }
+  const at = hover === null ? [] : lines.flatMap((l) => l.points.filter((p) => p.at === hover))
+  const chosen = bar === null ? undefined : bars[bar]
 
   return (
     <div ref={ref} className="relative flex w-full flex-col">
       <svg
         width={width}
         height={h}
-        className="overflow-visible"
-        onPointerMove={move}
-        onPointerLeave={() => setHover(null)}
+        className="touch-pan-y overflow-visible"
+        onPointerMove={onLines}
+        onPointerDown={onLines}
+        onPointerLeave={leave}
       >
         <defs>
           <linearGradient id="gym-area" x1="0" x2="0" y1="0" y2="1">
@@ -1070,71 +1170,65 @@ export function ProgressChart({
           </g>
         ))}
         {area && <path d={area} fill="url(#gym-area)" />}
-        {lines.map((l) => {
-          let d = ''
-          l.values.forEach((v, i) => {
-            if (v === null) return
-            d += `${d === '' ? 'M' : 'L'}${x(i)},${y(v)}`
-          })
-          return (
-            <g key={l.id}>
-              <path
-                d={d}
-                fill="none"
+        {hover !== null && (
+          <line
+            x1={x(hover)}
+            x2={x(hover)}
+            y1={top - 6}
+            y2={bottom}
+            className="stroke-foreground/25"
+          />
+        )}
+        {lines.map((l) => (
+          <g key={l.id}>
+            <path
+              d={l.points.map((p, i) => `${i ? 'L' : 'M'}${x(p.at)},${y(p.value)}`).join(' ')}
+              fill="none"
+              className={cn(
+                '[stroke-linecap:round] [stroke-linejoin:round]',
+                l.tone === 'coral'
+                  ? 'stroke-tc [stroke-width:2.25]'
+                  : 'stroke-muted-foreground [stroke-width:1.75]',
+                dashClass(l.dash),
+              )}
+            />
+            {l.points.map((p) => (
+              <circle
+                key={p.at}
+                data-point={l.id}
+                cx={x(p.at)}
+                cy={y(p.value)}
+                r={p.mark ? 5 : p.at === hover ? 4.5 : 3}
                 className={cn(
-                  '[stroke-linecap:round] [stroke-linejoin:round]',
-                  l.tone === 'coral'
-                    ? 'stroke-tc [stroke-width:2.25]'
-                    : 'stroke-muted-foreground [stroke-width:1.75]',
-                  dashClass(l.dash),
+                  'stroke-card [stroke-width:2]',
+                  l.tone === 'coral' ? 'fill-tc' : 'fill-muted-foreground',
+                  p.mark && '[stroke-width:2.5]',
                 )}
               />
-              {l.mark !== undefined && l.values[l.mark] !== null && (
-                <circle
-                  cx={x(l.mark)}
-                  cy={y(l.values[l.mark]!)}
-                  r={5}
-                  className="fill-tc stroke-card [stroke-width:2.5]"
-                />
-              )}
-            </g>
-          )
-        })}
-        {hover !== null && (
-          <>
-            <line
-              x1={x(hover)}
-              x2={x(hover)}
-              y1={top}
-              y2={bottom}
-              className="stroke-foreground/25"
-            />
-            {lines.map((l) =>
-              l.values[hover] === null ? null : (
-                <circle
-                  key={l.id}
-                  cx={x(hover)}
-                  cy={y(l.values[hover]!)}
-                  r={3.5}
-                  className={cn(
-                    'stroke-card [stroke-width:2]',
-                    l.tone === 'coral' ? 'fill-tc' : 'fill-muted-foreground',
-                  )}
-                />
-              ),
-            )}
-          </>
-        )}
-        {weeks.map((w, i) =>
-          i % every === 0 ? (
+            ))}
+          </g>
+        ))}
+        {[...above].map((p) => (
+          <text
+            key={p.at}
+            x={x(p.at)}
+            y={y(p.value) - (p.mark ? 10 : 8)}
+            textAnchor="middle"
+            className="fill-muted-foreground text-[11px] font-semibold tabular-nums"
+          >
+            {p.above}
+          </text>
+        ))}
+        {bars.map((b, i) =>
+          i % every === (bars.length - 1) % every ? (
             <text
-              key={w + i}
-              x={x(i)}
+              key={b.start}
+              x={mid(b)}
               y={h - 6}
               textAnchor="middle"
               className="fill-muted-foreground text-[11px]"
             >
-              {w}
+              {b.label}
             </text>
           ) : null,
         )}
@@ -1154,85 +1248,84 @@ export function ProgressChart({
           Target {target}
         </span>
       </div>
-      <svg
-        width={width}
-        height={bh}
-        className="overflow-visible"
-        onPointerMove={move}
-        onPointerLeave={() => setHover(null)}
-      >
-        <line x1={left} x2={width - right} y1={bBase} y2={bBase} className="stroke-foreground/12" />
-        {bars.map((b, i) => {
-          const bw = Math.max(4, Math.min(22, step * 0.62))
-          return (
-            <rect
-              key={i}
-              x={x(i) - bw / 2}
-              y={by(b)}
-              width={bw}
-              height={Math.max(0, bBase - by(b))}
-              rx={Math.min(4, bw / 2)}
-              className={cn('transition-[fill-opacity]', hover === i ? 'fill-tc' : 'fill-tc/40')}
-            />
-          )
-        })}
-        <line
-          x1={left}
-          x2={width - right}
-          y1={by(target)}
-          y2={by(target)}
-          className="stroke-foreground [stroke-dasharray:3_2] [stroke-width:1.5]"
-        />
-        <text
-          x={left - 8}
-          y={by(target) + 4}
-          textAnchor="end"
-          className="fill-muted-foreground text-[11px] tabular-nums"
+      <div className="relative">
+        <svg
+          width={width}
+          height={bh}
+          className="touch-pan-y overflow-visible"
+          onPointerMove={onBars}
+          onPointerDown={onBars}
+          onPointerLeave={leave}
         >
-          {target}
-        </text>
-      </svg>
-      {hover !== null && (
-        <div
-          className="pointer-events-none absolute top-0 z-10 flex min-w-44 flex-col gap-1 rounded-sm bg-popover p-2.5 text-xs shadow-pop"
-          // Beside the crosshair.
-          style={{ left: Math.max(0, Math.min(x(hover) + 12, width - 190)) }}
-        >
-          <span className="font-semibold">Week of {weeks[hover]}</span>
-          {lines.map((l) =>
-            l.values[hover] === null ? null : (
+          <line
+            x1={left}
+            x2={width - right}
+            y1={bBase}
+            y2={bBase}
+            className="stroke-foreground/12"
+          />
+          {bars.map((b, i) => {
+            const bw = Math.max(4, Math.min(22, weekW * 0.62))
+            return (
+              <rect
+                key={b.start}
+                data-week={b.label}
+                x={mid(b) - bw / 2}
+                y={by(b.value)}
+                width={bw}
+                height={Math.max(0, bBase - by(b.value))}
+                rx={Math.min(4, bw / 2)}
+                className={cn('transition-[fill-opacity]', bar === i ? 'fill-tc' : 'fill-tc/40')}
+              />
+            )
+          })}
+          <line
+            x1={left}
+            x2={width - right}
+            y1={by(target)}
+            y2={by(target)}
+            className="stroke-foreground [stroke-dasharray:3_2] [stroke-width:1.5]"
+          />
+          <text
+            x={left - 8}
+            y={by(target) + 4}
+            textAnchor="end"
+            className="fill-muted-foreground text-[11px] tabular-nums"
+          >
+            {target}
+          </text>
+        </svg>
+        {chosen && (
+          <ChartTip left={mid(chosen) + 16} bottom={bh - 4} width={width}>
+            <span className="font-semibold">Week of {chosen.label}</span>
+            <span className="flex items-center gap-2 tabular-nums">
+              <span className="mx-1 size-2.5 rounded-[3px] bg-tc/40" aria-hidden />
+              <span className="flex-1 text-muted-foreground">{barsLabel}</span>
+              <span className="font-semibold">
+                {chosen.value} / {target}
+              </span>
+            </span>
+          </ChartTip>
+        )}
+      </div>
+      {hover !== null && at[0] && (
+        <ChartTip left={x(hover) + 12} top={0} width={width}>
+          <span className="flex items-center gap-2 font-semibold">
+            {at[0].title}
+            {at.some((p) => p.mark) && <PrBadge />}
+          </span>
+          {lines.map((l) => {
+            const p = l.points.find((q) => q.at === hover)
+            return p ? (
               <span key={l.id} className="flex items-center gap-2 tabular-nums">
                 <LineSample tone={l.tone} dash={l.dash} />
                 <span className="flex-1 text-muted-foreground">{l.label}</span>
-                <span className="font-semibold">{fmt(l.values[hover]!)}</span>
+                <span className="font-semibold">{p.text}</span>
               </span>
-            ),
-          )}
-          <span className="flex items-center gap-2 tabular-nums">
-            <span className="mx-1 size-2.5 rounded-[3px] bg-tc/40" aria-hidden />
-            <span className="flex-1 text-muted-foreground">Stimulus sets</span>
-            <span className="font-semibold">{bars[hover]}</span>
-          </span>
-        </div>
+            ) : null
+          })}
+        </ChartTip>
       )}
-    </div>
-  )
-}
-
-/** A chart's key: each line's stroke beside its name, muted. */
-export function ChartKey({
-  items,
-}: {
-  items: { label: string; tone: LineTone; dash: LineDash }[]
-}) {
-  return (
-    <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs font-semibold text-muted-foreground">
-      {items.map((it) => (
-        <span key={it.label} className="flex items-center gap-1.5">
-          <LineSample tone={it.tone} dash={it.dash} />
-          {it.label}
-        </span>
-      ))}
     </div>
   )
 }

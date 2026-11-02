@@ -78,16 +78,31 @@ export function weekOf(
   return { stimulus: total, frequency }
 }
 
-/** Average frequency: workouts a week that trained the group, over the last 28 days ("×2.1"). */
+/**
+ * The weeks an average is over: the whole weeks closest to the time since
+ * `since` (my first workout), one at least and `max` at most — so my first
+ * weeks' averages aren't diluted by weeks before I started (Joe, 3
+ * November). With no `since`, `max`.
+ */
+export function availableWeeks(since: number | null, now: number, max: number): number {
+  if (since === null) return max
+  return Math.min(max, Math.max(1, Math.round((now - since) / (WEEK_DAYS * DAY_MS))))
+}
+
+/**
+ * Average frequency: workouts a week that trained the group, over the last
+ * 28 days, or the weeks since `since` when fewer ("×2.1").
+ */
 export function averageFrequency(
   workouts: readonly WorkoutStimulus[],
   muscleId: string,
   now: number,
+  since: number | null = null,
 ): number {
   const trained = workouts.filter(
     (w) => within(w, now, FREQUENCY_DAYS) && trains(w.stimulus.get(muscleId) ?? 0),
   ).length
-  return trained / (FREQUENCY_DAYS / WEEK_DAYS)
+  return trained / availableWeeks(since, now, FREQUENCY_DAYS / WEEK_DAYS)
 }
 
 /** When a group was last trained, or null if never. */

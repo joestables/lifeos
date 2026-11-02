@@ -46,6 +46,7 @@ export {
   type LoggedSet,
 } from './strength.ts'
 export {
+  availableWeeks,
   averageFrequency,
   coverage,
   FREQUENCY_DAYS,

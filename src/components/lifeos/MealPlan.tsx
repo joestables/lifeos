@@ -328,8 +328,9 @@ export function MealWeek({
                 row === 0 && 'mt-2.5 rounded-t-lg pt-2.5',
                 row === slots.length - 1 && 'rounded-b-lg pb-2.5',
                 row > 0 && 'border-t border-dashed border-foreground/6',
-                // Shaded, with nothing drawn inside it (patterns.md#dragging).
-                d.dropping === slot && 'bg-[color-mix(in_oklch,var(--foreground)_7%,transparent)]',
+                // Shaded and outlined (Joe, 3 November; patterns.md#dragging).
+                d.dropping === slot &&
+                  'bg-[color-mix(in_oklch,var(--foreground)_7%,transparent)] ring-2 ring-ring-soft ring-inset',
               )}
             >
               {cell(d.key, slot)}

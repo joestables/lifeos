@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { holdDrag } from '@/lib/drag-hold'
 
 const HOLD_MS = 400
 const SLOP = 8
@@ -32,6 +33,7 @@ export function useMealDrag(onDrop: (meal: string, drop: string) => void) {
       active = true
       // Lifted, the page doesn't pull to refresh (patterns.md#dragging).
       document.documentElement.style.overscrollBehavior = 'none'
+      holdDrag(true)
       dragged.current = true
       setDragging(meal)
       navigator.vibrate?.(10)
@@ -65,6 +67,8 @@ export function useMealDrag(onDrop: (meal: string, drop: string) => void) {
       moveTo(t.clientX, t.clientY)
     }
     function end() {
+      if (active) holdDrag(false)
+      active = false
       window.clearTimeout(hold)
       document.documentElement.style.overscrollBehavior = ''
       document.removeEventListener('pointermove', mouseMove)

@@ -89,6 +89,7 @@ import {
   TypeTile,
   type TypeColour,
   CurrentLine,
+  DoneToggle,
   ExerciseCard,
   FormNotes,
   LinePill,
@@ -1137,11 +1138,7 @@ function DesignPage() {
                 name="Chest-supported row"
                 meta={['2 of 3 sets']}
                 open
-                control={
-                  <Button variant="outline" size="sm">
-                    Mark done
-                  </Button>
-                }
+                control={<DoneToggle name="Chest-supported row" done={false} />}
               >
                 <div className="flex flex-col gap-1.5">
                   <FormNotes>Chest on the pad at notch 4</FormNotes>
@@ -1157,7 +1154,12 @@ function DesignPage() {
                 />
                 <LogSetButton label="Log set" />
               </ExerciseCard>
-              <ExerciseCard name="Lat pulldown" meta={['3 of 3 sets']} done />
+              <ExerciseCard
+                name="Lat pulldown"
+                meta={['3 of 3 sets']}
+                done
+                control={<DoneToggle name="Lat pulldown" done />}
+              />
             </div>
             <div className="flex flex-col gap-3">
               <div className="flex flex-wrap gap-1.5">

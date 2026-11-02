@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { WeightIcon } from 'lucide-react'
+import { DumbbellIcon } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { EmptyState, PageHeader, TypeScope } from '@/components/lifeos'
 import { Badge } from '@/components/ui/badge'
@@ -45,7 +45,7 @@ function ExercisePage() {
       />
       <div className="flex max-w-3xl flex-col gap-5 px-5 pb-12 sm:px-9">
         {!exercise && !gym.isLoading && (
-          <EmptyState icon={WeightIcon} title="This exercise can't be found" />
+          <EmptyState icon={DumbbellIcon} title="This exercise can't be found" />
         )}
         {exercise && (
           <>

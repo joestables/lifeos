@@ -760,9 +760,10 @@ Agreed with Joe on 1 November 2026, on the
   first, "2 of 3 sets" under the name; expanded, FormNotes and the
   CurrentLine, the SetTable with a pencil on each row, and the dashed
   LogSetButton; then the Backlog, a Card of PanelRows with Add and "…".
-- **Popups:** a set is logged or edited in one Dialog — Tracked · Quick, a
-  toggle as wide as its words; "Weight (kg)" and "Reps" side by side as
-  `lg` ValueSteppers; RIR as a ToggleGroup 0 to 5; Delete when editing.
+- **Popups:** a set is logged or edited in one Dialog — "Weight (kg)" and
+  "Reps" side by side as `lg` ValueSteppers; RIR as a ToggleGroup 0 to 5;
+  in its footer, at the left, an `outline` Quick (a quick set) and, when
+  editing, Delete; Cancel and Log set (Save) at the right.
   Add exercise and Swap go by MuscleChoice, then primary and secondary
   PickRows; long lists use the Dialog's `list` size on a phone. End
   workout: StarRating and MotivationChoice.
@@ -771,8 +772,8 @@ Agreed with Joe on 1 November 2026, on the
   `success` "Beat current" Badge where it applies; stimulus sets beside.
 - **Templates** look like a workout: ExerciseCards with a drag handle and
   a sets stepper; coverage beside them.
-- **Recovery:** overall readiness at `text-display`, the LookAhead slider,
-  the BodyMap (a stand-in), and every muscle as a PanelRow with its
+- **Recovery:** overall readiness at `text-display`, the BodyMap (a
+  stand-in) and the LookAhead slider under it, and every muscle as a PanelRow with its
   ReadinessRing, last trained and average frequency, sorted with SortMenu.
   A muscle, on the map or in the list, opens a Dialog of its readiness,
   when it is fully recovered, its average frequency and its stimulus sets
@@ -786,7 +787,10 @@ Agreed with Joe on 1 November 2026, on the
   with stimulus sets under it, LinePills for a muscle's exercises, StatTiles
   (stacked on a phone for a muscle) and a Table of best sets for an
   exercise, each row opening its workout; a `warning` Badge marks a Stalled
-  Exercise and a muscle's stalled count ("2 stalled").
+  Exercise and a muscle's stalled count ("2 stalled"). Both lists are the
+  same: a SearchField, a Filters Sheet and a SortMenu over PanelRows with
+  a TypeTile — `dumbbell` for an exercise, `biceps-flexed` for a muscle
+  group — and their meta (Joe, 3 November).
 - **Readiness colours** run continuously from `--destructive` through
   `--warning` to `--success`, always with the number.
 
@@ -795,17 +799,20 @@ Agreed with Joe on 1 November 2026, on the
 Two kinds, the same everywhere (Joe, 2 November):
 
 - **Onto a space** (a Plan day, a Meal plan slot or day): the space under
-  the pointer is shaded, `--foreground` 7%, and nothing is drawn inside it
-  (no dashed slot, no ring) on a computer; on a phone the Meal plan's day
-  under the finger is lit as it is. Letting go puts the card there, with
-  Undo in a toast.
+  the pointer is shaded, `--foreground` 7%, with nothing drawn inside it
+  (no dashed slot) on a computer; the Meal plan's slot is also outlined
+  round its edge, a 2px `--ring-soft` ring (Joe, 3 November), and Plan's
+  day isn't. On a phone the Meal plan's day under the finger is lit as it
+  is. Letting go puts the card there, with Undo in a toast.
 - **To reorder** (a template's exercises, a Variation's lines): the card
   dragged fades, and a 2px `--ring` line, rounded, shows in the gap between
   the two cards it will go between (above the first, below the last); no
   line while letting go would leave it where it is.
 - **Either way:** a drag never selects text, never shows a phone's
-  long-press menu, and never scrolls or pulls to refresh the page; near
-  the top or bottom of the screen the page scrolls to the cards beyond.
+  long-press menu, and never scrolls or pulls to refresh the page — the
+  browser's or LifeOS's own PullToRefresh: a reorder handle takes its
+  touches from the moment they start; near the top or bottom of the
+  screen the page scrolls to the cards beyond.
 
 ## Forms
 
@@ -844,8 +851,8 @@ Lucide only, at 16px with a 1.75 stroke (12 or 14px small, 22px large).
 Grey by default; a Type colour only in tiles, checkboxes, the drawer and
 pressed Toggles. Each Type always uses the same icon: Thought `lightbulb`, Note
 `file-text`, Task `square-check-big`, Event `calendar`, Shopping list `shopping-cart`,
-Meal `utensils`, Recipe `chef-hat`, Workout `dumbbell`, Exercise
-`weight`, Workout template `clipboard-list`, Cardio activity
+Meal `utensils`, Recipe `chef-hat`, Workout and Exercise `dumbbell`
+(Joe, 3 November), Workout template `clipboard-list`, Cardio activity
 `footprints`, Goal `target`, Outfit and Garment `shirt`. Marks: star (Task),
 pin (Note), heart (Recipe). A Task that repeats shows `repeat` in its meta;
 sub-tasks `list-checks` with "2/5".

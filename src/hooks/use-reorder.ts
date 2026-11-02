@@ -1,4 +1,5 @@
 import { useRef, useState, type HTMLAttributes, type KeyboardEvent, type PointerEvent } from 'react'
+import { holdDrag } from '@/lib/drag-hold'
 
 /**
  * What a row being reordered is told: its id, how it shows (faded while
@@ -8,7 +9,7 @@ import { useRef, useState, type HTMLAttributes, type KeyboardEvent, type Pointer
 export interface Reorder {
   id: string
   state?: 'dragging' | 'before' | 'after'
-  handle: HTMLAttributes<HTMLElement>
+  handle: HTMLAttributes<HTMLElement> & { ref: (el: HTMLElement | null) => void }
 }
 
 /** Scrolls the nearest scrolling container of `el` (else the page) by `dy`. */
@@ -28,8 +29,28 @@ const holdTouch = (e: TouchEvent) => {
   if (e.cancelable) e.preventDefault()
 }
 
+const held = new WeakSet<HTMLElement>()
+
+/**
+ * A handle's touches are never the page's (Joe, 3 November): a phone decides
+ * to scroll or pull to refresh as a touch starts, before any listener added
+ * then can stop it, and iOS ignores `touch-action` for pulling to refresh;
+ * so the handle itself cancels its touches, from the start, without passive
+ * listeners. Its pointer events still come, and drive the drag.
+ */
+function holdHandle(el: HTMLElement | null) {
+  if (!el || held.has(el)) return
+  held.add(el)
+  el.addEventListener('touchstart', holdTouch, { passive: false })
+  el.addEventListener('touchmove', holdTouch, { passive: false })
+}
+
+let holding = false
+
 /** While dragging, nothing on the page is selected, scrolled or pulled to refresh. */
 function holdPage(on: boolean) {
+  if (on !== holding) holdDrag(on)
+  holding = on
   const root = document.documentElement.style
   root.userSelect = on ? 'none' : ''
   root.webkitUserSelect = on ? 'none' : ''
@@ -93,6 +114,7 @@ export function useReorder(ids: readonly string[], onMove: (id: string, to: numb
               ? 'after'
               : undefined,
       handle: {
+        ref: holdHandle,
         onPointerDown: (e: PointerEvent<HTMLElement>) => {
           e.preventDefault()
           e.currentTarget.setPointerCapture(e.pointerId)

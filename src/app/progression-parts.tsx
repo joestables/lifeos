@@ -1,18 +1,22 @@
 import { useNavigate } from '@tanstack/react-router'
-import { TrophyIcon } from 'lucide-react'
+import { BicepsFlexedIcon, SlidersHorizontalIcon, TrophyIcon } from 'lucide-react'
 import { useState } from 'react'
 import {
-  ChartKey,
+  FilterPanel,
   LinePill,
   PanelHeading,
   PanelRow,
   PrBadge,
   ProgressChart,
+  SortMenu,
   StatTile,
+  TypeTile,
   type ChartLine,
+  type FilterGroup,
   type LineDash,
 } from '@/components/lifeos'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import {
   Table,
@@ -25,18 +29,23 @@ import {
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { CATEGORIES, type ExerciseView, type GymData } from '@/data'
 import { shortDate } from '@/lib/dates'
-import { currentText } from '@/lib/gym'
-import { currentStrength, formatKg, MAX_LINES, toggleLine } from '@lifeos/fitness'
 import {
-  exerciseProgression,
-  muscleProgression,
-  periodOf,
-  PERIODS,
-  type Period,
-} from './progression'
+  currentText,
+  MUSCLE_LIST_SORTS,
+  muscleListRows,
+  since,
+  type MuscleListSort,
+} from '@/lib/gym'
+import type { SortDirection } from '@/lib/sort'
+import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/sheet'
+import { useMuscleListFilter } from './gym-library'
+import { SearchField } from './search-field'
+import { formatKg, MAX_LINES, toggleLine } from '@lifeos/fitness'
+import { exerciseProgression, muscleProgression, PERIODS, type Period } from './progression'
 
 const DASHES: LineDash[] = ['solid', 'dash', 'dot']
 const TREND: Record<string, string> = { rising: 'Rising', flat: 'Flat', falling: 'Falling' }
+const capital = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
 const signed = (n: number) => `${n > 0 ? '+' : n < 0 ? '−' : ''}${Math.abs(n).toFixed(1)} %`
 
 /** The period, 1 M, 3 M or 1 Y (gym.md, Progression). */
@@ -63,8 +72,9 @@ export function PeriodToggle({
 }
 
 /**
- * An Exercise's progression (GYM-014): its Strength chart over the period
- * with its primary group's stimulus sets under it, its figures, and the
+ * An Exercise's progression (GYM-014): its best set's weight in each workout
+ * over the period (or since it was first done), its reps over each point,
+ * with its primary group's stimulus sets under it; its figures, and the
  * best set of each of its last ten workouts.
  */
 export function ExerciseProgress({
@@ -80,10 +90,8 @@ export function ExerciseProgress({
 }) {
   const navigate = useNavigate()
   const p = exerciseProgression(gym, exercise.item.id, period, now)
-  const rir = gym.settings.preferredRir
-  const currentAt = currentStrength({ weightGrams: exercise.weightGrams, reps: exercise.reps }, rir)
   const open = (id: string) => void navigate({ to: '/gym/workouts/$id', params: { id } })
-  const any = p.best.some((v) => v !== null)
+  const any = p.points.length > 0
   const last = p.lastTen[0]
   const lines: ChartLine[] = [
     {
@@ -91,43 +99,37 @@ export function ExerciseProgress({
       label: 'Best set',
       tone: 'coral',
       dash: 'solid',
-      values: p.best,
-      ...(p.prWeek !== undefined && { mark: p.prWeek }),
+      points: p.points.map((pt) => ({
+        at: pt.at,
+        value: pt.weightGrams / 1000,
+        above: `×${pt.reps}`,
+        mark: pt.pr,
+        title: `${shortDate(new Date(pt.at))} · ${pt.title}`,
+        text: `${formatKg(pt.weightGrams)} kg × ${pt.reps} · ${pt.rir} RIR`,
+      })),
     },
-    { id: 'current', label: 'Current', tone: 'grey', dash: 'dash', values: p.current },
   ]
   return (
     <>
       <Card className="gap-4">
-        <PanelHeading title="Strength">
-          <span className="text-sm text-muted-foreground">{periodOf(period).name}</span>
+        <PanelHeading title="Best set">
+          <span className="text-sm text-muted-foreground">kg · {p.span.name}</span>
         </PanelHeading>
         {any ? (
-          <>
-            <ProgressChart
-              weeks={p.weeks}
-              lines={lines}
-              bars={p.bars}
-              target={p.target}
-              barsLabel={`${p.muscle ?? 'No muscle'} · stimulus sets a week`}
-            />
-            <ChartKey
-              items={[
-                { label: 'Best set', tone: 'coral', dash: 'solid' },
-                { label: 'Current', tone: 'grey', dash: 'dash' },
-              ]}
-            />
-          </>
+          <ProgressChart
+            from={p.span.from}
+            to={p.span.to}
+            lines={lines}
+            bars={p.bars}
+            target={p.target}
+            barsLabel={`${p.muscle ?? 'No muscle'} stimulus`}
+          />
         ) : (
           <p className="py-6 text-center text-sm text-muted-foreground">No sets in this period</p>
         )}
       </Card>
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <StatTile
-          label="Current"
-          value={currentText(exercise.weightGrams, exercise.reps)}
-          sub={currentAt === null ? undefined : `Strength ${currentAt.toFixed(1)} at ${rir} RIR`}
-        />
+        <StatTile label="Current" value={currentText(exercise.weightGrams, exercise.reps)} />
         <StatTile
           icon={<TrophyIcon />}
           label="PR"
@@ -138,13 +140,13 @@ export function ExerciseProgress({
           }
           sub={
             exercise.pr
-              ? `${exercise.pr.set.rir} RIR · ${exercise.pr.strength.toFixed(1)} · ${shortDate(new Date(exercise.pr.at))}`
+              ? `${exercise.pr.set.rir} RIR · ${shortDate(new Date(exercise.pr.at))}`
               : undefined
           }
           onClick={exercise.pr ? () => open(exercise.pr!.set.workoutId) : undefined}
         />
         <StatTile
-          label={periodOf(period).name}
+          label={capital(p.span.name)}
           value={p.change ? signed(p.change.percent) : '–'}
           sub={p.change ? TREND[p.change.trend] : 'Too few workouts'}
         />
@@ -201,52 +203,121 @@ export function ExerciseProgress({
   )
 }
 
+const MUSCLE_GROUP = { categories: 'Category', muscles: 'Muscle group' } as const
+
 /**
- * Progression → Muscles (GYM-015 1): every group by category with its
- * average frequency and, where any, its stalled exercises.
+ * Progression → Muscles (GYM-015 1), like the exercise library (Joe, 3
+ * November): a search, filters (in a Sheet) and a sort, then each muscle
+ * group with its category, when it was last trained and, where any, its
+ * stalled exercises.
  */
 export function MusclesList({
   gym,
-  frequency,
+  lastTrained,
   stalled,
   selected,
   onOpen,
 }: {
   gym: GymData
-  frequency: ReadonlyMap<string, number>
+  lastTrained: ReadonlyMap<string, number | null>
   stalled: ReadonlySet<string>
   selected?: string
   onOpen: (muscleId: string) => void
 }) {
+  const { filter, change, setSearch } = useMuscleListFilter()
+  const [sheet, setSheet] = useState(false)
+  const rows = gym.muscles.map((m, order) => ({
+    muscle: m,
+    name: m.name,
+    category: m.category,
+    order,
+    lastTrained: lastTrained.get(m.id) ?? null,
+  }))
+  const shown = muscleListRows(rows, filter)
+  const chosen = filter.categories.length + filter.muscles.length
+  const groups: FilterGroup[] = [
+    {
+      name: MUSCLE_GROUP.categories,
+      values: CATEGORIES.map((c) => c.label),
+      chosen: CATEGORIES.filter((c) => filter.categories.includes(c.key)).map((c) => c.label),
+      open: true,
+    },
+    {
+      name: MUSCLE_GROUP.muscles,
+      values: gym.muscles.map((m) => m.name),
+      chosen: [...filter.muscles],
+    },
+  ]
+  const onChange = (group: string, values: string[]) =>
+    group === MUSCLE_GROUP.categories
+      ? change({ categories: CATEGORIES.filter((c) => values.includes(c.label)).map((c) => c.key) })
+      : change({ muscles: values })
+  const reset = () => change({ categories: [], muscles: [] })
   const stalledOf = (muscleId: string) =>
     gym.exercises.filter((x) => !x.archived && x.primary?.id === muscleId && stalled.has(x.item.id))
       .length
   return (
-    <Card className="gap-1">
-      {CATEGORIES.map((c, i) => {
-        const muscles = gym.muscles.filter((m) => m.category === c.key)
-        if (!muscles.length) return null
-        return (
-          <section key={c.key} aria-label={c.label} className="flex flex-col">
-            <span className={`pb-1 text-xs font-semibold text-muted-foreground ${i ? 'pt-3' : ''}`}>
-              {c.label}
-            </span>
-            {muscles.map((m) => {
-              const n = stalledOf(m.id)
-              return (
-                <PanelRow
-                  key={m.id}
-                  selected={selected === m.id}
-                  title={m.name}
-                  meta={[`×${(frequency.get(m.id) ?? 0).toFixed(1)} a week`]}
-                  trailing={n ? <Badge variant="warning">{n} stalled</Badge> : undefined}
-                  onOpen={() => onOpen(m.id)}
-                />
-              )
-            })}
-          </section>
-        )
-      })}
+    <Card className="gap-3">
+      <div className="flex items-center gap-2">
+        <SearchField label="Search muscles" value={filter.search} onChange={setSearch} />
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          aria-label="Filters"
+          className="relative"
+          onClick={() => setSheet(true)}
+        >
+          <SlidersHorizontalIcon />
+          {chosen > 0 && <Badge className="absolute -top-2 -right-2">{chosen}</Badge>}
+        </Button>
+        <SortMenu<MuscleListSort>
+          options={MUSCLE_LIST_SORTS}
+          value={filter.sort}
+          direction={filter.direction}
+          onChange={(sort, direction: SortDirection) => change({ sort, direction })}
+        />
+      </div>
+      {shown.length === 0 ? (
+        <p className="py-6 text-center text-sm text-muted-foreground">No muscle groups match</p>
+      ) : (
+        <div className="flex flex-col">
+          {shown.map(({ muscle: m, lastTrained: at }) => {
+            const n = stalledOf(m.id)
+            return (
+              <PanelRow
+                key={m.id}
+                selected={selected === m.id}
+                leading={<TypeTile colour="coral" icon={BicepsFlexedIcon} />}
+                title={m.name}
+                meta={[
+                  CATEGORIES.find((c) => c.key === m.category)?.label ?? m.category,
+                  at === null ? 'Never trained' : since('Trained', at),
+                ]}
+                trailing={n ? <Badge variant="warning">{n} stalled</Badge> : undefined}
+                onOpen={() => onOpen(m.id)}
+              />
+            )
+          })}
+        </div>
+      )}
+      <Sheet open={sheet} onOpenChange={setSheet}>
+        <SheetContent side="right" initialFocus={false} data-colour="coral">
+          <SheetHeader>
+            <SheetTitle>Filters</SheetTitle>
+          </SheetHeader>
+          <div>
+            <FilterPanel bare groups={groups} onChange={onChange} onReset={reset} />
+          </div>
+          <SheetFooter className="grid grid-cols-2">
+            <Button variant="outline" onClick={reset}>
+              Reset
+            </Button>
+            <Button onClick={() => setSheet(false)}>
+              {shown.length === 1 ? 'Show 1 muscle group' : `Show ${shown.length} muscle groups`}
+            </Button>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
     </Card>
   )
 }
@@ -291,7 +362,12 @@ export function MuscleProgress({
         label: l.name,
         tone: l.primary ? 'coral' : 'grey',
         dash: dashOf(id, l.primary ? primary : secondary),
-        values: l.values,
+        points: l.points.map((pt) => ({
+          at: pt.at,
+          value: pt.value,
+          title: `${shortDate(new Date(pt.at))} · ${pt.title}`,
+          text: signed(pt.value),
+        })),
       },
     ]
   })
@@ -299,9 +375,7 @@ export function MuscleProgress({
     const count = kind.filter((l) => on.includes(l.exerciseId)).length
     return (
       <div className="flex flex-col gap-2">
-        <span className="text-xs font-semibold text-muted-foreground">
-          {title} · {count} of {MAX_LINES} shown
-        </span>
+        <span className="text-xs font-semibold text-muted-foreground">{title}</span>
         <div className="flex flex-wrap gap-1.5">
           {kind.map((l) => {
             const isOn = on.includes(l.exerciseId)
@@ -330,14 +404,14 @@ export function MuscleProgress({
       </div>
     )
   }
-  const any = shown.some((l) => l.values.some((v) => v !== null))
+  const any = shown.some((l) => l.points.length > 0)
   return (
     <>
       <Card className="gap-5">
         {heading && (
           <PanelHeading title={muscle.name}>
             <span className="text-sm text-muted-foreground">
-              Change in strength · {periodOf(period).name.toLowerCase()}
+              Change in strength · {p.span.name.toLowerCase()}
             </span>
           </PanelHeading>
         )}
@@ -351,12 +425,13 @@ export function MuscleProgress({
             </div>
             {any ? (
               <ProgressChart
-                weeks={p.weeks}
+                from={p.span.from}
+                to={p.span.to}
                 unit=" %"
                 lines={shown}
                 bars={p.bars}
                 target={p.target}
-                barsLabel={`${muscle.name} · stimulus sets a week`}
+                barsLabel={`${muscle.name} stimulus`}
               />
             ) : (
               <p className="py-6 text-center text-sm text-muted-foreground">

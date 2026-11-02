@@ -10,7 +10,7 @@ import {
 import { Card } from '@/components/ui/card'
 import type { GymData, TemplateView } from '@/data'
 import { fromIsoDay, shortDate } from '@/lib/dates'
-import { counted, pillState } from '@/lib/gym'
+import { counted, duration, pillState } from '@/lib/gym'
 import { workoutMeta } from './all-workouts'
 import { TemplateTile } from './template-parts'
 
@@ -76,10 +76,7 @@ export function TodayCard({
                       ...(phone ? [] : [counted(w.setCount, 'set')]),
                     ]
                   : w.stage === 'complete'
-                    ? [
-                        `${time.format(new Date(w.startedAt!))}–${time.format(new Date(w.endedAt!))}`,
-                        counted(w.setCount, 'set'),
-                      ]
+                    ? [duration(w.startedAt!, w.endedAt!), counted(w.setCount, 'set')]
                     : [
                         counted(
                           gym.templates.find((t) => t.item.id === w.templateId)?.exerciseCount ?? 0,

@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { ArchiveIcon, WeightIcon } from 'lucide-react'
+import { ArchiveIcon, DumbbellIcon } from 'lucide-react'
 import { EmptyState, ItemRow, PageHeader, TypeScope, TypeTile } from '@/components/lifeos'
 import { Button } from '@/components/ui/button'
 import { toast } from '@/components/ui/sonner'
@@ -34,7 +34,7 @@ function ArchivedExercises() {
           {archived.map((x) => (
             <ItemRow
               key={x.item.id}
-              leading={<TypeTile colour="coral" icon={WeightIcon} size="sm" />}
+              leading={<TypeTile colour="coral" icon={DumbbellIcon} size="sm" />}
               title={x.item.title}
               meta={[`Archived ${whenAgo(x.item.updated_at)}`]}
               sync={x.item.sync}

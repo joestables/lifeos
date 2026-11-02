@@ -5,7 +5,6 @@ import {
   ArrowLeftRightIcon,
   ArrowUpIcon,
   CalendarIcon,
-  CheckIcon,
   ClipboardListIcon,
   DumbbellIcon,
   EllipsisIcon,
@@ -16,11 +15,11 @@ import {
   Trash2Icon,
   TrophyIcon,
   UndoIcon,
-  WeightIcon,
 } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
 import {
   CurrentLine,
+  DoneToggle,
   EmptyState,
   ExerciseCard,
   FormNotes,
@@ -104,7 +103,6 @@ import {
   type SetView,
   type WorkoutView,
 } from '@/data'
-import { useIsMobile } from '@/hooks/use-mobile'
 import { dateName, shortDate, fromIsoDay } from '@/lib/dates'
 import {
   counted,
@@ -335,7 +333,7 @@ function Planned({ workout, gym }: { workout: WorkoutView; gym: GymData }) {
           <PanelRow
             key={l.id}
             chevron={false}
-            leading={<TypeTile colour="coral" icon={WeightIcon} />}
+            leading={<TypeTile colour="coral" icon={DumbbellIcon} />}
             title={l.exercise!.item.title}
             meta={[l.exercise!.primary?.name ?? '', counted(l.sets, 'set')].filter(Boolean)}
           />
@@ -351,7 +349,6 @@ function Planned({ workout, gym }: { workout: WorkoutView; gym: GymData }) {
  * session, open for logging.
  */
 function Session({ workout, gym }: { workout: WorkoutView; gym: GymData }) {
-  const phone = useIsMobile()
   const [open, setOpen] = useState<ReadonlySet<string>>(new Set())
   const [logging, setLogging] = useState<{ entry: EntryView; set?: SetView } | null>(null)
   const [picking, setPicking] = useState<Picking | null>(null)
@@ -394,7 +391,7 @@ function Session({ workout, gym }: { workout: WorkoutView; gym: GymData }) {
         )}
         {workout.session.map((e) => {
           const done = e.doneAt !== null
-          const isOpen = !done && open.has(e.id)
+          const isOpen = open.has(e.id)
           const empty = e.sets.length === 0
           return (
             <ExerciseCard
@@ -404,33 +401,16 @@ function Session({ workout, gym }: { workout: WorkoutView; gym: GymData }) {
               open={isOpen}
               done={done}
               onToggle={() => toggle(e.id)}
-              onUndoDone={() => markEntryDone(workout.item.id, e.id, false)}
               control={
-                phone ? (
-                  <Button
-                    variant="outline"
-                    size="icon-sm"
-                    aria-label={`Mark ${e.name} done`}
-                    onClick={() => {
-                      markEntryDone(workout.item.id, e.id)
-                      toggle(e.id, false)
-                    }}
-                  >
-                    <CheckIcon />
-                  </Button>
-                ) : (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    aria-label={`Mark ${e.name} done`}
-                    onClick={() => {
-                      markEntryDone(workout.item.id, e.id)
-                      toggle(e.id, false)
-                    }}
-                  >
-                    Mark done
-                  </Button>
-                )
+                <DoneToggle
+                  name={e.name}
+                  done={done}
+                  onChange={(on) => {
+                    markEntryDone(workout.item.id, e.id, on)
+                    // Done, it closes; it can still be opened to see its sets (GYM-011 2).
+                    if (on) toggle(e.id, false)
+                  }}
+                />
               }
               menu={
                 <More label={`${e.name} options`}>
@@ -458,11 +438,12 @@ function Session({ workout, gym }: { workout: WorkoutView; gym: GymData }) {
               {e.sets.length > 0 && (
                 <SetTable
                   sets={e.sets.map(shownSet)}
-                  editable
+                  editable={!done}
                   onEdit={(i) => setLogging({ entry: e, set: e.sets[i] })}
                 />
               )}
-              <LogSetButton label="Log set" onClick={() => setLogging({ entry: e })} />
+              {/* Done, its sets are as they are until Done is undone (GYM-011 3). */}
+              {!done && <LogSetButton label="Log set" onClick={() => setLogging({ entry: e })} />}
             </ExerciseCard>
           )
         })}
@@ -474,7 +455,7 @@ function Session({ workout, gym }: { workout: WorkoutView; gym: GymData }) {
             <PanelRow
               key={e.id}
               chevron={false}
-              leading={<TypeTile colour="coral" icon={WeightIcon} />}
+              leading={<TypeTile colour="coral" icon={DumbbellIcon} />}
               title={e.name}
               meta={[e.exercise?.primary?.name ?? '', counted(e.plannedSets, 'set')].filter(
                 Boolean,
@@ -637,7 +618,7 @@ function Review({
                   }
                   sub={
                     x.pr
-                      ? `${x.pr.set.rir} RIR · ${x.pr.strength.toFixed(1)} · ${dateName(new Date(x.pr.at).toISOString().slice(0, 10))}`
+                      ? `${x.pr.set.rir} RIR · ${dateName(new Date(x.pr.at).toISOString().slice(0, 10))}`
                       : undefined
                   }
                 />

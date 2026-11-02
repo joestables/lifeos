@@ -88,7 +88,8 @@ test.describe('recovery', () => {
     await expect(page.getByRole('button', { name: 'Quads 100 %' })).toBeVisible()
     const row = page.getByRole('button', { name: /^\d+ % ready Chest/ })
     await expect(row).toContainText('Trained today')
-    await expect(row).toContainText('×0.3 a week')
+    // Her first workout: over one week, not 28 days (Joe, 3 November).
+    await expect(row).toContainText('×1.0 a week')
     await expect(rows(page)).toHaveCount(20)
 
     const slider = page.getByRole('slider', { name: 'Look ahead' })
@@ -122,9 +123,9 @@ test.describe('recovery', () => {
     await expect(dialog).toContainText(/\d+ % ready/)
     await expect(dialog).toContainText(/Fully recovered \w{3} \d+ \w{3}, \d\d:\d\d/)
     await expect(dialog).toContainText('Today')
-    // One workout in the last 28 days: ×0.3 a week; 4 stimulus sets this week, of 4.
-    await expect(dialog).toContainText('×0.3')
-    await expect(dialog).toContainText('a week, 28 days')
+    // Her first workout, an hour ago: ×1.0 a week over 7 days; 4 stimulus sets this week, of 4.
+    await expect(dialog).toContainText('×1.0')
+    await expect(dialog).toContainText('a week, 7 days')
     await expect(dialog).toContainText('4.0 / 4')
   })
 
@@ -173,6 +174,8 @@ test.describe('recovery', () => {
       .filter({ has: page.getByRole('heading', { name: 'Today' }) })
     await expect(today.getByRole('button', { name: /^Push A/ })).toContainText('Complete')
     await expect(today.getByRole('button', { name: /^Push A/ })).toContainText('4 sets')
+    // How long it took, not when it started and ended (Joe, 3 November).
+    await expect(today.getByRole('button', { name: /^Push A/ })).toContainText('1 h 00')
     await expect(today.getByText('Most suitable')).toHaveCount(0)
   })
 })

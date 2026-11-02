@@ -172,9 +172,10 @@ test.describe('the exercise library', () => {
     await expect(dialog.getByRole('group', { name: 'Front delts contribution' })).toContainText(
       '0.4',
     )
-    // The weight steps by the cable's 0.625 kg.
+    // The weight steps by the cable's 0.625 kg; the unit is in the heading.
+    await expect(dialog.getByText('Current weight (kg)')).toBeVisible()
     await dialog.getByRole('button', { name: 'More weight' }).click()
-    await expect(dialog.getByRole('group', { name: 'Weight' })).toContainText('20.625')
+    await expect(dialog.getByRole('textbox', { name: 'Weight' })).toHaveValue('20.625')
     await dialog.getByRole('textbox', { name: 'Notes' }).fill('Bench at 3')
     await dialog.getByRole('button', { name: 'Save' }).click()
 
@@ -201,7 +202,6 @@ test.describe('the exercise library', () => {
     await openExercise(page, 'Bench press')
     await expect(page.getByText('Triceps (0.4)')).toBeVisible()
     await expect(page.getByText('60 kg × 8')).toBeVisible()
-    await expect(page.getByText('Strength 78.0 at 1 RIR')).toBeVisible()
     await page.getByRole('button', { name: 'Exercise', exact: true }).click()
     await page.getByRole('menuitem', { name: 'Edit' }).click()
     const dialog = page.getByRole('dialog')
@@ -229,6 +229,37 @@ test.describe('the exercise library', () => {
     await page.getByRole('dialog').getByRole('button', { name: 'Push', exact: true }).click()
     await page.getByRole('button', { name: 'Show 2 exercises' }).click()
     await expect(page.getByRole('button', { name: /^Bench press/ })).toBeVisible()
+  })
+
+  test('GYM-003 3: filtered by the templates an exercise is in (Joe, 3 November)', async ({
+    page,
+  }) => {
+    await standIn(page, {
+      signedIn: true,
+      rows: {
+        ...GYM,
+        items: [
+          ...GYM.items!,
+          itemRow({ id: 't-push', type: 'workout_template', title: 'Push A' }),
+        ],
+        template_exercises: [
+          { id: 'te-1', template_id: 't-push', exercise_id: 'x-pushdown', position: 'h', sets: 3 },
+        ],
+      },
+    })
+    await library(page)
+    // Short sorts, so the search has room.
+    await expect(page.getByRole('button', { name: /^Sort: A–Z/ })).toBeVisible()
+    await page.getByRole('button', { name: /^Sort/ }).click()
+    await expect(page.getByRole('menuitem', { name: 'Recent' })).toBeVisible()
+    await expect(page.getByRole('menuitem', { name: 'Muscle' })).toBeVisible()
+    await page.keyboard.press('Escape')
+    await page.getByRole('button', { name: 'Filters' }).click()
+    await page.getByRole('dialog').getByRole('button', { name: 'Template' }).click()
+    await page.getByRole('dialog').getByRole('button', { name: 'Push A', exact: true }).click()
+    await page.getByRole('button', { name: 'Show 1 exercise' }).click()
+    await expect(page.getByRole('button', { name: /^Pushdown/ })).toBeVisible()
+    await expect(page.getByRole('button', { name: /^Bench press/ })).toHaveCount(0)
   })
 
   test('GYM-005: archived with Undo, and brought back from Settings', async ({ page }) => {

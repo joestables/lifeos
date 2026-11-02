@@ -83,6 +83,37 @@ test.describe('templates', () => {
     await expect.poll(() => db.template_exercises.find((t) => t.id === 'te-2')?.sets).toBe(3)
   })
 
+  test('GYM-006 3: on a phone, an exercise dragged down by its handle never pulls to refresh', async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(!isMobile, 'a finger, on a phone')
+    const db = await standIn(page, { signedIn: true, rows: GYM })
+    await pushA(page)
+    const handle = page.getByLabel('Drag Bench press to reorder')
+    const from = (await handle.boundingBox())!
+    const below = (await cards(page).nth(1).boundingBox())!
+    const cdp = await page.context().newCDPSession(page)
+    const touch = (type: 'touchStart' | 'touchMove' | 'touchEnd', x: number, y: number) =>
+      cdp.send('Input.dispatchTouchEvent', {
+        type,
+        touchPoints: type === 'touchEnd' ? [] : [{ x, y }],
+      })
+    const x = from.x + from.width / 2
+    const y0 = from.y + from.height / 2
+    await touch('touchStart', x, y0)
+    // Down, from the top of the page: LifeOS's pull to refresh would follow it.
+    const y1 = below.y + below.height - 4
+    for (let i = 1; i <= 8; i++) await touch('touchMove', x, y0 + ((y1 - y0) * i) / 8)
+    await expect(page.getByRole('status', { name: 'Pull to refresh' })).toHaveCount(0)
+    await touch('touchEnd', 0, 0)
+    await expect(page.getByRole('status', { name: 'Refreshing' })).toHaveCount(0)
+    await expect(cards(page).first()).toContainText('Cable fly')
+    await expect
+      .poll(() => db.template_exercises.find((t) => t.id === 'te-1')?.position ?? '')
+      .not.toBe('h')
+  })
+
   test('GYM-006 3: exercises reordered by dragging, swapped, and removed with Undo', async ({
     page,
   }) => {

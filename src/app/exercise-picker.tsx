@@ -1,4 +1,4 @@
-import { WeightIcon } from 'lucide-react'
+import { DumbbellIcon } from 'lucide-react'
 import { useState } from 'react'
 import { BackLink, MuscleChoice, PickRow, TypeTile } from '@/components/lifeos'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -6,7 +6,7 @@ import { CATEGORIES, type ExerciseView, type GymData, type MuscleView } from '@/
 import { currentText, withShare } from '@/lib/gym'
 import { SearchField } from './search-field'
 
-const tile = <TypeTile size="sm" colour="coral" icon={WeightIcon} />
+const tile = <TypeTile size="sm" colour="coral" icon={DumbbellIcon} />
 
 /** "Barbell · 60 kg × 8": its equipment and Current set. */
 const meta = (x: ExerciseView) =>
