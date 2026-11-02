@@ -773,7 +773,8 @@ Agreed with Joe on 1 November 2026, on the
 - **Templates** look like a workout: ExerciseCards with a drag handle and
   a sets stepper; coverage beside them.
 - **Recovery:** overall readiness at `text-display`, the BodyMap (a
-  stand-in) and the LookAhead slider under it, and every muscle as a PanelRow with its
+  stand-in until the rendered figure of ADR-0060 is built) and the
+  LookAhead slider under it, and every muscle as a PanelRow with its
   ReadinessRing, last trained and average frequency, sorted with SortMenu.
   A muscle, on the map or in the list, opens a Dialog of its readiness,
   when it is fully recovered, its average frequency and its stimulus sets

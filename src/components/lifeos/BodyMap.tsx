@@ -2,8 +2,8 @@ import { cn } from '@/lib/utils'
 import { readinessColour } from './readiness'
 
 /*
- * The body map is a stand-in, to be redrawn once the Gym is built and Joe
- * has used it (Joe, 31 October; gym.md, Recovery).
+ * The body map is a stand-in, to be replaced by a figure rendered from an
+ * anatomical model (Joe, 3 November; ADR-0060, Proposed; gym.md, Recovery).
  */
 
 type Shape =
