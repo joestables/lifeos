@@ -9,6 +9,9 @@ Writes, for front and back, in <out dir>/<view>/:
   silhouette.webp the figure's outline as alpha (the body's colour is cut from it)
   lines.webp      the seams between groups, and between a group and the body, as alpha
   <group>.webp    each group's mask as alpha
+With --trim, the body shows only in the gaps between muscles and as a thin rim
+round them: where the skin stands out beyond the muscles (the hips, the
+waist), it is cut back.
 and manifest.json: the size, and each group's outline per view as SVG paths.
 With --preview, preview.png: the layers put together as the page would.
 """
@@ -18,14 +21,15 @@ import json
 import os
 
 import numpy as np
-from PIL import Image
-from skimage import measure
+from PIL import Image, ImageFilter
+from skimage import measure, morphology
 
 ap = argparse.ArgumentParser()
 ap.add_argument('src')
 ap.add_argument('out')
 ap.add_argument('--width', type=int, default=0, help='output width in px (default: as rendered)')
 ap.add_argument('--preview', action='store_true')
+ap.add_argument('--trim', action='store_true', help='pull the body in to a thin rim round the muscles')
 args = ap.parse_args()
 
 meta = json.load(open(os.path.join(args.src, 'render.json')))
@@ -91,6 +95,24 @@ for view in ('front', 'back'):
     body_d = load(f'{args.src}/{view}_body_diffuse.png')
     fig_g = load(f'{args.src}/{view}_figure_gloss.png')
     body_g = load(f'{args.src}/{view}_body_gloss.png')
+    if args.trim:
+        # Close the figure's outline over gaps up to ~6 cm across, add a thin rim,
+        # and keep the body only inside that.
+        r_close = max(2, round(H0 * 0.017))
+        r_rim = max(1, round(H0 * 0.002))
+        closed = morphology.binary_closing(fig_d[..., 3] > 0.5, morphology.disk(r_close, decomposition='sequence'))
+        rim = morphology.binary_dilation(closed, morphology.disk(r_rim, decomposition='sequence'))
+
+        def soften(mask):
+            img = Image.fromarray((mask * 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(0.7))
+            return np.asarray(img).astype(np.float32) / 255
+
+        body_d[..., 3] *= soften(rim)
+        # The rim is skin lit side-on by the lights behind: dim it to an outline, not a glow.
+        body_d[..., :3] *= 1 - 0.55 * soften(rim & ~closed)[..., None]
+        # The rim lights catch the skin where it curves away, just outside the
+        # muscles: keep the body's shine only in the gaps, or the rim glows.
+        body_g[..., 3] *= soften(closed & (fig_d[..., 3] < 0.5) | (fig_d[..., 3] >= 0.5))
     diffuse = over(fig_d, body_d)
     gloss = over(fig_g, body_g)
 
@@ -170,12 +192,16 @@ if args.preview:
         sh = load(f'{d}/shade.webp')
         gl = load(f'{d}/gloss.webp')
         sil = load(f'{d}/silhouette.webp')[..., 3:4]
-        rgb = np.broadcast_to(oklch(0.42, 0.012, 260), sh[..., :3].shape).copy()
+        # Joe's look (3 November): Slate, body tone 35, depth 120, dark seams, shine 55.
+        rgb = np.broadcast_to(oklch(0.35, 0.018, 262), sh[..., :3].shape).copy()
         for g in GROUPS:
             m = load(f'{d}/{g}.webp')[..., 3:4]
             rgb = rgb * (1 - m) + colour(demo[g]) * m
-        rgb = rgb * sh[..., :3]
-        rgb = 1 - (1 - rgb) * (1 - gl[..., :3] * 0.6)
+        shade = np.clip(((sh[..., :3] - 0.5) * 1.2 + 0.5) * 1.08, 0, 1)  # CSS contrast(1.2) brightness(1.08)
+        rgb = rgb * shade
+        seam = load(f'{d}/lines.webp')[..., 3:4] * 0.55
+        rgb = rgb * (1 - seam) + oklch(0.16, 0.01, 262) * seam
+        rgb = 1 - (1 - rgb) * (1 - gl[..., :3] * 0.55)
         tiles.append(rgb * sil + bg * (1 - sil))
     Image.fromarray((np.concatenate(tiles, 1) * 255).astype(np.uint8)).save(os.path.join(args.out, 'preview.png'))
 

@@ -28,8 +28,8 @@ rendering lacks.
 - **A pipeline in `scripts/body-map/`** runs Blender as a Python module
   (`bpy`, pinned) in a cloud session: a table maps the atlas's muscles to
   the twenty built-in groups (by `body_part`); it fixes the model (a body
-  behind the gaps, a smooth head, the lumbar erectors uncovered, the
-  pose); and it renders front and back, orthographic, into a **shading
+  behind the gaps, deep muscles hidden, the abs and lumbar erectors
+  uncovered, the head's hair and carved eyes, the pose); and it renders front and back, orthographic, into a **shading
   image**, a **mask per group**, an **outline per group** traced from its
   mask, and a manifest. Its output is committed under
   `src/assets/body-map/`; running it again gives the same files.

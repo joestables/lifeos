@@ -40,25 +40,35 @@ HIDDEN = (
 )
 
 # Parts of muscles cut away so the muscle under them shows, as fitness
-# figures draw it: (atlas names, the cut's box in metres: |x| below, z between).
-#  - The obliques' and transversus's sheets over the abs.
-#  - The lat's sheet over the lumbar erectors.
+# figures draw it: (atlas names, the cut in metres). Everything nearer the
+# midline than a line from (half-width `top_x`, height `top_z`) down to
+# (`bottom_x`, `bottom_z`), and below `top_z`, goes.
+#  - The obliques' and transversus's sheets over the abs: a straight edge.
+#  - The lat's sheet over the lumbar erectors: a diamond widening downwards,
+#    as the lat's own lower border runs.
 CUTS: list[tuple[str, dict[str, float]]] = [
     (
         r'(external|internal) (abdominal )?oblique|transversus abdominis',
-        {'abs_x_max': 0.08, 'z_min': 0.0, 'z_max': 2.0},
+        {'top_x': 0.08, 'top_z': 2.0, 'bottom_x': 0.08, 'bottom_z': 0.0},
     ),
-    (r'latissimus dorsi', {'abs_x_max': 0.085, 'z_min': 0.0, 'z_max': 1.13}),
+    (r'latissimus dorsi', {'top_x': 0.0, 'top_z': 1.24, 'bottom_x': 0.1, 'bottom_z': 0.98}),
 ]
 
 # Upper-limb muscles, which turn with the arm when the figure is posed;
 # anything else whose middle is this far from the midline turns too.
 ARM = r'deltoid|biceps brachii|triceps|brachialis|coracobrachialis'
 ARM_X = 0.175
-# The shoulder joint the arms turn about (metres: |x|, z).
+# The shoulder joint the arms turn about (metres: |x|, z), and the elbow's height.
 SHOULDER = (0.17, 1.36)
-# The eyes, as spheres in the skin's empty sockets (metres: |x|, y, z, r).
-EYE = (0.031, -0.066, 1.594, 0.0125)
+ELBOW_Z = 1.10
+# The twist turns nothing above the first height and all of the arm below the
+# second: the whole deltoid turns, so the lateral delt comes round to the front.
+TWIST_RAMP = (1.46, 1.30)
+# The eyes, as spheres in the skin's empty sockets (metres: |x|, y, z, r), with
+# an iris and pupil carved in, as on a statue: (iris, pupil) half-angles in
+# degrees and depths in metres.
+EYE = (0.031, -0.064, 1.594, 0.0118)
+IRIS = ((27, 0.0006), (11, 0.0016))
 
 # Skin regions kept as skin: the head, hands and feet. The rest of the skin
 # is shrunk behind the muscles, as the body that fills the gaps between them.
@@ -69,4 +79,16 @@ SKIN_SURFACE = (
     r'|digits|nail|perionyx|foot|^sole|heel|metatarsal|hallucial|malleol|ankle|wrist|eminentia'
     r'|triangular fossa|incisure|crura|nasolabial|mentolabial|auricular (groove|tubercle)|eyelid'
 )
+SKIN_SURFACE += (
+    r'|^(muscular|carotid|submandibular|submental) triangle|^sternocleidomastoid region'  # the front of the neck
+)
 SKIN_DROPPED = r'hairs|eyelash|cross section|pubic'
+HAIR = r'^hairs of head$'  # kept, as surface, with render.py --hair
+
+# Muscles in no group that still show on the surface. Every other muscle in no
+# group lies deep, and is hidden: the body behind shows through the gaps.
+SUPERFICIAL = (
+    r'sartorius|serratus anterior|infraspinatus|teres minor|sternocleidomastoid'
+    r'|levator scapulae|splenius|fibularis|extensor digitorum longus|flexor digitorum longus'
+    r'|extensor hallucis longus|flexor pollicis longus|rhomboid|iliacus|psoas major|omohyoid'
+)
