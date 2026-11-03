@@ -12,7 +12,8 @@ Writes, for front and back, in <out dir>/<view>/:
 With --trim, the body shows only in the gaps between muscles and as a thin rim
 round them: where the skin stands out beyond the muscles (the hips, the
 waist), it is cut back.
-and manifest.json: the size, and each group's outline per view as SVG paths.
+and manifest.json: the size; the masks each view has; and per group its home
+view, its outline per view as SVG paths, and its share of the frame per view.
 With --preview, preview.png: the layers put together as the page would.
 """
 
@@ -29,7 +30,9 @@ ap.add_argument('src')
 ap.add_argument('out')
 ap.add_argument('--width', type=int, default=0, help='output width in px (default: as rendered)')
 ap.add_argument('--preview', action='store_true')
-ap.add_argument('--trim', action='store_true', help='pull the body in to a thin rim round the muscles')
+ap.add_argument(
+    '--trim', action=argparse.BooleanOptionalAction, default=True, help='pull the body in to a thin rim round the muscles'
+)
 args = ap.parse_args()
 
 meta = json.load(open(os.path.join(args.src, 'render.json')))
@@ -38,6 +41,7 @@ W0, H0 = meta['size']
 W = args.width or W0
 H = round(H0 * W / W0)
 ALBEDO = 0.8  # the white render.py lights
+GAP = 0.06  # metres under the skin beyond which the figure is seen through a gap
 
 
 def load(path):
@@ -87,14 +91,29 @@ def paths_of(mask, scale):
     return ''.join(out)
 
 
-manifest = {'size': [W, H], 'groups': {g: {} for g in GROUPS}}
+manifest = {'size': [W, H], 'views': {}, 'groups': {}}
+areas: dict[str, dict[str, float]] = {g: {} for g in GROUPS}
+outlines: dict[str, dict[str, str]] = {g: {} for g in GROUPS}
 for view in ('front', 'back'):
     d = os.path.join(args.out, view)
     os.makedirs(d, exist_ok=True)
+    for old in os.listdir(d):  # what an earlier run wrote, so no stale mask is left
+        if old.endswith('.webp'):
+            os.remove(os.path.join(d, old))
     fig_d = load(f'{args.src}/{view}_figure_diffuse.png')
     body_d = load(f'{args.src}/{view}_body_diffuse.png')
     fig_g = load(f'{args.src}/{view}_figure_gloss.png')
     body_g = load(f'{args.src}/{view}_body_gloss.png')
+    # A gap: where the figure lies more than GAP under the skin, the camera is
+    # looking through a gap in the muscles (between the abs, between the pecs)
+    # into the trunk; the body shows there, not whatever is deep inside.
+    rng = meta['depth_range']
+    fig_z = np.asarray(Image.open(f'{args.src}/{view}_figure_depth.png')).astype(np.float32) / 65535 * rng
+    body_z = np.asarray(Image.open(f'{args.src}/{view}_body_depth.png')).astype(np.float32) / 65535 * rng
+    gap = (fig_d[..., 3] > 0.5) & (body_d[..., 3] > 0.5) & (fig_z - body_z > GAP)
+    gap = morphology.binary_opening(gap, morphology.disk(1))
+    for layer in (fig_d, fig_g):
+        layer[..., 3] *= ~gap
     if args.trim:
         # Close the figure's outline over gaps up to ~6 cm across, add a thin rim,
         # and keep the body only inside that.
@@ -133,6 +152,8 @@ for view in ('front', 'back'):
     ids_raw = np.asarray(Image.open(f'{args.src}/{view}_id.png').convert('RGBA'))
     ids = np.rint(ids_raw[..., 0] / 10).astype(int)
     ids[ids_raw[..., 3] < 128] = -1  # outside the figure
+    gap2 = np.repeat(np.repeat(gap, 2, axis=0), 2, axis=1)[: ids.shape[0], : ids.shape[1]]
+    ids[gap2] = -1  # seen through a gap: the body's, below
     # The figure's own gaps show the body behind: id 0 there too.
     body_alpha2 = resize(body_d[..., 3], ids.shape[1], ids.shape[0]) if body_d.shape[:2] != ids.shape else body_d[..., 3]
     ids[(ids == -1) & (body_alpha2 > 0.5)] = 0
@@ -146,16 +167,30 @@ for view in ('front', 'back'):
         seam[dy:, dx:] |= edge
     save_alpha(f'{d}/lines.webp', resize(seam.astype(np.float32), W, H))
 
-    scale = W / ids.shape[1]
+    masks = []
     for i, g in enumerate(GROUPS, start=1):
         m2 = (ids == i).astype(np.float32)
-        mask = resize(m2, W, H)
-        save_alpha(f'{d}/{g}.webp', mask)
         if m2.sum() == 0:
             continue
+        masks.append(g)
+        save_alpha(f'{d}/{g}.webp', resize(m2, W, H))
+        areas[g][view] = float(m2.mean())
         # Outlines from a slightly smaller copy, so small specks are dropped.
         small = resize(m2, ids.shape[1] // 2, ids.shape[0] // 2)
-        manifest['groups'][g][view] = paths_of(small, W / small.shape[1])
+        outlines[g][view] = paths_of(small, W / small.shape[1])
+    manifest['views'][view] = {'masks': masks}
+
+# A group's outline is a button only where it shows enough to choose: at
+# least 0.05 % of the frame and an eighth of its largest view. Its largest
+# view is its home: the button named for it; the other is a shape to tap.
+for g in GROUPS:
+    if not areas[g]:
+        raise SystemExit(f'{g} shows on neither view')
+    best = max(areas[g].values())
+    home = max(areas[g], key=areas[g].get)
+    paths = {v: outlines[g][v] for v, a in areas[g].items() if outlines[g][v] and a >= 0.0005 and a >= best / 8}
+    area = {v: round(a, 5) for v, a in areas[g].items()}  # its share of the frame, per view
+    manifest['groups'][g] = {'home': home, 'paths': paths, 'area': area}
 
 with open(os.path.join(args.out, 'manifest.json'), 'w') as f:
     json.dump(manifest, f)
@@ -194,7 +229,7 @@ if args.preview:
         sil = load(f'{d}/silhouette.webp')[..., 3:4]
         # Joe's look (3 November): Slate, body tone 35, depth 120, dark seams, shine 55.
         rgb = np.broadcast_to(oklch(0.35, 0.018, 262), sh[..., :3].shape).copy()
-        for g in GROUPS:
+        for g in manifest['views'][view]['masks']:
             m = load(f'{d}/{g}.webp')[..., 3:4]
             rgb = rgb * (1 - m) + colour(demo[g]) * m
         shade = np.clip(((sh[..., :3] - 0.5) * 1.2 + 0.5) * 1.08, 0, 1)  # CSS contrast(1.2) brightness(1.08)

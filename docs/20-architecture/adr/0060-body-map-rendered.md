@@ -1,6 +1,6 @@
 # ADR-0060: The body map is rendered from an anatomical model
 
-**Status:** Proposed · 2026-11-03
+**Status:** Provisionally agreed · 2026-11-03 (Joe)
 
 ## Context
 
@@ -29,15 +29,16 @@ rendering lacks.
   (`bpy`, pinned) in a cloud session: a table maps the atlas's muscles to
   the twenty built-in groups (by `body_part`); it fixes the model (a body
   behind the gaps, deep muscles hidden, the abs and lumbar erectors
-  uncovered, the head's hair and carved eyes, the pose); and it renders front and back, orthographic, into a **shading
-  image**, a **mask per group**, an **outline per group** traced from its
+  uncovered, the head's hair and carved eyes, the pose); and it renders
+  front and back, orthographic, into a **shading image**, a **mask per group**, an **outline per group** traced from its
   mask, and a manifest. Its output is committed under
   `src/assets/body-map/`; running it again gives the same files.
 - **The page colours the layers**: the body in a neutral token, each
   group's mask filled with its readiness colour, the shading laid over it
   with CSS blend modes. No WebGL and no 3D library. Each group's outline is
-  an SVG button, named and reachable by keyboard; its tap area may be
-  larger than the muscle.
+  an SVG button, named and reachable by keyboard, on the view it shows
+  most (its *home*); on the other view it is a shape to tap, not a second
+  button. A small group's tap area is wider than the muscle.
 - **Colour still means readiness alone**, from `--destructive`,
   `--warning` and `--success`
   ([ADR-0043](0043-colour-by-type.md)); the body and its shading are
@@ -51,8 +52,8 @@ rendering lacks.
 
 ## Consequences
 
-- The images are expected under 400 KB; the service worker precaches
-  them, so the map works offline (its glob gains `webp`).
+- The images come to about 300 KB; the service worker precaches them, so
+  the map works offline (its glob gains `webp`).
 - Moving or reshaping a group means changing the mapping or the fixes and
   running the pipeline, never editing coordinates by hand.
 - Python and Blender are a tool for whoever changes the map, not part of

@@ -772,8 +772,7 @@ Agreed with Joe on 1 November 2026, on the
   `success` "Beat current" Badge where it applies; stimulus sets beside.
 - **Templates** look like a workout: ExerciseCards with a drag handle and
   a sets stepper; coverage beside them.
-- **Recovery:** overall readiness at `text-display`, the BodyMap (a
-  stand-in until the rendered figure of ADR-0060 is built) and the
+- **Recovery:** overall readiness at `text-display`, the BodyMap and the
   LookAhead slider under it, and every muscle as a PanelRow with its
   ReadinessRing, last trained and average frequency, sorted with SortMenu.
   A muscle, on the map or in the list, opens a Dialog of its readiness,

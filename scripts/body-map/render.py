@@ -9,6 +9,7 @@ Writes, for front and back:
   <view>_<layer>_diffuse.png  lit, white, no shine    (laid over by multiply)
   <view>_<layer>_gloss.png    its shine alone, on black (laid over by screen)
   <view>_id.png               each pixel's group, its index × 10, at twice the size
+  <view>_<layer>_depth.png    each pixel's distance from the camera (16-bit, over depth_range)
 where <layer> is 'figure' (the muscles, the eyes, the skin of the head, hands
 and feet) or 'body' (the rest of the skin, shown only where the figure has a gap).
 and render.json: the groups in index order, the image size, which atlas muscles went where.
@@ -36,12 +37,13 @@ ap = argparse.ArgumentParser()
 ap.add_argument('--source', required=True)
 ap.add_argument('--out', required=True)
 ap.add_argument('--pose', type=float, default=14, help='degrees each arm turns out from the side')
-ap.add_argument('--twist', type=float, default=0, help='degrees each arm turns inwards about its length')
-ap.add_argument('--pronate', type=float, default=0, help='degrees more each forearm turns inwards')
-ap.add_argument('--hair', action='store_true', help='keep the head\'s short hair')
+# The defaults are the map as built: Joe's choices, 3 November.
+ap.add_argument('--twist', type=float, default=15, help='degrees each arm turns inwards about its length')
+ap.add_argument('--pronate', type=float, default=30, help='degrees more each forearm turns inwards')
+ap.add_argument('--hair', action=argparse.BooleanOptionalAction, default=True, help='keep the head\'s short hair')
 ap.add_argument('--smooth', type=int, default=0, help='smoothing passes over the muscles: 0 keeps the fibres')
-ap.add_argument('--height', type=int, default=1600)
-ap.add_argument('--samples', type=int, default=96)
+ap.add_argument('--height', type=int, default=1200)
+ap.add_argument('--samples', type=int, default=64)
 ap.add_argument('--frame', help='look-dev only: frame part of the body, "x0,x1,z0,z1" in metres')
 args = ap.parse_args(sys.argv[sys.argv.index('--') + 1 :] if '--' in sys.argv else sys.argv[1:])
 os.makedirs(args.out, exist_ok=True)
@@ -341,6 +343,24 @@ def view(sign):
     light(13 * h * h, (h * 0.8, -sign * h * 0.7, h * 0.5), h * 0.4)
 
 
+def cull_backfaces(m):
+    """Make a surface seen from behind transparent. With the deep muscles gone,
+    a gap in the front (between the abs, between the pecs) would otherwise
+    look through the empty trunk at the inside of the back's muscles; now it
+    shows the body behind, as a gap should."""
+    nt = m.node_tree
+    out = next(n for n in nt.nodes if n.type == 'OUTPUT_MATERIAL')
+    shader = out.inputs['Surface'].links[0].from_socket
+    geo = nt.nodes.new('ShaderNodeNewGeometry')
+    clear = nt.nodes.new('ShaderNodeBsdfTransparent')
+    mix = nt.nodes.new('ShaderNodeMixShader')
+    nt.links.new(geo.outputs['Backfacing'], mix.inputs['Fac'])
+    nt.links.new(shader, mix.inputs[1])
+    nt.links.new(clear.outputs[0], mix.inputs[2])
+    nt.links.new(mix.outputs[0], out.inputs['Surface'])
+    return m
+
+
 def principled(name, base, spec, rough):
     m = bpy.data.materials.new(name)
     m.use_nodes = True
@@ -348,7 +368,7 @@ def principled(name, base, spec, rough):
     b.inputs['Base Color'].default_value = (*base, 1)
     b.inputs['Specular IOR Level'].default_value = spec
     b.inputs['Roughness'].default_value = rough
-    return m
+    return cull_backfaces(m)
 
 
 def assign(mat_for):
@@ -376,7 +396,38 @@ for i in range(len(GROUPS) + 1):
     v = i * 10 / 255
     e.inputs[0].default_value = (v, v, v, 1)
     nt.links.new(e.outputs[0], out.inputs[0])
-    ids.append(m)
+    ids.append(cull_backfaces(m))
+
+
+DEPTH_RANGE = 0.6  # metres the depth pass spans, centred on the body
+
+
+def depth_material(sign):
+    """Distance from the camera, in [0, 1] over DEPTH_RANGE: the front view
+    looks along +y, the back along -y."""
+    m = bpy.data.materials.new(f'depth{sign}')
+    m.use_nodes = True
+    nt = m.node_tree
+    nt.nodes.clear()
+    geo = nt.nodes.new('ShaderNodeNewGeometry')
+    xyz = nt.nodes.new('ShaderNodeSeparateXYZ')
+    rng = nt.nodes.new('ShaderNodeMapRange')
+    rng.inputs['From Min'].default_value = -DEPTH_RANGE / 2
+    rng.inputs['From Max'].default_value = DEPTH_RANGE / 2
+    e = nt.nodes.new('ShaderNodeEmission')
+    out = nt.nodes.new('ShaderNodeOutputMaterial')
+    nt.links.new(geo.outputs['Position'], xyz.inputs[0])
+    if sign < 0:
+        nt.links.new(xyz.outputs['Y'], rng.inputs['Value'])
+    else:
+        neg = nt.nodes.new('ShaderNodeMath')
+        neg.operation = 'MULTIPLY'
+        neg.inputs[1].default_value = -1
+        nt.links.new(xyz.outputs['Y'], neg.inputs[0])
+        nt.links.new(neg.outputs[0], rng.inputs['Value'])
+    nt.links.new(rng.outputs['Result'], e.inputs['Color'])
+    nt.links.new(e.outputs[0], out.inputs[0])
+    return cull_backfaces(m)
 
 
 def render(path, w, h):
@@ -406,6 +457,17 @@ for name, sign in (('front', -1), ('back', 1)):
     scene.cycles.filter_width = 0.01
     assign(lambda o: ids[o.pass_index])
     render(f'{args.out}/{name}_id.png', width * 2, height * 2)
+    # Depth, for each layer: what lies far under the skin is seen through a gap.
+    deep = depth_material(sign)
+    scene.render.image_settings.color_mode = 'BW'
+    scene.render.image_settings.color_depth = '16'
+    for lay in ('figure', 'body'):
+        layer(lay)
+        assign(lambda o: deep)
+        render(f'{args.out}/{name}_{lay}_depth.png', width, height)
+    layer('figure')
+    scene.render.image_settings.color_mode = 'RGBA'
+    scene.render.image_settings.color_depth = '8'
 
 with open(f'{args.out}/render.json', 'w') as f:
     json.dump(
@@ -417,6 +479,7 @@ with open(f'{args.out}/render.json', 'w') as f:
             'pronate': args.pronate,
             'hair': args.hair,
             'smooth': args.smooth,
+            'depth_range': DEPTH_RANGE,
             'mapped': mapped,
         },
         f,

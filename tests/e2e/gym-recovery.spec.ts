@@ -72,6 +72,58 @@ const rows = (page: Page) => page.getByRole('button', { name: /^\d+ % ready / })
 const percentOf = async (text: Promise<string | null>) =>
   Number(/(\d+) %/.exec((await text) ?? '')?.[1])
 
+/**
+ * Choose a group on the body map as a finger would: at the spot nearest the
+ * middle of its own shape where a fingertip's worth all round is the group's.
+ */
+async function chooseOnMap(page: Page, name: string, isMobile = false) {
+  const shape = page.getByRole('button', { name: new RegExp(`^${name} \\d+ %$`) })
+  await shape.scrollIntoViewIfNeeded()
+  const point = await shape.evaluate((g) => {
+    const path = g.querySelector('path') as SVGPathElement
+    const svg = path.ownerSVGElement!
+    const box = path.getBBox()
+    const ctm = path.getScreenCTM()!
+    const mid = [box.x + box.width / 2, box.y + box.height / 2] as const
+    const candidates: [number, number][] = []
+    for (let i = 0; i <= 30; i++)
+      for (let j = 0; j <= 30; j++)
+        candidates.push([box.x + (box.width * i) / 30, box.y + (box.height * j) / 30])
+    candidates.sort(
+      (a, b) => Math.hypot(a[0] - mid[0], a[1] - mid[1]) - Math.hypot(b[0] - mid[0], b[1] - mid[1]),
+    )
+    const ours = (x: number, y: number) => {
+      const hit = document.elementFromPoint(x, y)
+      return !!hit && g.contains(hit)
+    }
+    for (const r of [7, 4, 0]) {
+      for (const [x, y] of candidates) {
+        const p = svg.createSVGPoint()
+        p.x = x
+        p.y = y
+        if (!path.isPointInFill(p)) continue
+        const s = p.matrixTransform(ctm)
+        const ring = [
+          [0, 0],
+          [r, 0],
+          [-r, 0],
+          [0, r],
+          [0, -r],
+          [r * 0.7, r * 0.7],
+          [-r * 0.7, r * 0.7],
+          [r * 0.7, -r * 0.7],
+          [-r * 0.7, -r * 0.7],
+        ]
+        if (ring.every(([dx, dy]) => ours(s.x + dx!, s.y + dy!))) return { x: s.x, y: s.y }
+      }
+    }
+    return null
+  })
+  expect(point, name).not.toBeNull()
+  if (isMobile) await page.touchscreen.tap(point!.x, point!.y)
+  else await page.mouse.click(point!.x, point!.y)
+}
+
 test.describe('recovery', () => {
   test('GYM-016 1–3: overall readiness, the body map and every group, now and ahead', async ({
     page,
@@ -111,12 +163,8 @@ test.describe('recovery', () => {
     await page.reload()
     await expect(rows(page).last()).toContainText('Chest')
 
-    // Chosen on the map: one of its shapes.
-    await page
-      .getByRole('button', { name: /^Chest \d+ %$/ })
-      .locator('path, ellipse, rect')
-      .first()
-      .click()
+    // Chosen on the map.
+    await chooseOnMap(page, 'Chest')
     const dialog = page.getByRole('dialog')
     await expect(dialog.getByRole('heading', { name: 'Chest' })).toBeVisible()
     await expect(dialog).toContainText('Push · recovers normally')
@@ -127,6 +175,29 @@ test.describe('recovery', () => {
     await expect(dialog).toContainText('×1.0')
     await expect(dialog).toContainText('a week, 7 days')
     await expect(dialog).toContainText('4.0 / 4')
+  })
+
+  test('GYM-016 7: every group on the map can be chosen with a finger, and with the keyboard', async ({
+    page,
+    isMobile,
+  }) => {
+    await standIn(page, { signedIn: true, rows: TRAINED })
+    await page.goto('/gym?tab=recovery')
+    const onMap = page.getByRole('button', { name: /^[A-Z][a-z]+( delts)? \d+ %$/ })
+    await expect(onMap).toHaveCount(20)
+    const names = (
+      await onMap.evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')!))
+    ).map((n) => n.replace(/ \d+ %$/, ''))
+    for (const name of names) {
+      await chooseOnMap(page, name, isMobile)
+      await expect(page.getByRole('dialog').getByRole('heading', { name })).toBeVisible()
+      await page.keyboard.press('Escape')
+      await expect(page.getByRole('dialog')).toHaveCount(0)
+    }
+    // And by the keyboard.
+    await page.getByRole('button', { name: /^Tibialis \d+ %$/ }).focus()
+    await page.keyboard.press('Enter')
+    await expect(page.getByRole('dialog').getByRole('heading', { name: 'Tibialis' })).toBeVisible()
   })
 
   test('GYM-016 6: a workout deleted, and readiness follows at once', async ({ page }) => {

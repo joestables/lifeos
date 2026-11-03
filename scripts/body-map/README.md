@@ -18,8 +18,13 @@ python3 -m venv .cache/body-map/venv && .cache/body-map/venv/bin/pip install -r 
 ```
 
 ```bash
-.cache/body-map/venv/bin/python scripts/body-map/layers.py .cache/body-map/render .cache/body-map/layers --preview
+.cache/body-map/venv/bin/python scripts/body-map/layers.py .cache/body-map/render src/assets/body-map
 ```
+
+Their defaults are the map as built (Joe's choices, 3 November): run as
+above, they write the app's own layers in `src/assets/body-map/`, which
+`BodyMap` colours. About fifteen minutes on four cores. Add `--preview`,
+with another output folder, for a picture of the result.
 
 1. **`fetch.sh`** downloads Z-Anatomy's muscular system and body regions
    (CC BY-SA 4.0) at a pinned commit into `.cache/body-map/`.
@@ -42,14 +47,17 @@ python3 -m venv .cache/body-map/venv && .cache/body-map/venv/bin/pip install -r 
    working. The eyes are spheres with an iris and pupil carved in. The
    _figure_ layer is the muscles, the eyes and the skin of the head,
    neck, hands and feet; the _body_ layer is the rest of the skin, seen
-   only through the figure's gaps. About two minutes a variant at 900 px
-   tall on four cores, ten at 1200 px.
+   only through the figure's gaps. It also renders each layer's depth:
+   what lies far under the skin is seen through a gap into the trunk, and
+   shows the body instead.
 4. **`layers.py`** puts the two layers together and writes the page's
    images: `shade` (multiply), `gloss` (screen), `silhouette`, `lines`
-   (the seams between groups), a mask per group, and `manifest.json` with
-   each group's outline as SVG paths, for its button. `--trim` keeps the
-   body only in the gaps and as a thin rim, so the skin no longer bulges
-   past the muscles at the hips. `--preview` writes `preview.png`, the
+   (the seams between groups), a mask per group, and `manifest.json`:
+   each group's outline as SVG paths for its button, the view it shows
+   most (its home, where the button is named), and its size, so a small
+   group's tap area can be wider. The body shows only in the gaps and as a
+   thin rim, so the skin doesn't bulge past the muscles at the hips
+   (`--no-trim` keeps it all). `--preview` writes `preview.png`, the
    layers coloured as the page colours them, in Joe's look.
 
 Changing where a group is means changing `mapping.py` and running it again,

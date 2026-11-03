@@ -51,6 +51,17 @@ test.describe('Settings → Gym', () => {
       .toMatchObject({ preferred_rir: 2, workouts_to_stall: 4 })
   })
 
+  test('GYM-020 4: the body map’s source and licence are credited', async ({ page }) => {
+    await standIn(page, { signedIn: true })
+    await page.goto('/settings')
+    const gym = card(page, 'Gym')
+    await expect(gym).toContainText('Body map from Z-Anatomy, CC BY-SA 4.0')
+    await expect(gym.getByRole('link', { name: 'Z-Anatomy' })).toHaveAttribute(
+      'href',
+      'https://www.z-anatomy.com',
+    )
+  })
+
   test('GYM-001: equipment added with an exact increment; one in use can’t be deleted', async ({
     page,
   }) => {

@@ -201,11 +201,12 @@ Provisionally agreed).
   `--destructive`, `--warning` and `--success`. **The map is a rendered
   figure** (Joe, 3 November;
   [ADR-0060](../../20-architecture/adr/0060-body-map-rendered.md),
-  Proposed): a realistic body that looks 3D, front and back, each built-in
-  group its own region with the body's light and shade over its colour;
-  the head, hands, feet and muscles outside the twenty stay the body's
-  neutral colour. Its look is chosen from look-dev boards. Until it is
-  built, the drawn stand-in shows.
+  Provisionally agreed): a realistic body that looks 3D, front and back,
+  each built-in group its own region with the body's light and shade over
+  its colour; the head, hands, feet and muscles outside the twenty stay
+  the body's neutral colour. Its look was chosen from look-dev boards:
+  Slate, the muscles' fibres kept, short hair, the arms turned out and 15°
+  in, the outline trimmed (Joe, 3 November).
 - **Looking ahead:** a slider from Now to +48 hours, under the map, shows
   readiness as it will be then, if I train nothing more (Joe, 31 October);
   it sits in from each side by an hour's width (Joe, 3 November).
@@ -663,7 +664,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to see how recovered I am, now and over the next
 two days, overall and muscle by muscle, **so that** I train what's ready.
-Priority: Must · Status: verified (`gym-recovery.spec.ts`; 2–4's figures also by `src/lib/gym.test.ts`, the engine by `packages/fitness`'s tests), except 1's rendered figure and 7, agreed, not built ([ADR-0060](../../20-architecture/adr/0060-body-map-rendered.md), Proposed)
+Priority: Must · Status: verified (`gym-recovery.spec.ts`; 2–4's figures also by `src/lib/gym.test.ts`, the engine by `packages/fitness`'s tests; 1's map and its buttons also by `BodyMap.test.tsx`)
 
 Acceptance criteria
 1. Given the Recovery tab, then overall readiness shows as a percentage,
@@ -761,7 +762,7 @@ Acceptance criteria
 
 **As** Joe, **I want** the Gym's settings in one place, **so that** it
 starts each set the way I train.
-Priority: Must · Status: verified (`gym.spec.ts`; the set popup and coverage by `gym-workouts.spec.ts` and `gym-templates.spec.ts`)
+Priority: Must · Status: verified (`gym.spec.ts`, the credit too; the set popup and coverage by `gym-workouts.spec.ts` and `gym-templates.spec.ts`)
 
 Acceptance criteria
 1. Given Settings → Gym, then Preferred RIR (a stepper, 1 to start; Joe,
@@ -772,7 +773,9 @@ Acceptance criteria
    Stalled looks at, for every exercise (GYM-014 5).
 4. Given Settings → Gym, then Equipment (GYM-001), Muscle groups and their
    targets (GYM-002, GYM-017), Recovery (GYM-019) and Archived exercises
-   (GYM-005) open from there.
+   (GYM-005) open from there, and one line under them credits the body
+   map's source, Z-Anatomy, and its licence, CC BY-SA 4.0
+   ([ADR-0060](../../20-architecture/adr/0060-body-map-rendered.md)).
 
 ### GYM-021 — The Gym everywhere
 
