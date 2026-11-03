@@ -37,7 +37,11 @@ describe('the body map (GYM-016, ADR-0060)', () => {
   it('has every layer the pipeline writes, and every built-in group a home and an outline there', () => {
     const groups = manifest.groups as Record<
       string,
-      { home: 'front' | 'back'; paths: Record<string, string> }
+      {
+        home: 'front' | 'back'
+        paths: Record<string, string>
+        hit: Record<string, string>
+      }
     >
     expect(Object.keys(groups)).toHaveLength(20)
     for (const view of ['front', 'back'] as const) {
@@ -49,6 +53,8 @@ describe('the body map (GYM-016, ADR-0060)', () => {
     for (const [part, g] of Object.entries(groups)) {
       expect(g.paths[g.home], part).toMatch(/^M[\d.,LMZ-]+Z$/)
       expect(manifest.views[g.home].masks, part).toContain(part)
+      // Wherever it has an outline, it has a tap area.
+      for (const view of Object.keys(g.paths)) expect(g.hit[view], `${part} ${view}`).toMatch(/^M/)
     }
   })
 

@@ -73,14 +73,17 @@ const percentOf = async (text: Promise<string | null>) =>
   Number(/(\d+) %/.exec((await text) ?? '')?.[1])
 
 /**
- * Choose a group on the body map as a finger would: at the spot nearest the
- * middle of its own shape where a fingertip's worth all round is the group's.
+ * Choose a group on the body map as a finger would: inside its visible shape,
+ * at the spot nearest the shape's middle where a fingertip's worth all round
+ * (2px at least, for the thinnest) chooses the group.
  */
 async function chooseOnMap(page: Page, name: string, isMobile = false) {
   const shape = page.getByRole('button', { name: new RegExp(`^${name} \\d+ %$`) })
   await shape.scrollIntoViewIfNeeded()
   const point = await shape.evaluate((g) => {
-    const path = g.querySelector('path') as SVGPathElement
+    // Its visible outline: the last of its paths (the first is where a tap chooses it).
+    const paths = g.querySelectorAll('path')
+    const path = paths[paths.length - 1] as SVGPathElement
     const svg = path.ownerSVGElement!
     const box = path.getBBox()
     const ctm = path.getScreenCTM()!
@@ -96,7 +99,7 @@ async function chooseOnMap(page: Page, name: string, isMobile = false) {
       const hit = document.elementFromPoint(x, y)
       return !!hit && g.contains(hit)
     }
-    for (const r of [7, 4, 0]) {
+    for (const r of [7, 4, 2]) {
       for (const [x, y] of candidates) {
         const p = svg.createSVGPoint()
         p.x = x
@@ -122,6 +125,31 @@ async function chooseOnMap(page: Page, name: string, isMobile = false) {
   expect(point, name).not.toBeNull()
   if (isMobile) await page.touchscreen.tap(point!.x, point!.y)
   else await page.mouse.click(point!.x, point!.y)
+}
+
+/** Points spread over a group's visible shape on the body map: a 7 × 7 grid over it, those inside. */
+async function spreadOver(page: Page, name: string) {
+  const shape = page.getByRole('button', { name: new RegExp(`^${name} \\d+ %$`) })
+  await shape.scrollIntoViewIfNeeded()
+  return shape.evaluate((g) => {
+    // Its visible outline: the last of its paths (the first is where a tap chooses it).
+    const paths = g.querySelectorAll('path')
+    const path = paths[paths.length - 1] as SVGPathElement
+    const svg = path.ownerSVGElement!
+    const box = path.getBBox()
+    const ctm = path.getScreenCTM()!
+    const out: { x: number; y: number }[] = []
+    for (let i = 0; i < 7; i++)
+      for (let j = 0; j < 7; j++) {
+        const p = svg.createSVGPoint()
+        p.x = box.x + (box.width * (i + 0.5)) / 7
+        p.y = box.y + (box.height * (j + 0.5)) / 7
+        if (!path.isPointInFill(p)) continue
+        const s = p.matrixTransform(ctm)
+        out.push({ x: s.x, y: s.y })
+      }
+    return out
+  })
 }
 
 test.describe('recovery', () => {
@@ -188,11 +216,26 @@ test.describe('recovery', () => {
     const names = (
       await onMap.evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')!))
     ).map((n) => n.replace(/ \d+ %$/, ''))
+    test.setTimeout(120_000)
+    // Taps spread over each group's visible shape: at least three in four choose it
+    // (a miss is at its very edge, where a tap may land on the neighbour).
     for (const name of names) {
-      await chooseOnMap(page, name, isMobile)
-      await expect(page.getByRole('dialog').getByRole('heading', { name })).toBeVisible()
-      await page.keyboard.press('Escape')
-      await expect(page.getByRole('dialog')).toHaveCount(0)
+      const points = await spreadOver(page, name)
+      expect(points.length, name).toBeGreaterThan(0)
+      let chosen = 0
+      for (const p of points) {
+        if (isMobile) await page.touchscreen.tap(p.x, p.y)
+        else await page.mouse.click(p.x, p.y)
+        const dialog = page.getByRole('dialog')
+        await expect(dialog).toHaveCount(1)
+        if (await dialog.getByRole('heading', { name, exact: true }).count()) chosen++
+        await page.keyboard.press('Escape')
+        await expect(dialog).toHaveCount(0)
+      }
+      expect(
+        chosen / points.length,
+        `${name}: ${chosen} of ${points.length}`,
+      ).toBeGreaterThanOrEqual(0.75)
     }
     // And by the keyboard.
     await page.getByRole('button', { name: /^Tibialis \d+ %$/ }).focus()

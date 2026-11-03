@@ -102,19 +102,6 @@ export function GymCard() {
         value={archived}
         render={<Link to="/settings/archived-exercises" />}
       />
-      {/* The body map's images adapt Z-Anatomy's atlas, so they carry its licence (ADR-0060). */}
-      <p className="px-3 pt-1 pb-2 text-xs text-muted-foreground">
-        Body map from{' '}
-        <a
-          href="https://www.z-anatomy.com"
-          target="_blank"
-          rel="noreferrer"
-          className="underline underline-offset-2"
-        >
-          Z-Anatomy
-        </a>
-        , CC BY-SA 4.0
-      </p>
     </Card>
   )
 }

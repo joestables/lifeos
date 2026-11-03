@@ -23,6 +23,7 @@ import os
 
 import numpy as np
 from PIL import Image, ImageFilter
+from scipy import ndimage
 from skimage import measure, morphology
 
 ap = argparse.ArgumentParser()
@@ -94,6 +95,7 @@ def paths_of(mask, scale):
 manifest = {'size': [W, H], 'views': {}, 'groups': {}}
 areas: dict[str, dict[str, float]] = {g: {} for g in GROUPS}
 outlines: dict[str, dict[str, str]] = {g: {} for g in GROUPS}
+ids_of: dict[str, np.ndarray] = {}
 for view in ('front', 'back'):
     d = os.path.join(args.out, view)
     os.makedirs(d, exist_ok=True)
@@ -179,6 +181,7 @@ for view in ('front', 'back'):
         small = resize(m2, ids.shape[1] // 2, ids.shape[0] // 2)
         outlines[g][view] = paths_of(small, W / small.shape[1])
     manifest['views'][view] = {'masks': masks}
+    ids_of[view] = ids
 
 # A group's outline is a button only where it shows enough to choose: at
 # least 0.05 % of the frame and an eighth of its largest view. Its largest
@@ -190,7 +193,39 @@ for g in GROUPS:
     home = max(areas[g], key=areas[g].get)
     paths = {v: outlines[g][v] for v, a in areas[g].items() if outlines[g][v] and a >= 0.0005 and a >= best / 8}
     area = {v: round(a, 5) for v, a in areas[g].items()}  # its share of the frame, per view
-    manifest['groups'][g] = {'home': home, 'paths': paths, 'area': area}
+    manifest['groups'][g] = {'home': home, 'paths': paths, 'area': area, 'hit': {}}
+
+# Where a tap chooses each group: every point goes to the nearest group with an
+# outline on that view, up to REACH from it, so the tap areas never overlap and
+# each group has all of its own shape and its share of each gap beside it. In
+# the gaps, a group smaller than TINY reaches PULL further than its neighbour,
+# so a sliver (the brachialis beside the biceps) has a fingertip's worth; it
+# never takes any of a neighbour's own shape.
+# (A rim drawn wider round small groups lay over their neighbours: the biceps,
+# between a lateral delt and a brachialis, was all but lost on a phone.)
+REACH = 0.02  # of the figure's height
+TINY = 0.004  # of the frame
+PULL = 0.008  # of the figure's height
+for view, ids in ids_of.items():
+    best = np.full(ids.shape, np.inf, np.float32)
+    owner = np.zeros(ids.shape, np.int16)
+    choosable = [i for i, g in enumerate(GROUPS, start=1) if view in manifest['groups'][g]['paths']]
+    for i in choosable:
+        g = GROUPS[i - 1]
+        dist = ndimage.distance_transform_edt(ids != i).astype(np.float32)
+        if manifest['groups'][g]['area'].get(view, 0) < TINY:
+            dist -= PULL * ids.shape[0]
+        closer = dist < best
+        best[closer] = dist[closer]
+        owner[closer] = i
+    owner[best > REACH * ids.shape[0]] = 0
+    # A group's own visible shape is always its own: only the gaps are shared.
+    for i in choosable:
+        owner[ids == i] = i
+    for i in choosable:
+        g = GROUPS[i - 1]
+        region = resize((owner == i).astype(np.float32), W, H)
+        manifest['groups'][g]['hit'][view] = paths_of(region, 1)
 
 with open(os.path.join(args.out, 'manifest.json'), 'w') as f:
     json.dump(manifest, f)

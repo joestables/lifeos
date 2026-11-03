@@ -16,8 +16,11 @@ const VIEWS: View[] = ['front', 'back']
 
 type Group = {
   home: View
+  /** Its outline, per view, where it shows enough to choose. */
   paths: Partial<Record<View, string>>
   area: Partial<Record<View, number>>
+  /** Where a tap chooses it: its shape and half of each gap beside it; no two overlap. */
+  hit: Partial<Record<View, string>>
 }
 const MAP = manifest as unknown as {
   size: [number, number]
@@ -56,9 +59,6 @@ const FILES = import.meta.glob<string>('/src/assets/body-map/*/*.webp', {
 })
 const file = (view: View, name: string) => FILES[`/src/assets/body-map/${view}/${name}.webp`]
 
-/** A group this small (its share of the frame) gets a wider tap area (GYM-016 7). */
-const SMALL = 0.005
-
 function maskStyle(view: View, name: string): React.CSSProperties {
   const url = `url(${file(view, name)})`
   return {
@@ -86,10 +86,7 @@ function Figure({
 }) {
   const [width, height] = MAP.size
   const percent = (part: string) => readiness[NAMES[part]!] ?? 100
-  // Big groups first, so a small one's wider tap area lies on top.
-  const shapes = Object.entries(MAP.groups)
-    .filter(([, g]) => g.paths[view])
-    .sort(([, a], [, b]) => (b.area[view] ?? 0) - (a.area[view] ?? 0))
+  const shapes = Object.entries(MAP.groups).filter(([, g]) => g.paths[view] && g.hit[view])
   return (
     <div className="relative isolate w-full" style={{ aspectRatio: `${width} / ${height}` }}>
       <div className={cn(LAYER, 'bg-(--body-map-body)')} style={maskStyle(view, 'silhouette')} />
@@ -130,7 +127,6 @@ function Figure({
           const p = percent(part)
           const home = g.home === view
           const on = selected === name
-          const d = g.paths[view]!
           return (
             <g
               key={part}
@@ -148,16 +144,9 @@ function Figure({
               className="group/muscle cursor-pointer outline-none"
             >
               <title>{`${name} · ${p} %`}</title>
+              <path d={g.hit[view]} className="fill-transparent [pointer-events:all]" />
               <path
-                d={d}
-                className={cn(
-                  'fill-transparent stroke-transparent [pointer-events:all]',
-                  (g.area[view] ?? 0) < SMALL && '[stroke-width:14px]',
-                )}
-                vectorEffect="non-scaling-stroke"
-              />
-              <path
-                d={d}
+                d={g.paths[view]}
                 className={cn(
                   'pointer-events-none fill-none [stroke-width:1.5px]',
                   on
@@ -193,10 +182,10 @@ export function BodyMap({
   className?: string
 }) {
   return (
-    <div className={cn('grid grid-cols-2 gap-4', className)}>
+    <div className={cn('grid grid-cols-2 gap-2', className)}>
       {VIEWS.map((view) => (
         <figure key={view} className="flex flex-col items-center gap-1">
-          <div className="w-full max-w-[160px] sm:max-w-[190px]">
+          <div className="w-full max-w-[200px]">
             <Figure view={view} readiness={readiness} selected={selected} onSelect={onSelect} />
           </div>
           <figcaption className="text-xs font-semibold text-muted-foreground">

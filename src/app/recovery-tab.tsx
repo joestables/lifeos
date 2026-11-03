@@ -64,7 +64,7 @@ export function RecoveryTab({ recovery }: { recovery: Recovery }) {
           onSelect={(name) =>
             setOpen(rows.find((r) => r.muscle.builtIn && r.name === name)?.muscle.id ?? null)
           }
-          className="mx-auto w-full max-w-md py-2"
+          className="mx-auto w-full max-w-md"
         />
         {/* Under the map (Joe, 3 November). */}
         <LookAhead hours={hours} onChange={setHours} />

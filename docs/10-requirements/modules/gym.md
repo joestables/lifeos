@@ -762,7 +762,7 @@ Acceptance criteria
 
 **As** Joe, **I want** the Gym's settings in one place, **so that** it
 starts each set the way I train.
-Priority: Must · Status: verified (`gym.spec.ts`, the credit too; the set popup and coverage by `gym-workouts.spec.ts` and `gym-templates.spec.ts`)
+Priority: Must · Status: verified (`gym.spec.ts`; the set popup and coverage by `gym-workouts.spec.ts` and `gym-templates.spec.ts`)
 
 Acceptance criteria
 1. Given Settings → Gym, then Preferred RIR (a stepper, 1 to start; Joe,
@@ -773,9 +773,7 @@ Acceptance criteria
    Stalled looks at, for every exercise (GYM-014 5).
 4. Given Settings → Gym, then Equipment (GYM-001), Muscle groups and their
    targets (GYM-002, GYM-017), Recovery (GYM-019) and Archived exercises
-   (GYM-005) open from there, and one line under them credits the body
-   map's source, Z-Anatomy, and its licence, CC BY-SA 4.0
-   ([ADR-0060](../../20-architecture/adr/0060-body-map-rendered.md)).
+   (GYM-005) open from there.
 
 ### GYM-021 — The Gym everywhere
 

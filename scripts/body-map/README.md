@@ -54,8 +54,9 @@ with another output folder, for a picture of the result.
    images: `shade` (multiply), `gloss` (screen), `silhouette`, `lines`
    (the seams between groups), a mask per group, and `manifest.json`:
    each group's outline as SVG paths for its button, the view it shows
-   most (its home, where the button is named), and its size, so a small
-   group's tap area can be wider. The body shows only in the gaps and as a
+   most (its home, where the button is named), its size, and where a tap
+   chooses it: the nearest group to each point, so tap areas share out the
+   gaps and never overlap. The body shows only in the gaps and as a
    thin rim, so the skin doesn't bulge past the muscles at the hips
    (`--no-trim` keeps it all). `--preview` writes `preview.png`, the
    layers coloured as the page colours them, in Joe's look.

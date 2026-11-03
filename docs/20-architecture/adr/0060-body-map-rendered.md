@@ -38,7 +38,8 @@ rendering lacks.
   with CSS blend modes. No WebGL and no 3D library. Each group's outline is
   an SVG button, named and reachable by keyboard, on the view it shows
   most (its *home*); on the other view it is a shape to tap, not a second
-  button. A small group's tap area is wider than the muscle.
+  button. A tap chooses the nearest group: the tap areas share out the
+  gaps between muscles and never overlap.
 - **Colour still means readiness alone**, from `--destructive`,
   `--warning` and `--success`
   ([ADR-0043](0043-colour-by-type.md)); the body and its shading are
@@ -47,8 +48,8 @@ rendering lacks.
   the pose — is chosen by Joe from look-dev boards and written into the
   [design spec](../../30-design/components.md) before it is built.
 - **Credit**: the rendered images are an adaptation, so they carry CC
-  BY-SA 4.0 (a `LICENSE` beside them) and Settings → Gym credits
-  Z-Anatomy in one line.
+  BY-SA 4.0, and a `LICENSE` beside them credits Z-Anatomy. Nothing in
+  the app does: a line in Settings → Gym was clutter (Joe, 3 November).
 
 ## Consequences
 
@@ -60,6 +61,9 @@ rendering lacks.
   the app or of CI; CI checks only the output (every built-in group has a
   mask and an outline in the manifest).
 - A group of my own is still not on the map (GYM-002).
+- The licence asks for credit where the images are shown; LifeOS is
+  personal, so the repository's `LICENSE` carries it. Should LifeOS ever
+  be offered beyond Joe's household, the credit comes back into the app.
 - Should the licence ever not suit, a bought model replaces the source;
   only the mapping table changes.
 - A model that turns could later come from the same pipeline; it is not

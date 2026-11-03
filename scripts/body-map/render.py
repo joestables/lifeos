@@ -36,7 +36,7 @@ from mapping import (  # noqa: E402
 ap = argparse.ArgumentParser()
 ap.add_argument('--source', required=True)
 ap.add_argument('--out', required=True)
-ap.add_argument('--pose', type=float, default=14, help='degrees each arm turns out from the side')
+ap.add_argument('--pose', type=float, default=8, help='degrees each arm turns out from the side')
 # The defaults are the map as built: Joe's choices, 3 November.
 ap.add_argument('--twist', type=float, default=15, help='degrees each arm turns inwards about its length')
 ap.add_argument('--pronate', type=float, default=30, help='degrees more each forearm turns inwards')
