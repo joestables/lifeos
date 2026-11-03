@@ -2,6 +2,45 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#57](https://github.com/joestables/lifeos/pull/57) — The body map, rendered from an anatomical model
+
+Branch `claude/gym-body-map-redesign-yejlfi` · 2026-11-03
+
+**What it did**
+- **Stage 5 step 11a:** Joe found the stand-in body map childish. The map
+  is now rendered from Z-Anatomy's open atlas (CC BY-SA 4.0) with Blender,
+  into layers the page colours with CSS
+  ([ADR-0060](../20-architecture/adr/0060-body-map-rendered.md),
+  provisionally agreed).
+- **The pipeline, `scripts/body-map/`:** the atlas fetched at a pinned
+  commit; its muscles mapped to the twenty built-in groups; the model
+  fixed (sheets cut to show the abs and lumbar erectors, deep muscles
+  hidden, a depth pass so a gap into the trunk shows the body, the head's
+  hair and carved eyes, the neck's skin, the arms out 8° and in 15°); the
+  layers, seams, masks, outlines and tap areas written to
+  `src/assets/body-map/` (about 300 KB, precached, with a `LICENSE`).
+- **The look,** chosen by Joe over two look-dev rounds on a private page:
+  Slate, the fibres, dark seams, tone 35, shine 55, depth 120, the outline
+  trimmed; `--body-map-body` and `--body-map-seam`.
+- **`BodyMap` rebuilt:** one named button per group, on the view it shows
+  most, and a shape to tap on the other; tap areas that never overlap,
+  each group keeping its own shape and the gaps going to the nearest (the
+  biceps went from 0 of 10 taps to 8 of 10 on a phone); outlines on hover,
+  focus and when chosen. The figure was enlarged after Joe's first look.
+  The credit line in Settings → Gym was tried, then removed as clutter;
+  the `LICENSE` carries it.
+- **Tests:** `BodyMap.test.tsx`; GYM-016 7 in `gym-recovery.spec.ts`
+  (taps spread over every group's shape, desktop and phone); GYM-016 5
+  taps inside the chest's shape.
+
+**Documents touched:** gym (GYM-016 1 and 7, the Recovery decisions,
+non-goals), ADR-0060, docs README, tokens, components (BodyMap), patterns
+(Recovery), the Stage 5 plan, the pipeline's README.
+
+**Left for later:** light mode's body tone (52) is a suggestion; the
+readiness scale reads olive around 50–75 % in light mode (the shared scale,
+not the map).
+
 ## [#56](https://github.com/joestables/lifeos/pull/56) — The Gym: schema, calculations, settings, exercise library, templates, workouts, recovery and progression
 
 Branch `claude/eloquent-darwin-gudbuj` · 2026-11-01

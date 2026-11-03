@@ -53,6 +53,17 @@ Never replaced by a Type colour.
 | `--success` † | `oklch(0.6 0.12 155)` | same | Saved, synced |
 | `--warning` † | `oklch(0.6 0.14 65)` | `oklch(0.8 0.14 70)` | Needs seeing to, not wrong: out of stock (Joe, 21 October) |
 
+## Colour: the body map
+
+The figure the readiness colours sit on: a neutral slate, not a Type
+colour ([ADR-0060](../20-architecture/adr/0060-body-map-rendered.md),
+Proposed; Joe, 3 November: dark's tone 35 chosen, light's suggested).
+
+| Token | Light | Dark | Used for |
+|---|---|---|---|
+| `--body-map-body` | `oklch(0.52 0.018 262)` | `oklch(0.35 0.018 262)` | The BodyMap's body: head, hands, feet, the gaps, and muscles in no group |
+| `--body-map-seam` | `oklch(0.16 0.01 262 / 55%)` | same | The BodyMap's seams between groups |
+
 ## Colour: Types
 
 *([ADR-0043](../20-architecture/adr/0043-colour-by-type.md), Provisionally

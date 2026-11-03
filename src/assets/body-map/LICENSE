@@ -1,0 +1,12 @@
+The images in this folder, and manifest.json's outlines, are adapted from
+Z-Anatomy's atlas (https://www.z-anatomy.com, models by Lluís Vinent
+Juanico and the Z-Anatomy project; https://github.com/LluisV/Z-Anatomy),
+licensed under the Creative Commons Attribution-ShareAlike 4.0
+International Licence: https://creativecommons.org/licenses/by-sa/4.0/
+
+Changes: the muscles grouped and coloured as LifeOS's twenty muscle
+groups; sheets cut away; deep muscles hidden; eyes added; the arms
+posed; rendered front and back by scripts/body-map/ (ADR-0060).
+
+These adapted images are licensed under the same licence, CC BY-SA 4.0.
+The rest of LifeOS is not affected.

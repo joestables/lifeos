@@ -47,6 +47,8 @@
   --destructive-foreground: oklch(0.99 0 0);
   --success: oklch(0.6 0.12 155);
   --warning: oklch(0.6 0.14 65);
+  --body-map-body: oklch(0.52 0.018 262);
+  --body-map-seam: oklch(0.16 0.01 262 / 55%);
 
   --t-blue: oklch(0.55 0.14 255);
   --t-blue-text: oklch(0.52 0.14 255);
@@ -111,6 +113,7 @@
   --switch-thumb: oklch(0.98 0 0);
   --scroll-thumb: oklch(0.945 0.0025 260 / 16%);
   --warning: oklch(0.8 0.14 70);
+  --body-map-body: oklch(0.35 0.018 262);
 
   --t-blue: oklch(0.72 0.12 250);
   --t-blue-text: oklch(0.72 0.12 250);

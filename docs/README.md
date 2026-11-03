@@ -177,6 +177,7 @@ Consequences**, to a page.
 | [0057](20-architecture/adr/0057-shopping-in-the-database.md) | Shopping in the database, and live | Provisionally agreed |
 | [0058](20-architecture/adr/0058-fitness-in-the-database.md) | Fitness in the database | Provisionally agreed |
 | [0059](20-architecture/adr/0059-recovery-on-the-device.md) | One recovery engine, on the device and the server | Provisionally agreed |
+| [0060](20-architecture/adr/0060-body-map-rendered.md) | The body map is rendered from an anatomical model | Provisionally agreed |
 
 ## Sources
 

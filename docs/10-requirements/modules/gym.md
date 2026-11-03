@@ -198,9 +198,15 @@ Provisionally agreed).
   green, with no bands — with no key under it (Joe, 22, 29 and 31
   October; [ADR-0043](../../20-architecture/adr/0043-colour-by-type.md),
   Provisionally agreed). The scale runs between the design system's
-  `--destructive`, `--warning` and `--success`. **The map is a stand-in:**
-  it is redrawn once the Gym is built and Joe has used it (Joe, 31
-  October).
+  `--destructive`, `--warning` and `--success`. **The map is a rendered
+  figure** (Joe, 3 November;
+  [ADR-0060](../../20-architecture/adr/0060-body-map-rendered.md),
+  Provisionally agreed): a realistic body that looks 3D, front and back,
+  each built-in group its own region with the body's light and shade over
+  its colour; the head, hands, feet and muscles outside the twenty stay
+  the body's neutral colour. Its look was chosen from look-dev boards:
+  Slate, the muscles' fibres kept, short hair, the arms turned out and 15°
+  in, the outline trimmed (Joe, 3 November).
 - **Looking ahead:** a slider from Now to +48 hours, under the map, shows
   readiness as it will be then, if I train nothing more (Joe, 31 October);
   it sits in from each side by an hour's width (Joe, 3 November).
@@ -658,13 +664,14 @@ Acceptance criteria
 
 **As** Joe, **I want** to see how recovered I am, now and over the next
 two days, overall and muscle by muscle, **so that** I train what's ready.
-Priority: Must · Status: verified (`gym-recovery.spec.ts`; 2–4's figures also by `src/lib/gym.test.ts`, the engine by `packages/fitness`'s tests)
+Priority: Must · Status: verified (`gym-recovery.spec.ts`; 2–4's figures also by `src/lib/gym.test.ts`, the engine by `packages/fitness`'s tests; 1's map and its buttons also by `BodyMap.test.tsx`)
 
 Acceptance criteria
 1. Given the Recovery tab, then overall readiness shows as a percentage,
-   a little larger than the page title, and the body map, front and back,
-   colours each built-in group on one continuous scale, from red at 0 %
-   through amber to green at 100 %, with no key.
+   a little larger than the page title, and the body map, a rendered
+   figure that looks 3D, front and back, colours each built-in group on
+   one continuous scale, from red at 0 % through amber to green at 100 %,
+   with the figure's shading over the colour and no key.
 2. Given the slider under the map, from Now to +48 hours, then the map, overall
    readiness and every ring show readiness at that time, if nothing more
    is trained, and the time it stands for is said ("Sat 09:00").
@@ -683,6 +690,9 @@ Acceptance criteria
    week against its target, and when it will be fully recovered.
 6. Given a workout finished, edited or deleted, then readiness follows at
    once, offline too.
+7. Given the map on a phone, then every built-in group on it can be
+   chosen with a finger, the smallest (Brachialis, Abductors, Tibialis)
+   too, and with the keyboard, each named with its readiness.
 
 ### GYM-017 — Weekly targets
 
@@ -797,7 +807,7 @@ timer; pounds; plate calculators; bodyweight tracking; sharing workouts or
 templates with a Household; AI that writes programmes; warm-up sets (I
 don't log them); a time of day for a planned workout; goals on an
 Exercise (the Goals app's); RIR in a template; suggestions on Plan or in
-Inbox.
+Inbox; a body map that turns, or views other than front and back.
 
 How it is held and worked out: [ADR-0058](../../20-architecture/adr/0058-fitness-in-the-database.md)
 and [ADR-0059](../../20-architecture/adr/0059-recovery-on-the-device.md)
