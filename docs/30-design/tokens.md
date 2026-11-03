@@ -52,6 +52,7 @@ Never replaced by a Type colour.
 | `--destructive-foreground` | `oklch(0.99 0 0)` | same | |
 | `--success` † | `oklch(0.6 0.12 155)` | same | Saved, synced |
 | `--warning` † | `oklch(0.6 0.14 65)` | `oklch(0.8 0.14 70)` | Needs seeing to, not wrong: out of stock (Joe, 21 October) |
+| `--readiness-mid` | `oklch(0.82 0.17 80)` | = `--warning` | The amber of the readiness scale, between `--destructive` and `--success`. Light mode's `--warning` is dark for text's sake, and mixed towards green it reads olive; this one is as bright as dark mode's (Joe, 3 November) |
 
 ## Colour: the body map
 
