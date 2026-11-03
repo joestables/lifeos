@@ -198,7 +198,10 @@ Provisionally agreed).
   green, with no bands — with no key under it (Joe, 22, 29 and 31
   October; [ADR-0043](../../20-architecture/adr/0043-colour-by-type.md),
   Provisionally agreed). The scale runs between the design system's
-  `--destructive`, `--warning` and `--success`. **The map is a rendered
+  `--destructive`, `--readiness-mid` and `--success`. Most readiness lies
+  between 50 % and 100 %, so that half spans most of the scale: 50 % is
+  the orange a third of the way along, amber comes at about 63 % (Joe,
+  3 November). **The map is a rendered
   figure** (Joe, 3 November;
   [ADR-0060](../../20-architecture/adr/0060-body-map-rendered.md),
   Provisionally agreed): a realistic body that looks 3D, front and back,
@@ -664,14 +667,15 @@ Acceptance criteria
 
 **As** Joe, **I want** to see how recovered I am, now and over the next
 two days, overall and muscle by muscle, **so that** I train what's ready.
-Priority: Must · Status: verified (`gym-recovery.spec.ts`; 2–4's figures also by `src/lib/gym.test.ts`, the engine by `packages/fitness`'s tests; 1's map and its buttons also by `BodyMap.test.tsx`)
+Priority: Must · Status: verified (`gym-recovery.spec.ts`; 2–4's figures also by `src/lib/gym.test.ts`, the engine by `packages/fitness`'s tests; 1's map and its buttons also by `BodyMap.test.tsx`, its scale by `readiness.test.ts`)
 
 Acceptance criteria
 1. Given the Recovery tab, then overall readiness shows as a percentage,
    a little larger than the page title, and the body map, a rendered
    figure that looks 3D, front and back, colours each built-in group on
-   one continuous scale, from red at 0 % through amber to green at 100 %,
-   with the figure's shading over the colour and no key.
+   one continuous scale, from red at 0 % through orange at 50 % and amber
+   at about 63 % to green at 100 %, with the figure's shading over the
+   colour and no key.
 2. Given the slider under the map, from Now to +48 hours, then the map, overall
    readiness and every ring show readiness at that time, if nothing more
    is trained, and the time it stands for is said ("Sat 09:00").

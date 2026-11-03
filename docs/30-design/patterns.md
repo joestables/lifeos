@@ -792,7 +792,8 @@ Agreed with Joe on 1 November 2026, on the
   a TypeTile — `dumbbell` for an exercise, `biceps-flexed` for a muscle
   group — and their meta (Joe, 3 November).
 - **Readiness colours** run continuously from `--destructive` through
-  `--warning` to `--success`, always with the number.
+  `--readiness-mid` to `--success`, 50 % a third of the way along, always
+  with the number.
 
 ## Dragging
 

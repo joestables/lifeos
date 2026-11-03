@@ -2,6 +2,27 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#58](https://github.com/joestables/lifeos/pull/58) — The readiness scale: no olive in light mode, and 50 % a third of the way
+
+Branch `claude/gym-body-map-redesign-yejlfi` · 2026-11-03
+
+**What it did**
+- **`--readiness-mid`:** the readiness scale's amber is its own token.
+  Light mode's `--warning` is dark for text, and mixed towards green it
+  read olive; the scale's amber in light mode is `oklch(0.82 0.17 80)`,
+  as bright as dark mode's (which stays `--warning`).
+- **50 % a third of the way along:** 50 % shows the colour 33⅓ % used to
+  (an orange) and amber comes at about 63 %, so 50–100 %, where Joe's
+  readiness mostly lies, spans two thirds of the scale. Rings, bars and
+  the body map follow.
+- **Tests:** `readiness.test.ts`; the design page's screenshots
+  refreshed (only its three readiness rings changed).
+
+**Documents touched:** gym (GYM-016), tokens, components, patterns, the
+Stage 5 plan.
+
+**Left for later:** nothing.
+
 ## [#57](https://github.com/joestables/lifeos/pull/57) — The body map, rendered from an anatomical model
 
 Branch `claude/gym-body-map-redesign-yejlfi` · 2026-11-03
