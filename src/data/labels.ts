@@ -62,12 +62,20 @@ export function applyPendingLabels(
     switch (entry.fn) {
       case 'create_label': {
         const name = String(a.p_name).trim()
-        if (out.some((l) => l.id === a.p_id || sameName(l.name, name))) break
+        const space = (a.p_space_id as string | null) ?? ''
+        if (
+          out.some(
+            (l) =>
+              l.id === a.p_id ||
+              (sameName(l.name, name) && (!space || !l.space_id || l.space_id === space)),
+          )
+        )
+          break
         const at = new Date(entry.createdAt).toISOString()
         out.push({
           id: String(a.p_id),
           name,
-          space_id: (a.p_space_id as string | null) ?? '',
+          space_id: space,
           created_by: '',
           created_at: at,
         })

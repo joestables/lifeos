@@ -16,6 +16,7 @@ import { useLabelFilter, validateLabels, type LabelsSearch } from '@/app/label-f
 import { NewTaskDialog } from '@/app/new-task'
 import { useTaskFacts } from '@/app/task-facts'
 import { TaskRow } from '@/app/task-row'
+import { useMine } from '@/app/mine'
 import { queue, useItems, type Item, type RepeatMode } from '@/data'
 import { completedTasks, recurringTasks, taskGroups } from '@/lib/tasks'
 
@@ -41,7 +42,10 @@ function Tasks() {
   const navigate = useNavigate()
   const filter = useLabelFilter(search.labels)
   const [adding, setAdding] = useState(false)
-  const { items: everything, isLoading } = useItems(queue)
+  const { items: visible, isLoading } = useItems(queue)
+  // Only what is mine: in one of my Spaces (HSH-005 7).
+  const mine = useMine()
+  const everything = useMemo(() => visible.filter(mine), [visible, mine])
   const facts = useTaskFacts()
   const now = new Date()
   const hasTasks = useMemo(() => everything.some((i) => i.type === 'task'), [everything])

@@ -16,6 +16,7 @@ import {
   stopRepeat,
   updateItem,
   updateSubtask,
+  useFoodSpaces,
   useLabels,
   useReminders,
   useSettings,
@@ -28,6 +29,8 @@ import { TaskFor } from './event-details'
 import { useKeptText } from './kept-text'
 import { ItemReminders } from './item-reminders'
 import { repeatOf, repeatStart, repeatTask, useSeriesById, useTickDone } from './repeat'
+import { ItemSpaceField } from './space-field'
+import { labelIn } from './draft-labels'
 
 /** A Task's checkbox and title, edited in place (TSK-002). */
 export function TaskTitle({ item }: { item: Item }) {
@@ -110,13 +113,16 @@ export function LabelsField({
 /** An Item's own Labels, each change kept at once. */
 export function ItemLabels({ item }: { item: Item }) {
   const { labels, itemLabels } = useLabels(queue)
+  const { personal } = useFoodSpaces(queue)
   const chosen = new Set(itemLabels.filter((r) => r.item_id === item.id).map((r) => r.label_id))
   return (
     <LabelsField
-      labels={[...labels].sort((a, b) => a.name.localeCompare(b.name))}
+      labels={labels
+        .filter(labelIn(item.space_id, personal))
+        .sort((a, b) => a.name.localeCompare(b.name))}
       chosen={chosen}
       onToggle={(id, on) => (on ? addLabel(item.id, id) : removeLabel(item.id, id))}
-      onCreate={(name) => addLabel(item.id, createLabel(name))}
+      onCreate={(name) => addLabel(item.id, createLabel(name, item.space_id))}
     />
   )
 }
@@ -155,7 +161,10 @@ export function TaskFields({
   onRenameSubtask,
   onRemoveSubtask,
   forEvent,
+  space,
 }: {
+  /** Where it is, last (HSH-005 1). */
+  space?: ReactNode
   notes: string
   onNotesChange: (notes: string) => void
   onNotesBlur?: () => void
@@ -274,6 +283,7 @@ export function TaskFields({
           onAdd={onAddSubtask}
         />
       </Field>
+      {space}
     </div>
   )
 }
@@ -285,7 +295,10 @@ export function TaskFields({
  */
 export function TaskDetails({ item }: { item: Item }) {
   const [notes, setNotes, flushNotes] = useKeptText(item.id, 'body', item.body ?? '')
-  const { labels, itemLabels } = useLabels(queue)
+  const { labels: allLabels, itemLabels } = useLabels(queue)
+  const { personal } = useFoodSpaces(queue)
+  // A Label belongs to its Item's Space.
+  const labels = allLabels.filter(labelIn(item.space_id, personal))
   const subtasks = useSubtasks(queue).filter((s) => s.item_id === item.id)
   const settings = useSettings(queue)
   const reminders = useReminders(queue)
@@ -319,13 +332,19 @@ export function TaskDetails({ item }: { item: Item }) {
       labels={[...labels].sort((a, b) => a.name.localeCompare(b.name))}
       chosen={chosen}
       onToggleLabel={(id, on) => (on ? addLabel(item.id, id) : removeLabel(item.id, id))}
-      onCreateLabel={(name) => addLabel(item.id, createLabel(name))}
+      onCreateLabel={(name) => addLabel(item.id, createLabel(name, item.space_id))}
       subtasks={subtasks}
       onAddSubtask={(title) => addSubtask(item.id, title)}
       onToggleSubtask={(id, done) => updateSubtask(item.id, id, { done })}
       onRenameSubtask={(id, title) => updateSubtask(item.id, id, { title })}
       onRemoveSubtask={(id) => removeSubtask(item.id, id)}
       forEvent={<TaskFor task={item} />}
+      space={
+        <ItemSpaceField
+          item={item}
+          onChange={(space) => updateItem(item.id, { space_id: space })}
+        />
+      }
     />
   )
 }

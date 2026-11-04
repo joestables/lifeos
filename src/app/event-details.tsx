@@ -36,6 +36,7 @@ import {
   unlinkItems,
   updateItem,
   useItems,
+  useFoodSpaces,
   useLabels,
   useLinks,
   useReminders,
@@ -64,6 +65,8 @@ import { useDraftLabels } from './draft-labels'
 import { DraftReminders, type DraftReminder } from './draft-reminders'
 import { ItemReminders } from './item-reminders'
 import { CalendarSelect } from './calendar-select'
+import { ItemSpaceField, SpaceField } from './space-field'
+import { useMine } from './mine'
 import { isOn, useGoogleSource } from './google-source'
 import { MoreMenu } from './more-menu'
 import { draftItem, useOpenItem } from './item-navigation'
@@ -118,9 +121,13 @@ function useTimes(initial: EventTimes, keep: (t: EventTimes) => void) {
   }
 }
 
-/** An Event's place, notes, Reminders, Labels and Tasks, under its times (components.md#eventdetails). */
+/**
+ * An Event's Reminders just below its times (Joe, 4 November), then place,
+ * repeat, notes, Labels, Tasks and its Space last (components.md#eventdetails).
+ */
 function EventFields({
   times,
+  space,
   place,
   onPlace,
   onPlaceBlur,
@@ -147,11 +154,14 @@ function EventFields({
   reminders: ReactNode
   labels: ReactNode
   tasks?: ReactNode
+  /** Where it is (HSH-005 1). */
+  space?: ReactNode
 }) {
   const ids = useId()
   return (
     <div className="flex flex-col gap-4">
       {times}
+      <Field label="Reminders">{reminders}</Field>
       <div className="grid grid-cols-2 gap-3 max-sm:grid-cols-1">
         <Field label="Place">
           <Input
@@ -180,9 +190,9 @@ function EventFields({
         onBlur={onNotesBlur}
         className="min-h-16"
       />
-      <Field label="Reminders">{reminders}</Field>
       <Field label="Labels">{labels}</Field>
       {tasks}
+      {space}
     </div>
   )
 }
@@ -299,6 +309,12 @@ export function EventDetails({ item }: { item: Item }) {
       reminders={<ItemReminders item={item} />}
       labels={<ItemLabels item={item} />}
       tasks={<EventTasks event={item} />}
+      space={
+        <ItemSpaceField
+          item={item}
+          onChange={(space) => updateItem(item.id, { space_id: space })}
+        />
+      }
     />
   )
 }
@@ -323,7 +339,10 @@ export function NewEventDialog({ day, onClose }: { day: string; onClose: () => v
   // The default changed or removed before Save (EVT-003 1).
   const [defaultGone, setDefaultGone] = useState(false)
   const [repeat, setRepeat] = useState<Repeat | null>(null)
-  const labels = useDraftLabels()
+  const { personal } = useFoodSpaces(queue)
+  // Personal to start; or a Household (HSH-005 1).
+  const [space, setSpace] = useState<string | null>(null)
+  const labels = useDraftLabels([], { id: space, personal })
   // Which Google calendar it goes to: my default, unless I choose (GCL-005 1).
   const calendar = useCalendar(queue)
   const twoWay = isOn(calendar.connection) && calendar.links.some((l) => l.level === 'two_way')
@@ -334,7 +353,12 @@ export function NewEventDialog({ day, onClose }: { day: string; onClose: () => v
   const anchors = reminderAnchors({ type: 'event', do_on: null, due_on: null, ...stored })
   const byDefault = defaultReminder({ type: 'event', ...stored }, settings)
   const dirty =
-    title.trim() !== '' || place !== '' || notes !== '' || reminders.length > 0 || defaultGone
+    title.trim() !== '' ||
+    place !== '' ||
+    notes !== '' ||
+    reminders.length > 0 ||
+    defaultGone ||
+    (space !== null && space !== personal)
 
   const save = () => {
     if (!title.trim()) return titleRef.current?.focus()
@@ -342,6 +366,7 @@ export function NewEventDialog({ day, onClose }: { day: string; onClose: () => v
     const fields: ItemFields = { title: title.trim(), ...eventFields(kept, settings.timezone) }
     if (place.trim()) fields.place = place.trim()
     if (notes.trim()) fields.body = notes
+    if (space && space !== personal) fields.space_id = space
     const id = newId()
     // Before the Event, so it never goes out without it.
     if (twoWay) setEventCalendar(id, calendarId)
@@ -466,6 +491,7 @@ export function NewEventDialog({ day, onClose }: { day: string; onClose: () => v
             onCreate={labels.create}
           />
         }
+        space={<SpaceField value={space} onChange={setSpace} />}
       />
     </ItemDialog>
   )
@@ -482,13 +508,21 @@ const taskWhen = (task: Item, now: Date) =>
 /**
  * An Event's Tasks (EVT-006): each a Task of its own, linked *for* the Event,
  * with its tick; "Link a task" finds one of my open Tasks or makes one.
+ * Someone else's, seen through the link, says whose and can't be ticked or
+ * unlinked here (HSH-005 7); only Tasks that may be linked to it are offered
+ * (ADR-0017: in its Space, or both mine), and one made here is in its Space.
  */
 export function EventTasks({ event }: { event: Item }) {
   const { items } = useItems(queue)
   const links = useLinks(queue)
   const open = useOpenItem()
   const tickDone = useTickDone()
+  const mine = useMine()
+  const { me, firstName } = useFoodSpaces(queue)
   const now = new Date()
+  const mayLink = (t: Item) =>
+    mine(t) &&
+    (t.space_id === event.space_id || ((!t.owner_id || t.owner_id === me) && event.owner_id === me))
   const linked = new Set(
     links.filter((l) => l.link_type === 'for' && l.to_item === event.id).map((l) => l.from_item),
   )
@@ -496,7 +530,10 @@ export function EventTasks({ event }: { event: Item }) {
   const candidates = items
     .filter(
       (i) =>
-        i.type === 'task' && !linked.has(i.id) && (i.status === 'active' || i.status === 'idea'),
+        i.type === 'task' &&
+        !linked.has(i.id) &&
+        (i.status === 'active' || i.status === 'idea') &&
+        mayLink(i),
     )
     .sort((a, b) => (a.do_on ?? '9').localeCompare(b.do_on ?? '9'))
     .map((t) => ({ id: t.id, title: itemTitle(t), when: taskWhen(t, now) }))
@@ -506,6 +543,7 @@ export function EventTasks({ event }: { event: Item }) {
       <div className="flex flex-col gap-1.5">
         {tasks.map((t) => {
           const when = taskWhen(t, now)
+          const theirs = !mine(t)
           return (
             <ItemRow
               key={t.id}
@@ -514,22 +552,25 @@ export function EventTasks({ event }: { event: Item }) {
                   colour={TASK.colour}
                   aria-label={`Done: ${itemTitle(t)}`}
                   checked={t.status === 'done'}
+                  disabled={theirs}
                   onCheckedChange={(on) =>
                     on ? tickDone(t) : updateItem(t.id, { status: 'active' })
                   }
                 />
               }
               title={itemTitle(t)}
-              meta={when ? [when] : []}
+              meta={[...(when ? [when] : []), ...(theirs ? [`${firstName(t.owner_id)}’s`] : [])]}
               done={t.status === 'done'}
               sync={t.sync}
               onOpen={() => open(t)}
               menu={
-                <MoreMenu>
-                  <DropdownMenuItem onClick={() => unlinkItems(t.id, event.id, 'for')}>
-                    <UnlinkIcon /> Remove link
-                  </DropdownMenuItem>
-                </MoreMenu>
+                theirs ? undefined : (
+                  <MoreMenu>
+                    <DropdownMenuItem onClick={() => unlinkItems(t.id, event.id, 'for')}>
+                      <UnlinkIcon /> Remove link
+                    </DropdownMenuItem>
+                  </MoreMenu>
+                )
               }
             />
           )
@@ -537,7 +578,9 @@ export function EventTasks({ event }: { event: Item }) {
         <TaskLinker
           tasks={candidates}
           onLink={(id) => linkItems(id, event.id, 'for')}
-          onCreate={(title) => linkItems(createItem('task', { title }), event.id, 'for')}
+          onCreate={(title) =>
+            linkItems(createItem('task', { title, space_id: event.space_id }), event.id, 'for')
+          }
           trigger={
             <Button variant="ghost" size="sm" className="self-start text-muted-foreground">
               <LinkIcon />

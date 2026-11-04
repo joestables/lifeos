@@ -268,9 +268,9 @@ select is(
   'GCL-005: an Event from a two-way calendar can be changed here'
 );
 select throws_ok(
-  $$select core.update_item('00000000-0000-7000-8000-000000000041', '{"space_id": "00000000-0000-7000-8000-0000000000aa"}')$$,
+  $$select core.update_item('00000000-0000-7000-8000-000000000040', '{"space_id": "00000000-0000-7000-8000-0000000000aa"}')$$,
   '42501', null,
-  'GCL-003 5: an Event from Google can''t be shared with the Household'
+  'GCL-003 5: an Event from an incoming-only calendar can''t be shared with the Household (one from a two-way calendar can, HSH-005 8)'
 );
 select is(
   (select calendar_name || ' ' || calendar_level from core.plan_items('2026-10-19', '2026-10-25') where (item).id = '00000000-0000-7000-8000-000000000040'),

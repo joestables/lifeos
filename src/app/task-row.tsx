@@ -29,6 +29,7 @@ export function TaskRow({
   starred = false,
   subtasks,
   repeat,
+  household,
   showDay = false,
 }: {
   task: Item
@@ -39,6 +40,8 @@ export function TaskRow({
   subtasks?: { done: number; total: number }
   /** How it repeats, in a word or two ("Weekly"), while it does. */
   repeat?: string
+  /** Its Household's name, when it is shared (HSH-005 2). */
+  household?: string
   /** Say its day ("Tomorrow", "Mon 19 Oct"): in Later, By label. */
   showDay?: boolean
 }) {
@@ -79,6 +82,7 @@ export function TaskRow({
         {subtasks.done}/{subtasks.total}
       </span>,
     )
+  if (household) meta.push(household)
 
   const canMove = !isDone && !late && task.do_on !== tomorrowOf(now)
   const star = (

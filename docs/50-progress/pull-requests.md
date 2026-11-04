@@ -42,12 +42,23 @@ Branch `claude/lifeos-bug-hunt-94zgs1` · 2026-11-04
   redirected to an address inside a network was followed; each redirect is
   now checked, five at most. `ai` and `link-preview` redeployed.
 
-- **Sharing Tasks and Events, specified** from Joe's answers (4 November),
-  for him to agree before it is built (Stage 4b step 11): HSH-005 and
-  GCL-007, with what they change in Tasks, Events, Reminders and Google
-  Calendar; leaving removes links across the Household, and an Item seen
-  through a link is read-only and out of my Inbox and Tasks (ADR-0016);
-  each member's own copy of a shared Event (ADR-0048).
+- **Sharing Tasks and Events** from Joe's answers (4 November; Stage 4b
+  step 11), specified (HSH-005, GCL-007) and built:
+  - Space at the foot of a Task's and an Event's popup, on my own, with a
+    Household; a repeat moves whole; Labels are the Item's Space's.
+  - No assignee: a shared Task in every member's Inbox, digest and overdue
+    nudges; each member's own default Reminder, given and taken as Items
+    move and people join and leave.
+  - A shared Event in each member's default Google calendar, as their own
+    copy (`core_private.event_copies`, `series_copies`); an edit to any copy
+    changes it for all; a copy deleted in Google leaves only that calendar.
+    Not one from an incoming-only calendar: it is Google's.
+  - Leaving removes links across the Household; someone else's Item seen
+    through a link is read-only ("Sam's") and out of my Inbox and Tasks;
+    mine linked to a shared one says "Visible to Home" (`ItemNote`).
+  - An Event's Reminders just below its end.
+  - Migration `shared_tasks_and_events`; database tests `shared_tasks_test`
+    (15), `shared_events_calendar_test` (12); walks `sharing.spec.ts`.
 
 **Documents touched:** spaces and sharing (ACC-003 1, 4; HSH-003 3;
 HSH-004 1, 5; HSH-005), reminders (REM-002 1, REM-004 6, REM-008 1),
@@ -55,9 +66,10 @@ events (EVT-001–003), tasks (TSK-001 4, TSK-002 1), integrations (GCL-003
 5, GCL-007), non-functional (privacy), the capability map, the data model
 (Task's and Event's Space, from the ontology), components (TaskDetails,
 EventDetails, ItemRow), patterns (Tasks, Opening an Item), ADR-0016,
-ADR-0048, ADR-0054, the Stage 4b plan.
+ADR-0048, ADR-0054, the runbook (calendar-push), the Stage 4b plan.
 
-**Left for later:** building step 11; every new person's home timezone is
+**Left for later:** two people and two real Google calendars, by hand;
+every new person's home timezone is
 London, with nowhere to change it; deleting an account. The crash on
 `/gym` on 2 November (build `4f72a8f`, a preview not on `master`) had
 nothing to trace.

@@ -70,11 +70,9 @@ select lives_ok(
 );
 
 -- ---------------------------------------------------------------------------
--- Ben is removed: what was waiting for him about the Household isn't sent.
-select pg_temp.sign_in('00000000-0000-4000-8000-00000000000a', 'ann@example.com');
-select core.remove_member('00000000-0000-7000-8000-0000000000f1', '00000000-0000-4000-8000-00000000000b');
+-- A notification is waiting for each of them; then Ben is removed, and
+-- what was waiting for him about the Household isn't sent.
 reset role;
-
 insert into core.push_devices (id, person_id, endpoint, p256dh, auth, label, enabled) values
   ('00000000-0000-7000-8000-0000000000d1', '00000000-0000-4000-8000-00000000000a', 'https://push.example/ann', 'k', 'a', 'Ann', true),
   ('00000000-0000-7000-8000-0000000000d2', '00000000-0000-4000-8000-00000000000b', 'https://push.example/ben', 'k', 'a', 'Ben', true);
@@ -86,6 +84,10 @@ insert into core.reminder_deliveries (kind, key, person_id, device_id, reminder_
    '00000000-0000-7000-8000-0000000000e2', '00000000-0000-7000-8000-000000000001', now() - interval '1 minute'),
   ('reminder', 'reminder:ben', '00000000-0000-4000-8000-00000000000b', '00000000-0000-7000-8000-0000000000d2',
    '00000000-0000-7000-8000-0000000000e1', '00000000-0000-7000-8000-000000000001', now() - interval '1 minute');
+set local role authenticated;
+select pg_temp.sign_in('00000000-0000-4000-8000-00000000000a', 'ann@example.com');
+select core.remove_member('00000000-0000-7000-8000-0000000000f1', '00000000-0000-4000-8000-00000000000b');
+reset role;
 
 select is(
   (select array_agg(endpoint) from core.claim_deliveries()),

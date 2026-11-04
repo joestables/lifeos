@@ -39,6 +39,8 @@ import { deleteItem, draftNote, useCloseItem } from './item-navigation'
 import { NoteBody } from './note-body'
 import { ItemReminders } from './item-reminders'
 import { Field, ItemLabels, TaskDetails, TaskTitle } from './task-details'
+import { useMine } from './mine'
+import { SeenDetails, VisibleTo } from './seen-item'
 import { tickThought } from './thought-actions'
 
 /**
@@ -129,6 +131,9 @@ export function ItemPopup({ id, isNew = false }: { id: string | undefined; isNew
   const isMobile = useIsMobile()
   const { item: found, status } = useItem(queue, id ?? '')
   const google = useGoogleSource({ id: id ?? '', type: found?.type ?? '' })
+  const mine = useMine()
+  // Someone else's, seen only through a link: read-only (HSH-005 7).
+  const seen = !!found && !mine(found)
   const draft = isNew && !found
   const item = found ?? (draft && id ? draftNote(id) : undefined)
   if (!id || (status === 'loading' && !draft)) return null
@@ -175,7 +180,9 @@ export function ItemPopup({ id, isNew = false }: { id: string | undefined; isNew
         )
       }
       titleField={
-        item.type === 'note' ? (
+        seen ? (
+          <div className="pt-1 text-day">{itemTitle(item)}</div>
+        ) : item.type === 'note' ? (
           <NoteBody key={item.id} item={item} draft={draft} />
         ) : item.type === 'task' ? (
           <TaskTitle key={item.id} item={item} />
@@ -186,7 +193,8 @@ export function ItemPopup({ id, isNew = false }: { id: string | undefined; isNew
         )
       }
       actions={
-        !draft && (
+        !draft &&
+        !seen && (
           <ItemActions
             item={item}
             onDelete={() => {
@@ -197,12 +205,20 @@ export function ItemPopup({ id, isNew = false }: { id: string | undefined; isNew
         )
       }
     >
-      {item.type === 'task' ? (
-        <TaskDetails key={item.id} item={item} />
+      {seen ? (
+        <SeenDetails key={item.id} item={item} />
+      ) : item.type === 'task' ? (
+        <div className="flex flex-col gap-4">
+          <VisibleTo item={item} />
+          <TaskDetails key={item.id} item={item} />
+        </div>
       ) : item.type === 'event' && google?.readOnly ? (
         <GoogleEventDetails key={item.id} item={item} />
       ) : item.type === 'event' ? (
-        <EventDetails key={item.id} item={item} />
+        <div className="flex flex-col gap-4">
+          <VisibleTo item={item} />
+          <EventDetails key={item.id} item={item} />
+        </div>
       ) : item.type === 'thought' ? (
         // A Thought: its text, Reminders at a set time (REM-003) and Labels (ITM-005).
         <div className="flex flex-col gap-4">

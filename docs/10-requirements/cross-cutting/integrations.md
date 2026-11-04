@@ -38,9 +38,10 @@ of Stage 3 ([plan](../../50-progress/plans/stage-3.md)), are at the end.*
   *default calendar* is one of the two-way ones, or None (Joe, 17 October):
   a new Event goes there unless I choose another, or None, as I make it.
 - **What comes in starts Personal** (Joe, 14 October): Events from Google
-  land in my Personal Space. I may share one with a Household (Joe, 4
-  November): it stays tied to my Google event and goes to the others'
-  calendars too (GCL-007).
+  land in my Personal Space. One from a two-way calendar I may share with a
+  Household (Joe, 4 November): it stays tied to my Google event and goes to
+  the others' calendars too (GCL-007); one from an incoming-only calendar
+  stays as Google has it, Personal.
 - **Only Events go out** (Joe, 14 October): on two-way, the Events I make or
   change in LifeOS go to Google — my Personal Events and the Household's —
   never Tasks, Meals, Workouts or Shopping lists.
@@ -120,8 +121,9 @@ Acceptance criteria
 3. Given a repeating event in Google, then each instance is its own Event on
    its day, and changing one instance in Google changes only that one.
 4. Given the same sync runs twice, then nothing is duplicated.
-5. Given an Event from Google, then it starts Personal; shared, it goes to
-   the others' calendars too (GCL-007).
+5. Given an Event from Google, then it starts Personal; from a two-way
+   calendar it can be shared, and goes to the others' calendars too
+   (GCL-007).
 
 #### GCL-004 — Incoming Events are Google's
 
@@ -179,7 +181,7 @@ Acceptance criteria
 
 **As** Joe, **I want** an Event I share with my Household to be in each of
 our Google Calendars, **so that** we both see it wherever we look.
-Priority: Must · Status: agreed (Joe, 4 November)
+Priority: Must · Status: built (database tests `shared_events_calendar_test`; a real calendar each is checked by hand)
 
 Acceptance criteria
 1. Given an Event shared with a Household, then it goes to each member's
@@ -196,9 +198,8 @@ Acceptance criteria
 5. Given an Event becomes shared (or someone joins), then it goes to the new
    calendars; it stops being shared (or someone leaves), then it leaves the
    calendars of those who no longer see it.
-6. Given a shared Event from an incoming-only calendar, then it stays
-   Google's for everyone (GCL-004): no one changes it in LifeOS, and the
-   others' copies follow its maker's Google event.
+6. Given an Event from an incoming-only calendar, then it can't be shared:
+   it stays Google's (GCL-004).
 
 Non-goals (Stage 3): calendars other than Google's; Tasks, Meals or other
 Types sent to Google; Google's own reminders brought in; inviting people or

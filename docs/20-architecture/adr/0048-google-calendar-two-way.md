@@ -71,8 +71,9 @@ for Joe to confirm:
   need each field's change time kept; whole-event is simpler and the same
   whenever only one side changed.
 - **The outbox:** `core_private.calendar_outbox` (one waiting row per Event
-  or series, a second change bumping it), filled by triggers on Events and
-  series while I have a two-way calendar; `core.calendar_outbox_claim`
+  or series and person, a second change bumping it: the maker's, and a
+  `copy` for each member of a shared one's Household), filled by triggers on
+  Events and series while that person has a two-way calendar; `core.calendar_outbox_claim`
   hands `calendar-push` up to 50 jobs, each to the calendar its Event came
   from or, for a new one, the calendar chosen as it was made
   (`core_private.event_calendars`, written just before the Event) or else

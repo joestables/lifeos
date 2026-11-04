@@ -63,12 +63,21 @@ export function writes(queue: WriteQueue, labelsNow: () => readonly Label[] = ()
       queue.enqueue('unlink_items', { p_from: from, p_to: to, p_link_type: linkType }, [from, to])
     },
 
-    /** Makes a Label, or returns the one with that name already (ITM-005). */
-    createLabel(name: string): string {
-      const existing = labelsNow().find((l) => sameName(l.name, name))
+    /**
+     * Makes a Label, or returns the one with that name already (ITM-005);
+     * in a Space, for an Item there (a Label belongs to its Item's Space).
+     */
+    createLabel(name: string, space?: string | null): string {
+      const existing = labelsNow().find(
+        (l) => sameName(l.name, name) && (!space || !l.space_id || l.space_id === space),
+      )
       if (existing) return existing.id
       const id = newId()
-      queue.enqueue('create_label', { p_id: id, p_name: name.trim() }, [])
+      queue.enqueue(
+        'create_label',
+        { p_id: id, p_name: name.trim(), ...(space ? { p_space_id: space } : {}) },
+        [],
+      )
       return id
     },
     renameLabel(id: string, name: string): void {

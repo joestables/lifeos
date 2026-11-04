@@ -7,11 +7,22 @@ import type { ReactNode } from 'react'
  */
 export function EventSource({ calendar, level }: { calendar: string; level: string }) {
   return (
-    <div className="-mt-2 flex items-center gap-1.5 text-sm text-muted-foreground">
-      <CalendarSyncIcon aria-hidden className="size-3.5 shrink-0" />
-      <span className="truncate">
-        Google Calendar · {calendar} · {level}
-      </span>
+    <ItemNote icon={<CalendarSyncIcon aria-hidden />}>
+      Google Calendar · {calendar} · {level}
+    </ItemNote>
+  )
+}
+
+/**
+ * A muted line under an Item's title, with a muted 14px icon
+ * (components.md#itemnote): where an Event comes from, "Visible to Home", or
+ * whose an Item seen through a link is ("Sam's").
+ */
+export function ItemNote({ icon, children }: { icon: ReactNode; children: ReactNode }) {
+  return (
+    <div className="-mt-2 flex items-center gap-1.5 text-sm text-muted-foreground [&>svg]:size-3.5 [&>svg]:shrink-0">
+      {icon}
+      <span className="truncate">{children}</span>
     </div>
   )
 }

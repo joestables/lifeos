@@ -121,7 +121,10 @@ Edge Functions deployed by Claude through the Supabase MCP, sharing
   (`core.calendar_unpushed`, tried again after 5 minutes, doubling to 6
   hours). A refused token breaks the connection as the sync does, and its
   jobs wait, a quarter of an hour at a time. A new Event's chosen calendar
-  is in `core_private.event_calendars`. It is deployed with `calendar-sync`'s
+  is in `core_private.event_calendars`. A shared Event's job for each other
+  member (`copy`) goes to their default calendar, kept in
+  `core_private.event_copies` (a repeat's in `series_copies`); one they
+  deleted in Google is `dropped` and not sent again (GCL-007). It is deployed with `calendar-sync`'s
   `run.ts` and `supabase.ts` and `packages/recurrence/src/days.ts`.
 - **Checking it:** `select * from core.connections`;
   `select name, level, new_events, synced_until from core.calendar_links`;

@@ -12,6 +12,7 @@ import {
   removeDefaultReminder,
   stopRepeat,
   updateSubtask,
+  useFoodSpaces,
   useSettings,
   type ItemFields,
 } from '@/data'
@@ -21,6 +22,7 @@ import { defaultReminder, reminderFields } from '@/lib/reminders'
 import { draftItem } from './item-navigation'
 import { useDraftLabels } from './draft-labels'
 import { DraftReminders, type DraftReminder } from './draft-reminders'
+import { SpaceField } from './space-field'
 import { repeatTask } from './repeat'
 import { TaskFields, type TaskDates } from './task-details'
 
@@ -43,7 +45,10 @@ export function NewTaskDialog({
   labelIds?: readonly string[]
 }) {
   const settings = useSettings(queue)
-  const draftLabels = useDraftLabels(labelIds)
+  const { personal } = useFoodSpaces(queue)
+  // Personal to start; or a Household (HSH-005 1).
+  const [space, setSpace] = useState<string | null>(null)
+  const draftLabels = useDraftLabels(labelIds, { id: space, personal })
   const titleRef = useRef<HTMLInputElement>(null)
   const [title, setTitle] = useState('')
   const [notes, setNotes] = useState('')
@@ -70,7 +75,8 @@ export function NewTaskDialog({
     dates.due_on !== null ||
     subtasks.length > 0 ||
     reminders.length > 0 ||
-    defaultGone
+    defaultGone ||
+    (space !== null && space !== personal)
   const today = isoDayOf(new Date())
   const anchors = [
     ...(dates.do_on ? (['do_on'] as const) : []),
@@ -82,6 +88,7 @@ export function NewTaskDialog({
     const fields: ItemFields = { title: title.trim(), do_on: dates.do_on, due_on: dates.due_on }
     if (dates.do_at) fields.do_at = dates.do_at
     if (notes.trim()) fields.body = notes
+    if (space && space !== personal) fields.space_id = space
     const id = createItem('task', fields)
     // The server gives it its default; changed or removed here, it goes.
     if (byDefault && defaultGone) removeDefaultReminder(id)
@@ -207,6 +214,7 @@ export function NewTaskDialog({
           setSubtasks((s) => s.map((x) => (x.id === id ? { ...x, title: t } : x)))
         }
         onRemoveSubtask={(id) => setSubtasks((s) => s.filter((x) => x.id !== id))}
+        space={<SpaceField value={space} onChange={setSpace} />}
       />
     </ItemDialog>
   )

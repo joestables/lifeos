@@ -27,6 +27,7 @@ import { NotificationsOffer } from '@/app/notifications-offer'
 import { useOpenCapture } from '@/app/open-capture'
 import { useTaskFacts } from '@/app/task-facts'
 import { TaskRow } from '@/app/task-row'
+import { useMine } from '@/app/mine'
 import { tickThought } from '@/app/thought-actions'
 import { queue, useItems, useReminders, type Item } from '@/data'
 import { capturedWhen, reminderWhen } from '@/lib/dates'
@@ -44,7 +45,10 @@ const THOUGHT = typeLook('thought')
 
 function Inbox() {
   const openCapture = useOpenCapture()
-  const { items, isLoading } = useItems(queue)
+  const { items: visible, isLoading } = useItems(queue)
+  // Only what is mine: in one of my Spaces (HSH-005 7).
+  const mine = useMine()
+  const items = visible.filter(mine)
   const now = new Date()
   const facts = useTaskFacts()
   const filter = useLabelFilter(Route.useSearch().labels)

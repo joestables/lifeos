@@ -186,14 +186,16 @@ Acceptance criteria
 
 **As** Joe, **I want** to share Tasks and Events with my Household, **so
 that** we plan the chores and the days out together.
-Priority: Must · Status: agreed (Joe, 4 November)
+Priority: Must · Status: built (database tests `shared_tasks_test`, `shared_events_calendar_test`; walks `sharing.spec.ts`; two people on the real database checked by hand)
 
 Acceptance criteria
 1. Given a Household, then New task, New event and a Task's or Event's
    details end with **Space**: a Select of Personal and each of my
    Households. A new one starts Personal; only its maker changes it later,
    so it shows only on Items I made (HSH-003 3). Without a Household there
-   is no Space field.
+   is no Space field. A repeat's Space is the whole repeat's: moving one
+   occurrence moves them all. An Item's Labels are its Space's: its popup
+   offers that Space's Labels, and moving it takes the old Space's off.
 2. Given a shared Task or Event, then every member sees it in Tasks, Inbox
    and on Plan, its Household's name in its meta, and can change it or
    delete it (with Undo, and from Recently deleted); a change one makes
@@ -221,5 +223,7 @@ Acceptance criteria
    read-only, saying whose it is; my own Personal Item linked to a shared
    one says "Visible to" the Household
    ([ADR-0016](../../20-architecture/adr/0016-sharing-and-visibility.md)).
-8. Given an Event from Google, then it can be shared too: it stays tied to
-   my Google event, and goes to the others' calendars.
+8. Given an Event from a two-way Google calendar, then it can be shared
+   too: it stays tied to my Google event, and goes to the others'
+   calendars. One from an incoming-only calendar can't: it is Google's
+   ([GCL-004](integrations.md#gcl-004--incoming-events-are-googles)).
