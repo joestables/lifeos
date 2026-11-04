@@ -2,7 +2,7 @@
 
 Newest first. Each entry is added in its own pull request.
 
-## [#PRNUM](https://github.com/joestables/lifeos/pull/PRNUM) — A multi-user bug hunt: who made an Item, notifications after leaving, one person's device
+## [#60](https://github.com/joestables/lifeos/pull/60) — A multi-user bug hunt: who made an Item, notifications after leaving, one person's device
 
 Branch `claude/lifeos-bug-hunt-94zgs1` · 2026-11-04
 
@@ -28,6 +28,8 @@ Branch `claude/lifeos-bug-hunt-94zgs1` · 2026-11-04
   person can still see (`core_private.readable_by`), and Done needs them
   still in its Space.
 - Migration `multi_user_bug_hunt`; database tests in `multi_user_test` (9).
+  Applied by the tool, and the same attempts repeated on the live project
+  as a made-up person (rolled back) now refused; advisors: nothing new.
 - **One person's device** (ACC-003 1, 4): a session can end without
   signing out here (signed out on another device signs out everywhere; or
   expired). Then the cache, the photos and the unsent writes stayed, and
