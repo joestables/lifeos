@@ -117,6 +117,9 @@ Acceptance criteria
    sent them, and the failure is recorded where Claude can find it.
 5. Given the Task is done, or the Item archived, before 09:00, then nothing
    is sent.
+6. Given I can no longer see the Item (I left its Household), then nothing
+   is sent; and a Reminder of mine can only be on an Item I can see, made
+   or changed (multi-user bug hunt, 4 November).
 6. Given a Reminder whose time had already passed when it was set (a Task
    captured at 15:00 for today, its default at 09:00), then nothing is
    sent.

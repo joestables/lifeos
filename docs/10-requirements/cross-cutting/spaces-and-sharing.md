@@ -87,11 +87,17 @@ Priority: Must · Status: verified
 
 Acceptance criteria
 1. Given I am signed in, when I sign out, then I return to the sign-in page
-   and my data is removed from the device's local cache.
+   and my data is removed from the device: its local cache, the photos kept
+   for offline and what pages remembered (multi-user bug hunt, 4 November).
 2. Given I sign out with writes still queued, then I am warned that they
    haven't been sent before I confirm.
 3. Given notifications were on for this device, when I sign out, then they
    stop: nothing more arrives on it.
+4. Given my session here ended without signing out (signed out on another
+   device, or expired), when someone else signs in on this device, then
+   what it kept for me is removed first — cache, unsent writes, photos,
+   what pages remembered — and my notifications stop arriving on it; my
+   unsent writes are never sent as them (multi-user bug hunt, 4 November).
 
 Non-goals (Stage 1): Households and invitations (Stage 4); other sign-in
 providers; deleting an account (open, above).
@@ -140,7 +146,8 @@ Acceptance criteria
 2. Given a choice of Space for an Item (a Meal, a food shop), then it
    offers Personal and each of my Households.
 3. Given an Item someone else made in a Household, then I can't move it to
-   another Space; only its maker can (bug hunt, 21 October).
+   another Space; only its maker can (bug hunt, 21 October), and nobody
+   can change who made it (multi-user bug hunt, 4 November).
 
 ### HSH-004 — Leaving and removing
 
@@ -162,3 +169,6 @@ Acceptance criteria
    created them, as if all had left.
 4. Given I rejoin a Household I left, then what I kept stays mine and
    separate: nothing is merged back.
+5. Given I left or was removed, then no Reminder of mine about the
+   Household's Items reaches me any more, and Done on a notification from
+   before does nothing (multi-user bug hunt, 4 November).

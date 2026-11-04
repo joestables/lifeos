@@ -2,6 +2,55 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#PRNUM](https://github.com/joestables/lifeos/pull/PRNUM) — A multi-user bug hunt: who made an Item, notifications after leaving, one person's device
+
+Branch `claude/lifeos-bug-hunt-94zgs1` · 2026-11-04
+
+**What it did**
+- **Hunted** for what breaks once people other than Joe use LifeOS: every
+  row-level policy and the functions behind them, the column grants, the
+  `SECURITY DEFINER` functions a signed-in person can call, Storage, a new
+  Google sign-up and a second person in Joe's Household (run on the live
+  project as a made-up person, rolled back), the notification queue, the
+  Edge Functions' link reading, the device's cache, write queue and
+  storage, logs, cron runs and `ops.events`.
+- **Who made an Item stays who made it** (HSH-003 3): a Household member
+  could make someone else's shared Item theirs, then take it to their own
+  Personal Space. `owner_id` on Items and series can't be changed by a
+  signed-in person.
+- **A Reminder only on what I can see** (REM-004 6): adding one checked,
+  changing one didn't, so a Reminder could be moved onto anyone's private
+  Task and its title arrive as my notification. Changing a Reminder, a cook
+  or a recent view now checks it too.
+- **Nothing more after leaving** (HSH-004 5): someone who left a Household,
+  or was removed, kept getting its Items' Reminders, and Done on the
+  notification still ticked them off. Notifications go only about what the
+  person can still see (`core_private.readable_by`), and Done needs them
+  still in its Space.
+- Migration `multi_user_bug_hunt`; database tests in `multi_user_test` (9).
+- **One person's device** (ACC-003 1, 4): a session can end without
+  signing out here (signed out on another device signs out everywhere; or
+  expired). Then the cache, the photos and the unsent writes stayed, and
+  whoever signed in next saw them, and the writes were sent as them. The
+  device now knows whose it is: someone else signing in clears it first
+  (and stops the last person's notifications there), and a write is only
+  sent as the person who made it. Signing out also clears the photos kept
+  for offline and what pages remembered. A walk in `sign-in.spec.ts`.
+- **Link reading at each redirect** (ADR-0054): a public page that
+  redirected to an address inside a network was followed; each redirect is
+  now checked, five at most. `ai` and `link-preview` redeployed.
+
+**Documents touched:** spaces and sharing (ACC-003 1, 4; HSH-003 3;
+HSH-004 5), reminders (REM-004 6), non-functional (privacy), ADR-0054, the
+Stage 4b plan.
+
+**Left for later:** put to Joe, not changed: links keep a Personal Item
+visible to a Household after its maker leaves, and a peer's linked Task
+shows in my Inbox and Tasks as if I could tick it (ADR-0016's "Visible to
+Household" isn't built); every new person's home timezone is London, with
+nowhere to change it; deleting an account. The crash on `/gym` on 2
+November (build `4f72a8f`, a preview not on `master`) had nothing to trace.
+
 ## [#59](https://github.com/joestables/lifeos/pull/59) — New task and New event show the default Reminder
 
 Branch `claude/lifeos-production-bug-hunt-siwl01` · 2026-11-04

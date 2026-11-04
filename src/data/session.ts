@@ -1,3 +1,4 @@
+import { forgetPhotos, forgetStorage } from './device-owner'
 import { devicesKey, type Device } from './devices'
 import { persister, queryClient } from './queryClient'
 import type { WriteQueue } from './queue/queue'
@@ -38,14 +39,40 @@ async function forgetThisDevice(): Promise<void> {
   }
 }
 
+/**
+ * Everything the device keeps for whoever used it: the write queue, the
+ * cached Items, the photos kept for offline, and what pages remembered.
+ */
+export async function clearDevice(queue: WriteQueue): Promise<void> {
+  await queue.clear()
+  queryClient.clear()
+  await persister.removeClient()
+  await forgetPhotos()
+  forgetStorage()
+}
+
+/**
+ * Someone else signed in where the last person's session ended without
+ * signing out here (ACC-003): their notifications stop arriving on this
+ * device and what it kept for them goes. Their unsent writes go too: they
+ * can't be sent as anyone else.
+ */
+export async function clearForSomeoneElse(queue: WriteQueue): Promise<void> {
+  try {
+    const reg = await navigator.serviceWorker?.getRegistration()
+    await (await reg?.pushManager?.getSubscription())?.unsubscribe()
+  } catch {
+    // Clearing goes on regardless.
+  }
+  await clearDevice(queue)
+}
+
 export function session(queue: WriteQueue, signOutOfSupabase = signOutOfSupabaseNow) {
   return {
     unsentWrites: () => queue.entries().length,
     async signOut(): Promise<void> {
       await forgetThisDevice()
-      await queue.clear()
-      queryClient.clear()
-      await persister.removeClient()
+      await clearDevice(queue)
       await signOutOfSupabase()
     },
   }

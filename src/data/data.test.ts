@@ -8,7 +8,7 @@ import { foldSent, itemsKey } from './items'
 import { applyPending } from './overlay'
 import { persister, queryClient } from './queryClient'
 import { indexedDbQueueStore, WriteError, WriteQueue } from './queue'
-import { session } from './session'
+import { clearForSomeoneElse, session } from './session'
 import type { ItemRow } from './types'
 
 const row = (id: string, title: string): ItemRow => ({
@@ -86,10 +86,39 @@ describe('signing out', () => {
     const s = session(queue, signOutOfSupabase)
     expect(s.unsentWrites()).toBe(1)
 
+    localStorage.setItem('lifeos-cooking', '{"recipe":"Dal"}')
+    localStorage.setItem('sb-ref-auth-token', 'session')
+    sessionStorage.setItem('lifeos-import', '{}')
     await s.signOut()
     expect(queue.entries()).toHaveLength(0)
     expect(queryClient.getQueryData(itemsKey)).toBeUndefined()
     expect(await persister.restoreClient()).toBeUndefined()
+    expect(localStorage.getItem('lifeos-cooking')).toBeNull()
+    expect(sessionStorage.getItem('lifeos-import')).toBeNull()
+    // Supabase's own session is Supabase's to end.
+    expect(localStorage.getItem('sb-ref-auth-token')).toBe('session')
     expect(signOutOfSupabase).toHaveBeenCalledOnce()
+    localStorage.clear()
+  })
+
+  it('ACC-003: someone else signing in clears what was kept for the last person', async () => {
+    const queue = new WriteQueue({
+      store: indexedDbQueueStore('test-someone-else'),
+      transport: async () => {
+        throw new WriteError('Not signed in as whoever made it', false)
+      },
+      schedule: () => () => {},
+    })
+    queue.enqueue('create_item', { p_id: 'a', p_type: 'thought' }, ['a'])
+    await queue.flush()
+    queryClient.setQueryData(itemsKey, [row('a', 'Dentist')])
+    await persistQueryClientSave({ queryClient, persister })
+    localStorage.setItem('lifeos-device-owner', 'ann')
+
+    await clearForSomeoneElse(queue)
+    expect(queue.entries()).toHaveLength(0)
+    expect(queryClient.getQueryData(itemsKey)).toBeUndefined()
+    expect(await persister.restoreClient()).toBeUndefined()
+    expect(localStorage.getItem('lifeos-device-owner')).toBeNull()
   })
 })

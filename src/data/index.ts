@@ -123,7 +123,8 @@ import {
 } from './households'
 import { indexedDbQueueStore, WriteQueue } from './queue'
 import type { QueueEntry } from './queue/store'
-import { session } from './session'
+import { clearForSomeoneElse, session } from './session'
+import { onSomeoneElse } from './auth'
 import { reportEvent } from './report'
 import { rpcTransport } from './supabase'
 import type { ItemRow, WriteFn } from './types'
@@ -644,6 +645,7 @@ export const {
 } = householdWrites(queue)
 
 export const { unsentWrites, signOut } = session(queue)
+onSomeoneElse(() => clearForSomeoneElse(queue))
 
 /**
  * Clears the changes the server refused, once I've seen them (OFF-004 2):
