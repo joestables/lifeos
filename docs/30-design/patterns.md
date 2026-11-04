@@ -135,6 +135,11 @@ used the same way on every screen.
   ([tokens](tokens.md#sizes)): a Task shows down to its Reminders, an Event
   to its Place and Repeat, and the rest scrolls inside the Dialog.
 - Changes are kept as they are made; there is no Save in an Item's Dialog.
+- **Shared and seen** (HSH-005 7, ADR-0016): under the title, as an Event
+  from Google has its line, a muted 13px line with a muted icon. My
+  Personal Item linked to a shared one: `users` "Visible to Joe&Candia". Someone
+  else's Personal Item I see only through a link: `lock` "Sam's", and its
+  fields are lines, not fields, with no Delete, as an incoming Event's.
 - The Dialog's header holds the Type's tile and name, the Item's mark
   (star, pin), its "…" menu (Convert to, Delete) and Close, with no "…"
   when it would be empty; it opens with the Dialog itself focused, not its
@@ -232,7 +237,8 @@ DateField, TimeField, RepeatField, SubtaskList and AddRow in
   left, "No tasks labelled Home".
 - "New task" opens a new Task in a popup with every field a Task has —
   title, notes, do-on date and time, due date, repeat, Reminders, Labels,
-  sub-tasks — and Cancel and Save at its foot; nothing is kept until Save,
+  sub-tasks, and with a Household its Space last — and Cancel and Save at
+  its foot; nothing is kept until Save,
   and once anything is typed a click outside doesn't close it. Changing a
   Task needs no Save: each change is kept as it is made.
 - A repeating Task shows only its next open occurrence, in every list.

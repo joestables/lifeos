@@ -42,16 +42,25 @@ Branch `claude/lifeos-bug-hunt-94zgs1` · 2026-11-04
   redirected to an address inside a network was followed; each redirect is
   now checked, five at most. `ai` and `link-preview` redeployed.
 
-**Documents touched:** spaces and sharing (ACC-003 1, 4; HSH-003 3;
-HSH-004 5), reminders (REM-004 6), non-functional (privacy), ADR-0054, the
-Stage 4b plan.
+- **Sharing Tasks and Events, specified** from Joe's answers (4 November),
+  for him to agree before it is built (Stage 4b step 11): HSH-005 and
+  GCL-007, with what they change in Tasks, Events, Reminders and Google
+  Calendar; leaving removes links across the Household, and an Item seen
+  through a link is read-only and out of my Inbox and Tasks (ADR-0016);
+  each member's own copy of a shared Event (ADR-0048).
 
-**Left for later:** put to Joe, not changed: links keep a Personal Item
-visible to a Household after its maker leaves, and a peer's linked Task
-shows in my Inbox and Tasks as if I could tick it (ADR-0016's "Visible to
-Household" isn't built); every new person's home timezone is London, with
-nowhere to change it; deleting an account. The crash on `/gym` on 2
-November (build `4f72a8f`, a preview not on `master`) had nothing to trace.
+**Documents touched:** spaces and sharing (ACC-003 1, 4; HSH-003 3;
+HSH-004 1, 5; HSH-005), reminders (REM-002 1, REM-004 6, REM-008 1),
+events (EVT-001–003), tasks (TSK-001 4, TSK-002 1), integrations (GCL-003
+5, GCL-007), non-functional (privacy), the capability map, the data model
+(Task's and Event's Space, from the ontology), components (TaskDetails,
+EventDetails, ItemRow), patterns (Tasks, Opening an Item), ADR-0016,
+ADR-0048, ADR-0054, the Stage 4b plan.
+
+**Left for later:** building step 11; every new person's home timezone is
+London, with nowhere to change it; deleting an account. The crash on
+`/gym` on 2 November (build `4f72a8f`, a preview not on `master`) had
+nothing to trace.
 
 ## [#59](https://github.com/joestables/lifeos/pull/59) — New task and New event show the default Reminder
 

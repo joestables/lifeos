@@ -72,7 +72,9 @@ Acceptance criteria
 1. Given I give a Task a do-on date with no time, then it has a Reminder at
    my default time (09:00) on that date; with a time, at that time. In New
    task it shows among the Reminders before I save, so I can see it is
-   there, and change or remove it there (Joe, 4 November).
+   there, and change or remove it there (Joe, 4 November). On a shared
+   Task each member has their own default, as their Settings give it
+   ([HSH-005](spaces-and-sharing.md#hsh-005--share-tasks-and-events) 4).
 2. Given I move the do-on date or time, then the Reminder moves with it;
    if I removed or changed it, moving the date doesn't bring it back or add
    a second.
@@ -171,7 +173,8 @@ Priority: Should · Status: verified
 Acceptance criteria
 1. Given the digest is on (it is by default, at 07:00), then each morning
    one notification says "2 overdue · 3 today · 4 thoughts", and tapping it
-   opens Inbox.
+   opens Inbox. A Household's shared Tasks count for every member, as they
+   are in every member's Inbox (HSH-005 3).
 2. Given nothing needs me, then no digest is sent.
 3. Given Settings, then I can change its time or turn it off.
 
@@ -191,5 +194,6 @@ Acceptance criteria
 
 Non-goals (Stage 2): choosing which device a Reminder goes to;
 alarm-grade and location Reminders (Stage 7 and later); notification
-buttons on iOS, which it doesn't offer; email or SMS reminders; Reminders on
-shared Items for other people (Stage 4); quiet hours.
+buttons on iOS, which it doesn't offer; email or SMS reminders; setting a
+Reminder for someone else (each member sets their own, HSH-005 4); quiet
+hours.

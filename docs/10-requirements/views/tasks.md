@@ -22,6 +22,11 @@ Provisionally agreed). It replaces Google Tasks.
   Provisionally agreed).
 - **Tasks are starred**, as in Google Tasks: starring is the Task's mark,
   private to the person who stars it.
+- **A Task can be shared with a Household** (Joe, 4 November;
+  [HSH-005](../cross-cutting/spaces-and-sharing.md#hsh-005--share-tasks-and-events)):
+  its Space, at the foot of its popup. Nobody is assigned: a shared Task is
+  in every member's Inbox and Tasks, and whoever ticks it ticks it for
+  all.
 - **Sub-tasks** are lines ticked inside a Task — a title and a tick, nothing
   more. They are not Tasks of their own, so they never appear in Inbox or on
   Plan.
@@ -87,8 +92,10 @@ Acceptance criteria
    notes, do-on date and time, due date, repeat, Reminders (its default
    among them once it has a do-on date,
    [REM-002](../cross-cutting/reminders.md#rem-002--a-task-reminds-me-on-its-do-on-date)),
-   Labels and sub-tasks — and is kept only when I save it; cancelled,
-   nothing is left behind (Joe, 12 October).
+   Labels and sub-tasks, and with a Household its Space at the foot
+   ([HSH-005](../cross-cutting/spaces-and-sharing.md#hsh-005--share-tasks-and-events)) —
+   and is kept only when I save it; cancelled, nothing is left behind (Joe,
+   12 October).
 
 ### TSK-002 — A Task's details
 
@@ -98,8 +105,8 @@ Priority: Must · Status: verified
 
 Acceptance criteria
 1. Given a Task, when I open it, then I can change its title, notes, do-on
-   date and time, due date, Labels, sub-tasks, repeat, Reminders and star,
-   and each change is kept as I make it.
+   date and time, due date, Labels, sub-tasks, repeat, Reminders, star and,
+   if I made it, its Space, and each change is kept as I make it.
 2. Given I set a time without a date, then I'm asked for the date, as a
    do-on time needs a do-on date.
 
@@ -233,7 +240,7 @@ Acceptance criteria
    that order is kept on every device.
 
 Non-goals (Stage 2): Events and the Task ↔ Event switch (Stage 3); sharing
-Tasks with the Household (Stage 4); Tasks *for* an Event (Stage 3); sub-tasks
+Tasks with the Household (HSH-005); Tasks *for* an Event (Stage 3); sub-tasks
 with their own dates or Reminders; a Project Type
 ([ADR-0014](../../20-architecture/adr/0014-reference-data-and-labels.md));
 importing from Google Tasks.

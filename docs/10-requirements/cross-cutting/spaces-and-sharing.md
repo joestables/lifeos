@@ -37,6 +37,12 @@ is shared is in [recipes](../modules/recipes.md) and
   author's, and a Variation its own author's (ADR-0051).
 - **Per person on shared Items:** Reminders, snooze, marks (a starred Task, a favourited Recipe), Inbox
   dismiss / snooze.
+- **Tasks and Events are shared with a Household** (Joe, 4 November;
+  [HSH-005](#hsh-005--share-tasks-and-events)): chosen in their popup's
+  Space, at its foot. Nobody is assigned: a shared Task is everyone's, and
+  whoever ticks it ticks it for all. Every member gets their own default
+  Reminder, can change it, and can delete the Item. A shared Event goes to
+  every member's default Google calendar.
 
 ## Open
 
@@ -160,7 +166,10 @@ Acceptance criteria
    Personal to me, I stop seeing the rest
    ([ADR-0016](../../20-architecture/adr/0016-sharing-and-visibility.md)),
    and I keep my Variations of others' Recipes
-   ([ADR-0051](../../20-architecture/adr/0051-who-sees-food.md)).
+   ([ADR-0051](../../20-architecture/adr/0051-who-sees-food.md)). Links
+   between my Items and the Household's go, so neither side still sees the
+   other's through a link (Joe, 4 November); the Household's Events leave
+   my Google Calendar (HSH-005 6).
 2. Given I own a Household, when I remove a member, then it is as if they
    had left.
 3. Given I own a Household, then I can't leave it, only delete it (Joe, 18
@@ -172,3 +181,45 @@ Acceptance criteria
 5. Given I left or was removed, then no Reminder of mine about the
    Household's Items reaches me any more, and Done on a notification from
    before does nothing (multi-user bug hunt, 4 November).
+
+### HSH-005 — Share Tasks and Events
+
+**As** Joe, **I want** to share Tasks and Events with my Household, **so
+that** we plan the chores and the days out together.
+Priority: Must · Status: agreed (Joe, 4 November)
+
+Acceptance criteria
+1. Given a Household, then New task, New event and a Task's or Event's
+   details end with **Space**: a Select of Personal and each of my
+   Households. A new one starts Personal; only its maker changes it later,
+   so it shows only on Items I made (HSH-003 3). Without a Household there
+   is no Space field.
+2. Given a shared Task or Event, then every member sees it in Tasks, Inbox
+   and on Plan, its Household's name in its meta, and can change it or
+   delete it (with Undo, and from Recently deleted); a change one makes
+   shows for all.
+3. Given a shared Task, then nobody is assigned: it is in every member's
+   Inbox (Today, Overdue) and counted in each one's morning digest
+   ([REM-008](reminders.md#rem-008--a-morning-digest)) or overdue nudge;
+   ticked by anyone, it is done for everyone, and a repeat's next
+   occurrence follows as for my own.
+4. Given a shared Task or Event with a date, then each member has their own
+   default Reminder on it, as their own Settings give it (on or off, their
+   default time;
+   [REM-007](reminders.md#rem-007--reminder-defaults-in-settings)), and
+   changes or removes only their own; anyone's other Reminders are theirs
+   alone.
+5. Given a shared Event, then it goes to each member's default Google
+   calendar (none for a member without a two-way calendar or with None);
+   see [GCL-007](integrations.md#gcl-007--a-shared-event-in-everyones-calendar).
+6. Given someone joins, then they get their default Reminders on the
+   Household's Tasks and Events still to come, and its Events go to their
+   calendar; given someone leaves or is removed, its Events leave their
+   calendar and their Reminders on its Items go (HSH-004).
+7. Given a Personal Item of someone else's that I see only through a link
+   to a shared Item, then it isn't in my Inbox or Tasks, and it opens
+   read-only, saying whose it is; my own Personal Item linked to a shared
+   one says "Visible to" the Household
+   ([ADR-0016](../../20-architecture/adr/0016-sharing-and-visibility.md)).
+8. Given an Event from Google, then it can be shared too: it stays tied to
+   my Google event, and goes to the others' calendars.

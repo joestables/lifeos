@@ -2,6 +2,8 @@
 
 **Status:** Provisionally agreed · 2026-10-14
 
+**Amended:** 2026-11-04 by Joe's answers on sharing Tasks and Events (a shared Event is one copy in each member's default calendar).
+
 ## Context
 
 On a calendar set to two-way, GCL-005 sends the Events I make, change or
@@ -44,8 +46,12 @@ server through its write queue, last write winning field by field
   `location`, notes as `description`, and the repeat. Google's event keeps
   LifeOS's id in a private extended property, so an Event made in LifeOS
   is recognised when it comes back in.
-- **Which Events:** those in my Personal Space, and from Stage 4 the
-  Household's, each sent by the person who has them on a two-way calendar.
+- **Which Events:** those in my Personal Space, and the Household's: a
+  shared Event is one copy in each member's default calendar, sent through
+  that member's own connection (Joe, 4 November;
+  [GCL-007](../../10-requirements/cross-cutting/integrations.md#gcl-007--a-shared-event-in-everyones-calendar)).
+  An edit to any copy changes the Event; deleting a copy in Google takes it
+  off that calendar only.
   Events from Google stay in the calendar they came from. An Event made
   before a calendar was two-way isn't sent until it changes.
 - **Switching an Event into a Task** deletes it in Google; switching it back
@@ -106,6 +112,6 @@ for Joe to confirm:
 - A change reaches Google within about a minute of reaching the server; made
   offline, once the write queue has sent it.
 - Google never sees Tasks, Meals, Workouts or Shopping lists.
-- A Household Event will be sent by each member who has a two-way calendar
-  (Stage 4 decides whether that means one copy per member's calendar, or
-  Google's own invitations).
+- A Household Event is a copy per member's calendar, not Google's own
+  invitations: each member's copy is theirs, and nobody's Google account
+  sees another's.
