@@ -2,6 +2,31 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#59](https://github.com/joestables/lifeos/pull/59) — New task and New event show the default Reminder
+
+Branch `claude/lifeos-production-bug-hunt-siwl01` · 2026-11-04
+
+**What it did**
+- From the bug hunt (#55): "Put the bins out" had its default at 20:00 and
+  one Joe set at 20:00, as New task never showed the default.
+- New task and New event show the default the Item will get, first among
+  its Reminders: a dated Task's on the day at its time (else my default
+  time), a timed Event's 30 minutes before; none with that default off.
+  Left, the server makes it; changed, it is one of mine; removed, it goes.
+- `default_reminder_shown`: `core.remove_default_reminder`, sent straight
+  after the Item when the default was changed or removed. Database tests
+  in `default_reminder_shown_test`. Applied by the tool; advisors: nothing
+  new.
+- The stand-in gives defaults as the server does; walks for New task
+  (left, changed, removed) and New event (left, removed).
+
+**Documents touched:** reminders (REM-002 1), events (EVT-001 1, EVT-003
+1), tasks (TSK-001 4), components (ReminderList), the Stage 4b plan.
+
+**Left for later:** a repeating Task made with its default changed or
+removed still gives its other occurrences the default, as a repeat set
+from a Task's details does.
+
 ## [#58](https://github.com/joestables/lifeos/pull/58) — The readiness scale: no olive in light mode, and 50 % a third of the way
 
 Branch `claude/gym-body-map-redesign-yejlfi` · 2026-11-03
