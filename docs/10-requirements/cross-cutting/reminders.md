@@ -105,7 +105,9 @@ Acceptance criteria
    its do-on time or due date) reaches each of my devices with
    notifications on within a minute of 09:00.
 2. Given anything is retried on the way, then each device gets the
-   notification once.
+   notification once; given two of my Reminders on one Item fall at the
+   same moment (its default and one I set at its time), then each device
+   gets one notification, and snoozing it doesn't send the other.
 3. Given LifeOS couldn't send it at 09:00, then it is sent as soon as it can
    be, up to 12 hours late; after that it is recorded as missed and not
    sent.

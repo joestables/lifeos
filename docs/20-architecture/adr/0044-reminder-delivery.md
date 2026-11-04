@@ -24,8 +24,9 @@ tier ([ADR-0003](0003-new-supabase-project.md)).
   digest is off — and writes one row per notification and device to
   `core.reminder_deliveries` (kind: *reminder*, *digest*, *overdue*). A
   unique key on the notification, its fire time and the device means a row
-  is never written twice. Anything more than 12 hours late is written as
-  *missed* instead.
+  is never written twice, and two of a person's Reminders on one Item at
+  the same moment make one row per device (the oldest Reminder's). Anything
+  more than 12 hours late is written as *missed* instead.
 - **An Edge Function sends them, only when there is something to send.**
   When rows are waiting, the job calls the `send-notifications` Edge
   Function through `pg_net`, with a secret kept only in Vault, which the
