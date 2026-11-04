@@ -131,3 +131,37 @@ export function freshReminder(
   if (first) return { kind: first, daysBefore: 0, time }
   return { kind: 'fixed', day: today, time }
 }
+
+/**
+ * The default Reminder the server gives an Item when it is made (REM-002 1,
+ * EVT-003 1), as New task and New event show it before Save: a dated
+ * Task's on the day, at its time or my default time; a timed Event's 30
+ * minutes before it starts; none with that default off in Settings.
+ */
+export function defaultReminder(
+  item:
+    | { type: 'task'; do_on: string | null; do_at: string | null }
+    | { type: 'event'; starts_at: string | null; all_day: boolean | null },
+  settings: { defaultReminderTime: string; taskReminders: boolean; eventReminders: boolean },
+): ReminderChoice | null {
+  if (item.type === 'task')
+    return item.do_on && settings.taskReminders
+      ? {
+          kind: 'do_on',
+          daysBefore: 0,
+          time: item.do_at?.slice(0, 5) ?? settings.defaultReminderTime,
+        }
+      : null
+  return item.starts_at && !item.all_day && settings.eventReminders
+    ? { kind: 'before', minutes: 30, time: settings.defaultReminderTime }
+    : null
+}
+
+/** Whether two Reminder choices fire alike: a default opened and saved unchanged is still the default. */
+export const sameChoice = (a: ReminderChoice, b: ReminderChoice) =>
+  a.kind === b.kind &&
+  (a.kind === 'before'
+    ? a.minutes === (b as typeof a).minutes
+    : a.kind === 'fixed'
+      ? a.day === (b as typeof a).day && a.time === b.time
+      : a.daysBefore === (b as typeof a).daysBefore && a.time === b.time)

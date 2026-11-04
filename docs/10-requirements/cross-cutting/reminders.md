@@ -70,7 +70,9 @@ Priority: Must · Status: verified
 
 Acceptance criteria
 1. Given I give a Task a do-on date with no time, then it has a Reminder at
-   my default time (09:00) on that date; with a time, at that time.
+   my default time (09:00) on that date; with a time, at that time. In New
+   task it shows among the Reminders before I save, so I can see it is
+   there, and change or remove it there (Joe, 4 November).
 2. Given I move the do-on date or time, then the Reminder moves with it;
    if I removed or changed it, moving the date doesn't bring it back or add
    a second.

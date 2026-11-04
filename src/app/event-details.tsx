@@ -31,6 +31,7 @@ import {
   createItem,
   linkItems,
   queue,
+  removeDefaultReminder,
   stopRepeat,
   unlinkItems,
   updateItem,
@@ -58,7 +59,7 @@ import {
   type EventTimes,
 } from '@/lib/events'
 import { itemTitle, typeLook } from '@/lib/item-types'
-import { freshReminder, reminderAnchors, reminderFields } from '@/lib/reminders'
+import { defaultReminder, freshReminder, reminderAnchors, reminderFields } from '@/lib/reminders'
 import { useDraftLabels } from './draft-labels'
 import { DraftReminders, type DraftReminder } from './draft-reminders'
 import { ItemReminders } from './item-reminders'
@@ -319,6 +320,8 @@ export function NewEventDialog({ day, onClose }: { day: string; onClose: () => v
   )
   const times = useTimes(kept, setKept)
   const [reminders, setReminders] = useState<DraftReminder[]>([])
+  // The default changed or removed before Save (EVT-003 1).
+  const [defaultGone, setDefaultGone] = useState(false)
   const [repeat, setRepeat] = useState<Repeat | null>(null)
   const labels = useDraftLabels()
   // Which Google calendar it goes to: my default, unless I choose (GCL-005 1).
@@ -329,7 +332,9 @@ export function NewEventDialog({ day, onClose }: { day: string; onClose: () => v
     chosen === undefined ? (calendar.links.find((l) => l.new_events)?.id ?? null) : chosen
   const stored = eventFields(times.shown, settings.timezone)
   const anchors = reminderAnchors({ type: 'event', do_on: null, due_on: null, ...stored })
-  const dirty = title.trim() !== '' || place !== '' || notes !== '' || reminders.length > 0
+  const byDefault = defaultReminder({ type: 'event', ...stored }, settings)
+  const dirty =
+    title.trim() !== '' || place !== '' || notes !== '' || reminders.length > 0 || defaultGone
 
   const save = () => {
     if (!title.trim()) return titleRef.current?.focus()
@@ -341,6 +346,8 @@ export function NewEventDialog({ day, onClose }: { day: string; onClose: () => v
     // Before the Event, so it never goes out without it.
     if (twoWay) setEventCalendar(id, calendarId)
     createItem('event', fields, id)
+    // The server gives it its default; changed or removed here, it goes.
+    if (byDefault && defaultGone) removeDefaultReminder(id)
     const labelIds = labels.save(id)
     const own = reminders.map((r) => reminderFields(r.choice, settings.timezone))
     for (const f of own) addReminder(id, f)
@@ -447,6 +454,8 @@ export function NewEventDialog({ day, onClose }: { day: string; onClose: () => v
             anchors={anchors}
             dates={{ starts_at: stored.starts_at, start_day: times.shown.startDay }}
             fresh={freshReminder(anchors, settings.defaultReminderTime, today)}
+            byDefault={defaultGone ? null : byDefault}
+            onDefaultGone={() => setDefaultGone(true)}
           />
         }
         labels={

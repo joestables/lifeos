@@ -2,10 +2,12 @@ import { describe, expect, it } from 'vitest'
 import {
   byFiring,
   choiceFiresAt,
+  defaultReminder,
   reminderChoice,
   reminderFields,
   reminderSays,
   reminderTime,
+  sameChoice,
 } from './reminders'
 
 const NOW = new Date(2026, 9, 12, 9, 0)
@@ -120,5 +122,42 @@ describe('a Reminder not yet saved (TSK-001 4)', () => {
         'Europe/London',
       ),
     ).toBe('2026-10-16T17:00:00.000Z')
+  })
+})
+
+describe('the default a new Item is given (REM-002 1, EVT-003 1)', () => {
+  const settings = { defaultReminderTime: '09:00', taskReminders: true, eventReminders: true }
+  it('is a dated Task’s, on the day at its time, else my default time', () => {
+    expect(
+      defaultReminder({ type: 'task', do_on: '2026-11-10', do_at: '20:00:00' }, settings),
+    ).toEqual({ kind: 'do_on', daysBefore: 0, time: '20:00' })
+    expect(defaultReminder({ type: 'task', do_on: '2026-11-10', do_at: null }, settings)).toEqual({
+      kind: 'do_on',
+      daysBefore: 0,
+      time: '09:00',
+    })
+    expect(defaultReminder({ type: 'task', do_on: null, do_at: null }, settings)).toBeNull()
+  })
+  it('is a timed Event’s, 30 minutes before; none all day', () => {
+    const at = '2026-11-10T19:00:00.000Z'
+    expect(defaultReminder({ type: 'event', starts_at: at, all_day: false }, settings)).toEqual({
+      kind: 'before',
+      minutes: 30,
+      time: '09:00',
+    })
+    expect(defaultReminder({ type: 'event', starts_at: at, all_day: true }, settings)).toBeNull()
+  })
+  it('is none with that default off in Settings (REM-007 2)', () => {
+    const off = { ...settings, taskReminders: false, eventReminders: false }
+    expect(defaultReminder({ type: 'task', do_on: '2026-11-10', do_at: null }, off)).toBeNull()
+    expect(
+      defaultReminder({ type: 'event', starts_at: '2026-11-10T19:00:00Z', all_day: false }, off),
+    ).toBeNull()
+  })
+  it('opened and saved unchanged, is still the default', () => {
+    const d = { kind: 'do_on', daysBefore: 0, time: '20:00' } as const
+    expect(sameChoice(d, { ...d })).toBe(true)
+    expect(sameChoice(d, { ...d, time: '19:00' })).toBe(false)
+    expect(sameChoice(d, { kind: 'due_on', daysBefore: 0, time: '20:00' })).toBe(false)
   })
 })

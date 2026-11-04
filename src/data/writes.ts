@@ -107,6 +107,13 @@ export function writes(queue: WriteQueue, labelsNow: () => readonly Label[] = ()
     removeReminder(itemId: string, id: string): void {
       queue.enqueue('remove_reminder', { p_id: id }, [itemId])
     },
+    /**
+     * The default the server made with a new Item, changed or removed in
+     * New task or New event before Save (REM-002 1, EVT-003 1).
+     */
+    removeDefaultReminder(itemId: string): void {
+      queue.enqueue('remove_default_reminder', { p_item: itemId }, [itemId])
+    },
 
     /** A line ticked inside a Task (TSK-006), after the others. */
     addSubtask(itemId: string, title: string): string {

@@ -1374,15 +1374,34 @@ export async function standIn(
     create_item: (a) => {
       if (item(a.p_id)) return
       const at = new Date().toISOString()
+      const f = a.p_fields as Record<string, unknown>
       db.items.push(
         itemRow({
           id: String(a.p_id),
           type: String(a.p_type),
           created_at: at,
           updated_at: at,
-          ...(a.p_fields as object),
+          ...f,
         }),
       )
+      // Its default, as the server gives it (REM-002 1, EVT-003 1): a dated
+      // Task's on the day, a timed Event's 30 minutes before, unless off.
+      const off = (db.people[0]?.reminder_defaults ?? {}) as Record<string, boolean>
+      const task = a.p_type === 'task' && f.do_on && off.task !== false
+      const event = a.p_type === 'event' && f.starts_at && !f.all_day && off.event !== false
+      if (task || event)
+        db.reminders.push({
+          id: `${String(a.p_id)}:default`,
+          item_id: a.p_id,
+          is_default: true,
+          anchor: task ? 'do_on' : 'starts_at',
+          offset_days: 0,
+          at_time: null,
+          offset_minutes: task ? 0 : -30,
+          fixed_at: null,
+          snoozed_until: null,
+          fires_at: null,
+        })
     },
     add_reminder: (a) => {
       const fields = a.p_fields as { fixed_at?: string }
@@ -1477,6 +1496,9 @@ export async function standIn(
     },
     remove_reminder: (a) => {
       db.reminders = db.reminders.filter((r) => r.id !== a.p_id)
+    },
+    remove_default_reminder: (a) => {
+      db.reminders = db.reminders.filter((r) => !(r.item_id === a.p_item && r.is_default))
     },
     archive_item: (a) => {
       Object.assign(item(a.p_id) ?? {}, { archived_at: new Date().toISOString() })
