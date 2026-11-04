@@ -50,6 +50,8 @@ export class WriteQueue {
   private readonly unsaved = new Map<string, QueueEntry>()
   private saving: Promise<void> = Promise.resolve()
   private flushAgain = false
+  /** Asked to send now while a run was going: send again after it, whatever its retry says. */
+  private urgent = false
 
   constructor(options: WriteQueueOptions) {
     this.opts = { lock: webLock, schedule: timer, ...options }
@@ -105,6 +107,12 @@ export class WriteQueue {
       .lock(() => this.send())
       .finally(() => {
         this.flushing = undefined
+        if (this.urgent) {
+          this.urgent = false
+          this.flushAgain = false
+          void this.flush()
+          return
+        }
         if (this.flushAgain && !this.cancelRetry) {
           this.flushAgain = false
           void this.flush()
@@ -112,6 +120,19 @@ export class WriteQueue {
         this.flushAgain = false
       })
     return this.flushing
+  }
+
+  /**
+   * Sends what is waiting now, not when its backoff ends: back online, or
+   * the app opened again (OFF-001 2). A run already going that fails is
+   * followed at once by another.
+   */
+  retryNow(): Promise<void> {
+    if (this.flushing) {
+      this.urgent = true
+      return this.flushing
+    }
+    return this.flush()
   }
 
   /** Removes a failed entry once the person has seen it. */

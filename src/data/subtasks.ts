@@ -1,6 +1,7 @@
 import type { Database } from './database.types'
 import type { QueueEntry } from './queue/store'
 import { supabase } from './supabase'
+import { allRows } from './paging'
 
 /** A line ticked inside a Task (TSK-006). */
 export type Subtask = Pick<
@@ -11,12 +12,14 @@ export type Subtask = Pick<
 export const subtasksKey = ['subtasks'] as const
 
 export async function fetchSubtasks(): Promise<Subtask[]> {
-  const { data, error } = await supabase()
-    .from('subtasks')
-    .select('id, item_id, title, done, position')
-    .order('position')
-  if (error) throw error
-  return data
+  return allRows((from, to) =>
+    supabase()
+      .from('subtasks')
+      .select('id, item_id, title, done, position')
+      .order('position')
+      .order('id')
+      .range(from, to),
+  )
 }
 
 /** Lays unsent sub-task writes over the server's, in their order. */

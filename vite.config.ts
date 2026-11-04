@@ -51,7 +51,8 @@ export default defineConfig({
         ],
       },
       injectManifest: {
-        globPatterns: ['**/*.{js,css,html,svg,woff2}'],
+        // The body map's layers (ADR-0060) too, so it works offline.
+        globPatterns: ['**/*.{js,css,html,svg,woff2,webp}'],
         // Only the Latin fonts are kept offline; other scripts load when needed.
         globIgnores: ['**/*-{cyrillic,cyrillic-ext,greek,vietnamese,symbols2}-*.woff2'],
       },

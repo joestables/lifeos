@@ -52,6 +52,18 @@ Never replaced by a Type colour.
 | `--destructive-foreground` | `oklch(0.99 0 0)` | same | |
 | `--success` † | `oklch(0.6 0.12 155)` | same | Saved, synced |
 | `--warning` † | `oklch(0.6 0.14 65)` | `oklch(0.8 0.14 70)` | Needs seeing to, not wrong: out of stock (Joe, 21 October) |
+| `--readiness-mid` | `oklch(0.82 0.17 80)` | = `--warning` | The amber of the readiness scale, between `--destructive` and `--success`. Light mode's `--warning` is dark for text's sake, and mixed towards green it reads olive; this one is as bright as dark mode's (Joe, 3 November) |
+
+## Colour: the body map
+
+The figure the readiness colours sit on: a neutral slate, not a Type
+colour ([ADR-0060](../20-architecture/adr/0060-body-map-rendered.md),
+Proposed; Joe, 3 November: dark's tone 35 chosen, light's suggested).
+
+| Token | Light | Dark | Used for |
+|---|---|---|---|
+| `--body-map-body` | `oklch(0.52 0.018 262)` | `oklch(0.35 0.018 262)` | The BodyMap's body: head, hands, feet, the gaps, and muscles in no group |
+| `--body-map-seam` | `oklch(0.16 0.01 262 / 55%)` | same | The BodyMap's seams between groups |
 
 ## Colour: Types
 
@@ -128,6 +140,7 @@ keyboard shortcuts and code. Numbers that line up use tabular figures.
 
 | Token | Size / line height | Weight | Tracking | Used for |
 |---|---|---|---|---|
+| `text-display` | 32px / 1.1 | 750 | −0.03em | One figure a page leads with: the Gym's overall readiness (Joe, 31 October) |
 | `text-h1` | 24px / 1.2 | 750 | −0.025em | Page title (22px on a phone) |
 | `text-h2` | 17px / 1.3 | 700 | −0.015em | Card and section titles, dialog titles |
 | `text-day` | 20px | 750 | −0.02em | Day numbers on Plan; an Item's title in its Dialog |

@@ -1,6 +1,7 @@
 import type { Database } from './database.types'
 import type { QueueEntry } from './queue/store'
 import { supabase } from './supabase'
+import { allRows } from './paging'
 
 type Row = Database['core']['Tables']['reminders']['Row']
 
@@ -36,13 +37,15 @@ export interface ReminderFields {
 export const remindersKey = ['reminders'] as const
 
 export async function fetchReminders(): Promise<Reminder[]> {
-  const { data, error } = await supabase()
-    .from('reminders')
-    .select(
-      'id, item_id, fires_at, is_default, anchor, offset_days, at_time, offset_minutes, fixed_at, snoozed_until',
-    )
-  if (error) throw error
-  return data
+  return allRows((from, to) =>
+    supabase()
+      .from('reminders')
+      .select(
+        'id, item_id, fires_at, is_default, anchor, offset_days, at_time, offset_minutes, fixed_at, snoozed_until',
+      )
+      .order('id')
+      .range(from, to),
+  )
 }
 
 /**

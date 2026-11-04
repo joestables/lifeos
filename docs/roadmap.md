@@ -13,7 +13,7 @@ starts by writing the specs it needs, and no earlier.*
 | 3 | **Starts with its specs:** Plan, Events, Google Calendar. Then: Plan, every Schedulable Type in a week (computer) or a day (phone), filtered by Type; Events (and repeating Events, with Labels), with the Task ↔ Event switch; Google Calendar, incoming only or two-way, always Personal | The one planning view |
 | 4 | **Starts with its specs:** Recipes, the Meal plan and the Pantry, Shopping. Then: the **Recipes** page (the recipe library and saved ideas, Variations, cook log, ideas shared from other apps on Android) and the **Meal plan** page (planning Meals, and the Pantry of ingredients and household items); Households (invited by email; owner and members; several per person), with sharing on; the shared AI service (importing a recipe, filling ingredients from a method, a Meal's ingredients from a link) and food preferences | Shared with girlfriend |
 | 4b | **Shopping:** Food and Lists tabs (Online later). Food shops linked to Meals and following their ingredients, with more added from the Pantry or typed, each Household's Essentials and out of stock offered; other shopping lists; live updates. One Shopping list Type replaces List and Shop ([ADR-0050](20-architecture/adr/0050-shopping-list.md)). Saving a recipe idea shared from another app, left from Stage 4 | Shopping together |
-| 5 | Gym (with v1's recovery model and snapshots), then Goals and the measures registry | The joined-up payoff |
+| 5 | Gym (with its recovery engine and snapshots), then Goals and the measures registry | The joined-up payoff |
 | 6 | Wardrobe and outfits | |
 | 7 | Android wrapper: exact-alarm Reminders, then Health Connect | Phone alarms can go |
 | 8 | Cardio with Oura and Health Connect | |
@@ -35,7 +35,11 @@ Calendar, incoming and two-way. Stage 4 is done (Joe, 24 October;
 [its plan](50-progress/plans/stage-4.md)): Recipes, the Meal plan and the
 Pantry, Households, and import with the AI. **Stage 4b (Shopping) has
 started**: [its plan](50-progress/plans/stage-4b.md) is written, and its
-specs, drafted with Stage 4's, come first. Lists and Shops moved from Stage 3 to Stage 4b, after Recipes (Joe,
+specs, drafted with Stage 4's, come first. **Stage 5 (Gym) has
+started** alongside it: [its plan](50-progress/plans/stage-5.md) is
+written, its spec (29 October) and design (1 November) agreed by Joe, and
+its schema in the database, its calculations in `packages/fitness`, and
+its settings, exercise library, templates, workouts, recovery and progression built (1 November). Lists and Shops moved from Stage 3 to Stage 4b, after Recipes (Joe,
 14 October); on 17 October Joe set out Recipes, Meal plan and Shopping as
 three pages, with one Shopping list Type taking the place of List and Shop
 ([ADR-0050](20-architecture/adr/0050-shopping-list.md)), and moved Cardio
@@ -69,7 +73,7 @@ agrees before anything is built.
 
 Each is a later stage's decision; listed so nothing closes the door on them.
 
-- **Readiness-aware gym planning** — v1's muscle recovery model plus Oura's
+- **Readiness-aware gym planning** — the Gym's recovery engine plus Oura's
   readiness: "you're recovered for push, not legs", offered as a suggestion
   on Plan and in Inbox.
 - **Weather** — an Integration that feeds outfit suggestions ("12°C, dry")

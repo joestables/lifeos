@@ -31,6 +31,8 @@ describe('Types in the app', () => {
     ])
     // Stage 4b's, from its step 5; sorting a Thought into one waits for step 8.
     expect(offered('shopping_list')).toBe(true)
+    // Stage 5's, built alongside it: a Workout on Plan's filter and Add (PLN-004, PLN-006).
+    expect([offered('workout'), offered('exercise'), offered('goal')]).toEqual([true, true, false])
   })
 
   it('ITM-001: a Task opens in a popup everywhere; a Note on its own page on a phone', () => {

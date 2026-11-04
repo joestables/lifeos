@@ -2,6 +2,7 @@ import type { Database } from './database.types'
 import type { QueueEntry } from './queue/store'
 import { queryClient } from './queryClient'
 import { supabase } from './supabase'
+import { allRows } from './paging'
 
 type Food = Database['food']['Tables']
 
@@ -129,19 +130,23 @@ export function applyPendingNotes(
 }
 
 export async function fetchRecipes(): Promise<RecipeHeading[]> {
-  const { data, error } = await food()
-    .from('recipe')
-    .select('item_id, category, cuisine, tags, protein, carbs, default_variation')
-  if (error) throw error
-  return data
+  return allRows((from, to) =>
+    food()
+      .from('recipe')
+      .select('item_id, category, cuisine, tags, protein, carbs, default_variation')
+      .order('item_id')
+      .range(from, to),
+  )
 }
 
 export async function fetchVariations(): Promise<VariationFields[]> {
-  const { data, error } = await food()
-    .from('variation')
-    .select('item_id, servings, prep_min, cook_min, sources, notes, archived_from')
-  if (error) throw error
-  return data
+  return allRows((from, to) =>
+    food()
+      .from('variation')
+      .select('item_id, servings, prep_min, cook_min, sources, notes, archived_from')
+      .order('item_id')
+      .range(from, to),
+  )
 }
 
 /**
@@ -162,66 +167,81 @@ export async function savedSource(links: readonly string[]): Promise<string | nu
 }
 
 export async function fetchLines(): Promise<Line[]> {
-  const { data, error } = await food()
-    .from('variation_lines')
-    .select('id, variation_id, position, heading, pantry_id, text, qty, qty_max, approx, unit')
-    .order('position')
-  if (error) throw error
-  return data
+  return allRows((from, to) =>
+    food()
+      .from('variation_lines')
+      .select('id, variation_id, position, heading, pantry_id, text, qty, qty_max, approx, unit')
+      .order('position')
+      .order('id')
+      .range(from, to),
+  )
 }
 
 export async function fetchSteps(): Promise<Step[]> {
-  const { data, error } = await food()
-    .from('variation_steps')
-    .select('id, variation_id, position, text')
-    .order('position')
-  if (error) throw error
-  return data
+  return allRows((from, to) =>
+    food()
+      .from('variation_steps')
+      .select('id, variation_id, position, text')
+      .order('position')
+      .order('id')
+      .range(from, to),
+  )
 }
 
 export async function fetchCooks(): Promise<Cook[]> {
-  const { data, error } = await food()
-    .from('cooks')
-    .select(
-      'id, variation_id, person_id, cooked_at, verdict, notes, servings, meal_id, snapshot, created_at',
-    )
-    .order('cooked_at')
-  if (error) throw error
-  return data
+  return allRows((from, to) =>
+    food()
+      .from('cooks')
+      .select(
+        'id, variation_id, person_id, cooked_at, verdict, notes, servings, meal_id, snapshot, created_at',
+      )
+      .order('cooked_at')
+      .order('id')
+      .range(from, to),
+  )
 }
 
 export async function fetchPantry(): Promise<PantryEntry[]> {
-  const { data, error } = await food()
-    .from('pantry')
-    .select('id, name, kind, aisle, default_unit, added_by')
-    .order('name')
-  if (error) throw error
-  return data
+  return allRows((from, to) =>
+    food()
+      .from('pantry')
+      .select('id, name, kind, aisle, default_unit, added_by')
+      .order('name')
+      .order('id')
+      .range(from, to),
+  )
 }
 
 export async function fetchMeals(): Promise<MealRow[]> {
-  const { data, error } = await food()
-    .from('meal')
-    .select('item_id, servings, leftovers_of, source')
-  if (error) throw error
-  return data
+  return allRows((from, to) =>
+    food()
+      .from('meal')
+      .select('item_id, servings, leftovers_of, source')
+      .order('item_id')
+      .range(from, to),
+  )
 }
 
 export async function fetchMealLines(): Promise<MealLine[]> {
-  const { data, error } = await food()
-    .from('meal_lines')
-    .select('id, meal_id, position, pantry_id, text, qty, qty_max, approx, unit')
-    .order('position')
-  if (error) throw error
-  return data
+  return allRows((from, to) =>
+    food()
+      .from('meal_lines')
+      .select('id, meal_id, position, pantry_id, text, qty, qty_max, approx, unit')
+      .order('position')
+      .order('id')
+      .range(from, to),
+  )
 }
 
 export async function fetchSpaceEntries(): Promise<SpaceEntry[]> {
-  const { data, error } = await food()
-    .from('space_entries')
-    .select('space_id, pantry_id, kind, needed')
-  if (error) throw error
-  return data
+  return allRows((from, to) =>
+    food()
+      .from('space_entries')
+      .select('space_id, pantry_id, kind, needed')
+      .order('space_id')
+      .order('pantry_id')
+      .range(from, to),
+  )
 }
 
 /** A Recipe I viewed, and when (MPL-002 1). */
@@ -266,12 +286,14 @@ export async function fetchPersonalSpace(me: string): Promise<string | null> {
 }
 
 export async function fetchValues(): Promise<FoodValue[]> {
-  const { data, error } = await food()
-    .from('values')
-    .select('id, person_id, kind, name, created_at')
-    .order('name')
-  if (error) throw error
-  return data
+  return allRows((from, to) =>
+    food()
+      .from('values')
+      .select('id, person_id, kind, name, created_at')
+      .order('name')
+      .order('id')
+      .range(from, to),
+  )
 }
 
 // ---------------------------------------------------------------------------

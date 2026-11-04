@@ -19,6 +19,9 @@ const buttonVariants = cva(
         'ghost-destructive': 'text-destructive hover:bg-accent aria-expanded:bg-accent',
         // An action that reads as part of a line: the Type's text colour.
         link: 'text-tc-text underline-offset-4 hover:underline',
+        // A toggle that is on (an exercise's Done): the success tint, green text.
+        success:
+          'bg-[color-mix(in_oklch,var(--success)_16%,transparent)] text-success hover:bg-[color-mix(in_oklch,var(--success)_24%,transparent)]',
       },
       size: {
         default: 'h-10 px-4',

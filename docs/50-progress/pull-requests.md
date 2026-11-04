@@ -2,6 +2,178 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#58](https://github.com/joestables/lifeos/pull/58) — The readiness scale: no olive in light mode, and 50 % a third of the way
+
+Branch `claude/gym-body-map-redesign-yejlfi` · 2026-11-03
+
+**What it did**
+- **`--readiness-mid`:** the readiness scale's amber is its own token.
+  Light mode's `--warning` is dark for text, and mixed towards green it
+  read olive; the scale's amber in light mode is `oklch(0.82 0.17 80)`,
+  as bright as dark mode's (which stays `--warning`).
+- **50 % a third of the way along:** 50 % shows the colour 33⅓ % used to
+  (an orange) and amber comes at about 63 %, so 50–100 %, where Joe's
+  readiness mostly lies, spans two thirds of the scale. Rings, bars and
+  the body map follow.
+- **Tests:** `readiness.test.ts`; the design page's screenshots
+  refreshed (only its three readiness rings changed).
+
+**Documents touched:** gym (GYM-016), tokens, components, patterns, the
+Stage 5 plan.
+
+**Left for later:** nothing.
+
+## [#57](https://github.com/joestables/lifeos/pull/57) — The body map, rendered from an anatomical model
+
+Branch `claude/gym-body-map-redesign-yejlfi` · 2026-11-03
+
+**What it did**
+- **Stage 5 step 11a:** Joe found the stand-in body map childish. The map
+  is now rendered from Z-Anatomy's open atlas (CC BY-SA 4.0) with Blender,
+  into layers the page colours with CSS
+  ([ADR-0060](../20-architecture/adr/0060-body-map-rendered.md),
+  provisionally agreed).
+- **The pipeline, `scripts/body-map/`:** the atlas fetched at a pinned
+  commit; its muscles mapped to the twenty built-in groups; the model
+  fixed (sheets cut to show the abs and lumbar erectors, deep muscles
+  hidden, a depth pass so a gap into the trunk shows the body, the head's
+  hair and carved eyes, the neck's skin, the arms out 8° and in 15°); the
+  layers, seams, masks, outlines and tap areas written to
+  `src/assets/body-map/` (about 300 KB, precached, with a `LICENSE`).
+- **The look,** chosen by Joe over two look-dev rounds on a private page:
+  Slate, the fibres, dark seams, tone 35, shine 55, depth 120, the outline
+  trimmed; `--body-map-body` and `--body-map-seam`.
+- **`BodyMap` rebuilt:** one named button per group, on the view it shows
+  most, and a shape to tap on the other; tap areas that never overlap,
+  each group keeping its own shape and the gaps going to the nearest (the
+  biceps went from 0 of 10 taps to 8 of 10 on a phone); outlines on hover,
+  focus and when chosen. The figure was enlarged after Joe's first look.
+  The credit line in Settings → Gym was tried, then removed as clutter;
+  the `LICENSE` carries it.
+- **Tests:** `BodyMap.test.tsx`; GYM-016 7 in `gym-recovery.spec.ts`
+  (taps spread over every group's shape, desktop and phone); GYM-016 5
+  taps inside the chest's shape.
+
+**Documents touched:** gym (GYM-016 1 and 7, the Recovery decisions,
+non-goals), ADR-0060, docs README, tokens, components (BodyMap), patterns
+(Recovery), the Stage 5 plan, the pipeline's README.
+
+**Left for later:** light mode's body tone (52) is a suggestion; the
+readiness scale reads olive around 50–75 % in light mode (the shared scale,
+not the map).
+
+## [#56](https://github.com/joestables/lifeos/pull/56) — The Gym: schema, calculations, settings, exercise library, templates, workouts, recovery and progression
+
+Branch `claude/eloquent-darwin-gudbuj` · 2026-11-01
+
+**What it did**
+- **Stage 5 steps 1–3:** the Gym spec (GYM-001–022, with Joe's recovery
+  engine as Annex A), ADR-0058 and ADR-0059, and the design, agreed by Joe
+  over four passes (design canvas, `/design-stage-5`, the Gym section of
+  `/design`, components and patterns).
+- **The ontology's `fitness` Module:** Exercise, Workout template and
+  Workout, always Personal, coral; a Workout planned for a day (`do_on`)
+  and completable; a Workout *follows* its template.
+- **The schema (step 4):** equipment, the twenty built-in muscle groups,
+  each person's muscle settings and Gym settings; `fitness.exercise` and
+  `fitness.workout`; an Exercise's muscle groups (one primary), a
+  template's exercises, a workout's entries and sets (a quick set has no
+  numbers); the rules (Personal only, unique Exercise names, one workout in
+  progress, equipment and groups of the owner's, stage and status
+  together); the activity log; 22 write functions, and six removals for
+  Joe to run. 53 database tests in `fitness_test`.
+- **`packages/fitness` (step 5):** the recovery engine exactly as Annex A
+  (a workout applied on its own, or the last 60 days replayed), strength,
+  the best set, Beat current and the PR, template coverage, weekly targets,
+  average frequency, an exercise's progression and Stalled, a muscle
+  group's lines, and what to do next; weights in whole grams. 70 unit
+  tests, Annex A's tables value by value. Joe's Stalled rule adds
+  Workouts to stall to the Gym settings (`stage5_workouts_to_stall`).
+- **Settings → Gym and the exercise library (step 6):** Preferred RIR
+  and Workouts to stall; Equipment, Muscle groups and their targets,
+  Recovery and Archived exercises; the Gym's three tabs, with Progression →
+  Exercises the library (search, filters, sort; the chosen Exercise beside
+  the list or on its own page) and New, Edit and Archive exercise. The data
+  layer for the Gym, the stand-in's fitness tables, 18 browser tests.
+- **Templates (step 7):** the add-exercise picker by muscle group; a
+  template's page (drag to reorder, sets, Swap, Remove, coverage, Rename,
+  Duplicate, Delete); All templates (sort, pages, New template); the
+  Workouts tab's Templates card. 10 browser tests.
+- **Workouts (step 8a):** New workout; a planned workout's page (Start,
+  Change day, Change template, Rename, Delete) and on Plan; Start, offline
+  too; the backlog and the session (Add, back to the backlog, Swap,
+  Remove, Add exercise); the set popup (Tracked · Quick) and the set
+  table; Strength history; done and undone; End and the review (Update
+  current, Beat current, stimulus sets); Discard with Undo
+  (`stage5_workout_discard`); Today and Recent workouts; an Exercise's
+  last done and PR. 8 browser tests, 60 database tests.
+- **Workouts (step 8b):** All workouts (figures, filters with ranges and
+  dates, sorts, pages, all kept); Edit on a finished workout; Search and
+  offline tested for the Gym; Pagination's pages buttons when they aren't
+  links. 13 browser tests in `gym-workouts.spec.ts` in all.
+- **Recovery (step 9):** readiness worked out on the device from the last
+  60 days; the Recovery tab (overall readiness, look-ahead, body map, every
+  group sorted and kept, a group's readiness and week); Today's suggested
+  template. Slider thumbs named. 4 browser tests in `gym-recovery.spec.ts`.
+- **Progression (step 10):** the period; an Exercise's Strength chart,
+  figures and best sets; Stalled; Progression → Muscles with a group's
+  lines, three of a kind at most, over its stimulus sets; a muscle's page
+  on a phone. 4 browser tests in `gym-progression.spec.ts`.
+- **Bug hunt before Joe uses it (step 11):**
+  - checked against the live database: every write's arguments and patch
+    keys, every column read, the limits, and two full workouts run as Joe
+    in transactions rolled back;
+  - **reads page past 1000 rows** (app-wide): the Data API returns at most
+    1000 rows a request, so sets, Items, links, reminders and the rest are
+    now read a page at a time (`src/data/paging.ts`);
+  - **the write queue sends at once when back online** (app-wide), even if
+    a send was still failing at that moment; it used to wait out its
+    backoff, up to a minute;
+  - Start dates a workout today; a deleted set's Undo keeps its time; the
+    weight steppers stop at 1000 kg; readiness and progression keep current
+    while the page stays open (`useNow`); All workouts' kept filters drop a
+    template, exercise or muscle no longer offered.
+- **Joe's first round (2 November):** dragging on a phone no longer
+  selects text, and the page scrolls at the edges; Today shows today's
+  done workouts rather than a suggestion; a template a planned workout
+  follows isn't deleted; Workouts on Plan's filter and Add; a finished
+  workout's exercise stays when its last set is deleted.
+- **Joe's second round (2 November):** the Recovery popup shows the 28-day
+  average frequency again; a drag never pulls the page to refresh; dragging
+  is the same everywhere (patterns.md's new Dragging): onto a space, the
+  space is shaded and nothing is drawn inside it (Plan's week, the Meal
+  plan); to reorder, a 2px line in the gap where it will go (templates,
+  a Variation's lines). The design page's screenshots refreshed.
+- **Joe's third round (3 November):** the Meal plan's slot is outlined
+  again as well as shaded while a Meal is dragged over it on a computer.
+  In a workout, Done is a button in both states (Button's new `success`
+  variant once done) and a done exercise still opens to its sets; the set
+  popup's Tracked · Quick toggle is now a Quick button at its bottom
+  left. Strength as a bare figure is gone (the PR, Current and best set
+  figures say weight × reps and RIR; the tables keep their Strength
+  column). Averages a week are over the whole weeks since the first
+  workout when fewer than their span (`availableWeeks`). Today's done
+  workout shows its duration. Weight steppers never say kg (the heading
+  does), the Exercise popup's Current set uses the set popup's steppers.
+  Progression: both lists alike (search, Filters, short sorts; a Templates
+  filter for exercises; muscles with a `biceps-flexed` tile, category and
+  last trained); Exercise's icon is `dumbbell`; ProgressChart rewritten on
+  time, a point per workout with its own tooltip, bars with theirs, an
+  exercise's best set as weight with its reps over each point, a span
+  limited to the weeks with data; ChartKey removed. Recovery's slider sits
+  under the map, inset, with short sorts on a phone. App-wide: LifeOS's
+  own PullToRefresh ignores a touch a drag has taken (`drag-hold`), a
+  reorder handle cancels its touches from the start; a page opened starts
+  at its top and Back returns to where it was (`scrollToTopSelectors`).
+  The hover jump Joe reported couldn't be reproduced.
+
+**Documents touched:** gym, ADR-0058, ADR-0059, the data model, glossary,
+components, patterns, tokens, the design system's README, integration
+setup (the `fitness` schema to expose), the Stage 5 plan, the roadmap,
+the README and CLAUDE.md.
+
+**Left for later:** workouts, recovery and progression (steps 8–10).
+
 ## [#55](https://github.com/joestables/lifeos/pull/55) — Production bug hunt: one notification for one moment, a quiet health check
 
 Branch `claude/lifeos-production-bug-hunt-siwl01` · 2026-10-30

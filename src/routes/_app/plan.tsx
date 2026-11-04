@@ -1,12 +1,12 @@
 import { AddMealDialog } from '@/app/add-meal'
 import { NewListDialog } from '@/app/new-list'
+import { NewWorkoutDialog } from '@/app/new-workout'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { addDays, todayIn } from '@lifeos/recurrence'
 import { TYPES, hasTrait } from '@lifeos/ontology'
 import { useState, type DragEvent, type ReactElement } from 'react'
 import {
   AddToDay,
-  DropSlot,
   Fab,
   FilterChip,
   PageAction,
@@ -31,6 +31,7 @@ import {
   restoreItem,
   updateItem,
   updateSettings,
+  useGym,
   useHouseholds,
   useItems,
   useMeals,
@@ -252,12 +253,7 @@ function Plan() {
           setOver(null)
         },
       },
-      children: (
-        <>
-          {list.map((p) => card(p, d))}
-          {drag && over === d && drag.from !== d && <DropSlot />}
-        </>
-      ),
+      children: <>{list.map((p) => card(p, d))}</>,
     }
   })
 
@@ -329,6 +325,24 @@ function Plan() {
       {adding?.type === 'shopping_list' && (
         <NewListDialog kind="food" day={adding.day} onClose={() => setAdding(null)} />
       )}
+      {adding?.type === 'workout' && (
+        <PlanWorkout day={adding.day} today={today} onClose={() => setAdding(null)} />
+      )}
     </>
+  )
+}
+
+/** A workout planned from Plan (PLN-006, GYM-007 1): New workout on the chosen day, then its page. */
+function PlanWorkout({ day, today, onClose }: { day: string; today: string; onClose: () => void }) {
+  const navigate = useNavigate()
+  const gym = useGym(queue)
+  return (
+    <NewWorkoutDialog
+      gym={gym}
+      today={today}
+      day={day}
+      onClose={onClose}
+      onMade={(id) => void navigate({ to: '/gym/workouts/$id', params: { id } })}
+    />
   )
 }

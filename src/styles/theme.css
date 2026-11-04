@@ -47,6 +47,9 @@
   --destructive-foreground: oklch(0.99 0 0);
   --success: oklch(0.6 0.12 155);
   --warning: oklch(0.6 0.14 65);
+  --readiness-mid: oklch(0.82 0.17 80);
+  --body-map-body: oklch(0.52 0.018 262);
+  --body-map-seam: oklch(0.16 0.01 262 / 55%);
 
   --t-blue: oklch(0.55 0.14 255);
   --t-blue-text: oklch(0.52 0.14 255);
@@ -111,6 +114,8 @@
   --switch-thumb: oklch(0.98 0 0);
   --scroll-thumb: oklch(0.945 0.0025 260 / 16%);
   --warning: oklch(0.8 0.14 70);
+  --readiness-mid: var(--warning);
+  --body-map-body: oklch(0.35 0.018 262);
 
   --t-blue: oklch(0.72 0.12 250);
   --t-blue-text: oklch(0.72 0.12 250);
@@ -247,6 +252,10 @@
   --text-h1--line-height: 1.2;
   --text-h1--letter-spacing: -0.025em;
   --text-h1--font-weight: 750;
+  --text-display: 32px;
+  --text-display--line-height: 1.1;
+  --text-display--letter-spacing: -0.03em;
+  --text-display--font-weight: 750;
   --text-kbd: 10.5px;
 
   --radius-xs: 6px;

@@ -53,7 +53,6 @@ import {
   ServingsStepper,
   StarRating,
   TimerChip,
-  DropSlot,
   PageAction,
   PlanDay,
   PlanToolbar,
@@ -89,6 +88,19 @@ import {
   TypeScope,
   TypeTile,
   type TypeColour,
+  CurrentLine,
+  DoneToggle,
+  ExerciseCard,
+  FormNotes,
+  LinePill,
+  LogSetButton,
+  MotivationChoice,
+  ReadinessRing,
+  SetTable,
+  StatTile,
+  StimulusRow,
+  ValueStepper,
+  WorkoutStatePill,
 } from '@/components/lifeos'
 import {
   Accordion,
@@ -825,7 +837,6 @@ function DesignPage() {
               />
             </DayColumn>
             <DayColumn name="Fri" number={9} today dropping>
-              <DropSlot />
               <PlanCard
                 colour="blue"
                 icon={TYPE_ICONS.event!}
@@ -1048,7 +1059,7 @@ function DesignPage() {
               <MealCard name="Out: Dishoom" kind="typed" />
               <MealCard name="Overnight oats" servings={1} eaten />
               <MealCard name="Chilli con carne" servings={6} selecting selected />
-              <AddMealButton slot="Dinner" dropping />
+              <AddMealButton slot="Dinner" />
               <Card className="gap-1 px-2 py-2">
                 <PantryRow name="Carrots" recipes={6} />
                 <PantryRow name="Garlic" recipes={14} />
@@ -1116,6 +1127,64 @@ function DesignPage() {
                   }
                 />
               </PantryAisle>
+            </div>
+          </TypeScope>
+        </Section>
+
+        <Section title="Gym">
+          <TypeScope colour="coral" className="grid max-w-3xl gap-4 sm:grid-cols-2">
+            <div className="flex flex-col gap-3">
+              <ExerciseCard
+                name="Chest-supported row"
+                meta={['2 of 3 sets']}
+                open
+                control={<DoneToggle name="Chest-supported row" done={false} />}
+              >
+                <div className="flex flex-col gap-1.5">
+                  <FormNotes>Chest on the pad at notch 4</FormNotes>
+                  <CurrentLine>27.5 kg × 10</CurrentLine>
+                </div>
+                <SetTable
+                  editable
+                  sets={[
+                    { weight: '30', reps: 10, rir: 2, pr: true },
+                    { weight: '30', reps: 9, rir: 1 },
+                    {},
+                  ]}
+                />
+                <LogSetButton label="Log set" />
+              </ExerciseCard>
+              <ExerciseCard
+                name="Lat pulldown"
+                meta={['3 of 3 sets']}
+                done
+                control={<DoneToggle name="Lat pulldown" done />}
+              />
+            </div>
+            <div className="flex flex-col gap-3">
+              <div className="flex flex-wrap gap-1.5">
+                <WorkoutStatePill state="complete" />
+                <WorkoutStatePill state="in-progress" />
+                <WorkoutStatePill state="planned" />
+                <WorkoutStatePill state="skipped" />
+              </div>
+              <MotivationChoice value="okay" />
+              <div className="grid grid-cols-2 gap-2">
+                <StatTile label="Current" value="27.5 kg × 10" sub="Since 12 Oct" />
+                <StatTile label="Weekly sessions" value="×3.1" />
+              </div>
+              <div className="flex items-center gap-3">
+                <ReadinessRing percent={41} />
+                <ReadinessRing percent={72} />
+                <ReadinessRing percent={100} />
+                <ValueStepper size="sm" label="Sets" value="3" unit="sets" />
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                <LinePill label="Bench press" on tone="coral" dash="solid" />
+                <LinePill label="Dips" sub="(0.5)" on tone="grey" dash="dash" />
+                <LinePill label="Push-up" sub="(0.6)" on={false} tone="grey" />
+              </div>
+              <StimulusRow muscle="Chest" sets={2.6} target={4} />
             </div>
           </TypeScope>
         </Section>

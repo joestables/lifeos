@@ -2,6 +2,7 @@ import { applyPending } from './overlay'
 import type { QueueEntry } from './queue/store'
 import { supabase } from './supabase'
 import type { Item, ItemRow } from './types'
+import { allRows } from './paging'
 
 export const itemsKey = ['items'] as const
 
@@ -14,9 +15,9 @@ const ITEM_COLUMNS =
  * Views filter these.
  */
 export async function fetchItems(): Promise<ItemRow[]> {
-  const { data, error } = await supabase().from('items').select(ITEM_COLUMNS).order('created_at')
-  if (error) throw error
-  return data
+  return allRows((from, to) =>
+    supabase().from('items').select(ITEM_COLUMNS).order('created_at').order('id').range(from, to),
+  )
 }
 
 /** Folds a sent write into the cached Items, so nothing flickers before the refetch. */

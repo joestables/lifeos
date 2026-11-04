@@ -1,4 +1,5 @@
 import type { QueueEntry } from './queue/store'
+import { allRows } from './paging'
 import { supabase } from './supabase'
 
 /** My Google Calendar connection, as the app may read it (ADR-0047). */
@@ -52,15 +53,21 @@ export async function fetchCalendar(): Promise<Calendar> {
       .select('id, calendar_id, name, can_edit, is_primary, level, new_events')
       .order('is_primary', { ascending: false })
       .order('name'),
-    db.from('external_refs').select('item_id, calendar_link_id, external_id, made_in_lifeos'),
+    // One for each Event from Google: past the Data API's page, read a page at a time.
+    allRows((from, to) =>
+      db
+        .from('external_refs')
+        .select('item_id, calendar_link_id, external_id, made_in_lifeos')
+        .order('item_id')
+        .range(from, to),
+    ),
   ])
   if (c.error) throw c.error
   if (l.error) throw l.error
-  if (r.error) throw r.error
   return {
     connection: (c.data[0] as Connection | undefined) ?? null,
     links: l.data as CalendarLink[],
-    refs: r.data,
+    refs: r,
   }
 }
 

@@ -9,3 +9,7 @@ coverage
 test-results
 playwright-report
 .vercel
+
+# The body map's atlas and renders (scripts/body-map)
+.cache
+__pycache__

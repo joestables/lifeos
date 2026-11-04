@@ -1,6 +1,8 @@
 import {
   CalendarIcon,
   ChefHatIcon,
+  ClipboardListIcon,
+  DumbbellIcon,
   FileTextIcon,
   LightbulbIcon,
   ShoppingCartIcon,
@@ -26,4 +28,7 @@ export const TYPE_ICONS: Record<string, LucideIcon> = {
   variation: ChefHatIcon,
   meal: UtensilsIcon,
   shopping_list: ShoppingCartIcon,
+  exercise: DumbbellIcon,
+  workout_template: ClipboardListIcon,
+  workout: DumbbellIcon,
 }

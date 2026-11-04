@@ -10,6 +10,7 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion'
 import { Separator } from '@/components/ui/separator'
+import { Slider } from '@/components/ui/slider'
 import { cn } from '@/lib/utils'
 import { LabelChips } from './LabelChips'
 
@@ -19,6 +20,10 @@ export interface FilterGroup {
   chosen?: string[]
   /** Always open, every value showing (Category); the rest collapse. */
   open?: boolean
+  /** Its own control in place of chips (a RangeFilter's Slider). */
+  control?: ReactNode
+  /** What is chosen, said in its Badge ("10–24") in place of a count. */
+  summary?: string
 }
 
 /**
@@ -47,17 +52,18 @@ export function FilterPanel({
   /** Something chosen, counting those sections; else read off the groups. Shows Reset. */
   active?: boolean
 }) {
-  const any = active ?? groups.some((g) => g.chosen?.length)
-  const chips = (g: FilterGroup) => (
-    <LabelChips
-      aria-label={g.name}
-      icon={PlusIcon}
-      className="flex-wrap overflow-visible"
-      labels={g.values.map((v) => ({ id: v, name: v }))}
-      chosen={new Set(g.chosen ?? [])}
-      onChange={(chosen) => onChange(g.name, chosen)}
-    />
-  )
+  const any = active ?? groups.some((g) => g.chosen?.length || g.summary)
+  const chips = (g: FilterGroup) =>
+    g.control ?? (
+      <LabelChips
+        aria-label={g.name}
+        icon={PlusIcon}
+        className="flex-wrap overflow-visible"
+        labels={g.values.map((v) => ({ id: v, name: v }))}
+        chosen={new Set(g.chosen ?? [])}
+        onChange={(chosen) => onChange(g.name, chosen)}
+      />
+    )
   const collapsing = groups.filter((g) => !g.open)
   const sections = (
     <>
@@ -79,10 +85,14 @@ export function FilterPanel({
               <AccordionItem key={g.name} value={g.name}>
                 <AccordionTrigger size="sm">
                   {g.name}
-                  {!!g.chosen?.length && (
-                    <Badge variant="secondary" aria-label={`${g.chosen.length} chosen`}>
-                      {g.chosen.length}
-                    </Badge>
+                  {g.summary ? (
+                    <Badge variant="secondary">{g.summary}</Badge>
+                  ) : (
+                    !!g.chosen?.length && (
+                      <Badge variant="secondary" aria-label={`${g.chosen.length} chosen`}>
+                        {g.chosen.length}
+                      </Badge>
+                    )
                   )}
                 </AccordionTrigger>
                 <AccordionContent className="pt-1 pb-3">{chips(g)}</AccordionContent>
@@ -130,6 +140,49 @@ export function FilterLayout({ filters, children }: { filters: ReactNode; childr
     <div className="grid items-start gap-6 lg:grid-cols-[248px_minmax(0,1fr)]">
       <div className="hidden lg:block">{filters}</div>
       <div className="flex min-w-0 flex-col gap-4">{children}</div>
+    </div>
+  )
+}
+
+/**
+ * A range to filter by (sets logged, duration): its ends as tabular text
+ * over a two-thumb Slider. The FilterPanel's group shows the range in its
+ * Badge while it is narrower than the whole.
+ */
+export function RangeFilter({
+  label,
+  min,
+  max,
+  value,
+  onChange,
+  step = 1,
+  format = String,
+}: {
+  /** The group's name, for its thumbs ("Sets logged"). */
+  label: string
+  min: number
+  max: number
+  value: readonly [number, number]
+  onChange?: (value: [number, number]) => void
+  step?: number
+  format?: (n: number) => string
+}) {
+  return (
+    <div className="flex flex-col gap-2 pt-1">
+      <div className="flex justify-between text-sm font-semibold tabular-nums">
+        <span>{format(value[0])}</span>
+        <span>{format(value[1])}</span>
+      </div>
+      <Slider
+        value={[...value]}
+        min={min}
+        max={max}
+        step={step}
+        aria-label={label}
+        onValueChange={(v) => {
+          if (Array.isArray(v) && v.length === 2) onChange?.([v[0]!, v[1]!])
+        }}
+      />
     </div>
   )
 }

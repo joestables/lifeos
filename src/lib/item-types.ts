@@ -7,13 +7,16 @@ import { TYPE_ICONS } from '@/components/lifeos/colours'
 /** The roadmap stage being built: the app offers a Type from its stage on. */
 export const APP_STAGE = 4.5
 
-/** The stage being built's Types the app has so far; the rest wait for their step. */
-const BUILT_NOW: readonly string[] = ['shopping_list']
+/**
+ * The Types the app has so far from the stages under way: Stage 4b's, and
+ * Stage 5's, built alongside it; the rest wait for their step.
+ */
+const BUILT_NOW: readonly string[] = ['shopping_list', 'exercise', 'workout_template', 'workout']
 
 /** Whether the app offers a Type yet: an earlier stage's, or one built in this stage. */
 export function offered(key: string): boolean {
   const stage = typeByKey(key)?.stage ?? Infinity
-  return stage < APP_STAGE || (stage === APP_STAGE && BUILT_NOW.includes(key))
+  return stage < APP_STAGE || BUILT_NOW.includes(key)
 }
 
 export interface TypeLook {

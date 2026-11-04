@@ -142,6 +142,31 @@ describe('the write queue', () => {
     expect(queue.entries()[0]?.itemIds).toEqual([id])
   })
 
+  it('OFF-001 2: back online while a send is failing, the writes go at once, not after the wait', async () => {
+    let online = false
+    let release: (() => void) | undefined
+    const calls: WriteFn[] = []
+    const transport: Transport = async (fn) => {
+      if (!online) {
+        // A request still failing when the connection comes back.
+        await new Promise<void>((r) => (release = r))
+        throw new WriteError('Failed to fetch', false)
+      }
+      calls.push(fn)
+    }
+    const queue = new WriteQueue({ store: freshStore(), transport, schedule: noRetry })
+    writes(queue).createItem('thought', { title: 'Milk' })
+    const failing = queue.flush()
+    await vi.waitFor(() => expect(release).toBeTypeOf('function'))
+    online = true
+    const now = queue.retryNow()
+    release!()
+    await failing
+    await now
+    await vi.waitFor(() => expect(calls).toEqual(['create_item']))
+    expect(queue.entries()).toHaveLength(0)
+  })
+
   it('retries with growing waits', async () => {
     const server = fakeServer()
     server.online = false

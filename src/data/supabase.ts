@@ -28,7 +28,7 @@ export const rpcTransport: Transport = async (fn, args) => {
   try {
     // A Module's function names its schema: "food.create_recipe".
     const [schema, name] = fn.includes('.')
-      ? (fn.split('.') as ['food' | 'shopping', string])
+      ? (fn.split('.') as ['food' | 'shopping' | 'fitness', string])
       : [null, fn]
     result = schema
       ? await supabase()
