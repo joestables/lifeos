@@ -102,6 +102,9 @@ export function applyPendingReminders(
       case 'remove_reminder':
         out = out.filter((r) => r.id !== a.p_id)
         break
+      case 'remove_default_reminder':
+        out = out.filter((r) => !(r.item_id === a.p_item && r.is_default))
+        break
     }
   }
   return out

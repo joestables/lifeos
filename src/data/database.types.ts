@@ -1482,6 +1482,7 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      remove_default_reminder: { Args: { p_item: string }; Returns: undefined }
       remove_device: { Args: { p_id: string }; Returns: undefined }
       remove_label: { Args: { p_item: string; p_label: string }; Returns: undefined }
       remove_member: { Args: { p_person: string; p_space: string }; Returns: undefined }

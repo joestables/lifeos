@@ -110,6 +110,36 @@ test('EVT-001: a new Event from Plan, an hour long until I change it, kept only 
     })
 })
 
+test('EVT-003 1: New event shows its default Reminder, 30 minutes before; removed, it has none', async ({
+  page,
+}) => {
+  const db = await start(page, '/plan')
+  const newEvent = async (title: string) => {
+    await page.getByRole('button', { name: 'Add', exact: true }).filter({ visible: true }).click()
+    await page.getByRole('menuitem', { name: 'Event' }).click()
+    const dialog = page.getByRole('dialog', { name: 'New event' })
+    await dialog.getByRole('textbox', { name: 'Title' }).fill(title)
+    return dialog
+  }
+  const remindersOf = (title: string) => {
+    const e = db.items.find((i) => i.title === title)
+    return e && db.reminders.filter((r) => r.item_id === e.id).map((r) => r.is_default)
+  }
+
+  // It starts at 11:00, so its default is at 10:30.
+  let dialog = await newEvent('Dentist')
+  await expect(dialog.getByRole('button', { name: /^Today 10:30/ })).toContainText(
+    '30 minutes before',
+  )
+  await dialog.getByRole('button', { name: 'Save' }).click()
+  await expect.poll(() => remindersOf('Dentist')).toEqual([true])
+
+  dialog = await newEvent('Haircut')
+  await dialog.getByRole('button', { name: 'Remove reminder Today 10:30' }).click()
+  await dialog.getByRole('button', { name: 'Save' }).click()
+  await expect.poll(() => remindersOf('Haircut')).toEqual([])
+})
+
 test('EVT-001 3, EVT-002: an Event changed in its popup; all day kept as dates; deleted with Undo', async ({
   page,
 }) => {

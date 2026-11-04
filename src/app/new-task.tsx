@@ -9,6 +9,7 @@ import {
   createItem,
   newId,
   queue,
+  removeDefaultReminder,
   stopRepeat,
   updateSubtask,
   useSettings,
@@ -16,7 +17,7 @@ import {
 } from '@/data'
 import { isoDayOf } from '@/lib/dates'
 import { typeLook } from '@/lib/item-types'
-import { reminderFields } from '@/lib/reminders'
+import { defaultReminder, reminderFields } from '@/lib/reminders'
 import { draftItem } from './item-navigation'
 import { useDraftLabels } from './draft-labels'
 import { DraftReminders, type DraftReminder } from './draft-reminders'
@@ -54,6 +55,12 @@ export function NewTaskDialog({
   })
   const [repeat, setRepeat] = useState<Repeat | null>(null)
   const [reminders, setReminders] = useState<DraftReminder[]>([])
+  // The default changed or removed before Save (REM-002 1).
+  const [defaultGone, setDefaultGone] = useState(false)
+  const byDefault = defaultReminder(
+    { type: 'task', do_on: dates.do_on, do_at: dates.do_at },
+    settings,
+  )
   const [subtasks, setSubtasks] = useState<{ id: string; title: string; done: boolean }[]>([])
 
   const dirty =
@@ -62,7 +69,8 @@ export function NewTaskDialog({
     dates.do_on !== doOn ||
     dates.due_on !== null ||
     subtasks.length > 0 ||
-    reminders.length > 0
+    reminders.length > 0 ||
+    defaultGone
   const today = isoDayOf(new Date())
   const anchors = [
     ...(dates.do_on ? (['do_on'] as const) : []),
@@ -75,6 +83,8 @@ export function NewTaskDialog({
     if (dates.do_at) fields.do_at = dates.do_at
     if (notes.trim()) fields.body = notes
     const id = createItem('task', fields)
+    // The server gives it its default; changed or removed here, it goes.
+    if (byDefault && defaultGone) removeDefaultReminder(id)
     const labelIds = draftLabels.save(id)
     for (const s of subtasks) {
       const sid = addSubtask(id, s.title)
@@ -180,6 +190,8 @@ export function NewTaskDialog({
             anchors={anchors}
             dates={dates}
             fresh={fresh}
+            byDefault={defaultGone ? null : byDefault}
+            onDefaultGone={() => setDefaultGone(true)}
           />
         }
         labels={draftLabels.labels}

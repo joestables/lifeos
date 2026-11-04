@@ -55,8 +55,9 @@ Priority: Must · Status: verified
 Acceptance criteria
 1. Given a new Event (from a day's "+" on Plan, or Plan's "Add"), then
    a new Event opens with all its fields — title, all day or a start and end
-   time, place, notes, Labels, Reminders and repeat — and is kept only when
-   I save it; cancelled, nothing is left behind.
+   time, place, notes, Labels, Reminders (its default among them, EVT-003)
+   and repeat — and is kept only when I save it; cancelled, nothing is left
+   behind.
 2. Given I set a start time, then the end is an hour later until I change
    it; an end before the start is refused.
 3. Given an all-day Event from Saturday to Monday, then it is kept as those
@@ -85,7 +86,9 @@ Priority: Must · Status: verified (a real notification on a device is checked b
 
 Acceptance criteria
 1. Given I make an Event at 19:30, then it has a Reminder at 19:00; moving
-   the Event moves the Reminder with it.
+   the Event moves the Reminder with it. In New event it shows among the
+   Reminders before I save, and I can change or remove it there (Joe, 4
+   November).
 2. Given an all-day Event, or an Event from Google Calendar, then it has no
    Reminder until I add one.
 3. Given an Event, then I can add Reminders relative to its start ("1 hour

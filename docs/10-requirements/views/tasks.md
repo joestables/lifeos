@@ -84,9 +84,11 @@ Acceptance criteria
    with those Labels.
 3. Given I have no signal, then the Task appears at once and is sent later.
 4. Given "New task", then a new Task opens with all its fields — title,
-   notes, do-on date and time, due date, repeat, Reminders, Labels and
-   sub-tasks — and is kept only when I save it; cancelled, nothing is left
-   behind (Joe, 12 October).
+   notes, do-on date and time, due date, repeat, Reminders (its default
+   among them once it has a do-on date,
+   [REM-002](../cross-cutting/reminders.md#rem-002--a-task-reminds-me-on-its-do-on-date)),
+   Labels and sub-tasks — and is kept only when I save it; cancelled,
+   nothing is left behind (Joe, 12 October).
 
 ### TSK-002 — A Task's details
 
