@@ -2,10 +2,9 @@
 
 Newest first. Each entry is added in its own pull request.
 
-## Stage 7: the plan for the Android app and widgets
+## [#61](https://github.com/joestables/lifeos/pull/61) — Stage 7: the Android app — plan, spec, decisions, design and toolchain
 
-Branch `claude/intelligent-shannon-umfm64` · 2026-11-05 · the PR number
-is filled in once it is opened
+Branch `claude/intelligent-shannon-umfm64` · 2026-11-05
 
 **What it did**
 - **Explored** whether LifeOS could have widgets and be an Android app,

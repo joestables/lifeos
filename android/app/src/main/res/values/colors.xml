@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- tokens.md's values, as hex, for what Android draws before the page (the
+     opening screen): checked by tokens:check. -->
+<resources>
+    <!-- background, light -->
+    <color name="lifeos_background">#F3F4F5</color>
+</resources>

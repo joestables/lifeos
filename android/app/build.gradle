@@ -8,7 +8,7 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         // Set by the Android workflow (ADR-0061): the run number, and the tag's version.
-        versionCode (System.getenv("LIFEOS_VERSION_CODE") ?: "1").toInteger()
+        versionCode Integer.parseInt(System.getenv("LIFEOS_VERSION_CODE") ?: "1")
         versionName System.getenv("LIFEOS_VERSION_NAME") ?: "0.0.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The app icon's graph (docs/30-design/patterns.md#the-app-icon), drawn from
+     public/icon.svg for Android's adaptive icon: 108dp, its content inside the
+     central two thirds. The dark theme's colours, as hex, as the icon's are. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="512" android:viewportHeight="512">
+    <path android:strokeColor="#FFECEDEE" android:strokeAlpha="0.16" android:strokeWidth="10" android:pathData="M256.0,106.0 L385.9,181.0 M385.9,181.0 L385.9,331.0 M385.9,331.0 L256.0,406.0 M256.0,406.0 L126.1,331.0 M126.1,331.0 L126.1,181.0 M126.1,181.0 L256.0,106.0" />
+    <path android:strokeColor="#FFECEDEE" android:strokeAlpha="0.34" android:strokeWidth="12" android:pathData="M256,256 L256.0,106.0 M256,256 L385.9,181.0 M256,256 L385.9,331.0 M256,256 L256.0,406.0 M256,256 L126.1,331.0 M256,256 L126.1,181.0" />
+    <path android:fillColor="#FF67AAED" android:pathData="M220.0,106.0 a36,36 0 1,0 72,0 a36,36 0 1,0 -72,0 Z" />
+    <path android:fillColor="#FFF2CD64" android:pathData="M349.9,181.0 a36,36 0 1,0 72,0 a36,36 0 1,0 -72,0 Z" />
+    <path android:fillColor="#FFEC8E76" android:pathData="M349.9,331.0 a36,36 0 1,0 72,0 a36,36 0 1,0 -72,0 Z" />
+    <path android:fillColor="#FF76C788" android:pathData="M220.0,406.0 a36,36 0 1,0 72,0 a36,36 0 1,0 -72,0 Z" />
+    <path android:fillColor="#FFF5AC69" android:pathData="M90.1,331.0 a36,36 0 1,0 72,0 a36,36 0 1,0 -72,0 Z" />
+    <path android:fillColor="#FFB699EB" android:pathData="M90.1,181.0 a36,36 0 1,0 72,0 a36,36 0 1,0 -72,0 Z" />
+    <path android:fillColor="#FFECEDEE" android:pathData="M212,256 a44,44 0 1,0 88,0 a44,44 0 1,0 -88,0 Z" />
+</vector>
