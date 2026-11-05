@@ -2,7 +2,7 @@
 
 **Status:** Provisionally agreed · 2026-10-09
 
-**Amended:** 2026-10-18 by [ADR-0051](0051-who-sees-food.md) (a Recipe is seen by its author's Household without being shared; the Pantry is everyone's).
+**Amended:** 2026-10-18 by [ADR-0051](0051-who-sees-food.md) (a Recipe is seen by its author's Household without being shared; the Pantry is everyone's); 2026-11-04 by Joe's answers on sharing Tasks and Events (leaving removes links across the Household; Items seen through a link aren't in my Inbox or Tasks).
 
 ## Context
 
@@ -30,7 +30,12 @@ and add events, while most of his life stays personal.
 - **Leaving the Household:** the shared Items you created **become
   Personal** to you, and the other members **lose access**. Items others
   created stay in the Household. Visibility through links is recalculated in
-  the same step.
+  the same step: links between your Items and the Household's are removed,
+  so neither side keeps seeing the other's (Joe, 4 November).
+- **Seen through a link isn't mine:** someone else's Personal Item that I
+  see only through a link opens read-only, says whose it is, and isn't in
+  my Inbox or Tasks (Joe, 4 November;
+  [HSH-005](../../10-requirements/cross-cutting/spaces-and-sharing.md#hsh-005--share-tasks-and-events) 7).
 
 ## Consequences
 

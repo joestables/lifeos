@@ -1,5 +1,6 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from './database.types'
+import { deviceOwner } from './device-owner'
 import { alreadyApplied, isTransient, WriteError } from './queue/errors'
 import type { Transport } from './queue/queue'
 
@@ -26,6 +27,13 @@ export function supabase(): LifeosClient {
 export const rpcTransport: Transport = async (fn, args) => {
   let result: { error: { code?: string; message: string } | null; status: number }
   try {
+    // Only as the person who made it (ACC-003): signed out, or someone else
+    // signed in before this device was cleared for them, it waits.
+    const { data } = await supabase().auth.getSession()
+    const owner = deviceOwner()
+    if (!data.session || (owner && data.session.user.id !== owner)) {
+      throw new WriteError('Not signed in as whoever made it', false)
+    }
     // A Module's function names its schema: "food.create_recipe".
     const [schema, name] = fn.includes('.')
       ? (fn.split('.') as ['food' | 'shopping' | 'fitness', string])
@@ -36,6 +44,7 @@ export const rpcTransport: Transport = async (fn, args) => {
           .rpc(name as never, args as never)
       : await supabase().rpc(fn as never, args as never)
   } catch (cause) {
+    if (cause instanceof WriteError) throw cause
     throw new WriteError(String(cause), false)
   }
   if (result.error && alreadyApplied(result.error)) return

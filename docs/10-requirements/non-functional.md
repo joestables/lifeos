@@ -38,6 +38,10 @@ See [offline](cross-cutting/offline.md).
 - AI sees only what the person asking may see.
 - Your data is exportable: everything you can see, as JSON, on demand.
 - Browser walks never run against real data.
+- A device keeps one person's data at a time: when someone else signs in
+  there, what it kept for the last person goes first, and their unsent
+  writes are never sent as anyone else
+  ([ACC-003](cross-cutting/spaces-and-sharing.md#acc-003--sign-out)).
 
 ## Accessibility
 

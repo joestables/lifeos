@@ -78,3 +78,54 @@ test('ACC-003: signing out with writes not yet sent warns first', async ({ page,
   )
   expect(left).toBe(0)
 })
+
+test('ACC-003 4: someone else signing in clears what the device kept for the last person', async ({
+  page,
+}) => {
+  const db = await standIn(page, { signedIn: true })
+  const theirs = '01a12254-e799-75ba-8d62-cb5f3f9e0901'
+  // Ben's session here ended without signing out: his kept data and a write
+  // he made offline are still on the device when Ann signs in.
+  await page.addInitScript((id) => {
+    if (localStorage.getItem('lifeos-device-owner')) return
+    localStorage.setItem('lifeos-device-owner', 'ben')
+    localStorage.setItem('lifeos.plan.layout', 'day')
+    const open = indexedDB.open('lifeos-queue')
+    open.onupgradeneeded = () => open.result.createObjectStore('entries')
+    open.onsuccess = () =>
+      open.result
+        .transaction('entries', 'readwrite')
+        .objectStore('entries')
+        .put(
+          {
+            id,
+            fn: 'create_item',
+            args: { p_id: id, p_type: 'thought', p_title: 'Ben’s thought' },
+            itemIds: [id],
+            createdAt: Date.now(),
+            attempts: 0,
+            state: 'pending',
+          },
+          id,
+        )
+  }, theirs)
+  await page.goto('/inbox')
+  await expect(page.getByRole('heading', { name: 'Inbox' })).toBeVisible()
+  await expect
+    .poll(() => page.evaluate(() => localStorage.getItem('lifeos-device-owner')))
+    .toBe(ANN.id)
+  expect(await page.evaluate(() => localStorage.getItem('lifeos.plan.layout'))).toBeNull()
+  const left = await page.evaluate(
+    () =>
+      new Promise<number>((resolve) => {
+        const open = indexedDB.open('lifeos-queue')
+        open.onsuccess = () => {
+          const count = open.result.transaction('entries').objectStore('entries').count()
+          count.onsuccess = () => resolve(count.result)
+        }
+      }),
+  )
+  expect(left).toBe(0)
+  // Never sent as Ann.
+  expect(db.items.some((i) => i.id === theirs)).toBe(false)
+})

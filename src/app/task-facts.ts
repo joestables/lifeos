@@ -1,11 +1,15 @@
 import { shortRule } from '@lifeos/recurrence'
 import { useMemo } from 'react'
-import { queue, useLabels, useMarks, useSubtasks, type Item } from '@/data'
+import { queue, useFoodSpaces, useLabels, useMarks, useSubtasks, type Item } from '@/data'
 import { repeatOf, useSeriesById } from './repeat'
 
-/** What a Task's row shows besides the Task itself: its Labels, star, sub-tasks and repeat. */
+/**
+ * What a Task's row shows besides the Task itself: its Labels, star,
+ * sub-tasks, repeat and, shared, its Household's name (HSH-005 2).
+ */
 export function useTaskFacts() {
   const marks = useMarks(queue)
+  const { householdName } = useFoodSpaces(queue)
   const { labels, itemLabels } = useLabels(queue)
   const subtasks = useSubtasks(queue)
   const series = useSeriesById()
@@ -33,8 +37,9 @@ export function useTaskFacts() {
           starred: marks.has(task.id),
           subtasks: counts.get(task.id),
           repeat: repeat ? shortRule(repeat.rule, repeat.mode) : undefined,
+          household: householdName(task.space_id),
         }
       },
     }
-  }, [marks, labels, itemLabels, subtasks, series])
+  }, [marks, labels, itemLabels, subtasks, series, householdName])
 }

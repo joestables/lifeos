@@ -212,10 +212,37 @@ const BROWSER = {
   'Accept-Language': 'en-GB,en;q=0.9',
 }
 
+/** The most redirects followed for one link. */
+const MAX_REDIRECTS = 5
+
+/**
+ * Fetches a public address, following redirects one at a time so each one
+ * is checked too: a public page mustn't send the request on to an address
+ * inside a network or this machine.
+ */
+export async function fetchPublic(
+  fetch: Fetch,
+  link: string,
+  init: RequestInit,
+): Promise<Response> {
+  let url = publicUrl(link)
+  for (let hop = 0; url; hop++) {
+    const res = await fetch(url.href, { ...init, redirect: 'manual' })
+    const to = res.status >= 300 && res.status < 400 ? res.headers.get('location') : null
+    if (!to) return res
+    if (hop >= MAX_REDIRECTS) break
+    try {
+      url = publicUrl(new URL(to, url).href)
+    } catch {
+      url = null
+    }
+  }
+  throw new Refused('unreachable')
+}
+
 async function fetchText(fetch: Fetch, url: string, accept = 'text/html'): Promise<string> {
-  const res = await fetch(url, {
+  const res = await fetchPublic(fetch, url, {
     headers: { ...BROWSER, Accept: accept },
-    redirect: 'follow',
     signal: AbortSignal.timeout(15_000),
   })
   if (!res.ok) throw new Refused('unreachable')
@@ -295,9 +322,10 @@ export async function pictureOf(
 ): Promise<string | null> {
   if (!link) return null
   try {
-    const url = publicUrl(new URL(link, base).href)
-    if (!url) return null
-    const res = await fetch(url.href, { headers: BROWSER, signal: AbortSignal.timeout(10_000) })
+    const res = await fetchPublic(fetch, new URL(link, base).href, {
+      headers: BROWSER,
+      signal: AbortSignal.timeout(10_000),
+    })
     const type = res.headers.get('content-type') ?? ''
     if (!res.ok || !type.startsWith('image/')) return null
     const bytes = new Uint8Array(await res.arrayBuffer())

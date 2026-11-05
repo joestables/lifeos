@@ -32,9 +32,12 @@ the end.*
 - **Tasks *for* an Event** ("buy a card" for "Mum's birthday lunch") are
   linked with the *for* link
   ([data model](../../20-architecture/data-model.md#link-types)).
-- **Events are Personal** in Stage 3; "with the Household" comes with
-  Households in Stage 4. What Google Calendar brings in is always Personal
-  ([integrations](integrations.md#google-calendar)).
+- **An Event can be shared with a Household** (Joe, 4 November;
+  [HSH-005](spaces-and-sharing.md#hsh-005--share-tasks-and-events)): its
+  Space, at the foot of its popup. Every member sees it, can change or
+  delete it, gets their own default Reminder, and has it in their default
+  Google calendar. What Google Calendar brings in starts Personal and can
+  be shared too ([integrations](integrations.md#google-calendar)).
 - **Events are blue**, with Tasks
   ([ADR-0043](../../20-architecture/adr/0043-colour-by-type.md),
   Provisionally agreed). An Event opens as a popup over the page, on a
@@ -55,9 +58,11 @@ Priority: Must · Status: verified
 Acceptance criteria
 1. Given a new Event (from a day's "+" on Plan, or Plan's "Add"), then
    a new Event opens with all its fields — title, all day or a start and end
-   time, place, notes, Labels, Reminders (its default among them, EVT-003)
-   and repeat — and is kept only when I save it; cancelled, nothing is left
-   behind.
+   time, Reminders (its default among them, EVT-003) just below the end
+   (Joe, 4 November), place, repeat, notes, Labels, and with a Household its
+   Space at the foot
+   ([HSH-005](spaces-and-sharing.md#hsh-005--share-tasks-and-events)) —
+   and is kept only when I save it; cancelled, nothing is left behind.
 2. Given I set a start time, then the end is an hour later until I change
    it; an end before the start is refused.
 3. Given an all-day Event from Saturday to Monday, then it is kept as those
@@ -73,8 +78,8 @@ Priority: Must · Status: verified
 
 Acceptance criteria
 1. Given an Event, when I open it, then I can change its title, times (or
-   all day), place, notes, Labels, Reminders and repeat, and each change is
-   kept as I make it.
+   all day), Reminders (just below the end), place, repeat, notes, Labels
+   and, if I made it, its Space, and each change is kept as I make it.
 2. Given an Event, then I can delete it, with Undo, and recover it from
    Recently deleted ([ITM-002, ITM-003](items.md#requirements)).
 
@@ -88,7 +93,9 @@ Acceptance criteria
 1. Given I make an Event at 19:30, then it has a Reminder at 19:00; moving
    the Event moves the Reminder with it. In New event it shows among the
    Reminders before I save, and I can change or remove it there (Joe, 4
-   November).
+   November). A shared Event gives each member their own default, as their
+   Settings give it
+   ([HSH-005](spaces-and-sharing.md#hsh-005--share-tasks-and-events) 4).
 2. Given an all-day Event, or an Event from Google Calendar, then it has no
    Reminder until I add one.
 3. Given an Event, then I can add Reminders relative to its start ("1 hour

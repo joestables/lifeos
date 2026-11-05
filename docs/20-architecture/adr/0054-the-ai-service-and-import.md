@@ -32,7 +32,9 @@ served well.
   Flash model, when the first is busy or out of quota) are configuration,
   not code. Each call asks for JSON matching the task's
   schema, and the reply is checked against it before use.
-- **Import:** a web page is fetched by the Edge Function, giving its
+- **Import:** a web page is fetched by the Edge Function — only at a
+  public address, never one inside a network or the machine, each redirect
+  checked too (multi-user bug hunt, 4 November) — giving its
   schema.org Recipe data if it has some, otherwise its readable text. A
   **YouTube** link is given to Gemini as video, which it watches. **TikTok
   and Instagram** give their oEmbed title and what their pages say; too

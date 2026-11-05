@@ -2,6 +2,81 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#60](https://github.com/joestables/lifeos/pull/60) — A multi-user bug hunt: who made an Item, notifications after leaving, one person's device
+
+Branch `claude/lifeos-bug-hunt-94zgs1` · 2026-11-04
+
+**What it did**
+- **Hunted** for what breaks once people other than Joe use LifeOS: every
+  row-level policy and the functions behind them, the column grants, the
+  `SECURITY DEFINER` functions a signed-in person can call, Storage, a new
+  Google sign-up and a second person in Joe's Household (run on the live
+  project as a made-up person, rolled back), the notification queue, the
+  Edge Functions' link reading, the device's cache, write queue and
+  storage, logs, cron runs and `ops.events`.
+- **Who made an Item stays who made it** (HSH-003 3): a Household member
+  could make someone else's shared Item theirs, then take it to their own
+  Personal Space. `owner_id` on Items and series can't be changed by a
+  signed-in person.
+- **A Reminder only on what I can see** (REM-004 6): adding one checked,
+  changing one didn't, so a Reminder could be moved onto anyone's private
+  Task and its title arrive as my notification. Changing a Reminder, a cook
+  or a recent view now checks it too.
+- **Nothing more after leaving** (HSH-004 5): someone who left a Household,
+  or was removed, kept getting its Items' Reminders, and Done on the
+  notification still ticked them off. Notifications go only about what the
+  person can still see (`core_private.readable_by`), and Done needs them
+  still in its Space.
+- Migration `multi_user_bug_hunt`; database tests in `multi_user_test` (9).
+  Applied by the tool, and the same attempts repeated on the live project
+  as a made-up person (rolled back) now refused; advisors: nothing new.
+- **One person's device** (ACC-003 1, 4): a session can end without
+  signing out here (signed out on another device signs out everywhere; or
+  expired). Then the cache, the photos and the unsent writes stayed, and
+  whoever signed in next saw them, and the writes were sent as them. The
+  device now knows whose it is: someone else signing in clears it first
+  (and stops the last person's notifications there), and a write is only
+  sent as the person who made it. Signing out also clears the photos kept
+  for offline and what pages remembered. A walk in `sign-in.spec.ts`.
+- **Link reading at each redirect** (ADR-0054): a public page that
+  redirected to an address inside a network was followed; each redirect is
+  now checked, five at most. `ai` and `link-preview` redeployed.
+
+- **Sharing Tasks and Events** from Joe's answers (4 November; Stage 4b
+  step 11), specified (HSH-005, GCL-007) and built:
+  - Space at the foot of a Task's and an Event's popup, on my own, with a
+    Household; a repeat moves whole; Labels are the Item's Space's.
+  - No assignee: a shared Task in every member's Inbox, digest and overdue
+    nudges; each member's own default Reminder, given and taken as Items
+    move and people join and leave.
+  - A shared Event in each member's default Google calendar, as their own
+    copy (`core_private.event_copies`, `series_copies`); an edit to any copy
+    changes it for all; a copy deleted in Google leaves only that calendar.
+    Not one from an incoming-only calendar: it is Google's.
+  - Leaving removes links across the Household; someone else's Item seen
+    through a link is read-only ("Sam's") and out of my Inbox and Tasks;
+    mine linked to a shared one says "Visible to Home" (`ItemNote`).
+  - An Event's Reminders just below its end.
+  - Migration `shared_tasks_and_events`; database tests `shared_tasks_test`
+    (15), `shared_events_calendar_test` (12); walks `sharing.spec.ts`.
+    Applied by the tool, checked live as a made-up member (rolled back):
+    each member's own default and digest; advisors: nothing new but the
+    two private tables, which have no policies as their neighbours.
+
+**Documents touched:** spaces and sharing (ACC-003 1, 4; HSH-003 3;
+HSH-004 1, 5; HSH-005), reminders (REM-002 1, REM-004 6, REM-008 1),
+events (EVT-001–003), tasks (TSK-001 4, TSK-002 1), integrations (GCL-003
+5, GCL-007), non-functional (privacy), the capability map, the data model
+(Task's and Event's Space, from the ontology), components (TaskDetails,
+EventDetails, ItemRow), patterns (Tasks, Opening an Item), ADR-0016,
+ADR-0048, ADR-0054, the runbook (calendar-push), the Stage 4b plan.
+
+**Left for later:** two people and two real Google calendars, by hand;
+every new person's home timezone is
+London, with nowhere to change it; deleting an account. The crash on
+`/gym` on 2 November (build `4f72a8f`, a preview not on `master`) had
+nothing to trace.
+
 ## [#59](https://github.com/joestables/lifeos/pull/59) — New task and New event show the default Reminder
 
 Branch `claude/lifeos-production-bug-hunt-siwl01` · 2026-11-04

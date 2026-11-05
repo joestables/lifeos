@@ -6,6 +6,7 @@ import {
   mealIngredients,
   linkKind,
   ideaName,
+  fetchPublic,
   linkPicture,
   linkPreview,
   publicUrl,
@@ -442,6 +443,39 @@ describe('link previews (MPL-006 6)', () => {
   it('nothing for a page without one, or a link that isn’t public', async () => {
     expect(await linkPicture(site('<html></html>'), 'https://example.com/x')).toBeNull()
     expect(await linkPicture(site(''), 'http://localhost/x')).toBeNull()
+  })
+})
+
+describe('following a link’s redirects', () => {
+  const redirect = (to: string) => new Response(null, { status: 302, headers: { location: to } })
+
+  it('follows a public redirect, checking each address', async () => {
+    const asked: string[] = []
+    const fetch: Fetch = async (url) => {
+      asked.push(url)
+      return url.includes('/old') ? redirect('/new') : new Response('<html>ok</html>')
+    }
+    const res = await fetchPublic(fetch, 'https://example.com/old', {})
+    expect(await res.text()).toBe('<html>ok</html>')
+    expect(asked).toEqual(['https://example.com/old', 'https://example.com/new'])
+  })
+
+  it('never on to an address inside a network or this machine', async () => {
+    const asked: string[] = []
+    const fetch: Fetch = async (url) => {
+      asked.push(url)
+      return redirect('http://169.254.169.254/latest/meta-data')
+    }
+    await expect(fetchPublic(fetch, 'https://example.com/x', {})).rejects.toThrow('unreachable')
+    expect(asked).toEqual(['https://example.com/x'])
+    expect(await linkPreview(fetch, 'https://example.com/x')).toEqual({ name: null, photo: null })
+  })
+
+  it('gives up after five redirects', async () => {
+    let n = 0
+    const fetch: Fetch = async () => redirect(`https://example.com/${++n}`)
+    await expect(fetchPublic(fetch, 'https://example.com/0', {})).rejects.toThrow('unreachable')
+    expect(n).toBe(6)
   })
 })
 

@@ -21,6 +21,7 @@ import { CaptureProvider } from '@/app/capture'
 import { takeWaiting, useFillShared } from '@/app/share-actions'
 import { CookTimerAlerts } from '@/app/cooking-timers'
 import { useOpenCapture } from '@/app/open-capture'
+import { useMine } from '@/app/mine'
 import { ItemPopup } from '@/app/items'
 import { useOpenSearch } from '@/app/open-search'
 import { SearchProvider } from '@/app/search'
@@ -64,7 +65,8 @@ function SignedIn() {
   const navigate = useNavigate()
   const { item, new: isNew } = Route.useSearch()
   const { items, outOfDate } = useItems(queue)
-  const waiting = inboxCount(inboxGroups(items))
+  const mine = useMine()
+  const waiting = inboxCount(inboxGroups(items.filter(mine)))
   const online = useOnline()
 
   useEffect(() => {

@@ -25,7 +25,7 @@ Owner: **core**, a **Module** (`shopping`, `food`, `fitness`, `goals`,
 | Activity log: changes to items and links | core | — | 1 | [ADR-0030](../20-architecture/adr/0030-activity-log-by-triggers.md) |
 | Plan: every Schedulable Type, a week or a day, filtered by Type | core | Plan | 3 | [plan](views/plan.md) |
 | Events, repeating Events, Tasks for an Event | core | Plan | 3 | [events](cross-cutting/events.md) |
-| Google Calendar: incoming only or two-way per calendar, always Personal | Integration | Settings | 3 | [integrations](cross-cutting/integrations.md#google-calendar) |
+| Google Calendar: incoming only or two-way per calendar; a shared Event in every member's calendar | Integration | Settings | 3 | [integrations](cross-cutting/integrations.md#google-calendar) |
 | Recipes, Variations, ideas, cook log | `food` | Recipes | 4 | [recipes](modules/recipes.md) |
 | Meal planning; the Pantry | `food` | Meal plan (Meals on Plan too) | 4 | [meals](modules/meals.md) |
 | Shared AI service; food preferences | core | — | 4 | — |

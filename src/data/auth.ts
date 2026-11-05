@@ -1,5 +1,6 @@
 import type { Session } from '@supabase/supabase-js'
 import { useSyncExternalStore } from 'react'
+import { deviceOwner, setDeviceOwner } from './device-owner'
 import { supabase } from './supabase'
 
 /** The signed-in person, as the app shows them. */
@@ -29,20 +30,49 @@ function set(next: AuthState) {
   for (const listener of listeners) listener()
 }
 
+let clearForSomeoneElse: (() => Promise<void>) | undefined
+let clearing = false
+
+/** What is cleared when someone else signs in on this device (ACC-003). */
+export function onSomeoneElse(clear: () => Promise<void>): void {
+  clearForSomeoneElse = clear
+}
+
+/**
+ * Signed in. If the device's kept data is someone else's (their session
+ * ended without signing out here), it is cleared and the app starts again
+ * before anything of theirs shows: until then it stays loading.
+ */
+function signedIn(session: Session) {
+  const me = toMe(session)
+  const owner = deviceOwner()
+  if (owner && owner !== me.id) {
+    if (clearing) return
+    clearing = true
+    void (clearForSomeoneElse?.() ?? Promise.resolve())
+      .catch(() => undefined)
+      .then(() => {
+        setDeviceOwner(me.id)
+        window.location.reload()
+      })
+    return
+  }
+  if (clearing) return
+  if (!owner) setDeviceOwner(me.id)
+  set({ status: 'signed-in', me })
+}
+
+function changed(session: Session | null) {
+  if (session) signedIn(session)
+  else if (!clearing) set({ status: 'signed-out' })
+}
+
 function start() {
   if (started) return
   started = true
   const auth = supabase().auth
-  void auth
-    .getSession()
-    .then(({ data }) =>
-      set(
-        data.session ? { status: 'signed-in', me: toMe(data.session) } : { status: 'signed-out' },
-      ),
-    )
-  auth.onAuthStateChange((_event, session) =>
-    set(session ? { status: 'signed-in', me: toMe(session) } : { status: 'signed-out' }),
-  )
+  void auth.getSession().then(({ data }) => changed(data.session))
+  auth.onAuthStateChange((_event, session) => changed(session))
 }
 
 const subscribe = (listener: () => void) => {
