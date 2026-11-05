@@ -1,6 +1,6 @@
 # ADR-0064: The Today widget
 
-**Status:** Proposed · 2026-11-05
+**Status:** Provisionally agreed · 2026-11-05 (Joe)
 
 ## Context
 

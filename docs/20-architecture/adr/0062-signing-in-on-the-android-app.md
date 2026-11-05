@@ -1,6 +1,6 @@
 # ADR-0062: Signing in on the Android app
 
-**Status:** Proposed · 2026-11-05
+**Status:** Provisionally agreed · 2026-11-05 (Joe)
 
 ## Context
 

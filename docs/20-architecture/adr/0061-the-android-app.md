@@ -1,6 +1,6 @@
 # ADR-0061: The Android app
 
-**Status:** Proposed · 2026-11-05
+**Status:** Provisionally agreed · 2026-11-05 (Joe)
 
 ## Context
 

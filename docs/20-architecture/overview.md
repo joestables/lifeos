@@ -132,7 +132,7 @@ from every box are reported to `ops.events`
 - TanStack Query behind one data layer, keeping the option of PowerSync +
   TanStack DB ([ADR-0042](adr/0042-data-layer.md));
 - Supabase, including Edge Functions, pg_cron and Vault;
-- Capacitor later.
+- Capacitor for the Android app (Stage 7, [ADR-0061](adr/0061-the-android-app.md)).
 
 ## Platforms
 

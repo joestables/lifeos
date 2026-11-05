@@ -3,7 +3,7 @@
 *Stage 7 ([plan](../../50-progress/plans/stage-7.md)). The decisions come
 first, then the requirements (drafted 5 November, from Joe's answers that
 day, and his answers to its open points), then the deferred Thought
-widget. How it is built: ADR-0061–0064 (Proposed).*
+widget. How it is built: ADR-0061–0064 (Provisionally agreed).*
 
 ## Decisions
 

@@ -2,7 +2,7 @@
 
 **Status:** Provisionally agreed · 2026-10-18
 
-**Proposed amendment (Stage 7):** [ADR-0063](0063-notifications-on-the-android-app.md) (Proposed) would set a timer's end on the phone in the Android app.
+**Amended:** 2026-11-05 by [ADR-0063](0063-notifications-on-the-android-app.md) (in the Android app, a timer's end is set on the phone, to the second, and not asked of the server).
 
 ## Context
 

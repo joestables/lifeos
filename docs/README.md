@@ -181,10 +181,10 @@ Consequences**, to a page.
 | [0058](20-architecture/adr/0058-fitness-in-the-database.md) | Fitness in the database | Provisionally agreed |
 | [0059](20-architecture/adr/0059-recovery-on-the-device.md) | One recovery engine, on the device and the server | Provisionally agreed |
 | [0060](20-architecture/adr/0060-body-map-rendered.md) | The body map is rendered from an anatomical model | Provisionally agreed |
-| [0061](20-architecture/adr/0061-the-android-app.md) | The Android app | Proposed |
-| [0062](20-architecture/adr/0062-signing-in-on-the-android-app.md) | Signing in on the Android app | Proposed |
-| [0063](20-architecture/adr/0063-notifications-on-the-android-app.md) | Notifications, on time, and Alarms on the Android app | Proposed |
-| [0064](20-architecture/adr/0064-the-today-widget.md) | The Today widget | Proposed |
+| [0061](20-architecture/adr/0061-the-android-app.md) | The Android app | Provisionally agreed |
+| [0062](20-architecture/adr/0062-signing-in-on-the-android-app.md) | Signing in on the Android app | Provisionally agreed |
+| [0063](20-architecture/adr/0063-notifications-on-the-android-app.md) | Notifications, on time, and Alarms on the Android app | Provisionally agreed |
+| [0064](20-architecture/adr/0064-the-today-widget.md) | The Today widget | Provisionally agreed |
 
 ## Sources
 

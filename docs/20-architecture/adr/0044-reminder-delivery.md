@@ -2,9 +2,7 @@
 
 **Status:** Provisionally agreed · 2026-10-11
 
-**Proposed amendment (Stage 7):** [ADR-0063](0063-notifications-on-the-android-app.md) (Proposed) would make the Android app an FCM device that sets its own Reminders, with Alarms.
-
-**Amended:** 2026-10-18 by [ADR-0056](0056-cooking-on-the-device.md) (a Cooking timer's end is a one-off notification sent by the same minute run).
+**Amended:** 2026-10-18 by [ADR-0056](0056-cooking-on-the-device.md) (a Cooking timer's end is a one-off notification sent by the same minute run); 2026-11-05 by [ADR-0063](0063-notifications-on-the-android-app.md) (the Android app is an FCM device that sets its own Reminders, with Alarms; its delivery rows are *on device*).
 
 ## Context
 
@@ -65,7 +63,8 @@ tier ([ADR-0003](0003-new-supabase-project.md)).
 - The app's service worker becomes LifeOS's own (receiving pushes and
   handling notification clicks and buttons), with the precaching it has now.
 - A notification arrives a few seconds after its minute, not to the second;
-  alarm-grade Reminders still need the Android wrapper (Stage 7).
+  Reminders on time to the minute, and Alarms, come with the Android app
+  ([ADR-0063](0063-notifications-on-the-android-app.md)).
 - An idle minute costs one small query; the Edge Function runs only when
   something is sent, well inside the free tier.
 - If the project is paused, nothing is sent; Joe's daily use keeps it awake.
@@ -75,5 +74,5 @@ tier ([ADR-0003](0003-new-supabase-project.md)).
   cron secret is a Vault entry too
   ([integration setup](../../40-operations/integration-setup.md#web-push)).
   Nothing has to be typed into a dashboard.
-- Later, FCM for the Android wrapper is another kind of device, sent by the
+- FCM for the Android app is another kind of device, sent by the
   same function.
