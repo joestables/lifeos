@@ -98,7 +98,8 @@ Edge Functions deployed by Claude through the Supabase MCP, sharing
   app's own addresses, with `?calendar=finish&code=…` for the app to finish
   as me, or `cancelled`, `expired` or `failed`. The app's own addresses
   (`allowedReturn` in `calendar-sync/run.ts`): `joestables.uk` (and
-  `www.`), the old `lifeos-bice-mu.vercel.app`, previews and localhost;
+  `www.`), the old `lifeos-bice-mu.vercel.app`, previews, localhost, and
+  the Android app's `uk.joestables.lifeos://settings` (ADR-0062);
   with no good address, `https://joestables.uk/settings`.
 - **Deploying** `calendar-connect` and `calendar-callback`: from 25 October
   each as one bundled file, `node scripts/bundle-function.mjs <name> out.js`,

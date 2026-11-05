@@ -42,3 +42,21 @@ The web must not change (AND-005).
   that way is useless without the verifier, which never leaves the app.
 - `calendar-callback`'s allowed returns gain one address; its database
   tests and the runbook follow.
+
+## As built (5 November, Stage 7 step 6)
+
+- The app's Supabase client is made with `flowType: 'pkce'`, the web's
+  with `'implicit'`, its default, written out (`src/data/supabase.ts`).
+- `googleSignInAddress` and `finishSignIn` in `src/data/auth.ts`; the
+  sign-in page and Connect Google Calendar open Google in a Custom Tab
+  (`src/native/browser.ts`) only inside the app.
+- The manifest takes `uk.joestables.lifeos://` (Capacitor's
+  `custom_url_scheme`); `src/native/app.ts` closes the tab, then finishes
+  sign-in with the code and opens Inbox, or opens Settings with the
+  Calendar outcome, which finishes it as on the web.
+- `allowedReturn` (`calendar-sync/run.ts`) allows exactly
+  `uk.joestables.lifeos://settings`, with tests; `calendar-connect` and
+  `calendar-callback` redeployed, 5 November.
+- Cancelling at Google's consent screen for Calendar returns, as before,
+  to `https://joestables.uk/settings`, which then shows in the tab:
+  closing it returns to the app unchanged.

@@ -53,15 +53,21 @@ Branch `claude/intelligent-shannon-umfm64` · 2026-11-05
   `tokens:check` holds the Android colours; the runbook's Android app
   section; LifeOS's own Kotlin plugin, keeping the screen awake while
   Cooking.
+- **Step 6, signing in:** Google through a Custom Tab and back by
+  `uk.joestables.lifeos://`, PKCE in the app only; Calendar's connect the
+  same way, `allowedReturn` widened (tests) and `calendar-connect` and
+  `calendar-callback` redeployed.
 
 **Documents touched:** the roadmap (Stages 7, 8 and 10, where we are),
 the docs README, `CLAUDE.md`, the capability map, the architecture
 overview, the glossary (Alarm, Widget), the Android app spec (new),
 reminders, capture, recipes (RCP-003), integrations, non-functional,
-integration setup (Health Connect), ADR-0028, ADR-0061–0064 (new), ADR-0034, 0044, 0047, 0055 and 0056 (amended), the overview's stack, the design system (components, patterns, tokens; the enforcement's exception for the bundled page), integration setup (Android app), environments (CI), the runbook (the Android app), the Android app spec (AND-001, AND-003 built), `CLAUDE.md` (Android checks), the Stage 5 plan, the
+integration setup (Health Connect), ADR-0028, ADR-0061–0064 (new), ADR-0034, 0044, 0047, 0055 and 0056 (amended), the overview's stack, the design system (components, patterns, tokens; the enforcement's exception for the bundled page), integration setup (Android app), environments (CI), the runbook (the Android app), the Android app spec (AND-001–003 built), ADR-0062 (as built), integrations' runbook (the app's return address), `CLAUDE.md` (Android checks), the Stage 5 plan, the
 Stage 7 plan (new).
 
-**Left for later:** the rest of step 5 (`assetlinks.json`), step 6 (sign-in), then Joe installing the app.
+**Left for later:** `assetlinks.json` from the first signed release;
+Joe adding the app's return address to Supabase; then Joe installing
+the app.
 
 ## [#60](https://github.com/joestables/lifeos/pull/60) — A multi-user bug hunt: who made an Item, notifications after leaving, one person's device
 

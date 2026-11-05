@@ -64,7 +64,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to sign in to the app and connect Google Calendar
 there, **so that** it works as the web does.
-Priority: Must · Status: agreed
+Priority: Must · Status: built (step 6; Joe checks it on his phone)
 
 Acceptance criteria
 1. Given I'm signed out, when I choose Sign in with Google, then the

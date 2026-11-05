@@ -250,6 +250,8 @@ describe('connecting (GCL-001)', () => {
     expect(allowedReturn('https://lifeos-bice-mu.vercel.app/settings')).toBe(true)
     expect(allowedReturn('https://lifeos-git-x-joestables1.vercel.app/settings')).toBe(true)
     expect(allowedReturn('http://localhost:5173/settings')).toBe(true)
+    expect(allowedReturn('uk.joestables.lifeos://settings')).toBe(true)
+    expect(allowedReturn('uk.joestables.lifeos://evil')).toBe(false)
     expect(allowedReturn('https://evil.example/settings')).toBe(false)
     expect(allowedReturn('https://lifeos-bice-mu.vercel.app.evil.example/')).toBe(false)
     expect(allowedReturn('https://joestables.uk.evil.example/')).toBe(false)

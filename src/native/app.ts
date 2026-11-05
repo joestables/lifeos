@@ -1,6 +1,8 @@
 import { App } from '@capacitor/app'
 import { Browser } from '@capacitor/browser'
 import { toast } from '@/components/ui/sonner'
+import { finishSignIn } from '@/data'
+import { APP_RETURN } from './browser'
 import { isNewer, setAppVersion } from './platform'
 
 /** Where a new APK is downloaded (integration-setup.md#android-app-stage-7). */
@@ -16,8 +18,8 @@ const openPopup = () =>
 
 /**
  * The Android app's start (ADR-0061), loaded only inside it: Back (AND-003
- * 2), LifeOS links opened in the app (AND-003 3), and a new APK said to be
- * ready (AND-001 2).
+ * 2), LifeOS links opened in the app (AND-003 3), coming back from Google
+ * (AND-002), and a new APK said to be ready (AND-001 2).
  */
 export function startAndroidApp(navigate: (href: string) => void) {
   // Back closes what's open first, then goes back, then leaves the app.
@@ -32,8 +34,24 @@ export function startAndroidApp(navigate: (href: string) => void) {
     }
   })
 
-  // A joestables.uk link from another app opens on its page here.
   void App.addListener('appUrlOpen', ({ url }) => {
+    // Back from Google's sign-in in the phone's browser (AND-002, ADR-0062).
+    if (url.startsWith(APP_RETURN.signIn)) {
+      void Browser.close().catch(() => {})
+      const code = new URL(url).searchParams.get('code')
+      if (!code) return
+      void finishSignIn(code)
+        .then(() => navigate('/inbox'))
+        .catch(() => toast.error("Couldn't sign in. Try again"))
+      return
+    }
+    // Back from connecting Google Calendar: Settings finishes it, as on the web.
+    if (url.startsWith(APP_RETURN.settings)) {
+      void Browser.close().catch(() => {})
+      navigate(`/settings${new URL(url).search}`)
+      return
+    }
+    // A joestables.uk link from another app opens on its page here.
     if (!url.startsWith(SITE)) return
     const { pathname, search, hash } = new URL(url)
     navigate(`${pathname}${search}${hash}`)

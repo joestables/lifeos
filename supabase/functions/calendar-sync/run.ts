@@ -264,7 +264,9 @@ export function allowedReturn(url: string): boolean {
           u.host === 'www.joestables.uk' ||
           u.host === 'lifeos-bice-mu.vercel.app' ||
           /^lifeos-[a-z0-9-]+-joestables1\.vercel\.app$/.test(u.host))) ||
-      (u.protocol === 'http:' && u.host === 'localhost:5173')
+      (u.protocol === 'http:' && u.host === 'localhost:5173') ||
+      // The Android app's Settings (ADR-0062).
+      url === 'uk.joestables.lifeos://settings'
     )
   } catch {
     return false

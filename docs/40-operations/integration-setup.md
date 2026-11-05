@@ -13,6 +13,7 @@ Losing it means installing the app afresh.
 | A computer with Java (`keytool`) | `keytool -genkeypair -v -keystore lifeos.jks -alias lifeos -keyalg RSA -keysize 4096 -validity 36500`, choosing a password; then `base64 -i lifeos.jks` (macOS) or `base64 -w0 lifeos.jks` (Linux) for the secret below. Keep `lifeos.jks` and its password in the password manager | To do (Joe) |
 | GitHub → `joestables/lifeos` → Settings → Secrets and variables → Actions | `ANDROID_KEYSTORE_BASE64` (the base64 text), `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` (`lifeos`), `ANDROID_KEY_PASSWORD` (the same password, unless another was chosen) | To do (Joe) |
 | A release | A tag `android-vX.Y.Z`, pushed by Claude, makes the Android workflow build the signed APK and attach it to a GitHub release; Actions → Android → Run workflow builds one without a release | — |
+| Supabase → Authentication → URL Configuration → Redirect URLs | Add `uk.joestables.lifeos://auth/callback`, exactly, so Google sign-in can come back to the app ([ADR-0062](../20-architecture/adr/0062-signing-in-on-the-android-app.md)); no tool Claude has can change it | To do (Joe) |
 | The phone | Open the release on the phone (signed in to GitHub), download the APK and open it; allow installing from the browser once | To do (Joe), at step 5 |
 
 ## Supabase Data API
