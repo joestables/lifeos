@@ -3,7 +3,7 @@
 *Stage 7 ([plan](../../50-progress/plans/stage-7.md)). The decisions come
 first, then the requirements (drafted 5 November, from Joe's answers that
 day, and his answers to its open points), then the deferred Thought
-widget. How it is built comes in step 2's ADRs.*
+widget. How it is built: ADR-0061–0064 (Proposed).*
 
 ## Decisions
 
@@ -41,14 +41,14 @@ widget. How it is built comes in step 2's ADRs.*
 
 ## Requirements
 
-*Stage 7. Statuses: proposed → agreed → built → verified. What the browser
+*Stage 7, agreed by Joe on 5 November. Statuses: proposed → agreed → built → verified. What the browser
 tests can't reach is verified by Joe on his phone.*
 
 ### AND-001 — Install and update the app
 
 **As** Joe, **I want** LifeOS as an app on my Android phone, kept up to
 date without reinstalling, **so that** it can do what the web app can't.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given the APK, when I install it, then LifeOS is on my home screen with
@@ -64,7 +64,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to sign in to the app and connect Google Calendar
 there, **so that** it works as the web does.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given I'm signed out, when I choose Sign in with Google, then the
@@ -81,7 +81,7 @@ Acceptance criteria
 
 **As** Joe, **I want** the app to behave like an Android app, **so that**
 nothing about it feels like a web page.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given no signal, when I open the app, then it shows what it held and
@@ -102,7 +102,7 @@ Acceptance criteria
 **As** Joe, **I want** LifeOS in the share sheet when it's the app, **so
 that** saving a recipe idea works as before
 ([RCP-003](../modules/recipes.md#rcp-003--save-an-idea-from-another-app)).
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given I share a link from TikTok, Instagram or a web page to LifeOS,
@@ -116,7 +116,7 @@ Acceptance criteria
 
 **As** Joe, **I want** the computer, the iPhone and the web app unchanged
 by the Android app, **so that** nothing I or my girlfriend use breaks.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given the website, the installed web app on an iPhone or Android, or a
@@ -129,7 +129,7 @@ Acceptance criteria
 
 **As** Joe, **I want** today's Plan on my home screen, **so that** I see
 the shape of my day without opening anything.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given the widget, then it shows today's date and today's cards as

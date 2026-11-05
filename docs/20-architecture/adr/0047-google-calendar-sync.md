@@ -2,6 +2,8 @@
 
 **Status:** Provisionally agreed · 2026-10-14
 
+**Proposed amendment (Stage 7):** [ADR-0062](0062-signing-in-on-the-android-app.md) (Proposed) would connect Calendar from the Android app through the phone's browser.
+
 ## Context
 
 Stage 3's [Google Calendar requirements](../../10-requirements/cross-cutting/integrations.md#google-calendar)

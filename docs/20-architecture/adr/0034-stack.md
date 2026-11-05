@@ -2,6 +2,8 @@
 
 **Status:** Provisionally agreed · 2026-10-09
 
+**Proposed amendment (Stage 7):** [ADR-0061](0061-the-android-app.md) (Proposed) would take up Capacitor now, for the Android app (Stage 7).
+
 ## Context
 
 v1 used React + TypeScript + heavily customised MUI over Supabase. Goal 3

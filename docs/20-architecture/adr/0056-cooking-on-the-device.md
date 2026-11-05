@@ -2,6 +2,8 @@
 
 **Status:** Provisionally agreed · 2026-10-18
 
+**Proposed amendment (Stage 7):** [ADR-0063](0063-notifications-on-the-android-app.md) (Proposed) would set a timer's end on the phone in the Android app.
+
 ## Context
 
 Cooking keeps the screen awake, offers a timer on a step that names a time,

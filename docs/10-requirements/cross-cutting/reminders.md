@@ -66,7 +66,7 @@ Acceptance criteria
 3. Given an iPhone browser that isn't the installed app, then I'm told to
    add LifeOS to the Home Screen first, as iOS allows notifications only
    there.
-4. Given the Android app (Stage 7, proposed), then turning notifications
+4. Given the Android app (Stage 7, agreed), then turning notifications
    on there works the same way, the device listed as "Android app"; the
    installed web app's entry on that phone can then be removed.
 
@@ -205,7 +205,7 @@ Acceptance criteria
 **As** Joe, **I want** a Reminder on the Android app at its minute, even
 when the phone has been idle, **so that** I can trust it instead of a phone
 alarm.
-Priority: Must · Status: proposed (Stage 7)
+Priority: Must · Status: agreed (Stage 7)
 
 Acceptance criteria
 1. Given a Reminder at 09:00, then the Android app notifies me at 09:00,
@@ -224,7 +224,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to mark a Reminder as an Alarm, **so that** LifeOS
 can wake me or interrupt me as my phone's alarms do, and they can go.
-Priority: Must · Status: proposed (Stage 7)
+Priority: Must · Status: agreed (Stage 7)
 
 Acceptance criteria
 1. Given a Reminder's settings in an Item's popup, then I can mark it

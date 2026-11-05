@@ -1,6 +1,8 @@
 # ADR-0055: Sharing into LifeOS from another app
 
 **Status:** Provisionally agreed · 2026-10-18
+
+**Proposed amendment (Stage 7):** [ADR-0061](0061-the-android-app.md) (Proposed) would take shares into the Android app through Android's own share sheet, opening the same `/share`.
 **Amended:** 2026-10-24 by Joe's answers for Stage 4b (saved with no choice to make; the iOS Shortcut built now).
 
 ## Context

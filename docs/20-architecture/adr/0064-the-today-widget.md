@@ -1,0 +1,61 @@
+# ADR-0064: The Today widget
+
+**Status:** Proposed · 2026-11-05
+
+## Context
+
+[WID-002](../../10-requirements/cross-cutting/android.md#wid-002--todays-plan-on-the-home-screen)
+(agreed 5 November) puts today's Plan on the Android home screen: the
+day's cards in Plan's order, its Types and colours, the Types I show on
+Plan; a change on the phone within seconds and one made elsewhere within a
+minute or two; the last known with no signal; the new day at midnight;
+"+" to add as Plan does; no checkboxes. A widget is native Android UI: it
+can't run LifeOS's React code, and it updates while the app is closed.
+
+## Decision
+
+- **Jetpack Glance**, in LifeOS's native plugin
+  ([ADR-0061](0061-the-android-app.md)): a resizable widget showing the
+  date, "+", and a scrolling list of cards (icon, title, time or "All
+  day"; done ones faded and struck through) or "Nothing planned".
+- **What it shows is kept on the phone**, as today's and tomorrow's cards,
+  so it shows without signal and turns to the new day at midnight with
+  nothing to fetch.
+- **Two sources write it:**
+  - **The app**, whenever what's on today or tomorrow changes on the
+    phone, hands the native side the cards as Plan works them out
+    (`src/lib/plan.ts`, [ADR-0049](0049-plans-read.md)); within seconds,
+    offline too.
+  - **The server**, for a change made elsewhere: a change to a Schedulable
+    Item on today or tomorrow marks the Android devices of everyone who
+    can read it, and the minute run sends each a "look again" data message
+    (as for Reminders, [ADR-0063](0063-notifications-on-the-android-app.md));
+    the native side asks `device-plan`, with the device's secret, for the
+    two days' cards.
+  
+  A refresh every 30 minutes (the least Android allows) and on opening
+  the app catch anything missed.
+- **`device-plan` reads as `core.plan_items` does** for the device's
+  person: the same Items, days and hidden Types (`core.people`), through a
+  private function that checks the secret and the visibility rule, and
+  orders the cards by Plan's rules, so the widget orders nothing itself.
+  Database tests check its order against Plan's examples (PLN-001, PLN-008).
+- **Taps open the app** on a path: a card on its Item's (ITM-001), the
+  date on `/plan` today, "+" on `/plan` today with its "+" pressed
+  (PLN-006).
+- **The design system's tokens and icons, generated for Android**: the
+  colours a widget uses (Type colours, text, surfaces; dark and light) and
+  the Types' Lucide icons are written into Android's resources from
+  `tokens.md`'s values and `TYPE_ICONS`, and `tokens:check` fails if they
+  drift. A Widgets section in the design system comes first (step 3).
+
+## Consequences
+
+- Plan's order is written twice, in TypeScript on the device and in SQL
+  for `device-plan`, as `core.plan_items` already repeats Plan's days.
+  Database tests hold the SQL to the spec; a change to Plan's order
+  changes both, in the same pull request.
+- "Look again" messages for the widget and for Reminders share one mark
+  per device, so a busy minute sends one message.
+- A card's text is Plan's own; the widget adds no detail (an Event's
+  place, a due date) to keep it to a glance.

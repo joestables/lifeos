@@ -2,6 +2,8 @@
 
 **Status:** Provisionally agreed · 2026-10-11
 
+**Proposed amendment (Stage 7):** [ADR-0063](0063-notifications-on-the-android-app.md) (Proposed) would make the Android app an FCM device that sets its own Reminders, with Alarms.
+
 **Amended:** 2026-10-18 by [ADR-0056](0056-cooking-on-the-device.md) (a Cooking timer's end is a one-off notification sent by the same minute run).
 
 ## Context
