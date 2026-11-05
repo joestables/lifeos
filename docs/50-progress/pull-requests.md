@@ -59,6 +59,9 @@ Branch `claude/lifeos-bug-hunt-94zgs1` · 2026-11-04
   - An Event's Reminders just below its end.
   - Migration `shared_tasks_and_events`; database tests `shared_tasks_test`
     (15), `shared_events_calendar_test` (12); walks `sharing.spec.ts`.
+    Applied by the tool, checked live as a made-up member (rolled back):
+    each member's own default and digest; advisors: nothing new but the
+    two private tables, which have no policies as their neighbours.
 
 **Documents touched:** spaces and sharing (ACC-003 1, 4; HSH-003 3;
 HSH-004 1, 5; HSH-005), reminders (REM-002 1, REM-004 6, REM-008 1),
