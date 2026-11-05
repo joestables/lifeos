@@ -5,6 +5,7 @@ import { listenToServiceWorker } from '@/app/notifications'
 import { reloadForNewCode } from '@/app/reload'
 import { RouteError } from '@/app/RouteError'
 import { noteAction, startReporting } from '@/data'
+import { isAndroidApp } from '@/native/platform'
 import { DataProvider } from '@/data/DataProvider'
 import { routeTree } from './routeTree.gen'
 import '@/styles/theme.css'
@@ -39,6 +40,11 @@ window.addEventListener('vite:preloadError', (e) => {
 router.subscribe('onResolved', ({ toLocation }) => noteAction(`navigate ${toLocation.pathname}`))
 // A tapped notification opens its Item here (REM-006).
 listenToServiceWorker((url) => void router.navigate({ href: url }))
+// Inside the Android app only (ADR-0061): Back, links into the app, updates.
+if (isAndroidApp())
+  void import('@/native/app').then(({ startAndroidApp }) =>
+    startAndroidApp((href) => void router.navigate({ href })),
+  )
 
 declare module '@tanstack/react-router' {
   interface Register {

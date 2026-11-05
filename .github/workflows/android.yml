@@ -66,6 +66,8 @@ jobs:
           if [ -z "$KEYSTORE_BASE64" ]; then echo "::error::The signing key's Actions secrets aren't set (integration-setup.md#android-app)"; exit 1; fi
           echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/lifeos.jks"
           export ANDROID_KEYSTORE="$RUNNER_TEMP/lifeos.jks"
+          # The certificate's public fingerprint, for the site's assetlinks.json.
+          keytool -list -v -keystore "$ANDROID_KEYSTORE" -storepass "$ANDROID_KEYSTORE_PASSWORD" -alias "$ANDROID_KEY_ALIAS" | grep 'SHA256:'
           ./gradlew --no-daemon testReleaseUnitTest assembleRelease
           cp app/build/outputs/apk/release/app-release.apk "$RUNNER_TEMP/LifeOS-$LIFEOS_VERSION_NAME.apk"
       - uses: actions/upload-artifact@v4

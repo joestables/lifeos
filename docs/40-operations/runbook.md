@@ -212,6 +212,22 @@ Repeating Tasks are made ahead by the `extend-series` Edge Function
   update. A missed night changes nothing anyone
   sees: 12 weeks are already made.
 
+## The Android app
+
+[ADR-0061](../20-architecture/adr/0061-the-android-app.md). The app loads
+the live site, so a web change reaches it when Vercel deploys, as for the
+web.
+
+- **A change to its native parts** (`android/`, a Capacitor plugin): the
+  Android workflow builds it on the pull request. Once merged, raise
+  `public/android.json`'s version and push a tag `android-v` plus that
+  version from `master`; the workflow attaches the signed APK to a GitHub
+  release, and the app says "A new version of the app is ready" once the
+  site is deployed.
+- **The signing certificate's fingerprint** is printed in each release
+  run's log (`SHA256:`); `public/.well-known/assetlinks.json` carries it,
+  so joestables.uk links open in the app.
+
 ## Recovering
 
 - **A bad deploy:** Vercel's instant rollback.

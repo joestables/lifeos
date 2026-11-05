@@ -90,4 +90,28 @@ isn't needed.
   passwords; its version name is the tag's, its version code the run's
   number.
 - `src/native/platform.ts` holds `isAndroidApp()`, with a unit test that
-  it is false on the web.
+  it is false on the web. It reads the bridge Capacitor injects into the
+  page (`window.Capacitor`) rather than importing Capacitor, so the web's
+  bundle has none; `src/native/app.ts`, which does import it, is loaded
+  only when the check is true, as its own chunk (the service worker
+  precaches it with every other file, but the web never runs it).
+
+## As built (5 November, step 5)
+
+- The icon: the graph as a vector drawable (its colours, as `icon.svg`'s),
+  a one-colour layer for themed icons, and legacy PNGs drawn from
+  `public/`; the opening screen is Android's own, the icon on the theme's
+  `--background` (`colors.xml`, held to the theme by `tokens:check`).
+- Safe areas and the system bars: Capacitor 8's `SystemBars` passes
+  Android's insets to the page's `env(safe-area-inset-*)`, which the web
+  already uses (`viewport-fit=cover`), and colours the bars' icons for the
+  theme; nothing of LifeOS's own.
+- Back: an open popup, Sheet or menu (Base UI's `data-open`) is sent
+  Escape, so it closes as it would on a computer; otherwise back in
+  history; otherwise the app closes.
+- Links: an App Links `intent-filter` for `https://joestables.uk`; a link
+  opened from another app is navigated to in the page.
+- A new APK: the site serves `/android.json` (`{ "version": … }`); when it
+  is newer than the app's, the Android app Card in Settings shows Update
+  ready, and a toast says so once per version; Install opens the latest
+  GitHub release.

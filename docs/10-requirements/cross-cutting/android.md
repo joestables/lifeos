@@ -48,7 +48,7 @@ tests can't reach is verified by Joe on his phone.*
 
 **As** Joe, **I want** LifeOS as an app on my Android phone, kept up to
 date without reinstalling, **so that** it can do what the web app can't.
-Priority: Must · Status: agreed
+Priority: Must · Status: built (step 5; Joe checks it on his phone)
 
 Acceptance criteria
 1. Given the APK, when I install it, then LifeOS is on my home screen with
@@ -81,7 +81,7 @@ Acceptance criteria
 
 **As** Joe, **I want** the app to behave like an Android app, **so that**
 nothing about it feels like a web page.
-Priority: Must · Status: agreed
+Priority: Must · Status: built (step 5; Joe checks it on his phone)
 
 Acceptance criteria
 1. Given no signal, when I open the app, then it shows what it held and
