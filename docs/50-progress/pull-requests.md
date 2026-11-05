@@ -2,6 +2,22 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## Stage 7: links into the Android app
+
+Branch `claude/intelligent-shannon-umfm64` · 2026-11-05 · the PR number is
+filled in once it is opened
+
+**What it did**
+- The first signed release, [android-v0.1.0](https://github.com/joestables/lifeos/releases/tag/android-v0.1.0),
+  built by Run workflow from `master` after #61 merged.
+- `public/.well-known/assetlinks.json`: the release certificate's
+  fingerprint, so joestables.uk links open in the app (AND-003 3).
+
+**Documents touched:** the Stage 7 plan.
+
+**Left for later:** Joe installing the app and checking steps 5 and 6 on
+his phone; then step 7, notifications by FCM.
+
 ## [#61](https://github.com/joestables/lifeos/pull/61) — Stage 7: the Android app — plan, spec, decisions, design and toolchain
 
 Branch `claude/intelligent-shannon-umfm64` · 2026-11-05

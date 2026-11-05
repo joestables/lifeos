@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "uk.joestables.lifeos",
+      "sha256_cert_fingerprints": [
+        "11:53:87:BC:CC:E6:1C:6D:0C:D2:CB:31:18:29:6A:30:05:19:56:F8:1F:D0:74:83:E6:49:13:4D:4D:EA:0E:DA"
+      ]
+    }
+  }
+]
