@@ -221,8 +221,10 @@ web.
 
 - **A change to its native parts** (`android/`, a Capacitor plugin): the
   Android workflow builds it on the pull request. Once merged, raise
-  `public/android.json`'s version and push a tag `android-v` plus that
-  version from `master`; the workflow attaches the signed APK to a GitHub
+  `public/android.json`'s version, then Actions → Android → Run workflow
+  on `master` with that version (Joe, or Claude through the GitHub tools
+  once they can start a run; a cloud session can't push tags); the
+  workflow tags `android-v<version>`, attaches the signed APK to a GitHub
   release, and the app says "A new version of the app is ready" once the
   site is deployed.
 - **The signing certificate's fingerprint** is printed in each release

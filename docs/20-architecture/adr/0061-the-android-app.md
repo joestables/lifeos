@@ -89,6 +89,9 @@ isn't needed.
   build signs only when the workflow hands it the key's file and
   passwords; its version name is the tag's, its version code the run's
   number.
+- A release is started by hand (Actions → Android → Run workflow, with a
+  version), which tags `android-v<version>` itself: a cloud session can't
+  push tags.
 - `src/native/platform.ts` holds `isAndroidApp()`, with a unit test that
   it is false on the web. It reads the bridge Capacitor injects into the
   page (`window.Capacitor`) rather than importing Capacitor, so the web's

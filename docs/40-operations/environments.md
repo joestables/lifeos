@@ -56,8 +56,8 @@ A skipped job counts as passed for `master`'s protection.
 ([ADR-0061](../20-architecture/adr/0061-the-android-app.md)): on a pull
 request that touches `android/`, `src/native/`, `native-shell/`,
 `capacitor.config.ts` or the lockfile, its Kotlin unit tests and a debug
-build; by hand or on an `android-v*` tag, a signed release, attached to a
-GitHub release for a tag. Claude's cloud sessions can't build it (Google's
+build; run by hand with a version (or on an `android-v*` tag), a signed
+release, attached to a GitHub release tagged `android-v<version>`. Claude's cloud sessions can't build it (Google's
 Android SDK host isn't reachable), so a native change is checked there.
 
 ## Claude cloud sessions

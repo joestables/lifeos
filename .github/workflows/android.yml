@@ -2,9 +2,10 @@ name: Android
 
 # The Android app's APK (ADR-0061). On a pull request that touches the app,
 # its unit tests and a debug build, to catch a native change that doesn't
-# compile; by hand, or on an android-v* tag, a release signed with LifeOS's
-# key, attached to a GitHub release for a tag. Only then, to save Actions
-# minutes (docs/40-operations/environments.md#ci).
+# compile; run by hand with a version (or on an android-v* tag), a release
+# signed with LifeOS's key, attached to a GitHub release tagged
+# android-v<version>. Only then, to save Actions minutes
+# (docs/40-operations/environments.md#ci).
 on:
   pull_request:
     paths:
@@ -17,6 +18,10 @@ on:
   push:
     tags: ['android-v*']
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'The version to release, as public/android.json says (e.g. 0.1.0)'
+        required: true
 
 concurrency:
   group: android-${{ github.ref }}
@@ -33,7 +38,7 @@ jobs:
       contents: write
     env:
       LIFEOS_VERSION_CODE: ${{ github.run_number }}
-      LIFEOS_VERSION_NAME: ${{ startsWith(github.ref_name, 'android-v') && github.ref_name || '0.0.0' }}
+      LIFEOS_VERSION_NAME: ${{ inputs.version || '0.0.0' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -76,10 +81,11 @@ jobs:
           name: LifeOS-${{ env.LIFEOS_VERSION_NAME }}
           path: ${{ runner.temp }}/LifeOS-*.apk
       - name: Attach to a release
-        if: startsWith(github.ref_name, 'android-v')
+        if: github.event_name != 'pull_request'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "$GITHUB_REF_NAME" "$RUNNER_TEMP"/LifeOS-*.apk \
+          gh release create "android-v$LIFEOS_VERSION_NAME" "$RUNNER_TEMP"/LifeOS-*.apk \
+            --target "$GITHUB_SHA" \
             --title "LifeOS for Android $LIFEOS_VERSION_NAME" \
             --notes "Open this page on the phone, download the APK and open it to install."
