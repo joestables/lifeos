@@ -13,7 +13,9 @@ index, the ADR statuses, which document wins, and how to change documents.
 check, unit tests) and `npm run build` pass; with UI changes also
 `npm run build:e2e && npm run e2e` (browser and screenshot tests, in
 Playwright's Docker image; start `dockerd` first in a cloud session); with
-migrations, `npm run db:test`. GitHub's CI runs only on pull requests
+migrations, `npm run db:test`; with Android changes (`android/`,
+`src/native/`), the Android workflow on the pull request, as a cloud
+session can't build the APK. GitHub's CI runs only on pull requests
 ([CI](docs/40-operations/environments.md#ci)): open a draft one before
 applying a migration. Vite + React + TypeScript; the app is in
 `src/`, shared packages in `packages/`.

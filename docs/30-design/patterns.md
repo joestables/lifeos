@@ -899,8 +899,8 @@ sub-tasks `list-checks` with "2/5".
 
 ## The Android app
 
-*Draft, Stage 7 ([plan](../50-progress/plans/stage-7.md), step 3), for Joe
-to agree; drawn on `/design-stage-7`.* The app is the web's screens
+*Stage 7 ([plan](../50-progress/plans/stage-7.md), step 3), agreed with Joe
+on 5 November; drawn on `/design-stage-7`, and the widget on `/design`.* The app is the web's screens
 ([AND-003](../10-requirements/cross-cutting/android.md#and-003--like-the-web-app-on-the-phone));
 what follows is what only it has.
 

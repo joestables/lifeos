@@ -5,3 +5,4 @@ node_modules
 package-lock.json
 src/routeTree.gen.ts
 src/assets/body-map/manifest.json
+android/app/src/main/assets

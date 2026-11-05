@@ -1,0 +1,83 @@
+name: Android
+
+# The Android app's APK (ADR-0061). On a pull request that touches the app,
+# its unit tests and a debug build, to catch a native change that doesn't
+# compile; by hand, or on an android-v* tag, a release signed with LifeOS's
+# key, attached to a GitHub release for a tag. Only then, to save Actions
+# minutes (docs/40-operations/environments.md#ci).
+on:
+  pull_request:
+    paths:
+      - android/**
+      - src/native/**
+      - native-shell/**
+      - capacitor.config.ts
+      - package-lock.json
+      - .github/workflows/android.yml
+  push:
+    tags: ['android-v*']
+  workflow_dispatch:
+
+concurrency:
+  group: android-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  apk:
+    name: APK
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      LIFEOS_VERSION_CODE: ${{ github.run_number }}
+      LIFEOS_VERSION_NAME: ${{ startsWith(github.ref_name, 'android-v') && github.ref_name || '0.0.0' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - run: npm ci
+      - name: Copy the shell and plugins into the Android project
+        run: npx cap sync android
+      - name: Version from the tag
+        if: startsWith(github.ref_name, 'android-v')
+        run: echo "LIFEOS_VERSION_NAME=${GITHUB_REF_NAME#android-v}" >> "$GITHUB_ENV"
+      - name: Unit tests and a debug build
+        if: github.event_name == 'pull_request'
+        working-directory: android
+        run: ./gradlew --no-daemon testDebugUnitTest assembleDebug
+      - name: Unit tests and a signed release
+        if: github.event_name != 'pull_request'
+        working-directory: android
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          if [ -z "$KEYSTORE_BASE64" ]; then echo "::error::The signing key's Actions secrets aren't set (integration-setup.md#android-app)"; exit 1; fi
+          echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/lifeos.jks"
+          export ANDROID_KEYSTORE="$RUNNER_TEMP/lifeos.jks"
+          ./gradlew --no-daemon testReleaseUnitTest assembleRelease
+          cp app/build/outputs/apk/release/app-release.apk "$RUNNER_TEMP/LifeOS-$LIFEOS_VERSION_NAME.apk"
+      - uses: actions/upload-artifact@v4
+        if: github.event_name != 'pull_request'
+        with:
+          name: LifeOS-${{ env.LIFEOS_VERSION_NAME }}
+          path: ${{ runner.temp }}/LifeOS-*.apk
+      - name: Attach to a release
+        if: startsWith(github.ref_name, 'android-v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" "$RUNNER_TEMP"/LifeOS-*.apk \
+            --title "LifeOS for Android $LIFEOS_VERSION_NAME" \
+            --notes "Open this page on the phone, download the APK and open it to install."

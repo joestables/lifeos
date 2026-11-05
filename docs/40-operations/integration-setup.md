@@ -2,6 +2,19 @@
 
 *Each Integration's steps are written when it is built. Known so far:*
 
+## Android app (Stage 7)
+
+The app's signing key is made once, by Joe, and never enters the
+repository or a chat ([ADR-0061](../20-architecture/adr/0061-the-android-app.md)).
+Losing it means installing the app afresh.
+
+| Where | Setting | State |
+|---|---|---|
+| A computer with Java (`keytool`) | `keytool -genkeypair -v -keystore lifeos.jks -alias lifeos -keyalg RSA -keysize 4096 -validity 36500`, choosing a password; then `base64 -i lifeos.jks` (macOS) or `base64 -w0 lifeos.jks` (Linux) for the secret below. Keep `lifeos.jks` and its password in the password manager | To do (Joe) |
+| GitHub → `joestables/lifeos` → Settings → Secrets and variables → Actions | `ANDROID_KEYSTORE_BASE64` (the base64 text), `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` (`lifeos`), `ANDROID_KEY_PASSWORD` (the same password, unless another was chosen) | To do (Joe) |
+| A release | A tag `android-vX.Y.Z`, pushed by Claude, makes the Android workflow build the signed APK and attach it to a GitHub release; Actions → Android → Run workflow builds one without a release | — |
+| The phone | Open the release on the phone (signed in to GitHub), download the APK and open it; allow installing from the browser once | To do (Joe), at step 5 |
+
 ## Supabase Data API
 
 | Where | Setting | State |

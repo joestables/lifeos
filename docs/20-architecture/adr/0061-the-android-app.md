@@ -76,3 +76,18 @@ isn't needed.
   what the phone hadn't sent.
 - On Joe's phone the app takes the installed web app's place, so a share
   or a notification doesn't arrive twice.
+
+## As built (5 November, Stage 7 step 4)
+
+- Capacitor 8.5.3, `@capacitor/app` 8.1.2 and `@capacitor/browser` 8.0.5
+  (the last releases at least two weeks old), pinned. `capacitor.config.ts`
+  loads `https://joestables.uk`; its web directory is `native-shell/`,
+  holding only the no-connection page and an empty `index.html`, so the
+  app carries none of the web's code.
+- `android/` is Capacitor's generated project (`uk.joestables.lifeos`),
+  committed; what `npx cap sync` copies into it is ignored. The release
+  build signs only when the workflow hands it the key's file and
+  passwords; its version name is the tag's, its version code the run's
+  number.
+- `src/native/platform.ts` holds `isAndroidApp()`, with a unit test that
+  it is false on the web.

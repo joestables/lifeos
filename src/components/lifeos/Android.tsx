@@ -26,9 +26,9 @@ export type WidgetCard = {
 
 /** Android's widget grid, at a 390dp phone (tokens.md#sizes). */
 const SIZES = {
-  '4x2': 'w-[358px] h-[170px]',
-  '4x3': 'w-[358px] h-[260px]',
-  '4x4': 'w-[358px] h-[350px]',
+  '4x2': 'w-full max-w-[358px] h-[170px]',
+  '4x3': 'w-full max-w-[358px] h-[260px]',
+  '4x4': 'w-full max-w-[358px] h-[350px]',
   '2x2': 'w-[170px] h-[170px]',
 } as const
 

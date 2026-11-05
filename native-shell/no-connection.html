@@ -1,0 +1,81 @@
+<!doctype html>
+<!--
+  The Android app's page for a first launch with no signal
+  (docs/30-design/patterns.md#the-android-app, ADR-0061). It is bundled in
+  the app, so it can't read the theme file: its colours are tokens.md's,
+  copied (docs/30-design/README.md#enforcement).
+-->
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>LifeOS</title>
+    <style>
+      :root {
+        --background: oklch(0.966 0.0025 260);
+        --foreground: oklch(0.235 0.0025 260);
+        --muted-foreground: oklch(0.5 0.005 260);
+        --card: oklch(0.997 0.00125 260);
+        --hairline: oklch(0.235 0.0025 260 / 6.5%);
+        color-scheme: light dark;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --background: oklch(0.175 0.0025 260);
+          --foreground: oklch(0.945 0.0025 260);
+          --muted-foreground: oklch(0.7 0.005 260);
+          --card: oklch(0.215 0.0025 260);
+          --hairline: oklch(0.945 0.0025 260 / 6.5%);
+        }
+      }
+      body {
+        margin: 0;
+        min-height: 100svh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        padding: 0 20px;
+        text-align: center;
+        background: var(--background);
+        color: var(--foreground);
+        font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      }
+      img {
+        width: 24px;
+        height: 24px;
+      }
+      h1 {
+        margin: 0;
+        font-size: 17px;
+        font-weight: 700;
+        letter-spacing: -0.015em;
+      }
+      p {
+        margin: 0;
+        font-size: 13px;
+        color: var(--muted-foreground);
+      }
+      button {
+        margin-top: 8px;
+        height: 40px;
+        padding: 0 16px;
+        border: 0;
+        border-radius: 12px;
+        background: var(--card);
+        color: var(--foreground);
+        box-shadow: 0 0 0 1px var(--hairline);
+        font: inherit;
+        font-size: 14px;
+        font-weight: 600;
+      }
+    </style>
+  </head>
+  <body>
+    <img src="icon.svg" alt="" />
+    <h1>No connection</h1>
+    <p>Connect to open LifeOS the first time</p>
+    <button type="button" onclick="location.href = 'https://joestables.uk'">Try again</button>
+  </body>
+</html>

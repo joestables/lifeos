@@ -42,15 +42,23 @@ is filled in once it is opened
   screen (`text-clock`, a new token), the Reminder's Alarm switch, Settings
   in the app, the first launch with no signal, the adaptive and themed
   icon. Specced as drafts in components.md, patterns.md and tokens.md.
+- **Joe agreed the design**: marked agreed, and the widget and the
+  Alarm's reminder line added to `/design` (screenshots refreshed).
+- **Step 4, the toolchain:** Capacitor 8.5.3 (pinned); `capacitor.config.ts`
+  loading joestables.uk, `native-shell/` with the no-connection page;
+  `android/` generated; `src/native/platform.ts`; the Android workflow
+  (`.github/workflows/android.yml`).
 
 **Documents touched:** the roadmap (Stages 7, 8 and 10, where we are),
 the docs README, `CLAUDE.md`, the capability map, the architecture
 overview, the glossary (Alarm, Widget), the Android app spec (new),
 reminders, capture, recipes (RCP-003), integrations, non-functional,
-integration setup (Health Connect), ADR-0028, ADR-0061–0064 (new), ADR-0034, 0044, 0047, 0055 and 0056 (amended), the overview's stack, the design system (components, patterns, tokens: drafts), the Stage 5 plan, the
+integration setup (Health Connect), ADR-0028, ADR-0061–0064 (new), ADR-0034, 0044, 0047, 0055 and 0056 (amended), the overview's stack, the design system (components, patterns, tokens; the enforcement's exception for the bundled page), integration setup (Android app), environments (CI), `CLAUDE.md` (Android checks), the Stage 5 plan, the
 Stage 7 plan (new).
 
-**Left for later:** Joe agreeing the design, then step 4, the toolchain.
+**Left for later:** Joe's signing key and its Actions secrets; a pull
+request so the Android workflow checks the build; then step 5, the app
+running on the phone.
 
 ## [#60](https://github.com/joestables/lifeos/pull/60) — A multi-user bug hunt: who made an Item, notifications after leaving, one person's device
 
