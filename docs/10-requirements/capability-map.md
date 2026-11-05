@@ -36,7 +36,9 @@ Owner: **core**, a **Module** (`shopping`, `food`, `fitness`, `goals`,
 | Gym: exercises, templates, workouts, the recovery engine, progression | `fitness` | Gym | 5 | [gym](modules/gym.md) |
 | Goals and the measures registry | `goals` | Goals | 5 | — |
 | Wardrobe and outfits | `wardrobe` | Wardrobe | 6 | — |
-| Exact-alarm Reminders (Android wrapper) | core | — | 7 | [reminders](cross-cutting/reminders.md) |
+| The Android app (Capacitor): notifications by FCM, sharing in; the web unchanged | core | — | 7 | [Stage 7 plan](../50-progress/plans/stage-7.md) (spec to come) |
+| Exact-alarm Reminders (Android app) | core | — | 7 | [reminders](cross-cutting/reminders.md) |
+| Home-screen widgets on Android: Recovery and next workout first | core, `fitness` | Android home screen | 7 | [Stage 7 plan](../50-progress/plans/stage-7.md) (spec to come) |
 | Health Connect | Integration | — | 7–8 | [integrations](cross-cutting/integrations.md) |
 | Cardio, with Oura and Health Connect (a blank page in the drawer until then) | `fitness`, Integration | Cardio | 8 | — |
 | Finance | `finance` | Finance | 9 | — |

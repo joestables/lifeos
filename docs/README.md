@@ -12,7 +12,10 @@ Meal plan) are done. **Stage 4b**, Shopping, has started: its
 alongside it: its [plan](50-progress/plans/stage-5.md) is written, its
 spec and design agreed, its schema in the database and its calculations
 in `packages/fitness`; its settings, exercise library, templates, workouts, recovery and
-progression are built; Joe using it is next.
+progression are built, and Joe called it complete on 5 November (Goals and
+the measures registry follow). **Stage 7**, the Android app and widgets,
+has started ahead of Stage 6: its [plan](50-progress/plans/stage-7.md) is
+written, and its specs come first.
 
 ## Index
 

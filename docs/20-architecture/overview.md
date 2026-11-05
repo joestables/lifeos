@@ -118,7 +118,7 @@ from every box are reported to `ops.events`
 - **GitHub Actions:** CI. No backups for now
   ([backups](../40-operations/backups.md)).
 - **Later:** a LifeOS MCP server on the published layer; a Capacitor Android
-  wrapper; after Stage 9, an inbound-email service for the capture address
+  app with home-screen widgets (Stage 7, [plan](../50-progress/plans/stage-7.md)); after Stage 9, an inbound-email service for the capture address
   ([ADR-0028](adr/0028-capture-from-outside-the-app.md)).
 
 ## Stack

@@ -2,6 +2,31 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## Stage 7: the plan for the Android app and widgets
+
+Branch `claude/intelligent-shannon-umfm64` · 2026-11-05 · the PR number
+is filled in once it is opened
+
+**What it did**
+- **Explored** whether LifeOS could have widgets and be an Android app,
+  at Joe's asking after the Gym was complete. Widgets need the Android
+  app. Capacitor (ADR-0034) fits the stack, costs nothing, and leaves the
+  web version unchanged. The findings are kept in the plan.
+- **Wrote the [Stage 7 plan](plans/stage-7.md)**, started ahead of Stage 6
+  at Joe's asking: specs, decisions, design, the toolchain, the app,
+  sign-in, FCM notifications, exact alarms, sharing in, widgets
+  (Recovery and next workout first), Health Connect, Joe's use. Five
+  questions for Joe, each with a recommendation.
+- **Closed Stage 5's step 11**: Joe called the Gym complete (5 November).
+  Goals and the measures registry (step 12) wait behind Stage 7.
+
+**Documents touched:** the roadmap (Stage 7, where we are), the docs
+README, `CLAUDE.md`, the capability map (the Android app, widgets), the
+architecture overview, the Stage 5 plan, the Stage 7 plan (new).
+
+**Left for later:** Joe's answers to the plan's questions, then step 1,
+the specs.
+
 ## [#60](https://github.com/joestables/lifeos/pull/60) — A multi-user bug hunt: who made an Item, notifications after leaving, one person's device
 
 Branch `claude/lifeos-bug-hunt-94zgs1` · 2026-11-04
