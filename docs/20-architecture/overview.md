@@ -46,7 +46,7 @@ flowchart TB
 
   subgraph device["Each person's device"]
     pwa["PWA<br/>React, TypeScript, Vite,<br/>shadcn/ui, TanStack Router + Query;<br/>local cache, write queue,<br/>service worker"]
-    android["Android app<br/>Capacitor (Stage 7), loading the live site:<br/>FCM, exact alarms, two widgets;<br/>Health Connect (Stage 8)"]
+    android["Android app<br/>Capacitor (Stage 7), loading the live site:<br/>FCM, exact alarms, the Today widget;<br/>Health Connect (Stage 8)"]
   end
 
   subgraph supabase["Supabase project · London"]

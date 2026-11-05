@@ -2,8 +2,8 @@
 
 *Stage 7 ([plan](../../50-progress/plans/stage-7.md)). The decisions come
 first, then the requirements (drafted 5 November, from Joe's answers that
-day), then the open points for Joe. How it is built comes in step 2's
-ADRs.*
+day, and his answers to its open points), then the deferred Thought
+widget. How it is built comes in step 2's ADRs.*
 
 ## Decisions
 
@@ -26,12 +26,11 @@ ADRs.*
   | On time | Within the minute run | Set on the phone, to the minute ([reminders](reminders.md#rem-010--on-time-on-the-android-app)) |
   | Alarms | None | A Reminder marked Alarm rings ([REM-011](reminders.md#rem-011--an-alarm)) |
   | Sharing into LifeOS | The manifest's share target | Android's share sheet, the same `/share` |
-  | Widgets | None | Capture a thought; Today's Plan |
+  | Widgets | None | Today, the day's Plan |
 
-- **Two widgets, and no others** (Joe, 5 November): **Capture a thought**
-  and **Today**, the day's Plan. Typing a Thought from the home screen
-  moves here from Stage 10
-  ([ADR-0028](../../20-architecture/adr/0028-capture-from-outside-the-app.md)).
+- **One widget: Today**, the day's Plan, with "+" to add to it as Plan
+  does (Joe, 5 November). No others. A widget for capturing a Thought is
+  [deferred](#deferred): Joe may change how Thoughts work.
 - **A widget shows what the phone holds**; it doesn't run LifeOS's own
   code. The app keeps what Today shows on the phone whenever it changes,
   and a message from the server says when something changed elsewhere.
@@ -126,24 +125,6 @@ Acceptance criteria
    screenshot test passes unchanged.
 2. Given code only the Android app uses, then the web never runs it.
 
-### WID-001 — Capture a thought from the home screen
-
-**As** Joe, **I want** a widget that captures a Thought, **so that** a
-thought is out of my head without finding the app first.
-Priority: Must · Status: proposed
-
-Acceptance criteria
-1. Given the widget on my home screen, then it is a single bar reading
-   "Capture a thought", with LifeOS's icon.
-2. Given I tap it, then capture opens straight away with the keyboard up,
-   as CAP-001 in the app: a Thought by default, the switch to Task, dates
-   understood (CAP-003), Labels (CAP-009).
-3. Given I save, then the Thought (or Task) is kept, offline too, "Thought
-   saved" shows, and I'm back on the home screen. Closing without saving
-   also goes back to the home screen.
-4. Given I'm signed out, then tapping it signs me in first and then opens
-   capture.
-
 ### WID-002 — Today's Plan on the home screen
 
 **As** Joe, **I want** today's Plan on my home screen, **so that** I see
@@ -167,17 +148,43 @@ Acceptance criteria
 6. Given no signal, then it shows what the phone last held.
 7. Given the widget's size, then I can make it smaller or larger on the
    home screen and it shows as many cards as fit.
+8. Given I press the "+" at the widget's top right, then the app opens on
+   Plan's today with "+" pressed: I choose among the Schedulable Types,
+   and the new Item is dated today, as PLN-006; saving it puts it on the
+   widget at once.
+9. Given a card, then it has no checkbox, as Plan's cards have none (Joe,
+   14 October): I open the Item to tick it.
 
-## Open points for Joe
+## Joe's answers (5 November)
 
-Claude's recommendation is given with each.
+To the open points drafted with the spec:
 
-1. **Task from the capture widget.** *Recommended:* one bar, with the
-   switch to Task inside capture as in the app. Or a second button on the
-   widget opening capture already on Task.
-2. **Adding from the Today widget.** *Recommended:* a "+" at the widget's
-   top right that opens capture, as the capture widget does, so one widget
-   can do both. Or nothing, keeping it to looking.
-3. **Ticking from the Today widget.** Plan's cards have no checkbox (Joe,
-   14 October). *Recommended:* the same here; tapping opens the Item to
-   tick it.
+1. A Task from the capture widget: no longer applies, with WID-001
+   deferred.
+2. Adding from the Today widget: yes, with "+" (WID-002 8). It does what
+   Plan's "+" does for today (PLN-006), not capture, so it can add any
+   Schedulable Type.
+3. Ticking from the Today widget: as on the web, no checkbox (WID-002 9).
+
+## Deferred
+
+Joe, 5 November: he may change how Thoughts work, so the widget for
+capturing one waits until he has. Kept as drafted, not agreed.
+
+### WID-001 — Capture a thought from the home screen
+
+**As** Joe, **I want** a widget that captures a Thought, **so that** a
+thought is out of my head without finding the app first.
+Priority: Must · Status: deferred (Joe, 5 November)
+
+Acceptance criteria
+1. Given the widget on my home screen, then it is a single bar reading
+   "Capture a thought", with LifeOS's icon.
+2. Given I tap it, then capture opens straight away with the keyboard up,
+   as CAP-001 in the app: a Thought by default, the switch to Task, dates
+   understood (CAP-003), Labels (CAP-009).
+3. Given I save, then the Thought (or Task) is kept, offline too, "Thought
+   saved" shows, and I'm back on the home screen. Closing without saving
+   also goes back to the home screen.
+4. Given I'm signed out, then tapping it signs me in first and then opens
+   capture.

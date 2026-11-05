@@ -27,6 +27,10 @@ is filled in once it is opened
   [the Android app](../10-requirements/cross-cutting/android.md)
   (AND-001–005, WID-001–002, three open points), REM-001 4, REM-010 (on
   time on the Android app), REM-011 (an Alarm), RCP-003 5.
+- **Then deferred the Thought widget** (WID-001), as Joe may change how
+  Thoughts work: Today's Plan is the only widget, with "+" doing Plan's
+  "+" for today (PLN-006) and no checkboxes, as on the web. The spec's
+  open points answered.
 
 **Documents touched:** the roadmap (Stages 7, 8 and 10, where we are),
 the docs README, `CLAUDE.md`, the capability map, the architecture
