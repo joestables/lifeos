@@ -83,6 +83,7 @@ import {
   SyncStatus,
   TimeField,
   TYPE_ICONS,
+  TodayWidget,
   TypeBadge,
   TypeDot,
   TypeScope,
@@ -752,6 +753,7 @@ function DesignPage() {
               reminders={[
                 { id: 'a', when: 'Fri 09:00', says: 'On the day' },
                 { id: 'b', when: 'Thu 18:00', says: '1 day before' },
+                { id: 'c', when: 'Fri 07:00', says: 'At a set time', alarm: true },
               ]}
               onOpen={() => {}}
               onRemove={() => {}}
@@ -903,6 +905,34 @@ function DesignPage() {
                 </Button>
               }
             />
+          </div>
+        </Section>
+
+        <Section title="The Android app: the Today widget">
+          <div className="flex flex-wrap items-start gap-4 rounded-lg bg-muted p-4">
+            <TodayWidget
+              size="4x2"
+              date="Thu 5 Nov"
+              cards={[
+                { colour: 'coral', icon: DumbbellIcon, type: 'Workout', title: 'Push' },
+                {
+                  colour: 'blue',
+                  icon: TYPE_ICONS.task!,
+                  type: 'Task',
+                  title: 'Renew passport',
+                  time: '09:00',
+                  done: true,
+                },
+                {
+                  colour: 'blue',
+                  icon: TYPE_ICONS.event!,
+                  type: 'Event',
+                  title: 'Dentist',
+                  time: '13:30',
+                },
+              ]}
+            />
+            <TodayWidget size="2x2" date="Sun 8 Nov" />
           </div>
         </Section>
 

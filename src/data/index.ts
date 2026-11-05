@@ -655,7 +655,14 @@ export async function clearRefused(): Promise<void> {
   for (const e of queue.entries()) if (e.state === 'failed') await queue.discard(e.id)
 }
 
-export { authReady, signInWithGoogle, useAuth, type Me } from './auth'
+export {
+  authReady,
+  finishSignIn,
+  googleSignInAddress,
+  signInWithGoogle,
+  useAuth,
+  type Me,
+} from './auth'
 export {
   useCalendar,
   useDeletedItems,

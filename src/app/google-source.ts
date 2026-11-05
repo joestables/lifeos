@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { toast } from '@/components/ui/sonner'
 import { calendarAction, queue, useCalendar, type Item } from '@/data'
+import { isAndroidApp } from '@/native/platform'
 
 /** Whether my connection is there and reading (not disconnected). */
 export const isOn = (c: ReturnType<typeof useCalendar>['connection']) =>
@@ -9,6 +10,13 @@ export const isOn = (c: ReturnType<typeof useCalendar>['connection']) =>
 /** Sends me to Google to connect, or reconnect, my calendars (GCL-001, GCL-006 2). */
 export async function connectGoogleCalendar() {
   try {
+    if (isAndroidApp()) {
+      // Through the phone's browser and back to the app (ADR-0062).
+      const { APP_RETURN, openInBrowser } = await import('@/native/browser')
+      const { url } = await calendarAction('start', APP_RETURN.settings)
+      if (url) await openInBrowser(url)
+      return
+    }
     const { url } = await calendarAction('start', `${window.location.origin}/settings`)
     if (url) window.location.assign(url)
   } catch {

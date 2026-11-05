@@ -2,6 +2,77 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#61](https://github.com/joestables/lifeos/pull/61) — Stage 7: the Android app — plan, spec, decisions, design and toolchain
+
+Branch `claude/intelligent-shannon-umfm64` · 2026-11-05
+
+**What it did**
+- **Explored** whether LifeOS could have widgets and be an Android app,
+  at Joe's asking after the Gym was complete. Widgets need the Android
+  app. Capacitor (ADR-0034) fits the stack, costs nothing, and leaves the
+  web version unchanged. The findings are kept in the plan.
+- **Wrote the [Stage 7 plan](plans/stage-7.md)**, started ahead of Stage 6
+  at Joe's asking: specs, decisions, design, the toolchain, the app,
+  sign-in, FCM notifications, exact alarms, sharing in, widgets
+  (Recovery and next workout first), Health Connect, Joe's use. Five
+  questions for Joe, each with a recommendation.
+- **Closed Stage 5's step 11**: Joe called the Gym complete (5 November).
+  Goals and the measures registry (step 12) wait behind Stage 7.
+- **Joe's answers** (5 November): the live site; Alarms as recommended;
+  two widgets only, Capture a thought (moved from Stage 10) and Today's
+  Plan, no Recovery widget; Health Connect moved to Stage 8; Stage 7
+  before Wardrobe, Goals and Shopping's last steps.
+- **Drafted step 1's spec** for Joe's agreement:
+  [the Android app](../10-requirements/cross-cutting/android.md)
+  (AND-001–005, WID-001–002, three open points), REM-001 4, REM-010 (on
+  time on the Android app), REM-011 (an Alarm), RCP-003 5.
+- **Then deferred the Thought widget** (WID-001), as Joe may change how
+  Thoughts work: Today's Plan is the only widget, with "+" doing Plan's
+  "+" for today (PLN-006) and no checkboxes, as on the web. The spec's
+  open points answered.
+- **Joe agreed the spec** (5 November), and **step 2's decisions** are
+  written, Proposed: ADR-0061 (the Android app), ADR-0062 (signing in),
+  ADR-0063 (notifications, on time, Alarms), ADR-0064 (the Today widget);
+  the ADRs they would amend point to them.
+- **Joe agreed the decisions**; ADR-0034, 0044, 0047, 0055 and 0056
+  amended to match.
+- **Step 3, the design, first pass** on `/design-stage-7`: the Today
+  widget (one-line widget lines; sizes; empty and signed out), the Alarm
+  screen (`text-clock`, a new token), the Reminder's Alarm switch, Settings
+  in the app, the first launch with no signal, the adaptive and themed
+  icon. Specced as drafts in components.md, patterns.md and tokens.md.
+- **Joe agreed the design**: marked agreed, and the widget and the
+  Alarm's reminder line added to `/design` (screenshots refreshed).
+- **Step 4, the toolchain:** Capacitor 8.5.3 (pinned); `capacitor.config.ts`
+  loading joestables.uk, `native-shell/` with the no-connection page;
+  `android/` generated; `src/native/platform.ts`; the Android workflow
+  (`.github/workflows/android.yml`).
+- **Step 5, under way:** the icon and opening screen; Back, links into
+  the app and "a new version is ready" (`src/native/app.ts`, loaded only
+  in the app; `public/android.json`; Settings' Android app Card);
+  `tokens:check` holds the Android colours; the runbook's Android app
+  section; LifeOS's own Kotlin plugin, keeping the screen awake while
+  Cooking.
+- **Step 6, signing in:** Google through a Custom Tab and back by
+  `uk.joestables.lifeos://`, PKCE in the app only; Calendar's connect the
+  same way, `allowedReturn` widened (tests) and `calendar-connect` and
+  `calendar-callback` redeployed.
+- **A Gym race CI found** (GYM-007 1): New workout fixed its template
+  when it opened, so opened before the templates had loaded it stayed on
+  Empty. The choice is now worked out as they load, until I choose; a
+  walk holds Items back to show it.
+
+**Documents touched:** the roadmap (Stages 7, 8 and 10, where we are),
+the docs README, `CLAUDE.md`, the capability map, the architecture
+overview, the glossary (Alarm, Widget), the Android app spec (new),
+reminders, capture, recipes (RCP-003), integrations, non-functional,
+integration setup (Health Connect), ADR-0028, ADR-0061–0064 (new), ADR-0034, 0044, 0047, 0055 and 0056 (amended), the overview's stack, the design system (components, patterns, tokens; the enforcement's exception for the bundled page), integration setup (Android app), environments (CI), the runbook (the Android app), the Android app spec (AND-001–003 built), ADR-0062 (as built), integrations' runbook (the app's return address), `CLAUDE.md` (Android checks), the Stage 5 plan, the
+Stage 7 plan (new).
+
+**Left for later:** `assetlinks.json` from the first signed release;
+Joe adding the app's return address to Supabase; then Joe installing
+the app.
+
 ## [#60](https://github.com/joestables/lifeos/pull/60) — A multi-user bug hunt: who made an Item, notifications after leaving, one person's device
 
 Branch `claude/lifeos-bug-hunt-94zgs1` · 2026-11-04

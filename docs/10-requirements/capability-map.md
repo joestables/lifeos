@@ -36,11 +36,13 @@ Owner: **core**, a **Module** (`shopping`, `food`, `fitness`, `goals`,
 | Gym: exercises, templates, workouts, the recovery engine, progression | `fitness` | Gym | 5 | [gym](modules/gym.md) |
 | Goals and the measures registry | `goals` | Goals | 5 | — |
 | Wardrobe and outfits | `wardrobe` | Wardrobe | 6 | — |
-| Exact-alarm Reminders (Android wrapper) | core | — | 7 | [reminders](cross-cutting/reminders.md) |
-| Health Connect | Integration | — | 7–8 | [integrations](cross-cutting/integrations.md) |
+| The Android app (Capacitor): sign-in, notifications by FCM, sharing in; the web unchanged | core | — | 7 | [the Android app](cross-cutting/android.md) |
+| Reminders on time, and Alarms (Android app) | core | — | 7 | [reminders](cross-cutting/reminders.md#rem-010--on-time-on-the-android-app) |
+| A home-screen widget on Android: Today's Plan | core | Android home screen | 7 | [the Android app](cross-cutting/android.md#wid-002--todays-plan-on-the-home-screen) |
+| Health Connect | Integration | — | 8 | [integrations](cross-cutting/integrations.md) |
 | Cardio, with Oura and Health Connect (a blank page in the drawer until then) | `fitness`, Integration | Cardio | 8 | — |
 | Finance | `finance` | Finance | 9 | — |
-| Capture from outside the app: capture address, Siri, email, Android shortcut, share and widget | core | Settings (address) | 10 | [capture](cross-cutting/capture.md#deferred-to-stage-10) |
+| Capture from outside the app: capture address, Siri, email, Android shortcut and share; a Thought widget (deferred) | core | Settings (address) | 10 | [capture](cross-cutting/capture.md#deferred-to-stage-10) |
 | Export of everything you can see, as JSON | core | — | — | — |
 | LifeOS MCP server | core | — | Later | — |
 | Settings: notifications and devices, Reminder defaults, default time, digest time, Labels, Recently deleted (Stage 2); reference data (with its Module); the capture address (Stage 10) | core | Settings Screen | 2 | [reminders](cross-cutting/reminders.md), [items](cross-cutting/items.md) |

@@ -18,7 +18,7 @@ flowchart LR
   push["Web Push services<br/>(later FCM)"]
   gcal["Google Calendar<br/>(Stage 3)"]
   oura["Oura<br/>(Stage 8)"]
-  hc["Health Connect<br/>on Android (Stage 7–8)"]
+  hc["Health Connect<br/>on Android (Stage 8)"]
   banks["Open Banking aggregator<br/>(Stage 9)"]
   aimodel["AI model provider<br/>(Stage 4)"]
   claude["Claude, through the<br/>LifeOS MCP server (later)"]
@@ -46,7 +46,7 @@ flowchart TB
 
   subgraph device["Each person's device"]
     pwa["PWA<br/>React, TypeScript, Vite,<br/>shadcn/ui, TanStack Router + Query;<br/>local cache, write queue,<br/>service worker"]
-    android["Android wrapper<br/>Capacitor (Stage 7):<br/>exact alarms, Health Connect"]
+    android["Android app<br/>Capacitor (Stage 7), loading the live site:<br/>FCM, exact alarms, the Today widget;<br/>Health Connect (Stage 8)"]
   end
 
   subgraph supabase["Supabase project · London"]
@@ -118,7 +118,7 @@ from every box are reported to `ops.events`
 - **GitHub Actions:** CI. No backups for now
   ([backups](../40-operations/backups.md)).
 - **Later:** a LifeOS MCP server on the published layer; a Capacitor Android
-  wrapper; after Stage 9, an inbound-email service for the capture address
+  app with home-screen widgets (Stage 7, [plan](../50-progress/plans/stage-7.md)); after Stage 9, an inbound-email service for the capture address
   ([ADR-0028](adr/0028-capture-from-outside-the-app.md)).
 
 ## Stack
@@ -132,7 +132,7 @@ from every box are reported to `ops.events`
 - TanStack Query behind one data layer, keeping the option of PowerSync +
   TanStack DB ([ADR-0042](adr/0042-data-layer.md));
 - Supabase, including Edge Functions, pg_cron and Vault;
-- Capacitor later.
+- Capacitor for the Android app (Stage 7, [ADR-0061](adr/0061-the-android-app.md)).
 
 ## Platforms
 
@@ -141,8 +141,10 @@ from every box are reported to `ops.events`
     buttons.
   - iOS has **no share target, no home-screen shortcuts and no Background
     Sync**, so queued writes send when the app is next open.
-- **Android wrapper (Capacitor)** — moderate effort, and the only route to
-  alarm-grade Reminders:
+- **Android app (Capacitor, Stage 7)** — on Joe's phone in place of the
+  installed web app, loading the live site; the web is unchanged
+  ([the Android app](../10-requirements/cross-cutting/android.md)). The only
+  route to alarm-grade Reminders and home-screen widgets:
   - Since Android 14, `SCHEDULE_EXACT_ALARM` is denied by default. Calendar
     and reminder apps may declare **`USE_EXACT_ALARM`**, granted at install.
     That's fine for an app installed directly; Google Play restricts it to

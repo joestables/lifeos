@@ -112,3 +112,22 @@ export async function signInWithGoogle(): Promise<void> {
   })
   if (error) throw error
 }
+
+/**
+ * The Android app's way in (AND-002, ADR-0062): Google's address, for the
+ * phone's browser, coming back to the app at `redirectTo` with a code.
+ */
+export async function googleSignInAddress(redirectTo: string): Promise<string> {
+  const { data, error } = await supabase().auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo, skipBrowserRedirect: true },
+  })
+  if (error || !data.url) throw error ?? new Error('No address for Google')
+  return data.url
+}
+
+/** Finishes the Android app's sign-in with the code Google sent back (ADR-0062). */
+export async function finishSignIn(code: string): Promise<void> {
+  const { error } = await supabase().auth.exchangeCodeForSession(code)
+  if (error) throw error
+}

@@ -98,7 +98,8 @@ Edge Functions deployed by Claude through the Supabase MCP, sharing
   app's own addresses, with `?calendar=finish&code=…` for the app to finish
   as me, or `cancelled`, `expired` or `failed`. The app's own addresses
   (`allowedReturn` in `calendar-sync/run.ts`): `joestables.uk` (and
-  `www.`), the old `lifeos-bice-mu.vercel.app`, previews and localhost;
+  `www.`), the old `lifeos-bice-mu.vercel.app`, previews, localhost, and
+  the Android app's `uk.joestables.lifeos://settings` (ADR-0062);
   with no good address, `https://joestables.uk/settings`.
 - **Deploying** `calendar-connect` and `calendar-callback`: from 25 October
   each as one bundled file, `node scripts/bundle-function.mjs <name> out.js`,
@@ -211,6 +212,24 @@ Repeating Tasks are made ahead by the `extend-series` Edge Function
   checks (it checks its own secret). Changing the secret is one Vault
   update. A missed night changes nothing anyone
   sees: 12 weeks are already made.
+
+## The Android app
+
+[ADR-0061](../20-architecture/adr/0061-the-android-app.md). The app loads
+the live site, so a web change reaches it when Vercel deploys, as for the
+web.
+
+- **A change to its native parts** (`android/`, a Capacitor plugin): the
+  Android workflow builds it on the pull request. Once merged, raise
+  `public/android.json`'s version, then Actions → Android → Run workflow
+  on `master` with that version (Joe, or Claude through the GitHub tools
+  once they can start a run; a cloud session can't push tags); the
+  workflow tags `android-v<version>`, attaches the signed APK to a GitHub
+  release, and the app says "A new version of the app is ready" once the
+  site is deployed.
+- **The signing certificate's fingerprint** is printed in each release
+  run's log (`SHA256:`); `public/.well-known/assetlinks.json` carries it,
+  so joestables.uk links open in the app.
 
 ## Recovering
 

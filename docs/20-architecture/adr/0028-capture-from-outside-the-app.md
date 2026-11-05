@@ -2,7 +2,7 @@
 
 **Status:** Provisionally agreed · 2026-10-09
 
-**Amended:** 2026-10-09 by [ADR-0037](0037-thoughts.md) (Thoughts); 2026-10-10 by Joe, writing the Stage 2 specs (built after every other stage, not in Stage 2); 2026-10-17 by Joe's notes for the [Recipes spec](../../10-requirements/modules/recipes.md) (Android's share target comes in Stage 4, for recipe ideas).; 2026-10-24 by Joe's answers for Stage 4b (the share target for recipe ideas, and an iOS Shortcut for them, built in Stage 4b)
+**Amended:** 2026-10-09 by [ADR-0037](0037-thoughts.md) (Thoughts); 2026-10-10 by Joe, writing the Stage 2 specs (built after every other stage, not in Stage 2); 2026-10-17 by Joe's notes for the [Recipes spec](../../10-requirements/modules/recipes.md) (Android's share target comes in Stage 4, for recipe ideas).; 2026-10-24 by Joe's answers for Stage 4b (the share target for recipe ideas, and an iOS Shortcut for them, built in Stage 4b); 2026-11-05 by Joe's answers for Stage 7 (the Android widget for typing a Thought drafted with the Android app, then deferred: Joe may change how Thoughts work)
 
 ## Context
 
@@ -22,8 +22,10 @@ Joe's girlfriend's iPhone has no share target.
   stored as text.
 - **No Google Tasks import.**
 - **Built last**, after every other stage on the [roadmap](../../roadmap.md):
-  Joe wants the other Modules first. An Android widget for typing a Thought
-  belongs with it, once the Android wrapper exists.
+  Joe wants the other Modules first. The Android widget for typing a
+  Thought is drafted, and deferred until Joe settles any changes to
+  Thoughts
+  ([WID-001](../../10-requirements/cross-cutting/android.md#wid-001--capture-a-thought-from-the-home-screen)).
 
 ## Consequences
 

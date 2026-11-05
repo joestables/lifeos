@@ -2,6 +2,8 @@
 
 **Status:** Provisionally agreed · 2026-10-14
 
+**Amended:** 2026-11-05 by [ADR-0062](0062-signing-in-on-the-android-app.md) (from the Android app, Calendar is connected through the phone's browser, returning to `uk.joestables.lifeos://settings`).
+
 ## Context
 
 Stage 3's [Google Calendar requirements](../../10-requirements/cross-cutting/integrations.md#google-calendar)

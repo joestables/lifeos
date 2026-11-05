@@ -2,7 +2,7 @@
 
 LifeOS v2 is being built, stage by stage. Stage 0 settled the architecture
 (Provisionally agreed); Stage 1 built the foundation; Stage 2 replaced
-Google Tasks; Stage 3 built Plan, Events and Google Calendar; Stage 4 built Recipes and the Meal plan; Stage 4b (Shopping) has started, and Stage 5 (Gym) has its spec, design, schema, calculations (`packages/fitness`), settings, exercise library, templates, workouts, recovery and progression. The current stage's plan is in
+Google Tasks; Stage 3 built Plan, Events and Google Calendar; Stage 4 built Recipes and the Meal plan; Stage 4b (Shopping) has started, and Stage 5 (Gym) has its spec, design, schema, calculations (`packages/fitness`), settings, exercise library, templates, workouts, recovery and progression, and Joe has called it complete; Stage 7 (the Android app and widgets) has started ahead of Stage 6, with its plan written and its specs first. The current stage's plan is in
 [docs/50-progress/plans/](docs/50-progress/plans/);
 a stage without one starts by writing it, shaped like the last, with the
 stage's specs as its first step for Joe to agree
@@ -13,7 +13,9 @@ index, the ADR statuses, which document wins, and how to change documents.
 check, unit tests) and `npm run build` pass; with UI changes also
 `npm run build:e2e && npm run e2e` (browser and screenshot tests, in
 Playwright's Docker image; start `dockerd` first in a cloud session); with
-migrations, `npm run db:test`. GitHub's CI runs only on pull requests
+migrations, `npm run db:test`; with Android changes (`android/`,
+`src/native/`), the Android workflow on the pull request, as a cloud
+session can't build the APK. GitHub's CI runs only on pull requests
 ([CI](docs/40-operations/environments.md#ci)): open a draft one before
 applying a migration. Vite + React + TypeScript; the app is in
 `src/`, shared packages in `packages/`.

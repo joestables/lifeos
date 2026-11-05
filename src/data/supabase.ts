@@ -1,4 +1,5 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
+import { isAndroidApp } from '@/native/platform'
 import type { Database } from './database.types'
 import { deviceOwner } from './device-owner'
 import { alreadyApplied, isTransient, WriteError } from './queue/errors'
@@ -18,7 +19,12 @@ export function supabase(): LifeosClient {
         'VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY must be set (.env.example)',
       )
     }
-    client = createClient<Database, 'core'>(url, key, { db: { schema: 'core' } })
+    client = createClient<Database, 'core'>(url, key, {
+      db: { schema: 'core' },
+      // The Android app signs in through the phone's browser, so it uses
+      // PKCE; the web keeps the implicit flow it has (ADR-0062).
+      auth: { flowType: isAndroidApp() ? 'pkce' : 'implicit' },
+    })
   }
   return client
 }

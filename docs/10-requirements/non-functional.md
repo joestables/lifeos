@@ -51,8 +51,13 @@ Not yet written.
 
 - Web Push on Android, desktop and iOS home-screen apps (iOS 16.4+, no action
   buttons).
-- Alarm-grade Reminders need the Android wrapper (Stage 7)
-  ([overview](../20-architecture/overview.md#platforms)).
+- On the Android app (Stage 7), Reminders are set on the phone to the
+  minute, and a Reminder marked Alarm rings
+  ([REM-010](cross-cutting/reminders.md#rem-010--on-time-on-the-android-app),
+  [REM-011](cross-cutting/reminders.md#rem-011--an-alarm)).
+- The web is unchanged by the Android app: every browser and screenshot
+  test passes as before
+  ([AND-005](cross-cutting/android.md#and-005--the-web-stays-as-it-is)).
 - Deliveries are logged (`core.reminder_deliveries`), sent within a minute,
   once per device, and missed after 12 hours
   ([ADR-0044](../20-architecture/adr/0044-reminder-delivery.md),

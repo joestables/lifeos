@@ -65,6 +65,8 @@ templates, and starting a session opens the session-logging Screen.
 | **Sorting** | Dealing with a Thought in Inbox: converting it into another Type, ticking it off, or deleting it. |
 | **Mark** | A per-person flag a Type may have, under its own name: a Note is **pinned**, a Task **starred**, a Recipe **favourited**. Types without one have none. |
 | **Sub-task** | A line ticked inside a Task: a title and a tick, not a Task of its own. |
+| **Alarm** | A Reminder marked to ring until stopped, over the lock screen, on the Android app; elsewhere an ordinary notification ([REM-011](../10-requirements/cross-cutting/reminders.md#rem-011--an-alarm)). |
+| **Widget** | A small piece of LifeOS on the Android home screen: Today, the day's Plan ([the Android app](../10-requirements/cross-cutting/android.md)). |
 | **Capture address** | A personal URL and secret that creates Items in its owner's Personal Space. |
 | **Current set** | An Exercise's weight and reps — "60 kg × 8" — that a workout's sets start at, called **Current** in the app; changed by hand or from a workout's review ([gym](../10-requirements/modules/gym.md)). |
 | **Strength** | How a set is measured and compared: weight × (1 + (reps + RIR) ÷ 30) — Epley's formula, never named in the app — for sets of 1–12 reps. A **PR** is the set with the best. A quick set has none. |

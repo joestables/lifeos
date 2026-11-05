@@ -13,6 +13,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import { Card, CardTitle } from '@/components/ui/card'
+import { AndroidAppCard } from '@/app/android-settings'
 import { GoogleCalendarCard } from '@/app/google-calendar'
 import { GymCard } from '@/app/gym-settings'
 import { HouseholdsCard } from '@/app/households'
@@ -88,6 +89,7 @@ function Settings() {
           <NotificationsCard />
           <RemindersCard />
         </div>
+        <AndroidAppCard />
         <GoogleCalendarCard />
         <div className="hidden md:block">
           <LabelsCard />

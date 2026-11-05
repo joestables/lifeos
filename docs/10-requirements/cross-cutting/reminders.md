@@ -1,6 +1,7 @@
 # Reminders and notifications
 
-*Stage 2 (Web Push); Stage 7 (exact alarms on Android). The decisions come
+*Stage 2 (Web Push); Stage 7 (the Android app: FCM, on time, alarms; REM-010
+and REM-011 drafted 5 November). The decisions come
 first; the requirements, drafted at the start of Stage 2, are at the end.*
 
 ## Decisions
@@ -37,9 +38,13 @@ first; the requirements, drafted at the start of Stage 2, are at the end.*
   "Overdue: …"), its do-on time and due date, or an Event's start and place
   ("Sat 17 Oct 13:00 · The Ivy"), Done (Tasks only) and "Snooze 1 hour". The digest says only its counts ("2 overdue · 3 today · 4 to
   sort") and opens Inbox.
-- **Later, with the native wrapper:** alarm-grade Reminders
-  ([overview](../../20-architecture/overview.md#platforms)) and location
-  Reminders ("near Tesco").
+- **On the Android app (Stage 7):** notifications come by Firebase Cloud
+  Messaging (FCM) in place of Web Push, with the same Done and Snooze;
+  each Reminder is also set on the phone, so it arrives on time even when
+  the phone is idle; and a Reminder can be marked **Alarm**, to ring until
+  dismissed (Joe, 5 November; [the Android app](android.md)). The web keeps
+  Web Push.
+- **Later:** location Reminders ("near Tesco").
 
 ## Requirements
 
@@ -61,6 +66,9 @@ Acceptance criteria
 3. Given an iPhone browser that isn't the installed app, then I'm told to
    add LifeOS to the Home Screen first, as iOS allows notifications only
    there.
+4. Given the Android app (Stage 7, agreed), then turning notifications
+   on there works the same way, the device listed as "Android app"; the
+   installed web app's entry on that phone can then be removed.
 
 ### REM-002 — A Task reminds me on its do-on date
 
@@ -192,8 +200,46 @@ Acceptance criteria
    instead, and no separate nudge is sent.
 3. Given a Task stays overdue, then it is nudged only once.
 
+### REM-010 — On time on the Android app
+
+**As** Joe, **I want** a Reminder on the Android app at its minute, even
+when the phone has been idle, **so that** I can trust it instead of a phone
+alarm.
+Priority: Must · Status: agreed (Stage 7)
+
+Acceptance criteria
+1. Given a Reminder at 09:00, then the Android app notifies me at 09:00,
+   not some seconds or minutes later, whether or not the phone was idle.
+2. Given the Reminder was made, moved, snoozed or deleted on another
+   device, then the phone's copy follows within a minute or two while it
+   has signal, and every Reminder is checked again whenever the app opens.
+3. Given the phone loses signal after a Reminder was set on it, then it
+   still arrives on time.
+4. Given the server's own notification for the same Reminder also
+   arrives, then I see one notification, not two (REM-004 2).
+5. Given a Cooking timer, then its end is on time the same way
+   ([ADR-0056](../../20-architecture/adr/0056-cooking-on-the-device.md)).
+
+### REM-011 — An alarm
+
+**As** Joe, **I want** to mark a Reminder as an Alarm, **so that** LifeOS
+can wake me or interrupt me as my phone's alarms do, and they can go.
+Priority: Must · Status: agreed (Stage 7)
+
+Acceptance criteria
+1. Given a Reminder's settings in an Item's popup, then I can mark it
+   Alarm; it is off by default.
+2. Given an Alarm comes due on the Android app, then it rings with sound
+   (and vibrates) until I stop it, showing over the lock screen with the
+   Item's title and time, Stop and Snooze; Done too on a Completable
+   Item.
+3. Given an Alarm on a device that isn't the Android app, then it arrives
+   there as an ordinary notification.
+4. Given the phone is on silent or Do Not Disturb, then an Alarm still
+   rings, as the clock app's do.
+
 Non-goals (Stage 2): choosing which device a Reminder goes to;
-alarm-grade and location Reminders (Stage 7 and later); notification
+location Reminders (later); notification
 buttons on iOS, which it doesn't offer; email or SMS reminders; setting a
 Reminder for someone else (each member sets their own, HSH-005 4); quiet
 hours.

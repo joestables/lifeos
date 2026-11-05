@@ -18,7 +18,7 @@ A broken Integration shows in Inbox and in the nightly health check.
 |---|---|---|
 | **Google Calendar** | 3 | The events scope is "sensitive"; in *Testing* mode refresh tokens expire after 7 days, so publish the Google app to Production unverified (warning screen; at most 100 users over the project's life) and request `calendar.calendarlist.readonly` and `calendar.events` only (re-checked 14 October). Supabase's Google sign-in doesn't hand over a lasting Calendar refresh token, so connecting Calendar is a separate OAuth flow run by an Edge Function. Repeating events are imported as individual instances. Stage 3's choices and requirements: [below](#google-calendar). |
 | **Oura** | 8 | Reported: personal access tokens were retired at the end of 2025, so OAuth only; new apps are limited to 10 users; Gen3+ rings need an active Oura Membership. No native app needed. Re-check before Stage 8. Sleep and readiness stay out of the Items table ([ADR-0015](../../20-architecture/adr/0015-health-data-as-a-time-series.md)). |
-| **Health Connect** | 7–8 | Native Android only (e.g. `@capgo/capacitor-health`), so it waits for the wrapper. |
+| **Health Connect** | 8 | Native Android only (e.g. `@capgo/capacitor-health`), so it needs the Android app (Stage 7); built with Cardio, where it is first used (Joe, 5 November). |
 | **Finance** | 9 | Nationwide and Barclaycard via Open Banking aggregators (check current personal-use availability); Vanguard and Moneybox have no Open Banking or public API — manual balances or CSV import. |
 | **Weather** | Later | An opportunity: feeds outfit suggestions and run planning ([roadmap](../../roadmap.md#later-opportunities)). |
 

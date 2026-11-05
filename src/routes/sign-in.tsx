@@ -4,7 +4,8 @@ import { BrandMark } from '@/components/lifeos'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { toast } from '@/components/ui/sonner'
-import { authReady, signInWithGoogle } from '@/data'
+import { authReady, googleSignInAddress, signInWithGoogle } from '@/data'
+import { isAndroidApp } from '@/native/platform'
 
 /** Google is the only way in; there is no email sign-up (ACC-001, patterns.md#sign-in-page). */
 export const Route = createFileRoute('/sign-in')({
@@ -19,7 +20,14 @@ function SignIn() {
   const start = async () => {
     setBusy(true)
     try {
-      await signInWithGoogle()
+      if (isAndroidApp()) {
+        // Through the phone's browser and back (AND-002, ADR-0062).
+        const { APP_RETURN, openInBrowser } = await import('@/native/browser')
+        await openInBrowser(await googleSignInAddress(APP_RETURN.signIn))
+        setBusy(false)
+      } else {
+        await signInWithGoogle()
+      }
     } catch {
       setBusy(false)
       toast.error("Couldn't reach Google. Check your connection and try again")

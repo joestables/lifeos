@@ -2,6 +2,8 @@
 
 **Status:** Provisionally agreed · 2026-10-09
 
+**Amended:** 2026-11-05 by [ADR-0061](0061-the-android-app.md) (Capacitor taken up for the Android app, Stage 7).
+
 ## Context
 
 v1 used React + TypeScript + heavily customised MUI over Supabase. Goal 3
@@ -16,7 +18,7 @@ asks for a standard design system.
 - TanStack Query behind one data layer, keeping the option of PowerSync +
   TanStack DB;
 - Supabase, including Edge Functions, pg_cron and Vault;
-- Capacitor later.
+- Capacitor for the Android app (Stage 7, [ADR-0061](0061-the-android-app.md)).
 
 ## Consequences
 

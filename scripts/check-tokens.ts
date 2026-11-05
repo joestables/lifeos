@@ -93,6 +93,67 @@ for (const name of [...light.keys(), ...dark.keys()]) {
   if (!md.includes(`\`${name}\``)) problems.push(`${name} is in theme.css but not in tokens.md`)
 }
 
+/** An `oklch(L C h)` value as Android's `#RRGGBB`. */
+function oklchHex(value: string | undefined): string | undefined {
+  const m = value?.match(/^oklch\(([\d.]+) ([\d.]+) ([\d.]+)\)$/)
+  if (!m) return undefined
+  const [L, C, h] = [Number(m[1]), Number(m[2]), (Number(m[3]) * Math.PI) / 180]
+  const a = C * Math.cos(h)
+  const b = C * Math.sin(h)
+  const l = (L + 0.3963377774 * a + 0.2158037573 * b) ** 3
+  const mm = (L - 0.1055613458 * a - 0.0638541728 * b) ** 3
+  const s = (L - 0.0894841775 * a - 1.291485548 * b) ** 3
+  const linear = [
+    4.0767416621 * l - 3.3077115913 * mm + 0.2309699292 * s,
+    -1.2684380046 * l + 2.6097574011 * mm - 0.3413193965 * s,
+    -0.0041960863 * l - 0.7034186147 * mm + 1.707614701 * s,
+  ]
+  const srgb = (x: number) => (x <= 0.0031308 ? 12.92 * x : 1.055 * x ** (1 / 2.4) - 0.055)
+  return `#${linear
+    .map((x) =>
+      Math.round(Math.min(1, Math.max(0, srgb(x))) * 255)
+        .toString(16)
+        .padStart(2, '0'),
+    )
+    .join('')
+    .toUpperCase()}`
+}
+
+/**
+ * The Android app's colours (android/app/src/main/res): what Android draws
+ * before the page must be the theme's, as hex (ADR-0061).
+ */
+const res = join(root, 'android/app/src/main/res')
+const androidColour = (file: string, name: string) =>
+  readFileSync(join(res, file), 'utf8').match(
+    new RegExp(`<color name="${name}">(#[0-9A-Fa-f]{6})</color>`),
+  )?.[1]
+for (const [file, name, want, what] of [
+  [
+    'values/colors.xml',
+    'lifeos_background',
+    oklchHex(lightValue('--background')),
+    '--background, light',
+  ],
+  [
+    'values-night/colors.xml',
+    'lifeos_background',
+    oklchHex(darkValue('--background')),
+    '--background, dark',
+  ],
+  [
+    'values/ic_launcher_background.xml',
+    'ic_launcher_background',
+    oklchHex(darkValue('--background')),
+    '--background, dark',
+  ],
+] as const) {
+  checked++
+  const actual = androidColour(file, name)
+  if (actual?.toUpperCase() !== want)
+    problems.push(`Android ${file} ${name}: should be ${what} (${want}), is ${actual ?? 'missing'}`)
+}
+
 if (problems.length) {
   console.error(`tokens.md and theme.css disagree:\n  ${problems.join('\n  ')}`)
   process.exit(1)

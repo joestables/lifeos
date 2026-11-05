@@ -135,6 +135,20 @@ async function workoutFilters(page: Page, isMobile: boolean) {
 }
 
 test.describe('workouts', () => {
+  test('GYM-007 1: the template used most recently is chosen when templates arrive after New workout opens', async ({
+    page,
+  }) => {
+    await standIn(page, { signedIn: true, rows: GYM })
+    // Items (the templates among them) answer a moment late, as on a slow connection.
+    await page.route('**/rest/v1/items*', async (route) => {
+      await new Promise((r) => setTimeout(r, 1500))
+      await route.fallback()
+    })
+    await page.goto('/gym')
+    await page.getByRole('button', { name: 'New workout' }).click()
+    await expect(page.getByRole('radio', { name: /Push A/ })).toBeChecked({ timeout: 10_000 })
+  })
+
   test('GYM-007 1, 2: a workout planned from a template, and on Plan', async ({ page }) => {
     const db = await standIn(page, { signedIn: true, rows: GYM })
     await page.goto('/gym')

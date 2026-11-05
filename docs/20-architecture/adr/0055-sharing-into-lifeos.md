@@ -1,7 +1,8 @@
 # ADR-0055: Sharing into LifeOS from another app
 
 **Status:** Provisionally agreed · 2026-10-18
-**Amended:** 2026-10-24 by Joe's answers for Stage 4b (saved with no choice to make; the iOS Shortcut built now).
+
+**Amended:** 2026-10-24 by Joe's answers for Stage 4b (saved with no choice to make; the iOS Shortcut built now); 2026-11-05 by [ADR-0061](0061-the-android-app.md) (the Android app takes shares through Android's own share sheet, opening the same `/share`).
 
 ## Context
 
@@ -19,7 +20,8 @@ otherwise Stage 10 ([ADR-0028](0028-capture-from-outside-the-app.md)).
   shared from where Android allows it, else with Back (Joe, 24 October:
   he wants no choice to make; a Thought from a share waits for Stage 10).
   A web app can't save without opening a window; that would need a native
-  Android app.
+  Android app. The Android app (Stage 7) takes the share itself and opens
+  the same `/share` ([ADR-0061](0061-the-android-app.md)).
 - **The Idea is kept at once**, offline too, through the write queue, with
   the link as its source; `link-preview`
   ([ADR-0054](0054-the-ai-service-and-import.md)) fills its name and

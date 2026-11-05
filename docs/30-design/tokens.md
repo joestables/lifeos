@@ -140,6 +140,7 @@ keyboard shortcuts and code. Numbers that line up use tabular figures.
 
 | Token | Size / line height | Weight | Tracking | Used for |
 |---|---|---|---|---|
+| `text-clock` | 56px / 1 | 750 | −0.03em | The time on the Alarm screen (Stage 7) |
 | `text-display` | 32px / 1.1 | 750 | −0.03em | One figure a page leads with: the Gym's overall readiness (Joe, 31 October) |
 | `text-h1` | 24px / 1.2 | 750 | −0.025em | Page title (22px on a phone) |
 | `text-h2` | 17px / 1.3 | 700 | −0.015em | Card and section titles, dialog titles |
@@ -216,6 +217,7 @@ No borders on surfaces: edges come from `--shadow-card`'s hairline.
 | Floating button (phone) | 56px square, `--radius-lg`, 22px icon; 20px from the right, 28px from the bottom | |
 | ScrollArea thumb | 6px wide, 2px from the edge | |
 | Icon | 16px, stroke 1.75; 12px and 14px small; 22px large | |
+| Widget (Stage 7) | Android's grid: 4 × 3 cells to start (about 358 × 260dp on a 390dp phone), resizable to 4 × 2, 4 × 4 and 2 × 2 at least; its corners the launcher's own (`--radius-xl` where the launcher sets none); 14px padding | The Today widget |
 
 ## Motion
 
