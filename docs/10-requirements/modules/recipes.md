@@ -226,6 +226,8 @@ Acceptance criteria
 4. Given an iPhone, then an iOS Shortcut in the share sheet opens New idea
    with the link and its name filled in, to save (in Safari: an iPhone's
    home-screen app can't be opened by a link).
+5. Given the Android app (Stage 7, proposed), then sharing to it does the
+   same ([AND-004](../cross-cutting/android.md#and-004--share-into-lifeos-from-the-app)).
 
 ### RCP-004 — Many at once
 

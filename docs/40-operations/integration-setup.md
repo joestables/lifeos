@@ -132,9 +132,9 @@ on Cloudflare) or Postmark's inbound webhook.
 OAuth only; new apps are limited to 10 users; Gen3+ rings need an active Oura
 Membership. Re-check before Stage 8.
 
-## Health Connect (Stage 7–8)
+## Health Connect (Stage 8)
 
-Through the Android wrapper (e.g. `@capgo/capacitor-health`).
+Through the Android app (Stage 7) (e.g. `@capgo/capacitor-health`).
 
 See [integrations](../10-requirements/cross-cutting/integrations.md) for
 sources.

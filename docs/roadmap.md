@@ -15,10 +15,10 @@ starts by writing the specs it needs, and no earlier.*
 | 4b | **Shopping:** Food and Lists tabs (Online later). Food shops linked to Meals and following their ingredients, with more added from the Pantry or typed, each Household's Essentials and out of stock offered; other shopping lists; live updates. One Shopping list Type replaces List and Shop ([ADR-0050](20-architecture/adr/0050-shopping-list.md)). Saving a recipe idea shared from another app, left from Stage 4 | Shopping together |
 | 5 | Gym (with its recovery engine and snapshots), then Goals and the measures registry | The joined-up payoff |
 | 6 | Wardrobe and outfits | |
-| 7 | **Started before Stage 6 (Joe, 5 November).** The Android app (Capacitor): home-screen widgets (the Gym's first), notifications by FCM, exact-alarm Reminders, sharing in; then Health Connect. The web version unchanged | Phone alarms can go |
-| 8 | Cardio with Oura and Health Connect | |
+| 7 | **Started before Stage 6 (Joe, 5 November).** The Android app (Capacitor, loading the live site): notifications by FCM, Reminders on time and Alarms, sharing in, and two home-screen widgets (Capture a thought; Today's Plan). The web version unchanged | Phone alarms can go |
+| 8 | Cardio with Oura and Health Connect (moved from Stage 7, Joe, 5 November) | |
 | 9 | Finance | |
-| 10 | Capture from outside the app: the capture address, iOS Shortcuts and Siri, email, Android's home-screen shortcut and share target (for recipe ideas, already in Stage 4b, as is an iOS Shortcut for them), an Android widget for typing a Thought ([ADR-0028](20-architecture/adr/0028-capture-from-outside-the-app.md)) | Capture without opening LifeOS |
+| 10 | Capture from outside the app: the capture address, iOS Shortcuts and Siri, email, Android's home-screen shortcut and share target (for recipe ideas, already in Stage 4b, as is an iOS Shortcut for them); the Android widget for typing a Thought moved to Stage 7 ([ADR-0028](20-architecture/adr/0028-capture-from-outside-the-app.md)) | Capture without opening LifeOS |
 
 Between pausing v1 (Stage 1) and Stages 4–6, Recipes, Gym and Wardrobe are
 unavailable. Agreed: v1 is being wiped
@@ -39,7 +39,7 @@ specs, drafted with Stage 4's, come first. **Stage 5 (Gym) has
 started** alongside it: [its plan](50-progress/plans/stage-5.md) is
 written, its spec (29 October) and design (1 November) agreed by Joe, and
 its schema in the database, its calculations in `packages/fitness`, and
-its settings, exercise library, templates, workouts, recovery and progression built (1 November); Joe called the Gym complete on 5 November, with Goals and the measures registry still to come. **Stage 7 (the Android app and widgets) has started**, ahead of Stage 6 at Joe's asking (5 November): [its plan](50-progress/plans/stage-7.md) is written, and its specs wait on Joe's answers to its questions. Lists and Shops moved from Stage 3 to Stage 4b, after Recipes (Joe,
+its settings, exercise library, templates, workouts, recovery and progression built (1 November); Joe called the Gym complete on 5 November, with Goals and the measures registry still to come. **Stage 7 (the Android app and widgets) has started**, ahead of Stage 6 at Joe's asking (5 November): [its plan](50-progress/plans/stage-7.md) is written, Joe answered its questions (5 November), and its spec, [the Android app](10-requirements/cross-cutting/android.md), is drafted for his agreement. Lists and Shops moved from Stage 3 to Stage 4b, after Recipes (Joe,
 14 October); on 17 October Joe set out Recipes, Meal plan and Shopping as
 three pages, with one Shopping list Type taking the place of List and Shop
 ([ADR-0050](20-architecture/adr/0050-shopping-list.md)), and moved Cardio

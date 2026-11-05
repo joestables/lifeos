@@ -36,13 +36,13 @@ Owner: **core**, a **Module** (`shopping`, `food`, `fitness`, `goals`,
 | Gym: exercises, templates, workouts, the recovery engine, progression | `fitness` | Gym | 5 | [gym](modules/gym.md) |
 | Goals and the measures registry | `goals` | Goals | 5 | — |
 | Wardrobe and outfits | `wardrobe` | Wardrobe | 6 | — |
-| The Android app (Capacitor): notifications by FCM, sharing in; the web unchanged | core | — | 7 | [Stage 7 plan](../50-progress/plans/stage-7.md) (spec to come) |
-| Exact-alarm Reminders (Android app) | core | — | 7 | [reminders](cross-cutting/reminders.md) |
-| Home-screen widgets on Android: Recovery and next workout first | core, `fitness` | Android home screen | 7 | [Stage 7 plan](../50-progress/plans/stage-7.md) (spec to come) |
-| Health Connect | Integration | — | 7–8 | [integrations](cross-cutting/integrations.md) |
+| The Android app (Capacitor): sign-in, notifications by FCM, sharing in; the web unchanged | core | — | 7 | [the Android app](cross-cutting/android.md) |
+| Reminders on time, and Alarms (Android app) | core | — | 7 | [reminders](cross-cutting/reminders.md#rem-010--on-time-on-the-android-app) |
+| Home-screen widgets on Android: Capture a thought, Today's Plan | core | Android home screen | 7 | [the Android app](cross-cutting/android.md#wid-001--capture-a-thought-from-the-home-screen) |
+| Health Connect | Integration | — | 8 | [integrations](cross-cutting/integrations.md) |
 | Cardio, with Oura and Health Connect (a blank page in the drawer until then) | `fitness`, Integration | Cardio | 8 | — |
 | Finance | `finance` | Finance | 9 | — |
-| Capture from outside the app: capture address, Siri, email, Android shortcut, share and widget | core | Settings (address) | 10 | [capture](cross-cutting/capture.md#deferred-to-stage-10) |
+| Capture from outside the app: capture address, Siri, email, Android shortcut and share (the widget is Stage 7's) | core | Settings (address) | 10 | [capture](cross-cutting/capture.md#deferred-to-stage-10) |
 | Export of everything you can see, as JSON | core | — | — | — |
 | LifeOS MCP server | core | — | Later | — |
 | Settings: notifications and devices, Reminder defaults, default time, digest time, Labels, Recently deleted (Stage 2); reference data (with its Module); the capture address (Stage 10) | core | Settings Screen | 2 | [reminders](cross-cutting/reminders.md), [items](cross-cutting/items.md) |

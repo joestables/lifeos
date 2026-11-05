@@ -50,8 +50,9 @@ at the start of Stage 2, are at the end.*
   - **Android:** the installed app's home-screen shortcut and share target
     (the share target comes earlier, in Stage 4, for recipe ideas:
     [RCP-003](../modules/recipes.md#rcp-003--save-an-idea-from-another-app)),
-    and a widget for typing a Thought once the Android wrapper exists
-    (Stage 7).
+    and a widget for typing a Thought, built with the Android app in
+    Stage 7 (Joe, 5 November;
+    [WID-001](android.md#wid-001--capture-a-thought-from-the-home-screen)).
 
 ## Requirements
 
@@ -165,5 +166,6 @@ are written in full then:
   as a recipe Idea comes first, in Stage 4
   ([RCP-003](../modules/recipes.md#rcp-003--save-an-idea-from-another-app)),
   with an iPhone to follow.
-- **An Android widget** for typing a Thought straight from the home screen,
-  with the Android wrapper.
+- The Android widget for typing a Thought moved to Stage 7, with the
+  Android app (Joe, 5 November;
+  [WID-001](android.md#wid-001--capture-a-thought-from-the-home-screen)).

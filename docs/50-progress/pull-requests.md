@@ -19,13 +19,25 @@ is filled in once it is opened
   questions for Joe, each with a recommendation.
 - **Closed Stage 5's step 11**: Joe called the Gym complete (5 November).
   Goals and the measures registry (step 12) wait behind Stage 7.
+- **Joe's answers** (5 November): the live site; Alarms as recommended;
+  two widgets only, Capture a thought (moved from Stage 10) and Today's
+  Plan, no Recovery widget; Health Connect moved to Stage 8; Stage 7
+  before Wardrobe, Goals and Shopping's last steps.
+- **Drafted step 1's spec** for Joe's agreement:
+  [the Android app](../10-requirements/cross-cutting/android.md)
+  (AND-001–005, WID-001–002, three open points), REM-001 4, REM-010 (on
+  time on the Android app), REM-011 (an Alarm), RCP-003 5.
 
-**Documents touched:** the roadmap (Stage 7, where we are), the docs
-README, `CLAUDE.md`, the capability map (the Android app, widgets), the
-architecture overview, the Stage 5 plan, the Stage 7 plan (new).
+**Documents touched:** the roadmap (Stages 7, 8 and 10, where we are),
+the docs README, `CLAUDE.md`, the capability map, the architecture
+overview, the glossary (Alarm, Widget), the Android app spec (new),
+reminders, capture, recipes (RCP-003), integrations, non-functional,
+integration setup (Health Connect), ADR-0028, the Stage 5 plan, the
+Stage 7 plan (new).
 
-**Left for later:** Joe's answers to the plan's questions, then step 1,
-the specs.
+**Left for later:** Joe agreeing the spec and its open points, then step
+2, the decisions (ADR-0044's "Android wrapper" wording goes with its
+amendment there).
 
 ## [#60](https://github.com/joestables/lifeos/pull/60) — A multi-user bug hunt: who made an Item, notifications after leaving, one person's device
 

@@ -1,10 +1,11 @@
 # Plan: Stage 7 — the Android app and widgets
 
 **Outcome** ([roadmap](../../roadmap.md)): LifeOS is installed on Joe's
-Android phone as an app. It has home-screen widgets (the Gym's first),
+Android phone as an app, loading the live site. It has two home-screen
+widgets, **Capture a thought** and **Today** (the day's Plan);
 notifications through Firebase Cloud Messaging (FCM) with Done and
-Snooze, Reminders on time to the minute even when the phone is idle
-(exact alarms), and LifeOS in the share sheet. Phone alarms can go. **The
+Snooze; Reminders on time to the minute even when the phone is idle, and
+Alarms that ring; and LifeOS in the share sheet. Phone alarms can go. **The
 web version is unchanged:** a computer, an iPhone and an installed web app
 on Android work exactly as they do now, and every browser test still
 passes.
@@ -13,8 +14,12 @@ passes.
 complete (Stage 5's step 11). He wants it before Wardrobe (Stage 6), and
 before the rest of Stage 5 (Goals and the measures registry) and Stage
 4b's last steps. The plan was written after a feasibility talk with Joe
-that day ([what it found](#what-the-feasibility-talk-found)). Step 1, the
-specs, waits on Joe's answers to the [questions below](#questions-for-the-specs).
+that day ([what it found](#what-the-feasibility-talk-found)). Joe answered
+its questions the same day ([his answers](#joes-answers-5-november)), and
+step 1's spec is drafted for his agreement:
+[the Android app](../../10-requirements/cross-cutting/android.md) (AND-001–005,
+WID-001–002) and [reminders](../../10-requirements/cross-cutting/reminders.md)
+REM-010–011, with three open points.
 
 ## Steps
 
@@ -28,53 +33,40 @@ checked by hand on Joe's phone, because the browser tests can't reach it.
 
 | # | Step | State | Produces |
 |---|---|---|---|
-| 1 | **Joe** — specs: a new **Android app** spec (installing and updating it; signing in and connecting Google Calendar; the back button, links into the app and offline; what stays web-only); notifications on Android by FCM, with Done and Snooze ([reminders](../../10-requirements/cross-cutting/reminders.md) amended); exact-alarm Reminders and what counts as an alarm; sharing into LifeOS from the Android app ([RCP-003](../../10-requirements/modules/recipes.md#rcp-003--save-an-idea-from-another-app) amended); **widgets**: what each one shows, how fresh, what tapping it does; "the web is unchanged" as a non-functional requirement | Waits on [the questions](#questions-for-the-specs) | Specs (AND-*, WID-*) |
-| 2 | Decisions: the Android app (Capacitor; loading the live site or a bundle; the web first-class; native code behind one check in `src/native/`; installed as an APK, not from Play; the signing key; built by CI); sign-in through the system browser and back by a link into the app (Supabase's PKCE flow); FCM as a kind of device in `core.push_devices`, sent by `send-notifications` ([ADR-0044](../../20-architecture/adr/0044-reminder-delivery.md) amended); exact alarms set on the phone from an FCM data message and checked again whenever the app opens; widgets (Jetpack Glance; the app writes what they show to the phone's own storage; when they refresh); [ADR-0034](../../20-architecture/adr/0034-stack.md), [ADR-0055](../../20-architecture/adr/0055-sharing-into-lifeos.md) and the [overview](../../20-architecture/overview.md#platforms) amended | — | ADRs |
+| 1 | **Joe** — specs: the Android app (installing and updating; signing in and connecting Google Calendar; Back, links and offline; sharing in; the web unchanged); notifications on Android by FCM, on time, and Alarms ([reminders](../../10-requirements/cross-cutting/reminders.md) amended); the two widgets | Drafted 5 November from Joe's answers: [the Android app](../../10-requirements/cross-cutting/android.md) (AND-001–005, WID-001–002, three open points), REM-001 4, REM-010–011, RCP-003 5; Health Connect moved to Stage 8 and the Thought widget from Stage 10 across the roadmap, capability map, capture spec, ADR-0028, integrations and overview. For Joe to agree | Specs (AND-*, WID-*, REM-010–011) |
+| 2 | Decisions: the Android app (Capacitor; loading the live site (Joe, 5 November); the web first-class; native code behind one check in `src/native/`; installed as an APK, not from Play; the signing key; built by CI); sign-in through the system browser and back by a link into the app (Supabase's PKCE flow); FCM as a kind of device in `core.push_devices`, sent by `send-notifications` ([ADR-0044](../../20-architecture/adr/0044-reminder-delivery.md) amended); exact alarms set on the phone from an FCM data message and checked again whenever the app opens; widgets (Jetpack Glance; the app writes what they show to the phone's own storage; when they refresh); [ADR-0034](../../20-architecture/adr/0034-stack.md), [ADR-0055](../../20-architecture/adr/0055-sharing-into-lifeos.md) and the [overview](../../20-architecture/overview.md#platforms) amended | — | ADRs |
 | 3 | **Joe** — design, with Claude design: each widget at its sizes, dark and light; the notification's look and buttons; the app icon as Android masks it and the opening screen. Into the design spec first: a **Widgets** section (components and patterns) and the tokens a widget uses, copied into Android's resources and kept in step by `tokens:check` | — | [design system](../../30-design/README.md) |
 | 4 | Toolchain: Capacitor added (`capacitor.config.ts`, `android/`); `src/native/` with the one check; a GitHub workflow that builds a signed APK when asked, not on every pull request, to save Actions minutes; the Android SDK in the cloud environment's setup script if a session can build there; the signing key made and kept as a GitHub secret (**Joe** adds it). The workflow is checked to build. | — | Config, CI |
 | 5 | The app runs: the live site or the bundle (step 2's choice), offline as the web app is, the back button, links opening in the app, status bar and safe areas, the opening screen. **Joe** installs it ([integration setup](../../40-operations/integration-setup.md)) | — | Code |
 | 6 | Sign-in and Google Calendar: both open the system browser and come back to the app by a link; the Android client in Google Cloud and the link added to Supabase's redirect list (**Joe**, in the dashboards, if no tool can) | — | Code, integration setup |
 | 7 | Notifications by FCM: the Firebase project (free; **Joe** makes it, or Claude walks him through it); its sending key in Vault; an FCM device kind (migration, database tests); `send-notifications` sends to FCM devices as well as Web Push ones; Done and Snooze as native actions calling `notification-action`; turning notifications on in the Android app's Settings. The web keeps Web Push | — | Migration, Edge Function, code |
-| 8 | Exact-alarm Reminders: `USE_EXACT_ALARM`; an FCM data message sets or moves the phone's alarm when a Reminder is made, changed, snoozed or deleted; all of them checked again when the app opens; an alarm rings as step 1 decides; a Cooking timer's end ([ADR-0056](../../20-architecture/adr/0056-cooking-on-the-device.md)) too | — | Code, Edge Function |
+| 8 | Reminders on time and Alarms (REM-010–011): `USE_EXACT_ALARM`; an FCM data message sets or moves the phone's copy when a Reminder is made, changed, snoozed or deleted; all of them checked again when the app opens; one notification, not two; Alarm on a Reminder (a column, migration, database tests; the popup's switch, on the web too), ringing over the lock screen until stopped; a Cooking timer's end ([ADR-0056](../../20-architecture/adr/0056-cooking-on-the-device.md)) too | — | Migration, code, Edge Function |
 | 9 | Sharing into LifeOS from the Android app: Android's share handler sends what was shared to the same code as `/share`, keeping a recipe Idea at once ([ADR-0055](../../20-architecture/adr/0055-sharing-into-lifeos.md)) | — | Code |
-| 10 | Widgets, the groundwork and the first widget: the app writes what widgets show to the phone's own storage when its data changes (and when an FCM message says something changed elsewhere); a refresh at most every 30 minutes; the **Recovery and next workout** widget: overall readiness, the most suitable template, and Start (it stores when each muscle group is fully recovered, so "Legs ready in 14 h" stays right without running `packages/fitness`) | — | Native code, code |
-| 11 | The other widgets, in the order Joe chooses (see question 3): Today (the day's Plan and Tasks due); typing a Thought (moved from Stage 10); a Shopping list | — | Native code |
-| 12 | Health Connect, or moved to Stage 8 (see question 4) | — | — |
-| 13 | **Joe** — uses the Android app daily; what he trips over is fixed | — | Code, tests |
+| 10 | The Capture a thought widget (WID-001): a bar on the home screen opening the app's own capture with the keyboard up, back to the home screen once saved | — | Native code, code |
+| 11 | The Today widget (WID-002): the app keeps today's Plan on the phone whenever it changes, and an FCM message says when it changed elsewhere; the day's cards in Plan's order, its Types and colours, scrolling, sized by Joe; a card opens its Item, the date opens Plan; the new day at midnight | — | Native code, code, Edge Function |
+| 12 | **Joe** — uses the Android app daily; what he trips over is fixed | — | Code, tests |
 
 Each step's code goes into the specs' status as it lands (*built*, then
 *verified*: by a test citing the ID where a test can reach it, by Joe on
 his phone where it can't).
 
-## Questions for the specs
+## Joe's answers (5 November)
 
-Claude's recommendation is given with each.
+To the five questions asked with the plan, each with Claude's
+recommendation:
 
-1. **The live site or a bundle.** The app can load the live site
-   (joestables.uk), so every fix reaches the phone the moment it's
-   deployed, as it does now; or carry its own copy of the code, updated by
-   installing a new APK. *Recommended:* the live site. Joe gets fixes
-   most days, and an APK per fix would be a chore. The app's service
-   worker still keeps it working offline. The cost: Capacitor treats this
-   as a development setting (Play wouldn't allow it, but we aren't on
-   Play), and a change reaches Android and the web together, so the
-   Android-only code is checked on the phone before each release that
-   touches it.
-2. **What counts as an alarm.** *Recommended:* every Reminder arrives on
-   time as an ordinary notification, set on the phone so it doesn't wait
-   for the minute run. A Reminder can also be marked **Alarm**, so it
-   rings with sound until dismissed, over the lock screen, like the clock
-   app. That replaces phone alarms.
-3. **Which widgets, and in what order.** *Recommended:* Recovery and next
-   workout first, then Today, then typing a Thought (moving that widget
-   forward from Stage 10; the rest of Stage 10's capture stays there),
-   then a Shopping list.
-4. **Health Connect.** The roadmap has it at the end of Stage 7, but
-   nothing reads its data until Cardio (Stage 8). *Recommended:* move it
-   to Stage 8, where it's first used.
-5. **The order of the stages.** *Taken as agreed when Joe asked for this
-   plan:* Stage 7 now, ahead of Wardrobe (Stage 6), Goals and the measures
-   registry (Stage 5's step 12) and Stage 4b's last steps.
+1. **The live site or a bundle:** the live site. Every deploy reaches the
+   phone at once; the Android-only code is checked on the phone before a
+   release that touches it.
+2. **What counts as an alarm:** as recommended. Every Reminder arrives on
+   time on the Android app, and a Reminder marked **Alarm** rings until
+   stopped, over the lock screen
+   ([REM-011](../../10-requirements/cross-cutting/reminders.md#rem-011--an-alarm)).
+3. **Widgets:** no Recovery widget. Two only: **Capture a thought**
+   (moved from Stage 10) and **Today**, the day's Plan.
+4. **Health Connect:** moved to Stage 8, with Cardio.
+5. **The order:** Stage 7 now, before Wardrobe (Stage 6), Goals and the
+   measures registry (Stage 5's step 12) and Stage 4b's last steps.
 
 ## What the feasibility talk found
 
