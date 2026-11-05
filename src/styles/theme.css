@@ -252,6 +252,10 @@
   --text-h1--line-height: 1.2;
   --text-h1--letter-spacing: -0.025em;
   --text-h1--font-weight: 750;
+  --text-clock: 56px;
+  --text-clock--line-height: 1;
+  --text-clock--letter-spacing: -0.03em;
+  --text-clock--font-weight: 750;
   --text-display: 32px;
   --text-display--line-height: 1.1;
   --text-display--letter-spacing: -0.03em;

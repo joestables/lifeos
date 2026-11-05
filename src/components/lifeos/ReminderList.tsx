@@ -1,4 +1,4 @@
-import { BellIcon, PlusIcon, XIcon } from 'lucide-react'
+import { AlarmClockIcon, BellIcon, PlusIcon, XIcon } from 'lucide-react'
 import { useId, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import {
@@ -27,6 +27,8 @@ export interface ReminderLine {
   when: string | null
   /** "On the day", "1 day before", "At a set time". */
   says: string
+  /** Rings as an Alarm on the Android app (REM-011; draft, Stage 7). */
+  alarm?: boolean
 }
 
 /**
@@ -47,27 +49,30 @@ export function ReminderList({
 }) {
   return (
     <div className="flex flex-col">
-      {reminders.map((r) => (
-        <div key={r.id} className="group/reminder flex min-h-9 items-center gap-2.5">
-          <BellIcon className="size-4 shrink-0 text-muted-foreground" aria-hidden />
-          <button
-            type="button"
-            onClick={() => onOpen(r.id)}
-            className="flex min-w-0 flex-1 items-baseline gap-2 rounded-[2px] text-left outline-none focus-visible:ring-3 focus-visible:ring-ring-soft"
-          >
-            <span className="truncate tabular-nums">{r.when ?? r.says}</span>
-            {r.when && <span className="truncate text-sm text-muted-foreground">{r.says}</span>}
-          </button>
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            aria-label={`Remove reminder ${r.when ?? r.says}`}
-            onClick={() => onRemove(r.id)}
-          >
-            <XIcon />
-          </Button>
-        </div>
-      ))}
+      {reminders.map((r) => {
+        const Icon = r.alarm ? AlarmClockIcon : BellIcon
+        return (
+          <div key={r.id} className="group/reminder flex min-h-9 items-center gap-2.5">
+            <Icon className="size-4 shrink-0 text-muted-foreground" aria-hidden />
+            <button
+              type="button"
+              onClick={() => onOpen(r.id)}
+              className="flex min-w-0 flex-1 items-baseline gap-2 rounded-[2px] text-left outline-none focus-visible:ring-3 focus-visible:ring-ring-soft"
+            >
+              <span className="truncate tabular-nums">{r.when ?? r.says}</span>
+              {r.when && <span className="truncate text-sm text-muted-foreground">{r.says}</span>}
+            </button>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              aria-label={`Remove reminder ${r.when ?? r.says}`}
+              onClick={() => onRemove(r.id)}
+            >
+              <XIcon />
+            </Button>
+          </div>
+        )
+      })}
       <Button
         variant="ghost"
         size="sm"

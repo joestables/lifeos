@@ -897,6 +897,40 @@ sub-tasks `list-checks` with "2/5".
 - A long press starts choosing several where a computer has Select (the
   library, Ideas).
 
+## The Android app
+
+*Draft, Stage 7 ([plan](../50-progress/plans/stage-7.md), step 3), for Joe
+to agree; drawn on `/design-stage-7`.* The app is the web's screens
+([AND-003](../10-requirements/cross-cutting/android.md#and-003--like-the-web-app-on-the-phone));
+what follows is what only it has.
+
+- **Its icon** is the app icon ([above](#the-app-icon)) as Android's
+  adaptive icon: the graph as the foreground, inside the central 66%, on
+  the dark `--background`; and a one-colour graph as the monochrome layer
+  for themed icons.
+- **Opening:** Android's opening screen shows the icon on the theme's
+  `--background`, dark or light with the phone, until the page is drawn.
+- **No connection on the very first launch:** a page bundled in the app,
+  centred: the BrandMark, "No connection" (`text-h2`), "Connect to open
+  LifeOS the first time" (muted), and an outline "Try again".
+- **Notifications** are Android's own, with LifeOS's words: the Item's
+  title; its time line as on the web ("Fri 09:00", "Sat 17 Oct 13:00 · The
+  Ivy"); Done (Completable Items) and "Snooze 1 hour". The small icon is
+  the one-colour graph, tinted with the Item's Type colour (the digest's
+  untinted). In Android's settings they are in four groups: Reminders,
+  Alarms, Morning digest, Overdue.
+- **An Alarm** rings on the AlarmScreen ([components](components.md)).
+- **Settings, in the app only:** the Notifications Card's device is
+  "Android app"; while Android hasn't allowed full-screen alarms, a CardRow
+  "Full-screen alarms" with "Not allowed" muted and an outline "Allow"
+  (opening Android's setting). An "Android app" Card: Version (muted
+  value), and, when a newer APK is ready, "Update ready" with an outline
+  "Install"; a toast says so once when the app opens ("A new version of
+  the app is ready", Install).
+- **The Today widget** is a TodayWidget ([components](components.md)): 4 ×
+  3 cells to start, resizable. "+" opens Plan on today with AddToDay open;
+  the date opens Plan on today; a card opens its Item.
+
 ## Dark and light
 
 Every screen is checked in dark first, then light. Nothing is designed for

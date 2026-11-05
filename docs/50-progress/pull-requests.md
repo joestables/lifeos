@@ -35,16 +35,22 @@ is filled in once it is opened
   written, Proposed: ADR-0061 (the Android app), ADR-0062 (signing in),
   ADR-0063 (notifications, on time, Alarms), ADR-0064 (the Today widget);
   the ADRs they would amend point to them.
+- **Joe agreed the decisions**; ADR-0034, 0044, 0047, 0055 and 0056
+  amended to match.
+- **Step 3, the design, first pass** on `/design-stage-7`: the Today
+  widget (one-line widget lines; sizes; empty and signed out), the Alarm
+  screen (`text-clock`, a new token), the Reminder's Alarm switch, Settings
+  in the app, the first launch with no signal, the adaptive and themed
+  icon. Specced as drafts in components.md, patterns.md and tokens.md.
 
 **Documents touched:** the roadmap (Stages 7, 8 and 10, where we are),
 the docs README, `CLAUDE.md`, the capability map, the architecture
 overview, the glossary (Alarm, Widget), the Android app spec (new),
 reminders, capture, recipes (RCP-003), integrations, non-functional,
-integration setup (Health Connect), ADR-0028, ADR-0061–0064 (new), ADR-0034, 0044, 0047, 0055 and 0056 (proposed amendments), the Stage 5 plan, the
+integration setup (Health Connect), ADR-0028, ADR-0061–0064 (new), ADR-0034, 0044, 0047, 0055 and 0056 (amended), the overview's stack, the design system (components, patterns, tokens: drafts), the Stage 5 plan, the
 Stage 7 plan (new).
 
-**Left for later:** Joe agreeing ADR-0061–0064, then step 3, the design
-(ADR-0044's "Android wrapper" wording goes with its amendment).
+**Left for later:** Joe agreeing the design, then step 4, the toolchain.
 
 ## [#60](https://github.com/joestables/lifeos/pull/60) — A multi-user bug hunt: who made an Item, notifications after leaving, one person's device
 
