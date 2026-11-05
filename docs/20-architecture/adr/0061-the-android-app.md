@@ -115,3 +115,7 @@ isn't needed.
   is newer than the app's, the Android app Card in Settings shows Update
   ready, and a toast says so once per version; Install opens the latest
   GitHub release.
+- LifeOS's own plugin, `LifeosNativePlugin` (Kotlin 2.2.21, registered in
+  `MainActivity.kt`), reached through `src/native/lifeos.ts`; its first
+  method keeps the screen on while Cooking where the web view has no
+  Screen Wake Lock (`useWakeLock`).
