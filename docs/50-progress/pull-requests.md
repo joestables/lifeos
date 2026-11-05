@@ -2,10 +2,9 @@
 
 Newest first. Each entry is added in its own pull request.
 
-## Stage 7: links into the Android app
+## [#62](https://github.com/joestables/lifeos/pull/62) — Stage 7: links into the Android app
 
-Branch `claude/intelligent-shannon-umfm64` · 2026-11-05 · the PR number is
-filled in once it is opened
+Branch `claude/intelligent-shannon-umfm64` · 2026-11-05
 
 **What it did**
 - The first signed release, [android-v0.1.0](https://github.com/joestables/lifeos/releases/tag/android-v0.1.0),
