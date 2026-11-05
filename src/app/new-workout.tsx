@@ -48,9 +48,10 @@ export function NewWorkoutDialog({
   onMade: (id: string) => void
 }) {
   const ids = useId()
-  const [template, setTemplate] = useState(
-    () => startTemplate ?? recentTemplates(gym)[0]?.item.id ?? EMPTY,
-  )
+  // Until I choose, the suggestion or the template used most recently,
+  // worked out as the templates load (they may arrive after this opens).
+  const [chosen, setTemplate] = useState<string | undefined>(startTemplate)
+  const template = chosen ?? recentTemplates(gym)[0]?.item.id ?? EMPTY
   const [day, setDay] = useState(startDay && startDay >= today ? startDay : today)
   const days = Array.from({ length: DAYS }, (_, i) => addDays(today, i))
   if (!days.includes(day)) days.push(day)

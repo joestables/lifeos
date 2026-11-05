@@ -57,6 +57,10 @@ Branch `claude/intelligent-shannon-umfm64` · 2026-11-05
   `uk.joestables.lifeos://`, PKCE in the app only; Calendar's connect the
   same way, `allowedReturn` widened (tests) and `calendar-connect` and
   `calendar-callback` redeployed.
+- **A Gym race CI found** (GYM-007 1): New workout fixed its template
+  when it opened, so opened before the templates had loaded it stayed on
+  Empty. The choice is now worked out as they load, until I choose; a
+  walk holds Items back to show it.
 
 **Documents touched:** the roadmap (Stages 7, 8 and 10, where we are),
 the docs README, `CLAUDE.md`, the capability map, the architecture
