@@ -2,10 +2,9 @@
 
 Newest first. Each entry is added in its own pull request.
 
-## Stage 7, step 11: LifeOS's font on the phone; the widget's "+"
+## [#69](https://github.com/joestables/lifeos/pull/69) — Stage 7, step 11: LifeOS's font on the phone; the widget's "+"
 
-Branch `claude/intelligent-shannon-umfm64` · 2026-11-06 · the PR number is
-filled in once it is opened
+Branch `claude/intelligent-shannon-umfm64` · 2026-11-06
 
 **What it did**
 - **LifeOS's font** on the Alarm screen and the Today widget (Joe): Plus
