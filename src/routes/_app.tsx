@@ -20,6 +20,8 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { CaptureProvider } from '@/app/capture'
 import { takeWaiting, useFillShared } from '@/app/share-actions'
 import { CookTimerAlerts } from '@/app/cooking-timers'
+import { TodayWidgetFeed } from '@/app/today-widget-feed'
+import { isAndroidApp } from '@/native/platform'
 import { useOpenCapture } from '@/app/open-capture'
 import { useMine } from '@/app/mine'
 import { ItemPopup } from '@/app/items'
@@ -137,6 +139,7 @@ function Shell({
       <Outlet />
       <ItemPopup id={item} isNew={isNew} />
       <CookTimerAlerts />
+      {isAndroidApp() && <TodayWidgetFeed />}
     </AppShell>
   )
 }

@@ -197,6 +197,8 @@ object ReminderSync {
         val prefs = Prefs.of(context)
         prefs.edit().putString(Prefs.FIRINGS, "[]").remove(Prefs.DEVICE).remove(Prefs.SECRET).apply()
         schedule(context)
+        // The Today widget says to sign in.
+        PlanStore.clear(context)
     }
 
     private fun openApp(context: Context): PendingIntent = PendingIntent.getActivity(

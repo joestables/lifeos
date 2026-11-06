@@ -187,6 +187,18 @@ test.describe('on a computer', () => {
   })
 })
 
+test('WID-002 8: opened from the Today widget\'s "+", Plan\'s "+" is open on today', async ({
+  page,
+}) => {
+  await start(page, '/plan?add=1')
+  await expect(page.getByRole('menu')).toContainText('Add to Today')
+  await page.getByRole('menuitem', { name: 'Task' }).click()
+  const task = page.getByRole('dialog', { name: 'New task' })
+  await expect(task.getByRole('button', { name: 'Do on' })).toHaveText(/Today/)
+  // Not open again on coming back to the page.
+  await expect(page).toHaveURL(/\/plan$/)
+})
+
 test('PLN-004: Types turned off stay off, on every device', async ({ page }) => {
   const db = await start(page, '/plan?day=2026-10-13')
   await expect(page.getByText('Call mum')).toBeVisible()

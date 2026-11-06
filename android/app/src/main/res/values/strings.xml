@@ -4,4 +4,6 @@
     <string name="title_activity_main">LifeOS</string>
     <string name="package_name">uk.joestables.lifeos</string>
     <string name="custom_url_scheme">uk.joestables.lifeos</string>
+    <string name="today_widget">Today</string>
+    <string name="today_widget_description">Today\'s Plan</string>
 </resources>

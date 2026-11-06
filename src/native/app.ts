@@ -35,7 +35,7 @@ export function startAndroidApp(navigate: (href: string) => void) {
     }
   })
 
-  void App.addListener('appUrlOpen', ({ url }) => {
+  const openUrl = (url: string) => {
     // Back from Google's sign-in in the phone's browser (AND-002, ADR-0062).
     if (url.startsWith(APP_RETURN.signIn)) {
       void Browser.close().catch(() => {})
@@ -56,7 +56,10 @@ export function startAndroidApp(navigate: (href: string) => void) {
     if (!url.startsWith(SITE)) return
     const { pathname, search, hash } = new URL(url)
     navigate(`${pathname}${search}${hash}`)
-  })
+  }
+  void App.addListener('appUrlOpen', ({ url }) => openUrl(url))
+  // Opened by a link while closed (a notification, the Today widget): its page.
+  void App.getLaunchUrl().then((launch) => launch?.url && openUrl(launch.url))
 
   // Shared to LifeOS from Android's share sheet: kept by /share as on the
   // web (AND-004, ADR-0055), on opening and while open.

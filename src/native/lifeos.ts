@@ -1,4 +1,5 @@
 import { registerPlugin } from '@capacitor/core'
+import type { WidgetDay } from '@/lib/today-widget'
 
 /** LifeOS's own native plugin (ADR-0061; `LifeosNativePlugin.kt`). */
 interface LifeosNative {
@@ -37,6 +38,8 @@ interface LifeosNative {
   allowFullScreen(): Promise<void>
   /** Sets the running Cooking timers' ends on the phone, to the second (REM-010 5). */
   setTimers(options: { timers: NativeTimer[] }): Promise<void>
+  /** Today's and tomorrow's cards for the Today widget, as Plan works them out (WID-002 5). */
+  setPlan(options: { days: WidgetDay[] }): Promise<void>
   /** What was shared to the app from Android's share sheet, once: its `/share` path (AND-004). */
   takeShare(): Promise<{ path?: string }>
   /** Back to the app shared from, LifeOS left as it was. */

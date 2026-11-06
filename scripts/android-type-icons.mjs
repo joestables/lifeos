@@ -1,6 +1,7 @@
 // Writes the Type icons (colours.ts's TYPE_ICONS, from Lucide) as Android
 // vector drawables, for what the Android app draws natively: the Alarm
-// screen's TypeTile (components.md#alarmscreen). Run after an icon changes:
+// screen's TypeTile and the Today widget's lines (components.md), and the
+// widget's "+". Run after an icon changes:
 //   node scripts/android-type-icons.mjs
 import { writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
@@ -19,6 +20,8 @@ const ICONS = {
   exercise: 'dumbbell',
   workout_template: 'clipboard-list',
 }
+/** Other icons Android draws itself: the Today widget's "+" (components.md#todaywidget). */
+const OTHER = { plus: 'plus' }
 
 const n = (v) => Number(v)
 /** A Lucide element as SVG path data, which is all a vector drawable draws. */
@@ -60,7 +63,10 @@ function pathOf([tag, a]) {
   }
 }
 
-for (const [type, name] of Object.entries(ICONS)) {
+for (const [type, name, file] of [
+  ...Object.entries(ICONS).map(([t, n]) => [t, n, `ic_type_${t}`]),
+  ...Object.entries(OTHER).map(([t, n]) => [t, n, `ic_${t}`]),
+]) {
   const { __iconData } = await import(
     join(root, `node_modules/lucide-react/dist/esm/icons/${name}.mjs`)
   )
@@ -75,9 +81,9 @@ for (const [type, name] of Object.entries(ICONS)) {
     )
     .join('\n')
   writeFileSync(
-    join(root, `android/app/src/main/res/drawable/ic_type_${type}.xml`),
+    join(root, `android/app/src/main/res/drawable/${file}.xml`),
     `<?xml version="1.0" encoding="utf-8"?>
-<!-- Lucide's ${name} (ISC), the ${type} Type's icon: written by
+<!-- Lucide's ${name} (ISC), ${file.startsWith('ic_type_') ? `the ${type} Type's icon` : 'its icon'}: written by
      scripts/android-type-icons.mjs, tinted where it is drawn. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp"
@@ -89,4 +95,4 @@ ${paths}
 `,
   )
 }
-console.log(`${Object.keys(ICONS).length} Type icons written.`)
+console.log(`${Object.keys(ICONS).length + Object.keys(OTHER).length} icons written.`)
