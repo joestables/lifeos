@@ -2,10 +2,9 @@
 
 Newest first. Each entry is added in its own pull request.
 
-## Stage 7, step 8b: Alarms
+## [#66](https://github.com/joestables/lifeos/pull/66) — Stage 7, step 8b: Alarms
 
-Branch `claude/intelligent-shannon-umfm64` · 2026-11-06 · the PR number is
-filled in once it is opened
+Branch `claude/intelligent-shannon-umfm64` · 2026-11-06
 
 **What it did**
 - **A Reminder can be an Alarm** (REM-011): the Reminder dialog's Alarm
