@@ -1,5 +1,14 @@
 import { describe, expect, it } from 'vitest'
-import { sendAll, vapidKeys, type Claimed, type Rpc, type Send } from './run.ts'
+import {
+  fcmMessage,
+  fcmSender,
+  sendAll,
+  vapidKeys,
+  type Claimed,
+  type FcmMessage,
+  type Rpc,
+  type Send,
+} from './run.ts'
 
 const claimed = (id: number, payload: Claimed['payload'] = { title: 'Call mum' }): Claimed => ({
   id,
@@ -82,5 +91,131 @@ describe('the VAPID keys', () => {
     expect(made.publicKey).toMatch(/^B[A-Za-z0-9_-]{86}$/)
     expect(made.privateKey).toMatch(/^[A-Za-z0-9_-]{43}$/)
     expect(await vapidKeys(rpc)).toEqual(made)
+  })
+})
+
+describe('ADR-0063: the Android app by FCM', () => {
+  const fcm = (id: number, tag = `reminder:r${id}`): Claimed => ({
+    id,
+    kind: 'fcm',
+    endpoint: `fcm-token-${id}`,
+    p256dh: null,
+    auth: null,
+    ttl: 3600,
+    payload: {
+      title: 'Renew car insurance',
+      body: 'Fri 6 Nov 09:00',
+      url: '/item/i1',
+      tag,
+      colour: 'blue',
+      actions: [{ action: 'done', title: 'Done' }],
+      delivery: id,
+      token: 't',
+    },
+  })
+
+  it('REM-001 4: a data message with what Web Push would say, high priority, collapsed by delivery', () => {
+    expect(fcmMessage(fcm(7), 'reminder')).toEqual({
+      token: 'fcm-token-7',
+      data: {
+        type: 'notify',
+        kind: 'reminder',
+        title: 'Renew car insurance',
+        body: 'Fri 6 Nov 09:00',
+        url: '/item/i1',
+        tag: 'reminder:r7',
+        colour: 'blue',
+        actions: '[{"action":"done","title":"Done"}]',
+        delivery: '7',
+        token: 't',
+      },
+      android: { priority: 'HIGH', ttl: '3600s', collapse_key: 'd7' },
+    })
+  })
+
+  it('goes by FCM, Web Push devices as before; the digest and nudges say their kind', async () => {
+    const db = database([[fcm(1), fcm(2, 'digest:p'), claimed(3)]])
+    const viaFcm: FcmMessage[] = []
+    const viaPush: string[] = []
+    const totals = await sendAll(
+      db.rpc,
+      async (s) => void viaPush.push(s.endpoint),
+      5,
+      async (m) => void viaFcm.push(m),
+    )
+    expect(totals).toEqual({ sent: 3, failed: 0, gone: 0, skipped: 0 })
+    expect(viaFcm.map((m) => [m.token, m.data.kind])).toEqual([
+      ['fcm-token-1', 'reminder'],
+      ['fcm-token-2', 'digest'],
+    ])
+    expect(viaPush).toEqual(['https://push.example/3'])
+  })
+
+  it('a token FCM no longer knows is gone; with no key, FCM devices fail and are tried again', async () => {
+    const db = database([[fcm(1)]])
+    await sendAll(
+      db.rpc,
+      async () => undefined,
+      5,
+      async () => {
+        throw Object.assign(new Error('refused'), { statusCode: 404, body: 'UNREGISTERED' })
+      },
+    )
+    expect(db.recorded).toEqual([{ id: 1, outcome: 'gone', error: '404 UNREGISTERED' }])
+    const none = database([[fcm(2)]])
+    await sendAll(none.rpc, async () => undefined)
+    expect(none.recorded).toEqual([{ id: 2, outcome: 'failed', error: 'FCM is not set up' }])
+  })
+
+  it('signs in as the service account once, then sends to the project', async () => {
+    const pair = (await crypto.subtle.generateKey(
+      {
+        name: 'RSASSA-PKCS1-v1_5',
+        modulusLength: 2048,
+        publicExponent: new Uint8Array([1, 0, 1]),
+        hash: 'SHA-256',
+      },
+      true,
+      ['sign', 'verify'],
+    )) as {
+      privateKey: Parameters<typeof crypto.subtle.exportKey>[1]
+      publicKey: Parameters<typeof crypto.subtle.verify>[1]
+    }
+    const der = new Uint8Array(await crypto.subtle.exportKey('pkcs8', pair.privateKey))
+    const pem = `-----BEGIN PRIVATE KEY-----\n${btoa(String.fromCharCode(...der))}\n-----END PRIVATE KEY-----\n`
+    const calls: [string, RequestInit][] = []
+    const fetcher = (async (url: string, init: RequestInit) => {
+      calls.push([url, init])
+      if (url.includes('oauth2')) return Response.json({ access_token: 'ya29.x' })
+      return Response.json({ name: 'projects/p/messages/1' })
+    }) as unknown as typeof fetch
+    const send = fcmSender(
+      { project_id: 'lifeos-test', client_email: 'sa@lifeos-test.iam', private_key: pem },
+      fetcher,
+    )
+    await send(fcmMessage(fcm(1), 'reminder'))
+    await send(fcmMessage(fcm(2), 'reminder'))
+    expect(calls.map(([u]) => u)).toEqual([
+      'https://oauth2.googleapis.com/token',
+      'https://fcm.googleapis.com/v1/projects/lifeos-test/messages:send',
+      'https://fcm.googleapis.com/v1/projects/lifeos-test/messages:send',
+    ])
+    const assertion = new URLSearchParams(String(calls[0]![1].body)).get('assertion')!
+    const [header, claims, signature] = assertion.split('.')
+    const decode = (s: string) =>
+      Uint8Array.from(atob(s.replaceAll('-', '+').replaceAll('_', '/')), (c) => c.charCodeAt(0))
+    expect(JSON.parse(new TextDecoder().decode(decode(claims!)))).toMatchObject({
+      iss: 'sa@lifeos-test.iam',
+      scope: 'https://www.googleapis.com/auth/firebase.messaging',
+    })
+    expect(
+      await crypto.subtle.verify(
+        'RSASSA-PKCS1-v1_5',
+        pair.publicKey,
+        decode(signature!),
+        new TextEncoder().encode(`${header}.${claims}`),
+      ),
+    ).toBe(true)
+    expect((calls[1]![1].headers as Record<string, string>).Authorization).toBe('Bearer ya29.x')
   })
 })

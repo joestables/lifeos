@@ -4,4 +4,11 @@
 <resources>
     <!-- background, light -->
     <color name="lifeos_background">#F3F4F5</color>
+    <!-- The Type colours (--t-*, light), tinting notifications (ADR-0063) -->
+    <color name="lifeos_t_blue">#3072C1</color>
+    <color name="lifeos_t_yellow">#E6B731</color>
+    <color name="lifeos_t_coral">#DE6B4F</color>
+    <color name="lifeos_t_green">#319751</color>
+    <color name="lifeos_t_orange">#E18528</color>
+    <color name="lifeos_t_purple">#7D5ABC</color>
 </resources>

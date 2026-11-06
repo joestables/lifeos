@@ -14,6 +14,8 @@ Losing it means installing the app afresh.
 | GitHub → `joestables/lifeos` → Settings → Secrets and variables → Actions | `ANDROID_KEYSTORE_BASE64` (the base64 text), `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` (`lifeos`), `ANDROID_KEY_PASSWORD` (the same password, unless another was chosen) | To do (Joe) |
 | A release | Actions → Android → Run workflow, on `master`, with the version `public/android.json` gives (`0.1.0` first): the workflow builds the signed APK and attaches it to a GitHub release tagged `android-v0.1.0` | To do (Joe), once this pull request is merged |
 | Supabase → Authentication → URL Configuration → Redirect URLs | Add `uk.joestables.lifeos://auth/callback`, exactly, so Google sign-in can come back to the app ([ADR-0062](../20-architecture/adr/0062-signing-in-on-the-android-app.md)); no tool Claude has can change it | To do (Joe) |
+| Firebase console | Project `lifeos-b2793` (no Analytics), its Android app `uk.joestables.lifeos`; `google-services.json` in `android/app/` | Done (Joe, 6 November) |
+| Firebase → Project settings → Service accounts → Generate new private key; Supabase → Integrations → Vault | The key's JSON as the Vault secret `fcm_service_account`, never in the repository or a chat; the downloaded file deleted | Done (Joe, 6 November) |
 | The phone | Open the release on the phone (signed in to GitHub), download the APK and open it; allow installing from the browser once | To do (Joe), at step 5 |
 
 ## Supabase Data API

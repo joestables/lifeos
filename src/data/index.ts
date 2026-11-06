@@ -446,7 +446,7 @@ const collections: {
   },
   {
     key: devicesKey,
-    fns: ['register_device', 'set_device', 'remove_device'],
+    fns: ['register_device', 'register_fcm_device', 'set_device', 'remove_device'],
     fold: (rows: Device[], e: QueueEntry) => applyPendingDevices(rows, [e]),
   },
   {
@@ -533,6 +533,7 @@ export const {
   removeDefaultReminder,
   updateSettings,
   registerDevice,
+  registerFcmDevice,
   setDevice,
   removeDevice,
   addSubtask,

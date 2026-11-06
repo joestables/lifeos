@@ -66,7 +66,7 @@ Acceptance criteria
 3. Given an iPhone browser that isn't the installed app, then I'm told to
    add LifeOS to the Home Screen first, as iOS allows notifications only
    there.
-4. Given the Android app (Stage 7, agreed), then turning notifications
+4. Given the Android app (Stage 7, built, Joe checks it on his phone), then turning notifications
    on there works the same way, the device listed as "Android app"; the
    installed web app's entry on that phone can then be removed.
 

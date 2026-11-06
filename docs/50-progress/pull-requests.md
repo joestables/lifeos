@@ -2,6 +2,31 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## Stage 7, step 7: notifications in the Android app
+
+Branch `claude/intelligent-shannon-umfm64` · 2026-11-06 · the PR number is
+filled in once it is opened
+
+**What it did**
+- **The Android app as an FCM device** (REM-001 4, ADR-0063): Settings'
+  Turn on asks Android and registers the phone's token as "Android app";
+  a changed token is registered when the app opens; signing out ends it.
+- **Sending:** migration `stage7_fcm_devices` (`register_fcm_device`,
+  `claim_deliveries` saying each device's kind, `fcm_service_account`, the
+  Type's colour in the payload); `send-notifications` sends `fcm` devices
+  a data message through FCM's HTTP v1 API, signed in as the service
+  account (Vault's `fcm_service_account`).
+- **On the phone:** notifications in four groups (Reminders, Alarms,
+  Morning digest, Overdue), tinted with the Type's colour, a tap opening
+  the Item, Done and Snooze sent through WorkManager when there's signal.
+- `public/android.json` says 0.1.2.
+
+**Documents touched:** ADR-0063 (as built), reminders (REM-001 4), the
+runbook (notifications), integration setup (Firebase), the Stage 7 plan.
+
+**Left for later:** Joe checking it on 0.1.2; step 8, Reminders set on the
+phone and Alarms.
+
 ## [#63](https://github.com/joestables/lifeos/pull/63) — Faster CI; the Android app's text the web's size
 
 Branch `claude/intelligent-shannon-umfm64` · 2026-11-05

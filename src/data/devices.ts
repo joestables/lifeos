@@ -35,9 +35,12 @@ export function applyPendingDevices(
   for (const entry of entries) {
     const a = entry.args as Record<string, unknown>
     switch (entry.fn) {
-      case 'register_device': {
-        // The endpoint is the device: registering it again turns it back on.
-        const existing = out.find((d) => d.endpoint === a.p_endpoint)
+      case 'register_device':
+      case 'register_fcm_device': {
+        // The endpoint is the device (the Android app's is its FCM token):
+        // registering it again turns it back on.
+        const endpoint = String(entry.fn === 'register_fcm_device' ? a.p_token : a.p_endpoint)
+        const existing = out.find((d) => d.endpoint === endpoint)
         if (existing) {
           out = out.map((d) =>
             d === existing ? { ...d, enabled: true, gone_at: null, label: String(a.p_label) } : d,
@@ -46,7 +49,7 @@ export function applyPendingDevices(
         }
         out.push({
           id: String(a.p_id),
-          endpoint: String(a.p_endpoint),
+          endpoint,
           label: String(a.p_label),
           enabled: true,
           gone_at: null,
