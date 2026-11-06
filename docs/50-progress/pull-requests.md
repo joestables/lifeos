@@ -15,9 +15,12 @@ Branch `claude/intelligent-shannon-umfm64` · 2026-11-05
   size and it read larger than the web app in Chrome (AND-003 6); the
   Android app Card moved to the foot of Settings; `public/android.json`
   says 0.1.1, so the app offers the new APK once it is released.
+- **Claude merges its own pull requests** once CI is green, and runs the
+  Android release when native parts changed (Joe, 6 November):
+  `CLAUDE.md`, environments, the runbook.
 
-**Documents touched:** environments (CI), the Android app spec (AND-003
-6), ADR-0061 (as built), patterns (Settings in the app), the Stage 7 plan.
+**Documents touched:** `CLAUDE.md` (merging and releasing), environments
+(CI), the runbook, the Android app spec (AND-003 6), ADR-0061 (as built), patterns (Settings in the app), the Stage 7 plan.
 
 **Left for later:** releasing 0.1.1 once merged, and Joe checking it.
 

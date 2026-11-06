@@ -41,6 +41,15 @@ This matters more than anything else here.
   [docs/50-progress/pull-requests.md](docs/50-progress/pull-requests.md),
   and keeps the current [plan](docs/50-progress/plans/) up to date.
 
+## Merging and releasing
+
+**Claude merges its own pull requests** once CI is green on the current
+head (Joe, 6 November): squash, titled as the pull request with its number,
+then the branch restarted from `master` for the next piece. Joe doesn't
+merge them. When the Android app's native parts changed, Claude also
+raises `public/android.json` and runs the release (Actions → Android → Run
+workflow) once merged ([runbook](docs/40-operations/runbook.md#the-android-app)).
+
 ## ADR statuses
 
 - **Proposed** — context; don't build on it without asking.
