@@ -37,6 +37,12 @@ interface LifeosNative {
   allowFullScreen(): Promise<void>
   /** Sets the running Cooking timers' ends on the phone, to the second (REM-010 5). */
   setTimers(options: { timers: NativeTimer[] }): Promise<void>
+  /** What was shared to the app from Android's share sheet, once: its `/share` path (AND-004). */
+  takeShare(): Promise<{ path?: string }>
+  /** Back to the app shared from, LifeOS left as it was. */
+  leave(): Promise<void>
+  /** Something new was shared while the app was open: take it. */
+  addListener(event: 'share', listener: () => void): Promise<{ remove: () => Promise<void> }>
 }
 
 /** A Cooking timer's end as the phone sets it: when, and what it says. */

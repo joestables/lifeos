@@ -66,3 +66,17 @@ otherwise Stage 10 ([ADR-0028](0028-capture-from-outside-the-app.md)).
   they're empty. How to make it is in
   [integration setup](../../40-operations/integration-setup.md#ios-shortcut-save-to-lifeos).
 
+## As built (6 November, Stage 7 step 9)
+
+- **The Android app** is in Android's share sheet for text (a link, or
+  text with a link in it, as TikTok and Instagram send). The share reaches
+  the page as the web's share target sends it, `/share?title=…&text=…`,
+  through LifeOS's own plugin (`takeShare`, and a `share` event when the
+  app was already open), so the page keeps the Idea exactly as on the web.
+- **Back to the app shared from:** a minute and a half after "Saved as an
+  idea", the app moves itself behind the app shared from (`leave`), and is
+  left on what it showed before. "Already saved" stays, with Open.
+- A phone with both the Android app and the web app installed from Chrome
+  shows LifeOS twice in the share sheet; the web app is removed from the
+  phone once the Android app is in use (AND-004 2).
+

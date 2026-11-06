@@ -31,6 +31,14 @@
                 <data android:scheme="https" android:host="joestables.uk" />
             </intent-filter>
 
+            <!-- LifeOS in Android's share sheet (AND-004, ADR-0055): a link
+                 shared to it is kept as a recipe Idea, as /share does. -->
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+
             <!-- Back from Google in the phone's browser (AND-002, ADR-0062). -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />

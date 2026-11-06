@@ -104,7 +104,7 @@ Acceptance criteria
 **As** Joe, **I want** LifeOS in the share sheet when it's the app, **so
 that** saving a recipe idea works as before
 ([RCP-003](../modules/recipes.md#rcp-003--save-an-idea-from-another-app)).
-Priority: Must · Status: agreed
+Priority: Must · Status: built (Stage 7, step 9; Joe checks it on his phone)
 
 Acceptance criteria
 1. Given I share a link from TikTok, Instagram or a web page to LifeOS,
