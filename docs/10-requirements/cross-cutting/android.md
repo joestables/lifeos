@@ -131,7 +131,7 @@ Acceptance criteria
 
 **As** Joe, **I want** today's Plan on my home screen, **so that** I see
 the shape of my day without opening anything.
-Priority: Must · Status: agreed
+Priority: Must · Status: built (Stage 7, step 10; Joe checks it on his phone)
 
 Acceptance criteria
 1. Given the widget, then it shows today's date and today's cards as

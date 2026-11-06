@@ -14,16 +14,16 @@ import java.io.IOException
 import java.util.concurrent.TimeUnit
 
 /**
- * Fetches and sets the phone's Reminders when there's signal (REM-010 2):
- * when FCM says to look again, when the app opens, and once a day so the
- * week ahead rolls on.
+ * Fetches and sets the phone's Reminders, and the Today widget's days, when
+ * there's signal (REM-010 2, WID-002 5): when FCM says to look again, when
+ * the app opens, at midnight, and once a day so the week ahead rolls on.
  */
 class SyncWorker(context: Context, params: WorkerParameters) : Worker(context, params) {
-    override fun doWork(): Result = try {
-        ReminderSync.fetch(applicationContext)
-        Result.success()
-    } catch (_: IOException) {
-        Result.retry()
+    override fun doWork(): Result {
+        val reminders = runCatching { ReminderSync.fetch(applicationContext) }
+        val plan = runCatching { PlanStore.fetch(applicationContext) }
+        val offline = listOf(reminders, plan).any { it.exceptionOrNull() is IOException }
+        return if (offline) Result.retry() else Result.success()
     }
 
     companion object {

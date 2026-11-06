@@ -93,6 +93,22 @@
             android:exported="false"
             android:foregroundServiceType="systemExempted" />
 
+        <!-- The Today widget (WID-002, ADR-0064), and its turn at midnight. -->
+        <receiver
+            android:name=".TodayWidgetReceiver"
+            android:exported="true"
+            android:label="@string/today_widget">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/today_widget_info" />
+        </receiver>
+        <receiver
+            android:name=".MidnightReceiver"
+            android:exported="false" />
+
         <!-- A Cooking timer's end (REM-010 5). -->
         <receiver
             android:name=".TimerReceiver"

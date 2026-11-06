@@ -4,7 +4,7 @@ import { NewWorkoutDialog } from '@/app/new-workout'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { addDays, todayIn } from '@lifeos/recurrence'
 import { TYPES, hasTrait } from '@lifeos/ontology'
-import { useState, type DragEvent, type ReactElement } from 'react'
+import { useEffect, useState, type DragEvent, type ReactElement } from 'react'
 import {
   AddToDay,
   Fab,
@@ -58,10 +58,15 @@ const LAYOUT_KEY = 'lifeos.plan.layout'
 
 /** Plan (views/plan.md): the day shown, kept in the page's address. */
 export const Route = createFileRoute('/_app/plan')({
-  validateSearch: (search: Record<string, unknown>): { day?: string } =>
-    typeof search.day === 'string' && /^\d{4}-\d\d-\d\d$/.test(search.day)
+  // `add`: opened with "+" pressed, as the Today widget's "+" asks (WID-002 8).
+  validateSearch: (search: Record<string, unknown>): { day?: string; add?: true } => ({
+    ...(typeof search.day === 'string' && /^\d{4}-\d\d-\d\d$/.test(search.day)
       ? { day: search.day }
-      : {},
+      : {}),
+    ...(search.add === true || search.add === 'true' || search.add === 1 || search.add === '1'
+      ? { add: true as const }
+      : {}),
+  }),
   component: Plan,
 })
 
@@ -121,6 +126,11 @@ function Plan() {
   const hidden = settings.planHiddenTypes
   const days = planDays(items, week[0]!, week[6]!, settings.timezone, hidden)
   const [adding, setAdding] = useState<{ type: string; day: string } | null>(null)
+  // "+" pressed from the Today widget: the page's own "+" open on the day (WID-002 8).
+  const [addOpen, setAddOpen] = useState(search.add === true)
+  useEffect(() => {
+    if (search.add) void navigate({ to: '/plan', search: { day: search.day }, replace: true })
+  }, [search.add, search.day, navigate])
   const [drag, setDrag] = useState<{ item: Item; from: string } | null>(null)
   const [over, setOver] = useState<string | null>(null)
   const now = new Date()
@@ -219,13 +229,19 @@ function Plan() {
     )
   }
 
-  const addTo = (d: string, trigger?: ReactElement, side?: 'top' | 'bottom') => (
+  const addTo = (
+    d: string,
+    trigger?: ReactElement,
+    side?: 'top' | 'bottom',
+    control?: { open: boolean; onOpenChange: (open: boolean) => void },
+  ) => (
     <AddToDay
       day={dayLabel(d, today)}
       choices={ADD}
       onChoose={(type) => setAdding({ type, day: d })}
       trigger={trigger}
       side={side}
+      {...control}
     />
   )
 
@@ -285,7 +301,12 @@ function Plan() {
           onPrevious={() => goTo(addDays(day, -step))}
           onNext={() => goTo(addDays(day, step))}
           step={step === 7 ? 'week' : 'day'}
-          action={addTo(addDay, <PageAction label="Add" />)}
+          action={addTo(
+            addDay,
+            <PageAction label="Add" />,
+            undefined,
+            isMobile ? undefined : { open: addOpen, onOpenChange: setAddOpen },
+          )}
         />
         <div
           role="group"
@@ -312,7 +333,8 @@ function Plan() {
           </div>
         )}
       </div>
-      {isMobile && addTo(day, <Fab label="Add" />, 'top')}
+      {isMobile &&
+        addTo(day, <Fab label="Add" />, 'top', { open: addOpen, onOpenChange: setAddOpen })}
       {adding?.type === 'task' && (
         <NewTaskDialog doOn={adding.day} onClose={() => setAdding(null)} />
       )}

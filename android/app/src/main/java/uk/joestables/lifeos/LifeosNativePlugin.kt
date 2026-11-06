@@ -53,6 +53,16 @@ class LifeosNativePlugin : Plugin() {
         call.resolve(JSObject().apply { if (path != null) put("path", path) })
     }
 
+    /**
+     * Today's and tomorrow's cards for the Today widget, as Plan works them
+     * out on the phone (WID-002 5): `{ days: [{ day, cards }] }`.
+     */
+    @PluginMethod
+    fun setPlan(call: PluginCall) {
+        PlanStore.save(context, call.getArray("days") ?: com.getcapacitor.JSArray())
+        call.resolve()
+    }
+
     /** Back to the app shared from, LifeOS left as it was (RCP-003 2). */
     @PluginMethod
     fun leave(call: PluginCall) {

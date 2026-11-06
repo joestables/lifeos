@@ -59,3 +59,31 @@ can't run LifeOS's React code, and it updates while the app is closed.
   per device, so a busy minute sends one message.
 - A card's text is Plan's own; the widget adds no detail (an Event's
   place, a due date) to keep it to a glance.
+
+## As built (6 November, Stage 7 step 10)
+
+- **Glance 1.1.1** (`TodayWidget.kt`), with Compose's compiler plugin for
+  Kotlin 2.2.21. What it shows is kept as JSON on the phone
+  (`PlanStore.kt`): each day's cards as `src/lib/today-widget.ts` makes
+  them (id, Type, colour, title, Plan's time, done, when an Event ends);
+  `core.device_plan` answers the same shape, and its database tests use
+  the unit tests' examples.
+- **Written by the app** (`TodayWidgetFeed`, mounted in the app only)
+  whenever the two days' cards change on the phone; **fetched** from
+  `device-plan` with the Reminders, by the same worker, on a look, on
+  opening, at midnight and with Android's half-hourly update. The look
+  shares the Reminders' mark: statement triggers on `core.items` (made,
+  changed or deleted near today, for everyone who can read it) and on
+  `core.people` (the Types shown on Plan, or the timezone).
+- **Taps** open joestables.uk links in the app: a card `/item/<id>`, the
+  date `/plan`, "+" `/plan?add=1`, which opens Plan with its own "+" open
+  on today (the Fab on a phone). A link that opens the app from closed now
+  goes to its page too (Capacitor's launch URL), as a notification's tap
+  does.
+- **Within what a widget can draw:** a done or ended card's text and icon
+  are muted and struck through, as Android widgets can't fade by opacity;
+  the hairline edge is a 1dp ring of `--hairline` behind the card fill;
+  the phone's own font; the day is the phone's. A card's title is the
+  Item's title, else its first line of body as written.
+- Signed out (no device), it says "Sign in to LifeOS" and opens the app.
+

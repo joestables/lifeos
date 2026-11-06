@@ -231,18 +231,4 @@ class AlarmActivity : AppCompatActivity() {
             finish()
         }
     }
-
-    /** The Type's icon, as colours.ts's TYPE_ICONS (scripts/android-type-icons.mjs). */
-    private fun typeIcon(type: String): Int = when (type) {
-        "thought" -> R.drawable.ic_type_thought
-        "note" -> R.drawable.ic_type_note
-        "task" -> R.drawable.ic_type_task
-        "event" -> R.drawable.ic_type_event
-        "recipe", "variation" -> R.drawable.ic_type_recipe
-        "meal" -> R.drawable.ic_type_meal
-        "shopping_list" -> R.drawable.ic_type_shopping_list
-        "exercise", "workout" -> R.drawable.ic_type_exercise
-        "workout_template" -> R.drawable.ic_type_workout_template
-        else -> R.drawable.ic_stat_lifeos
-    }
 }

@@ -2,6 +2,31 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#68](https://github.com/joestables/lifeos/pull/68) — Stage 7, step 10: the Today widget
+
+Branch `claude/intelligent-shannon-umfm64` · 2026-11-06
+
+**What it did**
+- **Today's Plan on the home screen** (WID-002, ADR-0064): a resizable
+  Glance widget with the date (opening Plan), "+" (opening Plan's own "+"
+  on today) and today's cards in Plan's order as widget lines, scrolling,
+  each opening its Item; "Nothing planned"; signed out, "Sign in to
+  LifeOS". No checkboxes.
+- **Kept on the phone** as today's and tomorrow's cards, so it shows with
+  no signal and turns at midnight: written by the app whenever they change
+  there, and fetched from the new `device-plan` when a change elsewhere
+  says to look, on opening, at midnight and half-hourly.
+- Migration `stage7_today_widget`, applied as `20261106170858`, and
+  `device-plan` deployed (`core.device_plan` in Plan's order, and
+  looks on changes near today and to the Types shown on Plan); database
+  tests `today_widget_test` (10); unit tests for the cards and the
+  function; a browser walk for `/plan?add=1`.
+- A link opening the app from closed goes to its page.
+- `public/android.json` says 0.1.6.
+
+**Documents touched:** ADR-0064 (as built), android (WID-002),
+components (TodayWidget), the runbook, the Stage 7 plan.
+
 ## [#67](https://github.com/joestables/lifeos/pull/67) — Stage 7, step 9: sharing into the app; the Alarm screen opens itself
 
 Branch `claude/intelligent-shannon-umfm64` · 2026-11-06 · one pull request

@@ -1441,6 +1441,13 @@ export type Database = {
           timezone: string
         }[]
       }
+      device_plan: {
+        Args: { p_device: string; p_secret: string }
+        Returns: {
+          cards: Json
+          day: string
+        }[]
+      }
       device_reminders: {
         Args: { p_device: string; p_secret: string }
         Returns: {

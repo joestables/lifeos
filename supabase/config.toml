@@ -431,6 +431,9 @@ verify_jwt = false
 [functions.device-reminders]
 verify_jwt = false
 
+[functions.device-plan]
+verify_jwt = false
+
 # Asks Auth who the token is itself, so the browser's preflight isn't refused.
 [functions.ai]
 verify_jwt = false
