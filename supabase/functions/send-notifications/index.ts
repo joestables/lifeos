@@ -41,8 +41,9 @@ Deno.serve(async (req) => {
   webpush.setVapidDetails('mailto:joestables2002@gmail.com', publicKey, privateKey)
   const send: Send = (subscription, payload, options) =>
     webpush.sendNotification(subscription, payload, options)
-  // The Android app's devices go by FCM, when its key is in Vault.
-  const account = (await rpc('fcm_service_account', {})) as string | null
+  // The Android app's devices go by FCM, when its key is in Vault; without
+  // it, they wait (failed, tried again) and Web Push goes on regardless.
+  const account = (await rpc('fcm_service_account', {}).catch(() => null)) as string | null
   const sendFcm = account ? fcmSender(JSON.parse(account) as ServiceAccount, fetch) : undefined
   const totals = await sendAll(rpc, send, 5, sendFcm)
   console.log(JSON.stringify({ at: 'send-notifications', ...totals }))
