@@ -3,7 +3,7 @@
  * (docs/30-design/README.md#enforcement): every value the spec gives must
  * be the theme's, and every variable the theme defines must be in the spec.
  */
-import { readFileSync } from 'node:fs'
+import { readdirSync, readFileSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 
 const root = join(import.meta.dirname, '..')
@@ -192,6 +192,15 @@ for (const [file, value] of [
   )?.[1]
   if (`${actual}%` !== value)
     problems.push(`Android ${file} lifeos_tile_mix: should be --tile-mix (${value}), is ${actual}`)
+}
+
+// XML comments can't hold "--" (a token's name), and Android's build fails on one.
+for (const dir of readdirSync(res).filter((d) => statSync(join(res, d)).isDirectory())) {
+  for (const file of readdirSync(join(res, dir)).filter((f) => f.endsWith('.xml'))) {
+    for (const comment of readFileSync(join(res, dir, file), 'utf8').matchAll(/<!--([\s\S]*?)-->/g))
+      if (comment[1]!.includes('--'))
+        problems.push(`Android ${dir}/${file}: a comment holds "--", which XML doesn't allow`)
+  }
 }
 
 if (problems.length) {
