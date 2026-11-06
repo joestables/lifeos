@@ -188,12 +188,6 @@ export function writes(queue: WriteQueue, labelsNow: () => readonly Label[] = ()
       )
       return id
     },
-    /** The Android app as my device, by its FCM token (REM-001 4, ADR-0063). */
-    registerFcmDevice(token: string, label: string): string {
-      const id = newId()
-      queue.enqueue('register_fcm_device', { p_id: id, p_token: token, p_label: label }, [])
-      return id
-    },
     setDevice(id: string, enabled: boolean): void {
       queue.enqueue('set_device', { p_id: id, p_enabled: enabled }, [])
     },

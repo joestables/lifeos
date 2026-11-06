@@ -17,7 +17,8 @@ import com.google.firebase.messaging.FirebaseMessaging
 /**
  * LifeOS's own native code (ADR-0061), reached from the page through
  * `src/native/lifeos.ts`: keeping the screen awake while Cooking (AND-003
- * 5), and notifications by FCM (REM-001 4, ADR-0063).
+ * 5), notifications by FCM (REM-001 4), and Reminders set on the phone
+ * (REM-010, ADR-0063).
  */
 @CapacitorPlugin(
     name = "LifeosNative",
@@ -76,9 +77,51 @@ class LifeosNativePlugin : Plugin() {
         sendToken(call)
     }
 
-    /** Ends this phone's FCM token (signing out, or someone else signing in: ACC-003). */
+    /** Which device this phone is and its secret; its Reminders set from now on (REM-010). */
+    @PluginMethod
+    fun setDevice(call: PluginCall) {
+        val device = call.getString("device")
+        val secret = call.getString("secret")
+        val url = call.getString("remindersUrl")
+        if (device == null || secret == null || url == null) {
+            call.reject("device, secret and remindersUrl are needed")
+            return
+        }
+        Prefs.of(context).edit()
+            .putString(Prefs.DEVICE, device)
+            .putString(Prefs.SECRET, secret)
+            .putString(Prefs.REMINDERS_URL, url)
+            .apply()
+        SyncWorker.now(context)
+        SyncWorker.daily(context)
+        call.resolve()
+    }
+
+    @PluginMethod
+    fun deviceState(call: PluginCall) {
+        val prefs = Prefs.of(context)
+        call.resolve(
+            JSObject().put(
+                "hasDevice",
+                prefs.getString(Prefs.DEVICE, null) != null && prefs.getString(Prefs.SECRET, null) != null,
+            ),
+        )
+    }
+
+    @PluginMethod
+    fun syncReminders(call: PluginCall) {
+        SyncWorker.now(context)
+        call.resolve()
+    }
+
+    /**
+     * Ends this phone's FCM token and forgets its device and Reminders
+     * (signing out, or someone else signing in: ACC-003).
+     */
     @PluginMethod
     fun resetNotifications(call: PluginCall) {
+        SyncWorker.stop(context)
+        ReminderSync.forget(context)
         FirebaseMessaging.getInstance().deleteToken().addOnCompleteListener { call.resolve() }
     }
 

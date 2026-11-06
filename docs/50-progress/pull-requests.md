@@ -2,10 +2,38 @@
 
 Newest first. Each entry is added in its own pull request.
 
-## Stage 7, step 7: notifications in the Android app
+## Stage 7, step 8a: Reminders on time from the Android app
 
 Branch `claude/intelligent-shannon-umfm64` · 2026-11-06 · the PR number is
 filled in once it is opened
+
+**What it did**
+- **The phone sets its own Reminders** (REM-010, ADR-0063): it reads a
+  week's Reminders from the new `device-reminders` with its device's
+  secret and sets an exact alarm for each, so each arrives at its minute,
+  idle or offline; set again after a restart; fetched again when the
+  server says to look (any change to the person's Reminders or their
+  Items), when the app opens, and daily.
+- **One notification:** the minute run records the Android app's
+  Reminders *on device* and sends them nothing; Done and Snooze from the
+  phone are proved by the device's secret.
+- **A device gets only what comes due after it was turned on** (Joe's
+  phone, turned on at 10:34 on 0.1.2, was sent the 09:00 and 10:30
+  Reminders already delivered to Chrome).
+- Migration `stage7_on_device_reminders`, database tests
+  `on_device_reminders_test` (16); unit tests for the three functions;
+  a Kotlin unit test for the phone's reading of times.
+- `public/android.json` says 0.1.3.
+
+**Documents touched:** ADR-0063 (as built), reminders (REM-010), the
+data model, the runbook, the Stage 7 plan.
+
+**Left for later:** Joe checking it on 0.1.3; step 8b, Alarms and the
+Cooking timer.
+
+## [#64](https://github.com/joestables/lifeos/pull/64) — Stage 7, step 7: notifications in the Android app
+
+Branch `claude/intelligent-shannon-umfm64` · 2026-11-06
 
 **What it did**
 - **The Android app as an FCM device** (REM-001 4, ADR-0063): Settings'

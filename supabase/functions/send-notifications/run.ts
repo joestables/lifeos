@@ -134,6 +134,26 @@ async function sendOneFcm(sendFcm: SendFcm | undefined, c: Claimed): Promise<Out
   }
 }
 
+/**
+ * Tells each Android app whose Reminders changed to look again (REM-010 2,
+ * ADR-0063): a data message saying only that, so it fetches them itself. A
+ * token FCM no longer knows is left for the next delivery to mark gone.
+ */
+export async function sendLooks(rpc: Rpc, sendFcm: SendFcm | undefined): Promise<number> {
+  if (!sendFcm) return 0
+  const devices = (await rpc('claim_looks', {})) as { device_id: string; endpoint: string }[]
+  const sent = await Promise.allSettled(
+    devices.map((d) =>
+      sendFcm({
+        token: d.endpoint,
+        data: { type: 'look' },
+        android: { priority: 'HIGH', ttl: '86400s', collapse_key: 'look' },
+      }),
+    ),
+  )
+  return sent.filter((s) => s.status === 'fulfilled').length
+}
+
 /** The Firebase service account's key, as Google gives it (Vault's `fcm_service_account`). */
 export interface ServiceAccount {
   project_id: string

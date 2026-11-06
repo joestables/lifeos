@@ -5,7 +5,7 @@ function database(found: object | undefined) {
   const calls: [string, Record<string, unknown>][] = []
   const rpc: Rpc = async (fn, args) => {
     calls.push([fn, args])
-    if (fn === 'delivery_for_action') return found ? [found] : []
+    if (fn === 'delivery_for_action' || fn === 'reminder_for_action') return found ? [found] : []
     return true
   }
   return { rpc, calls }
@@ -48,6 +48,46 @@ describe('REM-005: Done and Snooze from a notification', () => {
     const db = database(PLAIN)
     expect(await act(db.rpc, { delivery: 7, token: 't', action: 'delete' })).toBe(false)
     expect(await act(db.rpc, { delivery: '7', token: 't', action: 'done' })).toBe(false)
+    expect(db.calls).toEqual([])
+  })
+})
+
+describe('REM-010: Done and Snooze on a Reminder the Android app set', () => {
+  const press = { device: 'd1', secret: 's', reminder: 'r1' }
+
+  it("proved by the device's secret, acts on the Reminder", async () => {
+    const db = database(PLAIN)
+    expect(await act(db.rpc, { ...press, action: 'snooze' }, NOW)).toBe(true)
+    expect(db.calls).toEqual([
+      ['reminder_for_action', { p_device: 'd1', p_secret: 's', p_reminder: 'r1' }],
+      [
+        'act_on_reminder',
+        {
+          p_device: 'd1',
+          p_secret: 's',
+          p_reminder: 'r1',
+          p_action: 'snooze',
+          p_next: null,
+          p_next_on: null,
+        },
+      ],
+    ])
+  })
+
+  it('TSK-009: Done makes the next of a Task repeated after completion', async () => {
+    const db = database({
+      mode: 'after_completion',
+      rule: 'FREQ=MONTHLY;INTERVAL=3',
+      timezone: 'Europe/London',
+    })
+    await act(db.rpc, { ...press, action: 'done' }, NOW)
+    expect(db.calls[1]![1].p_next_on).toBe('2027-01-10')
+  })
+
+  it("does nothing when the device or Reminder isn't found", async () => {
+    expect(await act(database(undefined).rpc, { ...press, action: 'done' }, NOW)).toBe(false)
+    const db = database(PLAIN)
+    expect(await act(db.rpc, { ...press, device: 7, action: 'done' }, NOW)).toBe(false)
     expect(db.calls).toEqual([])
   })
 })

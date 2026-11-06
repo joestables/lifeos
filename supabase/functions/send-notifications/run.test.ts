@@ -3,6 +3,7 @@ import {
   fcmMessage,
   fcmSender,
   sendAll,
+  sendLooks,
   vapidKeys,
   type Claimed,
   type FcmMessage,
@@ -217,5 +218,28 @@ describe('ADR-0063: the Android app by FCM', () => {
       ),
     ).toBe(true)
     expect((calls[1]![1].headers as Record<string, string>).Authorization).toBe('Bearer ya29.x')
+  })
+})
+
+describe('REM-010 2: telling the Android app to look again', () => {
+  it('sends each device whose Reminders changed a message saying only that', async () => {
+    const rpc: Rpc = async (fn) =>
+      fn === 'claim_looks' ? [{ device_id: 'd1', endpoint: 'fcm-token-1' }] : null
+    const sent: FcmMessage[] = []
+    expect(await sendLooks(rpc, async (m) => void sent.push(m))).toBe(1)
+    expect(sent).toEqual([
+      {
+        token: 'fcm-token-1',
+        data: { type: 'look' },
+        android: { priority: 'HIGH', ttl: '86400s', collapse_key: 'look' },
+      },
+    ])
+  })
+
+  it('without FCM set up, nothing is claimed', async () => {
+    const rpc: Rpc = async () => {
+      throw new Error('should not claim')
+    }
+    expect(await sendLooks(rpc, undefined)).toBe(0)
   })
 })

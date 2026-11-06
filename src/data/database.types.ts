@@ -691,8 +691,10 @@ export type Database = {
           kind: string
           label: string
           last_sent_at: string | null
+          look_wanted_at: string | null
           p256dh: string | null
           person_id: string
+          secret_hash: string | null
         }
         ComputedFields: never
         Insert: {
@@ -705,8 +707,10 @@ export type Database = {
           kind?: string
           label?: string
           last_sent_at?: string | null
+          look_wanted_at?: string | null
           p256dh?: string | null
           person_id?: string
+          secret_hash?: string | null
         }
         Update: {
           auth?: string | null
@@ -718,8 +722,10 @@ export type Database = {
           kind?: string
           label?: string
           last_sent_at?: string | null
+          look_wanted_at?: string | null
           p256dh?: string | null
           person_id?: string
+          secret_hash?: string | null
         }
         Relationships: [
           {
@@ -1117,6 +1123,17 @@ export type Database = {
         }
         Returns: boolean
       }
+      act_on_reminder: {
+        Args: {
+          p_action: string
+          p_device: string
+          p_next?: string
+          p_next_on?: string
+          p_reminder: string
+          p_secret: string
+        }
+        Returns: boolean
+      }
       add_label: { Args: { p_item: string; p_label: string }; Returns: undefined }
       add_reminder: {
         Args: { p_fields: Json; p_id: string; p_item: string }
@@ -1263,6 +1280,13 @@ export type Database = {
           p256dh: string
           payload: Json
           ttl: number
+        }[]
+      }
+      claim_looks: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          device_id: string
+          endpoint: string
         }[]
       }
       complete_occurrence: {
@@ -1413,6 +1437,15 @@ export type Database = {
           timezone: string
         }[]
       }
+      device_reminders: {
+        Args: { p_device: string; p_secret: string }
+        Returns: {
+          fires_at: string
+          payload: Json
+          reminder_id: string
+        }[]
+      }
+      device_secret: { Args: { p_device: string }; Returns: string }
       extend_series: {
         Args: { p_days: string[]; p_series: string; p_until: string }
         Returns: undefined
@@ -1474,8 +1507,10 @@ export type Database = {
           kind: string
           label: string
           last_sent_at: string | null
+          look_wanted_at: string | null
           p256dh: string | null
           person_id: string
+          secret_hash: string | null
         }
         SetofOptions: {
           from: '*'
@@ -1496,8 +1531,10 @@ export type Database = {
           kind: string
           label: string
           last_sent_at: string | null
+          look_wanted_at: string | null
           p256dh: string | null
           person_id: string
+          secret_hash: string | null
         }
         SetofOptions: {
           from: '*'
@@ -1505,6 +1542,16 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      reminder_for_action: {
+        Args: { p_device: string; p_reminder: string; p_secret: string }
+        Returns: {
+          item_id: string
+          kind: string
+          mode: string
+          rule: string
+          timezone: string
+        }[]
       }
       remove_default_reminder: { Args: { p_item: string }; Returns: undefined }
       remove_device: { Args: { p_id: string }; Returns: undefined }
@@ -1675,8 +1722,10 @@ export type Database = {
           kind: string
           label: string
           last_sent_at: string | null
+          look_wanted_at: string | null
           p256dh: string | null
           person_id: string
+          secret_hash: string | null
         }
         SetofOptions: {
           from: '*'

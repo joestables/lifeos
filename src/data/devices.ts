@@ -1,5 +1,6 @@
 import type { Database } from './database.types'
 import type { QueueEntry } from './queue/store'
+import { queryClient } from './queryClient'
 import { supabase } from './supabase'
 
 /** A phone or computer I turned notifications on for (REM-001). */
@@ -26,6 +27,30 @@ export async function fetchVapidPublicKey(): Promise<string | null> {
   return data
 }
 
+/**
+ * The Android app as my device, at once rather than through the write queue
+ * (turning notifications on needs signal anyway): its FCM token registered,
+ * and a new secret it keeps to read its Reminders and act on them
+ * (REM-001 4, REM-010, ADR-0063).
+ */
+export async function registerAndroidDevice(
+  token: string,
+  label: string,
+): Promise<{ id: string; secret: string }> {
+  const { data: device, error } = await supabase().rpc('register_fcm_device', {
+    p_id: crypto.randomUUID(),
+    p_token: token,
+    p_label: label,
+  })
+  if (error) throw error
+  const { data: secret, error: secretError } = await supabase().rpc('device_secret', {
+    p_device: device.id,
+  })
+  if (secretError) throw secretError
+  void queryClient.invalidateQueries({ queryKey: devicesKey })
+  return { id: device.id, secret }
+}
+
 /** Lays unsent device changes over the devices the server last sent. */
 export function applyPendingDevices(
   rows: readonly Device[],
@@ -37,8 +62,9 @@ export function applyPendingDevices(
     switch (entry.fn) {
       case 'register_device':
       case 'register_fcm_device': {
-        // The endpoint is the device (the Android app's is its FCM token):
-        // registering it again turns it back on.
+        // The endpoint is the device (the Android app's is its FCM token,
+        // registered directly since 0.1.3; one 0.1.2 queued is still laid
+        // over): registering it again turns it back on.
         const endpoint = String(entry.fn === 'register_fcm_device' ? a.p_token : a.p_endpoint)
         const existing = out.find((d) => d.endpoint === endpoint)
         if (existing) {

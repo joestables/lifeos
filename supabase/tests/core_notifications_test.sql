@@ -17,6 +17,9 @@ insert into core.push_devices (id, person_id, endpoint, p256dh, auth, label, ena
   ('00000000-0000-7000-8000-0000000000d1', '00000000-0000-4000-8000-00000000000a', 'https://push.example/ann-phone', 'k', 'a', 'Phone', true),
   ('00000000-0000-7000-8000-0000000000d2', '00000000-0000-4000-8000-00000000000a', 'https://push.example/ann-laptop', 'k', 'a', 'Laptop', false),
   ('00000000-0000-7000-8000-0000000000d3', '00000000-0000-4000-8000-00000000000b', 'https://push.example/ben-phone', 'k', 'a', 'Phone', true);
+-- Turned on long before the dates this test sends at (a device only gets
+-- what comes due after it was turned on).
+update core.push_devices set created_at = '2026-01-01 00:00:00+00';
 
 -- Ann's Tasks, with their Reminders at fixed times, set the week before.
 -- Ann has no digest.

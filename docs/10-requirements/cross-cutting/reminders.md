@@ -205,7 +205,7 @@ Acceptance criteria
 **As** Joe, **I want** a Reminder on the Android app at its minute, even
 when the phone has been idle, **so that** I can trust it instead of a phone
 alarm.
-Priority: Must · Status: agreed (Stage 7)
+Priority: Must · Status: built (Stage 7, step 8a; criterion 5, the Cooking timer, with 8b; Joe checks it on his phone)
 
 Acceptance criteria
 1. Given a Reminder at 09:00, then the Android app notifies me at 09:00,
