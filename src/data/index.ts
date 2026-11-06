@@ -533,7 +533,6 @@ export const {
   removeDefaultReminder,
   updateSettings,
   registerDevice,
-  registerFcmDevice,
   setDevice,
   removeDevice,
   addSubtask,
@@ -769,7 +768,7 @@ export type { Link } from './links'
 export { noteAction, reportEvent, startReporting } from './report'
 export type { Reminder, ReminderFields } from './reminders'
 export type { Device } from './devices'
-export { fetchVapidPublicKey } from './devices'
+export { fetchVapidPublicKey, registerAndroidDevice } from './devices'
 export type { RepeatArgs, RepeatMode, Series, SeriesTemplate } from './series'
 export type { Settings, SettingsPatch } from './settings'
 export type { Subtask } from './subtasks'

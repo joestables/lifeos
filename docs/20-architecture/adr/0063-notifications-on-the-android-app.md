@@ -121,3 +121,38 @@ the phone asleep; one set on the phone can.
   `notification-action` through WorkManager, so a press with no signal is
   sent when signal returns.
 
+## As built (6 November, Stage 7 step 8a)
+
+- **The device's secret:** made by `core.device_secret` when the app
+  turns notifications on (registering directly, not through the write
+  queue, as it needs signal anyway); only its SHA-256 is kept. A phone on
+  0.1.2 learns its device and secret the next time the app opens.
+- **What the phone reads:** `device-reminders` → `core.device_reminders`,
+  the device's person's Reminders from 12 hours ago to a week ahead
+  (the same rules as the minute run: open, readable, not set in the
+  past; at most 400), each with the notification's words.
+- **Look again:** statement triggers on `core.reminders` (made, changed,
+  deleted) and on `core.items` (done, archived, brought back) mark the
+  person's devices; the minute run wakes `send-notifications` for a mark
+  as for a delivery, and it sends each a `{ type: 'look' }` data message.
+  The phone also fetches when the app opens and once a day.
+- **On the phone:** each firing an exact alarm
+  (`setExactAndAllowWhileIdle`; `USE_EXACT_ALARM`, or
+  `SCHEDULE_EXACT_ALARM` before Android 13), shown at its minute, one up
+  to 12 hours late shown at once, none twice; set again after a restart,
+  an update or a change of clock from what the phone kept, with no signal.
+- **Done and Snooze** for a Reminder the phone set are proved by the
+  device's secret, not a signed token per firing as planned: the secret
+  already proves the person, so nothing is signed or stored per firing
+  (`core.reminder_for_action`, `core.act_on_reminder`, sharing
+  `core_private.act_on` with `act_on_delivery`). Snooze with no signal
+  also sets the alarm an hour on, on the phone.
+- **One notification:** the minute run records an Android app device's
+  Reminder as *on device*; only a device with a secret (0.1.3 and later)
+  is, so a phone still on 0.1.2 is sent its Reminders as before.
+- **A device gets only what comes due after it was turned on**, found
+  when Joe turned notifications on in 0.1.2 at 10:34 and was sent the
+  09:00 and 10:30 Reminders already delivered to Chrome.
+- Alarms, the full-screen screen and a Cooking timer set on the phone
+  are step 8b.
+

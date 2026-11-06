@@ -5,7 +5,15 @@
 // Firebase key in Vault (ADR-0063). Deployed by Claude through the Supabase
 // MCP (runbook.md#notifications).
 import webpush from 'npm:web-push@3.6.7'
-import { fcmSender, sendAll, vapidKeys, type Rpc, type Send, type ServiceAccount } from './run.ts'
+import {
+  fcmSender,
+  sendAll,
+  sendLooks,
+  vapidKeys,
+  type Rpc,
+  type Send,
+  type ServiceAccount,
+} from './run.ts'
 
 const url = Deno.env.get('SUPABASE_URL')!
 // The project's secret key: the new kind if it has one, else the service role.
@@ -46,6 +54,8 @@ Deno.serve(async (req) => {
   const account = (await rpc('fcm_service_account', {}).catch(() => null)) as string | null
   const sendFcm = account ? fcmSender(JSON.parse(account) as ServiceAccount, fetch) : undefined
   const totals = await sendAll(rpc, send, 5, sendFcm)
-  console.log(JSON.stringify({ at: 'send-notifications', ...totals }))
-  return Response.json(totals)
+  // The Android apps whose Reminders changed look again (ADR-0063).
+  const looks = await sendLooks(rpc, sendFcm).catch(() => 0)
+  console.log(JSON.stringify({ at: 'send-notifications', ...totals, looks }))
+  return Response.json({ ...totals, looks })
 })

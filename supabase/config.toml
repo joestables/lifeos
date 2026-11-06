@@ -427,6 +427,10 @@ verify_jwt = false
 [functions.notification-action]
 verify_jwt = false
 
+# Called by the Android app with its device's secret, not a session (ADR-0063).
+[functions.device-reminders]
+verify_jwt = false
+
 # Asks Auth who the token is itself, so the browser's preflight isn't refused.
 [functions.ai]
 verify_jwt = false

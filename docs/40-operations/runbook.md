@@ -65,7 +65,15 @@ Reminders, the morning digest and overdue nudges
   each result: *sent*, *failed* (tried again next minute), *gone* (the
   device stops being sent to and `ops.events` gets `push_device_gone`),
   *skipped* (done or deleted meanwhile, or the digest had nothing to say)
-  or *missed* (over 12 hours late). Its heartbeat is `send-notifications`.
+  or *missed* (over 12 hours late). The Android app's Reminders are
+  recorded *on device* and not sent: it sets them itself; and devices
+  whose Reminders changed are sent a "look again" FCM message
+  (`core.claim_looks`). Its heartbeat is `send-notifications`.
+- **`device-reminders`** (the Android app, with its device's secret) hands
+  it its Reminders from 12 hours ago to a week ahead, each with what its
+  notification says (`core.device_reminders`); `notification-action` also
+  takes Done and Snooze for one of those, proved the same way
+  (`core.act_on_reminder`).
 - **`notification-action`** does Done and Snooze from a notification's
   buttons, proved by the delivery's token; the service worker keeps a press
   made with no signal and sends it later.
@@ -73,8 +81,8 @@ Reminders, the morning digest and overdue nudges
   where created_at > now() - interval '1 day' group by 1`; the 03:00 health
   check reports rows waiting over an hour. A real notification on each
   phone and computer is checked by hand.
-- **Deploying them:** Claude deploys both functions through the Supabase
-  MCP without JWT checks (each checks its own secret or token);
+- **Deploying them:** Claude deploys the three functions through the
+  Supabase MCP without JWT checks (each checks its own secret or token);
   `notification-action` with `packages/recurrence`'s files.
 
 ## Google Calendar
