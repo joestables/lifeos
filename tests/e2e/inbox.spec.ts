@@ -111,11 +111,11 @@ test('INB-002: a Thought becomes a Task in one action, its date understood, and 
   page,
   isMobile,
 }) => {
-  // Whether its own Reminder goes depends on the Reminders: converted once they're in.
-  const reminders = page.waitForResponse((r) => r.url().includes('/rest/v1/reminders'))
   const db = await start(page)
-  await reminders
   const thought = rowOf(page, 'dentist tue 3pm?')
+  // Whether its own Reminder goes depends on the Reminders: converted once the
+  // page has them, as its row then shows.
+  await expect(thought).toContainText('15:00')
   if (isMobile) {
     // A swipe to the right, with a finger.
     const box = (await thought.boundingBox())!
