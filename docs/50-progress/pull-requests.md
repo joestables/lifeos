@@ -2,10 +2,9 @@
 
 Newest first. Each entry is added in its own pull request.
 
-## Stage 7, step 8a: Reminders on time from the Android app
+## [#65](https://github.com/joestables/lifeos/pull/65) — Stage 7, step 8a: Reminders on time from the Android app
 
-Branch `claude/intelligent-shannon-umfm64` · 2026-11-06 · the PR number is
-filled in once it is opened
+Branch `claude/intelligent-shannon-umfm64` · 2026-11-06
 
 **What it did**
 - **The phone sets its own Reminders** (REM-010, ADR-0063): it reads a
@@ -20,7 +19,8 @@ filled in once it is opened
 - **A device gets only what comes due after it was turned on** (Joe's
   phone, turned on at 10:34 on 0.1.2, was sent the 09:00 and 10:30
   Reminders already delivered to Chrome).
-- Migration `stage7_on_device_reminders`, database tests
+- Migration `stage7_on_device_reminders` (applied as `20261106104949`;
+  the three Edge Functions deployed), database tests
   `on_device_reminders_test` (16); unit tests for the three functions;
   a Kotlin unit test for the phone's reading of times.
 - `public/android.json` says 0.1.3.
