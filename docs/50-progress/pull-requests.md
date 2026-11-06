@@ -2,10 +2,9 @@
 
 Newest first. Each entry is added in its own pull request.
 
-## Stage 7, step 10: the Today widget
+## [#68](https://github.com/joestables/lifeos/pull/68) — Stage 7, step 10: the Today widget
 
-Branch `claude/intelligent-shannon-umfm64` · 2026-11-06 · the PR number is
-filled in once it is opened
+Branch `claude/intelligent-shannon-umfm64` · 2026-11-06
 
 **What it did**
 - **Today's Plan on the home screen** (WID-002, ADR-0064): a resizable
@@ -17,7 +16,8 @@ filled in once it is opened
   no signal and turns at midnight: written by the app whenever they change
   there, and fetched from the new `device-plan` when a change elsewhere
   says to look, on opening, at midnight and half-hourly.
-- Migration `stage7_today_widget` (`core.device_plan` in Plan's order, and
+- Migration `stage7_today_widget`, applied as `20261106170858`, and
+  `device-plan` deployed (`core.device_plan` in Plan's order, and
   looks on changes near today and to the Types shown on Plan); database
   tests `today_widget_test` (10); unit tests for the cards and the
   function; a browser walk for `/plan?add=1`.
