@@ -288,6 +288,8 @@ test.describe('workouts', () => {
     await done.click()
     await expect(done).toHaveAttribute('aria-pressed', 'false')
     await expect(card.getByRole('button', { name: 'Log set' })).toBeVisible()
+    // Sent before leaving, as the sets above are.
+    await expect.poll(() => db.workout_entries.every((e) => e.done_at === null)).toBe(true)
 
     // GYM-008 8: left and come back to, it is just as it was.
     await page.reload()

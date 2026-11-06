@@ -31,6 +31,8 @@ export type SeriesTemplate = {
     offset_days: number
     at_time: string | null
     offset_minutes?: number
+    /** Each occurrence's Reminder rings as an Alarm (REM-011). */
+    alarm?: boolean
   }[]
 }
 

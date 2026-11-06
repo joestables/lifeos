@@ -44,6 +44,10 @@ export const byFiring = (a: Pick<Reminder, 'fires_at'>, b: Pick<Reminder, 'fires
 
 /** What a Reminder made or changed in its Dialog is saved as (REM-003). */
 export function reminderFields(choice: ReminderChoice, timezone: string): ReminderFields {
+  return { ...whenFields(choice, timezone), alarm: choice.alarm ?? false }
+}
+
+function whenFields(choice: ReminderChoice, timezone: string): ReminderFields {
   if (choice.kind === 'fixed')
     return {
       anchor: null,
@@ -71,15 +75,23 @@ export function reminderFields(choice: ReminderChoice, timezone: string): Remind
 
 /** A saved Reminder as its Dialog shows it; a set time in my home timezone (ADR-0021). */
 export function reminderChoice(
-  r: Pick<Reminder, 'anchor' | 'offset_days' | 'at_time' | 'offset_minutes' | 'fixed_at'>,
+  r: Pick<Reminder, 'anchor' | 'offset_days' | 'at_time' | 'offset_minutes' | 'fixed_at'> & {
+    alarm?: boolean
+  },
   fallbackTime: string,
   timezone: string,
 ): ReminderChoice {
   const time = r.at_time?.slice(0, 5) ?? fallbackTime
-  if (!r.anchor) return { kind: 'fixed', ...zonedParts(r.fixed_at!, timezone) }
+  const alarm = r.alarm ?? false
+  if (!r.anchor) return { kind: 'fixed', ...zonedParts(r.fixed_at!, timezone), alarm }
   if (r.anchor === 'starts_at' && !r.at_time && r.offset_days === 0)
-    return { kind: 'before', minutes: -r.offset_minutes, time }
-  return { kind: r.anchor as 'do_on' | 'due_on' | 'starts_at', daysBefore: -r.offset_days, time }
+    return { kind: 'before', minutes: -r.offset_minutes, time, alarm }
+  return {
+    kind: r.anchor as 'do_on' | 'due_on' | 'starts_at',
+    daysBefore: -r.offset_days,
+    time,
+    alarm,
+  }
 }
 
 /**
@@ -160,6 +172,7 @@ export function defaultReminder(
 /** Whether two Reminder choices fire alike: a default opened and saved unchanged is still the default. */
 export const sameChoice = (a: ReminderChoice, b: ReminderChoice) =>
   a.kind === b.kind &&
+  (a.alarm ?? false) === (b.alarm ?? false) &&
   (a.kind === 'before'
     ? a.minutes === (b as typeof a).minutes
     : a.kind === 'fixed'

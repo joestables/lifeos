@@ -7,11 +7,12 @@ import android.content.Intent
 /**
  * Alarms don't survive a restart, an update or a change of clock: they are
  * set again from the Reminders kept on the phone, with no signal needed
- * (REM-010 3), then fetched afresh when there is.
+ * (REM-010 3), then fetched afresh when there is; Cooking timers too.
  */
 class BootReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         ReminderSync.schedule(context)
+        CookTimers.restore(context)
         SyncWorker.now(context)
     }
 }

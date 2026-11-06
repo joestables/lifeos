@@ -205,7 +205,7 @@ Acceptance criteria
 **As** Joe, **I want** a Reminder on the Android app at its minute, even
 when the phone has been idle, **so that** I can trust it instead of a phone
 alarm.
-Priority: Must · Status: built (Stage 7, step 8a; criterion 5, the Cooking timer, with 8b; Joe checks it on his phone)
+Priority: Must · Status: built (Stage 7, step 8a; criterion 5, the Cooking timer, in 8b; Joe checks it on his phone)
 
 Acceptance criteria
 1. Given a Reminder at 09:00, then the Android app notifies me at 09:00,
@@ -224,7 +224,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to mark a Reminder as an Alarm, **so that** LifeOS
 can wake me or interrupt me as my phone's alarms do, and they can go.
-Priority: Must · Status: agreed (Stage 7)
+Priority: Must · Status: built (Stage 7, step 8b; Joe checks it on his phone)
 
 Acceptance criteria
 1. Given a Reminder's settings in an Item's popup, then I can mark it
@@ -232,7 +232,9 @@ Acceptance criteria
 2. Given an Alarm comes due on the Android app, then it rings with sound
    (and vibrates) until I stop it, showing over the lock screen with the
    Item's title and time, Stop and Snooze; Done too on a Completable
-   Item.
+   Item. As the clock's alarms do, one left ringing falls quiet after ten
+   minutes and stays as an ordinary notification; one more than ten
+   minutes late (the phone was off) arrives as an ordinary notification.
 3. Given an Alarm on a device that isn't the Android app, then it arrives
    there as an ordinary notification.
 4. Given the phone is on silent or Do Not Disturb, then an Alarm still

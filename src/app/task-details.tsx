@@ -313,7 +313,12 @@ export function TaskDetails({ item }: { item: Item }) {
       timezone: settings.timezone,
       reminders: reminders
         .filter((r) => r.item_id === item.id && r.anchor && !r.is_default)
-        .map((r) => ({ anchor: r.anchor!, offset_days: r.offset_days, at_time: r.at_time })),
+        .map((r) => ({
+          anchor: r.anchor!,
+          offset_days: r.offset_days,
+          at_time: r.at_time,
+          alarm: r.alarm,
+        })),
     })
   }
 

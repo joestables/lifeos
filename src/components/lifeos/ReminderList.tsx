@@ -17,6 +17,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Switch } from '@/components/ui/switch'
+import { CardRow } from './CardRow'
 import { DateField } from './DateField'
 import { TimeField } from './TimeField'
 
@@ -27,7 +29,7 @@ export interface ReminderLine {
   when: string | null
   /** "On the day", "1 day before", "At a set time". */
   says: string
-  /** Rings as an Alarm on the Android app (REM-011; draft, Stage 7). */
+  /** Rings as an Alarm on the Android app (REM-011). */
   alarm?: boolean
 }
 
@@ -89,10 +91,14 @@ export function ReminderList({
  * A Reminder being made or changed: on one of the Item's dates (an Event's
  * is the day it starts), some minutes before an Event starts, or at a set time.
  */
-export type ReminderChoice =
+export type ReminderChoice = (
   | { kind: 'do_on' | 'due_on' | 'starts_at'; daysBefore: number; time: string }
   | { kind: 'before'; minutes: number; time: string }
   | { kind: 'fixed'; day: string | null; time: string }
+) & {
+  /** Rings until stopped on the Android app (REM-011); off to start. */
+  alarm?: boolean
+}
 
 /** What a Reminder can hang on, beside a set time. */
 export type ReminderAnchor = 'do_on' | 'due_on' | 'before' | 'starts_at'
@@ -146,10 +152,15 @@ export function ReminderDialog({
   const setKind = (kind: ReminderChoice['kind']) =>
     setChoice(
       kind === 'fixed'
-        ? { kind, day: null, time: choice.time }
+        ? { kind, day: null, time: choice.time, alarm: choice.alarm }
         : kind === 'before'
-          ? { kind, minutes: 30, time: choice.time }
-          : { kind, daysBefore: 'daysBefore' in choice ? choice.daysBefore : 0, time: choice.time },
+          ? { kind, minutes: 30, time: choice.time, alarm: choice.alarm }
+          : {
+              kind,
+              daysBefore: 'daysBefore' in choice ? choice.daysBefore : 0,
+              time: choice.time,
+              alarm: choice.alarm,
+            },
     )
 
   return (
@@ -241,6 +252,14 @@ export function ReminderDialog({
               </div>
             </div>
           )}
+          <CardRow icon={<AlarmClockIcon />} label="Alarm" chevron={false}>
+            <Switch
+              aria-label="Alarm"
+              className="ml-auto"
+              checked={choice.alarm ?? false}
+              onCheckedChange={(alarm) => setChoice({ ...choice, alarm })}
+            />
+          </CardRow>
           <DialogFooter className="pt-1">
             <Button type="button" variant="outline" onClick={onClose}>
               Cancel

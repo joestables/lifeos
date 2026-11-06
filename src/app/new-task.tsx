@@ -123,6 +123,7 @@ export function NewTaskDialog({
             anchor: f.anchor!,
             offset_days: f.offset_days ?? 0,
             at_time: f.at_time ?? null,
+            alarm: f.alarm ?? false,
           })),
         },
       )

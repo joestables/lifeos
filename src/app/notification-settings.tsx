@@ -1,5 +1,5 @@
 import { EllipsisIcon } from 'lucide-react'
-import { useState, type ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { CardRow, TimeField } from '@/components/lifeos'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -98,7 +98,44 @@ export function NotificationsCard() {
           </DropdownMenu>
         </CardRow>
       ))}
+      {isAndroidApp() && thisOne && <FullScreenAlarms />}
     </Titled>
+  )
+}
+
+/**
+ * In the Android app, while Android hasn't allowed Alarms full screen over
+ * the lock screen: "Full-screen alarms", Not allowed, Allow
+ * (patterns.md#the-android-app, REM-011 2). Asked again on return.
+ */
+function FullScreenAlarms() {
+  const [allowed, setAllowed] = useState(true)
+  useEffect(() => {
+    const ask = () =>
+      void import('@/native/lifeos').then(({ LifeosNative }) =>
+        LifeosNative.alarmsState().then(
+          (s) => setAllowed(s.fullScreen),
+          () => setAllowed(true),
+        ),
+      )
+    ask()
+    const onShow = () => !document.hidden && ask()
+    document.addEventListener('visibilitychange', onShow)
+    return () => document.removeEventListener('visibilitychange', onShow)
+  }, [])
+  if (allowed) return null
+  return (
+    <CardRow label="Full-screen alarms" value="Not allowed">
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() =>
+          void import('@/native/lifeos').then(({ LifeosNative }) => LifeosNative.allowFullScreen())
+        }
+      >
+        Allow
+      </Button>
+    </CardRow>
   )
 }
 

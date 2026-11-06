@@ -107,6 +107,10 @@ test.describe('Shopping', () => {
     const db = await start(page, `/shopping/${SHOP}`)
     const add = page.getByRole('textbox', { name: 'Add to the shop' })
     await add.fill('2 chick')
+    // Enter takes the highlighted match, once the Pantry has loaded.
+    await expect(
+      page.getByRole('listbox', { name: 'Pantry' }).getByRole('option', { name: /Chicken thighs/ }),
+    ).toBeVisible()
     await page.keyboard.press('Enter')
     await expect(line(aisle(page, 'Protein'), 'Chicken thighs')).toContainText('6')
     await add.fill('Sourdough')

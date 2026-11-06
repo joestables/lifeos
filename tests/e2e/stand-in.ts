@@ -196,6 +196,7 @@ export async function standIn(
       at_time: null,
       fixed_at: null,
       snoozed_until: null,
+      alarm: false,
       ...r,
     })),
     push_devices: (rows.push_devices ?? []).map((d): Record<string, unknown> => ({

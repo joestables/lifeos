@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- tokens.md's values, as hex, for what Android draws before the page (the
-     opening screen): checked by tokens:check. -->
+<!-- tokens.md's values, as hex, for what Android draws itself (the opening
+     screen, notifications' tint, the Alarm screen): checked by tokens:check. -->
 <resources>
     <!-- background, light -->
     <color name="lifeos_background">#F3F4F5</color>
@@ -11,4 +11,23 @@
     <color name="lifeos_t_green">#319751</color>
     <color name="lifeos_t_orange">#E18528</color>
     <color name="lifeos_t_purple">#7D5ABC</color>
+
+    <!-- What the Alarm screen draws natively (components.md AlarmScreen) -->
+    <color name="lifeos_foreground">#1D1E1F</color>
+    <color name="lifeos_muted_foreground">#616366</color>
+    <color name="lifeos_card">#FEFEFF</color>
+    <color name="lifeos_secondary">#E6E7E9</color>
+    <color name="lifeos_hairline">#111D1E1F</color>
+    <color name="lifeos_t_blue_text">#2769B7</color>
+    <color name="lifeos_t_blue_foreground">#FCFCFC</color>
+    <color name="lifeos_t_yellow_text">#875800</color>
+    <color name="lifeos_t_yellow_foreground">#151617</color>
+    <color name="lifeos_t_coral_text">#B8492E</color>
+    <color name="lifeos_t_coral_foreground">#151617</color>
+    <color name="lifeos_t_green_text">#21763C</color>
+    <color name="lifeos_t_green_foreground">#151617</color>
+    <color name="lifeos_t_orange_text">#9A5505</color>
+    <color name="lifeos_t_orange_foreground">#151617</color>
+    <color name="lifeos_t_purple_text">#7D5ABC</color>
+    <color name="lifeos_t_purple_foreground">#FCFCFC</color>
 </resources>

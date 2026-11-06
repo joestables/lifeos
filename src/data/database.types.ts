@@ -823,6 +823,7 @@ export type Database = {
       }
       reminders: {
         Row: {
+          alarm: boolean
           anchor: string | null
           at_time: string | null
           created_at: string
@@ -840,6 +841,7 @@ export type Database = {
         }
         ComputedFields: never
         Insert: {
+          alarm?: boolean
           anchor?: string | null
           at_time?: string | null
           created_at?: string
@@ -856,6 +858,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          alarm?: boolean
           anchor?: string | null
           at_time?: string | null
           created_at?: string
@@ -1138,6 +1141,7 @@ export type Database = {
       add_reminder: {
         Args: { p_fields: Json; p_id: string; p_item: string }
         Returns: {
+          alarm: boolean
           anchor: string | null
           at_time: string | null
           created_at: string
@@ -1834,6 +1838,7 @@ export type Database = {
       snooze_reminder: {
         Args: { p_id: string; p_until: string }
         Returns: {
+          alarm: boolean
           anchor: string | null
           at_time: string | null
           created_at: string
@@ -1931,6 +1936,7 @@ export type Database = {
       update_reminder: {
         Args: { p_id: string; p_patch: Json }
         Returns: {
+          alarm: boolean
           anchor: string | null
           at_time: string | null
           created_at: string

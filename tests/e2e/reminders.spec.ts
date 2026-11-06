@@ -142,6 +142,24 @@ test("REM-002, REM-003: a Task's Reminders, its default and my own, changed and 
   await expect.poll(() => db.reminders.some((r) => r.id === 'r-default')).toBe(false)
 })
 
+test('REM-011 1: a Reminder made an Alarm, off to start, on any device', async ({ page }) => {
+  const db = await start(page, `/tasks?item=${id(1)}`)
+  const task = page.getByRole('dialog', { name: 'Renew insurance' })
+  await task.getByRole('button', { name: /^Fri 09:00/ }).click()
+  const dialog = page.getByRole('dialog', { name: 'Reminder' })
+  const alarm = dialog.getByRole('switch', { name: 'Alarm' })
+  await expect(alarm).not.toBeChecked()
+  await alarm.click()
+  await dialog.getByRole('button', { name: 'Save' }).click()
+  await expect
+    .poll(() => db.reminders.find((r) => r.id === 'r-default'))
+    .toMatchObject({ alarm: true, is_default: false })
+  await expect(task.locator('svg.lucide-alarm-clock')).toBeVisible()
+
+  await task.getByRole('button', { name: /^Fri 09:00/ }).click()
+  await expect(dialog.getByRole('switch', { name: 'Alarm' })).toBeChecked()
+})
+
 test('REM-003: a Thought gets a Reminder at a set time', async ({ page }) => {
   const db = await start(page, `/inbox?item=${id(2)}`)
   const thought = page.getByRole('dialog', { name: 'Gift idea for Sam' })

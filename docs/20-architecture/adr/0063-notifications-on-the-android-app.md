@@ -156,3 +156,31 @@ the phone asleep; one set on the phone can.
 - Alarms, the full-screen screen and a Cooking timer set on the phone
   are step 8b.
 
+## As built (6 November, Stage 7 step 8b)
+
+- **The flag:** `alarm` on `core.reminders`, off by default, set by
+  `add_reminder` and `update_reminder` on any device (the Reminder
+  dialog's Alarm switch) and carried by a repeated Item's template to each
+  occurrence. Web Push's notification is unchanged (REM-011 3).
+- **What the phone reads:** `device_reminders` adds `alarm` and the Item's
+  Type to each firing; two of an Item's Reminders at one minute are one
+  firing, an Alarm if either is.
+- **On the phone:** an Alarm is set by `setAlarmClock` (shown as the next
+  alarm in the status bar and on the lock screen). When it comes due,
+  `AlarmService`, a foreground service of the `systemExempted` type that
+  apps holding `USE_EXACT_ALARM` may run for alarms, plays the phone's
+  alarm sound on the alarm stream, looping, and vibrates, and posts the
+  Alarms group's notification with a full-screen intent to `AlarmActivity`
+  (the AlarmScreen) and Stop, Snooze 1 hour and Done. Stop ends it; Snooze
+  and Done go as any other press. As the clock's alarms do, it falls quiet
+  after ten minutes and is left as an ordinary notification; one more than
+  ten minutes late (the phone was off) is shown as an ordinary one.
+- **Full-screen permission:** Android 14 may not allow it to an app
+  installed directly; Settings shows "Full-screen alarms · Not allowed ·
+  Allow" in the app until it does, opening Android's setting. Without it,
+  the Alarm still rings, as a heads-up notification.
+- **A Cooking timer's end** (REM-010 5): the page hands the phone every
+  running timer whenever one starts, pauses, resumes or stops
+  (`setTimers`); each end is an exact alarm, to the second, shown as a
+  notification in the Reminders group, and set again after a restart.
+

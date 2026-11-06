@@ -2,6 +2,33 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#66](https://github.com/joestables/lifeos/pull/66) — Stage 7, step 8b: Alarms
+
+Branch `claude/intelligent-shannon-umfm64` · 2026-11-06
+
+**What it did**
+- **A Reminder can be an Alarm** (REM-011): the Reminder dialog's Alarm
+  switch, off to start, on any device; ReminderList shows `alarm-clock`;
+  a repeated Item's occurrences keep it. Elsewhere than the Android app it
+  is an ordinary notification.
+- **On the Android app it rings** (ADR-0063): set by `setAlarmClock`; the
+  Alarm screen over the lock screen, drawn natively from the AlarmScreen
+  spec (the Type icons and colours carried into Android's resources and
+  held to the theme by `tokens:check`); the alarm sound on the alarm
+  stream, through silent and Do Not Disturb, and vibration, until Stop,
+  Snooze 1 hour or Done; quiet after ten minutes, as the clock's alarms,
+  and left as a notification. Settings shows "Full-screen alarms · Not
+  allowed · Allow" while Android hasn't allowed it.
+- **Cooking timers' ends are set on the phone** to the second (REM-010 5).
+- Migration `stage7_alarms` (applied as `20261106113517`), database
+  tests `alarms_test` (9); unit tests
+  and a browser walk for the switch.
+- `public/android.json` says 0.1.4.
+
+**Documents touched:** ADR-0063 (as built), reminders (REM-010, REM-011),
+the data model, components (AlarmScreen), the design README, the Stage 7
+plan.
+
 ## [#65](https://github.com/joestables/lifeos/pull/65) — Stage 7, step 8a: Reminders on time from the Android app
 
 Branch `claude/intelligent-shannon-umfm64` · 2026-11-06

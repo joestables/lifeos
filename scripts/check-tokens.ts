@@ -3,7 +3,7 @@
  * (docs/30-design/README.md#enforcement): every value the spec gives must
  * be the theme's, and every variable the theme defines must be in the spec.
  */
-import { readFileSync } from 'node:fs'
+import { readdirSync, readFileSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 
 const root = join(import.meta.dirname, '..')
@@ -93,9 +93,9 @@ for (const name of [...light.keys(), ...dark.keys()]) {
   if (!md.includes(`\`${name}\``)) problems.push(`${name} is in theme.css but not in tokens.md`)
 }
 
-/** An `oklch(L C h)` value as Android's `#RRGGBB`. */
+/** An `oklch(L C h)` value as Android's `#RRGGBB`, or `#AARRGGBB` with an alpha (`/ 6.5%`). */
 function oklchHex(value: string | undefined): string | undefined {
-  const m = value?.match(/^oklch\(([\d.]+) ([\d.]+) ([\d.]+)\)$/)
+  const m = value?.match(/^oklch\(([\d.]+) ([\d.]+) ([\d.]+)(?: \/ ([\d.]+)%)?\)$/)
   if (!m) return undefined
   const [L, C, h] = [Number(m[1]), Number(m[2]), (Number(m[3]) * Math.PI) / 180]
   const a = C * Math.cos(h)
@@ -109,14 +109,19 @@ function oklchHex(value: string | undefined): string | undefined {
     -0.0041960863 * l - 0.7034186147 * mm + 1.707614701 * s,
   ]
   const srgb = (x: number) => (x <= 0.0031308 ? 12.92 * x : 1.055 * x ** (1 / 2.4) - 0.055)
-  return `#${linear
-    .map((x) =>
-      Math.round(Math.min(1, Math.max(0, srgb(x))) * 255)
-        .toString(16)
-        .padStart(2, '0'),
-    )
-    .join('')
-    .toUpperCase()}`
+  const byte = (x: number) =>
+    Math.round(Math.min(1, Math.max(0, x)) * 255)
+      .toString(16)
+      .padStart(2, '0')
+  const alpha = m[4] === undefined ? '' : byte(Number(m[4]) / 100)
+  return `#${alpha}${linear.map((x) => byte(srgb(x))).join('')}`.toUpperCase()
+}
+
+/** A token's value with var() references followed. */
+const follow = (get: (name: string) => string | undefined, name: string): string | undefined => {
+  const v = get(name)
+  const ref = v?.match(/^var\((--[\w-]+)\)$/)
+  return ref ? follow(get, ref[1]!) : v
 }
 
 /**
@@ -126,7 +131,7 @@ function oklchHex(value: string | undefined): string | undefined {
 const res = join(root, 'android/app/src/main/res')
 const androidColour = (file: string, name: string) =>
   readFileSync(join(res, file), 'utf8').match(
-    new RegExp(`<color name="${name}">(#[0-9A-Fa-f]{6})</color>`),
+    new RegExp(`<color name="${name}">(#(?:[0-9A-Fa-f]{2})?[0-9A-Fa-f]{6})</color>`),
   )?.[1]
 for (const [file, name, want, what] of [
   [
@@ -147,16 +152,26 @@ for (const [file, name, want, what] of [
     oklchHex(darkValue('--background')),
     '--background, dark',
   ],
-  ...(['blue', 'yellow', 'coral', 'green', 'orange', 'purple'] as const).flatMap(
-    (c) =>
+  // What the Alarm screen draws natively (components.md#alarmscreen) and
+  // notifications' tint (ADR-0063).
+  ...(
+    [
+      ['lifeos_foreground', '--foreground'],
+      ['lifeos_muted_foreground', '--muted-foreground'],
+      ['lifeos_card', '--card'],
+      ['lifeos_secondary', '--secondary'],
+      ['lifeos_hairline', '--hairline'],
+      ...(['blue', 'yellow', 'coral', 'green', 'orange', 'purple'] as const).flatMap((c) => [
+        [`lifeos_t_${c}`, `--t-${c}`],
+        [`lifeos_t_${c}_text`, `--t-${c}-text`],
+        [`lifeos_t_${c}_foreground`, `--t-${c}-foreground`],
+      ]),
+    ] as const
+  ).flatMap(
+    ([name, token]) =>
       [
-        ['values/colors.xml', `lifeos_t_${c}`, oklchHex(lightValue(`--t-${c}`)), `--t-${c}, light`],
-        [
-          'values-night/colors.xml',
-          `lifeos_t_${c}`,
-          oklchHex(darkValue(`--t-${c}`)),
-          `--t-${c}, dark`,
-        ],
+        ['values/colors.xml', name, oklchHex(follow(lightValue, token)), `${token}, light`],
+        ['values-night/colors.xml', name, oklchHex(follow(darkValue, token)), `${token}, dark`],
       ] as const,
   ),
 ] as const) {
@@ -164,6 +179,28 @@ for (const [file, name, want, what] of [
   const actual = androidColour(file, name)
   if (actual?.toUpperCase() !== want)
     problems.push(`Android ${file} ${name}: should be ${what} (${want}), is ${actual ?? 'missing'}`)
+}
+
+// The TypeTile's tint: the Type's colour at --tile-mix (integers.xml).
+for (const [file, value] of [
+  ['values/integers.xml', lightValue('--tile-mix')],
+  ['values-night/integers.xml', darkValue('--tile-mix')],
+] as const) {
+  checked++
+  const actual = readFileSync(join(res, file), 'utf8').match(
+    /<integer name="lifeos_tile_mix">(\d+)<\/integer>/,
+  )?.[1]
+  if (`${actual}%` !== value)
+    problems.push(`Android ${file} lifeos_tile_mix: should be --tile-mix (${value}), is ${actual}`)
+}
+
+// XML comments can't hold "--" (a token's name), and Android's build fails on one.
+for (const dir of readdirSync(res).filter((d) => statSync(join(res, d)).isDirectory())) {
+  for (const file of readdirSync(join(res, dir)).filter((f) => f.endsWith('.xml'))) {
+    for (const comment of readFileSync(join(res, dir, file), 'utf8').matchAll(/<!--([\s\S]*?)-->/g))
+      if (comment[1]!.includes('--'))
+        problems.push(`Android ${dir}/${file}: a comment holds "--", which XML doesn't allow`)
+  }
 }
 
 if (problems.length) {

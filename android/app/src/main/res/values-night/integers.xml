@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- tokens.md's tile-mix, as a percentage: the TypeTile's tint on the
+     Alarm screen. Checked by tokens:check. -->
+<resources>
+    <integer name="lifeos_tile_mix">16</integer>
+</resources>

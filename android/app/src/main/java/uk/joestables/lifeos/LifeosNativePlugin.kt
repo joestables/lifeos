@@ -1,6 +1,10 @@
 package uk.joestables.lifeos
 
 import android.Manifest
+import android.app.NotificationManager
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
 import android.os.Build
 import android.view.WindowManager
 import androidx.core.app.NotificationManagerCompat
@@ -17,8 +21,8 @@ import com.google.firebase.messaging.FirebaseMessaging
 /**
  * LifeOS's own native code (ADR-0061), reached from the page through
  * `src/native/lifeos.ts`: keeping the screen awake while Cooking (AND-003
- * 5), notifications by FCM (REM-001 4), and Reminders set on the phone
- * (REM-010, ADR-0063).
+ * 5), notifications by FCM (REM-001 4), Reminders, Alarms and Cooking
+ * timers set on the phone (REM-010, REM-011, ADR-0063).
  */
 @CapacitorPlugin(
     name = "LifeosNative",
@@ -123,6 +127,36 @@ class LifeosNativePlugin : Plugin() {
         SyncWorker.stop(context)
         ReminderSync.forget(context)
         FirebaseMessaging.getInstance().deleteToken().addOnCompleteListener { call.resolve() }
+    }
+
+    /**
+     * Whether Android lets an Alarm show full screen over the lock screen:
+     * from Android 14 only alarm and calling apps installed from Play are
+     * allowed without asking (ADR-0063).
+     */
+    @PluginMethod
+    fun alarmsState(call: PluginCall) {
+        val allowed = Build.VERSION.SDK_INT < 34 ||
+            context.getSystemService(NotificationManager::class.java).canUseFullScreenIntent()
+        call.resolve(JSObject().put("fullScreen", allowed))
+    }
+
+    /** Opens Android's setting for full-screen alarms. */
+    @PluginMethod
+    fun allowFullScreen(call: PluginCall) {
+        if (Build.VERSION.SDK_INT >= 34) {
+            activity.startActivity(
+                Intent(Settings.ACTION_MANAGE_APP_USE_FULL_SCREEN_INTENT, Uri.parse("package:" + context.packageName)),
+            )
+        }
+        call.resolve()
+    }
+
+    /** Sets the running Cooking timers' ends on the phone (REM-010 5): `{ timers: [...] }`. */
+    @PluginMethod
+    fun setTimers(call: PluginCall) {
+        CookTimers.set(context, call.getArray("timers") ?: com.getcapacitor.JSArray())
+        call.resolve()
     }
 
     private fun sendToken(call: PluginCall) {

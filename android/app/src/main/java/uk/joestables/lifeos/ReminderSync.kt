@@ -20,6 +20,7 @@ import java.util.TimeZone
  */
 object ReminderSync {
     private const val LATE_MS = 12 * 60 * 60 * 1000L
+    private const val ALARM_LATE_MS = 10 * 60 * 1000L
 
     /** Fetches the week's Reminders; throws when there's no signal, so the work is tried again. */
     fun fetch(context: Context) {
@@ -78,7 +79,12 @@ object ReminderSync {
             }
             val code = key.hashCode()
             val intent = pending(context, code, firing.toString(), key)
-            if (Build.VERSION.SDK_INT >= 31 && !alarms.canScheduleExactAlarms()) {
+            val alarm = firing.optJSONObject("payload")?.optBoolean("alarm") == true
+            if (alarm && (Build.VERSION.SDK_INT < 31 || alarms.canScheduleExactAlarms())) {
+                // An Alarm as the clock's are: shown in the status bar and the
+                // lock screen as the next alarm, and never held back (REM-011).
+                alarms.setAlarmClock(AlarmManager.AlarmClockInfo(at, openApp(context)), intent)
+            } else if (Build.VERSION.SDK_INT >= 31 && !alarms.canScheduleExactAlarms()) {
                 alarms.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, at, intent)
             } else {
                 alarms.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, at, intent)
@@ -97,7 +103,11 @@ object ReminderSync {
             .setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, at, pending(context, key.hashCode(), firing, key))
     }
 
-    /** Shows a firing now, once. */
+    /**
+     * Shows a firing now, once: an Alarm rings (REM-011 2), unless it is
+     * more than ten minutes late (the phone was off), when it is shown as a
+     * notification as any other.
+     */
     fun fire(context: Context, firing: String, key: String) {
         val prefs = Prefs.of(context)
         val day = 2 * 24 * 60 * 60 * 1000L
@@ -111,14 +121,24 @@ object ReminderSync {
         prefs.edit().putStringSet(Prefs.SHOWN, shown).apply()
         val json = JSONObject(firing)
         val payload = json.optJSONObject("payload") ?: return
+        val at = key.substringAfter('|').toLongOrNull() ?: now
+        if (payload.optBoolean("alarm") && now - at <= ALARM_LATE_MS) {
+            AlarmService.ring(context, firing)
+            return
+        }
+        Notifications.show(context, dataOf(json, payload))
+    }
+
+    /** A firing as Notifications.show takes it, with what Done and Snooze need. */
+    fun dataOf(json: JSONObject, payload: JSONObject): Map<String, String> {
         val data = mutableMapOf<String, String>()
         for (name in payload.keys()) {
             data[name] = if (name == "actions") payload.optJSONArray(name)?.toString() ?: "[]" else payload.optString(name)
         }
         data["kind"] = "reminder"
         data["reminder"] = json.getString("reminder")
-        data["firing"] = firing
-        Notifications.show(context, data)
+        data["firing"] = json.toString()
+        return data
     }
 
     private val TIMESTAMP =
@@ -152,6 +172,12 @@ object ReminderSync {
         prefs.edit().putString(Prefs.FIRINGS, "[]").remove(Prefs.DEVICE).remove(Prefs.SECRET).apply()
         schedule(context)
     }
+
+    private fun openApp(context: Context): PendingIntent = PendingIntent.getActivity(
+        context, 0,
+        Intent(context, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+    )
 
     private fun pending(context: Context, code: Int, firing: String?, key: String? = null): PendingIntent {
         val intent = Intent(context, ReminderReceiver::class.java)
