@@ -18,6 +18,10 @@ Branch `claude/intelligent-shannon-umfm64` · 2026-11-05
 - **Claude merges its own pull requests** once CI is green, and runs the
   Android release when native parts changed (Joe, 6 November):
   `CLAUDE.md`, environments, the runbook.
+- **Recovery's walks just after midnight:** their workout "an hour ago"
+  fell yesterday between midnight and 1am in London, so GYM-016's said
+  "Yesterday" (the first sharded run, at 00:12). The walks' now is three
+  hours later in the hours after midnight, and the page shares it.
 
 **Documents touched:** `CLAUDE.md` (merging and releasing), environments
 (CI), the runbook, the Android app spec (AND-003 6), ADR-0061 (as built), patterns (Settings in the app), the Stage 7 plan.
