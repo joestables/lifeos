@@ -2,10 +2,9 @@
 
 Newest first. Each entry is added in its own pull request.
 
-## Stage 7, step 8b: the Alarm screen opens itself
+## [#67](https://github.com/joestables/lifeos/pull/67) — Stage 7, step 8b: the Alarm screen opens itself
 
-Branch `claude/intelligent-shannon-umfm64` · 2026-11-06 · the PR number is
-filled in once it is opened
+Branch `claude/intelligent-shannon-umfm64` · 2026-11-06
 
 **What it did**
 - **An Alarm opens its screen** (REM-011 2, Joe on 0.1.4: it rang only as
