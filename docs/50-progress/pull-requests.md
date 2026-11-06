@@ -12,7 +12,8 @@ Branch `claude/intelligent-shannon-umfm64` · 2026-11-06
   itself, over the lock screen or the phone in use, and it rings from
   there, so Stop is one tap on the screen. The notification stays, with
   its buttons, as before.
-- `public/android.json` says 0.1.5.
+- Released with step 9, in one build (Joe): `public/android.json` stays
+  at 0.1.4 until then.
 
 **Documents touched:** ADR-0063 (as built), the Stage 7 plan.
 
