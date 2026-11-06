@@ -29,6 +29,53 @@ import com.google.firebase.messaging.FirebaseMessaging
     permissions = [Permission(strings = [Manifest.permission.POST_NOTIFICATIONS], alias = "notifications")],
 )
 class LifeosNativePlugin : Plugin() {
+    /** A share waiting for the page to take it (AND-004): `/share?title=…&text=…`. */
+    private var share: String? = null
+
+    override fun load() {
+        share = shareOf(activity.intent)
+    }
+
+    /** Shared to LifeOS while it was open: the page is told to take it. */
+    override fun handleOnNewIntent(intent: Intent) {
+        super.handleOnNewIntent(intent)
+        shareOf(intent)?.let {
+            share = it
+            notifyListeners("share", JSObject(), true)
+        }
+    }
+
+    /** The share waiting, once: where the page goes to keep it (ADR-0055). */
+    @PluginMethod
+    fun takeShare(call: PluginCall) {
+        val path = share
+        share = null
+        call.resolve(JSObject().apply { if (path != null) put("path", path) })
+    }
+
+    /** Back to the app shared from, LifeOS left as it was (RCP-003 2). */
+    @PluginMethod
+    fun leave(call: PluginCall) {
+        activity.runOnUiThread {
+            activity.moveTaskToBack(true)
+            call.resolve()
+        }
+    }
+
+    /** What Android's share sheet sent, as the web's share target sends it. */
+    private fun shareOf(intent: Intent?): String? {
+        if (intent?.action != Intent.ACTION_SEND) return null
+        val text = intent.getStringExtra(Intent.EXTRA_TEXT)
+        val title = intent.getStringExtra(Intent.EXTRA_SUBJECT) ?: intent.getStringExtra(Intent.EXTRA_TITLE)
+        if (text == null && title == null) return null
+        // Taken once: a later reopening of the app isn't the same share again.
+        intent.action = Intent.ACTION_MAIN
+        val query = Uri.Builder()
+        title?.let { query.appendQueryParameter("title", it) }
+        text?.let { query.appendQueryParameter("text", it) }
+        return "/share" + query.build().toString()
+    }
+
     @PluginMethod
     fun keepAwake(call: PluginCall) {
         val on = call.getBoolean("on", true) ?: true

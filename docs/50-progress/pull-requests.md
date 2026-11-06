@@ -2,6 +2,26 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#67](https://github.com/joestables/lifeos/pull/67) — Stage 7, step 9: sharing into the app; the Alarm screen opens itself
+
+Branch `claude/intelligent-shannon-umfm64` · 2026-11-06 · one pull request
+and one build for both (Joe)
+
+**What it did**
+- **Sharing into the Android app** (AND-004, RCP-003 5, ADR-0055): LifeOS
+  in Android's share sheet; a shared link goes to `/share` through the
+  plugin and is kept as an Idea as on the web; once saved, the app goes
+  back to the app shared from.
+- **An Alarm opens its screen** (REM-011 2, Joe on 0.1.4: it rang only as
+  a notification): the alarm set by `setAlarmClock` opens the Alarm screen
+  itself, over the lock screen or the phone in use, and it rings from
+  there, so Stop is one tap on the screen. The notification stays, with
+  its buttons, as before.
+- `public/android.json` says 0.1.5.
+
+**Documents touched:** ADR-0055 and ADR-0063 (as built), android (AND-004),
+recipes (RCP-003 5), the Stage 7 plan.
+
 ## [#66](https://github.com/joestables/lifeos/pull/66) — Stage 7, step 8b: Alarms
 
 Branch `claude/intelligent-shannon-umfm64` · 2026-11-06

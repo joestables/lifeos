@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/card'
 import { keepShared, keepWaiting, useFillShared } from '@/app/share-actions'
 import { authReady, queue, savedSource, usePhotoUrls, useFood } from '@/data'
 import { cleanLink, savedWith, sharedLink, siteOf, type Shared } from '@/lib/share'
+import { isAndroidApp } from '@/native/platform'
 
 /**
  * Where Android's share sheet sends a link (RCP-003, ADR-0055): the
@@ -62,8 +63,17 @@ function SharePage() {
       }
       const kept = keepShared(food, shared)
       setOutcome(kept ? { kind: 'saved', ...kept } : { kind: 'nothing' })
-      // Back to the app shared from, where Android lets an installed app close.
-      if (kept && window.matchMedia('(display-mode: standalone)').matches)
+      // Back to the app shared from, where Android lets an installed app close;
+      // the Android app goes back itself, left on what it showed before.
+      if (kept && isAndroidApp())
+        setTimeout(
+          () =>
+            void import('@/native/lifeos').then(({ LifeosNative }) =>
+              LifeosNative.leave().then(() => window.history.back()),
+            ),
+          1500,
+        )
+      else if (kept && window.matchMedia('(display-mode: standalone)').matches)
         setTimeout(() => window.close(), 1500)
     })()
   }, [food, link, shared])

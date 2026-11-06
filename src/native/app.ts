@@ -19,7 +19,8 @@ const openPopup = () =>
 /**
  * The Android app's start (ADR-0061), loaded only inside it: Back (AND-003
  * 2), LifeOS links opened in the app (AND-003 3), coming back from Google
- * (AND-002), and a new APK said to be ready (AND-001 2).
+ * (AND-002), shares from Android's share sheet (AND-004), and a new APK
+ * said to be ready (AND-001 2).
  */
 export function startAndroidApp(navigate: (href: string) => void) {
   // Back closes what's open first, then goes back, then leaves the app.
@@ -55,6 +56,14 @@ export function startAndroidApp(navigate: (href: string) => void) {
     if (!url.startsWith(SITE)) return
     const { pathname, search, hash } = new URL(url)
     navigate(`${pathname}${search}${hash}`)
+  })
+
+  // Shared to LifeOS from Android's share sheet: kept by /share as on the
+  // web (AND-004, ADR-0055), on opening and while open.
+  void import('./lifeos').then(({ LifeosNative }) => {
+    const take = () => void LifeosNative.takeShare().then(({ path }) => path && navigate(path))
+    take()
+    void LifeosNative.addListener('share', take)
   })
 
   void checkVersion()
