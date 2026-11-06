@@ -96,6 +96,8 @@ Acceptance criteria
    between them, in the theme's colours, dark and light.
 5. Given Cooking, then the screen stays awake as it does on the web
    ([ADR-0056](../../20-architecture/adr/0056-cooking-on-the-device.md)).
+6. Given the phone's font size, then text is the size it is in the web
+   app in Chrome, not scaled again (Joe, 5 November, after using 0.1.0).
 
 ### AND-004 — Share into LifeOS from the app
 

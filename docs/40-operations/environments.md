@@ -48,7 +48,11 @@ where it earns its minutes (Joe, 18 October 2026):
   them, and don't start if they fail.
 - **Only documents changed** (`docs/`, `.claude/`, Markdown at the root):
   the database and browser tests are skipped.
-- **Browser tests on pull requests only**, not on `master` after a merge.
+- **Browser tests on pull requests only**, not on `master` after a merge,
+  **in four parts at once** (`--shard`), so they take about a quarter of
+  the time (Joe, 5 November); skipped too when only documents, the
+  Android app (`android/`, `native-shell/`, its workflow) or the site's
+  files for it (`public/.well-known/`, `public/android.json`) changed.
 
 A skipped job counts as passed for `master`'s protection.
 

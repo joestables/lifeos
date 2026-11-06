@@ -2,6 +2,26 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## Faster CI; the Android app's text the web's size
+
+Branch `claude/intelligent-shannon-umfm64` · 2026-11-05 · the PR number is
+filled in once it is opened
+
+**What it did**
+- **CI** (Joe: every check took too long): the browser tests run in four
+  parts at once (`--shard`), and are skipped when only documents, the
+  Android app or its site files changed.
+- **The Android app, after Joe's first use of 0.1.0:** the web view's text
+  zoom pinned to 100%, as Android scaled the text by the phone's font
+  size and it read larger than the web app in Chrome (AND-003 6); the
+  Android app Card moved to the foot of Settings; `public/android.json`
+  says 0.1.1, so the app offers the new APK once it is released.
+
+**Documents touched:** environments (CI), the Android app spec (AND-003
+6), ADR-0061 (as built), patterns (Settings in the app), the Stage 7 plan.
+
+**Left for later:** releasing 0.1.1 once merged, and Joe checking it.
+
 ## [#62](https://github.com/joestables/lifeos/pull/62) — Stage 7: links into the Android app
 
 Branch `claude/intelligent-shannon-umfm64` · 2026-11-05
