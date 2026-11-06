@@ -18,23 +18,42 @@ import androidx.work.workDataOf
  */
 class NotificationActionReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        val delivery = intent.getLongExtra("delivery", -1)
-        val token = intent.getStringExtra("token").orEmpty()
-        val reminder = intent.getStringExtra("reminder").orEmpty()
         val action = intent.getStringExtra("action") ?: return
-        val tag = intent.getStringExtra("tag").orEmpty()
-        if (delivery < 0 && reminder.isEmpty()) return
-        NotificationManagerCompat.from(context).cancel(Notifications.idOf(tag))
-        // A Reminder the phone set comes back in an hour even with no signal
-        // (REM-005 2); with signal, the server's look again replaces it.
-        if (action == "snooze") intent.getStringExtra("firing")?.let { ReminderSync.snoozeHere(context, it) }
-        val work = OneTimeWorkRequestBuilder<ActionWorker>()
-            .setInputData(
-                workDataOf("delivery" to delivery, "token" to token, "reminder" to reminder, "action" to action),
-            )
-            .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
-            .build()
-        WorkManager.getInstance(context)
-            .enqueueUniqueWork("action-$delivery-$reminder-$action", ExistingWorkPolicy.KEEP, work)
+        press(
+            context,
+            delivery = intent.getLongExtra("delivery", -1),
+            token = intent.getStringExtra("token").orEmpty(),
+            reminder = intent.getStringExtra("reminder").orEmpty(),
+            action = action,
+            tag = intent.getStringExtra("tag").orEmpty(),
+            firing = intent.getStringExtra("firing"),
+        )
+    }
+
+    companion object {
+        /** A press, from a notification or the Alarm screen. */
+        fun press(
+            context: Context,
+            delivery: Long,
+            token: String,
+            reminder: String,
+            action: String,
+            tag: String,
+            firing: String?,
+        ) {
+            if (delivery < 0 && reminder.isEmpty()) return
+            NotificationManagerCompat.from(context).cancel(Notifications.idOf(tag))
+            // A Reminder the phone set comes back in an hour even with no signal
+            // (REM-005 2); with signal, the server's look again replaces it.
+            if (action == "snooze") firing?.let { ReminderSync.snoozeHere(context, it) }
+            val work = OneTimeWorkRequestBuilder<ActionWorker>()
+                .setInputData(
+                    workDataOf("delivery" to delivery, "token" to token, "reminder" to reminder, "action" to action),
+                )
+                .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
+                .build()
+            WorkManager.getInstance(context)
+                .enqueueUniqueWork("action-$delivery-$reminder-$action", ExistingWorkPolicy.KEEP, work)
+        }
     }
 }

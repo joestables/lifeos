@@ -54,6 +54,7 @@ export function ItemReminders({ item }: { item: Item }) {
           id: r.id,
           when: reminderTime(r, now),
           says: reminderSays(r, now),
+          alarm: r.alarm,
         }))}
         onOpen={(id) => {
           const r = reminders.find((x) => x.id === id)

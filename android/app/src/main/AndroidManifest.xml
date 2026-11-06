@@ -67,6 +67,29 @@
             </intent-filter>
         </receiver>
 
+        <!-- An Alarm ringing (REM-011): over the lock screen, on its own. -->
+        <activity
+            android:name=".AlarmActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:launchMode="singleInstance"
+            android:taskAffinity=""
+            android:showWhenLocked="true"
+            android:turnScreenOn="true"
+            android:theme="@style/AppTheme.NoActionBar" />
+
+        <!-- Its sound and vibration until stopped: a foreground service, as
+             alarm apps holding USE_EXACT_ALARM may run (ADR-0063). -->
+        <service
+            android:name=".AlarmService"
+            android:exported="false"
+            android:foregroundServiceType="systemExempted" />
+
+        <!-- A Cooking timer's end (REM-010 5). -->
+        <receiver
+            android:name=".TimerReceiver"
+            android:exported="false" />
+
         <!-- Done and Snooze from a notification (REM-005). -->
         <receiver
             android:name=".NotificationActionReceiver"
@@ -92,4 +115,11 @@
     <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" android:maxSdkVersion="32" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!-- Alarms (REM-011): full screen over the lock screen, ringing in a
+         foreground service with sound and vibration. -->
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SYSTEM_EXEMPTED" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 </manifest>

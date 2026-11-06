@@ -276,6 +276,7 @@ export function EventDetails({ item }: { item: Item }) {
           offset_days: r.offset_days,
           at_time: r.at_time,
           offset_minutes: r.offset_minutes,
+          alarm: r.alarm,
         })),
     })
   }
@@ -395,6 +396,7 @@ export function NewEventDialog({ day, onClose }: { day: string; onClose: () => v
               offset_days: f.offset_days ?? 0,
               at_time: f.at_time ?? null,
               offset_minutes: f.offset_minutes ?? 0,
+              alarm: f.alarm ?? false,
             })),
         },
       )

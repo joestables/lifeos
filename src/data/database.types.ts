@@ -823,6 +823,7 @@ export type Database = {
       }
       reminders: {
         Row: {
+          alarm: boolean
           anchor: string | null
           at_time: string | null
           created_at: string
@@ -840,6 +841,7 @@ export type Database = {
         }
         ComputedFields: never
         Insert: {
+          alarm?: boolean
           anchor?: string | null
           at_time?: string | null
           created_at?: string
@@ -856,6 +858,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          alarm?: boolean
           anchor?: string | null
           at_time?: string | null
           created_at?: string

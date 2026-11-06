@@ -76,12 +76,42 @@ describe('a Reminder not yet saved (TSK-001 4)', () => {
       at_time: null,
       offset_minutes: 0,
       fixed_at: '2026-10-12T18:00:00.000Z',
+      alarm: false,
     })
+  })
+
+  it('REM-011 1: an Alarm is kept with it, and read back', () => {
+    const fields = reminderFields(
+      { kind: 'fixed', day: '2026-10-12', time: '07:00', alarm: true },
+      'Europe/London',
+    )
+    expect(fields.alarm).toBe(true)
+    expect(
+      reminderChoice(
+        {
+          ...fields,
+          anchor: null,
+          offset_days: 0,
+          offset_minutes: 0,
+          at_time: null,
+          fixed_at: fields.fixed_at!,
+        },
+        '09:00',
+        'Europe/London',
+      ),
+    ).toEqual({ kind: 'fixed', day: '2026-10-12', time: '07:00', alarm: true })
   })
 
   it('EVT-003 3: before an Event starts, or on a day before it at a time', () => {
     expect(reminderFields({ kind: 'before', minutes: 60, time: '09:00' }, 'Europe/London')).toEqual(
-      { anchor: 'starts_at', offset_days: 0, at_time: null, offset_minutes: -60, fixed_at: null },
+      {
+        anchor: 'starts_at',
+        offset_days: 0,
+        at_time: null,
+        offset_minutes: -60,
+        fixed_at: null,
+        alarm: false,
+      },
     )
     expect(
       reminderFields({ kind: 'starts_at', daysBefore: 1, time: '18:00' }, 'Europe/London'),
@@ -91,6 +121,7 @@ describe('a Reminder not yet saved (TSK-001 4)', () => {
       at_time: '18:00',
       offset_minutes: 0,
       fixed_at: null,
+      alarm: false,
     })
     const r = {
       anchor: 'starts_at',
@@ -107,6 +138,7 @@ describe('a Reminder not yet saved (TSK-001 4)', () => {
       kind: 'before',
       minutes: 30,
       time: '09:00',
+      alarm: false,
     })
     expect(
       choiceFiresAt(

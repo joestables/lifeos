@@ -10,4 +10,23 @@
     <color name="lifeos_t_green">#76C788</color>
     <color name="lifeos_t_orange">#F5AC69</color>
     <color name="lifeos_t_purple">#B699EB</color>
+
+    <!-- What the Alarm screen draws natively (components.md AlarmScreen) -->
+    <color name="lifeos_foreground">#ECEDEE</color>
+    <color name="lifeos_muted_foreground">#9D9EA2</color>
+    <color name="lifeos_card">#19191B</color>
+    <color name="lifeos_secondary">#242526</color>
+    <color name="lifeos_hairline">#11ECEDEE</color>
+    <color name="lifeos_t_blue_text">#67AAED</color>
+    <color name="lifeos_t_blue_foreground">#151617</color>
+    <color name="lifeos_t_yellow_text">#F2CD64</color>
+    <color name="lifeos_t_yellow_foreground">#151617</color>
+    <color name="lifeos_t_coral_text">#EC8E76</color>
+    <color name="lifeos_t_coral_foreground">#151617</color>
+    <color name="lifeos_t_green_text">#76C788</color>
+    <color name="lifeos_t_green_foreground">#151617</color>
+    <color name="lifeos_t_orange_text">#F5AC69</color>
+    <color name="lifeos_t_orange_foreground">#151617</color>
+    <color name="lifeos_t_purple_text">#B699EB</color>
+    <color name="lifeos_t_purple_foreground">#151617</color>
 </resources>

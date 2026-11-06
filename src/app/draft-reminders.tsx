@@ -63,6 +63,7 @@ export function DraftReminders({
               fixed_at: f.fixed_at ?? null,
               snoozed_until: null,
             }),
+            alarm: r.choice.alarm ?? false,
           }
         })}
         onOpen={(id) => {

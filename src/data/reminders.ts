@@ -22,6 +22,7 @@ export type Reminder = Pick<
   | 'offset_minutes'
   | 'fixed_at'
   | 'snoozed_until'
+  | 'alarm'
 >
 
 /** What core.add_reminder and core.update_reminder take. */
@@ -32,6 +33,8 @@ export interface ReminderFields {
   offset_minutes?: number
   at_time?: string | null
   fixed_at?: string | null
+  /** Rings until stopped on the Android app (REM-011). */
+  alarm?: boolean
 }
 
 export const remindersKey = ['reminders'] as const
@@ -41,7 +44,7 @@ export async function fetchReminders(): Promise<Reminder[]> {
     supabase()
       .from('reminders')
       .select(
-        'id, item_id, fires_at, is_default, anchor, offset_days, at_time, offset_minutes, fixed_at, snoozed_until',
+        'id, item_id, fires_at, is_default, anchor, offset_days, at_time, offset_minutes, fixed_at, snoozed_until, alarm',
       )
       .order('id')
       .range(from, to),
@@ -80,6 +83,7 @@ export function applyPendingReminders(
           offset_minutes: f.offset_minutes ?? 0,
           fixed_at: f.fixed_at ?? null,
           snoozed_until: null,
+          alarm: f.alarm ?? false,
         })
         break
       }

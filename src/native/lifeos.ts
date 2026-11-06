@@ -28,6 +28,25 @@ interface LifeosNative {
    * nothing more arrives (signing out, or someone else signing in: ACC-003).
    */
   resetNotifications(): Promise<void>
+  /**
+   * Whether Android lets an Alarm show full screen over the lock screen
+   * (REM-011 2; from Android 14 it may need allowing).
+   */
+  alarmsState(): Promise<{ fullScreen: boolean }>
+  /** Opens Android's setting for full-screen alarms. */
+  allowFullScreen(): Promise<void>
+  /** Sets the running Cooking timers' ends on the phone, to the second (REM-010 5). */
+  setTimers(options: { timers: NativeTimer[] }): Promise<void>
+}
+
+/** A Cooking timer's end as the phone sets it: when, and what it says. */
+export interface NativeTimer {
+  key: string
+  /** Milliseconds since 1970. */
+  at: number
+  title: string
+  body: string
+  url: string
 }
 
 export const LifeosNative = registerPlugin<LifeosNative>('LifeosNative')

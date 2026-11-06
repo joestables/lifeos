@@ -1,4 +1,5 @@
 import { useEffect, useState, useSyncExternalStore } from 'react'
+import { isAndroidApp } from '@/native/platform'
 
 /** A Cooking timer (RCP-011 3, ADR-0056), on this device. */
 export interface CookTimer {
@@ -42,6 +43,27 @@ function set(next: CookTimer[]) {
   timers = next
   save(TIMERS, timers)
   for (const l of listeners) l()
+  if (isAndroidApp()) onPhone(timers)
+}
+
+/**
+ * In the Android app, the running timers' ends are set on the phone too,
+ * to the second, so one ends on time with the app closed (REM-010 5,
+ * ADR-0063).
+ */
+function onPhone(list: readonly CookTimer[]) {
+  const running = list
+    .filter((t) => !t.done && t.endsAt !== null)
+    .map((t) => ({
+      key: t.key,
+      at: t.endsAt!,
+      title: `${t.label} is done`,
+      body: t.title,
+      url: `/recipes/${t.recipe}?variation=${t.key.split(':')[0]}&cook=true`,
+    }))
+  void import('@/native/lifeos').then(({ LifeosNative }) =>
+    LifeosNative.setTimers({ timers: running }).catch(() => undefined),
+  )
 }
 
 /** Changes one timer. */

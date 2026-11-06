@@ -107,7 +107,7 @@ object Notifications {
     }
 
     /** A Type colour's resource (tokens.md's --t-*, as colors.xml holds them). */
-    private fun colourOf(colour: String?): Int? = when (colour) {
+    fun colourOf(colour: String?): Int? = when (colour) {
         "blue" -> R.color.lifeos_t_blue
         "yellow" -> R.color.lifeos_t_yellow
         "coral" -> R.color.lifeos_t_coral
