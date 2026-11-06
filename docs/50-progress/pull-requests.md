@@ -21,7 +21,8 @@ filled in once it is opened
   and left as a notification. Settings shows "Full-screen alarms · Not
   allowed · Allow" while Android hasn't allowed it.
 - **Cooking timers' ends are set on the phone** to the second (REM-010 5).
-- Migration `stage7_alarms`, database tests `alarms_test` (9); unit tests
+- Migration `stage7_alarms` (applied as `20261106113517`), database
+  tests `alarms_test` (9); unit tests
   and a browser walk for the switch.
 - `public/android.json` says 0.1.4.
 
