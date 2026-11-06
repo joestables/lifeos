@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The Today widget's text in LifeOS's font (components.md TodayWidget),
+     drawn through RemoteViews as Glance can't load an app's font. -->
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/text"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:fontFamily="@font/plus_jakarta_sans_semibold"
+    android:textSize="13sp"
+    android:textColor="@color/lifeos_foreground"
+    android:maxLines="1"
+    android:ellipsize="end"
+    android:includeFontPadding="false" />

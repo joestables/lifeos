@@ -17,6 +17,7 @@ import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.ColorUtils
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
@@ -31,7 +32,7 @@ import java.util.Locale
  * The AlarmScreen (components.md, REM-011 2), drawn natively from its spec
  * over the lock screen: the Item's TypeTile, the time, the date and the
  * title a third of the way down; Stop, Snooze 1 hour, and Done for a
- * Completable Item at the foot. Back does nothing: an Alarm is stopped,
+ * Completable Item at the foot, in LifeOS's font. Back does nothing: an Alarm is stopped,
  * snoozed or done.
  */
 class AlarmActivity : AppCompatActivity() {
@@ -198,11 +199,16 @@ class AlarmActivity : AppCompatActivity() {
         return root
     }
 
+    /** One of LifeOS's font's weights (res/font, scripts/android-fonts.py); the phone's if it can't load. */
+    private fun font(id: Int): Typeface =
+        runCatching { ResourcesCompat.getFont(this, id) }.getOrNull() ?: Typeface.DEFAULT
+
     private fun text(value: String, sp: Float, bold: Boolean, colour: Int) = TextView(this).apply {
         text = value
         setTextSize(TypedValue.COMPLEX_UNIT_SP, sp)
         setTextColor(colour)
-        typeface = if (bold) Typeface.create(Typeface.DEFAULT, Typeface.BOLD) else Typeface.DEFAULT
+        // LifeOS's font (tokens.md): the time and title at 750, the date at 400.
+        typeface = font(if (bold) R.font.plus_jakarta_sans_heavy else R.font.plus_jakarta_sans_regular)
         gravity = Gravity.CENTER_HORIZONTAL
     }
 
@@ -217,7 +223,7 @@ class AlarmActivity : AppCompatActivity() {
         text = label
         setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f)
         setTextColor(ink)
-        typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+        typeface = font(R.font.plus_jakarta_sans_semibold)
         gravity = Gravity.CENTER
         isClickable = true
         isFocusable = true
