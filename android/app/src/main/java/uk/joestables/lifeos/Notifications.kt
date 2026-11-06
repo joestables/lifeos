@@ -6,6 +6,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
@@ -25,6 +26,8 @@ object Notifications {
 
     /** The groups in Android's settings: Reminders, Alarms, Morning digest, Overdue. */
     fun ensureChannels(context: Context) {
+        // Channels came with Android 8; before it, notifications have none.
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
         val manager = context.getSystemService(NotificationManager::class.java)
         manager.createNotificationChannels(
             listOf(
