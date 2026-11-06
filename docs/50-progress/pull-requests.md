@@ -2,6 +2,24 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## Stage 7, step 11: LifeOS's font on the phone; the widget's "+"
+
+Branch `claude/intelligent-shannon-umfm64` · 2026-11-06 · the PR number is
+filled in once it is opened
+
+**What it did**
+- **LifeOS's font** on the Alarm screen and the Today widget (Joe): Plus
+  Jakarta Sans as static TTFs at the design system's weights, written from
+  the web app's own font by `scripts/android-fonts.py`; the widget's text
+  through small TextView layouts, as Glance can't load an app's font.
+- **The widget's "+"** opens Plan's list for today whether or not Plan was
+  already open (it opened only on a fresh Plan).
+- Ten minutes' ringing, then a notification, agreed (REM-011 2).
+- `public/android.json` says 0.1.7.
+
+**Documents touched:** reminders (REM-011), components (AlarmScreen,
+TodayWidget), the design README, ADR-0064 (as built), the Stage 7 plan.
+
 ## [#68](https://github.com/joestables/lifeos/pull/68) — Stage 7, step 10: the Today widget
 
 Branch `claude/intelligent-shannon-umfm64` · 2026-11-06

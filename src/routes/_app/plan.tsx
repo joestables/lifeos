@@ -127,7 +127,13 @@ function Plan() {
   const days = planDays(items, week[0]!, week[6]!, settings.timezone, hidden)
   const [adding, setAdding] = useState<{ type: string; day: string } | null>(null)
   // "+" pressed from the Today widget: the page's own "+" open on the day (WID-002 8).
-  const [addOpen, setAddOpen] = useState(search.add === true)
+  // Also when Plan was already open: the menu opens each time it is asked.
+  const [addOpen, setAddOpen] = useState(false)
+  const [asked, setAsked] = useState(false)
+  if (search.add && !asked) {
+    setAsked(true)
+    setAddOpen(true)
+  } else if (!search.add && asked) setAsked(false)
   useEffect(() => {
     if (search.add) void navigate({ to: '/plan', search: { day: search.day }, replace: true })
   }, [search.add, search.day, navigate])

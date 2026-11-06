@@ -3,9 +3,12 @@ package uk.joestables.lifeos
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.style.StrikethroughSpan
+import android.widget.RemoteViews
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.glance.ColorFilter
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
@@ -13,6 +16,7 @@ import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.action.Action
 import androidx.glance.action.clickable
+import androidx.glance.appwidget.AndroidRemoteViews
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.SizeMode
@@ -33,10 +37,6 @@ import androidx.glance.layout.height
 import androidx.glance.layout.padding
 import androidx.glance.layout.size
 import androidx.glance.layout.width
-import androidx.glance.text.FontWeight
-import androidx.glance.text.Text
-import androidx.glance.text.TextDecoration
-import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
 import org.json.JSONArray
 import org.json.JSONObject
@@ -48,7 +48,8 @@ import java.util.Locale
  * The Today widget (WID-002, components.md#todaywidget, ADR-0064): the date
  * opening Plan, "+" opening Plan's Add for today, and today's cards in
  * Plan's order as widget lines, scrolling; "Nothing planned"; signed out,
- * "Sign in to LifeOS". Dark or light with the phone; no checkboxes.
+ * "Sign in to LifeOS". In LifeOS's font; dark or light with the phone; no
+ * checkboxes.
  */
 class TodayWidget : GlanceAppWidget() {
     override val sizeMode = SizeMode.Exact
@@ -95,12 +96,9 @@ private fun Content(context: Context, signedIn: Boolean, cards: JSONArray?, now:
             return@Column
         }
         Row(modifier = GlanceModifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                SimpleDateFormat("EEE d MMM", Locale.UK).format(Date(now)),
-                modifier = GlanceModifier.defaultWeight().clickable(open(context, "/plan")),
-                style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold, color = colour(R.color.lifeos_foreground)),
-                maxLines = 1,
-            )
+            Box(modifier = GlanceModifier.defaultWeight().clickable(open(context, "/plan"))) {
+                Words(context, R.layout.widget_date, SimpleDateFormat("EEE d MMM", Locale.UK).format(Date(now)))
+            }
             Box(
                 modifier = GlanceModifier.size(32.dp).cornerRadius(10.dp)
                     .background(colour(R.color.lifeos_secondary))
@@ -119,10 +117,7 @@ private fun Content(context: Context, signedIn: Boolean, cards: JSONArray?, now:
         val list = (0 until (cards?.length() ?: 0)).mapNotNull { cards?.optJSONObject(it) }
         if (list.isEmpty()) {
             Box(modifier = GlanceModifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text(
-                    "Nothing planned",
-                    style = TextStyle(fontSize = 13.sp, color = colour(R.color.lifeos_muted_foreground)),
-                )
+                Words(context, R.layout.widget_note, "Nothing planned")
             }
         } else {
             LazyColumn(modifier = GlanceModifier.fillMaxSize()) {
@@ -146,7 +141,6 @@ private fun Content(context: Context, signedIn: Boolean, cards: JSONArray?, now:
 private fun Line(context: Context, card: JSONObject, now: Long) {
     val ends = card.optString("ends").takeIf { it.isNotEmpty() && it != "null" }?.let { ReminderSync.epochMillis(it) }
     val past = card.optBoolean("done") || (ends != null && ends <= now)
-    val ink = if (past) R.color.lifeos_muted_foreground else R.color.lifeos_foreground
     val time = card.optString("time").takeIf { it.isNotEmpty() && it != "null" }
     Box(
         modifier = GlanceModifier.fillMaxWidth().height(40.dp).cornerRadius(12.dp)
@@ -165,20 +159,23 @@ private fun Line(context: Context, card: JSONObject, now: Long) {
                 colorFilter = ColorFilter.tint(colour(if (past) R.color.lifeos_muted_foreground else typeText(card.optString("colour")))),
             )
             Spacer(GlanceModifier.width(10.dp))
-            Text(
-                card.optString("title"),
-                modifier = GlanceModifier.defaultWeight(),
-                maxLines = 1,
-                style = TextStyle(
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = colour(ink),
-                    textDecoration = if (past) TextDecoration.LineThrough else TextDecoration.None,
-                ),
-            )
+            Box(modifier = GlanceModifier.defaultWeight()) {
+                val title = card.optString("title")
+                Words(
+                    context,
+                    if (past) R.layout.widget_title_past else R.layout.widget_title,
+                    if (past) {
+                        SpannableString(title).apply {
+                            setSpan(StrikethroughSpan(), 0, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                        }
+                    } else {
+                        title
+                    },
+                )
+            }
             if (time != null) {
                 Spacer(GlanceModifier.width(8.dp))
-                Text(time, style = TextStyle(fontSize = 12.sp, color = colour(R.color.lifeos_muted_foreground)))
+                Words(context, R.layout.widget_time, time)
             }
         }
     }
@@ -198,11 +195,20 @@ private fun SignedOut(context: Context) {
             colorFilter = ColorFilter.tint(colour(R.color.lifeos_foreground)),
         )
         Spacer(GlanceModifier.height(8.dp))
-        Text(
-            "Sign in to LifeOS",
-            style = TextStyle(fontSize = 13.sp, color = colour(R.color.lifeos_muted_foreground)),
-        )
+        Words(context, R.layout.widget_note, "Sign in to LifeOS")
     }
+}
+
+/**
+ * Words in LifeOS's font (tokens.md): Glance draws text only in the phone's
+ * fonts, so the widget's text is a TextView of its own layout
+ * (res/layout/widget_*.xml), carrying the font, size and colour.
+ */
+@Composable
+private fun Words(context: Context, layout: Int, text: CharSequence) {
+    val views = RemoteViews(context.packageName, layout)
+    views.setTextViewText(R.id.text, text)
+    AndroidRemoteViews(views)
 }
 
 /** The Type's text colour (tokens.md's t-*-text). */

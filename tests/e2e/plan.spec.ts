@@ -199,6 +199,18 @@ test('WID-002 8: opened from the Today widget\'s "+", Plan\'s "+" is open on tod
   await expect(page).toHaveURL(/\/plan$/)
 })
 
+test('WID-002 8: with Plan already open, the widget\'s "+" still opens its list', async ({
+  page,
+}) => {
+  await start(page)
+  // The app sent to /plan?add=1 while on Plan, as a tap on the widget does.
+  await page.evaluate(() => {
+    window.history.pushState({}, '', '/plan?add=1')
+    window.dispatchEvent(new PopStateEvent('popstate'))
+  })
+  await expect(page.getByRole('menu')).toContainText('Add to Today')
+})
+
 test('PLN-004: Types turned off stay off, on every device', async ({ page }) => {
   const db = await start(page, '/plan?day=2026-10-13')
   await expect(page.getByText('Call mum')).toBeVisible()

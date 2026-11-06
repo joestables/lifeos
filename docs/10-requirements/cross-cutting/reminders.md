@@ -233,7 +233,7 @@ Acceptance criteria
    (and vibrates) until I stop it, showing over the lock screen with the
    Item's title and time, Stop and Snooze; Done too on a Completable
    Item. As the clock's alarms do, one left ringing falls quiet after ten
-   minutes and stays as an ordinary notification; one more than ten
+   minutes and stays as an ordinary notification (Joe, 6 November); one more than ten
    minutes late (the phone was off) arrives as an ordinary notification.
 3. Given an Alarm on a device that isn't the Android app, then it arrives
    there as an ordinary notification.

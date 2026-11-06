@@ -77,13 +77,15 @@ can't run LifeOS's React code, and it updates while the app is closed.
   `core.people` (the Types shown on Plan, or the timezone).
 - **Taps** open joestables.uk links in the app: a card `/item/<id>`, the
   date `/plan`, "+" `/plan?add=1`, which opens Plan with its own "+" open
-  on today (the Fab on a phone). A link that opens the app from closed now
+  on today (the Fab on a phone), whether or not Plan was already open. A link that opens the app from closed now
   goes to its page too (Capacitor's launch URL), as a notification's tap
   does.
 - **Within what a widget can draw:** a done or ended card's text and icon
   are muted and struck through, as Android widgets can't fade by opacity;
   the hairline edge is a 1dp ring of `--hairline` behind the card fill;
-  the phone's own font; the day is the phone's. A card's title is the
+  LifeOS's font (Joe, 6 November), each piece of text a small TextView
+  layout (`res/layout/widget_*.xml`) through Glance's `AndroidRemoteViews`,
+  as Glance draws text only in the phone's fonts; the day is the phone's. A card's title is the
   Item's title, else its first line of body as written.
 - Signed out (no device), it says "Sign in to LifeOS" and opens the app.
 
