@@ -190,10 +190,16 @@ class AlarmService : Service() {
         var screen: WeakReference<AlarmActivity>? = null
 
         fun ring(context: Context, firing: String) {
-            ContextCompat.startForegroundService(
-                context,
-                Intent(context, AlarmService::class.java).setAction(RING).putExtra("firing", firing),
-            )
+            try {
+                ContextCompat.startForegroundService(
+                    context,
+                    Intent(context, AlarmService::class.java).setAction(RING).putExtra("firing", firing),
+                )
+            } catch (_: IllegalStateException) {
+                // Android wouldn't let it ring from here: at least it shows.
+                val json = JSONObject(firing)
+                json.optJSONObject("payload")?.let { Notifications.show(context, ReminderSync.dataOf(json, it)) }
+            }
         }
 
         fun press(context: Context, action: String) {

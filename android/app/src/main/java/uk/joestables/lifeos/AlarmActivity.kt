@@ -43,11 +43,28 @@ class AlarmActivity : AppCompatActivity() {
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() = Unit
         })
+        toRing = savedInstanceState == null && intent.getStringExtra("key") != null
         show(intent)
+    }
+
+    /** Opened by the alarm itself (ReminderSync), it rings from here once it shows. */
+    private var toRing = false
+
+    override fun onResume() {
+        super.onResume()
+        if (!toRing) return
+        toRing = false
+        val firing = intent.getStringExtra("firing") ?: return
+        val key = intent.getStringExtra("key") ?: return
+        // One already rung, or too late to ring, is a notification instead.
+        if (!ReminderSync.fire(this, firing, key)) finish()
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
+        setIntent(intent)
+        // Another Alarm while this one shows: it rings in this one's place.
+        if (intent.getStringExtra("key") != null) toRing = true
         show(intent)
     }
 

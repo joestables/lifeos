@@ -166,7 +166,12 @@ the phone asleep; one set on the phone can.
   Type to each firing; two of an Item's Reminders at one minute are one
   firing, an Alarm if either is.
 - **On the phone:** an Alarm is set by `setAlarmClock` (shown as the next
-  alarm in the status bar and on the lock screen). When it comes due,
+  alarm in the status bar and on the lock screen), and the alarm opens the
+  Alarm screen (`AlarmActivity`) itself, over the lock screen or whatever
+  is on screen, as the clock's alarm screen does; it rings from there.
+  Opened only by the notification's full-screen intent, as first built,
+  Android showed it as a notification while the phone was in use (Joe, 0.1.4).
+  When it rings,
   `AlarmService`, a foreground service of the `systemExempted` type that
   apps holding `USE_EXACT_ALARM` may run for alarms, plays the phone's
   alarm sound on the alarm stream, looping, and vibrates, and posts the
