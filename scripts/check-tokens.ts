@@ -147,6 +147,18 @@ for (const [file, name, want, what] of [
     oklchHex(darkValue('--background')),
     '--background, dark',
   ],
+  ...(['blue', 'yellow', 'coral', 'green', 'orange', 'purple'] as const).flatMap(
+    (c) =>
+      [
+        ['values/colors.xml', `lifeos_t_${c}`, oklchHex(lightValue(`--t-${c}`)), `--t-${c}, light`],
+        [
+          'values-night/colors.xml',
+          `lifeos_t_${c}`,
+          oklchHex(darkValue(`--t-${c}`)),
+          `--t-${c}, dark`,
+        ],
+      ] as const,
+  ),
 ] as const) {
   checked++
   const actual = androidColour(file, name)

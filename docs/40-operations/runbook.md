@@ -58,7 +58,10 @@ Reminders, the morning digest and overdue nudges
   rows wait it calls `send-notifications` through `pg_net` with the Vault
   secret `push_secret`.
 - **`send-notifications`** claims rows, sends each by Web Push with the
-  VAPID keys in Vault (it makes them the first time it runs) and records
+  VAPID keys in Vault (it makes them the first time it runs), or, for the
+  Android app's devices (`kind` `fcm`), by Firebase Cloud Messaging with
+  the service account's key in Vault (`fcm_service_account`;
+  [ADR-0063](../20-architecture/adr/0063-notifications-on-the-android-app.md)), and records
   each result: *sent*, *failed* (tried again next minute), *gone* (the
   device stops being sent to and `ops.events` gets `push_device_gone`),
   *skipped* (done or deleted meanwhile, or the digest had nothing to say)

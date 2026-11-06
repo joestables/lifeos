@@ -12,6 +12,7 @@ import {
 import { toast } from '@/components/ui/sonner'
 import { Switch } from '@/components/ui/switch'
 import { queue, removeDevice, setDevice, updateSettings, useDevices, useSettings } from '@/data'
+import { isAndroidApp } from '@/native/platform'
 import { pushSupport, turnOnNotifications, useThisDevice } from './notifications'
 
 function Titled({ title, children }: { title: string; children: ReactNode }) {
@@ -39,7 +40,7 @@ export function NotificationsCard() {
   const { endpoint, refresh } = useThisDevice()
   const support = pushSupport()
   const [denied, setDenied] = useState(
-    () => support === 'ok' && Notification.permission === 'denied',
+    () => support === 'ok' && !isAndroidApp() && Notification.permission === 'denied',
   )
   const thisOne = devices.find((d) => d.endpoint === endpoint && d.gone_at === null)
 

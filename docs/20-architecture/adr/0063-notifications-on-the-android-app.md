@@ -94,3 +94,30 @@ the phone asleep; one set on the phone can.
 - Schema: the device's secret and its "look again" mark on
   `core.push_devices`, *on device* as a delivery status, `alarm` on
   `core.reminders`; with database tests, in steps 7 and 8.
+
+## As built (6 November, Stage 7 step 7)
+
+- **Firebase project** `lifeos-b2793` (Joe, free plan); the app's
+  `android/app/google-services.json` (not a secret: it ships in the APK);
+  the service account's key in Vault as `fcm_service_account`, read only
+  by `send-notifications` through `core.fcm_service_account()`.
+- **Registering:** `core.register_fcm_device` keeps the phone's FCM token as
+  an `fcm` device, "Android app"; Settings' Turn on asks Android
+  (`POST_NOTIFICATIONS`) and registers it. When the app opens, a token FCM
+  has changed since is registered in the old one's place. Signing out
+  removes the device and ends the token; someone else signing in ends it.
+- **Sending, until step 8:** the minute run still decides what is due for
+  the Android app too; `core.claim_deliveries` now says each device's kind,
+  and `send-notifications` sends an `fcm` device a high-priority data
+  message (collapsed by its delivery) with what Web Push would say, signed
+  in to Google as the service account. A 404 or `UNREGISTERED` marks the
+  device gone. Setting Reminders on the phone itself, and Alarms, are step
+  8; until then Reminders arrive as on the web, within the minute.
+- **On the phone:** `LifeosMessagingService` shows each message in the
+  Reminders, Morning digest or Overdue group (Alarms made ready for step
+  8), the small icon tinted with the Item's Type colour (a `colour` the
+  payload now carries; `colors.xml` held to the theme by `tokens:check`), a
+  tap opening the Item by its joestables.uk link; Done and Snooze go to
+  `notification-action` through WorkManager, so a press with no signal is
+  sent when signal returns.
+

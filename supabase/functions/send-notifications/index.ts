@@ -1,10 +1,11 @@
 // send-notifications: sends what the minute job queued (ADR-0044), woken by
 // core_private.notifications_tick through pg_net with a secret kept in
 // Vault, which this function checks with the database
-// (core.push_secret_ok). Deployed by Claude through the Supabase MCP
-// (runbook.md#notifications).
+// (core.push_secret_ok); the Android app's devices by FCM, with the
+// Firebase key in Vault (ADR-0063). Deployed by Claude through the Supabase
+// MCP (runbook.md#notifications).
 import webpush from 'npm:web-push@3.6.7'
-import { sendAll, vapidKeys, type Rpc, type Send } from './run.ts'
+import { fcmSender, sendAll, vapidKeys, type Rpc, type Send, type ServiceAccount } from './run.ts'
 
 const url = Deno.env.get('SUPABASE_URL')!
 // The project's secret key: the new kind if it has one, else the service role.
@@ -40,7 +41,11 @@ Deno.serve(async (req) => {
   webpush.setVapidDetails('mailto:joestables2002@gmail.com', publicKey, privateKey)
   const send: Send = (subscription, payload, options) =>
     webpush.sendNotification(subscription, payload, options)
-  const totals = await sendAll(rpc, send)
+  // The Android app's devices go by FCM, when its key is in Vault; without
+  // it, they wait (failed, tried again) and Web Push goes on regardless.
+  const account = (await rpc('fcm_service_account', {}).catch(() => null)) as string | null
+  const sendFcm = account ? fcmSender(JSON.parse(account) as ServiceAccount, fetch) : undefined
+  const totals = await sendAll(rpc, send, 5, sendFcm)
   console.log(JSON.stringify({ at: 'send-notifications', ...totals }))
   return Response.json(totals)
 })

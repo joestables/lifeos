@@ -153,7 +153,8 @@ select is(
     'tag', 'reminder:00000000-0000-7000-8000-0000000000e1',
     'actions', jsonb_build_array(
       jsonb_build_object('action', 'done', 'title', 'Done'),
-      jsonb_build_object('action', 'snooze', 'title', 'Snooze 1 hour'))),
+      jsonb_build_object('action', 'snooze', 'title', 'Snooze 1 hour')),
+    'colour', 'blue'),
   'REM-004 1, REM-005, REM-006: the notification has the title, its time, its link, and Done and Snooze'
 );
 select is(

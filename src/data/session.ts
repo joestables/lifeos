@@ -2,6 +2,7 @@ import { forgetPhotos, forgetStorage } from './device-owner'
 import { devicesKey, type Device } from './devices'
 import { persister, queryClient } from './queryClient'
 import type { WriteQueue } from './queue/queue'
+import { isAndroidApp } from '@/native/platform'
 import { supabase } from './supabase'
 
 /**
@@ -26,6 +27,18 @@ async function signOutOfSupabaseNow(): Promise<unknown> {
  */
 async function forgetThisDevice(): Promise<void> {
   try {
+    if (isAndroidApp()) {
+      // The Android app is its FCM token (ADR-0063): it leaves my devices,
+      // and the token ends, so nothing sent to it arrives.
+      const { LifeosNative } = await import('@/native/lifeos')
+      const { state, token } = await LifeosNative.notificationsState()
+      const mine =
+        state === 'granted' &&
+        queryClient.getQueryData<Device[]>(devicesKey)?.find((d) => d.endpoint === token)
+      if (mine) await supabase().rpc('remove_device', { p_id: mine.id })
+      await LifeosNative.resetNotifications()
+      return
+    }
     const reg = await navigator.serviceWorker?.getRegistration()
     const sub = await reg?.pushManager?.getSubscription()
     if (!sub) return
@@ -59,6 +72,7 @@ export async function clearDevice(queue: WriteQueue): Promise<void> {
  */
 export async function clearForSomeoneElse(queue: WriteQueue): Promise<void> {
   try {
+    if (isAndroidApp()) await (await import('@/native/lifeos')).LifeosNative.resetNotifications()
     const reg = await navigator.serviceWorker?.getRegistration()
     await (await reg?.pushManager?.getSubscription())?.unsubscribe()
   } catch {

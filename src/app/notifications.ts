@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { fetchVapidPublicKey, registerDevice } from '@/data'
+import { isAndroidApp } from '@/native/platform'
 
 /**
  * Whether this device can show LifeOS's notifications (REM-001): an iPhone
@@ -8,6 +9,8 @@ import { fetchVapidPublicKey, registerDevice } from '@/data'
 export type PushSupport = 'ok' | 'ios-browser' | 'unsupported'
 
 export function pushSupport(): PushSupport {
+  // The Android app notifies by FCM, not the web view's Web Push (ADR-0063).
+  if (isAndroidApp()) return 'ok'
   const ios =
     /iPhone|iPad|iPod/.test(navigator.userAgent) ||
     (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
@@ -55,6 +58,7 @@ const fromBase64url = (text: string) =>
  * the sender's key and registers the subscription as mine (REM-001 2).
  */
 export async function turnOnNotifications(): Promise<'on' | 'denied' | 'failed'> {
+  if (isAndroidApp()) return (await import('@/native/notifications')).turnOnAndroidNotifications()
   if ((await Notification.requestPermission()) !== 'granted') return 'denied'
   try {
     const key = await fetchVapidPublicKey()
@@ -83,6 +87,12 @@ export async function turnOnNotifications(): Promise<'on' | 'denied' | 'failed'>
 export function useThisDevice(): { endpoint: string | null; refresh: () => void } {
   const [endpoint, setEndpoint] = useState<string | null>(null)
   const refresh = useCallback(() => {
+    if (isAndroidApp()) {
+      void import('@/native/notifications')
+        .then(({ androidToken }) => androidToken())
+        .then(setEndpoint)
+      return
+    }
     if (pushSupport() !== 'ok') return
     void navigator.serviceWorker.getRegistration().then(async (reg) => {
       const sub = await reg?.pushManager.getSubscription()

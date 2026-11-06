@@ -58,6 +58,7 @@ export function startAndroidApp(navigate: (href: string) => void) {
   })
 
   void checkVersion()
+  void import('./notifications').then(({ keepTokenCurrent }) => keepTokenCurrent())
 }
 
 /** The site says which native version it expects (`/android.json`). */

@@ -1259,6 +1259,7 @@ export type Database = {
           auth: string
           endpoint: string
           id: number
+          kind: string
           p256dh: string
           payload: Json
           ttl: number
@@ -1416,6 +1417,7 @@ export type Database = {
         Args: { p_days: string[]; p_series: string; p_until: string }
         Returns: undefined
       }
+      fcm_service_account: { Args: Record<PropertyKey, never>; Returns: string }
       finish_series_run: { Args: { p_details?: Json; p_ok: boolean }; Returns: number }
       invite: { Args: { p_email: string; p_id: string; p_space: string }; Returns: undefined }
       join_household: { Args: { p_invite: string }; Returns: undefined }
@@ -1462,6 +1464,28 @@ export type Database = {
           p_label: string
           p_p256dh: string
         }
+        Returns: {
+          auth: string | null
+          created_at: string
+          enabled: boolean
+          endpoint: string
+          gone_at: string | null
+          id: string
+          kind: string
+          label: string
+          last_sent_at: string | null
+          p256dh: string | null
+          person_id: string
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'push_devices'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      register_fcm_device: {
+        Args: { p_id: string; p_label: string; p_token: string }
         Returns: {
           auth: string | null
           created_at: string

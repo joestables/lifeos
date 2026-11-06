@@ -3,4 +3,11 @@
 <resources>
     <!-- background, dark -->
     <color name="lifeos_background">#101012</color>
+    <!-- The Type colours (tokens.md t-*, dark), tinting notifications (ADR-0063) -->
+    <color name="lifeos_t_blue">#67AAED</color>
+    <color name="lifeos_t_yellow">#F2CD64</color>
+    <color name="lifeos_t_coral">#EC8E76</color>
+    <color name="lifeos_t_green">#76C788</color>
+    <color name="lifeos_t_orange">#F5AC69</color>
+    <color name="lifeos_t_purple">#B699EB</color>
 </resources>
