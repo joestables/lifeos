@@ -42,13 +42,18 @@ where it earns its minutes (Joe, 18 October 2026):
 
 - **Once per push to a pull request, and on `master` after a merge.** A
   branch without a pull request gets no CI; open a draft one to have it
-  checked.
+  checked. **Claude merges its own pull requests once it's green** (Joe,
+  6 November; [CLAUDE.md](../../CLAUDE.md#merging-and-releasing)).
 - **The checks first:** typecheck, lint, format, token check, unit tests,
   the ontology check and the build. The database and browser tests wait for
   them, and don't start if they fail.
 - **Only documents changed** (`docs/`, `.claude/`, Markdown at the root):
   the database and browser tests are skipped.
-- **Browser tests on pull requests only**, not on `master` after a merge.
+- **Browser tests on pull requests only**, not on `master` after a merge,
+  **in four parts at once** (`--shard`), so they take about a quarter of
+  the time (Joe, 5 November); skipped too when only documents, the
+  Android app (`android/`, `native-shell/`, its workflow) or the site's
+  files for it (`public/.well-known/`, `public/android.json`) changed.
 
 A skipped job counts as passed for `master`'s protection.
 

@@ -8,5 +8,8 @@ class MainActivity : BridgeActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         registerPlugin(LifeosNativePlugin::class.java)
         super.onCreate(savedInstanceState)
+        // Text the size the web app's is in Chrome, not scaled again by
+        // Android's font size (AND-003 6; Joe, 5 November).
+        bridge.webView.settings.textZoom = 100
     }
 }

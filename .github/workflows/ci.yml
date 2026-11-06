@@ -18,6 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       code: ${{ steps.changes.outputs.code }}
+      web: ${{ steps.changes.outputs.web }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -33,6 +34,14 @@ jobs:
             echo code=true >> "$GITHUB_OUTPUT"
           else
             echo code=false >> "$GITHUB_OUTPUT"
+          fi
+          # Only documents, the Android app or the site's data files for it
+          # changed → the browser tests are skipped (they can't see them).
+          if ! git cat-file -e "$BASE^{commit}" 2>/dev/null \
+            || git diff --name-only "$BASE" HEAD | grep -qvE '^(docs/|\.claude/|[^/]+\.md$|android/|native-shell/|public/\.well-known/|public/android\.json$|\.github/workflows/android\.yml$)'; then
+            echo web=true >> "$GITHUB_OUTPUT"
+          else
+            echo web=false >> "$GITHUB_OUTPUT"
           fi
       - uses: actions/setup-node@v4
         with:
@@ -65,8 +74,13 @@ jobs:
     name: Browser tests (stand-in Supabase)
     needs: check
     # Pull requests only: master gets nothing a merge didn't already test.
-    if: github.event_name == 'pull_request' && needs.check.outputs.code == 'true'
+    if: github.event_name == 'pull_request' && needs.check.outputs.web == 'true'
     runs-on: ubuntu-latest
+    # In four parts at once, so the wait is about a quarter (Joe, 5 November).
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
     # Playwright's own image, as scripts/e2e-docker.sh uses, so screenshots match.
     container:
       image: mcr.microsoft.com/playwright:v1.56.1-noble
@@ -81,10 +95,10 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build:e2e
-      - run: npx playwright test
+      - run: npx playwright test --shard=${{ matrix.shard }}/4
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: playwright-results
+          name: playwright-results-${{ matrix.shard }}
           path: test-results
           retention-days: 7

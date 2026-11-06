@@ -122,3 +122,7 @@ isn't needed.
   `MainActivity.kt`), reached through `src/native/lifeos.ts`; its first
   method keeps the screen on while Cooking where the web view has no
   Screen Wake Lock (`useWakeLock`).
+- Text size: the web view's text zoom is pinned to 100% in
+  `MainActivity.kt`, as Android otherwise scales the page's text by the
+  phone's font size and it read larger than the web app in Chrome (Joe,
+  5 November, on 0.1.0). The page's own sizes are the design system's.

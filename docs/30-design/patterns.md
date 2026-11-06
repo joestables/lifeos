@@ -923,8 +923,8 @@ what follows is what only it has.
 - **Settings, in the app only:** the Notifications Card's device is
   "Android app"; while Android hasn't allowed full-screen alarms, a CardRow
   "Full-screen alarms" with "Not allowed" muted and an outline "Allow"
-  (opening Android's setting). An "Android app" Card: Version (muted
-  value), and, when a newer APK is ready, "Update ready" with an outline
+  (opening Android's setting). An "Android app" Card, last on the page
+  (Joe, 5 November): Version (muted value), and, when a newer APK is ready, "Update ready" with an outline
   "Install"; a toast says so once when the app opens ("A new version of
   the app is ready", Install).
 - **The Today widget** is a TodayWidget ([components](components.md)): 4 ×

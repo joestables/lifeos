@@ -220,10 +220,11 @@ the live site, so a web change reaches it when Vercel deploys, as for the
 web.
 
 - **A change to its native parts** (`android/`, a Capacitor plugin): the
-  Android workflow builds it on the pull request. Once merged, raise
-  `public/android.json`'s version, then Actions → Android → Run workflow
-  on `master` with that version (Joe, or Claude through the GitHub tools
-  once they can start a run; a cloud session can't push tags); the
+  Android workflow builds it on the pull request. Raise
+  `public/android.json`'s version in the same pull request; once Claude
+  has merged it, Claude runs Actions → Android → Run workflow on `master`
+  with that version through the GitHub tools (a cloud session can't push
+  tags); the
   workflow tags `android-v<version>`, attaches the signed APK to a GitHub
   release, and the app says "A new version of the app is ready" once the
   site is deployed.

@@ -1,11 +1,29 @@
 import { expect, test, type Page } from '@playwright/test'
 import { itemRow, standIn, type Rows } from './stand-in'
 
-const TODAY = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/London' })
-const YESTERDAY = new Date(Date.now() - 86_400_000).toLocaleDateString('en-CA', {
+/**
+ * The tests' "now": the real time, except in the three hours after
+ * midnight in London, when it is three hours later, so the workout "an
+ * hour ago" is always today (runs just after midnight said "Yesterday").
+ * The page is given the same clock.
+ */
+const londonHour = Number(
+  new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Europe/London',
+    hour: 'numeric',
+    hourCycle: 'h23',
+  }).format(new Date()),
+)
+const NOW = Date.now() + (londonHour < 3 ? 3 * 3_600_000 : 0)
+const TODAY = new Date(NOW).toLocaleDateString('en-CA', { timeZone: 'Europe/London' })
+const YESTERDAY = new Date(NOW - 86_400_000).toLocaleDateString('en-CA', {
   timeZone: 'Europe/London',
 })
-const hoursAgo = (h: number) => new Date(Date.now() - h * 3_600_000).toISOString()
+const hoursAgo = (h: number) => new Date(NOW - h * 3_600_000).toISOString()
+
+test.beforeEach(async ({ page }) => {
+  await page.clock.install({ time: NOW })
+})
 
 /**
  * Ann's bench press and squat, her templates Push A and Legs, and one

@@ -89,7 +89,6 @@ function Settings() {
           <NotificationsCard />
           <RemindersCard />
         </div>
-        <AndroidAppCard />
         <GoogleCalendarCard />
         <div className="hidden md:block">
           <LabelsCard />
@@ -119,6 +118,7 @@ function Settings() {
             onClick={startSignOut}
           />
         </Card>
+        <AndroidAppCard />
       </div>
       <AlertDialog open={confirming} onOpenChange={setConfirming}>
         <AlertDialogContent>
