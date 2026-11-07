@@ -2,7 +2,7 @@
 
 Newest first. Each entry is added in its own pull request.
 
-## Pending — Stage 7, step 11: the app icon, and a bug hunt
+## [#74](https://github.com/joestables/lifeos/pull/74) — Stage 7, step 11: the app icon, and a bug hunt
 
 Branch `claude/intelligent-shannon-umfm64` · 2026-11-07
 
