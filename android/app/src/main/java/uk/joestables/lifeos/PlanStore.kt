@@ -25,6 +25,8 @@ import java.util.Locale
  */
 object PlanStore {
     private const val KEY = "plan"
+    private const val CHOICES = "plan_choices"
+    private const val ADDING = "plan_adding"
 
     /** The phone's day, as Plan's days are named: "2026-11-06". */
     fun dayOf(at: Long = System.currentTimeMillis()): String =
@@ -44,14 +46,30 @@ object PlanStore {
     /** Whether the phone is signed in as a device, to show its Plan at all. */
     fun signedIn(context: Context): Boolean = Prefs.of(context).getString(Prefs.SECRET, null) != null
 
-    /** Keeps the days and redraws the widget. */
-    fun save(context: Context, days: JSONArray) {
-        Prefs.of(context).edit().putString(KEY, days.toString()).apply()
+    /** Keeps the days, and the Add list's Types when the app gives them, and redraws the widget. */
+    fun save(context: Context, days: JSONArray, choices: JSONArray? = null) {
+        val edit = Prefs.of(context).edit().putString(KEY, days.toString())
+        if (choices != null) edit.putString(CHOICES, choices.toString())
+        edit.apply()
+        redraw(context)
+    }
+
+    /** The Types the widget's Add list offers, as Plan's "+" does (WID-002 8): `[{ key, label, colour }]`. */
+    fun choices(context: Context): JSONArray? =
+        runCatching { JSONArray(Prefs.of(context).getString(CHOICES, null) ?: return null) }.getOrNull()
+            ?.takeIf { it.length() > 0 }
+
+    /** Whether the widget shows its Add list in place of the day's cards. */
+    fun adding(context: Context): Boolean = Prefs.of(context).getBoolean(ADDING, false)
+
+    fun setAdding(context: Context, on: Boolean) {
+        if (adding(context) == on) return
+        Prefs.of(context).edit().putBoolean(ADDING, on).apply()
         redraw(context)
     }
 
     fun clear(context: Context) {
-        Prefs.of(context).edit().remove(KEY).apply()
+        Prefs.of(context).edit().remove(KEY).remove(ADDING).apply()
         redraw(context)
     }
 

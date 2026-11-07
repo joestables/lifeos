@@ -3,7 +3,6 @@ import { NewListDialog } from '@/app/new-list'
 import { NewWorkoutDialog } from '@/app/new-workout'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { addDays, todayIn } from '@lifeos/recurrence'
-import { TYPES, hasTrait } from '@lifeos/ontology'
 import { useEffect, useState, type DragEvent, type ReactElement } from 'react'
 import {
   AddToDay,
@@ -41,7 +40,7 @@ import {
 import { leftoversBefore } from '@/lib/meals'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { dayName, fromIsoDay, shortDate } from '@/lib/dates'
-import { itemTitle, offered, typeLook } from '@/lib/item-types'
+import { itemTitle, plannedTypes, typeLook } from '@/lib/item-types'
 import {
   cardLine,
   dayTitle,
@@ -58,22 +57,23 @@ const LAYOUT_KEY = 'lifeos.plan.layout'
 
 /** Plan (views/plan.md): the day shown, kept in the page's address. */
 export const Route = createFileRoute('/_app/plan')({
-  // `add`: opened with "+" pressed, as the Today widget's "+" asks (WID-002 8).
-  validateSearch: (search: Record<string, unknown>): { day?: string; add?: true } => ({
+  // `add`: opened with "+" pressed (`true`), or with a Type chosen from it
+  // (its key), as the Today widget's Add list asks (WID-002 8).
+  validateSearch: (search: Record<string, unknown>): { day?: string; add?: true | string } => ({
     ...(typeof search.day === 'string' && /^\d{4}-\d\d-\d\d$/.test(search.day)
       ? { day: search.day }
       : {}),
     ...(search.add === true || search.add === 'true' || search.add === 1 || search.add === '1'
       ? { add: true as const }
-      : {}),
+      : typeof search.add === 'string' && search.add !== ''
+        ? { add: search.add }
+        : {}),
   }),
   component: Plan,
 })
 
 /** The Schedulable Types the app has yet: Plan's filter and what "+" adds (PLN-004, PLN-006). */
-const PLANNED = TYPES.filter((t) => hasTrait(t, 'schedulable') && offered(t.key)).map((t) =>
-  typeLook(t.key),
-)
+const PLANNED = plannedTypes()
 const ADD: AddChoice[] = PLANNED.map((t) => ({
   key: t.key,
   label: t.label,
@@ -126,13 +126,16 @@ function Plan() {
   const hidden = settings.planHiddenTypes
   const days = planDays(items, week[0]!, week[6]!, settings.timezone, hidden)
   const [adding, setAdding] = useState<{ type: string; day: string } | null>(null)
-  // "+" pressed from the Today widget: the page's own "+" open on the day (WID-002 8).
-  // Also when Plan was already open: the menu opens each time it is asked.
+  // Asked from outside (the Today widget, WID-002 8): "+" open on the day, or
+  // a Type chosen from it, opening its new popup; each time it is asked, Plan
+  // already open or not.
   const [addOpen, setAddOpen] = useState(false)
   const [asked, setAsked] = useState(false)
   if (search.add && !asked) {
     setAsked(true)
-    setAddOpen(true)
+    if (search.add === true) setAddOpen(true)
+    else if (PLANNED.some((t) => t.key === search.add))
+      setAdding({ type: search.add, day: search.day ?? today })
   } else if (!search.add && asked) setAsked(false)
   useEffect(() => {
     if (search.add) void navigate({ to: '/plan', search: { day: search.day }, replace: true })

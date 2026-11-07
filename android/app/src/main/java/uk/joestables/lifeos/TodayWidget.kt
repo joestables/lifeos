@@ -15,11 +15,14 @@ import androidx.glance.GlanceModifier
 import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.action.Action
+import androidx.glance.action.ActionParameters
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.AndroidRemoteViews
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.SizeMode
+import androidx.glance.appwidget.action.ActionCallback
+import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.action.actionStartActivity
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.lazy.LazyColumn
@@ -46,7 +49,8 @@ import java.util.Locale
 
 /**
  * The Today widget (WID-002, components.md#todaywidget, ADR-0064): the date
- * opening Plan, "+" opening Plan's Add for today, and today's cards in
+ * opening Plan, "+" opening the Add list on the widget (a Type chosen opens
+ * its new popup in the app), and today's cards in
  * Plan's order as widget lines, scrolling; "Nothing planned"; signed out,
  * "Sign in to LifeOS". In LifeOS's font; dark or light with the phone; no
  * checkboxes.
@@ -58,7 +62,9 @@ class TodayWidget : GlanceAppWidget() {
         val signedIn = PlanStore.signedIn(context)
         val cards = PlanStore.cards(context)
         val now = System.currentTimeMillis()
-        provideContent { Content(context, signedIn, cards, now) }
+        val choices = PlanStore.choices(context)
+        val adding = choices != null && PlanStore.adding(context)
+        provideContent { Content(context, signedIn, cards, now, choices, adding) }
     }
 }
 
@@ -76,6 +82,13 @@ class TodayWidgetReceiver : GlanceAppWidgetReceiver() {
     }
 }
 
+/** "+" and ×: the widget's Add list opened or closed, on the widget itself (WID-002 8). */
+class ToggleAdd : ActionCallback {
+    override suspend fun onAction(context: Context, glanceId: GlanceId, parameters: ActionParameters) {
+        PlanStore.setAdding(context, !PlanStore.adding(context))
+    }
+}
+
 private fun colour(id: Int) = ColorProvider(id)
 
 /** Opens the app on a path, as a joestables.uk link does (AND-003 3). */
@@ -86,7 +99,14 @@ private fun open(context: Context, path: String): Action = actionStartActivity(
 )
 
 @Composable
-private fun Content(context: Context, signedIn: Boolean, cards: JSONArray?, now: Long) {
+private fun Content(
+    context: Context,
+    signedIn: Boolean,
+    cards: JSONArray?,
+    now: Long,
+    choices: JSONArray?,
+    adding: Boolean,
+) {
     Column(
         modifier = GlanceModifier.fillMaxSize().cornerRadius(24.dp)
             .background(colour(R.color.lifeos_background)).padding(14.dp),
@@ -102,18 +122,24 @@ private fun Content(context: Context, signedIn: Boolean, cards: JSONArray?, now:
             Box(
                 modifier = GlanceModifier.size(32.dp).cornerRadius(10.dp)
                     .background(colour(R.color.lifeos_secondary))
-                    .clickable(open(context, "/plan?add=1")),
+                    // The Add list on the widget; until the app has given its
+                    // Types, Plan's own "+".
+                    .clickable(if (choices != null) actionRunCallback<ToggleAdd>() else open(context, "/plan?add=1")),
                 contentAlignment = Alignment.Center,
             ) {
                 Image(
-                    ImageProvider(R.drawable.ic_plus),
-                    contentDescription = "Add to today",
+                    ImageProvider(if (adding) R.drawable.ic_x else R.drawable.ic_plus),
+                    contentDescription = if (adding) "Close" else "Add to today",
                     modifier = GlanceModifier.size(16.dp),
                     colorFilter = ColorFilter.tint(colour(R.color.lifeos_foreground)),
                 )
             }
         }
         Spacer(GlanceModifier.height(10.dp))
+        if (adding && choices != null) {
+            AddList(context, choices)
+            return@Column
+        }
         val list = (0 until (cards?.length() ?: 0)).mapNotNull { cards?.optJSONObject(it) }
         if (list.isEmpty()) {
             Box(modifier = GlanceModifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -126,6 +152,49 @@ private fun Content(context: Context, signedIn: Boolean, cards: JSONArray?, now:
                         Line(context, card, now)
                         Spacer(GlanceModifier.height(6.dp))
                     }
+                }
+            }
+        }
+    }
+}
+
+/**
+ * The Add list (WID-002 8, as Plan's "+", components.md AddToDay): "Add to
+ * today", then each Schedulable Type with its icon in its colour; one
+ * chosen opens its new popup in the app, dated today.
+ */
+@Composable
+private fun AddList(context: Context, choices: JSONArray) {
+    val list = (0 until choices.length()).mapNotNull { choices.optJSONObject(it) }
+    Column(modifier = GlanceModifier.fillMaxSize()) {
+        Words(context, R.layout.widget_note, "Add to today")
+        Spacer(GlanceModifier.height(8.dp))
+        LazyColumn(modifier = GlanceModifier.fillMaxSize()) {
+            items(list, itemId = { it.optString("key").hashCode().toLong() }) { choice ->
+                Column {
+                    Box(
+                        modifier = GlanceModifier.fillMaxWidth().height(40.dp).cornerRadius(12.dp)
+                            .background(colour(R.color.lifeos_hairline)).padding(1.dp)
+                            .clickable(open(context, "/plan?add=" + Uri.encode(choice.optString("key")))),
+                    ) {
+                        Row(
+                            modifier = GlanceModifier.fillMaxSize().cornerRadius(11.dp)
+                                .background(colour(R.color.lifeos_card)).padding(horizontal = 11.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Image(
+                                ImageProvider(typeIcon(choice.optString("key"))),
+                                contentDescription = null,
+                                modifier = GlanceModifier.size(16.dp),
+                                colorFilter = ColorFilter.tint(colour(typeText(choice.optString("colour")))),
+                            )
+                            Spacer(GlanceModifier.width(10.dp))
+                            Box(modifier = GlanceModifier.defaultWeight()) {
+                                Words(context, R.layout.widget_title, choice.optString("label"))
+                            }
+                        }
+                    }
+                    Spacer(GlanceModifier.height(6.dp))
                 }
             }
         }
