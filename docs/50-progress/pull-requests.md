@@ -2,10 +2,9 @@
 
 Newest first. Each entry is added in its own pull request.
 
-## Stage 7, step 11: the widget's Add list shows its Types
+## [#72](https://github.com/joestables/lifeos/pull/72) — Stage 7, step 11: the widget's Add list shows its Types
 
-Branch `claude/intelligent-shannon-umfm64` · 2026-11-07 · the PR number is
-filled in once it is opened
+Branch `claude/intelligent-shannon-umfm64` · 2026-11-07
 
 **What it did**
 - **The Add list opened empty** on Joe's phone (0.1.9): "Add to today" and
