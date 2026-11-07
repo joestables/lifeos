@@ -76,8 +76,13 @@ can't run LifeOS's React code, and it updates while the app is closed.
   changed or deleted near today, for everyone who can read it) and on
   `core.people` (the Types shown on Plan, or the timezone).
 - **Taps** open joestables.uk links in the app: a card `/item/<id>`, the
-  date `/plan`, "+" `/plan?add=1`, which opens Plan with its own "+" open
-  on today (the Fab on a phone), whether or not Plan was already open. A link that opens the app from closed now
+  date `/plan`. "+" shows the Add list on the widget itself (Joe, 7
+  November: a Glance callback flips it, kept on the phone), its Types
+  handed over by the app with the cards (`plannedTypes`, as Plan's "+"),
+  each opening `/plan?add=<type>`: Plan opens that Type's new popup on
+  today, whether or not Plan was already open, and the widget closes its
+  list. Before the app has given its Types, "+" opens `/plan?add=1`,
+  Plan's own "+". A link that opens the app from closed now
   goes to its page too (Capacitor's launch URL), as a notification's tap
   does.
 - **Within what a widget can draw:** a done or ended card's text and icon

@@ -928,7 +928,8 @@ what follows is what only it has.
   "Install"; a toast says so once when the app opens ("A new version of
   the app is ready", Install).
 - **The Today widget** is a TodayWidget ([components](components.md)): 4 ×
-  3 cells to start, resizable. "+" opens Plan on today with AddToDay open;
+  3 cells to start, resizable. "+" shows the Add list on the widget (× closes it), a Type chosen opening
+  its new popup in the app, dated today;
   the date opens Plan on today; a card opens its Item.
 
 ## Dark and light

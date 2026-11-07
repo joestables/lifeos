@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { Item } from '@/data'
-import { widgetDays } from './today-widget'
+import { widgetChoices, widgetDays } from './today-widget'
 
 const TZ = 'Europe/London'
 const item = (id: string, fields: Partial<Item>): Item => ({
@@ -61,5 +61,14 @@ describe('the Today widget (WID-002)', () => {
   it('1: only the Types I show on Plan (PLN-004)', () => {
     const [today] = widgetDays(items, '2026-11-06', TZ, ['meal', 'event'])
     expect(today!.cards.map((c) => c.title)).toEqual(['Renew insurance', 'Pay rent'])
+  })
+})
+
+describe("the Today widget's Add list (WID-002 8)", () => {
+  it('offers what Plan\'s "+" offers, each with its colour', () => {
+    const choices = widgetChoices()
+    expect(choices.map((c) => c.key)).toEqual(expect.arrayContaining(['task', 'event']))
+    expect(choices.find((c) => c.key === 'task')).toMatchObject({ label: 'Task' })
+    expect(choices.some((c) => c.key === 'thought' || c.key === 'note')).toBe(false)
   })
 })

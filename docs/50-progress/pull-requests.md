@@ -2,6 +2,21 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#70](https://github.com/joestables/lifeos/pull/70) — Stage 7, step 11: the Add list on the Today widget
+
+Branch `claude/intelligent-shannon-umfm64` · 2026-11-07
+
+**What it did**
+- **"+" on the Today widget shows Plan's Add list on the widget itself**
+  (WID-002 8, Joe, 7 November): "Add to today" and the Schedulable Types
+  as Plan's "+" offers them, handed over by the app with the cards; one
+  chosen opens the app on that Type's new popup, dated today
+  (`/plan?add=<type>`), and the list closes; × closes it too.
+- `public/android.json` says 0.1.8.
+
+**Documents touched:** android (WID-002), components (TodayWidget),
+patterns, ADR-0064 (as built), the Stage 7 plan.
+
 ## [#69](https://github.com/joestables/lifeos/pull/69) — Stage 7, step 11: LifeOS's font on the phone; the widget's "+"
 
 Branch `claude/intelligent-shannon-umfm64` · 2026-11-06

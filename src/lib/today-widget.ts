@@ -1,6 +1,6 @@
 import { addDays } from '@lifeos/recurrence'
 import type { Item } from '@/data'
-import { itemTitle, typeLook } from './item-types'
+import { itemTitle, plannedTypes, typeLook } from './item-types'
 import { cardLine, planDays, type Placed } from './plan'
 
 /**
@@ -51,3 +51,13 @@ export function widgetDays(
     cards: list.map((p) => widgetCard(p, day, timezone)),
   }))
 }
+
+/** A Type in the widget's Add list, as Plan's "+" offers it (WID-002 8). */
+export interface WidgetChoice {
+  key: string
+  label: string
+  colour: string
+}
+
+export const widgetChoices = (): WidgetChoice[] =>
+  plannedTypes().map((t) => ({ key: t.key, label: t.label, colour: t.colour }))

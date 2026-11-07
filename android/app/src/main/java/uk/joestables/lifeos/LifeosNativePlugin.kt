@@ -34,11 +34,19 @@ class LifeosNativePlugin : Plugin() {
 
     override fun load() {
         share = shareOf(activity.intent)
+        closeAdding(activity.intent)
+    }
+
+    /** A Type chosen from the widget's Add list opened the app: the widget shows its day again. */
+    private fun closeAdding(intent: Intent?) {
+        val data = intent?.data ?: return
+        if (data.path == "/plan" && data.getQueryParameter("add") != null) PlanStore.setAdding(context, false)
     }
 
     /** Shared to LifeOS while it was open: the page is told to take it. */
     override fun handleOnNewIntent(intent: Intent) {
         super.handleOnNewIntent(intent)
+        closeAdding(intent)
         shareOf(intent)?.let {
             share = it
             notifyListeners("share", JSObject(), true)
@@ -59,7 +67,7 @@ class LifeosNativePlugin : Plugin() {
      */
     @PluginMethod
     fun setPlan(call: PluginCall) {
-        PlanStore.save(context, call.getArray("days") ?: com.getcapacitor.JSArray())
+        PlanStore.save(context, call.getArray("days") ?: com.getcapacitor.JSArray(), call.getArray("choices"))
         call.resolve()
     }
 

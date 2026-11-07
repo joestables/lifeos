@@ -20,8 +20,8 @@ const ICONS = {
   exercise: 'dumbbell',
   workout_template: 'clipboard-list',
 }
-/** Other icons Android draws itself: the Today widget's "+" (components.md#todaywidget). */
-const OTHER = { plus: 'plus' }
+/** Other icons Android draws itself: the Today widget's "+", and its × closing the Add list (components.md#todaywidget). */
+const OTHER = { plus: 'plus', x: 'x' }
 
 const n = (v) => Number(v)
 /** A Lucide element as SVG path data, which is all a vector drawable draws. */

@@ -1,5 +1,5 @@
 import { plainLine } from './markdown-preview'
-import { convertsTo, typeByKey, type Colour, type Mark } from '@lifeos/ontology'
+import { TYPES, convertsTo, hasTrait, typeByKey, type Colour, type Mark } from '@lifeos/ontology'
 import type { LucideIcon } from 'lucide-react'
 import { FileIcon } from 'lucide-react'
 import { TYPE_ICONS } from '@/components/lifeos/colours'
@@ -85,3 +85,11 @@ export const MARK_LABEL: Record<Mark, string> = {
   starred: 'Star',
   favourited: 'Favourite',
 }
+
+/**
+ * The Schedulable Types the app has yet, in the ontology's order: Plan's
+ * filter, what Plan's "+" adds (PLN-004, PLN-006), and the Today widget's
+ * Add list (WID-002 8).
+ */
+export const plannedTypes = (): TypeLook[] =>
+  TYPES.filter((t) => hasTrait(t, 'schedulable') && offered(t.key)).map((t) => typeLook(t.key))
