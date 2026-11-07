@@ -3,9 +3,6 @@ package uk.joestables.lifeos
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.text.SpannableString
-import android.text.Spanned
-import android.text.style.StrikethroughSpan
 import android.widget.RemoteViews
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
@@ -14,6 +11,8 @@ import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.Image
 import androidx.glance.ImageProvider
+import androidx.glance.LocalContext
+import androidx.glance.LocalSize
 import androidx.glance.currentState
 import androidx.datastore.preferences.core.Preferences
 import androidx.glance.appwidget.state.updateAppWidgetState
@@ -173,8 +172,11 @@ private fun Content(
 
 /**
  * The Add list (WID-002 8, as Plan's "+", components.md AddToDay): "Add to
- * today", then each Schedulable Type with its icon in its colour; one
- * chosen opens its new popup in the app, dated today.
+ * today", then each Schedulable Type, two to a row, its icon in its colour
+ * and its name; one chosen opens its new popup in the app, dated today.
+ * Not a scrolling list: a widget's scrolling list can't hold the text
+ * layouts that carry LifeOS's font (0.1.9 showed it empty), and a few
+ * Types fit without one.
  */
 @Composable
 private fun AddList(context: Context, choices: JSONArray) {
@@ -182,33 +184,43 @@ private fun AddList(context: Context, choices: JSONArray) {
     Column(modifier = GlanceModifier.fillMaxSize()) {
         Words(context, R.layout.widget_note, "Add to today")
         Spacer(GlanceModifier.height(8.dp))
-        LazyColumn(modifier = GlanceModifier.fillMaxSize()) {
-            items(list, itemId = { it.optString("key").hashCode().toLong() }) { choice ->
-                Column {
-                    Box(
-                        modifier = GlanceModifier.fillMaxWidth().height(40.dp).cornerRadius(12.dp)
-                            .background(colour(R.color.lifeos_hairline)).padding(1.dp)
-                            .clickable(open(context, "/plan?add=" + Uri.encode(choice.optString("key")))),
-                    ) {
-                        Row(
-                            modifier = GlanceModifier.fillMaxSize().cornerRadius(11.dp)
-                                .background(colour(R.color.lifeos_card)).padding(horizontal = 11.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Image(
-                                ImageProvider(typeIcon(choice.optString("key"))),
-                                contentDescription = null,
-                                modifier = GlanceModifier.size(16.dp),
-                                colorFilter = ColorFilter.tint(colour(typeText(choice.optString("colour")))),
-                            )
-                            Spacer(GlanceModifier.width(10.dp))
-                            Box(modifier = GlanceModifier.defaultWeight()) {
-                                Words(context, R.layout.widget_title, choice.optString("label"))
-                            }
-                        }
-                    }
-                    Spacer(GlanceModifier.height(6.dp))
+        for (pair in list.chunked(2)) {
+            Row(modifier = GlanceModifier.fillMaxWidth()) {
+                Choice(context, pair[0], GlanceModifier.defaultWeight())
+                Spacer(GlanceModifier.width(6.dp))
+                if (pair.size > 1) {
+                    Choice(context, pair[1], GlanceModifier.defaultWeight())
+                } else {
+                    Spacer(GlanceModifier.defaultWeight())
                 }
+            }
+            Spacer(GlanceModifier.height(6.dp))
+        }
+    }
+}
+
+/** One Type in the Add list, as a widget line. */
+@Composable
+private fun Choice(context: Context, choice: JSONObject, modifier: GlanceModifier) {
+    Box(
+        modifier = modifier.height(40.dp).cornerRadius(12.dp)
+            .background(colour(R.color.lifeos_hairline)).padding(1.dp)
+            .clickable(open(context, "/plan?add=" + Uri.encode(choice.optString("key")))),
+    ) {
+        Row(
+            modifier = GlanceModifier.fillMaxSize().cornerRadius(11.dp)
+                .background(colour(R.color.lifeos_card)).padding(horizontal = 11.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Image(
+                ImageProvider(typeIcon(choice.optString("key"))),
+                contentDescription = null,
+                modifier = GlanceModifier.size(16.dp),
+                colorFilter = ColorFilter.tint(colour(typeText(choice.optString("colour")))),
+            )
+            Spacer(GlanceModifier.width(10.dp))
+            Box(modifier = GlanceModifier.defaultWeight()) {
+                Words(context, R.layout.widget_title, choice.optString("label"))
             }
         }
     }
@@ -217,13 +229,30 @@ private fun AddList(context: Context, choices: JSONArray) {
 /**
  * A widget line: 40dp, the card fill inside a hairline edge, the Type's
  * icon in its text colour, the title, and its time at the end; done or
- * gone by, muted and struck through (Android's widgets can't fade).
+ * gone by, muted and struck through (Android's widgets can't fade). Its
+ * words are drawn as pictures in LifeOS's font (WidgetText.kt), as the
+ * scrolling list can't hold the text layouts the rest of the widget uses.
  */
 @Composable
 private fun Line(context: Context, card: JSONObject, now: Long) {
     val ends = card.optString("ends").takeIf { it.isNotEmpty() && it != "null" }?.let { ReminderSync.epochMillis(it) }
     val past = card.optBoolean("done") || (ends != null && ends <= now)
     val time = card.optString("time").takeIf { it.isNotEmpty() && it != "null" }
+    val ink = LocalContext.current
+    // What the title may take: the widget less its padding, the line's
+    // padding and edge, the icon, and the time.
+    val timeText = time?.let { WidgetText.draw(ink, it, 12f, R.font.plus_jakarta_sans_regular, R.color.lifeos_muted_foreground) }
+    val room = LocalSize.current.width.value - 28f - 2f - 22f - 16f - 10f -
+        (timeText?.let { it.widthDp + 8f } ?: 0f)
+    val titleText = WidgetText.draw(
+        ink,
+        card.optString("title"),
+        13f,
+        R.font.plus_jakarta_sans_semibold,
+        if (past) R.color.lifeos_muted_foreground else R.color.lifeos_foreground,
+        maxWidthDp = room,
+        struck = past,
+    )
     Box(
         modifier = GlanceModifier.fillMaxWidth().height(40.dp).cornerRadius(12.dp)
             .background(colour(R.color.lifeos_hairline)).padding(1.dp)
@@ -242,22 +271,11 @@ private fun Line(context: Context, card: JSONObject, now: Long) {
             )
             Spacer(GlanceModifier.width(10.dp))
             Box(modifier = GlanceModifier.defaultWeight()) {
-                val title = card.optString("title")
-                Words(
-                    context,
-                    if (past) R.layout.widget_title_past else R.layout.widget_title,
-                    if (past) {
-                        SpannableString(title).apply {
-                            setSpan(StrikethroughSpan(), 0, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                        }
-                    } else {
-                        title
-                    },
-                )
+                WidgetText.Picture(titleText, card.optString("title"))
             }
-            if (time != null) {
+            if (timeText != null) {
                 Spacer(GlanceModifier.width(8.dp))
-                Words(context, R.layout.widget_time, time)
+                WidgetText.Picture(timeText, time)
             }
         }
     }

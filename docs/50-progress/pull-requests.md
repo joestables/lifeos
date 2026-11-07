@@ -2,6 +2,23 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#72](https://github.com/joestables/lifeos/pull/72) — Stage 7, step 11: the widget's Add list shows its Types
+
+Branch `claude/intelligent-shannon-umfm64` · 2026-11-07
+
+**What it did**
+- **The Add list opened empty** on Joe's phone (0.1.9): "Add to today" and
+  × showed, but no Types. What draws (the date, the notes) is outside the
+  widget's scrolling list and what didn't is inside it, so the TextView
+  layouts carrying LifeOS's font don't show inside a scrolling list. The
+  Add list is now a grid of Types two to a row, not a scrolling list; and
+  the day's lines, which must scroll, draw their words as pictures in the
+  font (`WidgetText.kt`), so they show too.
+- `public/android.json` says 0.1.10.
+
+**Documents touched:** components (TodayWidget), ADR-0064 (as built), the
+Stage 7 plan.
+
 ## [#71](https://github.com/joestables/lifeos/pull/71) — Stage 7, step 11: the widget's "+" works
 
 Branch `claude/intelligent-shannon-umfm64` · 2026-11-07

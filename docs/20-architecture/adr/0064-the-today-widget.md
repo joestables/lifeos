@@ -92,9 +92,13 @@ can't run LifeOS's React code, and it updates while the app is closed.
 - **Within what a widget can draw:** a done or ended card's text and icon
   are muted and struck through, as Android widgets can't fade by opacity;
   the hairline edge is a 1dp ring of `--hairline` behind the card fill;
-  LifeOS's font (Joe, 6 November), each piece of text a small TextView
-  layout (`res/layout/widget_*.xml`) through Glance's `AndroidRemoteViews`,
-  as Glance draws text only in the phone's fonts; the day is the phone's. A card's title is the
+  LifeOS's font (Joe, 6 November): the date and notes as small TextView
+  layouts (`res/layout/widget_*.xml`) through Glance's `AndroidRemoteViews`,
+  as Glance draws text only in the phone's fonts; inside the scrolling list,
+  where those layouts don't show (0.1.9's Add list was empty), the words
+  are drawn as pictures in the font at the phone's density
+  (`WidgetText.kt`), cut to the room they have. The Add list is a grid of
+  Types two to a row rather than a scrolling list. The day is the phone's. A card's title is the
   Item's title, else its first line of body as written.
 - Signed out (no device), it says "Sign in to LifeOS" and opens the app.
 
