@@ -199,26 +199,6 @@ test('WID-002 8: opened from the Today widget\'s "+", Plan\'s "+" is open on tod
   await expect(page).toHaveURL(/\/plan$/)
 })
 
-test("WID-002 8: a Type chosen from the widget's Add list opens its new popup, dated today", async ({
-  page,
-}) => {
-  await start(page)
-  // As the app is sent there when a Type is chosen on the widget.
-  await page.evaluate(() => {
-    window.history.pushState({}, '', '/plan?add=task')
-    window.dispatchEvent(new PopStateEvent('popstate'))
-  })
-  const task = page.getByRole('dialog', { name: 'New task' })
-  await expect(task.getByRole('button', { name: 'Do on' })).toHaveText(/Today/)
-  await expect(page).toHaveURL(/\/plan$/)
-  await task.getByRole('button', { name: 'Cancel' }).click()
-  await page.evaluate(() => {
-    window.history.pushState({}, '', '/plan?add=event')
-    window.dispatchEvent(new PopStateEvent('popstate'))
-  })
-  await expect(page.getByRole('dialog', { name: 'New event' })).toBeVisible()
-})
-
 test('WID-002 8: with Plan already open, the widget\'s "+" still opens its list', async ({
   page,
 }) => {

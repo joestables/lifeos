@@ -57,17 +57,14 @@ const LAYOUT_KEY = 'lifeos.plan.layout'
 
 /** Plan (views/plan.md): the day shown, kept in the page's address. */
 export const Route = createFileRoute('/_app/plan')({
-  // `add`: opened with "+" pressed (`true`), or with a Type chosen from it
-  // (its key), as the Today widget's Add list asks (WID-002 8).
-  validateSearch: (search: Record<string, unknown>): { day?: string; add?: true | string } => ({
+  // `add`: opened with "+" pressed, as the Today widget's "+" asks (WID-002 8).
+  validateSearch: (search: Record<string, unknown>): { day?: string; add?: true } => ({
     ...(typeof search.day === 'string' && /^\d{4}-\d\d-\d\d$/.test(search.day)
       ? { day: search.day }
       : {}),
     ...(search.add === true || search.add === 'true' || search.add === 1 || search.add === '1'
       ? { add: true as const }
-      : typeof search.add === 'string' && search.add !== ''
-        ? { add: search.add }
-        : {}),
+      : {}),
   }),
   component: Plan,
 })
@@ -126,16 +123,13 @@ function Plan() {
   const hidden = settings.planHiddenTypes
   const days = planDays(items, week[0]!, week[6]!, settings.timezone, hidden)
   const [adding, setAdding] = useState<{ type: string; day: string } | null>(null)
-  // Asked from outside (the Today widget, WID-002 8): "+" open on the day, or
-  // a Type chosen from it, opening its new popup; each time it is asked, Plan
-  // already open or not.
+  // Asked from outside (the Today widget, WID-002 8): "+" open on the day,
+  // each time it is asked, Plan already open or not.
   const [addOpen, setAddOpen] = useState(false)
   const [asked, setAsked] = useState(false)
   if (search.add && !asked) {
     setAsked(true)
-    if (search.add === true) setAddOpen(true)
-    else if (PLANNED.some((t) => t.key === search.add))
-      setAdding({ type: search.add, day: search.day ?? today })
+    setAddOpen(true)
   } else if (!search.add && asked) setAsked(false)
   useEffect(() => {
     if (search.add) void navigate({ to: '/plan', search: { day: search.day }, replace: true })

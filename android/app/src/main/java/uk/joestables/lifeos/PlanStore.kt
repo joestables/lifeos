@@ -29,14 +29,12 @@ import java.util.Locale
  */
 object PlanStore {
     private const val KEY = "plan"
-    private const val CHOICES = "plan_choices"
 
     /**
      * The widget's own state (Glance's, read inside its composition, so a
-     * running widget redraws when it changes): whether the Add list shows,
-     * and a stamp bumped whenever what it shows changed on the phone.
+     * running widget redraws when it changes): a stamp bumped whenever what
+     * it shows changed on the phone.
      */
-    val ADDING = booleanPreferencesKey("adding")
     val STAMP = longPreferencesKey("stamp")
 
     /** The phone's day, as Plan's days are named: "2026-11-06". */
@@ -57,23 +55,11 @@ object PlanStore {
     /** Whether the phone is signed in as a device, to show its Plan at all. */
     fun signedIn(context: Context): Boolean = Prefs.of(context).getString(Prefs.SECRET, null) != null
 
-    /** Keeps the days, and the Add list's Types when the app gives them, and redraws the widget. */
-    fun save(context: Context, days: JSONArray, choices: JSONArray? = null) {
-        val edit = Prefs.of(context).edit().putString(KEY, days.toString())
-        if (choices != null) edit.putString(CHOICES, choices.toString())
-        edit.apply()
+    /** Keeps the days and redraws the widget. */
+    fun save(context: Context, days: JSONArray) {
+        // The Add list's Types an earlier version kept, no longer wanted.
+        Prefs.of(context).edit().putString(KEY, days.toString()).remove("plan_choices").apply()
         redraw(context)
-    }
-
-    /** The Types the widget's Add list offers, as Plan's "+" does (WID-002 8): `[{ key, label, colour }]`. */
-    fun choices(context: Context): JSONArray? =
-        runCatching { JSONArray(Prefs.of(context).getString(CHOICES, null) ?: return null) }.getOrNull()
-            ?.takeIf { it.length() > 0 }
-
-    /** Closes the widget's Add list (a Type chosen from it opened the app). */
-    fun closeAdding(context: Context) {
-        val app = context.applicationContext
-        Thread { runBlocking { each(app) { it[ADDING] = false } } }.start()
     }
 
     /** Changes every Today widget's state and redraws it. */
@@ -128,8 +114,8 @@ object PlanStore {
             runBlocking {
                 each(app) {
                     it[STAMP] = System.currentTimeMillis()
-                    // Signed out, no Add list waits for signing in again.
-                    if (!signedIn(app)) it[ADDING] = false
+                    // An Add list an earlier version left open, closed.
+                    it.remove(booleanPreferencesKey("adding"))
                 }
             }
         }.start()
