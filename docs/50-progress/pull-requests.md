@@ -2,6 +2,22 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#71](https://github.com/joestables/lifeos/pull/71) — Stage 7, step 11: the widget's "+" works
+
+Branch `claude/intelligent-shannon-umfm64` · 2026-11-07
+
+**What it did**
+- **The Today widget's "+" did nothing** on Joe's phone (0.1.8): the
+  widget read whether its Add list shows only when it was first set up,
+  and a widget still running doesn't set up again, so a tap changed the
+  setting but not the widget. The list's state is now the widget's own
+  Glance state, read each time it draws, flipped by the tap; and a stamp
+  in it, bumped whenever its cards change, redraws a running widget at
+  once.
+- `public/android.json` says 0.1.9.
+
+**Documents touched:** ADR-0064 (as built), the Stage 7 plan.
+
 ## [#70](https://github.com/joestables/lifeos/pull/70) — Stage 7, step 11: the Add list on the Today widget
 
 Branch `claude/intelligent-shannon-umfm64` · 2026-11-07

@@ -40,7 +40,7 @@ class LifeosNativePlugin : Plugin() {
     /** A Type chosen from the widget's Add list opened the app: the widget shows its day again. */
     private fun closeAdding(intent: Intent?) {
         val data = intent?.data ?: return
-        if (data.path == "/plan" && data.getQueryParameter("add") != null) PlanStore.setAdding(context, false)
+        if (data.path == "/plan" && data.getQueryParameter("add") != null) PlanStore.closeAdding(context)
     }
 
     /** Shared to LifeOS while it was open: the page is told to take it. */
