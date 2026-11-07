@@ -2,7 +2,7 @@
 
 Newest first. Each entry is added in its own pull request.
 
-## Pending — Stage 7, step 11: the widget's "+" opens Plan's
+## [#73](https://github.com/joestables/lifeos/pull/73) — Stage 7, step 11: the widget's "+" opens Plan's
 
 Branch `claude/intelligent-shannon-umfm64` · 2026-11-07
 
