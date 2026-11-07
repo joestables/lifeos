@@ -2,6 +2,22 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## Pending — Stage 7, step 11: the widget's "+" opens Plan's
+
+Branch `claude/intelligent-shannon-umfm64` · 2026-11-07
+
+**What it did**
+- **The widget's Add list still showed no Types** on Joe's phone (0.1.10),
+  so, as Joe chose, "+" goes back to opening the app on Plan with its "+"
+  already pressed for today (`/plan?add=1`), Plan open or not. The Add
+  list on the widget, its Glance callback and state, the Types the app
+  handed over, and Plan's `?add=<type>` are gone; what an earlier version
+  kept for them is cleared.
+- `public/android.json` says 0.1.11.
+
+**Documents touched:** Android (WID-002 8), ADR-0064 (as built),
+components (TodayWidget), patterns, the Stage 7 plan.
+
 ## [#72](https://github.com/joestables/lifeos/pull/72) — Stage 7, step 11: the widget's Add list shows its Types
 
 Branch `claude/intelligent-shannon-umfm64` · 2026-11-07

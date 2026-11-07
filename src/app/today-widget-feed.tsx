@@ -1,7 +1,7 @@
 import { todayIn } from '@lifeos/recurrence'
 import { useEffect, useMemo } from 'react'
 import { queue, useItems, useSettings } from '@/data'
-import { widgetChoices, widgetDays } from '@/lib/today-widget'
+import { widgetDays } from '@/lib/today-widget'
 
 /**
  * In the Android app, hands the Today widget today's and tomorrow's cards
@@ -23,9 +23,7 @@ export function TodayWidgetFeed() {
   useEffect(() => {
     if (!days) return
     void import('@/native/lifeos').then(({ LifeosNative }) =>
-      LifeosNative.setPlan({ days: JSON.parse(days), choices: widgetChoices() }).catch(
-        () => undefined,
-      ),
+      LifeosNative.setPlan({ days: JSON.parse(days) }).catch(() => undefined),
     )
   }, [days])
   return null

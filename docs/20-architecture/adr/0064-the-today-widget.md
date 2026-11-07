@@ -77,16 +77,12 @@ can't run LifeOS's React code, and it updates while the app is closed.
   changed or deleted near today, for everyone who can read it) and on
   `core.people` (the Types shown on Plan, or the timezone).
 - **Taps** open joestables.uk links in the app: a card `/item/<id>`, the
-  date `/plan`. "+" shows the Add list on the widget itself (Joe, 7
-  November: a Glance callback flips it in the widget's own Glance state,
-  read as it draws, as a widget still running doesn't run its setup again;
-  kept in the app's own storage at first, a tap changed nothing on Joe's
-  phone), its Types
-  handed over by the app with the cards (`plannedTypes`, as Plan's "+"),
-  each opening `/plan?add=<type>`: Plan opens that Type's new popup on
-  today, whether or not Plan was already open, and the widget closes its
-  list. Before the app has given its Types, "+" opens `/plan?add=1`,
-  Plan's own "+". A link that opens the app from closed now
+  date `/plan`, "+" `/plan?add=1`: Plan with its own "+" open on today,
+  whether or not Plan was already open. An Add list on the widget itself
+  was tried (0.1.8–0.1.10, Joe, 7 November): a Glance callback flipping it
+  in the widget's Glance state, the Types handed over by the app, first as
+  a scrolling list, then as a grid; on Joe's phone it never showed its
+  Types, so, as he chose, "+" went back to opening Plan's (0.1.11). A link that opens the app from closed now
   goes to its page too (Capacitor's launch URL), as a notification's tap
   does.
 - **Within what a widget can draw:** a done or ended card's text and icon
@@ -97,8 +93,7 @@ can't run LifeOS's React code, and it updates while the app is closed.
   as Glance draws text only in the phone's fonts; inside the scrolling list,
   where those layouts don't show (0.1.9's Add list was empty), the words
   are drawn as pictures in the font at the phone's density
-  (`WidgetText.kt`), cut to the room they have. The Add list is a grid of
-  Types two to a row rather than a scrolling list. The day is the phone's. A card's title is the
+  (`WidgetText.kt`), cut to the room they have. The day is the phone's. A card's title is the
   Item's title, else its first line of body as written.
 - Signed out (no device), it says "Sign in to LifeOS" and opens the app.
 

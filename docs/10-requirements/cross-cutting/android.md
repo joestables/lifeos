@@ -150,11 +150,12 @@ Acceptance criteria
 6. Given no signal, then it shows what the phone last held.
 7. Given the widget's size, then I can make it smaller or larger on the
    home screen and it shows as many cards as fit.
-8. Given I press the "+" at the widget's top right, then the widget itself
-   shows Plan's Add list for today, the Schedulable Types as Plan's "+"
-   offers them (Joe, 7 November); choosing one opens the app on that
-   Type's new popup, dated today, as PLN-006; saving it puts it on the
-   widget at once. Pressing × (the "+" while the list shows) closes it.
+8. Given I press the "+" at the widget's top right, then the app opens on
+   Plan with its "+" already pressed for today, whether or not Plan was
+   open (Joe, 7 November: the Add list on the widget itself didn't show on
+   his phone in 0.1.8–0.1.10, so this as he chose instead); choosing a
+   Type opens its new popup, dated today, as PLN-006; saving it puts it on
+   the widget at once.
 9. Given a card, then it has no checkbox, as Plan's cards have none (Joe,
    14 October): I open the Item to tick it.
 
