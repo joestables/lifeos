@@ -2,6 +2,35 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## Pending — Stage 7, step 11: the app icon, and a bug hunt
+
+Branch `claude/intelligent-shannon-umfm64` · 2026-11-07
+
+**What it did**
+- **The app icon was too big** on Joe's home screen: the graph filled
+  Android's circle, its outer nodes cut. It is drawn at 60% now, with room
+  around it as other apps' icons have (the themed icon too).
+- **From a bug hunt through the Android app:**
+  - Snooze pressed on a Reminder the phone set came back twice an hour
+    later: the phone's own hour (for no signal) wasn't replaced by the
+    server's. It is now kept with the phone's other alarms, so the
+    server's replaces it.
+  - A link that opened the app from closed (a notification, the widget,
+    Google's sign-in) was taken twice, by Capacitor's kept `appUrlOpen` and
+    its launch URL; a sign-in then said "Couldn't sign in", and a reload
+    of the page went back to that link. Only `appUrlOpen` now.
+  - The widget's lines, drawn as pictures, kept the colours of the theme
+    they were drawn in, so turning the phone dark or light could leave
+    them unreadable; they are drawn in white and tinted by the theme's
+    colour where they show.
+  - After a restart with no signal, the widget's turn at midnight wasn't
+    set again; it is, on starting.
+  - Signing out left Cooking timers set on the phone; they are cleared.
+- `public/android.json` says 0.1.12.
+
+**Documents touched:** patterns (the Android app's icon), ADR-0064 (as
+built), the Stage 7 plan.
+
 ## [#73](https://github.com/joestables/lifeos/pull/73) — Stage 7, step 11: the widget's "+" opens Plan's
 
 Branch `claude/intelligent-shannon-umfm64` · 2026-11-07

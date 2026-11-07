@@ -91,6 +91,10 @@ object ReminderSync {
         val at = System.currentTimeMillis() + 60 * 60 * 1000L
         val key = "$reminder|$at"
         set(context, context.getSystemService(AlarmManager::class.java), at, key.hashCode(), firing, key)
+        // Kept with the others, so the server's own snoozed firing, fetched
+        // when there's signal, replaces it rather than coming as well.
+        val prefs = Prefs.of(context)
+        prefs.edit().putStringSet(Prefs.SET, prefs.getStringSet(Prefs.SET, emptySet()).orEmpty() + key.hashCode().toString()).apply()
     }
 
     /**
@@ -197,6 +201,8 @@ object ReminderSync {
         val prefs = Prefs.of(context)
         prefs.edit().putString(Prefs.FIRINGS, "[]").remove(Prefs.DEVICE).remove(Prefs.SECRET).apply()
         schedule(context)
+        // No Cooking timer of theirs ends on the phone after.
+        CookTimers.set(context, JSONArray())
         // The Today widget says to sign in.
         PlanStore.clear(context)
     }
