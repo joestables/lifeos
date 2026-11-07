@@ -156,7 +156,7 @@ private fun Line(context: Context, card: JSONObject, now: Long) {
     val ink = LocalContext.current
     // What the title may take: the widget less its padding, the line's
     // padding and edge, the icon, and the time.
-    val timeText = time?.let { WidgetText.draw(ink, it, 12f, R.font.plus_jakarta_sans_regular, R.color.lifeos_muted_foreground) }
+    val timeText = time?.let { WidgetText.draw(ink, it, 12f, R.font.plus_jakarta_sans_regular) }
     val room = LocalSize.current.width.value - 28f - 2f - 22f - 16f - 10f -
         (timeText?.let { it.widthDp + 8f } ?: 0f)
     val titleText = WidgetText.draw(
@@ -164,7 +164,6 @@ private fun Line(context: Context, card: JSONObject, now: Long) {
         card.optString("title"),
         13f,
         R.font.plus_jakarta_sans_semibold,
-        if (past) R.color.lifeos_muted_foreground else R.color.lifeos_foreground,
         maxWidthDp = room,
         struck = past,
     )
@@ -186,11 +185,15 @@ private fun Line(context: Context, card: JSONObject, now: Long) {
             )
             Spacer(GlanceModifier.width(10.dp))
             Box(modifier = GlanceModifier.defaultWeight()) {
-                WidgetText.Picture(titleText, card.optString("title"))
+                WidgetText.Picture(
+                    titleText,
+                    card.optString("title"),
+                    if (past) R.color.lifeos_muted_foreground else R.color.lifeos_foreground,
+                )
             }
             if (timeText != null) {
                 Spacer(GlanceModifier.width(8.dp))
-                WidgetText.Picture(timeText, time)
+                WidgetText.Picture(timeText, time, R.color.lifeos_muted_foreground)
             }
         }
     }

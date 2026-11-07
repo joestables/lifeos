@@ -57,9 +57,11 @@ export function startAndroidApp(navigate: (href: string) => void) {
     const { pathname, search, hash } = new URL(url)
     navigate(`${pathname}${search}${hash}`)
   }
+  // Opened by a link while closed too (a notification, the Today widget):
+  // Capacitor keeps that one for this listener. Not the launch URL as well,
+  // which came twice (a used sign-in code said "Couldn't sign in") and
+  // again on every reload of the page.
   void App.addListener('appUrlOpen', ({ url }) => openUrl(url))
-  // Opened by a link while closed (a notification, the Today widget): its page.
-  void App.getLaunchUrl().then((launch) => launch?.url && openUrl(launch.url))
 
   // Shared to LifeOS from Android's share sheet: kept by /share as on the
   // web (AND-004, ADR-0055), on opening and while open.

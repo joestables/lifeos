@@ -82,9 +82,10 @@ can't run LifeOS's React code, and it updates while the app is closed.
   was tried (0.1.8–0.1.10, Joe, 7 November): a Glance callback flipping it
   in the widget's Glance state, the Types handed over by the app, first as
   a scrolling list, then as a grid; on Joe's phone it never showed its
-  Types, so, as he chose, "+" went back to opening Plan's (0.1.11). A link that opens the app from closed now
-  goes to its page too (Capacitor's launch URL), as a notification's tap
-  does.
+  Types, so, as he chose, "+" went back to opening Plan's (0.1.11). A link that opens the app from closed goes
+  to its page as a notification's tap does, by the `appUrlOpen` Capacitor
+  keeps for the page; not by its launch URL as well, which made it go
+  twice and again on every reload (0.1.12).
 - **Within what a widget can draw:** a done or ended card's text and icon
   are muted and struck through, as Android widgets can't fade by opacity;
   the hairline edge is a 1dp ring of `--hairline` behind the card fill;
@@ -93,7 +94,9 @@ can't run LifeOS's React code, and it updates while the app is closed.
   as Glance draws text only in the phone's fonts; inside the scrolling list,
   where those layouts don't show (0.1.9's Add list was empty), the words
   are drawn as pictures in the font at the phone's density
-  (`WidgetText.kt`), cut to the room they have. The day is the phone's. A card's title is the
+  (`WidgetText.kt`), cut to the room they have, in white, tinted where
+  they show by the theme's colour, so they follow the phone from dark to
+  light. The day is the phone's. A card's title is the
   Item's title, else its first line of body as written.
 - Signed out (no device), it says "Sign in to LifeOS" and opens the app.
 

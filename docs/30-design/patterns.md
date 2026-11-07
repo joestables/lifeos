@@ -905,8 +905,10 @@ on 5 November; drawn on `/design-stage-7`, and the widget on `/design`.* The app
 what follows is what only it has.
 
 - **Its icon** is the app icon ([above](#the-app-icon)) as Android's
-  adaptive icon: the graph as the foreground, inside the central 66%, on
-  the dark `--background`; and a one-colour graph as the monochrome layer
+  adaptive icon: the graph as the foreground at 60% of its size, about
+  three fifths of the launcher's circle across, with room around it as
+  other apps' icons have (Joe, 7 November: at full size it filled the
+  circle), on the dark `--background`; and a one-colour graph as the monochrome layer
   for themed icons.
 - **Opening:** Android's opening screen shows the icon on the theme's
   `--background`, dark or light with the phone, until the page is drawn.
