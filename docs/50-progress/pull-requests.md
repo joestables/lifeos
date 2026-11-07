@@ -2,10 +2,9 @@
 
 Newest first. Each entry is added in its own pull request.
 
-## Stage 7, step 11: the Add list on the Today widget
+## [#70](https://github.com/joestables/lifeos/pull/70) — Stage 7, step 11: the Add list on the Today widget
 
-Branch `claude/intelligent-shannon-umfm64` · 2026-11-07 · the PR number is
-filled in once it is opened
+Branch `claude/intelligent-shannon-umfm64` · 2026-11-07
 
 **What it did**
 - **"+" on the Today widget shows Plan's Add list on the widget itself**
