@@ -64,7 +64,8 @@ can't run LifeOS's React code, and it updates while the app is closed.
 
 - **Glance 1.1.1** (`TodayWidget.kt`), with Compose's compiler plugin for
   Kotlin 2.2.21. What it shows is kept as JSON on the phone
-  (`PlanStore.kt`): each day's cards as `src/lib/today-widget.ts` makes
+  (`PlanStore.kt`), read each time it draws, with a stamp in its Glance
+  state bumped whenever they change so a running widget redraws: each day's cards as `src/lib/today-widget.ts` makes
   them (id, Type, colour, title, Plan's time, done, when an Event ends);
   `core.device_plan` answers the same shape, and its database tests use
   the unit tests' examples.
@@ -77,7 +78,10 @@ can't run LifeOS's React code, and it updates while the app is closed.
   `core.people` (the Types shown on Plan, or the timezone).
 - **Taps** open joestables.uk links in the app: a card `/item/<id>`, the
   date `/plan`. "+" shows the Add list on the widget itself (Joe, 7
-  November: a Glance callback flips it, kept on the phone), its Types
+  November: a Glance callback flips it in the widget's own Glance state,
+  read as it draws, as a widget still running doesn't run its setup again;
+  kept in the app's own storage at first, a tap changed nothing on Joe's
+  phone), its Types
   handed over by the app with the cards (`plannedTypes`, as Plan's "+"),
   each opening `/plan?add=<type>`: Plan opens that Type's new popup on
   today, whether or not Plan was already open, and the widget closes its

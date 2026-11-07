@@ -5,7 +5,11 @@ import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import androidx.glance.appwidget.updateAll
+import androidx.datastore.preferences.core.MutablePreferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
+import androidx.glance.appwidget.GlanceAppWidgetManager
+import androidx.glance.appwidget.state.updateAppWidgetState
 import kotlinx.coroutines.runBlocking
 import org.json.JSONArray
 import org.json.JSONObject
@@ -26,7 +30,14 @@ import java.util.Locale
 object PlanStore {
     private const val KEY = "plan"
     private const val CHOICES = "plan_choices"
-    private const val ADDING = "plan_adding"
+
+    /**
+     * The widget's own state (Glance's, read inside its composition, so a
+     * running widget redraws when it changes): whether the Add list shows,
+     * and a stamp bumped whenever what it shows changed on the phone.
+     */
+    val ADDING = booleanPreferencesKey("adding")
+    val STAMP = longPreferencesKey("stamp")
 
     /** The phone's day, as Plan's days are named: "2026-11-06". */
     fun dayOf(at: Long = System.currentTimeMillis()): String =
@@ -59,17 +70,23 @@ object PlanStore {
         runCatching { JSONArray(Prefs.of(context).getString(CHOICES, null) ?: return null) }.getOrNull()
             ?.takeIf { it.length() > 0 }
 
-    /** Whether the widget shows its Add list in place of the day's cards. */
-    fun adding(context: Context): Boolean = Prefs.of(context).getBoolean(ADDING, false)
+    /** Closes the widget's Add list (a Type chosen from it opened the app). */
+    fun closeAdding(context: Context) {
+        val app = context.applicationContext
+        Thread { runBlocking { each(app) { it[ADDING] = false } } }.start()
+    }
 
-    fun setAdding(context: Context, on: Boolean) {
-        if (adding(context) == on) return
-        Prefs.of(context).edit().putBoolean(ADDING, on).apply()
-        redraw(context)
+    /** Changes every Today widget's state and redraws it. */
+    private suspend fun each(context: Context, change: (MutablePreferences) -> Unit) {
+        val widget = TodayWidget()
+        for (id in GlanceAppWidgetManager(context).getGlanceIds(TodayWidget::class.java)) {
+            updateAppWidgetState(context, id) { change(it) }
+            widget.update(context, id)
+        }
     }
 
     fun clear(context: Context) {
-        Prefs.of(context).edit().remove(KEY).remove(ADDING).apply()
+        Prefs.of(context).edit().remove(KEY).apply()
         redraw(context)
     }
 
@@ -107,7 +124,15 @@ object PlanStore {
     /** Redraws every Today widget, off the main thread, and sets the turn at midnight. */
     fun redraw(context: Context) {
         val app = context.applicationContext
-        Thread { runBlocking { TodayWidget().updateAll(app) } }.start()
+        Thread {
+            runBlocking {
+                each(app) {
+                    it[STAMP] = System.currentTimeMillis()
+                    // Signed out, no Add list waits for signing in again.
+                    if (!signedIn(app)) it[ADDING] = false
+                }
+            }
+        }.start()
         atMidnight(app)
     }
 

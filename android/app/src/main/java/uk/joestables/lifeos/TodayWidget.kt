@@ -14,6 +14,9 @@ import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.Image
 import androidx.glance.ImageProvider
+import androidx.glance.currentState
+import androidx.datastore.preferences.core.Preferences
+import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.glance.action.Action
 import androidx.glance.action.ActionParameters
 import androidx.glance.action.clickable
@@ -59,12 +62,21 @@ class TodayWidget : GlanceAppWidget() {
     override val sizeMode = SizeMode.Exact
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
-        val signedIn = PlanStore.signedIn(context)
-        val cards = PlanStore.cards(context)
-        val now = System.currentTimeMillis()
-        val choices = PlanStore.choices(context)
-        val adding = choices != null && PlanStore.adding(context)
-        provideContent { Content(context, signedIn, cards, now, choices, adding) }
+        provideContent {
+            // Read from the widget's state on every drawing, so a running
+            // widget shows a change at once (the Add list, new cards).
+            val state = currentState<Preferences>()
+            state[PlanStore.STAMP]
+            val choices = PlanStore.choices(context)
+            Content(
+                context,
+                PlanStore.signedIn(context),
+                PlanStore.cards(context),
+                System.currentTimeMillis(),
+                choices,
+                choices != null && state[PlanStore.ADDING] == true,
+            )
+        }
     }
 }
 
@@ -85,7 +97,8 @@ class TodayWidgetReceiver : GlanceAppWidgetReceiver() {
 /** "+" and ×: the widget's Add list opened or closed, on the widget itself (WID-002 8). */
 class ToggleAdd : ActionCallback {
     override suspend fun onAction(context: Context, glanceId: GlanceId, parameters: ActionParameters) {
-        PlanStore.setAdding(context, !PlanStore.adding(context))
+        updateAppWidgetState(context, glanceId) { it[PlanStore.ADDING] = it[PlanStore.ADDING] != true }
+        TodayWidget().update(context, glanceId)
     }
 }
 
