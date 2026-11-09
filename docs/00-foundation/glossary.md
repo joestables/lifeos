@@ -24,7 +24,7 @@ act on them.
 | **Household** | A group of people who share: its **owner** made it and invites others by email; **members** joined by accepting. A person may be in several ([ADR-0039](../20-architecture/adr/0039-accounts-contacts-households.md)). |
 | **Thought** | A Type: a raw, unsorted capture. What capture makes by default. It waits in Inbox until it is sorted — converted in place into a Note, Task, Shopping list or other Capturable Type — ticked off (*done*), or deleted. |
 | **Note** | A Type: a note, kept, labelled and shown in the Notes View. A Thought can be turned into one, and a Note can be converted into other Types. Personal only. |
-| **Reminder** | A notification attached to an Item. Not a Type. *From Stage 7b (spec drafted 9 November, [not yet built](../10-requirements/cross-cutting/today-reminders-plan.md)): a Type, a title with its Alerts and a Repeat, not Completable; the notifications are then Alerts.* |
+| **Reminder** | A notification attached to an Item. Not a Type. *From Stage 7b (spec agreed 9 November, [not yet built](../10-requirements/cross-cutting/today-reminders-plan.md)): a Type, a title with its Alerts and a Repeat, not Completable; the notifications are then Alerts.* |
 | **Alert** | *From Stage 7b (not yet built):* a notification attached to an Item at a time, what is called its Reminder until then; an Alarm is an Alert that rings. |
 
 **The test for View or Screen.** If the page is "these Items, laid out like

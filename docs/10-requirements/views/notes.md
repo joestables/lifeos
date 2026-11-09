@@ -3,7 +3,7 @@
 *Stage 2. The decisions come first; the requirements, drafted at the start of
 Stage 2, are at the end.*
 
-> **Changing in Stage 7b** (spec drafted 9 November, not yet built): Gives Notes a **Thoughts** tab, where Thoughts are sorted (NTE-005). [Today, Reminders and Plan](../cross-cutting/today-reminders-plan.md). Until it is built, this page is how it works.
+> **Changing in Stage 7b** (spec agreed 9 November, not yet built): Gives Notes a **Thoughts** tab, where Thoughts are sorted (NTE-005). [Today, Reminders and Plan](../cross-cutting/today-reminders-plan.md). Until it is built, this page is how it works.
 
 **In one line:** Notes, like Google Keep
 ([ADR-0026](../../20-architecture/adr/0026-navigation-drawer.md),

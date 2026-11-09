@@ -2,12 +2,12 @@
 
 *Stage 7b ([plan](../../50-progress/plans/stage-7b.md)). The decisions come
 first, then the requirements, drafted 9 November from Joe's four rounds of
-answers that day and the design he agreed
+answers that day and the design he agreed, and agreed by him the same day
 ([Stage 7b design canvas](https://claude.ai/artifact/EqX4D326Apjs5aGVF2W4Gs),
 `/design-stage-7b`). Until it is built, the pages it changes work as their
 own specs say; each points here. When a part is built, its requirements
 move into those specs ([where each goes](#where-each-part-goes)) and they
-describe it as it is. How it is built: step 2's ADR.*
+describe it as it is. How it is built: [ADR-0065](../../20-architecture/adr/0065-reminders-alerts-and-the-day.md) (Proposed).*
 
 ## Why
 
@@ -80,8 +80,8 @@ or idea, and this page shrinks to a pointer:
 
 ## Requirements
 
-*Stage 7b, drafted 9 November for Joe to agree. Statuses: proposed →
-agreed → built → verified.*
+*Stage 7b, drafted 9 November and agreed by Joe the same day. Statuses:
+proposed → agreed → built → verified.*
 
 ### The Reminder Type
 
@@ -90,7 +90,7 @@ agreed → built → verified.*
 **As** Joe, **I want** a Reminder that is just a title and when, **so
 that** "move the car at 3" is out of my head in seconds and nags me on
 time.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given a Reminder, then it has a title, one or more Alerts, and
@@ -110,7 +110,7 @@ Acceptance criteria
 **As** Joe, **I want** a Reminder to alert me as many times as I need,
 any of them as an Alarm, **so that** "parcel arriving" can nudge me at 9
 and again at 12.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given a Reminder, then each Alert is at a date and time; I can add,
@@ -126,7 +126,7 @@ Acceptance criteria
 
 **As** Joe, **I want** a Reminder on the days it alerts me, with its
 times, **so that** my day shows what I'll be nudged about.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given a Reminder with Alerts on Tuesday and Thursday, then it is on
@@ -141,7 +141,7 @@ Acceptance criteria
 
 **As** Joe, **I want** a Reminder to repeat, **so that** "bins out" comes
 every Monday without my making it again.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given a Reminder, then I can give it a Repeat on a schedule, as a Task's
@@ -157,7 +157,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to deal with a Reminder from its notification,
 **so that** I needn't open the app.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given a Reminder's Alert goes off, then its notification shows the
@@ -165,15 +165,16 @@ Acceptance criteria
    and computers, as REM-005; an Alarm as REM-011).
 2. Given I choose Done, then the notification goes and nothing else
    changes: the Reminder stays on its day.
-3. Given I choose Snooze, then that Alert moves to an hour from then, seen
-   in the Reminder's Alerts like any other ([open point 1](#open-points)).
+3. Given I choose Snooze, then that Alert moves to an hour from then, for
+   me only, shown as "Snoozed" in the Reminder's Alerts — as on a Task or an
+   Event (REM-005) — and the Reminder with it on Today and Week.
 
 ### RMD-006 — Convert to and from a Reminder
 
 **As** Joe, **I want** to turn a Reminder into a Task or an Event and back,
 and a Thought into a Reminder, **so that** what turns out to be a job, or
 a fixed time, becomes one without retyping.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given a Thought, when I convert it to a Reminder (in Notes' Thoughts,
@@ -194,7 +195,7 @@ Acceptance criteria
 
 **As** Joe, **I want** one word for an Item's notifications, and none on
 Thoughts, **so that** "Reminder" means one thing.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given a Task, an Event, a Meal, a Shopping list or a Reminder, then its
@@ -213,7 +214,7 @@ Acceptance criteria
 
 **As** Joe, **I want** one page with everything on today, **so that** I
 open the app and see my day.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given Today, then it is the first page in the drawer and where the app
@@ -236,7 +237,7 @@ Acceptance criteria
 
 **As** Joe, **I want** the day split into parts, **so that** I can see at
 a glance what's this morning and what's tonight.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given today's Items, then they are grouped, each group hidden when
@@ -255,7 +256,7 @@ Acceptance criteria
 
 **As** Joe, **I want** what I've done and what has passed to stay on
 Today, **so that** the page is a record of my day.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given a Task ticked done today, then it stays in its place, struck
@@ -269,7 +270,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to act on things where they are, **so that** I
 needn't go to their own page.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given a Task on Today, then I can tick it, move it to tomorrow, star it
@@ -284,7 +285,7 @@ Acceptance criteria
 
 **As** Joe, **I want** the drawer to say how much is on Today, **so that**
 I can see it from any page.
-Priority: Should · Status: proposed
+Priority: Should · Status: agreed
 
 Acceptance criteria
 1. Given Today, then the drawer's count beside it is the number of Items on
@@ -294,7 +295,7 @@ Acceptance criteria
 
 **As** Joe, **I want** the widget to show what Today shows, **so that**
 the phone's home screen and the app agree.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given the widget, then it shows Today's Items in Today's order —
@@ -310,7 +311,7 @@ Acceptance criteria
 
 **As** Joe, **I want** "New" where it always is, **so that** making a
 Reminder is one tap from anywhere.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given any page, then "New" is at the top right on a computer and in the
@@ -323,7 +324,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to type a reminder as I'd say it, **so that** it's
 quick and there's nothing to choose first.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given "New", then it is one line ("Remind me to…"), quick times under it
@@ -340,7 +341,7 @@ Acceptance criteria
 
 **As** Joe, **I want** "clean bedroom tues 8pm" to become "Clean bedroom"
 at 20:00 on Tuesday, **so that** the title reads as I'd write it.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given I type "clean bedroom tues 8pm", then the words for the time
@@ -363,7 +364,7 @@ Acceptance criteria
 
 **As** Joe, **I want** each Alert as a pill I can change or remove,
 **so that** fixing what was understood is a tap.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given an Alert, typed or added, then it is a pill in the line after the
@@ -378,7 +379,7 @@ Acceptance criteria
 
 **As** Joe, **I want** the likely times a tap away, **so that** on my
 phone I needn't type a time at all.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given "New", then under the line are three pills: **In 1 hour**; the
@@ -395,7 +396,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to jot a Thought as before, **so that** an idea
 with no time is still captured in seconds.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given the line has no time, then my Labels show under the quick times,
@@ -410,7 +411,7 @@ Acceptance criteria
 
 **As** Joe, **I want** the week's page called Week, **so that** Plan can
 name the lists of what I plan.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given the drawer, then Week is second, with Plan's calendar icon, and
@@ -422,7 +423,7 @@ Acceptance criteria
 
 **As** Joe, **I want** Reminders on Week, **so that** I see what I'll be
 nudged about each day.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given Week, then Reminders are a Type pill to show or hide (PLN-004),
@@ -437,7 +438,7 @@ Acceptance criteria
 
 **As** Joe, **I want** my Tasks, Events and Reminders as lists on one
 page, **so that** I can see what's coming of each.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given the drawer, then Plan is third, blue, with a list icon; `/tasks`
@@ -451,7 +452,7 @@ Acceptance criteria
 
 **As** Joe, **I want** my Tasks by when, as now, **so that** nothing
 changes but what I don't use.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given Tasks, then open Tasks are under Overdue, Today, Tomorrow, each
@@ -466,7 +467,7 @@ Acceptance criteria
 
 **As** Joe, **I want** my coming Events as a list, **so that** I can see
 what's on without paging through weeks.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given Events, then my Events from today on, those from Google Calendar
@@ -481,7 +482,7 @@ Acceptance criteria
 
 **As** Joe, **I want** my Reminders as a list, **so that** I can see every
 nudge to come.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given Reminders, then my Reminders are under Today, Tomorrow, each
@@ -494,7 +495,7 @@ Acceptance criteria
 
 **As** Joe, **I want** everything that repeats in one place, **so that** I
 can see and change my routines.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given Recurring, then each repeating Task, Event and Reminder is listed
@@ -506,7 +507,7 @@ Acceptance criteria
 
 **As** Joe, **I want** a new Task to be for today unless I say otherwise,
 **so that** I needn't set the date each time.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given New task, then Do on is today, and I can change or clear it.
@@ -518,7 +519,7 @@ Acceptance criteria
 
 **As** Joe, **I want** the fields I don't use gone, **so that** a Task's
 popup is shorter.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given a Task's or an Event's popup, new or opened, then it has no Labels
@@ -533,7 +534,7 @@ Acceptance criteria
 
 **As** Joe, **I want** my Thoughts on Notes, on a tab of their own, **so
 that** they're sorted somewhere calm rather than crowding my day.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given Notes, then its tabs are **Notes** and **Thoughts**; my Labels
@@ -553,14 +554,11 @@ Thoughts or Notes; a Completed list of Tasks; choosing which Types Today
 shows; a widget for "New" (later, with capture from outside the app,
 Stage 10).
 
-## Open points
+## Joe's answers to the open points (9 November)
 
-For Joe, when agreeing this spec. He agreed Claude's choices and answered
-the first point on 9 November ("every tuesday" sets no Repeat, NEW-003 7).
+Joe agreed Claude's choices in this spec and answered its two points:
 
-1. **Snooze, the same for Tasks, Events and Reminders.** Today a Snooze
-   moves that one Alert to an hour from then, for me only, shown as
-   "Snoozed" in the Item's Alerts; on a Task the Alert goes back to its
-   do-on date if that date is changed. Proposed: keep that for all three,
-   a Reminder's Alert moving the same way (RMD-005 3), rather than a
-   Reminder's being removed and a new one made.
+1. **"every tuesday" in "New"** sets no Repeat (NEW-003 7).
+2. **Snooze is the same for Tasks, Events and Reminders**: that Alert moves
+   to an hour from then, for me only, shown as "Snoozed" in the Item's
+   Alerts, as a Task's does now (RMD-005 3). Events get no Done.

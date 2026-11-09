@@ -5,7 +5,7 @@
 at the start of Stage 3 ([plan](../../50-progress/plans/stage-3.md)), are at
 the end.*
 
-> **Changing in Stage 7b** (spec drafted 9 November, not yet built): Takes Labels off Events and adds an Events tab on Plan (PLA-003, PLA-007). [Today, Reminders and Plan](today-reminders-plan.md). Until it is built, this page is how it works.
+> **Changing in Stage 7b** (spec agreed 9 November, not yet built): Takes Labels off Events and adds an Events tab on Plan (PLA-003, PLA-007). [Today, Reminders and Plan](today-reminders-plan.md). Until it is built, this page is how it works.
 
 ## Decisions
 

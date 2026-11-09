@@ -3,7 +3,7 @@
 *Stage 2. The decisions come first; the requirements, drafted at the start of
 Stage 2, are at the end.*
 
-> **Changing in Stage 7b** (spec drafted 9 November, not yet built): Replaces Inbox with **Today**: everything on today plus overdue Tasks, no Thoughts (TDY-001–006). [Today, Reminders and Plan](../cross-cutting/today-reminders-plan.md). Until it is built, this page is how it works.
+> **Changing in Stage 7b** (spec agreed 9 November, not yet built): Replaces Inbox with **Today**: everything on today plus overdue Tasks, no Thoughts (TDY-001–006). [Today, Reminders and Plan](../cross-cutting/today-reminders-plan.md). Until it is built, this page is how it works.
 
 **In one line:** one feed of what needs you, drawn from everything — not
 dashboard cards ([ADR-0026](../../20-architecture/adr/0026-navigation-drawer.md),

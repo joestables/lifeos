@@ -208,7 +208,7 @@ these, so the database enforces them.
 
 | Module | Type | S | C | Sh | Cap | Default Space | Statuses used (labels) | Colour | Labels | Mark | Stage |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| core | **Reminder** (a title, its Alerts and a Repeat; spec drafted, [Stage 7b](../10-requirements/cross-cutting/today-reminders-plan.md)) | ✓ its Alerts | — | — | ✓ | Personal | active | blue | — | — | 7b |
+| core | **Reminder** (a title, its Alerts and a Repeat; spec agreed, [Stage 7b](../10-requirements/cross-cutting/today-reminders-plan.md)) | ✓ its Alerts | — | — | ✓ | Personal | active | blue | — | — | 7b |
 | fitness | **Cardio activity** | ✓ start | ✓ | — | — | Personal | active "Planned" · done · cancelled "Skipped" | coral | — | — | 8 (manual entry earlier if wanted) |
 | goals | **Goal** | — (deadline in `goal`; not on Plan) | ✓ | ✓ | ✓ | Personal | idea · active · done "Achieved" · cancelled "Abandoned" | purple | — | — | 5 |
 | wardrobe | **Garment** | — | — | — | ✓ | Personal | idea "Wishlist" · active "Owned" · cancelled "Retired" | orange | — | — | 6 |

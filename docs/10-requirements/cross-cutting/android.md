@@ -5,7 +5,7 @@ first, then the requirements (drafted 5 November, from Joe's answers that
 day, and his answers to its open points), then the deferred Thought
 widget. How it is built: ADR-0061–0064 (Provisionally agreed).*
 
-> **Changing in Stage 7b** (spec drafted 9 November, not yet built): Makes the Today widget show what the Today page shows (TDY-006). [Today, Reminders and Plan](today-reminders-plan.md). Until it is built, this page is how it works.
+> **Changing in Stage 7b** (spec agreed 9 November, not yet built): Makes the Today widget show what the Today page shows (TDY-006). [Today, Reminders and Plan](today-reminders-plan.md). Until it is built, this page is how it works.
 
 ## Decisions
 

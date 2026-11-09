@@ -4,7 +4,7 @@
 other stage (Stage 10). The decisions come first; the requirements, drafted
 at the start of Stage 2, are at the end.*
 
-> **Changing in Stage 7b** (spec drafted 9 November, not yet built): Makes "New" one smart line for Thoughts and Reminders, a time in it making a Reminder, and Thoughts get no Alerts (NEW-001–006, ALR-001). [Today, Reminders and Plan](today-reminders-plan.md). Until it is built, this page is how it works.
+> **Changing in Stage 7b** (spec agreed 9 November, not yet built): Makes "New" one smart line for Thoughts and Reminders, a time in it making a Reminder, and Thoughts get no Alerts (NEW-001–006, ALR-001). [Today, Reminders and Plan](today-reminders-plan.md). Until it is built, this page is how it works.
 
 ## Decisions
 
