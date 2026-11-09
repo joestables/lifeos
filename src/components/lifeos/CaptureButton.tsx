@@ -1,31 +1,19 @@
-import {
-  BellPlusIcon,
-  CirclePlusIcon,
-  MessageCirclePlusIcon,
-  PlusIcon,
-  SquarePenIcon,
-  type LucideIcon,
-} from 'lucide-react'
+import { BellPlusIcon, MessageCirclePlusIcon, type LucideIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Kbd } from '@/components/ui/kbd'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
 
 /**
- * How "New" looks. `ghost` is the agreed one; the rest are Stage 7b's
- * draft variations on it, not yet agreed — the same quiet ghost button and
- * word with another icon (`plus`, `circle`, `pen`, `bell`), or `soft`, on
- * the secondary fill as a pill.
+ * How "New" looks: `ghost`, today's; `bell`, Stage 7b's (Joe's choice, 9
+ * November, a draft until the stage builds it): the same quiet button with
+ * a bell and a plus in place of the speech bubble.
  */
-export type CaptureLook = 'ghost' | 'plus' | 'circle' | 'pen' | 'bell' | 'soft'
+export type CaptureLook = 'ghost' | 'bell'
 
 const ICONS: Record<CaptureLook, LucideIcon> = {
   ghost: MessageCirclePlusIcon,
-  plus: PlusIcon,
-  circle: CirclePlusIcon,
-  pen: SquarePenIcon,
   bell: BellPlusIcon,
-  soft: PlusIcon,
 }
 
 /**
@@ -43,27 +31,19 @@ export function CaptureButton({
   className?: string
 }) {
   const Icon = ICONS[look]
-  const button =
-    look === 'soft' ? (
-      <Button
-        variant="secondary"
-        size="sm"
-        onClick={onClick}
-        className={cn('h-9 gap-1.5 rounded-full px-3.5', className)}
-      />
-    ) : (
-      <Button
-        variant="ghost"
-        onClick={onClick}
-        className={cn(
-          'gap-2 px-3',
-          look === 'ghost' || look === 'circle'
-            ? '[&_svg:not([class*=size-])]:size-5'
-            : '[&_svg:not([class*=size-])]:size-[18px]',
-          className,
-        )}
-      />
-    )
+  const button = (
+    <Button
+      variant="ghost"
+      onClick={onClick}
+      className={cn(
+        'gap-2 px-3',
+        look === 'ghost'
+          ? '[&_svg:not([class*=size-])]:size-5'
+          : '[&_svg:not([class*=size-])]:size-[18px]',
+        className,
+      )}
+    />
+  )
   return (
     <Tooltip>
       <TooltipTrigger render={button}>

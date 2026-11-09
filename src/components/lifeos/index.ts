@@ -4,21 +4,7 @@ export { ItemPage } from './ItemPage'
 export { ItemRow } from './ItemRow'
 export { PageAction, PageHeader, TabsRow } from './PageHeader'
 export { CaptureButton, type CaptureLook } from './CaptureButton'
-export {
-  AddAlertMenu,
-  AlarmChip,
-  BareInput,
-  ChipRow,
-  FieldGroup,
-  FieldGroupRow,
-  IconField,
-  JoinedFields,
-  NewDialog,
-  QuickChip,
-  SmartLine,
-  TypeSwitch,
-  WhenChip,
-} from './Capture'
+export { AddAlertMenu, ChipRow, NewDialog, QuickChip, SavesAs, SmartLine } from './Capture'
 export { PlanCard } from './PlanCard'
 export { DayColumn, DropSlot, PlanWeek, type PlanWeekDay } from './PlanWeek'
 export { PlanDay } from './PlanDay'

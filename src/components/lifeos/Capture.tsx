@@ -1,7 +1,6 @@
 import type { LucideIcon } from 'lucide-react'
 import { Toggle as TogglePrimitive } from '@base-ui/react/toggle'
 import { AlarmClockIcon, BellIcon, CalendarClockIcon, PlusIcon, XIcon } from 'lucide-react'
-import type * as React from 'react'
 import type { ReactNode } from 'react'
 import { Button } from '@/components/ui/button'
 import {
@@ -11,8 +10,7 @@ import {
   DialogFooter,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import { TypeTile } from './TypeTile'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,70 +27,6 @@ import type { TypeColour } from './colours'
  * Stage 7b's draft parts of "New" (not yet agreed): what the line will be
  * saved as, its Alerts and Repeat as chips, and "+ Alert".
  */
-
-/** Alarm, as a chip at the end of the row: on, every Alert rings (REM-011). */
-export function AlarmChip({ defaultPressed = false }: { defaultPressed?: boolean }) {
-  return (
-    <TogglePrimitive
-      defaultPressed={defaultPressed}
-      aria-label="Alarm"
-      data-colour="blue"
-      className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-full px-3 text-sm font-semibold whitespace-nowrap text-muted-foreground shadow-[inset_0_0_0_1px_var(--border)] outline-none hover:bg-accent hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring-soft data-pressed:bg-card data-pressed:text-tc-text data-pressed:shadow-card [&_svg]:size-3.5"
-    >
-      <AlarmClockIcon aria-hidden />
-      Alarm
-    </TogglePrimitive>
-  )
-}
-
-/**
- * An Alert or a Repeat, understood or added: a 32px pill on the card fill,
- * its icon (bell, alarm clock, repeat), when, and × to remove it. Tapping it
- * opens the Alert to change it; `alarm` tints the icon in the Type's colour.
- */
-export function WhenChip({
-  icon: Icon,
-  children,
-  alarm = false,
-  onOpen,
-  onRemove,
-  removeLabel,
-}: {
-  icon: LucideIcon
-  children: ReactNode
-  alarm?: boolean
-  onOpen?: () => void
-  onRemove?: () => void
-  removeLabel?: string
-}) {
-  return (
-    <span
-      data-slot="when-chip"
-      className="inline-flex h-8 shrink-0 items-center rounded-full bg-card text-sm font-semibold whitespace-nowrap tabular-nums shadow-card"
-    >
-      <button
-        type="button"
-        onClick={onOpen}
-        className="inline-flex h-full items-center gap-1.5 rounded-full pr-1 pl-3 outline-none focus-visible:ring-3 focus-visible:ring-ring-soft"
-      >
-        <Icon
-          aria-hidden
-          data-colour="blue"
-          className={cn('size-3.5', alarm ? 'text-tc-text' : 'text-muted-foreground')}
-        />
-        {children}
-      </button>
-      <button
-        type="button"
-        aria-label={removeLabel}
-        onClick={onRemove}
-        className="mr-1 grid size-6 place-items-center rounded-full text-muted-foreground outline-none hover:bg-accent hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring-soft [&_svg]:size-3.5"
-      >
-        <XIcon />
-      </button>
-    </span>
-  )
-}
 
 /**
  * "+ Alert": a dashed pill opening quick times and "Pick a date and time".
@@ -189,72 +123,6 @@ export function NewDialog({
   )
 }
 
-/** A field with an icon at its start: "When" with a bell. `size` as Input's. */
-export function IconField({
-  icon: Icon,
-  colour,
-  size = 'default',
-  className,
-  ...props
-}: Omit<React.ComponentProps<typeof Input>, 'size'> & {
-  icon: LucideIcon
-  colour?: Exclude<TypeColour, 'none'>
-  size?: 'default' | 'lg'
-}) {
-  return (
-    <div className={cn('relative', className)}>
-      <Icon
-        aria-hidden
-        data-colour={colour}
-        className={cn(
-          'pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2',
-          colour ? 'text-tc-text' : 'text-muted-foreground',
-        )}
-      />
-      <Input size={size} className="pl-10" {...props} />
-    </div>
-  )
-}
-
-/**
- * Two fields as one control: the title, then when — side by side on a
- * computer, stacked on a phone — on one input fill with a hairline between.
- * Enter in the first goes to the second (enterKeyHint "next").
- */
-export function JoinedFields({
-  first,
-  second,
-  className,
-}: {
-  first: React.ComponentProps<'input'>
-  second: React.ComponentProps<'input'> & { icon: LucideIcon }
-  className?: string
-}) {
-  const { icon: Icon, ...secondProps } = second
-  return (
-    <div
-      className={cn(
-        'flex flex-col overflow-hidden rounded-control bg-input focus-within:bg-card focus-within:ring-3 focus-within:ring-ring-soft sm:flex-row',
-        className,
-      )}
-    >
-      <input
-        enterKeyHint="next"
-        className="h-13 w-full min-w-0 shrink-0 bg-transparent px-4 text-[16px] outline-none placeholder:text-muted-foreground sm:w-auto sm:flex-1"
-        {...first}
-      />
-      <div className="flex h-12 items-center gap-2 border-t border-border px-4 sm:h-13 sm:w-56 sm:border-t-0 sm:border-l">
-        <Icon aria-hidden className="size-4 shrink-0 text-muted-foreground" />
-        <input
-          enterKeyHint="done"
-          className="min-w-0 flex-1 bg-transparent text-base outline-none placeholder:text-muted-foreground"
-          {...secondProps}
-        />
-      </div>
-    </div>
-  )
-}
-
 /** A quick time ("In 1 hour"): a pill, outlined; chosen, on the card fill in the Type's colour. */
 export function QuickChip({
   children,
@@ -292,107 +160,74 @@ export function ChipRow({ children, className }: { children: ReactNode; classNam
 }
 
 /**
- * A grouped form, as a phone's settings are: rows on the background fill,
- * hairlines between, each an icon, a field or a label, and a value or
- * control at its end.
+ * One line that understands as it goes: the words typed are the title, and
+ * each Alert — a time typed, or one added from the quick times — is a pill
+ * in the line after them ("Clean bedroom [Tue 10 Nov, 20:00 ×]"): tapping
+ * it opens the Alert dialog (its date and time, and Alarm); × or Backspace
+ * removes it. A picture of the line, for the design.
  */
-export function FieldGroup({ children }: { children: ReactNode }) {
-  return (
-    <div className="flex flex-col divide-y divide-border overflow-hidden rounded-row bg-background">
-      {children}
-    </div>
-  )
-}
-
-export function FieldGroupRow({
-  icon: Icon,
-  colour,
-  children,
-  trailing,
+export function SmartLine({
+  text,
+  tokens = [],
+  placeholder,
 }: {
-  icon: LucideIcon
-  colour?: Exclude<TypeColour, 'none'>
-  children: ReactNode
-  trailing?: ReactNode
+  text: string
+  tokens?: { label: string; alarm?: boolean }[]
+  placeholder?: string
 }) {
   return (
-    <div className="flex min-h-13 items-center gap-3 px-3.5">
-      <Icon
-        aria-hidden
-        data-colour={colour}
-        className={cn('size-4 shrink-0', colour ? 'text-tc-text' : 'text-muted-foreground')}
-      />
-      <div className="flex min-w-0 flex-1 items-center">{children}</div>
-      {trailing && (
-        <div className="flex shrink-0 items-center gap-2 text-sm text-muted-foreground tabular-nums">
-          {trailing}
-        </div>
+    <div className="flex min-h-13 min-w-0 flex-wrap items-center gap-x-2 gap-y-1.5 rounded-control bg-card px-4 py-2.5 text-[16px] ring-3 ring-ring-soft">
+      {text ? <span className="min-w-0">{text}</span> : null}
+      {tokens.map((t) => {
+        const Icon = t.alarm ? AlarmClockIcon : BellIcon
+        return (
+          <span
+            key={t.label}
+            data-colour="blue"
+            className="inline-flex h-7 shrink-0 items-center rounded-md bg-[color-mix(in_oklch,var(--tc)_var(--tile-mix),transparent)] text-sm font-semibold text-tc-text tabular-nums"
+          >
+            <button
+              type="button"
+              aria-label={`Change alert ${t.label}`}
+              className="inline-flex h-full items-center gap-1 rounded-md pr-0.5 pl-2 outline-none focus-visible:ring-3 focus-visible:ring-ring-soft [&_svg]:size-3.5"
+            >
+              <Icon aria-hidden />
+              {t.label}
+            </button>
+            <button
+              type="button"
+              aria-label={`Remove alert ${t.label}`}
+              className="mr-0.5 grid size-6 place-items-center rounded-sm opacity-70 outline-none hover:opacity-100 focus-visible:ring-3 focus-visible:ring-ring-soft [&_svg]:size-3.5"
+            >
+              <XIcon />
+            </button>
+          </span>
+        )
+      })}
+      <span aria-hidden className="h-5 w-px shrink-0 bg-foreground" />
+      {!text && tokens.length === 0 && (
+        <span className="-ml-2 text-muted-foreground">{placeholder}</span>
       )}
     </div>
-  )
-}
-
-/** A field with no fill of its own, inside a FieldGroupRow. */
-export function BareInput({ className, ...props }: React.ComponentProps<'input'>) {
-  return (
-    <input
-      className={cn(
-        'h-13 w-full min-w-0 bg-transparent text-base outline-none placeholder:text-muted-foreground',
-        className,
-      )}
-      {...props}
-    />
   )
 }
 
 /**
- * One line that understands as it goes: the words typed, and the time they
- * name drawn as a pill inside the line ("clean bedroom [Tue 20:00]"). A
- * picture of the line, for the design.
+ * At the top right of "New": what Save will make — a Reminder (a time is
+ * in the line) or a Thought — as the Type's tile, named for a screen reader.
  */
-export function SmartLine({
-  text,
-  token,
-  placeholder,
+export function SavesAs({
+  colour,
+  icon,
+  label,
 }: {
-  text: string
-  token?: string
-  placeholder?: string
+  colour: Exclude<TypeColour, 'none'>
+  icon: LucideIcon
+  label: string
 }) {
   return (
-    <div className="flex h-13 min-w-0 items-center gap-2 rounded-control bg-card px-4 text-[16px] ring-3 ring-ring-soft">
-      {text ? <span className="truncate">{text}</span> : null}
-      {token && (
-        <span
-          data-colour="blue"
-          className="inline-flex h-7 shrink-0 items-center gap-1 rounded-md bg-[color-mix(in_oklch,var(--tc)_var(--tile-mix),transparent)] px-2 text-sm font-semibold text-tc-text tabular-nums [&_svg]:size-3.5"
-        >
-          <BellIcon aria-hidden />
-          {token}
-        </span>
-      )}
-      <span aria-hidden className="h-5 w-px shrink-0 bg-foreground" />
-      {!text && !token && <span className="-ml-2 text-muted-foreground">{placeholder}</span>}
-    </div>
-  )
-}
-
-/** Reminder | Thought, as capture's switch is: Reminder first, and chosen to start. */
-export function TypeSwitch({
-  types,
-  value,
-}: {
-  types: { key: string; label: string; colour: TypeColour; icon: LucideIcon }[]
-  value: string
-}) {
-  return (
-    <ToggleGroup aria-label="Save as" defaultValue={[value]}>
-      {types.map((t) => (
-        <ToggleGroupItem key={t.key} value={t.key}>
-          <t.icon data-colour={t.colour} className="text-tc-text" aria-hidden />
-          {t.label}
-        </ToggleGroupItem>
-      ))}
-    </ToggleGroup>
+    <span role="img" aria-label={`Saves as a ${label}`} title={label} className="flex">
+      <TypeTile colour={colour} icon={icon} />
+    </span>
   )
 }

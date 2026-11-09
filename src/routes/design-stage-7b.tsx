@@ -8,7 +8,6 @@ import {
   DumbbellIcon,
   EllipsisIcon,
   FootprintsIcon,
-  KeyboardIcon,
   ListTodoIcon,
   RepeatIcon,
   ShirtIcon,
@@ -25,17 +24,11 @@ import { useState, type ReactNode } from 'react'
 import {
   AddAlertMenu,
   AddToDay,
-  AlarmChip,
-  BareInput,
   ChipRow,
-  FieldGroup,
-  FieldGroupRow,
-  IconField,
-  JoinedFields,
   NewDialog,
   QuickChip,
+  SavesAs,
   SmartLine,
-  TypeSwitch,
   AppShell,
   CardRow,
   DateField,
@@ -63,7 +56,6 @@ import {
   TypeScope,
   TypeTile,
   WeekStrip,
-  WhenChip,
   type AddChoice,
   type CaptureLook,
   type DrawerPage,
@@ -82,9 +74,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Switch } from '@/components/ui/switch'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Textarea } from '@/components/ui/textarea'
 import { Toggle } from '@/components/ui/toggle'
@@ -1202,9 +1192,9 @@ function Notes({ tab }: { tab: 'notes' | 'thoughts' }) {
 
 /* ---------- "New", second round: no switch; a title and when ---------- */
 
-function Behind({ children }: { children: ReactNode }) {
+function Behind({ look, children }: { look?: CaptureLook; children: ReactNode }) {
   return (
-    <Shell here="Today">
+    <Shell here="Today" look={look}>
       <PageHeader title="Today" eyebrow="Monday 9 November" />
       <div className="flex max-w-3xl flex-col gap-5 px-5 pb-28 sm:px-9 sm:pb-8">
         <TodayList />
@@ -1214,179 +1204,69 @@ function Behind({ children }: { children: ReactNode }) {
   )
 }
 
-const QUICK_TIMES = ['In 1 hour', 'This evening', 'Tomorrow 09:00', 'This weekend']
-const quick = (chosen?: string) =>
-  QUICK_TIMES.map((t) => (
-    <QuickChip key={t} pressed={t === chosen}>
-      {t}
-    </QuickChip>
-  ))
 const MENU = [
   { label: 'In 1 hour', when: '15:20' },
   { label: 'This evening', when: '18:00' },
   { label: 'Tomorrow morning', when: 'Tue 09:00' },
   { label: 'This weekend', when: 'Sat 09:00' },
 ]
-const SWITCH_TYPES = [
-  { key: 'reminder', label: 'Reminder', colour: 'blue' as const, icon: ReminderIcon },
-  { key: 'thought', label: 'Thought', colour: 'yellow' as const, icon: ThoughtIcon },
-]
-const typeSwitch = (value = 'reminder') => <TypeSwitch types={SWITCH_TYPES} value={value} />
-
-const understood = (label: string, alarm = false) => (
-  <WhenChip icon={alarm ? AlarmClockIcon : BellIcon} alarm={alarm} removeLabel={`Remove ${label}`}>
-    {label}
-  </WhenChip>
-)
-
-/** 1. Stacked: the title, then When; quick times until a time is typed. */
-function V1({ when = true }: { when?: boolean }) {
-  return (
-    <Behind>
-      <NewDialog switcher={typeSwitch()} saveLabel="Save" footerStart={<AlarmChip />}>
-        <Input
-          size="lg"
-          aria-label="Title"
-          placeholder="Remind me to…"
-          defaultValue="Clean bedroom"
-        />
-        <IconField
-          icon={BellIcon}
-          aria-label="When"
-          placeholder="When? tue 8pm, in 2 hours…"
-          defaultValue={when ? 'tues 8pm' : ''}
-        />
-        <ChipRow>
-          {when ? (
-            <>
-              {understood('Tue 10 Nov, 20:00')}
-              <AddAlertMenu choices={MENU} />
-            </>
-          ) : (
-            quick()
-          )}
-        </ChipRow>
-      </NewDialog>
-    </Behind>
-  )
-}
-
-/** 2. Joined: title and when as one control, side by side (stacked on a phone). */
-function V2({ chosen }: { chosen?: string }) {
-  return (
-    <Behind>
-      <NewDialog saveLabel="Save reminder" footerStart={<AlarmChip />}>
-        <JoinedFields
-          first={{
-            'aria-label': 'Title',
-            placeholder: 'Remind me to…',
-            defaultValue: 'Clean bedroom',
-          }}
-          second={{
-            icon: BellIcon,
-            'aria-label': 'When',
-            placeholder: 'When?',
-            defaultValue: chosen ? '' : 'tues 8pm',
-          }}
-        />
-        <ChipRow>
-          {chosen ? (
-            quick(chosen)
-          ) : (
-            <>
-              {understood('Tue 10 Nov, 20:00')}
-              <AddAlertMenu choices={MENU} />
-            </>
-          )}
-        </ChipRow>
-      </NewDialog>
-    </Behind>
-  )
-}
-
-/** 3. Times first: tap a time; "Type a time" opens a field for anything else. */
-function V3({ typing = false }: { typing?: boolean }) {
-  return (
-    <Behind>
-      <NewDialog switcher={typeSwitch()} saveLabel="Save" footerStart={<AlarmChip />}>
-        <Input
-          size="lg"
-          aria-label="Title"
-          placeholder="Remind me to…"
-          defaultValue="Ring the garage"
-        />
-        <ChipRow>
-          {quick(typing ? undefined : 'Tomorrow 09:00')}
-          <QuickChip icon={KeyboardIcon} pressed={typing}>
-            Type a time
-          </QuickChip>
-        </ChipRow>
-        {typing && (
-          <div className="flex flex-col gap-2">
-            <IconField icon={BellIcon} aria-label="When" defaultValue="fri 3pm" />
-            <ChipRow>{understood('Fri 13 Nov, 15:00')}</ChipRow>
-          </div>
-        )}
-      </NewDialog>
-    </Behind>
-  )
-}
-
-/** 4. Grouped: rows as a phone's settings are, what was understood at each row's end. */
-function V4() {
-  return (
-    <Behind>
-      <NewDialog saveLabel="Save reminder">
-        <FieldGroup>
-          <FieldGroupRow icon={ReminderIcon} colour="blue">
-            <BareInput
-              aria-label="Title"
-              placeholder="Remind me to…"
-              defaultValue="Clean bedroom"
-            />
-          </FieldGroupRow>
-          <FieldGroupRow icon={BellIcon} trailing="Tue 10 Nov, 20:00">
-            <BareInput aria-label="When" placeholder="When?" defaultValue="tues 8pm" />
-          </FieldGroupRow>
-          <FieldGroupRow icon={AlarmClockIcon} trailing={<Switch aria-label="Alarm" />}>
-            <span className="font-semibold">Alarm</span>
-          </FieldGroupRow>
-          <FieldGroupRow icon={RepeatIcon} trailing="Never">
-            <span className="font-semibold">Repeat</span>
-          </FieldGroupRow>
-        </FieldGroup>
-        <ChipRow>
-          {quick()}
-          <AddAlertMenu label="More" choices={MENU} />
-        </ChipRow>
-      </NewDialog>
-    </Behind>
-  )
-}
-
-/** 5. One smart line: the time typed turns into a pill in the line; no time, a Thought. */
-function V5({ thought = false }: { thought?: boolean }) {
+/**
+ * 5, chosen and refined: one smart line, no switch. The time typed becomes
+ * an Alert pill in the line (× or Backspace removes it; tapping it opens the
+ * Alert dialog, Alarm there); quick times add more pills: In 1 hour, the
+ * likeliest next time (This evening in the afternoon, Tomorrow morning in
+ * the evening) and More. A tile at the top right says what Save makes.
+ */
+function V5({ state }: { state: 'empty' | 'one' | 'two' | 'alert' | 'more' | 'thought' | 'late' }) {
   const [labels, setLabels] = useState<Set<string>>(new Set(['ideas']))
+  const thought = state === 'thought' || state === 'empty'
+  const text =
+    state === 'empty'
+      ? ''
+      : state === 'thought'
+        ? 'Ceramics class for the anniversary?'
+        : 'Clean bedroom'
+  const tokens =
+    state === 'two' || state === 'alert'
+      ? [{ label: 'Tue 10 Nov, 20:00' }, { label: 'Today 18:00', alarm: true }]
+      : state === 'late'
+        ? [{ label: 'Tomorrow 07:00' }]
+        : thought
+          ? []
+          : [{ label: 'Tue 10 Nov, 20:00' }]
   return (
-    <Behind>
+    <Behind look="bell">
       <NewDialog
-        saveLabel={thought ? 'Save thought' : 'Save reminder'}
-        footerStart={!thought && <AlarmChip />}
+        saveLabel="Save"
+        saveDisabled={state === 'empty'}
+        switcher={
+          thought ? (
+            <SavesAs colour="yellow" icon={ThoughtIcon} label="Thought" />
+          ) : (
+            <SavesAs colour="blue" icon={ReminderIcon} label="Reminder" />
+          )
+        }
       >
-        {thought ? (
-          <SmartLine text="Ceramics class for the anniversary?" />
-        ) : (
-          <SmartLine text="Clean bedroom" token="Tue 10 Nov, 20:00" />
-        )}
-        {thought ? (
+        <SmartLine text={text} tokens={tokens} placeholder="Remind me to…" />
+        {state === 'thought' ? (
           <LabelChips labels={LABELS} chosen={labels} onChange={(ids) => setLabels(new Set(ids))} />
         ) : (
           <ChipRow>
-            {quick()}
-            <AddAlertMenu label="More" choices={MENU} />
+            <QuickChip>In 1 hour</QuickChip>
+            <QuickChip>{state === 'late' ? 'Tomorrow morning' : 'This evening'}</QuickChip>
+            <AddAlertMenu label="More" choices={MENU} open={state === 'more' ? true : undefined} />
           </ChipRow>
         )}
       </NewDialog>
+      {state === 'alert' && (
+        <ReminderDialog
+          title="Alert"
+          value={{ kind: 'fixed', day: '2026-11-09', time: '18:00', alarm: true }}
+          anchors={[]}
+          onSave={nothing}
+          onClose={nothing}
+        />
+      )}
     </Behind>
   )
 }
@@ -1447,21 +1327,15 @@ const SCREENS: Record<string, () => ReactNode> = {
   ),
   'notes-notes': () => <Notes tab="notes" />,
   'notes-thoughts': () => <Notes tab="thoughts" />,
-  v1: () => <V1 />,
-  'v1-notime': () => <V1 when={false} />,
-  v2: () => <V2 />,
-  'v2-chosen': () => <V2 chosen="This evening" />,
-  v3: () => <V3 />,
-  'v3-typing': () => <V3 typing />,
-  v4: () => <V4 />,
-  v5: () => <V5 />,
-  'v5-thought': () => <V5 thought />,
+  'v5-empty': () => <V5 state="empty" />,
+  v5: () => <V5 state="one" />,
+  'v5-two': () => <V5 state="two" />,
+  'v5-alert': () => <V5 state="alert" />,
+  'v5-more': () => <V5 state="more" />,
+  'v5-thought': () => <V5 state="thought" />,
+  'v5-late': () => <V5 state="late" />,
   'look-ghost': () => <Today look="ghost" />,
-  'look-plus': () => <Today look="plus" />,
-  'look-circle': () => <Today look="circle" />,
-  'look-pen': () => <Today look="pen" />,
   'look-bell': () => <Today look="bell" />,
-  'look-soft': () => <Today look="soft" />,
   widget: () => <Widget />,
 }
 

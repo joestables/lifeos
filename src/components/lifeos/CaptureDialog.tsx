@@ -1,5 +1,5 @@
 import type { LucideIcon } from 'lucide-react'
-import { useRef, type FormEvent, type ReactNode } from 'react'
+import { useRef, type FormEvent } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -40,19 +40,7 @@ export function CaptureDialog({
   chosenLabels = new Set(),
   onLabelsChange,
   onSave,
-  title = 'Capture',
-  placeholder,
-  badge,
-  children,
 }: {
-  /** The empty line's hint ("Remind me to…"), in Stage 7b's designs. */
-  placeholder?: string
-  /** "Capture", or "New" in Stage 7b's designs. */
-  title?: string
-  /** In place of the Types' switch: what the line will be saved as. */
-  badge?: ReactNode
-  /** Under the line and what was understood, before the Labels. */
-  children?: ReactNode
   open: boolean
   onOpenChange: (open: boolean) => void
   /** The Types it can make, the default first. */
@@ -86,29 +74,25 @@ export function CaptureDialog({
       >
         <form onSubmit={save} className="flex flex-col">
           <div className="flex items-center gap-3 px-[18px] pt-[18px] sm:pr-5 sm:pl-[22px]">
-            <DialogTitle className="flex-1">{title}</DialogTitle>
-            {badge}
-            {types.length > 0 && (
-              <ToggleGroup
-                aria-label="Save as"
-                value={[type]}
-                onValueChange={(value: string[]) => value[0] && onTypeChange(value[0])}
-              >
-                {types.map((t) => (
-                  <ToggleGroupItem key={t.key} value={t.key}>
-                    <t.icon data-colour={t.colour} className="text-tc-text" aria-hidden />
-                    {t.label}
-                  </ToggleGroupItem>
-                ))}
-              </ToggleGroup>
-            )}
+            <DialogTitle className="flex-1">Capture</DialogTitle>
+            <ToggleGroup
+              aria-label="Save as"
+              value={[type]}
+              onValueChange={(value: string[]) => value[0] && onTypeChange(value[0])}
+            >
+              {types.map((t) => (
+                <ToggleGroupItem key={t.key} value={t.key}>
+                  <t.icon data-colour={t.colour} className="text-tc-text" aria-hidden />
+                  {t.label}
+                </ToggleGroupItem>
+              ))}
+            </ToggleGroup>
           </div>
           <div className="flex flex-col gap-3 px-[18px] pt-4 pb-[18px] sm:px-5">
             <Input
               ref={input}
               size="lg"
               aria-label="What's on your mind"
-              placeholder={placeholder}
               autoComplete="off"
               enterKeyHint="done"
               value={text}
@@ -136,7 +120,6 @@ export function CaptureDialog({
                 ))}
               </div>
             )}
-            {children}
             {labels.length > 0 && onLabelsChange && (
               <LabelChips
                 aria-label="Labels"
