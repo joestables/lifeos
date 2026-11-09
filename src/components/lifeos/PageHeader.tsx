@@ -43,11 +43,7 @@ export function PageHeader({
       </div>
       {trailing}
       {capture && !trailing && (
-        <CaptureButton
-          look={look}
-          className={look === 'split' ? 'hidden md:flex' : 'hidden md:inline-flex'}
-          onClick={capture}
-        />
+        <CaptureButton look={look} className="hidden md:inline-flex" onClick={capture} />
       )}
       {action && <Fab label={action.label} onClick={action.onClick} />}
     </header>

@@ -206,14 +206,7 @@ export function AppShell({
           {onCapture && (
             <CaptureButton
               look={captureLook}
-              className={cn(
-                'ml-auto',
-                captureLook === 'ghost' && 'h-11',
-                captureLook === 'field' && 'flex-1',
-                captureLook === 'icon' && 'mr-2',
-                captureLook === 'primary' && 'mr-2',
-                captureLook === 'split' && 'mr-1',
-              )}
+              className={cn('ml-auto', captureLook === 'soft' ? 'mr-2' : 'h-11')}
               onClick={onCapture}
             />
           )}
