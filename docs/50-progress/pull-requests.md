@@ -13,11 +13,13 @@ Branch `claude/relaxed-fermi-nehy7e` · 2026-11-10
   `core.reminder_deliveries` to `core.alerts` and `core.alert_deliveries`,
   with their columns (`alert_id`, `default_alert`, `default_alert_time`,
   `alert_defaults`), constraints, indexes, triggers, policies and
-  functions; the ontology's `defaultAlert`, and a new `*_ontology.sql`; the
+  functions; the ontology's `defaultAlert`, and a new `*_ontology.sql`
+  (applied as `20261109225036` and `20261109225050`; the advisors found
+  nothing new); the
   app's code (`AlertList`, `AlertEditDialog`, `useAlerts`) and its words
   ("Alerts", "Add an alert", the "Alert" dialog); the Edge Functions
-  (`device_alerts`, `alert_for_action`, `act_on_alert`). Nothing behaves
-  differently.
+  (`device_alerts`, `alert_for_action`, `act_on_alert`), `device-reminders` and
+  `notification-action` redeployed. Nothing behaves differently.
 - **The old names keep working until step 10**, for a write queued before
   the rename (the old functions wrap the new; `update_settings` takes the
   old keys), the app still open in a browser (`core.reminders` a view;
