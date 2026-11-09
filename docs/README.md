@@ -185,7 +185,7 @@ Consequences**, to a page.
 | [0062](20-architecture/adr/0062-signing-in-on-the-android-app.md) | Signing in on the Android app | Provisionally agreed |
 | [0063](20-architecture/adr/0063-notifications-on-the-android-app.md) | Notifications, on time, and Alarms on the Android app | Provisionally agreed |
 | [0064](20-architecture/adr/0064-the-today-widget.md) | The Today widget | Provisionally agreed |
-| [0065](20-architecture/adr/0065-reminders-alerts-and-the-day.md) | The Reminder Type, Alerts, and the pages around the day | Proposed |
+| [0065](20-architecture/adr/0065-reminders-alerts-and-the-day.md) | The Reminder Type, Alerts, and the pages around the day | Provisionally agreed |
 
 ## Sources
 

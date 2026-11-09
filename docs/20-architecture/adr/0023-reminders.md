@@ -2,7 +2,7 @@
 
 **Status:** Provisionally agreed · 2026-10-09
 
-**Amended:** 2026-10-09 by [ADR-0037](0037-thoughts.md) (Thoughts).
+**Amended:** 2026-10-09 by [ADR-0037](0037-thoughts.md) (Thoughts). 2026-11-09 by [ADR-0065](0065-reminders-alerts-and-the-day.md) (they are called Alerts; Thoughts have none, and a date in a Thought makes none; Stage 7b, as it is built).
 
 ## Context
 

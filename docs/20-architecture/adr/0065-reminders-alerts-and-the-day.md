@@ -1,6 +1,6 @@
 # ADR-0065: The Reminder Type, Alerts, and the pages around the day
 
-**Status:** Proposed · 2026-11-09 (Claude, for Joe)
+**Status:** Provisionally agreed · 2026-11-09 (Joe, the full rename to Alerts included)
 
 ## Context
 
@@ -124,5 +124,5 @@ Alerts are rows in `core.reminders`, each person's own.
   `notification-action`, `device-reminders`, `device-plan`) are redeployed
   with the migration; the Android app keeps working through the old names
   until its next release, which reads the new ones and opens `/today`.
-- ADR-0020, 0023, 0026, 0027, 0029, 0037 and 0014 each say what this one
-  changes, once it is agreed.
+- ADR-0014, 0020, 0023, 0026, 0027, 0029 and 0037 each say what this one
+  changes.

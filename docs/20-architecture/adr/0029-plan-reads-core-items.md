@@ -2,6 +2,8 @@
 
 **Status:** Provisionally agreed · 2026-10-09
 
+**Amended:** 2026-11-09 by [ADR-0065](0065-reminders-alerts-and-the-day.md) (Plan reads `core.items`, and a Reminder's Alerts for its days; Stage 7b, as it is built).
+
 ## Context
 
 Plan shows every Schedulable Type. If it depended on each Module, every new

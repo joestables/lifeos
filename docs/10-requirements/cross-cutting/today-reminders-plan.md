@@ -7,7 +7,7 @@ answers that day and the design he agreed, and agreed by him the same day
 `/design-stage-7b`). Until it is built, the pages it changes work as their
 own specs say; each points here. When a part is built, its requirements
 move into those specs ([where each goes](#where-each-part-goes)) and they
-describe it as it is. How it is built: [ADR-0065](../../20-architecture/adr/0065-reminders-alerts-and-the-day.md) (Proposed).*
+describe it as it is. How it is built: [ADR-0065](../../20-architecture/adr/0065-reminders-alerts-and-the-day.md) (Provisionally agreed).*
 
 ## Why
 
