@@ -4,6 +4,8 @@
 and REM-011 drafted 5 November). The decisions come
 first; the requirements, drafted at the start of Stage 2, are at the end.*
 
+> **Changing in Stage 7b** (spec drafted 9 November, not yet built): Renames an Item's Reminders **Alerts**, makes **Reminder** a Type of its own, takes Alerts off Thoughts and Thoughts out of the digest (RMD-001–006, ALR-001). [Today, Reminders and Plan](today-reminders-plan.md). Until it is built, this page is how it works.
+
 ## Decisions
 
 - **Reminders attach to any Item**, relative to one of its times or at a

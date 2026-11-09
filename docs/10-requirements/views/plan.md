@@ -3,6 +3,8 @@
 *Stage 3. The decisions come first; the requirements, drafted at the start of
 Stage 3 ([plan](../../50-progress/plans/stage-3.md)), are at the end.*
 
+> **Changing in Stage 7b** (spec drafted 9 November, not yet built): Renames Plan **Week** and puts Reminders on it (WEK-001–002); the name Plan goes to the Tasks page. [Today, Reminders and Plan](../cross-cutting/today-reminders-plan.md). Until it is built, this page is how it works.
+
 **In one line:** the one place to plan meals, outfits, shops, gym, cardio,
 events and tasks ([ADR-0026](../../20-architecture/adr/0026-navigation-drawer.md),
   Provisionally agreed).

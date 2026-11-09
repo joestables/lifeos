@@ -1248,14 +1248,13 @@ function V5({ state }: { state: 'empty' | 'one' | 'two' | 'alert' | 'more' | 'th
         }
       >
         <SmartLine text={text} tokens={tokens} placeholder="Remind me to…" />
-        {state === 'thought' ? (
+        <ChipRow>
+          <QuickChip>In 1 hour</QuickChip>
+          <QuickChip>{state === 'late' ? 'Tomorrow morning' : 'This evening'}</QuickChip>
+          <AddAlertMenu label="More" choices={MENU} open={state === 'more' ? true : undefined} />
+        </ChipRow>
+        {state === 'thought' && (
           <LabelChips labels={LABELS} chosen={labels} onChange={(ids) => setLabels(new Set(ids))} />
-        ) : (
-          <ChipRow>
-            <QuickChip>In 1 hour</QuickChip>
-            <QuickChip>{state === 'late' ? 'Tomorrow morning' : 'This evening'}</QuickChip>
-            <AddAlertMenu label="More" choices={MENU} open={state === 'more' ? true : undefined} />
-          </ChipRow>
         )}
       </NewDialog>
       {state === 'alert' && (
