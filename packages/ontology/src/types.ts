@@ -22,8 +22,8 @@ export interface TypeDefinition {
   subtasks: boolean
   /** Whether it has a place (an Event's "The Ivy, Richmond"). */
   place: boolean
-  /** The time field its default Reminder follows (ADR-0023), if it has one. */
-  defaultReminder?: TimeField
+  /** The time field its default Alert follows (ADR-0023), if it has one. */
+  defaultAlert?: TimeField
   /** The roadmap stage that builds it: the app offers a Type only from then. 4.5 is Stage 4b. */
   stage: number
   /** For the data model's generated table: a few words after its name. */
@@ -82,7 +82,7 @@ export const TYPES = [
     mark: 'starred',
     subtasks: true,
     place: false,
-    defaultReminder: 'do_on',
+    defaultAlert: 'do_on',
     stage: 2,
   },
   {
@@ -100,7 +100,7 @@ export const TYPES = [
     subtasks: false,
     place: true,
     // 30 minutes before a timed Event I make; none when all day or from Google (EVT-003).
-    defaultReminder: 'starts_at',
+    defaultAlert: 'starts_at',
     stage: 3,
   },
   {

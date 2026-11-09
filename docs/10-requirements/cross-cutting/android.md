@@ -26,7 +26,7 @@ widget. How it is built: ADR-0061–0064 (Provisionally agreed).*
   | Signing in, connecting Google Calendar | In the page | In the phone's browser, then back to the app |
   | Notifications | Web Push | Firebase Cloud Messaging (FCM) |
   | On time | Within the minute run | Set on the phone, to the minute ([reminders](reminders.md#rem-010--on-time-on-the-android-app)) |
-  | Alarms | None | A Reminder marked Alarm rings ([REM-011](reminders.md#rem-011--an-alarm)) |
+  | Alarms | None | An Alert marked Alarm rings ([REM-011](reminders.md#rem-011--an-alarm)) |
   | Sharing into LifeOS | The manifest's share target | Android's share sheet, the same `/share` |
   | Widgets | None | Today, the day's Plan |
 

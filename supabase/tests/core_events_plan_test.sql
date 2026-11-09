@@ -47,32 +47,32 @@ select throws_ok(
 -- EVT-003: a timed Event I make reminds me 30 minutes before; all day, none.
 
 select is(
-  (select fires_at from core.reminders where item_id = '00000000-0000-7000-8000-000000000001' and is_default),
+  (select fires_at from core.alerts where item_id = '00000000-0000-7000-8000-000000000001' and is_default),
   '2026-10-17 11:30:00+00'::timestamptz,
   'EVT-003 1: a 13:00 Event reminds me at 12:30'
 );
 select core.update_item('00000000-0000-7000-8000-000000000001', '{"starts_at": "2026-10-17T13:00:00Z", "ends_at": "2026-10-17T15:00:00Z"}');
 select is(
-  (select fires_at from core.reminders where item_id = '00000000-0000-7000-8000-000000000001' and is_default),
+  (select fires_at from core.alerts where item_id = '00000000-0000-7000-8000-000000000001' and is_default),
   '2026-10-17 12:30:00+00'::timestamptz,
   'EVT-003 1: moving the Event moves its Reminder'
 );
 select core.create_item('00000000-0000-7000-8000-000000000005', 'event',
   '{"title": "Annual leave", "all_day": true, "starts_at": "2026-10-15T00:00:00Z", "ends_at": "2026-10-17T00:00:00Z"}');
 select is(
-  (select count(*)::int from core.reminders where item_id = '00000000-0000-7000-8000-000000000005'),
+  (select count(*)::int from core.alerts where item_id = '00000000-0000-7000-8000-000000000005'),
   0,
   'EVT-003 2: an all-day Event has no Reminder until I add one'
 );
-select core.update_settings('{"reminder_defaults": {"event": false}}');
+select core.update_settings('{"alert_defaults": {"event": false}}');
 select core.create_item('00000000-0000-7000-8000-000000000006', 'event',
   '{"title": "Haircut", "starts_at": "2026-10-15T11:30:00Z"}');
 select is(
-  (select count(*)::int from core.reminders where item_id = '00000000-0000-7000-8000-000000000006'),
+  (select count(*)::int from core.alerts where item_id = '00000000-0000-7000-8000-000000000006'),
   0,
   'REM-007: with the Event default off, a new Event has none'
 );
-select core.update_settings('{"reminder_defaults": {"event": true}}');
+select core.update_settings('{"alert_defaults": {"event": true}}');
 
 -- ---------------------------------------------------------------------------
 -- EVT-005: Task <-> Event maps the times, in my timezone, and keeps the rest.
@@ -81,7 +81,7 @@ select core.create_label('00000000-0000-7000-8000-0000000000c1', 'Family');
 select core.create_item('00000000-0000-7000-8000-000000000010', 'task',
   '{"title": "Dinner with Sam", "do_on": "2026-10-16", "do_at": "19:00"}');
 select core.add_label('00000000-0000-7000-8000-000000000010', '00000000-0000-7000-8000-0000000000c1');
-select core.add_reminder('00000000-0000-7000-8000-0000000000e1', '00000000-0000-7000-8000-000000000010',
+select core.add_alert('00000000-0000-7000-8000-0000000000e1', '00000000-0000-7000-8000-000000000010',
   '{"anchor": "do_on", "offset_days": -1, "at_time": "18:00"}');
 select core.convert_item('00000000-0000-7000-8000-000000000010', 'event');
 select is(
@@ -100,12 +100,12 @@ select is(
   'EVT-005 1: it keeps its Labels'
 );
 select is(
-  (select fires_at from core.reminders where id = '00000000-0000-7000-8000-0000000000e1'),
+  (select fires_at from core.alerts where id = '00000000-0000-7000-8000-0000000000e1'),
   '2026-10-15 17:00:00+00'::timestamptz,
   'EVT-005 1: my own Reminder keeps its moment'
 );
 select is(
-  (select fires_at from core.reminders where item_id = '00000000-0000-7000-8000-000000000010' and is_default),
+  (select fires_at from core.alerts where item_id = '00000000-0000-7000-8000-000000000010' and is_default),
   '2026-10-16 17:30:00+00'::timestamptz,
   'EVT-005 1, EVT-003: it gains the Event''s default, 30 minutes before'
 );
@@ -148,7 +148,7 @@ select is(
   'EVT-004: each occurrence has the place'
 );
 select is(
-  (select fires_at from core.reminders where item_id = '00000000-0000-7000-8000-000000000021' and not is_default),
+  (select fires_at from core.alerts where item_id = '00000000-0000-7000-8000-000000000021' and not is_default),
   '2026-10-28 18:00:00+00'::timestamptz,
   'EVT-004: each occurrence has the series'' Reminders'
 );
@@ -242,7 +242,7 @@ insert into core.space_members (space_id, person_id) values
   ('00000000-0000-7000-8000-0000000000aa', '00000000-0000-4000-8000-00000000000a');
 
 select is(
-  (select count(*)::int from core.reminders where item_id = '00000000-0000-7000-8000-000000000040'),
+  (select count(*)::int from core.alerts where item_id = '00000000-0000-7000-8000-000000000040'),
   0,
   'GCL-003 1: an Event from Google has no Reminder'
 );

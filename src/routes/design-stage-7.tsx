@@ -25,7 +25,7 @@ import {
   MonochromeIcon,
   NoConnection,
   PageHeader,
-  ReminderList,
+  AlertList,
   SectionLabel,
   TimeField,
   TodayWidget,
@@ -173,12 +173,12 @@ const ON = [
   { value: 'fixed', label: 'A set time' },
 ]
 
-function ReminderPopup() {
+function AlertPopup() {
   return (
     <Dialog open>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Reminder</DialogTitle>
+          <DialogTitle>Alert</DialogTitle>
         </DialogHeader>
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
@@ -219,15 +219,15 @@ function ReminderPopup() {
   )
 }
 
-function Reminders({ popup = false }: { popup?: boolean }) {
+function Alerts({ popup = false }: { popup?: boolean }) {
   return (
     <Shell>
-      <PageHeader title="Reminders" />
+      <PageHeader title="Alerts" />
       <div className="flex flex-col gap-5 px-5 pb-28">
         <Card className="gap-2">
           <SectionLabel>Renew car insurance</SectionLabel>
-          <ReminderList
-            reminders={[
+          <AlertList
+            alerts={[
               { id: '1', when: 'Fri 6 Nov 07:00', says: 'At a set time', alarm: true },
               { id: '2', when: 'Fri 6 Nov 09:00', says: 'On the day' },
             ]}
@@ -237,7 +237,7 @@ function Reminders({ popup = false }: { popup?: boolean }) {
           />
         </Card>
       </div>
-      {popup && <ReminderPopup />}
+      {popup && <AlertPopup />}
     </Shell>
   )
 }
@@ -333,8 +333,8 @@ const SCREENS: Record<string, () => ReactNode> = {
       title="Leave for the airport"
     />
   ),
-  'm-reminders': () => <Reminders />,
-  'm-reminder': () => <Reminders popup />,
+  'm-alerts': () => <Alerts />,
+  'm-alert': () => <Alerts popup />,
   'm-settings': () => <Settings />,
   'm-settings-update': () => <Settings update />,
   'm-no-connection': () => <NoConnection action={<Button variant="outline">Try again</Button>} />,

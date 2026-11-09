@@ -21,7 +21,7 @@ export interface Rows {
   item_labels?: { item_id: string; label_id: string }[]
   marks?: { item_id: string }[]
   people?: Record<string, unknown>[]
-  reminders?: Record<string, unknown>[]
+  alerts?: Record<string, unknown>[]
   push_devices?: Record<string, unknown>[]
   subtasks?: { id: string; item_id: string; title: string; done: boolean; position: string }[]
   series?: Record<string, unknown>[]
@@ -182,14 +182,14 @@ export async function standIn(
     // My row, with the defaults the database gives.
     people: (rows.people ?? [{}]).map((p): Record<string, unknown> => ({
       timezone: 'Europe/London',
-      default_reminder_time: '09:00:00',
-      reminder_defaults: {},
+      default_alert_time: '09:00:00',
+      alert_defaults: {},
       digest_on: true,
       digest_time: '07:00:00',
       plan_hidden_types: [],
       ...p,
     })),
-    reminders: (rows.reminders ?? []).map((r): Record<string, unknown> => ({
+    alerts: (rows.alerts ?? []).map((r): Record<string, unknown> => ({
       is_default: false,
       anchor: null,
       offset_days: 0,
@@ -1360,16 +1360,16 @@ export async function standIn(
     update_settings: (a) => {
       const patch = a.p_patch as Record<string, unknown>
       const me = db.people[0]!
-      const { reminder_defaults, ...rest } = patch
+      const { alert_defaults, ...rest } = patch
       Object.assign(me, rest)
-      if (reminder_defaults)
-        me.reminder_defaults = {
-          ...(me.reminder_defaults as object),
-          ...(reminder_defaults as object),
+      if (alert_defaults)
+        me.alert_defaults = {
+          ...(me.alert_defaults as object),
+          ...(alert_defaults as object),
         }
     },
-    update_reminder: (a) =>
-      db.reminders
+    update_alert: (a) =>
+      db.alerts
         .filter((r) => r.id === a.p_id)
         .forEach((r) => Object.assign(r, a.p_patch, { is_default: false, snoozed_until: null })),
     create_item: (a) => {
@@ -1387,11 +1387,11 @@ export async function standIn(
       )
       // Its default, as the server gives it (REM-002 1, EVT-003 1): a dated
       // Task's on the day, a timed Event's 30 minutes before, unless off.
-      const off = (db.people[0]?.reminder_defaults ?? {}) as Record<string, boolean>
+      const off = (db.people[0]?.alert_defaults ?? {}) as Record<string, boolean>
       const task = a.p_type === 'task' && f.do_on && off.task !== false
       const event = a.p_type === 'event' && f.starts_at && !f.all_day && off.event !== false
       if (task || event)
-        db.reminders.push({
+        db.alerts.push({
           id: `${String(a.p_id)}:default`,
           item_id: a.p_id,
           is_default: true,
@@ -1404,9 +1404,9 @@ export async function standIn(
           fires_at: null,
         })
     },
-    add_reminder: (a) => {
+    add_alert: (a) => {
       const fields = a.p_fields as { fixed_at?: string }
-      db.reminders.push({
+      db.alerts.push({
         id: a.p_id,
         item_id: a.p_item,
         is_default: false,
@@ -1495,11 +1495,11 @@ export async function standIn(
       if (s?.mode === 'after_completion' && !s.ended_on)
         occurrence(s, String(a.p_next), String(a.p_next_on))
     },
-    remove_reminder: (a) => {
-      db.reminders = db.reminders.filter((r) => r.id !== a.p_id)
+    remove_alert: (a) => {
+      db.alerts = db.alerts.filter((r) => r.id !== a.p_id)
     },
-    remove_default_reminder: (a) => {
-      db.reminders = db.reminders.filter((r) => !(r.item_id === a.p_item && r.is_default))
+    remove_default_alert: (a) => {
+      db.alerts = db.alerts.filter((r) => !(r.item_id === a.p_item && r.is_default))
     },
     archive_item: (a) => {
       Object.assign(item(a.p_id) ?? {}, { archived_at: new Date().toISOString() })

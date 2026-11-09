@@ -37,7 +37,7 @@ import { EventDetails, EventTitle, GoogleEventDetails } from './event-details'
 import { useGoogleSource } from './google-source'
 import { deleteItem, draftNote, useCloseItem } from './item-navigation'
 import { NoteBody } from './note-body'
-import { ItemReminders } from './item-reminders'
+import { ItemAlerts } from './item-alerts'
 import { Field, ItemLabels, TaskDetails, TaskTitle } from './task-details'
 import { useMine } from './mine'
 import { SeenDetails, VisibleTo } from './seen-item'
@@ -220,11 +220,11 @@ export function ItemPopup({ id, isNew = false }: { id: string | undefined; isNew
           <EventDetails key={item.id} item={item} />
         </div>
       ) : item.type === 'thought' ? (
-        // A Thought: its text, Reminders at a set time (REM-003) and Labels (ITM-005).
+        // A Thought: its text, Alerts at a set time (REM-003) and Labels (ITM-005).
         <div className="flex flex-col gap-4">
           <ItemContent item={item} />
-          <Field label="Reminders">
-            <ItemReminders item={item} />
+          <Field label="Alerts">
+            <ItemAlerts item={item} />
           </Field>
           <Field label="Labels">
             <ItemLabels item={item} />

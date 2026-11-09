@@ -17,7 +17,7 @@ select id as ann_space from core.spaces
 select id as ben_space from core.spaces
   where created_by = '00000000-0000-4000-8000-00000000000b' and kind = 'personal' \gset
 -- Ben's default time is 08:00, and he has no default on Events.
-update core.people set default_reminder_time = '08:00', reminder_defaults = '{"event": false}'
+update core.people set default_alert_time = '08:00', alert_defaults = '{"event": false}'
   where id = '00000000-0000-4000-8000-00000000000b';
 
 create function pg_temp.sign_in(p_person uuid, p_email text) returns void language sql as $$
@@ -44,12 +44,12 @@ reset role;
 
 select is(
   (select array_agg(person_id::text || ' ' || to_char(fires_at at time zone 'UTC', 'HH24:MI') order by person_id)
-   from core.reminders where item_id = '00000000-0000-7000-8000-000000000001' and is_default),
+   from core.alerts where item_id = '00000000-0000-7000-8000-000000000001' and is_default),
   array['00000000-0000-4000-8000-00000000000a 09:00', '00000000-0000-4000-8000-00000000000b 08:00'],
   'HSH-005 4: each member has their own default on a shared Task, at their own time'
 );
 select is(
-  (select count(*)::int from core.reminders where item_id = '00000000-0000-7000-8000-000000000002'),
+  (select count(*)::int from core.alerts where item_id = '00000000-0000-7000-8000-000000000002'),
   1,
   'A Personal Task has only its maker''s'
 );
@@ -68,7 +68,7 @@ select is(
   'A Label is its Item''s Space''s: a Personal one comes off when the Item is shared'
 );
 select is(
-  (select array_agg(person_id::text order by person_id) from core.reminders
+  (select array_agg(person_id::text order by person_id) from core.alerts
    where item_id = '00000000-0000-7000-8000-000000000002' and is_default),
   array['00000000-0000-4000-8000-00000000000a', '00000000-0000-4000-8000-00000000000b'],
   'HSH-005 4: shared later, the other member gains their default'
@@ -80,7 +80,7 @@ select pg_temp.sign_in('00000000-0000-4000-8000-00000000000a', 'ann@example.com'
 update core.items set space_id = :'ann_space' where id = '00000000-0000-7000-8000-000000000002';
 reset role;
 select is(
-  (select array_agg(person_id::text) from core.reminders where item_id = '00000000-0000-7000-8000-000000000002'),
+  (select array_agg(person_id::text) from core.alerts where item_id = '00000000-0000-7000-8000-000000000002'),
   array['00000000-0000-4000-8000-00000000000a'],
   'HSH-005 4: made Personal again, the other member''s Reminders go'
 );
@@ -93,7 +93,7 @@ insert into core.items (id, type, title, space_id, owner_id, starts_at, ends_at,
    '00000000-0000-4000-8000-00000000000a', '2030-01-09 18:00+00', '2030-01-09 21:00+00', false);
 reset role;
 select is(
-  (select array_agg(person_id::text) from core.reminders where item_id = '00000000-0000-7000-8000-000000000003'),
+  (select array_agg(person_id::text) from core.alerts where item_id = '00000000-0000-7000-8000-000000000003'),
   array['00000000-0000-4000-8000-00000000000a'],
   'REM-007: a member whose Settings turn the default off has none'
 );
@@ -101,11 +101,11 @@ select is(
 -- Ben removes his default on the Bins; moving the date doesn't bring it back.
 set local role authenticated;
 select pg_temp.sign_in('00000000-0000-4000-8000-00000000000b', 'ben@example.com');
-select core.remove_default_reminder('00000000-0000-7000-8000-000000000001');
+select core.remove_default_alert('00000000-0000-7000-8000-000000000001');
 update core.items set do_on = '2030-01-10' where id = '00000000-0000-7000-8000-000000000001';
 reset role;
 select is(
-  (select array_agg(person_id::text) from core.reminders where item_id = '00000000-0000-7000-8000-000000000001'),
+  (select array_agg(person_id::text) from core.alerts where item_id = '00000000-0000-7000-8000-000000000001'),
   array['00000000-0000-4000-8000-00000000000a'],
   'REM-002 2: a default one member removed stays removed; the other''s moves on'
 );
@@ -121,7 +121,7 @@ select pg_temp.sign_in('00000000-0000-4000-8000-00000000000c', 'cat@example.com'
 select core.join_household('00000000-0000-7000-8000-0000000000a2');
 reset role;
 select is(
-  (select array_agg(item_id::text order by item_id) from core.reminders
+  (select array_agg(item_id::text order by item_id) from core.alerts
    where person_id = '00000000-0000-4000-8000-00000000000c' and is_default),
   array['00000000-0000-7000-8000-000000000001', '00000000-0000-7000-8000-000000000003'],
   'HSH-005 6: joining gives my defaults on the Household''s Tasks and Events still to come'
@@ -143,14 +143,14 @@ insert into core.push_devices (id, person_id, endpoint, p256dh, auth, label, ena
 update core.items set due_on = '2030-01-10' where id = '00000000-0000-7000-8000-000000000001';
 select core_private.queue_notifications('2030-01-11 09:00:30+00');
 select is(
-  (select array_agg(person_id::text order by person_id) from core.reminder_deliveries
+  (select array_agg(person_id::text order by person_id) from core.alert_deliveries
    where kind = 'overdue' and item_id = '00000000-0000-7000-8000-000000000001'),
   array['00000000-0000-4000-8000-00000000000a', '00000000-0000-4000-8000-00000000000b'],
   'REM-009: an overdue shared Task nudges each member, at their own time'
 );
 select core_private.queue_notifications('2030-01-11 09:05:30+00');
 select is(
-  (select count(*)::int from core.reminder_deliveries where kind = 'overdue'),
+  (select count(*)::int from core.alert_deliveries where kind = 'overdue'),
   2,
   'REM-009 3: once each'
 );
@@ -177,7 +177,7 @@ select pg_temp.sign_in('00000000-0000-4000-8000-00000000000b', 'ben@example.com'
 select core.leave_household('00000000-0000-7000-8000-0000000000f1');
 reset role;
 select is(
-  (select count(*)::int from core.reminders r join core.items i on i.id = r.item_id
+  (select count(*)::int from core.alerts r join core.items i on i.id = r.item_id
    where r.person_id = '00000000-0000-4000-8000-00000000000b' and i.space_id = '00000000-0000-7000-8000-0000000000f1'),
   0,
   'HSH-004 5: leaving takes my Reminders on the Household''s Items'

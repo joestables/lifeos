@@ -89,7 +89,7 @@ select is(
   'GCL-003 1: an Event from Google is an Event in my Personal Space'
 );
 select is(
-  (select count(*)::int from core.reminders r join core.external_refs x on x.item_id = r.item_id),
+  (select count(*)::int from core.alerts r join core.external_refs x on x.item_id = r.item_id),
   0,
   'GCL-003 1: an Event from Google has no Reminder'
 );

@@ -5,7 +5,7 @@ function database(found: object | undefined) {
   const calls: [string, Record<string, unknown>][] = []
   const rpc: Rpc = async (fn, args) => {
     calls.push([fn, args])
-    if (fn === 'delivery_for_action' || fn === 'reminder_for_action') return found ? [found] : []
+    if (fn === 'delivery_for_action' || fn === 'alert_for_action') return found ? [found] : []
     return true
   }
   return { rpc, calls }
@@ -52,20 +52,20 @@ describe('REM-005: Done and Snooze from a notification', () => {
   })
 })
 
-describe('REM-010: Done and Snooze on a Reminder the Android app set', () => {
+describe('REM-010: Done and Snooze on an Alert the Android app set', () => {
   const press = { device: 'd1', secret: 's', reminder: 'r1' }
 
-  it("proved by the device's secret, acts on the Reminder", async () => {
+  it("proved by the device's secret, acts on the Alert", async () => {
     const db = database(PLAIN)
     expect(await act(db.rpc, { ...press, action: 'snooze' }, NOW)).toBe(true)
     expect(db.calls).toEqual([
-      ['reminder_for_action', { p_device: 'd1', p_secret: 's', p_reminder: 'r1' }],
+      ['alert_for_action', { p_device: 'd1', p_secret: 's', p_alert: 'r1' }],
       [
-        'act_on_reminder',
+        'act_on_alert',
         {
           p_device: 'd1',
           p_secret: 's',
-          p_reminder: 'r1',
+          p_alert: 'r1',
           p_action: 'snooze',
           p_next: null,
           p_next_on: null,

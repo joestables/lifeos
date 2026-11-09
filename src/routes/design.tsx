@@ -76,7 +76,7 @@ import {
   PageHeader,
   PlanCard,
   SectionLabel,
-  ReminderList,
+  AlertList,
   RepeatField,
   SubtaskList,
   SwipeAction,
@@ -749,8 +749,8 @@ function DesignPage() {
                 description="A while after you tick it"
               />
             </RadioGroup>
-            <ReminderList
-              reminders={[
+            <AlertList
+              alerts={[
                 { id: 'a', when: 'Fri 09:00', says: 'On the day' },
                 { id: 'b', when: 'Thu 18:00', says: '1 day before' },
                 { id: 'c', when: 'Fri 07:00', says: 'At a set time', alarm: true },
@@ -1223,7 +1223,7 @@ function DesignPage() {
           <div className="grid max-w-3xl gap-4 sm:grid-cols-2">
             <Card>
               <CardHeader>
-                <CardTitle>Reminders</CardTitle>
+                <CardTitle>Alerts</CardTitle>
                 <CardDescription>Default time 09:00</CardDescription>
               </CardHeader>
               <Progress value={40} />
@@ -1288,7 +1288,7 @@ function DesignPage() {
           <Alert className="max-w-xl">
             <BellIcon />
             <AlertTitle>Notifications are off</AlertTitle>
-            <AlertDescription>Reminders can’t reach you</AlertDescription>
+            <AlertDescription>Alerts can’t reach you</AlertDescription>
             <AlertAction>
               <Button variant="ghost" size="sm">
                 Not now

@@ -35,13 +35,13 @@ is shared is in [recipes](../modules/recipes.md) and
 - **Default Space per Type** ([data model](../../20-architecture/data-model.md#types)).
   Gym sessions, Thoughts and Notes are always Personal. A Recipe is its
   author's, and a Variation its own author's (ADR-0051).
-- **Per person on shared Items:** Reminders, snooze, marks (a starred Task, a favourited Recipe), Inbox
+- **Per person on shared Items:** Alerts, snooze, marks (a starred Task, a favourited Recipe), Inbox
   dismiss / snooze.
 - **Tasks and Events are shared with a Household** (Joe, 4 November;
   [HSH-005](#hsh-005--share-tasks-and-events)): chosen in their popup's
   Space, at its foot. Nobody is assigned: a shared Task is everyone's, and
   whoever ticks it ticks it for all. Every member gets their own default
-  Reminder, can change it, and can delete the Item. A shared Event goes to
+  Alert, can change it, and can delete the Item. A shared Event goes to
   every member's default Google calendar.
 
 ## Open
@@ -178,7 +178,7 @@ Acceptance criteria
    created them, as if all had left.
 4. Given I rejoin a Household I left, then what I kept stays mine and
    separate: nothing is merged back.
-5. Given I left or was removed, then no Reminder of mine about the
+5. Given I left or was removed, then no Alert of mine about the
    Household's Items reaches me any more, and Done on a notification from
    before does nothing (multi-user bug hunt, 4 November).
 
@@ -206,18 +206,18 @@ Acceptance criteria
    ticked by anyone, it is done for everyone, and a repeat's next
    occurrence follows as for my own.
 4. Given a shared Task or Event with a date, then each member has their own
-   default Reminder on it, as their own Settings give it (on or off, their
+   default Alert on it, as their own Settings give it (on or off, their
    default time;
-   [REM-007](reminders.md#rem-007--reminder-defaults-in-settings)), and
-   changes or removes only their own; anyone's other Reminders are theirs
+   [REM-007](reminders.md#rem-007--alert-defaults-in-settings)), and
+   changes or removes only their own; anyone's other Alerts are theirs
    alone.
 5. Given a shared Event, then it goes to each member's default Google
    calendar (none for a member without a two-way calendar or with None);
    see [GCL-007](integrations.md#gcl-007--a-shared-event-in-everyones-calendar).
-6. Given someone joins, then they get their default Reminders on the
+6. Given someone joins, then they get their default Alerts on the
    Household's Tasks and Events still to come, and its Events go to their
    calendar; given someone leaves or is removed, its Events leave their
-   calendar and their Reminders on its Items go (HSH-004).
+   calendar and their Alerts on its Items go (HSH-004).
 7. Given a Personal Item of someone else's that I see only through a link
    to a shared Item, then it isn't in my Inbox or Tasks, and it opens
    read-only, saying whose it is; my own Personal Item linked to a shared

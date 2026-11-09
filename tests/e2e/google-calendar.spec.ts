@@ -100,7 +100,7 @@ test('GCL-001, GCL-003: connecting lists my calendars, the main one incoming, an
   ).toContainText(/14:30.* · Smile Clinic/)
 })
 
-test('GCL-004: an Event from an incoming calendar is Google’s; its Labels and Reminders are mine', async ({
+test('GCL-004: an Event from an incoming calendar is Google’s; its Labels and Alerts are mine', async ({
   page,
 }) => {
   const db = await start(page, connected(), `/plan?item=${DENTIST}`)

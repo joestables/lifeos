@@ -101,10 +101,10 @@ test('CAP-001, CAP-004: a dated line is offered as a Task, and kept as a Thought
   )
   await capture.getByRole('button', { name: 'Save' }).click()
   await expect(page.getByText('Thought saved')).toBeVisible()
-  await expect.poll(() => db.reminders).toHaveLength(1)
+  await expect.poll(() => db.alerts).toHaveLength(1)
   const thought = db.items.find((i) => i.type === 'thought')!
   expect(thought.title).toBe('call mum fri 6pm')
-  expect(db.reminders[0]).toMatchObject({
+  expect(db.alerts[0]).toMatchObject({
     item_id: thought.id,
     fixed_at: '2026-10-16T17:00:00.000Z',
   })

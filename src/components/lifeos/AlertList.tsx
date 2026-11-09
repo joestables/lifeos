@@ -22,8 +22,8 @@ import { CardRow } from './CardRow'
 import { DateField } from './DateField'
 import { TimeField } from './TimeField'
 
-/** A Reminder as the list shows it: when it fires, and what it hangs on. */
-export interface ReminderLine {
+/** An Alert as the list shows it: when it fires, and what it hangs on. */
+export interface AlertLine {
   id: string
   /** "Fri 16 Oct 09:00", once known. */
   when: string | null
@@ -34,30 +34,27 @@ export interface ReminderLine {
 }
 
 /**
- * An Item's Reminders (components.md): each a line with a bell, when it
+ * An Item's Alerts (components.md): each a line with a bell, when it
  * fires and what it hangs on, opened to change it or removed with ×; then
- * "Add a reminder".
+ * "Add an alert".
  */
-export function ReminderList({
-  reminders,
+export function AlertList({
+  alerts,
   onOpen,
   onRemove,
   onAdd,
-  noun = 'reminder',
 }: {
-  reminders: ReminderLine[]
+  alerts: AlertLine[]
   onOpen: (id: string) => void
   onRemove: (id: string) => void
   onAdd: () => void
-  /** What one is called: "reminder", or "alert" in Stage 7b's designs. */
-  noun?: string
 }) {
   return (
     <div className="flex flex-col">
-      {reminders.map((r) => {
+      {alerts.map((r) => {
         const Icon = r.alarm ? AlarmClockIcon : BellIcon
         return (
-          <div key={r.id} className="group/reminder flex min-h-9 items-center gap-2.5">
+          <div key={r.id} className="group/alert flex min-h-9 items-center gap-2.5">
             <Icon className="size-4 shrink-0 text-muted-foreground" aria-hidden />
             <button
               type="button"
@@ -70,7 +67,7 @@ export function ReminderList({
             <Button
               variant="ghost"
               size="icon-sm"
-              aria-label={`Remove ${noun} ${r.when ?? r.says}`}
+              aria-label={`Remove alert ${r.when ?? r.says}`}
               onClick={() => onRemove(r.id)}
             >
               <XIcon />
@@ -84,17 +81,17 @@ export function ReminderList({
         className="self-start px-0 text-muted-foreground hover:bg-transparent"
         onClick={onAdd}
       >
-        <PlusIcon /> Add {/^[aeiou]/.test(noun) ? 'an' : 'a'} {noun}
+        <PlusIcon /> Add an alert
       </Button>
     </div>
   )
 }
 
 /**
- * A Reminder being made or changed: on one of the Item's dates (an Event's
+ * An Alert being made or changed: on one of the Item's dates (an Event's
  * is the day it starts), some minutes before an Event starts, or at a set time.
  */
-export type ReminderChoice = (
+export type AlertChoice = (
   | { kind: 'do_on' | 'due_on' | 'starts_at'; daysBefore: number; time: string }
   | { kind: 'before'; minutes: number; time: string }
   | { kind: 'fixed'; day: string | null; time: string }
@@ -103,8 +100,8 @@ export type ReminderChoice = (
   alarm?: boolean
 }
 
-/** What a Reminder can hang on, beside a set time. */
-export type ReminderAnchor = 'do_on' | 'due_on' | 'before' | 'starts_at'
+/** What an Alert can hang on, beside a set time. */
+export type AlertAnchor = 'do_on' | 'due_on' | 'before' | 'starts_at'
 
 const KINDS = [
   { value: 'do_on', label: 'Do-on date' },
@@ -126,28 +123,25 @@ const BEFORE = [
 ] as const
 
 /**
- * Making or changing a Reminder (REM-003, EVT-003), confirmed by Save: what
+ * Making or changing an Alert (REM-003, EVT-003), confirmed by Save: what
  * it hangs on — the do-on date, the due date, before an Event starts or the
  * day it starts (when the Item has them), or a set time — then days before
  * and the time, how long before, or the date and time.
  */
-export function ReminderDialog({
+export function AlertEditDialog({
   value,
   anchors,
   onSave,
   onClose,
-  title = 'Reminder',
 }: {
-  /** The Dialog's title: "Reminder", or "Alert" in Stage 7b's designs. */
-  title?: string
-  value: ReminderChoice
-  /** The Item's dates a Reminder can hang on. */
-  anchors: ReminderAnchor[]
-  onSave: (choice: ReminderChoice) => void
+  value: AlertChoice
+  /** The Item's dates an Alert can hang on. */
+  anchors: AlertAnchor[]
+  onSave: (choice: AlertChoice) => void
   onClose: () => void
 }) {
   const ids = useId()
-  const [choice, setChoice] = useState<ReminderChoice>(value)
+  const [choice, setChoice] = useState<AlertChoice>(value)
   const kinds = KINDS.filter((k) => k.value === 'fixed' || anchors.includes(k.value))
   const before = 'daysBefore' in choice ? String(choice.daysBefore) : ''
   const valid =
@@ -155,7 +149,7 @@ export function ReminderDialog({
     (/^\d\d:\d\d$/.test(choice.time) &&
       (choice.kind === 'fixed' ? choice.day !== null : choice.daysBefore >= 0))
 
-  const setKind = (kind: ReminderChoice['kind']) =>
+  const setKind = (kind: AlertChoice['kind']) =>
     setChoice(
       kind === 'fixed'
         ? { kind, day: null, time: choice.time, alarm: choice.alarm }
@@ -173,7 +167,7 @@ export function ReminderDialog({
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
+          <DialogTitle>Alert</DialogTitle>
         </DialogHeader>
         <form
           className="flex flex-col gap-4"
@@ -187,7 +181,7 @@ export function ReminderDialog({
             <Select
               value={choice.kind}
               items={kinds}
-              onValueChange={(kind) => setKind(kind as ReminderChoice['kind'])}
+              onValueChange={(kind) => setKind(kind as AlertChoice['kind'])}
             >
               <SelectTrigger id={`${ids}-on`}>
                 <SelectValue />

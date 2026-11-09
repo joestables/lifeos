@@ -48,7 +48,7 @@ one.
 | Label | A per-Space grouping on the Types that use one: it filters Inbox, Notes and Tasks | `core.labels`, `core.item_labels` |
 | Mark | A per-person flag under the Type's own name: pinned, starred, favourited | `core.marks` |
 | Series | A repeat rule that generates occurrences | `core.series` |
-| Reminder | A per-person notification on an Item | `core.reminders` |
+| Alert | A per-person notification on an Item | `core.alerts` |
 | Space | Personal or Household | `core.spaces`, `core.space_members` |
 | Measure | Something a goal can track | SQL function named in code |
 | View / Screen | A query + layout / a workflow page | Code |
@@ -84,7 +84,7 @@ core.series    type, space, owner, the repeat rule (an RRULE), mode
                offset, an Event's start time and length, or all day and its
                number of days), generated_until, ended_on
 core.links     from_item, to_item, link_type, origin (manual|action|integration) …
-core.reminders item_id, person, anchor (starts_at|do_on|due_on) + days
+core.alerts item_id, person, anchor (starts_at|do_on|due_on) + days
                and a time, or minutes before an Event's start
                (offset_minutes), or a fixed time; the default time it was made with;
                is_default; snoozed_until; fires_at (calculated)
@@ -130,7 +130,7 @@ Plan shows an Item on the first of these it has: `starts_at` (as a local
 date), `do_on`, `due_on`. A `CHECK` per Type refuses the fields it doesn't
 use.
 
-| Type | Time fields | Reminder anchors |
+| Type | Time fields | Alert anchors |
 |---|---|---|
 | Task | `do_on` + `do_at`, `due_on` | `do_on`, `due_on` |
 | Event | `starts_at`, `ends_at`, `all_day` | `starts_at` |
@@ -180,7 +180,7 @@ Colour: the Type's colour ([ADR-0043](adr/0043-colour-by-type.md),
 Provisionally agreed). Labels: whether the Type uses Labels. Mark: the
 per-person mark the Type has, under its own name. The ontology package also
 declares which Types hold sub-tasks (Task) and which time field a Type's
-default Reminder follows (a Task's do-on date; an Event's start, 30 minutes
+default Alert follows (a Task's do-on date; an Event's start, 30 minutes
 before) and which have a place (Event); the lookup table carries all of
 these, so the database enforces them.
 
@@ -225,14 +225,14 @@ Note → any other Capturable Type; Task ↔ Event. Everything else is "create f
 ([ADR-0018](adr/0018-changing-an-items-type.md), Provisionally agreed).
 Thoughts and Notes: [ADR-0037](adr/0037-thoughts.md) (Provisionally agreed).
 
-**Not Items, deliberately:** people, Spaces, series, Reminders, Labels,
+**Not Items, deliberately:** people, Spaces, series, Alerts, Labels,
 marks, sub-tasks,
 reference data, list lines, ingredient lines, method steps, cook log entries,
 template exercises, workout sets, health metrics (Oura sleep and readiness,
 weight — a time series; [ADR-0015](adr/0015-health-data-as-a-time-series.md),
   Provisionally agreed), account balances and transactions (later).
 
-**Possible later Types:** Place (for location Reminders and "Tesco"), Trip,
+**Possible later Types:** Place (for location Alerts and "Tesco"), Trip,
 Body measurement if it ever needs linking, Project (if grouping Tasks needs
 more than Labels).
 
@@ -291,13 +291,13 @@ rule and create no links.
 
 | Table | Holds |
 |---|---|
-| `core.people` | A person: name, home timezone, default Reminder time (09:00), whether each Type's default Reminder is on, the morning digest and its time (07:00), the Types hidden on Plan (PLN-004), where new Meals go (MPL-005); later, food preferences |
+| `core.people` | A person: name, home timezone, default Alert time (09:00), whether each Type's default Alert is on, the morning digest and its time (07:00), the Types hidden on Plan (PLN-004), where new Meals go (MPL-005); later, food preferences |
 | `core.spaces` · `core.space_members` · `core.space_invites` | Personal and Household Spaces; membership, each member owner or member (a person may be in several Households); invitations by email, waiting for that address to sign in ([ADR-0039](adr/0039-accounts-contacts-households.md)) |
 | `core.items` | Every Item |
 | `core.series` | Repeat rules for generated occurrences |
 | `core.links` | Every link |
-| `core.reminders` · `core.reminder_deliveries` | Reminders per person, each Item's default one kept by a trigger, each an Alarm or not (`alarm`, off by default: rings on the Android app, REM-011) (made when it gains the date, gone when the date is cleared), `fires_at` worked out in the person's timezone; one row per notification and device — a Reminder, the morning digest or an overdue nudge — with when it was sent, or why not (missed, skipped, *on device*: the Android app set it itself), and a token for its buttons; a device gets only what comes due after it was turned on ([ADR-0044](adr/0044-reminder-delivery.md), [ADR-0063](adr/0063-notifications-on-the-android-app.md), Provisionally agreed) |
-| `core.push_devices` | Web Push subscriptions and the Android app's FCM tokens (`kind`) per person; a device the push service says is gone is no longer sent to; the Android app's secret, as a hash, and when its Reminders last changed for it to look again ([ADR-0063](adr/0063-notifications-on-the-android-app.md)) |
+| `core.alerts` · `core.alert_deliveries` | Alerts per person, each Item's default one kept by a trigger, each an Alarm or not (`alarm`, off by default: rings on the Android app, REM-011) (made when it gains the date, gone when the date is cleared), `fires_at` worked out in the person's timezone; one row per notification and device — an Alert, the morning digest or an overdue nudge — with when it was sent, or why not (missed, skipped, *on device*: the Android app set it itself), and a token for its buttons; a device gets only what comes due after it was turned on ([ADR-0044](adr/0044-reminder-delivery.md), [ADR-0063](adr/0063-notifications-on-the-android-app.md), Provisionally agreed). Until Stage 7b's step 10, `core.reminders` is a view of `core.alerts`, and the old function names wrap the new, for clients that still use them (ADR-0065 4) |
+| `core.push_devices` | Web Push subscriptions and the Android app's FCM tokens (`kind`) per person; a device the push service says is gone is no longer sent to; the Android app's secret, as a hash, and when its Alerts last changed for it to look again ([ADR-0063](adr/0063-notifications-on-the-android-app.md)) |
 | `core.inbox_state` | Per-person dismiss / snooze of Inbox entries |
 | `core.activity` | The activity log, written by triggers: `created`, `updated`, `converted`, `archived`, `restored`, `linked`, `unlinked`, with the changed fields |
 | `core.item_types` · `core.link_types` | The ontology's lookup tables, generated from `packages/ontology` ([ADR-0008](adr/0008-registries-declared-in-code.md)) |
@@ -315,7 +315,7 @@ rule and create no links.
 | `core_private.series_refs` | Which Google repeating event each series sent to Google is, with its `etag` (ADR-0048) |
 | `core_private.event_copies` · `core_private.series_copies` | A Household member's own copy of a shared Event (or repeat) in their default calendar: which calendar, Google's id and `etag`, and whether they deleted it in Google (`dropped`: not sent to them again) ([GCL-007](../10-requirements/cross-cutting/integrations.md#gcl-007--a-shared-event-in-everyones-calendar), ADR-0048) |
 | `ops.events` | Errors and failures from the app, Edge Functions, cron jobs and Integrations: what, where (screen), the last few actions, never Items' content; and each use of the AI service (`ai`, its task and prompt version; [ADR-0054](adr/0054-the-ai-service-and-import.md)), counted for the daily allowance |
-| `ops.health_runs` · `ops.heartbeats` | The nightly health check's findings; when jobs outside the database last ran: Reminder sending and the nightly series run ([ADR-0044](adr/0044-reminder-delivery.md), [ADR-0045](adr/0045-extending-series.md)) |
+| `ops.health_runs` · `ops.heartbeats` | The nightly health check's findings; when jobs outside the database last ran: Alert sending and the nightly series run ([ADR-0044](adr/0044-reminder-delivery.md), [ADR-0045](adr/0045-extending-series.md)) |
 
 ## The knowledge graph, drawn
 

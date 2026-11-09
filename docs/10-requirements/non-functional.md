@@ -47,18 +47,18 @@ See [offline](cross-cutting/offline.md).
 
 Not yet written.
 
-## Reminder reliability
+## Alert reliability
 
 - Web Push on Android, desktop and iOS home-screen apps (iOS 16.4+, no action
   buttons).
-- On the Android app (Stage 7), Reminders are set on the phone to the
-  minute, and a Reminder marked Alarm rings
+- On the Android app (Stage 7), Alerts are set on the phone to the
+  minute, and an Alert marked Alarm rings
   ([REM-010](cross-cutting/reminders.md#rem-010--on-time-on-the-android-app),
   [REM-011](cross-cutting/reminders.md#rem-011--an-alarm)).
 - The web is unchanged by the Android app: every browser and screenshot
   test passes as before
   ([AND-005](cross-cutting/android.md#and-005--the-web-stays-as-it-is)).
-- Deliveries are logged (`core.reminder_deliveries`), sent within a minute,
+- Deliveries are logged (`core.alert_deliveries`), sent within a minute,
   once per device, and missed after 12 hours
   ([ADR-0044](../20-architecture/adr/0044-reminder-delivery.md),
   Provisionally agreed).

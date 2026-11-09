@@ -135,7 +135,7 @@ async function sendOneFcm(sendFcm: SendFcm | undefined, c: Claimed): Promise<Out
 }
 
 /**
- * Tells each Android app whose Reminders changed to look again (REM-010 2,
+ * Tells each Android app whose Alerts changed to look again (REM-010 2,
  * ADR-0063): a data message saying only that, so it fetches them itself. A
  * token FCM no longer knows is left for the next delivery to mark gone.
  */

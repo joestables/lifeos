@@ -50,7 +50,7 @@ export function NotificationsOffer() {
       <AlertDescription>
         {support === 'ios-browser'
           ? 'Add LifeOS to your Home Screen first'
-          : 'Reminders can’t reach you'}
+          : 'Alerts can’t reach you'}
       </AlertDescription>
       <AlertAction>
         <Button variant="ghost" size="sm" onClick={notNow}>

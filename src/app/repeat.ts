@@ -48,12 +48,12 @@ export function repeatTask(
   {
     labelIds,
     timezone,
-    reminders = [],
+    alerts = [],
   }: {
     labelIds: string[]
     timezone: string
-    /** Its own Reminders on its dates, for each occurrence (REM-002 4). */
-    reminders?: { anchor: string; offset_days: number; at_time: string | null }[]
+    /** Its own Alerts on its dates, for each occurrence (REM-002 4). */
+    alerts?: { anchor: string; offset_days: number; at_time: string | null }[]
   },
 ): boolean {
   const today = todayIn(timezone)
@@ -78,7 +78,7 @@ export function repeatTask(
       do_at: item.do_at,
       due_offset_days: item.due_on ? daysBetween(anchor, item.due_on) : null,
       label_ids: labelIds,
-      reminders,
+      alerts,
     },
     p_occurrences: window.days.map((on, i) => ({ id: i === 0 ? item.id : newId(), on })),
     p_until: window.until,
@@ -99,7 +99,7 @@ export function eventRepeatStart(item: Item, timezone: string, today: string): s
  * Makes an Event repeat on a schedule, or changes its repeat from it on
  * (EVT-004): each occurrence at its start time in my timezone and for its
  * length, or all day for its days; with its place, Labels and own
- * Reminders. The Event becomes the first occurrence. False when the repeat
+ * Alerts. The Event becomes the first occurrence. False when the repeat
  * would make nothing.
  */
 export function repeatEvent(
@@ -108,11 +108,11 @@ export function repeatEvent(
   {
     labelIds,
     timezone,
-    reminders = [],
+    alerts = [],
   }: {
     labelIds: string[]
     timezone: string
-    reminders?: {
+    alerts?: {
       anchor: string
       offset_days: number
       at_time: string | null
@@ -147,7 +147,7 @@ export function repeatEvent(
       all_day: t.allDay,
       days: t.allDay ? daysBetween(t.startDay, t.endDay) + 1 : null,
       label_ids: labelIds,
-      reminders,
+      alerts,
     },
     p_occurrences: window.days.map((on, i) => ({ id: i === 0 ? item.id : newId(), on })),
     p_until: window.until,

@@ -19,7 +19,7 @@ import { applyPendingLinks, fetchLinks, linksKey, type Link } from './links'
 import { applyPending } from './overlay'
 import type { WriteQueue } from './queue/queue'
 import type { QueueEntry } from './queue/store'
-import { applyPendingReminders, fetchReminders, remindersKey, type Reminder } from './reminders'
+import { applyPendingAlerts, fetchAlerts, alertsKey, type Alert } from './alerts'
 import { applyPendingSeries, fetchSeries, seriesKey, type Series } from './series'
 import { applyPendingSubtasks, fetchSubtasks, subtasksKey, type Subtask } from './subtasks'
 import {
@@ -180,11 +180,11 @@ export function useDevices(queue: WriteQueue): { devices: readonly Device[]; isL
   return { devices, isLoading: query.isLoading }
 }
 
-/** My Reminders, with unsent ones laid over them. */
-export function useReminders(queue: WriteQueue): readonly Reminder[] {
+/** My Alerts, with unsent ones laid over them. */
+export function useAlerts(queue: WriteQueue): readonly Alert[] {
   const entries = useQueueEntries(queue)
-  const query = useQuery({ queryKey: remindersKey, queryFn: fetchReminders })
-  return useMemo(() => applyPendingReminders(query.data ?? [], entries), [query.data, entries])
+  const query = useQuery({ queryKey: alertsKey, queryFn: fetchAlerts })
+  return useMemo(() => applyPendingAlerts(query.data ?? [], entries), [query.data, entries])
 }
 
 /** Every sub-task of the Tasks I can see, in order, with unsent ones laid over them. */

@@ -1,8 +1,8 @@
 import { addDays } from '@lifeos/recurrence'
-import type { ReminderAnchor, ReminderChoice } from '@/components/lifeos'
+import type { AlertAnchor, AlertChoice } from '@/components/lifeos'
 import type { ItemRow } from '@/data/types'
-import type { Reminder, ReminderFields } from '@/data'
-import { reminderWhen, zonedInstant, zonedParts } from './dates'
+import type { Alert, AlertFields } from '@/data'
+import { alertWhen, zonedInstant, zonedParts } from './dates'
 
 const days = (n: number) => (n === 1 ? '1 day' : `${n} days`)
 
@@ -15,12 +15,12 @@ export function minutesSays(before: number): string {
 }
 
 /**
- * What a Reminder hangs on, in words (REM-003): "On the day", "1 day
+ * What an Alert hangs on, in words (REM-003): "On the day", "1 day
  * before", "2 days before it's due", "At a set time", or "Snoozed".
  */
-export function reminderSays(
-  r: Pick<Reminder, 'anchor' | 'offset_days' | 'fixed_at' | 'snoozed_until'> &
-    Partial<Pick<Reminder, 'offset_minutes' | 'at_time'>>,
+export function alertSays(
+  r: Pick<Alert, 'anchor' | 'offset_days' | 'fixed_at' | 'snoozed_until'> &
+    Partial<Pick<Alert, 'offset_minutes' | 'at_time'>>,
   now: Date = new Date(),
 ): string {
   if (r.snoozed_until && Date.parse(r.snoozed_until) > now.getTime()) return 'Snoozed'
@@ -35,19 +35,19 @@ export function reminderSays(
 }
 
 /** When it fires, as people say it ("Fri 16 Oct 09:00"), once the server has worked it out. */
-export const reminderTime = (r: Pick<Reminder, 'fires_at'>, now: Date = new Date()) =>
-  r.fires_at ? reminderWhen(r.fires_at, now) : null
+export const alertTime = (r: Pick<Alert, 'fires_at'>, now: Date = new Date()) =>
+  r.fires_at ? alertWhen(r.fires_at, now) : null
 
-/** Reminders soonest first; ones with no time yet last. */
-export const byFiring = (a: Pick<Reminder, 'fires_at'>, b: Pick<Reminder, 'fires_at'>) =>
+/** Alerts soonest first; ones with no time yet last. */
+export const byFiring = (a: Pick<Alert, 'fires_at'>, b: Pick<Alert, 'fires_at'>) =>
   (a.fires_at ?? '9').localeCompare(b.fires_at ?? '9')
 
-/** What a Reminder made or changed in its Dialog is saved as (REM-003). */
-export function reminderFields(choice: ReminderChoice, timezone: string): ReminderFields {
+/** What an Alert made or changed in its Dialog is saved as (REM-003). */
+export function alertFields(choice: AlertChoice, timezone: string): AlertFields {
   return { ...whenFields(choice, timezone), alarm: choice.alarm ?? false }
 }
 
-function whenFields(choice: ReminderChoice, timezone: string): ReminderFields {
+function whenFields(choice: AlertChoice, timezone: string): AlertFields {
   if (choice.kind === 'fixed')
     return {
       anchor: null,
@@ -73,14 +73,14 @@ function whenFields(choice: ReminderChoice, timezone: string): ReminderFields {
   }
 }
 
-/** A saved Reminder as its Dialog shows it; a set time in my home timezone (ADR-0021). */
-export function reminderChoice(
-  r: Pick<Reminder, 'anchor' | 'offset_days' | 'at_time' | 'offset_minutes' | 'fixed_at'> & {
+/** A saved Alert as its Dialog shows it; a set time in my home timezone (ADR-0021). */
+export function alertChoice(
+  r: Pick<Alert, 'anchor' | 'offset_days' | 'at_time' | 'offset_minutes' | 'fixed_at'> & {
     alarm?: boolean
   },
   fallbackTime: string,
   timezone: string,
-): ReminderChoice {
+): AlertChoice {
   const time = r.at_time?.slice(0, 5) ?? fallbackTime
   const alarm = r.alarm ?? false
   if (!r.anchor) return { kind: 'fixed', ...zonedParts(r.fixed_at!, timezone), alarm }
@@ -95,11 +95,11 @@ export function reminderChoice(
 }
 
 /**
- * When a Reminder not yet saved will fire, worked out on the device from the
+ * When an Alert not yet saved will fire, worked out on the device from the
  * dates it hangs on; null while the date it needs is empty.
  */
 export function choiceFiresAt(
-  choice: ReminderChoice,
+  choice: AlertChoice,
   dates: {
     do_on?: string | null
     due_on?: string | null
@@ -118,10 +118,10 @@ export function choiceFiresAt(
   return day ? zonedInstant(addDays(day, -choice.daysBefore), choice.time, timezone) : null
 }
 
-/** The dates an Item's Reminders can hang on: a Task's do-on and due dates, an Event's start. */
-export function reminderAnchors(
+/** The dates an Item's Alerts can hang on: a Task's do-on and due dates, an Event's start. */
+export function alertAnchors(
   item: Pick<ItemRow, 'type' | 'do_on' | 'due_on' | 'starts_at' | 'all_day'>,
-): ReminderAnchor[] {
+): AlertAnchor[] {
   if (item.type === 'task')
     return [
       ...(item.do_on ? (['do_on'] as const) : []),
@@ -132,12 +132,12 @@ export function reminderAnchors(
   return []
 }
 
-/** A new Reminder's first choice: on the first date it can hang on, else today at my default time. */
-export function freshReminder(
-  anchors: readonly ReminderAnchor[],
+/** A new Alert's first choice: on the first date it can hang on, else today at my default time. */
+export function freshAlert(
+  anchors: readonly AlertAnchor[],
   time: string,
   today: string,
-): ReminderChoice {
+): AlertChoice {
   const first = anchors[0]
   if (first === 'before') return { kind: 'before', minutes: 30, time }
   if (first) return { kind: first, daysBefore: 0, time }
@@ -145,32 +145,32 @@ export function freshReminder(
 }
 
 /**
- * The default Reminder the server gives an Item when it is made (REM-002 1,
+ * The default Alert the server gives an Item when it is made (REM-002 1,
  * EVT-003 1), as New task and New event show it before Save: a dated
  * Task's on the day, at its time or my default time; a timed Event's 30
  * minutes before it starts; none with that default off in Settings.
  */
-export function defaultReminder(
+export function defaultAlert(
   item:
     | { type: 'task'; do_on: string | null; do_at: string | null }
     | { type: 'event'; starts_at: string | null; all_day: boolean | null },
-  settings: { defaultReminderTime: string; taskReminders: boolean; eventReminders: boolean },
-): ReminderChoice | null {
+  settings: { defaultAlertTime: string; taskAlerts: boolean; eventAlerts: boolean },
+): AlertChoice | null {
   if (item.type === 'task')
-    return item.do_on && settings.taskReminders
+    return item.do_on && settings.taskAlerts
       ? {
           kind: 'do_on',
           daysBefore: 0,
-          time: item.do_at?.slice(0, 5) ?? settings.defaultReminderTime,
+          time: item.do_at?.slice(0, 5) ?? settings.defaultAlertTime,
         }
       : null
-  return item.starts_at && !item.all_day && settings.eventReminders
-    ? { kind: 'before', minutes: 30, time: settings.defaultReminderTime }
+  return item.starts_at && !item.all_day && settings.eventAlerts
+    ? { kind: 'before', minutes: 30, time: settings.defaultAlertTime }
     : null
 }
 
-/** Whether two Reminder choices fire alike: a default opened and saved unchanged is still the default. */
-export const sameChoice = (a: ReminderChoice, b: ReminderChoice) =>
+/** Whether two Alert choices fire alike: a default opened and saved unchanged is still the default. */
+export const sameChoice = (a: AlertChoice, b: AlertChoice) =>
   a.kind === b.kind &&
   (a.alarm ?? false) === (b.alarm ?? false) &&
   (a.kind === 'before'

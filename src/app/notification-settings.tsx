@@ -159,38 +159,38 @@ function SettingTime({
   )
 }
 
-/** Reminders (REM-007, REM-008): my default time, the defaults by Type, the morning digest. */
-export function RemindersCard() {
+/** Alerts (REM-007, REM-008): my default time, the defaults by Type, the morning digest. */
+export function AlertsCard() {
   const settings = useSettings(queue)
   return (
-    <Titled title="Reminders">
+    <Titled title="Alerts">
       <CardRow label="Default time">
         <SettingTime
-          key={settings.defaultReminderTime}
+          key={settings.defaultAlertTime}
           label="Default time"
-          value={settings.defaultReminderTime}
-          onChange={(time) => updateSettings({ default_reminder_time: time })}
+          value={settings.defaultAlertTime}
+          onChange={(time) => updateSettings({ default_alert_time: time })}
         />
       </CardRow>
       <CardRow label="Dated tasks">
         <Switch
           aria-label="Remind me of dated tasks"
-          checked={settings.taskReminders}
-          onCheckedChange={(on) => updateSettings({ reminder_defaults: { task: on } })}
+          checked={settings.taskAlerts}
+          onCheckedChange={(on) => updateSettings({ alert_defaults: { task: on } })}
         />
       </CardRow>
       <CardRow label="Dated thoughts">
         <Switch
           aria-label="Remind me of dated thoughts"
-          checked={settings.thoughtReminders}
-          onCheckedChange={(on) => updateSettings({ reminder_defaults: { thought: on } })}
+          checked={settings.thoughtAlerts}
+          onCheckedChange={(on) => updateSettings({ alert_defaults: { thought: on } })}
         />
       </CardRow>
       <CardRow label="Events, 30 min before">
         <Switch
           aria-label="Remind me 30 minutes before events"
-          checked={settings.eventReminders}
-          onCheckedChange={(on) => updateSettings({ reminder_defaults: { event: on } })}
+          checked={settings.eventAlerts}
+          onCheckedChange={(on) => updateSettings({ alert_defaults: { event: on } })}
         />
       </CardRow>
       <CardRow label="Morning digest">

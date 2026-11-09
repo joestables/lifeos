@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } fro
 import { toast } from '@/components/ui/sonner'
 import { CaptureDialog, type CaptureType } from '@/components/lifeos/CaptureDialog'
 import {
-  addFixedReminder,
+  addFixedAlert,
   addLabel,
   archiveItem,
   createItem,
@@ -48,11 +48,11 @@ function make(type: string, line: string, dates: CaptureDates, settings: Setting
   if (type === 'task') return createTaskFrom(line, dates)
   const id = createItem('thought', { title: line.trim() })
   const day = dates.doOn ?? dates.dueOn
-  if (day && settings.thoughtReminders) {
+  if (day && settings.thoughtAlerts) {
     // A dated Thought reminds me, at my default time without one (CAP-004),
     // unless I turned that off (REM-007).
-    const at = dates.doAt ?? settings.defaultReminderTime
-    addFixedReminder(id, zonedInstant(day, at, settings.timezone))
+    const at = dates.doAt ?? settings.defaultAlertTime
+    addFixedAlert(id, zonedInstant(day, at, settings.timezone))
   }
   return id
 }
@@ -125,7 +125,7 @@ export function CaptureProvider({ children }: { children: ReactNode }) {
           dates.dueOn && { icon: FlagIcon, label: `Due ${shortDate(fromIsoDay(dates.dueOn))}` },
           dates.doOn && {
             icon: BellIcon,
-            label: dates.doAt ?? settings.defaultReminderTime,
+            label: dates.doAt ?? settings.defaultAlertTime,
           },
         ].filter((u) => !!u)
       : []

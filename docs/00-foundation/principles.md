@@ -17,7 +17,7 @@ unless marked.*
 ## Architecture
 
 1. **A small, stable core plus Modules that plug in.** The core owns
-   identity, Spaces, Items and Links, Reminders and notifications, capture,
+   identity, Spaces, Items and Links, Alerts and notifications, capture,
    search, the activity log, caching and sync. A Module **declares** what it
    contributes:
    - Types and migrations;

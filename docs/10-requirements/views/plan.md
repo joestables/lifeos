@@ -180,7 +180,7 @@ Priority: Should · Status: verified
 
 Acceptance criteria
 1. Given the week, when I drag a Task from Tuesday to Thursday, then its
-   do-on date is Thursday, keeping its time and due date, and its Reminders
+   do-on date is Thursday, keeping its time and due date, and its Alerts
    move with it; I can undo that.
 2. Given I drag an Event, then it starts on the new day at the same time
    and keeps its length.

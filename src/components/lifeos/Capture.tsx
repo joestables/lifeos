@@ -76,11 +76,11 @@ export function AddAlertMenu({
 
 /*
  * Stage 7b's second round of "New" (drafts, not yet agreed): no Thought /
- * Reminder switch. A title, and when; with a time it is a Reminder, without
+ * Alert switch. A title, and when; with a time it is an Alert, without
  * one a Thought, and Save says which.
  */
 
-/** "New" without the Types' switch: its title, what goes in it, then Cancel and Save ("Save reminder"). */
+/** "New" without the Types' switch: its title, what goes in it, then Cancel and Save ("Save alert"). */
 export function NewDialog({
   children,
   saveLabel,
@@ -89,7 +89,7 @@ export function NewDialog({
   title = 'New',
   switcher,
 }: {
-  /** At the title's end: the Reminder / Thought switch, where a variation keeps it. */
+  /** At the title's end: the Alert / Thought switch, where a variation keeps it. */
   switcher?: ReactNode
   children: ReactNode
   saveLabel: string
@@ -213,7 +213,7 @@ export function SmartLine({
 }
 
 /**
- * At the top right of "New": what Save will make — a Reminder (a time is
+ * At the top right of "New": what Save will make — an Alert (a time is
  * in the line) or a Thought — as the Type's tile, named for a screen reader.
  */
 export function SavesAs({

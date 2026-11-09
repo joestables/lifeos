@@ -2,6 +2,34 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#76](https://github.com/joestables/lifeos/pull/76) — Stage 7b, step 4: Alerts by name
+
+Branch `claude/relaxed-fermi-nehy7e` · 2026-11-10
+
+**What it did**
+- **An Item's Reminders are its Alerts**, by name, everywhere but the
+  wire ([ADR-0065](../20-architecture/adr/0065-reminders-alerts-and-the-day.md) 4,
+  ALR-001 1): migration `stage7b_alerts` renames `core.reminders` and
+  `core.reminder_deliveries` to `core.alerts` and `core.alert_deliveries`,
+  with their columns (`alert_id`, `default_alert`, `default_alert_time`,
+  `alert_defaults`), constraints, indexes, triggers, policies and
+  functions; the ontology's `defaultAlert`, and a new `*_ontology.sql`
+  (applied as `20261109225036` and `20261109225050`; the advisors found
+  nothing new); the
+  app's code (`AlertList`, `AlertEditDialog`, `useAlerts`) and its words
+  ("Alerts", "Add an alert", the "Alert" dialog); the Edge Functions
+  (`device_alerts`, `alert_for_action`, `act_on_alert`), `device-reminders` and
+  `notification-action` redeployed. Nothing behaves differently.
+- **The old names keep working until step 10**, for a write queued before
+  the rename (the old functions wrap the new; `update_settings` takes the
+  old keys), the app still open in a browser (`core.reminders` a view;
+  the old Settings columns generated from the new) and the Android app as
+  installed (`device-reminders`' and `notification-action`'s fields, and
+  the notifications' `kind` and `key`). `alerts_rename_test` proves them.
+- The database tests renamed; the design page's screenshots refreshed for
+  the words; the specs, glossary and data model say Alerts; the stage
+  plan's building split into steps 4–11.
+
 ## [#75](https://github.com/joestables/lifeos/pull/75) — Stage 7b: the plan, design, specs and decisions
 
 Branch `claude/relaxed-fermi-nehy7e` · 2026-11-09

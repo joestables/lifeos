@@ -14,7 +14,7 @@ the end.*
   ([ADR-0020](../../20-architecture/adr/0020-task-event-reminder.md),
   Provisionally agreed).
 - **What an Event holds** (Joe, 14 October): a title, a start and an end (or
-  all day, over one day or several), a place, notes, Labels, Reminders and a
+  all day, over one day or several), a place, notes, Labels, Alerts and a
   repeat. It has no mark and no sub-tasks.
 - **Events take Labels**, from the same set as Thoughts, Notes and Tasks
   (Joe, 14 October;
@@ -24,9 +24,9 @@ the end.*
   Tasks. An Event is made on Plan, by switching a Task, or by sorting a
   Thought into one in Inbox.
 - **An Event I make reminds me 30 minutes before** it starts, if it has a
-  time; an all-day Event and one from Google Calendar have no Reminder
+  time; an all-day Event and one from Google Calendar have no Alert
   unless I add one (Joe, 14 October;
-  [reminders](reminders.md#decisions)).
+  [alerts](reminders.md#decisions)).
 - **Repeating Events** use the same engine and rules as repeating Tasks, on
   a schedule only (an Event isn't done)
   ([ADR-0022](../../20-architecture/adr/0022-repeating-items.md),
@@ -37,7 +37,7 @@ the end.*
 - **An Event can be shared with a Household** (Joe, 4 November;
   [HSH-005](spaces-and-sharing.md#hsh-005--share-tasks-and-events)): its
   Space, at the foot of its popup. Every member sees it, can change or
-  delete it, gets their own default Reminder, and has it in their default
+  delete it, gets their own default Alert, and has it in their default
   Google calendar. What Google Calendar brings in starts Personal and can
   be shared too ([integrations](integrations.md#google-calendar)).
 - **Events are blue**, with Tasks
@@ -60,7 +60,7 @@ Priority: Must · Status: verified
 Acceptance criteria
 1. Given a new Event (from a day's "+" on Plan, or Plan's "Add"), then
    a new Event opens with all its fields — title, all day or a start and end
-   time, Reminders (its default among them, EVT-003) just below the end
+   time, Alerts (its default among them, EVT-003) just below the end
    (Joe, 4 November), place, repeat, notes, Labels, and with a Household its
    Space at the foot
    ([HSH-005](spaces-and-sharing.md#hsh-005--share-tasks-and-events)) —
@@ -80,7 +80,7 @@ Priority: Must · Status: verified
 
 Acceptance criteria
 1. Given an Event, when I open it, then I can change its title, times (or
-   all day), Reminders (just below the end), place, repeat, notes, Labels
+   all day), Alerts (just below the end), place, repeat, notes, Labels
    and, if I made it, its Space, and each change is kept as I make it.
 2. Given an Event, then I can delete it, with Undo, and recover it from
    Recently deleted ([ITM-002, ITM-003](items.md#requirements)).
@@ -92,15 +92,15 @@ in time.
 Priority: Must · Status: verified (a real notification on a device is checked by hand)
 
 Acceptance criteria
-1. Given I make an Event at 19:30, then it has a Reminder at 19:00; moving
-   the Event moves the Reminder with it. In New event it shows among the
-   Reminders before I save, and I can change or remove it there (Joe, 4
+1. Given I make an Event at 19:30, then it has an Alert at 19:00; moving
+   the Event moves the Alert with it. In New event it shows among the
+   Alerts before I save, and I can change or remove it there (Joe, 4
    November). A shared Event gives each member their own default, as their
    Settings give it
    ([HSH-005](spaces-and-sharing.md#hsh-005--share-tasks-and-events) 4).
 2. Given an all-day Event, or an Event from Google Calendar, then it has no
-   Reminder until I add one.
-3. Given an Event, then I can add Reminders relative to its start ("1 hour
+   Alert until I add one.
+3. Given an Event, then I can add Alerts relative to its start ("1 hour
    before", "1 day before at 18:00") or at a fixed time, change them or
    remove them.
 4. Given an Event's notification, then it says the title, the time and the
@@ -132,7 +132,7 @@ Priority: Must · Status: verified
 Acceptance criteria
 1. Given a Task to do on Friday at 19:00, when I make it an Event, then it
    starts on Friday at 19:00 and lasts an hour, keeping its title, notes,
-   Labels, Reminders, links and history; with no time, it is all day.
+   Labels, Alerts, links and history; with no time, it is all day.
 2. Given an Event, when I make it a Task, then its start becomes the do-on
    date and time.
 3. Given a Task with sub-tasks, then they are kept, unseen on the Event, and

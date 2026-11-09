@@ -176,7 +176,7 @@ test('TSK-001: a new Task cancelled leaves nothing behind, and a click outside k
   expect(db.items.some((i) => i.title === 'Paint the shed')).toBe(false)
 })
 
-test('REM-002 1: New task shows its default Reminder; left, changed or removed, that is what it gets', async ({
+test('REM-002 1: New task shows its default Alert; left, changed or removed, that is what it gets', async ({
   page,
 }) => {
   const db = await start(page)
@@ -188,34 +188,34 @@ test('REM-002 1: New task shows its default Reminder; left, changed or removed, 
     await page.getByRole('button', { name: /13th/ }).click()
     return dialog
   }
-  const remindersOf = (title: string) => {
+  const alertsOf = (title: string) => {
     const t = db.items.find((i) => i.title === title)
-    return t && db.reminders.filter((r) => r.item_id === t.id).map((r) => [r.is_default, r.at_time])
+    return t && db.alerts.filter((r) => r.item_id === t.id).map((r) => [r.is_default, r.at_time])
   }
 
   // Left as it is: the default, and no second at the same time.
   let dialog = await newTask('Put the bins out')
   await expect(dialog.getByRole('button', { name: /^Tomorrow 20:00/ })).toContainText('On the day')
   await dialog.getByRole('button', { name: 'Save' }).click()
-  await expect.poll(() => remindersOf('Put the bins out')).toEqual([[true, null]])
+  await expect.poll(() => alertsOf('Put the bins out')).toEqual([[true, null]])
 
   // Changed: mine, at the time I chose, instead of the default.
   dialog = await newTask('Call the vet')
   await dialog.getByRole('button', { name: /^Tomorrow 20:00/ }).click()
-  const reminder = page.getByRole('dialog', { name: 'Reminder' })
-  await pickTime(reminder.getByRole('combobox', { name: 'Time' }), '19:00')
-  await reminder.getByRole('button', { name: 'Save' }).click()
+  const alert = page.getByRole('dialog', { name: 'Alert' })
+  await pickTime(alert.getByRole('combobox', { name: 'Time' }), '19:00')
+  await alert.getByRole('button', { name: 'Save' }).click()
   await expect(dialog.getByRole('button', { name: /^Tomorrow 19:00/ })).toBeVisible()
   await expect(dialog.getByRole('button', { name: /^Tomorrow 20:00/ })).toHaveCount(0)
   await dialog.getByRole('button', { name: 'Save' }).click()
-  await expect.poll(() => remindersOf('Call the vet')).toEqual([[false, '19:00']])
+  await expect.poll(() => alertsOf('Call the vet')).toEqual([[false, '19:00']])
 
   // Removed: none.
   dialog = await newTask('Water the plants')
-  await dialog.getByRole('button', { name: 'Remove reminder Tomorrow 20:00' }).click()
+  await dialog.getByRole('button', { name: 'Remove alert Tomorrow 20:00' }).click()
   await expect(dialog.getByRole('button', { name: /^Tomorrow 20:00/ })).toHaveCount(0)
   await dialog.getByRole('button', { name: 'Save' }).click()
-  await expect.poll(() => remindersOf('Water the plants')).toEqual([])
+  await expect.poll(() => alertsOf('Water the plants')).toEqual([])
 })
 
 test('TSK-003: ticked done, it leaves; Undo brings it back; Completed lists it', async ({

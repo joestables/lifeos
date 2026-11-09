@@ -129,14 +129,14 @@ test('ADR-0016: my Personal Task linked to a shared Event says it is visible to 
   await expect(page.getByRole('dialog')).toContainText('Visible to Home')
 })
 
-test('EVT-001 1: an Event’s Reminders sit just below its end; its Space last', async ({ page }) => {
+test('EVT-001 1: an Event’s Alerts sit just below its end; its Space last', async ({ page }) => {
   await start(page, `/plan?item=${DINNER}`)
   const dialog = page.getByRole('dialog')
   const labels = dialog.locator('[data-slot="label"]')
   await expect(labels.filter({ hasText: 'Place' })).toBeVisible()
   const names = await labels.allTextContents()
-  expect(names.indexOf('Reminders')).toBeLessThan(names.indexOf('Place'))
-  expect(names.indexOf('Ends')).toBeLessThan(names.indexOf('Reminders'))
+  expect(names.indexOf('Alerts')).toBeLessThan(names.indexOf('Place'))
+  expect(names.indexOf('Ends')).toBeLessThan(names.indexOf('Alerts'))
   // Sam made it, so there is no Space for me to change.
   await expect(dialog.getByRole('combobox', { name: 'Space' })).toHaveCount(0)
   // Sam's own Task for it says whose, and isn't mine to tick.

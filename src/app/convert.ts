@@ -2,16 +2,16 @@ import { parseCapture } from '@lifeos/capture'
 import { useNavigate } from '@tanstack/react-router'
 import { toast } from '@/components/ui/sonner'
 import {
-  addReminder,
+  addAlert,
   convertItem,
   queue,
-  removeReminder,
+  removeAlert,
   updateItem,
-  useReminders,
+  useAlerts,
   useSettings,
   type Item,
   type ItemFields,
-  type Reminder,
+  type Alert,
 } from '@/data'
 import { zonedInstant } from '@/lib/dates'
 import { eventAsTask, taskAsEvent } from '@/lib/events'
@@ -23,15 +23,15 @@ const withArticle = (label: string) => `${/^[aeiou]/i.test(label) ? 'an' : 'a'} 
 /**
  * Converts an Item in place (ITM-004), saying so, with Undo. A Thought becoming a Task
  * has its dates understood as they were meant when it was captured
- * (INB-002, CAP-003); its own Reminder stays (CAP-004) unless the Task's
- * default Reminder fires at the same moment. Becoming an Event, the date is
+ * (INB-002, CAP-003); its own Alert stays (CAP-004) unless the Task's
+ * default Alert fires at the same moment. Becoming an Event, the date is
  * its start (INB-002 3). A Task and an Event swap their times (EVT-005): the
  * server maps them, and they are laid over here too so they show at once,
  * offline as well. Sorted into a Recipe, it offers Open rather than Undo.
  */
 export function useConvert() {
   const settings = useSettings(queue)
-  const reminders = useReminders(queue)
+  const alerts = useAlerts(queue)
   const navigate = useNavigate()
   return (item: Item, type: string) => {
     convertItem(item.id, type)
@@ -46,7 +46,7 @@ export function useConvert() {
       })
       return
     }
-    const removed: Reminder[] = []
+    const removed: Alert[] = []
     let changed: ItemFields | null = null
     const swapped =
       item.type === 'task' && type === 'event'
@@ -56,7 +56,7 @@ export function useConvert() {
           : null
     if (swapped) updateItem(item.id, swapped)
     toast(`Converted into ${withArticle(typeLook(type).label)}`, {
-      // Back to its Type, its dates and title as they were, its own Reminder kept.
+      // Back to its Type, its dates and title as they were, its own Alert kept.
       action: {
         label: 'Undo',
         onClick: () => {
@@ -64,7 +64,7 @@ export function useConvert() {
           if (changed) updateItem(item.id, changed)
           convertItem(item.id, item.type)
           for (const r of removed)
-            addReminder(item.id, {
+            addAlert(item.id, {
               anchor: r.anchor as 'do_on' | 'due_on' | null,
               offset_days: r.offset_days,
               at_time: r.at_time,
@@ -97,13 +97,13 @@ export function useConvert() {
     }
 
     // Only a default that will be made can stand in for the Thought's own.
-    if (dates.doOn && settings.taskReminders) {
+    if (dates.doOn && settings.taskAlerts) {
       const at = new Date(
-        zonedInstant(dates.doOn, dates.doAt ?? settings.defaultReminderTime, settings.timezone),
+        zonedInstant(dates.doOn, dates.doAt ?? settings.defaultAlertTime, settings.timezone),
       ).getTime()
-      for (const r of reminders) {
+      for (const r of alerts) {
         if (r.item_id === item.id && !r.is_default && r.fires_at && Date.parse(r.fires_at) === at) {
-          removeReminder(item.id, r.id)
+          removeAlert(item.id, r.id)
           removed.push(r)
         }
       }

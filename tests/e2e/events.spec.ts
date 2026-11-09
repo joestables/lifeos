@@ -110,7 +110,7 @@ test('EVT-001: a new Event from Plan, an hour long until I change it, kept only 
     })
 })
 
-test('EVT-003 1: New event shows its default Reminder, 30 minutes before; removed, it has none', async ({
+test('EVT-003 1: New event shows its default Alert, 30 minutes before; removed, it has none', async ({
   page,
 }) => {
   const db = await start(page, '/plan')
@@ -121,9 +121,9 @@ test('EVT-003 1: New event shows its default Reminder, 30 minutes before; remove
     await dialog.getByRole('textbox', { name: 'Title' }).fill(title)
     return dialog
   }
-  const remindersOf = (title: string) => {
+  const alertsOf = (title: string) => {
     const e = db.items.find((i) => i.title === title)
-    return e && db.reminders.filter((r) => r.item_id === e.id).map((r) => r.is_default)
+    return e && db.alerts.filter((r) => r.item_id === e.id).map((r) => r.is_default)
   }
 
   // It starts at 11:00, so its default is at 10:30.
@@ -132,12 +132,12 @@ test('EVT-003 1: New event shows its default Reminder, 30 minutes before; remove
     '30 minutes before',
   )
   await dialog.getByRole('button', { name: 'Save' }).click()
-  await expect.poll(() => remindersOf('Dentist')).toEqual([true])
+  await expect.poll(() => alertsOf('Dentist')).toEqual([true])
 
   dialog = await newEvent('Haircut')
-  await dialog.getByRole('button', { name: 'Remove reminder Today 10:30' }).click()
+  await dialog.getByRole('button', { name: 'Remove alert Today 10:30' }).click()
   await dialog.getByRole('button', { name: 'Save' }).click()
-  await expect.poll(() => remindersOf('Haircut')).toEqual([])
+  await expect.poll(() => alertsOf('Haircut')).toEqual([])
 })
 
 test('EVT-001 3, EVT-002: an Event changed in its popup; all day kept as dates; deleted with Undo', async ({
@@ -186,27 +186,27 @@ test('EVT-003 3: an Event reminds me before it starts, or on a day before it at 
   const popup = page.getByRole('dialog', { name: "Mum's birthday lunch" })
   // Opened: the popup takes the focus, which would close a Dialog opened sooner.
   await expect(popup).toBeFocused()
-  await popup.getByRole('button', { name: 'Add a reminder' }).click()
-  let reminder = page.getByRole('dialog', { name: 'Reminder' })
-  await expect(reminder.getByRole('combobox', { name: 'On', exact: true })).toContainText(
+  await popup.getByRole('button', { name: 'Add an alert' }).click()
+  let alert = page.getByRole('dialog', { name: 'Alert' })
+  await expect(alert.getByRole('combobox', { name: 'On', exact: true })).toContainText(
     'Before it starts',
   )
-  await reminder.getByRole('combobox', { name: 'How long before' }).click()
+  await alert.getByRole('combobox', { name: 'How long before' }).click()
   await page.getByRole('option', { name: '1 hour before' }).click()
-  await reminder.getByRole('button', { name: 'Save' }).click()
+  await alert.getByRole('button', { name: 'Save' }).click()
   await expect
-    .poll(() => db.reminders.find((r) => r.item_id === LUNCH))
+    .poll(() => db.alerts.find((r) => r.item_id === LUNCH))
     .toMatchObject({ anchor: 'starts_at', offset_minutes: -60, at_time: null })
 
-  await popup.getByRole('button', { name: 'Add a reminder' }).click()
-  reminder = page.getByRole('dialog', { name: 'Reminder' })
-  await reminder.getByRole('combobox', { name: 'On', exact: true }).click()
+  await popup.getByRole('button', { name: 'Add an alert' }).click()
+  alert = page.getByRole('dialog', { name: 'Alert' })
+  await alert.getByRole('combobox', { name: 'On', exact: true }).click()
   await page.getByRole('option', { name: 'The day it starts' }).click()
-  await reminder.getByRole('spinbutton', { name: 'Days before' }).fill('1')
-  await pickTime(reminder.getByRole('combobox', { name: 'Time' }), '18:00')
-  await reminder.getByRole('button', { name: 'Save' }).click()
+  await alert.getByRole('spinbutton', { name: 'Days before' }).fill('1')
+  await pickTime(alert.getByRole('combobox', { name: 'Time' }), '18:00')
+  await alert.getByRole('button', { name: 'Save' }).click()
   await expect
-    .poll(() => db.reminders.filter((r) => r.item_id === LUNCH).map((r) => r.offset_days))
+    .poll(() => db.alerts.filter((r) => r.item_id === LUNCH).map((r) => r.offset_days))
     .toEqual([0, -1])
   await expect(popup.getByText('1 day before')).toBeVisible()
 })
@@ -293,7 +293,7 @@ test('REM-007 2: the Event default is turned off in Settings', async ({ page }) 
   const events = page.getByRole('switch', { name: 'Remind me 30 minutes before events' })
   await expect(events).toBeChecked()
   await events.click()
-  await expect.poll(() => db.people[0]!.reminder_defaults).toEqual({ event: false })
+  await expect.poll(() => db.people[0]!.alert_defaults).toEqual({ event: false })
 })
 
 test('EVT-004: a weekly Event at its time either side of the clocks changing; one changed alone; stopped', async ({

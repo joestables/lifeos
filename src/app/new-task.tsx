@@ -1,15 +1,15 @@
 import { useRef, useState } from 'react'
-import { ItemDialog, type ReminderChoice, type Repeat } from '@/components/lifeos'
+import { ItemDialog, type AlertChoice, type Repeat } from '@/components/lifeos'
 import { Button } from '@/components/ui/button'
 import { toast } from '@/components/ui/sonner'
 import {
-  addReminder,
+  addAlert,
   addSubtask,
   archiveItem,
   createItem,
   newId,
   queue,
-  removeDefaultReminder,
+  removeDefaultAlert,
   stopRepeat,
   updateSubtask,
   useFoodSpaces,
@@ -18,10 +18,10 @@ import {
 } from '@/data'
 import { isoDayOf } from '@/lib/dates'
 import { typeLook } from '@/lib/item-types'
-import { defaultReminder, reminderFields } from '@/lib/reminders'
+import { defaultAlert, alertFields } from '@/lib/alerts'
 import { draftItem } from './item-navigation'
 import { useDraftLabels } from './draft-labels'
-import { DraftReminders, type DraftReminder } from './draft-reminders'
+import { DraftAlerts, type DraftAlert } from './draft-alerts'
 import { SpaceField } from './space-field'
 import { repeatTask } from './repeat'
 import { TaskFields, type TaskDates } from './task-details'
@@ -59,13 +59,10 @@ export function NewTaskDialog({
     status: 'active',
   })
   const [repeat, setRepeat] = useState<Repeat | null>(null)
-  const [reminders, setReminders] = useState<DraftReminder[]>([])
+  const [alerts, setAlerts] = useState<DraftAlert[]>([])
   // The default changed or removed before Save (REM-002 1).
   const [defaultGone, setDefaultGone] = useState(false)
-  const byDefault = defaultReminder(
-    { type: 'task', do_on: dates.do_on, do_at: dates.do_at },
-    settings,
-  )
+  const byDefault = defaultAlert({ type: 'task', do_on: dates.do_on, do_at: dates.do_at }, settings)
   const [subtasks, setSubtasks] = useState<{ id: string; title: string; done: boolean }[]>([])
 
   const dirty =
@@ -74,7 +71,7 @@ export function NewTaskDialog({
     dates.do_on !== doOn ||
     dates.due_on !== null ||
     subtasks.length > 0 ||
-    reminders.length > 0 ||
+    alerts.length > 0 ||
     defaultGone ||
     (space !== null && space !== personal)
   const today = isoDayOf(new Date())
@@ -91,22 +88,22 @@ export function NewTaskDialog({
     if (space && space !== personal) fields.space_id = space
     const id = createItem('task', fields)
     // The server gives it its default; changed or removed here, it goes.
-    if (byDefault && defaultGone) removeDefaultReminder(id)
+    if (byDefault && defaultGone) removeDefaultAlert(id)
     const labelIds = draftLabels.save(id)
     for (const s of subtasks) {
       const sid = addSubtask(id, s.title)
       if (s.done) updateSubtask(id, sid, { done: true })
     }
-    // A Reminder on a date the Task hasn't got is left out.
-    const kept = reminders.filter(
+    // An Alert on a date the Task hasn't got is left out.
+    const kept = alerts.filter(
       (r) =>
         r.choice.kind === 'fixed' ||
         ((r.choice.kind === 'do_on' || r.choice.kind === 'due_on') && dates[r.choice.kind]),
     )
-    for (const r of kept) addReminder(id, reminderFields(r.choice, settings.timezone))
+    for (const r of kept) addAlert(id, alertFields(r.choice, settings.timezone))
     if (repeat) {
       const anchored = kept
-        .map((r) => reminderFields(r.choice, settings.timezone))
+        .map((r) => alertFields(r.choice, settings.timezone))
         .filter((f) => f.anchor)
       repeatTask(
         {
@@ -119,7 +116,7 @@ export function NewTaskDialog({
         {
           labelIds,
           timezone: settings.timezone,
-          reminders: anchored.map((f) => ({
+          alerts: anchored.map((f) => ({
             anchor: f.anchor!,
             offset_days: f.offset_days ?? 0,
             at_time: f.at_time ?? null,
@@ -141,13 +138,13 @@ export function NewTaskDialog({
     })
   }
 
-  const fresh: ReminderChoice = anchors[0]
+  const fresh: AlertChoice = anchors[0]
     ? {
         kind: anchors[0],
         daysBefore: 0,
-        time: dates.do_at?.slice(0, 5) ?? settings.defaultReminderTime,
+        time: dates.do_at?.slice(0, 5) ?? settings.defaultAlertTime,
       }
-    : { kind: 'fixed', day: today, time: settings.defaultReminderTime }
+    : { kind: 'fixed', day: today, time: settings.defaultAlertTime }
 
   return (
     <ItemDialog
@@ -191,10 +188,10 @@ export function NewTaskDialog({
         repeat={repeat}
         onRepeat={setRepeat}
         startsOn={dates.do_on && dates.do_on > today ? dates.do_on : today}
-        reminders={
-          <DraftReminders
-            reminders={reminders}
-            onChange={setReminders}
+        alerts={
+          <DraftAlerts
+            alerts={alerts}
+            onChange={setAlerts}
             anchors={anchors}
             dates={dates}
             fresh={fresh}

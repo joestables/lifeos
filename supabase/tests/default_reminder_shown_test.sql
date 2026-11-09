@@ -15,11 +15,11 @@ set local role authenticated;
 
 -- New task, its default changed to 19:00: the Item, its default gone, my own.
 select core.create_item('00000000-0000-7000-8000-000000000001', 'task', '{"title": "Put the bins out", "do_on": "2030-01-08", "do_at": "20:00"}');
-select core.remove_default_reminder('00000000-0000-7000-8000-000000000001');
-select core.add_reminder('00000000-0000-7000-8000-0000000000e1', '00000000-0000-7000-8000-000000000001',
+select core.remove_default_alert('00000000-0000-7000-8000-000000000001');
+select core.add_alert('00000000-0000-7000-8000-0000000000e1', '00000000-0000-7000-8000-000000000001',
   '{"anchor": "do_on", "offset_days": 0, "at_time": "19:00"}');
 select is(
-  (select array_agg(row(is_default, at_time)::text) from core.reminders where item_id = '00000000-0000-7000-8000-000000000001'),
+  (select array_agg(row(is_default, at_time)::text) from core.alerts where item_id = '00000000-0000-7000-8000-000000000001'),
   array[row(false, '19:00:00'::time)::text],
   'REM-002 1: the default changed before Save leaves only the one I chose'
 );
@@ -28,18 +28,18 @@ select is(
 select core.create_item('00000000-0000-7000-8000-000000000002', 'event',
   '{"title": "Dentist", "starts_at": "2030-01-09T10:00:00Z", "ends_at": "2030-01-09T11:00:00Z", "all_day": false}');
 select is(
-  (select count(*)::int from core.reminders where item_id = '00000000-0000-7000-8000-000000000002' and is_default),
+  (select count(*)::int from core.alerts where item_id = '00000000-0000-7000-8000-000000000002' and is_default),
   1,
   'EVT-003 1: a timed Event has its default'
 );
-select core.remove_default_reminder('00000000-0000-7000-8000-000000000002');
+select core.remove_default_alert('00000000-0000-7000-8000-000000000002');
 select is(
-  (select count(*)::int from core.reminders where item_id = '00000000-0000-7000-8000-000000000002'),
+  (select count(*)::int from core.alerts where item_id = '00000000-0000-7000-8000-000000000002'),
   0,
   'EVT-003 1: removed before Save, it has none'
 );
 select lives_ok(
-  $$select core.remove_default_reminder('00000000-0000-7000-8000-000000000002')$$,
+  $$select core.remove_default_alert('00000000-0000-7000-8000-000000000002')$$,
   'Sent again (a reload while it was on its way), it changes nothing'
 );
 reset role;
@@ -51,10 +51,10 @@ from (select set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000
 select set_config('request.jwt.claims', '{"sub": "00000000-0000-4000-8000-00000000000b", "role": "authenticated"}', true),
   set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-00000000000b', true);
 set local role authenticated;
-select core.remove_default_reminder('00000000-0000-7000-8000-000000000003');
+select core.remove_default_alert('00000000-0000-7000-8000-000000000003');
 reset role;
 select is(
-  (select count(*)::int from core.reminders where item_id = '00000000-0000-7000-8000-000000000003' and is_default),
+  (select count(*)::int from core.alerts where item_id = '00000000-0000-7000-8000-000000000003' and is_default),
   1,
   'Someone else can''t remove my default'
 );

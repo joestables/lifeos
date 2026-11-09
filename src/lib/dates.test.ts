@@ -5,7 +5,7 @@ import {
   invitedWhen,
   dayName,
   dueWhen,
-  reminderWhen,
+  alertWhen,
   shortDate,
   sinceWhen,
   whenAgo,
@@ -53,7 +53,7 @@ describe('dates as people read them (patterns.md#copy)', () => {
     expect(sinceWhen('2026-10-10', now)).toBe('Since yesterday')
     expect(sinceWhen('2026-10-08', now)).toBe('Since Thu')
     expect(sinceWhen('2026-10-02', now)).toBe('Since Fri 2 Oct')
-    expect(reminderWhen(new Date(2026, 9, 13, 15, 0).toISOString(), now)).toBe('Tue 15:00')
+    expect(alertWhen(new Date(2026, 9, 13, 15, 0).toISOString(), now)).toBe('Tue 15:00')
   })
 })
 

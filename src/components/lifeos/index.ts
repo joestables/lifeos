@@ -36,12 +36,12 @@ export { SubtaskList } from './SubtaskList'
 export { TimeField } from './TimeField'
 export { RepeatField, type Repeat } from './RepeatField'
 export {
-  ReminderDialog,
-  ReminderList,
-  type ReminderAnchor,
-  type ReminderChoice,
-  type ReminderLine,
-} from './ReminderList'
+  AlertEditDialog,
+  AlertList,
+  type AlertAnchor,
+  type AlertChoice,
+  type AlertLine,
+} from './AlertList'
 export { EventTimesField, type EventTimesValue } from './EventTimesField'
 export { EventFact, EventSource, ItemNote } from './EventFacts'
 export { RecipeCard, RecipeGrid, RecipePhoto, StarRating, type CardSize } from './RecipeCard'
