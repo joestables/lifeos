@@ -165,8 +165,8 @@ Acceptance criteria
    and computers, as REM-005; an Alarm as REM-011).
 2. Given I choose Done, then the notification goes and nothing else
    changes: the Reminder stays on its day.
-3. Given I choose Snooze, then that Alert is removed and a new one is set
-   an hour from then, seen in the Reminder's Alerts like any other.
+3. Given I choose Snooze, then that Alert moves to an hour from then, seen
+   in the Reminder's Alerts like any other ([open point 1](#open-points)).
 
 ### RMD-006 — Convert to and from a Reminder
 
@@ -356,6 +356,8 @@ Acceptance criteria
 5. Given "in 2 hours", "tonight", "this weekend", then they are understood
    as the quick times are (NEW-005).
 6. Given no Alert can be in the past, then nothing typed makes one.
+7. Given "every tuesday", then no Repeat is set from the line (Joe, 9
+   November); a Repeat is set in the Reminder's popup (RMD-004).
 
 ### NEW-004 — Alert pills in the line
 
@@ -553,11 +555,12 @@ Stage 10).
 
 ## Open points
 
-For Joe, when agreeing this spec:
+For Joe, when agreeing this spec. He agreed Claude's choices and answered
+the first point on 9 November ("every tuesday" sets no Repeat, NEW-003 7).
 
-1. **"every tuesday" in "New":** should it set the Reminder's Repeat (a
-   pill with the repeat icon, as an Alert's), or only the first Alert,
-   the Repeat set in the Reminder's popup?
-2. **Snooze on a Task's or an Event's Alert** stays as it is (for me only,
-   an hour, nothing changed on the Item); only a Reminder's Snooze moves
-   its Alert (RMD-005 3). Is that right?
+1. **Snooze, the same for Tasks, Events and Reminders.** Today a Snooze
+   moves that one Alert to an hour from then, for me only, shown as
+   "Snoozed" in the Item's Alerts; on a Task the Alert goes back to its
+   do-on date if that date is changed. Proposed: keep that for all three,
+   a Reminder's Alert moving the same way (RMD-005 3), rather than a
+   Reminder's being removed and a new one made.
