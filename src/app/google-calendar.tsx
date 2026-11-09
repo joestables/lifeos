@@ -26,7 +26,7 @@ import {
   useCalendar,
   type CalendarLink,
 } from '@/data'
-import { reminderWhen, whenAgo } from '@/lib/dates'
+import { alertWhen, whenAgo } from '@/lib/dates'
 import { CalendarSelect } from './calendar-select'
 import { connectGoogleCalendar, isOn } from './google-source'
 
@@ -191,7 +191,7 @@ export function CalendarBrokenAlert() {
       <AlertTitle>Google Calendar isn’t syncing</AlertTitle>
       {connection!.broken_since && (
         <AlertDescription>
-          Since {reminderWhen(connection!.broken_since).replace(/^\w/, (c) => c.toLowerCase())}
+          Since {alertWhen(connection!.broken_since).replace(/^\w/, (c) => c.toLowerCase())}
         </AlertDescription>
       )}
       <AlertAction>

@@ -17,7 +17,7 @@ Stage 2, are at the end.*
   page ([ADR-0032](../../20-architecture/adr/0032-delete-means-archive.md),
   Provisionally agreed).
 - **Conversion changes an Item's Type in place**: it keeps its id, links,
-  Reminders and history. Thought → any Capturable Type; Note → any other
+  Alerts and history. Thought → any Capturable Type; Note → any other
   Capturable Type; Task ↔ Event. Everything else is "create
   from" + *became* ([ADR-0018](../../20-architecture/adr/0018-changing-an-items-type.md),
   [ADR-0019](../../20-architecture/adr/0019-conversion-keeps-space-and-status.md),
@@ -65,12 +65,12 @@ Acceptance criteria
 
 **As** Joe, **I want** deleting to be quick and undoable, **so that** a
 slip costs nothing.
-Priority: Must · Status: built (its Reminders not firing is verified with step 11)
+Priority: Must · Status: built (its Alerts not firing is verified with step 11)
 
 Acceptance criteria
 1. Given an Item, when I delete it, then it leaves every page at once, and I
    can undo that straight away; undoing puts it back as it was.
-2. Given a deleted Item, then its Reminders don't fire.
+2. Given a deleted Item, then its Alerts don't fire.
 
 ### ITM-003 — Recover a deleted Item
 
@@ -83,7 +83,7 @@ Acceptance criteria
    every Type, the most recently deleted first, with each one's Type and
    when it was deleted.
 2. Given a deleted Item there, when I restore it, then it is back where it
-   was, with its Labels, links and Reminders.
+   was, with its Labels, links and Alerts.
 3. Given a repeat I changed or stopped, then the occurrences it took away,
    which I had never changed, are not listed: I didn't delete them
    ([TSK-011](../views/tasks.md#tsk-011--change-or-stop-a-repeat)).
@@ -98,7 +98,7 @@ Acceptance criteria
 1. Given an Item, then I'm offered only the Types it can be converted into,
    among the Types that exist.
 2. Given I convert a Note into a Task, then it keeps its title, body,
-   Labels, links and Reminders, and its history records the conversion; its
+   Labels, links and Alerts, and its history records the conversion; its
    status is kept where the new Type has it, else it is active (a done
    Thought becomes an active Note).
 3. Given I've just converted an Item, then I can undo it, and it is the

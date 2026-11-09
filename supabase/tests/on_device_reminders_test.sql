@@ -29,7 +29,7 @@ select throws_ok(
   'Only an Android app device has one'
 );
 select throws_ok(
-  $$select * from core.device_reminders('00000000-0000-7000-8000-0000000000f1', 'x')$$,
+  $$select * from core.device_alerts('00000000-0000-7000-8000-0000000000f1', 'x')$$,
   '42501', null,
   'What the phone reads is the server''s to hand over, not the signed in''s'
 );
@@ -45,7 +45,7 @@ insert into core.items (id, type, title, space_id, owner_id, do_on, status) valu
   ('00000000-0000-7000-8000-000000000001', 'task', 'Renew car insurance', :'a_space', '00000000-0000-4000-8000-00000000000a', (now() at time zone 'Europe/London')::date + 1, 'active'),
   ('00000000-0000-7000-8000-000000000002', 'task', 'Book the MOT', :'a_space', '00000000-0000-4000-8000-00000000000a', (now() at time zone 'Europe/London')::date + 14, 'active');
 update core.push_devices set look_wanted_at = null;
-insert into core.reminders (id, item_id, person_id, anchor, at_time) values
+insert into core.alerts (id, item_id, person_id, anchor, at_time) values
   ('00000000-0000-7000-8000-0000000000e1', '00000000-0000-7000-8000-000000000001', '00000000-0000-4000-8000-00000000000a', 'do_on', '09:00'),
   ('00000000-0000-7000-8000-0000000000e2', '00000000-0000-7000-8000-000000000002', '00000000-0000-4000-8000-00000000000a', 'do_on', '09:00')
 on conflict do nothing;
@@ -67,12 +67,12 @@ select is(
 
 select is(
   (select array_agg(payload ->> 'title' order by fires_at)
-   from core.device_reminders('00000000-0000-7000-8000-0000000000f1', :'secret')),
+   from core.device_alerts('00000000-0000-7000-8000-0000000000f1', :'secret')),
   array['Renew car insurance'],
   'REM-010 1: the phone reads its Reminders a week ahead, with what each says'
 );
 select throws_ok(
-  $$select * from core.device_reminders('00000000-0000-7000-8000-0000000000f1', 'wrong')$$,
+  $$select * from core.device_alerts('00000000-0000-7000-8000-0000000000f1', 'wrong')$$,
   '42501', null,
   'With the wrong secret, nothing'
 );
@@ -88,28 +88,28 @@ update core.items set status = 'active' where id = '00000000-0000-7000-8000-0000
 
 -- Snooze from the phone, as Ann; not with the wrong secret.
 select is(
-  core.act_on_reminder('00000000-0000-7000-8000-0000000000f1', 'wrong', '00000000-0000-7000-8000-0000000000e1', 'snooze'),
+  core.act_on_alert('00000000-0000-7000-8000-0000000000f1', 'wrong', '00000000-0000-7000-8000-0000000000e1', 'snooze'),
   false,
   'REM-005: with the wrong secret, Snooze does nothing'
 );
 select ok(
-  core.act_on_reminder('00000000-0000-7000-8000-0000000000f1', :'secret', '00000000-0000-7000-8000-0000000000e1', 'snooze'),
+  core.act_on_alert('00000000-0000-7000-8000-0000000000f1', :'secret', '00000000-0000-7000-8000-0000000000e1', 'snooze'),
   'REM-005 2: Snooze from the phone is accepted'
 );
 select isnt(
-  (select snoozed_until from core.reminders where id = '00000000-0000-7000-8000-0000000000e1'),
+  (select snoozed_until from core.alerts where id = '00000000-0000-7000-8000-0000000000e1'),
   null,
   'REM-005 2: and moves the Reminder an hour on'
 );
 
 -- When it comes due: the phone's is recorded, never sent; the laptop's waits.
-update core.reminders set snoozed_until = null, fixed_at = '2030-01-08 09:00:00+00', anchor = null
+update core.alerts set snoozed_until = null, fixed_at = '2030-01-08 09:00:00+00', anchor = null
 where id = '00000000-0000-7000-8000-0000000000e1';
-update core.reminders set updated_at = '2030-01-07 00:00:00+00' where id = '00000000-0000-7000-8000-0000000000e1';
+update core.alerts set updated_at = '2030-01-07 00:00:00+00' where id = '00000000-0000-7000-8000-0000000000e1';
 select core_private.queue_notifications('2030-01-08 09:00:20+00');
 select is(
-  (select array_agg(row(device_id, status)::text order by device_id) from core.reminder_deliveries
-   where reminder_id = '00000000-0000-7000-8000-0000000000e1'),
+  (select array_agg(row(device_id, status)::text order by device_id) from core.alert_deliveries
+   where alert_id = '00000000-0000-7000-8000-0000000000e1'),
   array[
     row('00000000-0000-7000-8000-0000000000f1'::uuid, 'on_device')::text,
     row('00000000-0000-7000-8000-0000000000f2'::uuid, 'waiting')::text],
@@ -122,12 +122,12 @@ insert into core.push_devices (id, person_id, endpoint, p256dh, auth, label, cre
    'https://push.example/new-phone', 'k', 'a', 'New phone', '2030-01-08 09:05:00+00');
 select core_private.queue_notifications('2030-01-08 09:06:00+00');
 select is(
-  (select count(*)::int from core.reminder_deliveries where device_id = '00000000-0000-7000-8000-0000000000f3'),
+  (select count(*)::int from core.alert_deliveries where device_id = '00000000-0000-7000-8000-0000000000f3'),
   0,
   'REM-004: a device turned on later isn''t sent what came due before it'
 );
 select is(
-  (select count(*)::int from core.reminder_deliveries where reminder_id = '00000000-0000-7000-8000-0000000000e1'),
+  (select count(*)::int from core.alert_deliveries where alert_id = '00000000-0000-7000-8000-0000000000e1'),
   2,
   'and the others aren''t sent theirs twice'
 );

@@ -29,7 +29,7 @@ insert into core.items (id, type, title, space_id, owner_id, do_on, do_at, due_o
   ('00000000-0000-7000-8000-000000000002', 'task', 'Return the jacket', :'a_space', '00000000-0000-4000-8000-00000000000a', null, null, null, 'done'),
   ('00000000-0000-7000-8000-000000000003', 'task', 'Renew insurance', :'a_space', '00000000-0000-4000-8000-00000000000a', null, null, '2026-10-11', 'active'),
   ('00000000-0000-7000-8000-000000000004', 'thought', 'Gift idea for Sam', :'a_space', '00000000-0000-4000-8000-00000000000a', null, null, null, 'active');
-insert into core.reminders (id, item_id, person_id, fixed_at, updated_at) values
+insert into core.alerts (id, item_id, person_id, fixed_at, updated_at) values
   ('00000000-0000-7000-8000-0000000000e1', '00000000-0000-7000-8000-000000000001', '00000000-0000-4000-8000-00000000000a', '2026-10-12 17:30:00+00', '2026-10-05 09:00:00+00'),
   ('00000000-0000-7000-8000-0000000000e2', '00000000-0000-7000-8000-000000000002', '00000000-0000-4000-8000-00000000000a', '2026-10-12 17:30:00+00', '2026-10-05 09:00:00+00'),
   ('00000000-0000-7000-8000-0000000000e4', '00000000-0000-7000-8000-000000000004', '00000000-0000-4000-8000-00000000000a', '2026-10-12 08:00:00+00', '2026-10-05 09:00:00+00');
@@ -37,51 +37,51 @@ insert into core.reminders (id, item_id, person_id, fixed_at, updated_at) values
 -- 17:30:20 UTC on Monday 12 October.
 select core_private.queue_notifications('2026-10-12 17:30:20+00');
 select is(
-  (select array_agg(device_id::text) from core.reminder_deliveries where key = 'reminder:00000000-0000-7000-8000-0000000000e1'),
+  (select array_agg(device_id::text) from core.alert_deliveries where key = 'reminder:00000000-0000-7000-8000-0000000000e1'),
   array['00000000-0000-7000-8000-0000000000d1'],
   'REM-004: a due Reminder is queued for each device with notifications on, and not the one turned off'
 );
 select core_private.queue_notifications('2026-10-12 17:31:20+00');
 select is(
-  (select count(*)::int from core.reminder_deliveries where key = 'reminder:00000000-0000-7000-8000-0000000000e1'),
+  (select count(*)::int from core.alert_deliveries where key = 'reminder:00000000-0000-7000-8000-0000000000e1'),
   1,
   'REM-004 2: run again, it is still queued once'
 );
 select is(
-  (select count(*)::int from core.reminder_deliveries where key = 'reminder:00000000-0000-7000-8000-0000000000e2'),
+  (select count(*)::int from core.alert_deliveries where key = 'reminder:00000000-0000-7000-8000-0000000000e2'),
   0,
   'REM-004 5, TSK-003: a done Task''s Reminder is not sent'
 );
 select is(
-  (select status from core.reminder_deliveries where key = 'reminder:00000000-0000-7000-8000-0000000000e4'),
+  (select status from core.alert_deliveries where key = 'reminder:00000000-0000-7000-8000-0000000000e4'),
   'waiting',
   'REM-004 3: one up to 12 hours late is still sent'
 );
 select core_private.queue_notifications('2026-10-12 08:30:00+00');
 select core_private.queue_notifications('2026-10-12 09:00:00+00');
 select is(
-  (select count(*)::int from core.reminder_deliveries where key = 'reminder:00000000-0000-7000-8000-0000000000e4'),
+  (select count(*)::int from core.alert_deliveries where key = 'reminder:00000000-0000-7000-8000-0000000000e4'),
   1,
   'REM-004 3: and only once'
 );
 
 -- REM-004 3: more than 12 hours late, it is recorded as missed.
-insert into core.reminders (id, item_id, person_id, fixed_at, updated_at) values
+insert into core.alerts (id, item_id, person_id, fixed_at, updated_at) values
   ('00000000-0000-7000-8000-0000000000e5', '00000000-0000-7000-8000-000000000004', '00000000-0000-4000-8000-00000000000a', '2026-10-12 01:00:00+00', '2026-10-05 09:00:00+00');
 select core_private.queue_notifications('2026-10-12 17:32:00+00');
 select is(
-  (select status from core.reminder_deliveries where key = 'reminder:00000000-0000-7000-8000-0000000000e5'),
+  (select status from core.alert_deliveries where key = 'reminder:00000000-0000-7000-8000-0000000000e5'),
   'missed',
   'REM-004 3: more than 12 hours late it is recorded as missed, not sent'
 );
 
 -- REM-004: one set after its time (a Task captured at 15:00 for today, its
 -- default at 09:00) isn't sent at all.
-insert into core.reminders (id, item_id, person_id, fixed_at, updated_at) values
+insert into core.alerts (id, item_id, person_id, fixed_at, updated_at) values
   ('00000000-0000-7000-8000-0000000000e6', '00000000-0000-7000-8000-000000000001', '00000000-0000-4000-8000-00000000000a', '2026-10-12 08:00:00+00', '2026-10-12 14:00:00+00');
 select core_private.queue_notifications('2026-10-12 17:33:00+00');
 select is(
-  (select count(*)::int from core.reminder_deliveries where key = 'reminder:00000000-0000-7000-8000-0000000000e6'),
+  (select count(*)::int from core.alert_deliveries where key = 'reminder:00000000-0000-7000-8000-0000000000e6'),
   0,
   'REM-004: a Reminder already past when it was set isn''t sent'
 );
@@ -89,13 +89,13 @@ select is(
 -- REM-009: without a digest, an overdue Task is nudged at the default time
 -- (09:00 London is 08:00 UTC), once.
 select is(
-  (select count(*)::int from core.reminder_deliveries where key = 'overdue:00000000-0000-7000-8000-000000000003:2026-10-11'),
+  (select count(*)::int from core.alert_deliveries where key = 'overdue:00000000-0000-7000-8000-000000000003:2026-10-11'),
   1,
   'REM-009 1: a Task due yesterday is nudged at my default time'
 );
 select core_private.queue_notifications('2026-10-13 08:05:00+00');
 select is(
-  (select count(*)::int from core.reminder_deliveries where key = 'overdue:00000000-0000-7000-8000-000000000003:2026-10-11'),
+  (select count(*)::int from core.alert_deliveries where key = 'overdue:00000000-0000-7000-8000-000000000003:2026-10-11'),
   1,
   'REM-009 3: it stays overdue, and is nudged only once'
 );
@@ -104,7 +104,7 @@ select is(
 -- it is skipped, so it doesn't come later in the day.
 select core_private.queue_notifications('2026-10-12 06:00:30+00');
 select is(
-  (select status from core.reminder_deliveries where key = 'digest:00000000-0000-4000-8000-00000000000b:2026-10-12'),
+  (select status from core.alert_deliveries where key = 'digest:00000000-0000-4000-8000-00000000000b:2026-10-12'),
   'skipped',
   'REM-008 2: with nothing needing me, no digest is sent'
 );
@@ -113,12 +113,12 @@ insert into core.items (id, type, title, space_id, owner_id, do_on, status) valu
   ('00000000-0000-7000-8000-000000000012', 'thought', 'Paint the shed', :'b_space', '00000000-0000-4000-8000-00000000000b', null, 'active');
 select core_private.queue_notifications('2026-10-13 06:01:00+00');
 select is(
-  (select fire_at from core.reminder_deliveries where key = 'digest:00000000-0000-4000-8000-00000000000b:2026-10-13'),
+  (select fire_at from core.alert_deliveries where key = 'digest:00000000-0000-4000-8000-00000000000b:2026-10-13'),
   '2026-10-13 06:00:00+00'::timestamptz,
   'REM-008 1: the digest is queued at my digest time, in my timezone'
 );
 select is(
-  (select count(*)::int from core.reminder_deliveries where kind = 'overdue' and person_id = '00000000-0000-4000-8000-00000000000b'),
+  (select count(*)::int from core.alert_deliveries where kind = 'overdue' and person_id = '00000000-0000-4000-8000-00000000000b'),
   0,
   'REM-009 2: with the digest on, there are no separate nudges'
 );
@@ -131,13 +131,13 @@ select is(
 -- Sending: what is due now, by the real clock. A Reminder on Call mum and
 -- one on the Thought, Ben's digest and Ann's overdue nudge, each a minute
 -- ago.
-delete from core.reminder_deliveries;
+delete from core.alert_deliveries;
 delete from core.items where owner_id = '00000000-0000-4000-8000-00000000000b';
 insert into core.items (id, type, title, space_id, owner_id, do_on, status) values
   ('00000000-0000-7000-8000-000000000013', 'task', 'Bins', :'b_space', '00000000-0000-4000-8000-00000000000b',
    (now() at time zone 'Europe/London')::date, 'active'),
   ('00000000-0000-7000-8000-000000000014', 'thought', 'Paint the shed', :'b_space', '00000000-0000-4000-8000-00000000000b', null, 'active');
-insert into core.reminder_deliveries (kind, key, person_id, device_id, reminder_id, item_id, fire_at) values
+insert into core.alert_deliveries (kind, key, person_id, device_id, alert_id, item_id, fire_at) values
   ('reminder', 'reminder:00000000-0000-7000-8000-0000000000e1', '00000000-0000-4000-8000-00000000000a',
    '00000000-0000-7000-8000-0000000000d1', '00000000-0000-7000-8000-0000000000e1', '00000000-0000-7000-8000-000000000001', now() - interval '1 minute'),
   ('reminder', 'reminder:00000000-0000-7000-8000-0000000000e4', '00000000-0000-4000-8000-00000000000a',
@@ -184,12 +184,12 @@ select is(
 );
 
 -- Done before it was sent: skipped, not sent (REM-004 5).
-insert into core.reminder_deliveries (kind, key, person_id, device_id, reminder_id, item_id, fire_at) values
+insert into core.alert_deliveries (kind, key, person_id, device_id, alert_id, item_id, fire_at) values
   ('reminder', 'reminder:00000000-0000-7000-8000-0000000000e2', '00000000-0000-4000-8000-00000000000a',
    '00000000-0000-7000-8000-0000000000d1', '00000000-0000-7000-8000-0000000000e2', '00000000-0000-7000-8000-000000000002', now() - interval '2 minutes');
 select core.claim_deliveries();
 select is(
-  (select status from core.reminder_deliveries where key = 'reminder:00000000-0000-7000-8000-0000000000e2'),
+  (select status from core.alert_deliveries where key = 'reminder:00000000-0000-7000-8000-0000000000e2'),
   'skipped',
   'REM-004 5: done before it went, it isn''t sent'
 );
@@ -199,7 +199,7 @@ select core.record_deliveries(jsonb_build_array(
   jsonb_build_object('id', (select id from claimed where payload ->> 'tag' = 'reminder:00000000-0000-7000-8000-0000000000e1'), 'outcome', 'sent'),
   jsonb_build_object('id', (select id from claimed where payload ->> 'tag' like 'digest:%'), 'outcome', 'gone', 'error', '410 Gone')));
 select is(
-  (select status from core.reminder_deliveries where key = 'reminder:00000000-0000-7000-8000-0000000000e1'),
+  (select status from core.alert_deliveries where key = 'reminder:00000000-0000-7000-8000-0000000000e1'),
   'sent',
   'ADR-0044: a sent notification is recorded'
 );
@@ -215,7 +215,7 @@ select is(
 );
 
 -- Buttons (REM-005), with the delivery's token.
-select id as rid, token as rtoken from core.reminder_deliveries
+select id as rid, token as rtoken from core.alert_deliveries
 where key = 'reminder:00000000-0000-7000-8000-0000000000e1' \gset
 select is(
   core.act_on_delivery(:rid, gen_random_uuid(), 'done'),
@@ -229,7 +229,7 @@ select is(
 );
 select ok(
   (select snoozed_until between now() + interval '59 minutes' and now() + interval '61 minutes'
-   from core.reminders where id = '00000000-0000-7000-8000-0000000000e1'),
+   from core.alerts where id = '00000000-0000-7000-8000-0000000000e1'),
   'REM-005 2: snoozed, it comes back in an hour, for me only'
 );
 select is(
@@ -252,7 +252,7 @@ select core_private.make_occurrences(
   (select s from core.series s where id = '00000000-0000-7000-8000-0000000000f1'),
   '[{"on": "2026-10-19"}]');
 select is(
-  (select array_agg(r.fires_at order by r.fires_at) from core.reminders r join core.items i on i.id = r.item_id
+  (select array_agg(r.fires_at order by r.fires_at) from core.alerts r join core.items i on i.id = r.item_id
    where i.series_id = '00000000-0000-7000-8000-0000000000f1'),
   array['2026-10-18 19:00:00+00'::timestamptz, '2026-10-19 08:00:00+00'::timestamptz],
   'REM-002 4: each occurrence has the series'' Reminders, and its default'

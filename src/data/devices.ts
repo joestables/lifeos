@@ -30,7 +30,7 @@ export async function fetchVapidPublicKey(): Promise<string | null> {
 /**
  * The Android app as my device, at once rather than through the write queue
  * (turning notifications on needs signal anyway): its FCM token registered,
- * and a new secret it keeps to read its Reminders and act on them
+ * and a new secret it keeps to read its Alerts and act on them
  * (REM-001 4, REM-010, ADR-0063).
  */
 export async function registerAndroidDevice(

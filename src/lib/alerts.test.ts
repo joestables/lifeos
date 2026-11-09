@@ -2,13 +2,13 @@ import { describe, expect, it } from 'vitest'
 import {
   byFiring,
   choiceFiresAt,
-  defaultReminder,
-  reminderChoice,
-  reminderFields,
-  reminderSays,
-  reminderTime,
+  defaultAlert,
+  alertChoice,
+  alertFields,
+  alertSays,
+  alertTime,
   sameChoice,
-} from './reminders'
+} from './alerts'
 
 const NOW = new Date(2026, 9, 12, 9, 0)
 const r = (fields: Record<string, unknown>) => ({
@@ -20,7 +20,7 @@ const r = (fields: Record<string, unknown>) => ({
   ...fields,
 })
 
-describe('REM-003: a Reminder in words', () => {
+describe('REM-003: an Alert in words', () => {
   it.each([
     [{ anchor: 'do_on' }, 'On the day'],
     [{ anchor: 'do_on', offset_days: -1 }, '1 day before'],
@@ -30,12 +30,12 @@ describe('REM-003: a Reminder in words', () => {
     [{ fixed_at: '2026-10-16T08:00:00Z' }, 'At a set time'],
     [{ anchor: 'do_on', snoozed_until: '2026-10-12T09:30:00Z' }, 'Snoozed'],
   ])('%o says "%s"', (fields, says) => {
-    expect(reminderSays(r(fields) as never, NOW)).toBe(says)
+    expect(alertSays(r(fields) as never, NOW)).toBe(says)
   })
 
   it('says when it fires, and orders soonest first', () => {
-    expect(reminderTime(r({ fires_at: '2026-10-12T17:30:00Z' }), NOW)).toBe('Today 17:30')
-    expect(reminderTime(r({}), NOW)).toBeNull()
+    expect(alertTime(r({ fires_at: '2026-10-12T17:30:00Z' }), NOW)).toBe('Today 17:30')
+    expect(alertTime(r({}), NOW)).toBeNull()
     const list = [
       r({ fires_at: null }),
       r({ fires_at: '2026-10-13T08:00:00Z' }),
@@ -49,7 +49,7 @@ describe('REM-003: a Reminder in words', () => {
   })
 })
 
-describe('a Reminder not yet saved (TSK-001 4)', () => {
+describe('an Alert not yet saved (TSK-001 4)', () => {
   it('fires on its date, days before, at its time, in my timezone', () => {
     expect(
       choiceFiresAt(
@@ -69,7 +69,7 @@ describe('a Reminder not yet saved (TSK-001 4)', () => {
 
   it('is saved as the server takes it', () => {
     expect(
-      reminderFields({ kind: 'fixed', day: '2026-10-12', time: '19:00' }, 'Europe/London'),
+      alertFields({ kind: 'fixed', day: '2026-10-12', time: '19:00' }, 'Europe/London'),
     ).toEqual({
       anchor: null,
       offset_days: 0,
@@ -81,13 +81,13 @@ describe('a Reminder not yet saved (TSK-001 4)', () => {
   })
 
   it('REM-011 1: an Alarm is kept with it, and read back', () => {
-    const fields = reminderFields(
+    const fields = alertFields(
       { kind: 'fixed', day: '2026-10-12', time: '07:00', alarm: true },
       'Europe/London',
     )
     expect(fields.alarm).toBe(true)
     expect(
-      reminderChoice(
+      alertChoice(
         {
           ...fields,
           anchor: null,
@@ -103,18 +103,16 @@ describe('a Reminder not yet saved (TSK-001 4)', () => {
   })
 
   it('EVT-003 3: before an Event starts, or on a day before it at a time', () => {
-    expect(reminderFields({ kind: 'before', minutes: 60, time: '09:00' }, 'Europe/London')).toEqual(
-      {
-        anchor: 'starts_at',
-        offset_days: 0,
-        at_time: null,
-        offset_minutes: -60,
-        fixed_at: null,
-        alarm: false,
-      },
-    )
+    expect(alertFields({ kind: 'before', minutes: 60, time: '09:00' }, 'Europe/London')).toEqual({
+      anchor: 'starts_at',
+      offset_days: 0,
+      at_time: null,
+      offset_minutes: -60,
+      fixed_at: null,
+      alarm: false,
+    })
     expect(
-      reminderFields({ kind: 'starts_at', daysBefore: 1, time: '18:00' }, 'Europe/London'),
+      alertFields({ kind: 'starts_at', daysBefore: 1, time: '18:00' }, 'Europe/London'),
     ).toEqual({
       anchor: 'starts_at',
       offset_days: -1,
@@ -131,10 +129,10 @@ describe('a Reminder not yet saved (TSK-001 4)', () => {
       fixed_at: null,
       snoozed_until: null,
     }
-    expect(reminderSays(r)).toBe('30 minutes before')
-    expect(reminderSays({ ...r, offset_minutes: -60 })).toBe('1 hour before')
-    expect(reminderSays({ ...r, offset_days: -1, at_time: '18:00:00' })).toBe('1 day before')
-    expect(reminderChoice(r, '09:00', 'Europe/London')).toEqual({
+    expect(alertSays(r)).toBe('30 minutes before')
+    expect(alertSays({ ...r, offset_minutes: -60 })).toBe('1 hour before')
+    expect(alertSays({ ...r, offset_days: -1, at_time: '18:00:00' })).toBe('1 day before')
+    expect(alertChoice(r, '09:00', 'Europe/London')).toEqual({
       kind: 'before',
       minutes: 30,
       time: '09:00',
@@ -158,32 +156,32 @@ describe('a Reminder not yet saved (TSK-001 4)', () => {
 })
 
 describe('the default a new Item is given (REM-002 1, EVT-003 1)', () => {
-  const settings = { defaultReminderTime: '09:00', taskReminders: true, eventReminders: true }
+  const settings = { defaultAlertTime: '09:00', taskAlerts: true, eventAlerts: true }
   it('is a dated Task’s, on the day at its time, else my default time', () => {
     expect(
-      defaultReminder({ type: 'task', do_on: '2026-11-10', do_at: '20:00:00' }, settings),
+      defaultAlert({ type: 'task', do_on: '2026-11-10', do_at: '20:00:00' }, settings),
     ).toEqual({ kind: 'do_on', daysBefore: 0, time: '20:00' })
-    expect(defaultReminder({ type: 'task', do_on: '2026-11-10', do_at: null }, settings)).toEqual({
+    expect(defaultAlert({ type: 'task', do_on: '2026-11-10', do_at: null }, settings)).toEqual({
       kind: 'do_on',
       daysBefore: 0,
       time: '09:00',
     })
-    expect(defaultReminder({ type: 'task', do_on: null, do_at: null }, settings)).toBeNull()
+    expect(defaultAlert({ type: 'task', do_on: null, do_at: null }, settings)).toBeNull()
   })
   it('is a timed Event’s, 30 minutes before; none all day', () => {
     const at = '2026-11-10T19:00:00.000Z'
-    expect(defaultReminder({ type: 'event', starts_at: at, all_day: false }, settings)).toEqual({
+    expect(defaultAlert({ type: 'event', starts_at: at, all_day: false }, settings)).toEqual({
       kind: 'before',
       minutes: 30,
       time: '09:00',
     })
-    expect(defaultReminder({ type: 'event', starts_at: at, all_day: true }, settings)).toBeNull()
+    expect(defaultAlert({ type: 'event', starts_at: at, all_day: true }, settings)).toBeNull()
   })
   it('is none with that default off in Settings (REM-007 2)', () => {
-    const off = { ...settings, taskReminders: false, eventReminders: false }
-    expect(defaultReminder({ type: 'task', do_on: '2026-11-10', do_at: null }, off)).toBeNull()
+    const off = { ...settings, taskAlerts: false, eventAlerts: false }
+    expect(defaultAlert({ type: 'task', do_on: '2026-11-10', do_at: null }, off)).toBeNull()
     expect(
-      defaultReminder({ type: 'event', starts_at: '2026-11-10T19:00:00Z', all_day: false }, off),
+      defaultAlert({ type: 'event', starts_at: '2026-11-10T19:00:00Z', all_day: false }, off),
     ).toBeNull()
   })
   it('opened and saved unchanged, is still the default', () => {

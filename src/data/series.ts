@@ -25,13 +25,13 @@ export type SeriesTemplate = {
   all_day?: boolean
   days?: number | null
   label_ids?: string[]
-  /** Its own Reminders on its dates, made for each occurrence (REM-002 4). */
-  reminders?: {
+  /** Its own Alerts on its dates, made for each occurrence (REM-002 4). */
+  alerts?: {
     anchor: string
     offset_days: number
     at_time: string | null
     offset_minutes?: number
-    /** Each occurrence's Reminder rings as an Alarm (REM-011). */
+    /** Each occurrence's Alert rings as an Alarm (REM-011). */
     alarm?: boolean
   }[]
 }

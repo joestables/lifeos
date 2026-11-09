@@ -99,7 +99,7 @@ and passes:
 - **Playwright** for what a person sees and does (against the stand-in
   Supabase);
 - **database tests** (SQL / pgTAP) for row-level security, triggers, series
-  generation and Reminder scheduling, which a stand-in can't prove;
+  generation and Alert scheduling, which a stand-in can't prove;
 - **unit tests** for pure logic: the capture parser, the RRULE engine, e1RM.
 
 The first drafted requirement,

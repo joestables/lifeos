@@ -40,7 +40,7 @@ import {
   PlanToolbar,
   PlanWeek,
   TaskLinker,
-  ReminderList,
+  AlertList,
   RepeatField,
   SectionLabel,
   TimeField,
@@ -619,9 +619,9 @@ function EventFields({ isNew = false }: { isNew?: boolean }) {
         placeholder="Notes"
         defaultValue={isNew ? '' : 'Table for six, booked under Stables'}
       />
-      <Field label="Reminders">
-        <ReminderList
-          reminders={[{ id: '1', when: 'Sat 12:30', says: '30 minutes before' }]}
+      <Field label="Alerts">
+        <AlertList
+          alerts={[{ id: '1', when: 'Sat 12:30', says: '30 minutes before' }]}
           onOpen={nothing}
           onRemove={nothing}
           onAdd={nothing}
@@ -758,8 +758,8 @@ function GoogleEvent() {
         <ExternalLinkIcon />
         Open in Google Calendar
       </Button>
-      <Field label="Reminders">
-        <ReminderList reminders={[]} onOpen={nothing} onRemove={nothing} onAdd={nothing} />
+      <Field label="Alerts">
+        <AlertList alerts={[]} onOpen={nothing} onRemove={nothing} onAdd={nothing} />
       </Field>
       <Labels names={['Family']} />
       <TasksFor tasks={[{ title: "Order Sarah's present", when: 'Due Fri' }]} />
@@ -880,10 +880,10 @@ function CalendarCard({ connected = true }: { connected?: boolean }) {
   )
 }
 
-function RemindersCard() {
+function AlertsCard() {
   return (
     <Card className="gap-0">
-      <CardTitleRow title="Reminders" />
+      <CardTitleRow title="Alerts" />
       <CardRow label="Default time">
         <TimeField aria-label="Default time" defaultValue="09:00" className="h-8 w-28" />
       </CardRow>
@@ -923,7 +923,7 @@ function Settings({ connected = true }: { connected?: boolean }) {
       <PageHeader title="Settings" />
       <div className="flex max-w-3xl flex-col gap-4 px-5 pb-8 sm:px-9">
         <div className="grid items-start gap-4 md:grid-cols-2">
-          <RemindersCard />
+          <AlertsCard />
           <NotificationsCard />
         </div>
         <CalendarCard connected={connected} />

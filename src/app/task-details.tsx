@@ -18,7 +18,7 @@ import {
   updateSubtask,
   useFoodSpaces,
   useLabels,
-  useReminders,
+  useAlerts,
   useSettings,
   useSubtasks,
   type Item,
@@ -27,7 +27,7 @@ import {
 import { isoDayOf } from '@/lib/dates'
 import { TaskFor } from './event-details'
 import { useKeptText } from './kept-text'
-import { ItemReminders } from './item-reminders'
+import { ItemAlerts } from './item-alerts'
 import { repeatOf, repeatStart, repeatTask, useSeriesById, useTickDone } from './repeat'
 import { ItemSpaceField } from './space-field'
 import { labelIn } from './draft-labels'
@@ -137,7 +137,7 @@ export interface TaskDates {
 
 /**
  * A Task's fields (TSK-002), for a Task kept as it is changed or a new one
- * kept on Save: notes, do-on date and time, due date, repeat, Reminders,
+ * kept on Save: notes, do-on date and time, due date, repeat, Alerts,
  * Labels, sub-tasks. A time needs a day, so a time on its own asks for one.
  */
 export function TaskFields({
@@ -150,7 +150,7 @@ export function TaskFields({
   onRepeat,
   startsOn,
   describeFrom,
-  reminders,
+  alerts,
   labels,
   chosen,
   onToggleLabel,
@@ -174,8 +174,8 @@ export function TaskFields({
   onRepeat: (repeat: Repeat | null) => void
   startsOn: string
   describeFrom?: string
-  /** Its Reminders, listed and changed. */
-  reminders: ReactNode
+  /** Its Alerts, listed and changed. */
+  alerts: ReactNode
   /** Mine, A to Z. */
   labels: { id: string; name: string }[]
   chosen: ReadonlySet<string>
@@ -264,7 +264,7 @@ export function TaskFields({
           />
         </Field>
       </div>
-      <Field label="Reminders">{reminders}</Field>
+      <Field label="Alerts">{alerts}</Field>
       <Field label="Labels">
         <LabelsField
           labels={labels}
@@ -301,7 +301,7 @@ export function TaskDetails({ item }: { item: Item }) {
   const labels = allLabels.filter(labelIn(item.space_id, personal))
   const subtasks = useSubtasks(queue).filter((s) => s.item_id === item.id)
   const settings = useSettings(queue)
-  const reminders = useReminders(queue)
+  const alerts = useAlerts(queue)
   const series = useSeriesById()
   const repeat = repeatOf(item, series)
 
@@ -311,7 +311,7 @@ export function TaskDetails({ item }: { item: Item }) {
     repeatTask(item, next, {
       labelIds: [...chosen],
       timezone: settings.timezone,
-      reminders: reminders
+      alerts: alerts
         .filter((r) => r.item_id === item.id && r.anchor && !r.is_default)
         .map((r) => ({
           anchor: r.anchor!,
@@ -333,7 +333,7 @@ export function TaskDetails({ item }: { item: Item }) {
       onRepeat={setRepeatTo}
       startsOn={repeatStart(item, isoDayOf(new Date()))}
       describeFrom={series.get(item.series_id ?? '')?.starts_on}
-      reminders={<ItemReminders item={item} />}
+      alerts={<ItemAlerts item={item} />}
       labels={[...labels].sort((a, b) => a.name.localeCompare(b.name))}
       chosen={chosen}
       onToggleLabel={(id, on) => (on ? addLabel(item.id, id) : removeLabel(item.id, id))}

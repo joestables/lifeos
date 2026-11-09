@@ -79,7 +79,7 @@ select is(
 -- TSK-008 3: 18:30 London either side of the clocks going back (25 October).
 select is(
   (select array_agg(to_char(r.fires_at at time zone 'UTC', 'YYYY-MM-DD HH24:MI') order by r.fires_at)
-   from core.reminders r join core.items i on i.id = r.item_id
+   from core.alerts r join core.items i on i.id = r.item_id
    where i.id in ('00000000-0000-7000-8000-000000000102', '00000000-0000-7000-8000-000000000103')),
   array['2026-10-19 17:30', '2026-10-26 18:30'],
   'TSK-008: every occurrence is at 18:30 London time, either side of the clocks changing'

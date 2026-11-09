@@ -14,7 +14,7 @@ than one picture of a life.
    events, tasks and goals are connected, and every page is a different view
    of the same life data.
 2. **Less friction, above all for the most common actions** — capturing a
-   thought, a task or a reminder must be faster than Google Tasks or setting
+   thought, a task or an alert must be faster than Google Tasks or setting
    a phone alarm.
 3. **A design that looks natural, intentional and integrated**, using a
    standard design system (shadcn) rather than a heavily customised MUI.

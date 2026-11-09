@@ -2,7 +2,7 @@ import { newId } from './ids'
 import { sameName, type Label } from './labels'
 import { nextPosition } from './subtasks'
 import type { WriteQueue } from './queue/queue'
-import type { ReminderFields } from './reminders'
+import type { AlertFields } from './alerts'
 import type { SettingsPatch } from './settings'
 import type { RepeatArgs } from './series'
 import type { ItemFields } from './types'
@@ -32,7 +32,7 @@ export function writes(queue: WriteQueue, labelsNow: () => readonly Label[] = ()
     restoreItem(id: string): void {
       queue.enqueue('restore_item', { p_id: id }, [id])
     },
-    /** In place, keeping its id, links, Labels and Reminders (ITM-004). */
+    /** In place, keeping its id, links, Labels and Alerts (ITM-004). */
     convertItem(id: string, type: string): void {
       queue.enqueue('convert_item', { p_id: id, p_type: type }, [id])
     },
@@ -94,34 +94,32 @@ export function writes(queue: WriteQueue, labelsNow: () => readonly Label[] = ()
       queue.enqueue('remove_label', { p_item: itemId, p_label: labelId }, [itemId])
     },
 
-    /** A Reminder at a set time: a dated Thought's (CAP-004). */
-    addFixedReminder(itemId: string, at: string): string {
+    /** An Alert at a set time: a dated Thought's (CAP-004). */
+    addFixedAlert(itemId: string, at: string): string {
       const id = newId()
-      queue.enqueue('add_reminder', { p_id: id, p_item: itemId, p_fields: { fixed_at: at } }, [
-        itemId,
-      ])
+      queue.enqueue('add_alert', { p_id: id, p_item: itemId, p_fields: { fixed_at: at } }, [itemId])
       return id
     },
 
     /** At a fixed time, or relative to one of the Item's dates (REM-003). */
-    addReminder(itemId: string, fields: ReminderFields): string {
+    addAlert(itemId: string, fields: AlertFields): string {
       const id = newId()
-      queue.enqueue('add_reminder', { p_id: id, p_item: itemId, p_fields: { ...fields } }, [itemId])
+      queue.enqueue('add_alert', { p_id: id, p_item: itemId, p_fields: { ...fields } }, [itemId])
       return id
     },
     /** Changed, it is mine: it no longer follows the Type's default. */
-    updateReminder(itemId: string, id: string, patch: ReminderFields): void {
-      queue.enqueue('update_reminder', { p_id: id, p_patch: { ...patch } }, [itemId])
+    updateAlert(itemId: string, id: string, patch: AlertFields): void {
+      queue.enqueue('update_alert', { p_id: id, p_patch: { ...patch } }, [itemId])
     },
-    removeReminder(itemId: string, id: string): void {
-      queue.enqueue('remove_reminder', { p_id: id }, [itemId])
+    removeAlert(itemId: string, id: string): void {
+      queue.enqueue('remove_alert', { p_id: id }, [itemId])
     },
     /**
      * The default the server made with a new Item, changed or removed in
      * New task or New event before Save (REM-002 1, EVT-003 1).
      */
-    removeDefaultReminder(itemId: string): void {
-      queue.enqueue('remove_default_reminder', { p_item: itemId }, [itemId])
+    removeDefaultAlert(itemId: string): void {
+      queue.enqueue('remove_default_alert', { p_item: itemId }, [itemId])
     },
 
     /** A line ticked inside a Task (TSK-006), after the others. */
@@ -162,7 +160,7 @@ export function writes(queue: WriteQueue, labelsNow: () => readonly Label[] = ()
       return id
     },
 
-    /** My Reminder defaults and morning digest (REM-007, REM-008). */
+    /** My Alert defaults and morning digest (REM-007, REM-008). */
     updateSettings(patch: SettingsPatch): void {
       queue.enqueue('update_settings', { p_patch: { ...patch } }, [])
     },

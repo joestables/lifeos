@@ -87,7 +87,7 @@ export function googleTimes(
   }
 }
 
-/** What Google is sent for an Event (ADR-0048): never its Labels, Reminders or Tasks (GCL-005 4). */
+/** What Google is sent for an Event (ADR-0048): never its Labels, Alerts or Tasks (GCL-005 4). */
 export function eventBody(item: PushItem, timezone: string): Record<string, unknown> {
   return {
     summary: item.title,

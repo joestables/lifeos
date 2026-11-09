@@ -82,7 +82,7 @@ Priority: Must · Status: verified
 
 Acceptance criteria
 1. Given a Thought, when I make it a Task (one action, on a phone or a
-   computer), then it becomes a Task in place, keeping its text, Reminders
+   computer), then it becomes a Task in place, keeping its text, Alerts
    (one at the same moment as the Task's own isn't kept twice) and
    history, with any date in it understood as it was meant when captured
    ([CAP-003](../cross-cutting/capture.md#cap-003--dates-and-times-are-understood-the-same-way-everywhere)),
@@ -121,7 +121,7 @@ Priority: Should · Status: verified
 
 Acceptance criteria
 1. Given a Task under "Today", when I choose Tomorrow, then its do-on date
-   becomes tomorrow (keeping its time), its Reminder moves with it, and it
+   becomes tomorrow (keeping its time), its Alert moves with it, and it
    leaves Inbox.
 
 ### INB-005 — How much is waiting, on every page

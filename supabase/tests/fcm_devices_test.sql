@@ -51,11 +51,11 @@ reset role;
 -- A Task with a Reminder at 09:00, due now: claimed for the Android app.
 insert into core.items (id, type, title, space_id, owner_id, do_on, status) values
   ('00000000-0000-7000-8000-000000000001', 'task', 'Renew car insurance', :'a_space', '00000000-0000-4000-8000-00000000000a', '2030-01-08', 'active');
-insert into core.reminders (id, item_id, person_id, anchor, at_time) values
+insert into core.alerts (id, item_id, person_id, anchor, at_time) values
   ('00000000-0000-7000-8000-0000000000e1', '00000000-0000-7000-8000-000000000001', '00000000-0000-4000-8000-00000000000a', 'do_on', '09:00')
 on conflict do nothing;
 select core_private.queue_notifications('2030-01-08 09:00:20+00');
-update core.reminder_deliveries set fire_at = now() - interval '1 minute';
+update core.alert_deliveries set fire_at = now() - interval '1 minute';
 create temp table claimed on commit drop as select * from core.claim_deliveries();
 select is(
   (select row(kind, endpoint)::text from claimed limit 1),

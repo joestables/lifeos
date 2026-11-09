@@ -3,14 +3,14 @@ import type { QueueEntry } from './queue/store'
 import { supabase } from './supabase'
 import { allRows } from './paging'
 
-type Row = Database['core']['Tables']['reminders']['Row']
+type Row = Database['core']['Tables']['alerts']['Row']
 
 /**
- * One of my Reminders (ADR-0023): relative to one of its Item's dates
+ * One of my Alerts (ADR-0023): relative to one of its Item's dates
  * (`anchor`, `offset_days`, `at_time`) or at a fixed moment, and when it
  * fires. The server works out `fires_at`.
  */
-export type Reminder = Pick<
+export type Alert = Pick<
   Row,
   | 'id'
   | 'item_id'
@@ -25,8 +25,8 @@ export type Reminder = Pick<
   | 'alarm'
 >
 
-/** What core.add_reminder and core.update_reminder take. */
-export interface ReminderFields {
+/** What core.add_alert and core.update_alert take. */
+export interface AlertFields {
   anchor?: 'do_on' | 'due_on' | 'starts_at' | null
   offset_days?: number
   /** Before an Event's start by minutes ("30 minutes before"). */
@@ -37,12 +37,12 @@ export interface ReminderFields {
   alarm?: boolean
 }
 
-export const remindersKey = ['reminders'] as const
+export const alertsKey = ['alerts'] as const
 
-export async function fetchReminders(): Promise<Reminder[]> {
+export async function fetchAlerts(): Promise<Alert[]> {
   return allRows((from, to) =>
     supabase()
-      .from('reminders')
+      .from('alerts')
       .select(
         'id, item_id, fires_at, is_default, anchor, offset_days, at_time, offset_minutes, fixed_at, snoozed_until, alarm',
       )
@@ -52,24 +52,24 @@ export async function fetchReminders(): Promise<Reminder[]> {
 }
 
 /**
- * Lays unsent Reminder writes over the server's. A fixed Reminder fires when
+ * Lays unsent Alert writes over the server's. A fixed Alert fires when
  * it says; a relative one's time is worked out by the server, so it shows
  * once sent.
  */
-export function applyPendingReminders(
-  rows: readonly Reminder[],
+export function applyPendingAlerts(
+  rows: readonly Alert[],
   entries: readonly QueueEntry[],
-): Reminder[] {
+): Alert[] {
   let out = [...rows]
   for (const entry of entries) {
     const a = entry.args as {
       p_id?: string
       p_item?: string
-      p_fields?: ReminderFields
-      p_patch?: ReminderFields
+      p_fields?: AlertFields
+      p_patch?: AlertFields
     }
     switch (entry.fn) {
-      case 'add_reminder': {
+      case 'add_alert': {
         if (out.some((r) => r.id === a.p_id)) break
         const f = a.p_fields ?? {}
         out.push({
@@ -87,7 +87,7 @@ export function applyPendingReminders(
         })
         break
       }
-      case 'update_reminder': {
+      case 'update_alert': {
         const p = a.p_patch ?? {}
         out = out.map((r) =>
           r.id === a.p_id
@@ -103,10 +103,10 @@ export function applyPendingReminders(
         )
         break
       }
-      case 'remove_reminder':
+      case 'remove_alert':
         out = out.filter((r) => r.id !== a.p_id)
         break
-      case 'remove_default_reminder':
+      case 'remove_default_alert':
         out = out.filter((r) => !(r.item_id === a.p_item && r.is_default))
         break
     }

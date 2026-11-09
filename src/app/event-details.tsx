@@ -26,12 +26,12 @@ import { Textarea } from '@/components/ui/textarea'
 import { toast } from '@/components/ui/sonner'
 import { TaskLinker } from '@/components/lifeos/TaskLinker'
 import {
-  addReminder,
+  addAlert,
   archiveItem,
   createItem,
   linkItems,
   queue,
-  removeDefaultReminder,
+  removeDefaultAlert,
   stopRepeat,
   unlinkItems,
   updateItem,
@@ -39,7 +39,7 @@ import {
   useFoodSpaces,
   useLabels,
   useLinks,
-  useReminders,
+  useAlerts,
   googleEventUrl,
   newId,
   setEventCalendar,
@@ -60,10 +60,10 @@ import {
   type EventTimes,
 } from '@/lib/events'
 import { itemTitle, typeLook } from '@/lib/item-types'
-import { defaultReminder, freshReminder, reminderAnchors, reminderFields } from '@/lib/reminders'
+import { defaultAlert, freshAlert, alertAnchors, alertFields } from '@/lib/alerts'
 import { useDraftLabels } from './draft-labels'
-import { DraftReminders, type DraftReminder } from './draft-reminders'
-import { ItemReminders } from './item-reminders'
+import { DraftAlerts, type DraftAlert } from './draft-alerts'
+import { ItemAlerts } from './item-alerts'
 import { CalendarSelect } from './calendar-select'
 import { ItemSpaceField, SpaceField } from './space-field'
 import { useMine } from './mine'
@@ -122,7 +122,7 @@ function useTimes(initial: EventTimes, keep: (t: EventTimes) => void) {
 }
 
 /**
- * An Event's Reminders just below its times (Joe, 4 November), then place,
+ * An Event's Alerts just below its times (Joe, 4 November), then place,
  * repeat, notes, Labels, Tasks and its Space last (components.md#eventdetails).
  */
 function EventFields({
@@ -136,7 +136,7 @@ function EventFields({
   onNotesBlur,
   repeat,
   calendar,
-  reminders,
+  alerts,
   labels,
   tasks,
 }: {
@@ -151,7 +151,7 @@ function EventFields({
   notes: string
   onNotes: (notes: string) => void
   onNotesBlur?: () => void
-  reminders: ReactNode
+  alerts: ReactNode
   labels: ReactNode
   tasks?: ReactNode
   /** Where it is (HSH-005 1). */
@@ -161,7 +161,7 @@ function EventFields({
   return (
     <div className="flex flex-col gap-4">
       {times}
-      <Field label="Reminders">{reminders}</Field>
+      <Field label="Alerts">{alerts}</Field>
       <div className="grid grid-cols-2 gap-3 max-sm:grid-cols-1">
         <Field label="Place">
           <Input
@@ -202,7 +202,7 @@ const LEVEL_NAME = { off: 'Off', incoming: 'Incoming', two_way: 'Two-way' } as c
 /**
  * An Event from an incoming-only Google calendar (GCL-004): its date and
  * time, place and notes are Google's, shown as lines, with "Open in Google
- * Calendar"; its Reminders, Labels and Tasks are LifeOS's own.
+ * Calendar"; its Alerts, Labels and Tasks are LifeOS's own.
  */
 export function GoogleEventDetails({ item }: { item: Item }) {
   const settings = useSettings(queue)
@@ -240,8 +240,8 @@ export function GoogleEventDetails({ item }: { item: Item }) {
           Open in Google Calendar
         </Button>
       )}
-      <Field label="Reminders">
-        <ItemReminders item={item} />
+      <Field label="Alerts">
+        <ItemAlerts item={item} />
       </Field>
       <Field label="Labels">
         <ItemLabels item={item} />
@@ -261,7 +261,7 @@ export function EventDetails({ item }: { item: Item }) {
     updateItem(item.id, eventFields(t, settings.timezone)),
   )
   const { itemLabels } = useLabels(queue)
-  const reminders = useReminders(queue)
+  const alerts = useAlerts(queue)
   const series = useSeriesById()
   // A change to one occurrence is to that one; a new repeat applies from it on (EVT-004 3).
   const setRepeatTo = (next: Repeat | null) => {
@@ -269,7 +269,7 @@ export function EventDetails({ item }: { item: Item }) {
     repeatEvent(item, next, {
       labelIds: itemLabels.filter((r) => r.item_id === item.id).map((r) => r.label_id),
       timezone: settings.timezone,
-      reminders: reminders
+      alerts: alerts
         .filter((r) => r.item_id === item.id && r.anchor && !r.is_default)
         .map((r) => ({
           anchor: r.anchor!,
@@ -307,7 +307,7 @@ export function EventDetails({ item }: { item: Item }) {
       notes={notes}
       onNotes={setNotes}
       onNotesBlur={flushNotes}
-      reminders={<ItemReminders item={item} />}
+      alerts={<ItemAlerts item={item} />}
       labels={<ItemLabels item={item} />}
       tasks={<EventTasks event={item} />}
       space={
@@ -333,10 +333,10 @@ export function NewEventDialog({ day, onClose }: { day: string; onClose: () => v
   const [place, setPlace] = useState('')
   const [notes, setNotes] = useState('')
   const [kept, setKept] = useState(() =>
-    newEventTimes(day, today, new Date(), settings.defaultReminderTime, settings.timezone),
+    newEventTimes(day, today, new Date(), settings.defaultAlertTime, settings.timezone),
   )
   const times = useTimes(kept, setKept)
-  const [reminders, setReminders] = useState<DraftReminder[]>([])
+  const [alerts, setAlerts] = useState<DraftAlert[]>([])
   // The default changed or removed before Save (EVT-003 1).
   const [defaultGone, setDefaultGone] = useState(false)
   const [repeat, setRepeat] = useState<Repeat | null>(null)
@@ -351,13 +351,13 @@ export function NewEventDialog({ day, onClose }: { day: string; onClose: () => v
   const calendarId =
     chosen === undefined ? (calendar.links.find((l) => l.new_events)?.id ?? null) : chosen
   const stored = eventFields(times.shown, settings.timezone)
-  const anchors = reminderAnchors({ type: 'event', do_on: null, due_on: null, ...stored })
-  const byDefault = defaultReminder({ type: 'event', ...stored }, settings)
+  const anchors = alertAnchors({ type: 'event', do_on: null, due_on: null, ...stored })
+  const byDefault = defaultAlert({ type: 'event', ...stored }, settings)
   const dirty =
     title.trim() !== '' ||
     place !== '' ||
     notes !== '' ||
-    reminders.length > 0 ||
+    alerts.length > 0 ||
     defaultGone ||
     (space !== null && space !== personal)
 
@@ -373,10 +373,10 @@ export function NewEventDialog({ day, onClose }: { day: string; onClose: () => v
     if (twoWay) setEventCalendar(id, calendarId)
     createItem('event', fields, id)
     // The server gives it its default; changed or removed here, it goes.
-    if (byDefault && defaultGone) removeDefaultReminder(id)
+    if (byDefault && defaultGone) removeDefaultAlert(id)
     const labelIds = labels.save(id)
-    const own = reminders.map((r) => reminderFields(r.choice, settings.timezone))
-    for (const f of own) addReminder(id, f)
+    const own = alerts.map((r) => alertFields(r.choice, settings.timezone))
+    for (const f of own) addAlert(id, f)
     if (repeat)
       repeatEvent(
         {
@@ -389,7 +389,7 @@ export function NewEventDialog({ day, onClose }: { day: string; onClose: () => v
         {
           labelIds,
           timezone: settings.timezone,
-          reminders: own
+          alerts: own
             .filter((f) => f.anchor)
             .map((f) => ({
               anchor: f.anchor!,
@@ -474,13 +474,13 @@ export function NewEventDialog({ day, onClose }: { day: string; onClose: () => v
         onPlace={setPlace}
         notes={notes}
         onNotes={setNotes}
-        reminders={
-          <DraftReminders
-            reminders={reminders}
-            onChange={setReminders}
+        alerts={
+          <DraftAlerts
+            alerts={alerts}
+            onChange={setAlerts}
             anchors={anchors}
             dates={{ starts_at: stored.starts_at, start_day: times.shown.startDay }}
-            fresh={freshReminder(anchors, settings.defaultReminderTime, today)}
+            fresh={freshAlert(anchors, settings.defaultAlertTime, today)}
             byDefault={defaultGone ? null : byDefault}
             onDefaultGone={() => setDefaultGone(true)}
           />

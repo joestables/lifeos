@@ -14,7 +14,7 @@ export function toSomeday(task: Item) {
 
 /**
  * A Task from one line, its dates understood (TSK-001, CAP-003): the date
- * words leave its title. Its default Reminder comes with its do-on date
+ * words leave its title. Its default Alert comes with its do-on date
  * (REM-002).
  */
 export function createTaskFrom(line: string, dates: CaptureDates): string {

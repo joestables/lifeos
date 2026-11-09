@@ -48,7 +48,7 @@ Provisionally agreed).
   Food (Personal, or one of my Households), and the week can be filtered to
   Personal, one Household or all (Joe, 18 October).
 - **Ticking a Meal eaten logs no cook**: a cook is logged from Cooking
-  ([recipes](recipes.md#the-log); Joe, 18 October). No Reminder by default.
+  ([recipes](recipes.md#the-log); Joe, 18 October). No Alert by default.
 - **Meals are on Plan too**, as every Schedulable Type is, and Plan's "+"
   adds one ([ADR-0029](../../20-architecture/adr/0029-plan-reads-core-items.md),
   Provisionally agreed).

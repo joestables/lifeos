@@ -20,7 +20,7 @@ import { HouseholdsCard } from '@/app/households'
 import { LabelsCard } from '@/app/labels'
 import { SpaceSelect } from '@/app/space-select'
 import { toast } from '@/components/ui/sonner'
-import { NotificationsCard, RemindersCard } from '@/app/notification-settings'
+import { NotificationsCard, AlertsCard } from '@/app/notification-settings'
 import {
   calendarAction,
   queue,
@@ -34,7 +34,7 @@ import {
 } from '@/data'
 
 /**
- * Settings: notifications and Reminders, Google Calendar, Labels,
+ * Settings: notifications and Alerts, Google Calendar, Labels,
  * Households, Food, the Gym, Recently deleted and signing out (REM-001,
  * REM-007, REM-008, GCL-001, GCL-002, ITM-003, ITM-005, HSH-001, HSH-002,
  * GYM-020, ACC-003).
@@ -87,7 +87,7 @@ function Settings() {
       <div className="flex max-w-3xl flex-col gap-4 px-5 pb-8 sm:px-9">
         <div className="grid items-start gap-4 md:grid-cols-2">
           <NotificationsCard />
-          <RemindersCard />
+          <AlertsCard />
         </div>
         <GoogleCalendarCard />
         <div className="hidden md:block">

@@ -12,7 +12,7 @@ const rows = (extra: Rows = {}): Rows => ({
     itemRow({ id: id(1), type: 'task', title: 'Renew insurance', do_on: '2026-10-16' }),
     itemRow({ id: id(2), type: 'thought', title: 'Gift idea for Sam' }),
   ],
-  reminders: [
+  alerts: [
     {
       id: 'r-default',
       item_id: id(1),
@@ -100,19 +100,19 @@ test('REM-007, REM-008: my default time, the defaults by Type and the morning di
   page,
 }) => {
   const db = await start(page, '/settings')
-  const reminders = card(page, 'Reminders')
-  await pickTime(reminders.getByLabel('Default time'), '08:00')
-  await expect.poll(() => db.people[0]!.default_reminder_time).toBe('08:00')
-  await reminders.getByRole('switch', { name: 'Remind me of dated tasks' }).click()
-  await expect.poll(() => db.people[0]!.reminder_defaults).toEqual({ task: false })
-  await pickTime(reminders.getByLabel('Digest time'), '06:30')
+  const alerts = card(page, 'Alerts')
+  await pickTime(alerts.getByLabel('Default time'), '08:00')
+  await expect.poll(() => db.people[0]!.default_alert_time).toBe('08:00')
+  await alerts.getByRole('switch', { name: 'Remind me of dated tasks' }).click()
+  await expect.poll(() => db.people[0]!.alert_defaults).toEqual({ task: false })
+  await pickTime(alerts.getByLabel('Digest time'), '06:30')
   await expect.poll(() => db.people[0]!.digest_time).toBe('06:30')
-  await reminders.getByRole('switch', { name: 'Morning digest' }).click()
+  await alerts.getByRole('switch', { name: 'Morning digest' }).click()
   await expect.poll(() => db.people[0]!.digest_on).toBe(false)
-  await expect(reminders.getByLabel('Digest time')).toBeHidden()
+  await expect(alerts.getByLabel('Digest time')).toBeHidden()
 })
 
-test("REM-002, REM-003: a Task's Reminders, its default and my own, changed and removed", async ({
+test("REM-002, REM-003: a Task's Alerts, its default and my own, changed and removed", async ({
   page,
 }) => {
   const db = await start(page, `/tasks?item=${id(1)}`)
@@ -121,13 +121,13 @@ test("REM-002, REM-003: a Task's Reminders, its default and my own, changed and 
   await expect(task).toContainText('On the day')
 
   // "1 day before at 18:00".
-  await task.getByRole('button', { name: 'Add a reminder' }).click()
-  const dialog = page.getByRole('dialog', { name: 'Reminder' })
+  await task.getByRole('button', { name: 'Add an alert' }).click()
+  const dialog = page.getByRole('dialog', { name: 'Alert' })
   await dialog.getByLabel('Days before').fill('1')
   await pickTime(dialog.getByLabel('Time'), '18:00')
   await dialog.getByRole('button', { name: 'Save' }).click()
   await expect
-    .poll(() => db.reminders.find((r) => r.id !== 'r-default'))
+    .poll(() => db.alerts.find((r) => r.id !== 'r-default'))
     .toMatchObject({ anchor: 'do_on', offset_days: -1, at_time: '18:00', fixed_at: null })
 
   // The default, moved to 08:00, becomes mine.
@@ -135,24 +135,24 @@ test("REM-002, REM-003: a Task's Reminders, its default and my own, changed and 
   await pickTime(dialog.getByLabel('Time'), '08:00')
   await dialog.getByRole('button', { name: 'Save' }).click()
   await expect
-    .poll(() => db.reminders.find((r) => r.id === 'r-default'))
+    .poll(() => db.alerts.find((r) => r.id === 'r-default'))
     .toMatchObject({ at_time: '08:00', is_default: false })
 
-  await task.getByRole('button', { name: /^Remove reminder Fri/ }).click()
-  await expect.poll(() => db.reminders.some((r) => r.id === 'r-default')).toBe(false)
+  await task.getByRole('button', { name: /^Remove alert Fri/ }).click()
+  await expect.poll(() => db.alerts.some((r) => r.id === 'r-default')).toBe(false)
 })
 
-test('REM-011 1: a Reminder made an Alarm, off to start, on any device', async ({ page }) => {
+test('REM-011 1: an Alert made an Alarm, off to start, on any device', async ({ page }) => {
   const db = await start(page, `/tasks?item=${id(1)}`)
   const task = page.getByRole('dialog', { name: 'Renew insurance' })
   await task.getByRole('button', { name: /^Fri 09:00/ }).click()
-  const dialog = page.getByRole('dialog', { name: 'Reminder' })
+  const dialog = page.getByRole('dialog', { name: 'Alert' })
   const alarm = dialog.getByRole('switch', { name: 'Alarm' })
   await expect(alarm).not.toBeChecked()
   await alarm.click()
   await dialog.getByRole('button', { name: 'Save' }).click()
   await expect
-    .poll(() => db.reminders.find((r) => r.id === 'r-default'))
+    .poll(() => db.alerts.find((r) => r.id === 'r-default'))
     .toMatchObject({ alarm: true, is_default: false })
   await expect(task.locator('svg.lucide-alarm-clock')).toBeVisible()
 
@@ -160,30 +160,28 @@ test('REM-011 1: a Reminder made an Alarm, off to start, on any device', async (
   await expect(dialog.getByRole('switch', { name: 'Alarm' })).toBeChecked()
 })
 
-test('REM-003: a Thought gets a Reminder at a set time', async ({ page }) => {
+test('REM-003: a Thought gets an Alert at a set time', async ({ page }) => {
   const db = await start(page, `/inbox?item=${id(2)}`)
   const thought = page.getByRole('dialog', { name: 'Gift idea for Sam' })
-  await thought.getByRole('button', { name: 'Add a reminder' }).click()
-  const dialog = page.getByRole('dialog', { name: 'Reminder' })
+  await thought.getByRole('button', { name: 'Add an alert' }).click()
+  const dialog = page.getByRole('dialog', { name: 'Alert' })
   await pickTime(dialog.getByLabel('Time'), '19:00')
   await dialog.getByRole('button', { name: 'Save' }).click()
   await expect
-    .poll(() => db.reminders.find((r) => r.item_id === id(2)))
+    .poll(() => db.alerts.find((r) => r.item_id === id(2)))
     .toMatchObject({ anchor: null, fixed_at: '2026-10-12T18:00:00.000Z' })
   await expect(thought).toContainText('Today 19:00')
 })
 
-test('REM-007 2: with the Thought default off, a dated Thought gets no Reminder', async ({
-  page,
-}) => {
-  const db = await start(page, '/inbox', { people: [{ reminder_defaults: { thought: false } }] })
+test('REM-007 2: with the Thought default off, a dated Thought gets no Alert', async ({ page }) => {
+  const db = await start(page, '/inbox', { people: [{ alert_defaults: { thought: false } }] })
   await expect(page.getByRole('heading', { name: 'Inbox', level: 1 })).toBeVisible()
   await page.getByRole('button', { name: 'New', exact: true }).first().click()
   const capture = page.getByRole('dialog', { name: 'Capture' })
   await capture.getByRole('textbox').fill('book the dentist fri')
   await capture.getByRole('textbox').press('Enter')
   await expect.poll(() => db.items.some((i) => i.title === 'book the dentist fri')).toBe(true)
-  expect(db.reminders.filter((r) => r.item_id !== id(1))).toEqual([])
+  expect(db.alerts.filter((r) => r.item_id !== id(1))).toEqual([])
 })
 
 test("REM-006: a tapped notification opens its Item in the window that's open", async ({

@@ -106,8 +106,8 @@ export function sinceWhen(day: string, now: Date = new Date()): string {
   return `Since ${shortDate(fromIsoDay(day))}`
 }
 
-/** A moment in the future, as a Reminder says it: "Today 15:00", "Tue 15:00", "Fri 23 Oct 09:00". */
-export function reminderWhen(iso: string, now: Date = new Date()): string {
+/** A moment in the future, as an Alert says it: "Today 15:00", "Tue 15:00", "Fri 23 Oct 09:00". */
+export function alertWhen(iso: string, now: Date = new Date()): string {
   const at = new Date(iso)
   return `${dayName(isoDayOf(at), now)} ${time.format(at)}`
 }

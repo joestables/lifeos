@@ -5,7 +5,7 @@ Stage 2, are at the end.*
 
 > **Changing in Stage 7b** (spec agreed 9 November, not yet built): Makes this page **Plan**, with Tasks, Events, Reminders and Recurring tabs and no Completed; Labels and sub-tasks go, and a new Task starts today (PLA-001–007). [Today, Reminders and Plan](../cross-cutting/today-reminders-plan.md). Until it is built, this page is how it works.
 
-**In one line:** Tasks and their Reminders
+**In one line:** Tasks and their Alerts
 ([ADR-0026](../../20-architecture/adr/0026-navigation-drawer.md),
 Provisionally agreed). It replaces Google Tasks.
 
@@ -91,7 +91,7 @@ Acceptance criteria
    with those Labels.
 3. Given I have no signal, then the Task appears at once and is sent later.
 4. Given "New task", then a new Task opens with all its fields — title,
-   notes, do-on date and time, due date, repeat, Reminders (its default
+   notes, do-on date and time, due date, repeat, Alerts (its default
    among them once it has a do-on date,
    [REM-002](../cross-cutting/reminders.md#rem-002--a-task-reminds-me-on-its-do-on-date)),
    Labels and sub-tasks, and with a Household its Space at the foot
@@ -107,7 +107,7 @@ Priority: Must · Status: verified
 
 Acceptance criteria
 1. Given a Task, when I open it, then I can change its title, notes, do-on
-   date and time, due date, Labels, sub-tasks, repeat, Reminders, star and,
+   date and time, due date, Labels, sub-tasks, repeat, Alerts, star and,
    if I made it, its Space, and each change is kept as I make it.
 2. Given I set a time without a date, then I'm asked for the date, as a
    do-on time needs a do-on date.
@@ -120,10 +120,10 @@ Priority: Must · Status: verified
 
 Acceptance criteria
 1. Given an open Task, when I tick it, then it is done, leaves the open
-   Tasks (I can undo that), appears under Completed, and its Reminders are
+   Tasks (I can undo that), appears under Completed, and its Alerts are
    cleared.
 2. Given a done Task, when I untick it, then it is open again, and its
-   Reminders still in the future come back.
+   Alerts still in the future come back.
 
 ### TSK-004 — Tasks by date, filtered by Label
 
@@ -243,6 +243,6 @@ Acceptance criteria
 
 Non-goals (Stage 2): Events and the Task ↔ Event switch (Stage 3); sharing
 Tasks with the Household (HSH-005); Tasks *for* an Event (Stage 3); sub-tasks
-with their own dates or Reminders; a Project Type
+with their own dates or Alerts; a Project Type
 ([ADR-0014](../../20-architecture/adr/0014-reference-data-and-labels.md));
 importing from Google Tasks.

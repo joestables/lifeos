@@ -66,7 +66,7 @@ describe('ontology', () => {
   it('gives Labels, marks, sub-tasks and a place as the data model says (ADR-0014, ADR-0043, EVT-001)', () => {
     const look = (key: string) => {
       const t = typeByKey(key)!
-      return [t.colour, t.labels, t.mark, t.subtasks, t.defaultReminder, t.place]
+      return [t.colour, t.labels, t.mark, t.subtasks, t.defaultAlert, t.place]
     }
     expect(look('thought')).toEqual(['yellow', true, undefined, false, undefined, false])
     expect(look('note')).toEqual(['yellow', true, 'pinned', false, undefined, false])
@@ -118,9 +118,9 @@ describe('ontology', () => {
     expect(typeByKey('note')!.statuses).toEqual(['active'])
   })
 
-  it('anchors a default Reminder only on a time field the Type has', () => {
+  it('anchors a default Alert only on a time field the Type has', () => {
     for (const t of TYPES as readonly TypeDefinition[])
-      if (t.defaultReminder) expect(t.timeFields).toContain(t.defaultReminder)
+      if (t.defaultAlert) expect(t.timeFields).toContain(t.defaultAlert)
   })
 
   it('generates the lookup migration with every Type and link type', () => {

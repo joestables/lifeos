@@ -52,9 +52,9 @@ of Stage 3 ([plan](../../50-progress/plans/stage-3.md)), are at the end.*
   LifeOS deletes every copy (GCL-007).
 - **An Event from an incoming-only calendar is Google's** (Joe, 14
   October): it can't be changed, moved or deleted in LifeOS, only opened in
-  Google Calendar. Labels, Reminders and Tasks *for* it are LifeOS's own,
+  Google Calendar. Labels, Alerts and Tasks *for* it are LifeOS's own,
   and stay in LifeOS on either level.
-- **No Reminder by default** on an Event from Google (Joe, 14 October);
+- **No Alert by default** on an Event from Google (Joe, 14 October);
   Google's own notifications are left to Google.
 - **Deleting follows** (Joe, 14 October): an Event deleted in Google goes to
   Recently deleted in LifeOS; on two-way, deleting in LifeOS deletes it in
@@ -115,7 +115,7 @@ Priority: Must · Status: verified
 Acceptance criteria
 1. Given a calendar set to incoming or two-way, then its Events from four
    weeks ago onwards are on Plan as Events in my Personal Space, each marked
-   as from Google Calendar, with no Reminder.
+   as from Google Calendar, with no Alert.
 2. Given an Event is added, changed or deleted in Google, then Plan shows
    the change within a few minutes; a deleted one goes to Recently deleted.
 3. Given a repeating event in Google, then each instance is its own Event on
@@ -135,7 +135,7 @@ Acceptance criteria
 1. Given an Event from an incoming-only calendar, when I open it, then its
    title, times, place, notes and repeat can't be changed, it can't be
    deleted or dragged, and it offers "Open in Google Calendar".
-2. Given that Event, then I can still give it Labels, Reminders and Tasks
+2. Given that Event, then I can still give it Labels, Alerts and Tasks
    *for* it, which stay in LifeOS.
 
 #### GCL-005 — Two-way: my Events go to Google
@@ -157,7 +157,7 @@ Acceptance criteria
    restoring it puts it back.
 3. Given a repeating Event made in LifeOS, then Google has it as a repeating
    event.
-4. Given an Event's Labels, Reminders and Tasks *for* it, then they aren't
+4. Given an Event's Labels, Alerts and Tasks *for* it, then they aren't
    sent to Google.
 5. Given a Task, or any Type but Event, then nothing is sent to Google.
 6. Given I make an Event offline, then it goes to Google once it reaches the
@@ -202,7 +202,7 @@ Acceptance criteria
    it stays Google's (GCL-004).
 
 Non-goals (Stage 3): calendars other than Google's; Tasks, Meals or other
-Types sent to Google; Google's own reminders brought in; inviting people or
+Types sent to Google; Google's own alerts brought in; inviting people or
 replying to invitations; Household Events sent to Google (Stage 4, when
 Households arrive); choosing calendars by Label.
 

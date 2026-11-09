@@ -3,17 +3,17 @@ import { supabase } from './supabase'
 
 export const settingsKey = ['settings'] as const
 
-/** Mine, as Reminders and notifications use them (REM-007, REM-008). */
+/** Mine, as Alerts and notifications use them (REM-007, REM-008). */
 export interface Settings {
   timezone: string
-  /** "09:00": a date-only Reminder's time, and when overdue nudges come. */
-  defaultReminderTime: string
+  /** "09:00": a date-only Alert's time, and when overdue nudges come. */
+  defaultAlertTime: string
   /** Whether a dated Task reminds me on its do-on date. */
-  taskReminders: boolean
+  taskAlerts: boolean
   /** Whether a dated Thought reminds me. */
-  thoughtReminders: boolean
+  thoughtAlerts: boolean
   /** Whether an Event I make reminds me 30 minutes before (EVT-003). */
-  eventReminders: boolean
+  eventAlerts: boolean
   digestOn: boolean
   /** "07:00" */
   digestTime: string
@@ -26,10 +26,10 @@ export interface Settings {
 /** Until my settings have loaded, or with no signal before they ever did. */
 export const DEFAULT_SETTINGS: Settings = {
   timezone: 'Europe/London',
-  defaultReminderTime: '09:00',
-  taskReminders: true,
-  thoughtReminders: true,
-  eventReminders: true,
+  defaultAlertTime: '09:00',
+  taskAlerts: true,
+  thoughtAlerts: true,
+  eventAlerts: true,
   digestOn: true,
   digestTime: '07:00',
   planHiddenTypes: [],
@@ -38,8 +38,8 @@ export const DEFAULT_SETTINGS: Settings = {
 
 /** What core.update_settings takes. */
 export interface SettingsPatch {
-  default_reminder_time?: string
-  reminder_defaults?: Record<string, boolean>
+  default_alert_time?: string
+  alert_defaults?: Record<string, boolean>
   digest_on?: boolean
   digest_time?: string
   plan_hidden_types?: string[]
@@ -54,20 +54,20 @@ export async function fetchSettings(me: string): Promise<Settings> {
   const { data, error } = await supabase()
     .from('people')
     .select(
-      'timezone, default_reminder_time, reminder_defaults, digest_on, digest_time, plan_hidden_types, meal_space_id',
+      'timezone, default_alert_time, alert_defaults, digest_on, digest_time, plan_hidden_types, meal_space_id',
     )
     .eq('id', me)
     .limit(1)
   if (error) throw error
   const mine = data[0]
   if (!mine) return DEFAULT_SETTINGS
-  const defaults = (mine.reminder_defaults ?? {}) as Record<string, boolean>
+  const defaults = (mine.alert_defaults ?? {}) as Record<string, boolean>
   return {
     timezone: mine.timezone || DEFAULT_SETTINGS.timezone,
-    defaultReminderTime: mine.default_reminder_time.slice(0, 5),
-    taskReminders: defaults.task !== false,
-    thoughtReminders: defaults.thought !== false,
-    eventReminders: defaults.event !== false,
+    defaultAlertTime: mine.default_alert_time.slice(0, 5),
+    taskAlerts: defaults.task !== false,
+    thoughtAlerts: defaults.thought !== false,
+    eventAlerts: defaults.event !== false,
     digestOn: mine.digest_on,
     digestTime: mine.digest_time.slice(0, 5),
     planHiddenTypes: mine.plan_hidden_types ?? [],
@@ -83,13 +83,13 @@ export function applyPendingSettings(settings: Settings, entries: readonly Queue
     const p = (entry.args as { p_patch: SettingsPatch }).p_patch
     out = {
       ...out,
-      ...(p.default_reminder_time && { defaultReminderTime: p.default_reminder_time.slice(0, 5) }),
-      ...(p.reminder_defaults?.task !== undefined && { taskReminders: p.reminder_defaults.task }),
-      ...(p.reminder_defaults?.thought !== undefined && {
-        thoughtReminders: p.reminder_defaults.thought,
+      ...(p.default_alert_time && { defaultAlertTime: p.default_alert_time.slice(0, 5) }),
+      ...(p.alert_defaults?.task !== undefined && { taskAlerts: p.alert_defaults.task }),
+      ...(p.alert_defaults?.thought !== undefined && {
+        thoughtAlerts: p.alert_defaults.thought,
       }),
-      ...(p.reminder_defaults?.event !== undefined && {
-        eventReminders: p.reminder_defaults.event,
+      ...(p.alert_defaults?.event !== undefined && {
+        eventAlerts: p.alert_defaults.event,
       }),
       ...(p.digest_on !== undefined && { digestOn: p.digest_on }),
       ...(p.digest_time && { digestTime: p.digest_time.slice(0, 5) }),

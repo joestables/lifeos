@@ -29,8 +29,8 @@ import { useTaskFacts } from '@/app/task-facts'
 import { TaskRow } from '@/app/task-row'
 import { useMine } from '@/app/mine'
 import { tickThought } from '@/app/thought-actions'
-import { queue, useItems, useReminders, type Item } from '@/data'
-import { capturedWhen, reminderWhen } from '@/lib/dates'
+import { queue, useItems, useAlerts, type Item } from '@/data'
+import { capturedWhen, alertWhen } from '@/lib/dates'
 import { inboxGroups } from '@/lib/inbox'
 import { convertTargets, itemTitle, typeLook } from '@/lib/item-types'
 
@@ -59,10 +59,10 @@ function Inbox() {
   const thoughts = all.thoughts.filter((i) => filter.shows(i.id))
   const waiting = all.overdue.length + all.today.length + all.thoughts.length > 0
   const empty = overdue.length + today.length + thoughts.length === 0
-  const reminders = useReminders(queue)
-  // A Thought's next Reminder, if it has one still to come.
-  const nextReminder = (itemId: string) =>
-    reminders
+  const alerts = useAlerts(queue)
+  // A Thought's next Alert, if it has one still to come.
+  const nextAlert = (itemId: string) =>
+    alerts
       .filter((r) => r.item_id === itemId && r.fires_at && Date.parse(r.fires_at) > now.getTime())
       .map((r) => r.fires_at!)
       .sort()[0]
@@ -110,7 +110,7 @@ function Inbox() {
                   thought={t}
                   now={now}
                   labels={facts.of(t).labels}
-                  reminder={nextReminder(t.id)}
+                  alert={nextAlert(t.id)}
                 />
               ))}
             </div>
@@ -130,14 +130,14 @@ function ThoughtRow({
   thought,
   now,
   labels,
-  reminder,
+  alert,
 }: {
   thought: Item
   now: Date
   /** Its Labels' names, A to Z. */
   labels: string[]
-  /** When its next Reminder fires. */
-  reminder?: string
+  /** When its next Alert fires. */
+  alert?: string
 }) {
   const open = useOpenItem()
   const doConvert = useConvert()
@@ -154,7 +154,7 @@ function ThoughtRow({
     .filter((t) => t.key !== 'shopping_list' || canShop)
   const quick = targets.filter((t) => t.key === 'task' || t.key === 'note')
   const meta = [capturedWhen(thought.created_at, now)]
-  if (reminder) meta.push(reminderWhen(reminder, now))
+  if (alert) meta.push(alertWhen(alert, now))
   meta.push(...labels)
   const title = itemTitle(thought)
 

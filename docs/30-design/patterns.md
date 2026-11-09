@@ -132,7 +132,7 @@ used the same way on every screen.
 - An Item's own page keeps the top bar (menu, brand, Capture), with a back
   link above the title.
 - On a phone, a Task's and an Event's Dialog are one height, 440px
-  ([tokens](tokens.md#sizes)): a Task shows down to its Reminders, an Event
+  ([tokens](tokens.md#sizes)): a Task shows down to its Alerts, an Event
   to its Place and Repeat, and the rest scrolls inside the Dialog.
 - Changes are kept as they are made; there is no Save in an Item's Dialog.
 - **Shared and seen** (HSH-005 7, ADR-0016): under the title, as an Event
@@ -175,7 +175,7 @@ the CaptureDialog in [components](components.md).
 - Under the line, for a Thought with a date: the offer, "Task, Fri 18:00?",
   which switches to Task when tapped and is never taken on its own. For a
   Task: what it will be saved with, as Badges ("Fri 16 Oct 18:00", "Due
-  Fri 16 Oct", and the Reminder's time with a bell). Nothing shows when the
+  Fri 16 Oct", and the Alert's time with a bell). Nothing shows when the
   line has no date.
 - Dates as capture says them: "Today", "Tomorrow", "Fri" within the week,
   else "Fri 23 Oct".
@@ -236,7 +236,7 @@ DateField, TimeField, RepeatField, SubtaskList and AddRow in
   are kept in the page's address), and are given to a "New task"; none
   left, "No tasks labelled Home".
 - "New task" opens a new Task in a popup with every field a Task has —
-  title, notes, do-on date and time, due date, repeat, Reminders, Labels,
+  title, notes, do-on date and time, due date, repeat, Alerts, Labels,
   sub-tasks, and with a Household its Space last — and Cancel and Save at
   its foot; nothing is kept until Save,
   and once anything is typed a click outside doesn't close it. Changing a
@@ -258,8 +258,8 @@ DateField, TimeField, RepeatField, SubtaskList and AddRow in
 - "New task" opens capture as a Task.
 - Setting a time with no do-on date opens the do-on Calendar to ask for the
   day.
-- **Reminders** sit under the dates: a ReminderList, each line opening the
-  Reminder Dialog to change it. A Thought's popup has Reminders too, at a
+- **Alerts** sit under the dates: an AlertList, each line opening the
+  Alert Dialog to change it. A Thought's popup has Alerts too, at a
   set time only, and its Labels; its checkbox sits before its title.
 - **Repeat** sits with Do on, Time and Due. It opens a Dialog, "Repeat": a
   RadioGroup of `cards` ("On a schedule", "After it's done"), then Every
@@ -271,7 +271,7 @@ DateField, TimeField, RepeatField, SubtaskList and AddRow in
 
 ## Settings
 
-- One column of Cards, `max-w-3xl`; first Notifications and Reminders, side
+- One column of Cards, `max-w-3xl`; first Notifications and Alerts, side
   by side on a computer.
 - **Notifications** (REM-001): a titled Card. "This device" with an
   outline "Turn on", until this device has notifications; where it can't,
@@ -279,7 +279,7 @@ DateField, TimeField, RepeatField, SubtaskList and AddRow in
   available in this browser", "Blocked in this browser's settings"). Then
   a CardRow per device: its name ("Android · Chrome"), "This device" or
   "Can't be reached" muted, a Switch, and a "…" menu with Remove.
-- **Reminders** (REM-007, REM-008): a titled Card of CardRows: Default time
+- **Alerts** (REM-007, REM-008): a titled Card of CardRows: Default time
   (a TimeField), Dated tasks and Dated thoughts (Switches), Morning digest
   (a Switch) and, while it is on, Digest time.
 - **Labels** is a Card on a computer — its title, "New label" (outline) on
@@ -328,7 +328,7 @@ DateField, TimeField, RepeatField, SubtaskList and AddRow in
   being it. Coming back from Google, a
   toast says how it went ("Google Calendar connected"). When my calendars
   can't be read, the Card says "Couldn't load" with an outline "Try
-  again", never "Connect"; meanwhile Events from Google stay Google's. The Reminders
+  again", never "Connect"; meanwhile Events from Google stay Google's. The Alerts
   Card gains "Events, 30 min before" (a Switch).
 - **Google Calendar isn't syncing** (GCL-006): on Inbox, above the groups,
   an Alert with `calendar-x-2`, "Google Calendar isn't syncing", since
@@ -846,7 +846,7 @@ Two kinds, the same everywhere (Joe, 2 November):
 | Loading | Skeletons shaped like the content, after about 300ms |
 | Saved / waiting to send | Nothing while all is saved; SyncStatus in the drawer while changes wait; an Item not yet sent shows "Not sent yet" with a cloud icon in its meta |
 | Not saved | An Item whose change the server refused shows "Not saved" in red with a `cloud-alert` icon in its meta, and SyncStatus counts it, with "Clear" to put the Items back as they were saved ([OFF-004](../10-requirements/cross-cutting/offline.md#off-004--a-write-that-cant-be-saved-is-not-lost-silently)) |
-| Notifications off | On Inbox, while none of my devices has notifications: an Alert with `bell`, "Notifications are off", "Reminders can't reach you" (or "Add LifeOS to your Home Screen first" in an iPhone's browser), and "Not now" (ghost) and "Turn on" (outline) on the right, under the text on a phone. "Not now" puts it away on this device ([REM-001](../10-requirements/cross-cutting/reminders.md#rem-001--turn-on-notifications-for-a-device)) |
+| Notifications off | On Inbox, while none of my devices has notifications: an Alert with `bell`, "Notifications are off", "Alerts can't reach you" (or "Add LifeOS to your Home Screen first" in an iPhone's browser), and "Not now" (ghost) and "Turn on" (outline) on the right, under the text on a phone. "Not now" puts it away on this device ([REM-001](../10-requirements/cross-cutting/reminders.md#rem-001--turn-on-notifications-for-a-device)) |
 | Offline | An Alert at the top of every page, with `cloud-off`: "Offline" (or "Can't refresh" when the server can't be reached) and "These may be out of date". What was loaded still shows (OFF-005) |
 | Error | Red text under the field, or a toast that says what went wrong and what to do |
 | A screen that crashes | Its PageHeader title says "Something went wrong", with one primary button, "Reload", under it. The crash is recorded in `ops.events` ([runbook](../40-operations/runbook.md#noticing-problems)). A page whose code went with a new deploy reloads by itself instead, once a minute at most |
@@ -919,7 +919,7 @@ what follows is what only it has.
   title; its time line as on the web ("Fri 09:00", "Sat 17 Oct 13:00 · The
   Ivy"); Done (Completable Items) and "Snooze 1 hour". The small icon is
   the one-colour graph, tinted with the Item's Type colour (the digest's
-  untinted). In Android's settings they are in four groups: Reminders,
+  untinted). In Android's settings they are in four groups: Alerts,
   Alarms, Morning digest, Overdue.
 - **An Alarm** rings on the AlarmScreen ([components](components.md)).
 - **Settings, in the app only:** the Notifications Card's device is

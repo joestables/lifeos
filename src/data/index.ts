@@ -103,7 +103,7 @@ import {
 import { shoppingWrites } from './shopping-writes'
 import { applyPendingPhotos, photosKey, photoWrites, type Photo } from './photos'
 import { queryClient } from './queryClient'
-import { applyPendingReminders, remindersKey, type Reminder } from './reminders'
+import { applyPendingAlerts, alertsKey, type Alert } from './alerts'
 import { applyPendingSeries, seriesKey, type Series } from './series'
 import { applyPendingSettings, settingsKey, type Settings } from './settings'
 import { applyPendingDevices, devicesKey, type Device } from './devices'
@@ -199,13 +199,13 @@ const collections: {
       applyPendingItemLabels(rows, [e]),
   },
   {
-    key: remindersKey,
-    // A Task's default Reminder is made and moved by the server with its dates.
+    key: alertsKey,
+    // A Task's default Alert is made and moved by the server with its dates.
     fns: [
-      'add_reminder',
-      'update_reminder',
-      'remove_reminder',
-      'remove_default_reminder',
+      'add_alert',
+      'update_alert',
+      'remove_alert',
+      'remove_default_alert',
       'update_settings',
       'create_item',
       'update_item',
@@ -214,7 +214,7 @@ const collections: {
       'stop_repeat',
       'complete_occurrence',
     ],
-    fold: (rows: Reminder[], e: QueueEntry) => applyPendingReminders(rows, [e]),
+    fold: (rows: Alert[], e: QueueEntry) => applyPendingAlerts(rows, [e]),
   },
   {
     key: recipesKey,
@@ -526,11 +526,11 @@ export const {
   addLabel,
   removeLabel,
   setMark,
-  addFixedReminder,
-  addReminder,
-  updateReminder,
-  removeReminder,
-  removeDefaultReminder,
+  addFixedAlert,
+  addAlert,
+  updateAlert,
+  removeAlert,
+  removeDefaultAlert,
   updateSettings,
   registerDevice,
   setDevice,
@@ -674,7 +674,7 @@ export {
   useMarks,
   useOnline,
   useQueueEntries,
-  useReminders,
+  useAlerts,
   useSeries,
   useSettings,
   useSubtasks,
@@ -766,7 +766,7 @@ export { searchItemIds, searchKey } from './search'
 export type { Label } from './labels'
 export type { Link } from './links'
 export { noteAction, reportEvent, startReporting } from './report'
-export type { Reminder, ReminderFields } from './reminders'
+export type { Alert, AlertFields } from './alerts'
 export type { Device } from './devices'
 export { fetchVapidPublicKey, registerAndroidDevice } from './devices'
 export type { RepeatArgs, RepeatMode, Series, SeriesTemplate } from './series'

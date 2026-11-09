@@ -37,7 +37,7 @@ Done 9 October 2026.
 - **A nightly health check** (`pg_cron`, 03:00 UTC, `ops.health_check()`)
   looks at the last day's events (not the AI's uses, which are counted
   there too), failed jobs and the heartbeats of jobs
-  outside the database (from Stage 2, Reminder sending and the nightly
+  outside the database (from Stage 2, Alert sending and the nightly
   series run; from Stage 3, Google Calendar connections that aren't
   syncing), and records what it finds in `ops.health_runs`. **Nobody is
   notified** (Joe, 10 October): Joe checks, or asks Claude "any problems?",
@@ -49,12 +49,12 @@ Done 9 October 2026.
 
 ## Notifications
 
-Reminders, the morning digest and overdue nudges
+Alerts, the morning digest and overdue nudges
 ([ADR-0044](../20-architecture/adr/0044-reminder-delivery.md)):
 
 - **Each minute** the `pg_cron` job `minute-notifications` runs
   `core_private.notifications_tick()`: it queues what has come due in
-  `core.reminder_deliveries`, one row per notification and device, and when
+  `core.alert_deliveries`, one row per notification and device, and when
   rows wait it calls `send-notifications` through `pg_net` with the Vault
   secret `push_secret`.
 - **`send-notifications`** claims rows, sends each by Web Push with the
@@ -65,22 +65,22 @@ Reminders, the morning digest and overdue nudges
   each result: *sent*, *failed* (tried again next minute), *gone* (the
   device stops being sent to and `ops.events` gets `push_device_gone`),
   *skipped* (done or deleted meanwhile, or the digest had nothing to say)
-  or *missed* (over 12 hours late). The Android app's Reminders are
+  or *missed* (over 12 hours late). The Android app's Alerts are
   recorded *on device* and not sent: it sets them itself; and devices
-  whose Reminders, or today's or tomorrow's Plan, changed are sent a "look
+  whose Alerts, or today's or tomorrow's Plan, changed are sent a "look
   again" FCM message (`core.claim_looks`). Its heartbeat is `send-notifications`.
 - **`device-reminders`** (the Android app, with its device's secret) hands
-  it its Reminders from 12 hours ago to a week ahead, each with what its
-  notification says (`core.device_reminders`); `notification-action` also
+  it its Alerts from 12 hours ago to a week ahead, each with what its
+  notification says (`core.device_alerts`); `notification-action` also
   takes Done and Snooze for one of those, proved the same way
-  (`core.act_on_reminder`).
+  (`core.act_on_alert`).
 - **`device-plan`** (the Android app, with its device's secret) hands the
   Today widget today's and tomorrow's cards in Plan's order
   (`core.device_plan`).
 - **`notification-action`** does Done and Snooze from a notification's
   buttons, proved by the delivery's token; the service worker keeps a press
   made with no signal and sends it later.
-- **Checking it:** `select status, count(*) from core.reminder_deliveries
+- **Checking it:** `select status, count(*) from core.alert_deliveries
   where created_at > now() - interval '1 day' group by 1`; the 03:00 health
   check reports rows waiting over an hour. A real notification on each
   phone and computer is checked by hand.

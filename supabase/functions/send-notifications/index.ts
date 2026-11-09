@@ -54,7 +54,7 @@ Deno.serve(async (req) => {
   const account = (await rpc('fcm_service_account', {}).catch(() => null)) as string | null
   const sendFcm = account ? fcmSender(JSON.parse(account) as ServiceAccount, fetch) : undefined
   const totals = await sendAll(rpc, send, 5, sendFcm)
-  // The Android apps whose Reminders changed look again (ADR-0063).
+  // The Android apps whose Alerts changed look again (ADR-0063).
   const looks = await sendLooks(rpc, sendFcm).catch(() => 0)
   console.log(JSON.stringify({ at: 'send-notifications', ...totals, looks }))
   return Response.json({ ...totals, looks })

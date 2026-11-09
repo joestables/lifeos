@@ -55,17 +55,17 @@ select lives_ok(
 
 -- ---------------------------------------------------------------------------
 -- A Reminder stays on something I can see.
-insert into core.reminders (id, item_id, person_id, fixed_at) values
+insert into core.alerts (id, item_id, person_id, fixed_at) values
   ('00000000-0000-7000-8000-0000000000e1', '00000000-0000-7000-8000-000000000001',
    '00000000-0000-4000-8000-00000000000b', '2030-01-08 20:00+00');
 select throws_ok(
-  $$update core.reminders set item_id = '00000000-0000-7000-8000-000000000002'
+  $$update core.alerts set item_id = '00000000-0000-7000-8000-000000000002'
     where id = '00000000-0000-7000-8000-0000000000e1'$$,
   '42501', null,
   'REM-002: my Reminder can''t be moved onto an Item I can''t see'
 );
 select lives_ok(
-  $$update core.reminders set fixed_at = '2030-01-08 21:00+00' where id = '00000000-0000-7000-8000-0000000000e1'$$,
+  $$update core.alerts set fixed_at = '2030-01-08 21:00+00' where id = '00000000-0000-7000-8000-0000000000e1'$$,
   'Changing my Reminder on what I can see still works'
 );
 
@@ -76,10 +76,10 @@ reset role;
 insert into core.push_devices (id, person_id, endpoint, p256dh, auth, label, enabled) values
   ('00000000-0000-7000-8000-0000000000d1', '00000000-0000-4000-8000-00000000000a', 'https://push.example/ann', 'k', 'a', 'Ann', true),
   ('00000000-0000-7000-8000-0000000000d2', '00000000-0000-4000-8000-00000000000b', 'https://push.example/ben', 'k', 'a', 'Ben', true);
-insert into core.reminders (id, item_id, person_id, fixed_at) values
+insert into core.alerts (id, item_id, person_id, fixed_at) values
   ('00000000-0000-7000-8000-0000000000e2', '00000000-0000-7000-8000-000000000001',
    '00000000-0000-4000-8000-00000000000a', '2030-01-08 20:00+00');
-insert into core.reminder_deliveries (kind, key, person_id, device_id, reminder_id, item_id, fire_at) values
+insert into core.alert_deliveries (kind, key, person_id, device_id, alert_id, item_id, fire_at) values
   ('reminder', 'reminder:ann', '00000000-0000-4000-8000-00000000000a', '00000000-0000-7000-8000-0000000000d1',
    '00000000-0000-7000-8000-0000000000e2', '00000000-0000-7000-8000-000000000001', now() - interval '1 minute'),
   ('reminder', 'reminder:ben', '00000000-0000-4000-8000-00000000000b', '00000000-0000-7000-8000-0000000000d2',
@@ -95,7 +95,7 @@ select is(
   'REM-004: only Ann, still in the Household, is notified about its Task'
 );
 select is(
-  (select status from core.reminder_deliveries where key = 'reminder:ben'),
+  (select status from core.alert_deliveries where key = 'reminder:ben'),
   'skipped',
   'REM-004: Ben''s, after he was removed, is skipped'
 );
@@ -103,8 +103,8 @@ select is(
 -- His notification from before still has its Done button: it does nothing now.
 select is(
   core.act_on_delivery(
-    (select id from core.reminder_deliveries where key = 'reminder:ben'),
-    (select token from core.reminder_deliveries where key = 'reminder:ben'),
+    (select id from core.alert_deliveries where key = 'reminder:ben'),
+    (select token from core.alert_deliveries where key = 'reminder:ben'),
     'done'),
   false,
   'HSH-004: Done from a notification does nothing after leaving'

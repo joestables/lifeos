@@ -28,7 +28,7 @@ flowchart LR
   shortcuts -. "capture address" .-> lifeos
   email -. "forwards each email" .-> lifeos
   lifeos -- "signs people in" --> google
-  lifeos -- "sends Reminders" --> push
+  lifeos -- "sends Alerts" --> push
   gcal -. "events" .-> lifeos
   oura -. "sleep, readiness" .-> lifeos
   hc -. "health data" .-> lifeos
@@ -55,7 +55,7 @@ flowchart TB
     realtime["Realtime<br/>shared Shopping lists"]
     db[("Postgres<br/>core + one schema per Module, ops;<br/>RLS through one visibility rule (core_private);<br/>triggers write core.activity")]
     edge["Edge Functions<br/>nightly series extension,<br/>notification actions,<br/>Integration connect and sync,<br/>capture address (later)"]
-    reminders["Reminder sending<br/>(Edge Function, VAPID)"]
+    alerts["Alert sending<br/>(Edge Function, VAPID)"]
     cron["pg_cron<br/>each minute: what is due;<br/>nightly: series, health check"]
     vault["Vault<br/>Integration tokens"]
   end
@@ -73,10 +73,10 @@ flowchart TB
   pwa -- "published views and<br/>database functions (RPC)" --> db
   edge --> db
   edge --> vault
-  reminders --> db
-  reminders -- "sends" --> pushsvc
+  alerts --> db
+  alerts -- "sends" --> pushsvc
   cron --> db
-  cron -- "pg_net" --> reminders
+  cron -- "pg_net" --> alerts
   cron -- "pg_net" --> edge
   outside --> edge
   mcp -. "published layer" .-> db
@@ -106,7 +106,7 @@ from every box are reported to `ops.events`
 
 | Part | Owns |
 |---|---|
-| **Core** | Identity, Spaces, Items and Links, Reminders and notifications, capture, search, the activity log, caching and sync; the Thought, Note, Task and Event Types; the shared AI service |
+| **Core** | Identity, Spaces, Items and Links, Alerts and notifications, capture, search, the activity log, caching and sync; the Thought, Note, Task and Event Types; the shared AI service |
 | **Modules** | `shopping` (Shopping list), `food` (Recipe, Variation, Meal; the Pantry), `fitness` (Exercise, Workout template, Workout, Cardio activity), `goals` (Goal), `wardrobe` (Garment, Outfit, Outfit worn), later `health` and `finance` |
 | **Integrations** | Google Calendar, Oura, Health Connect, later banks |
 
@@ -144,12 +144,12 @@ from every box are reported to `ops.events`
 - **Android app (Capacitor, Stage 7)** — on Joe's phone in place of the
   installed web app, loading the live site; the web is unchanged
   ([the Android app](../10-requirements/cross-cutting/android.md)). The only
-  route to alarm-grade Reminders and home-screen widgets:
+  route to alarm-grade Alerts and home-screen widgets:
   - Since Android 14, `SCHEDULE_EXACT_ALARM` is denied by default. Calendar
-    and reminder apps may declare **`USE_EXACT_ALARM`**, granted at install.
+    and alert apps may declare **`USE_EXACT_ALARM`**, granted at install.
     That's fine for an app installed directly; Google Play restricts it to
     alarm and calendar apps.
-  - The hard part is getting Reminders created elsewhere onto the phone. The
+  - The hard part is getting Alerts created elsewhere onto the phone. The
     usual pattern is a high-priority FCM data message that schedules the alarm
     on the device.
 - **iOS native** would need a Mac and £79/yr, so it isn't planned.

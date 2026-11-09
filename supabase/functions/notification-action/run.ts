@@ -22,9 +22,9 @@ export async function act(
   now: Date = new Date(),
 ): Promise<boolean> {
   const { delivery, token, action } = press
-  // A Reminder the Android app set itself, proved by the device's secret
+  // An Alert the Android app set itself (`reminder`, as the installed app sends it), proved by the device's secret
   // (REM-010, ADR-0063).
-  if (typeof press.reminder === 'string') return actOnReminder(rpc, press, now)
+  if (typeof press.reminder === 'string') return actOnAlert(rpc, press, now)
   if (typeof delivery !== 'number' || typeof token !== 'string') return false
   if (action !== 'done' && action !== 'snooze') return false
   const [found] = (await rpc('delivery_for_action', { p_delivery: delivery, p_token: token })) as {
@@ -57,7 +57,7 @@ function nextOn(
     : null
 }
 
-async function actOnReminder(
+async function actOnAlert(
   rpc: Rpc,
   {
     device,
@@ -70,16 +70,16 @@ async function actOnReminder(
   if (typeof device !== 'string' || typeof secret !== 'string' || typeof reminder !== 'string')
     return false
   if (action !== 'done' && action !== 'snooze') return false
-  const [found] = (await rpc('reminder_for_action', {
+  const [found] = (await rpc('alert_for_action', {
     p_device: device,
     p_secret: secret,
-    p_reminder: reminder,
+    p_alert: reminder,
   })) as { mode: string | null; rule: string | null; timezone: string | null }[]
   if (!found) return false
-  return (await rpc('act_on_reminder', {
+  return (await rpc('act_on_alert', {
     p_device: device,
     p_secret: secret,
-    p_reminder: reminder,
+    p_alert: reminder,
     p_action: action,
     p_next: null,
     p_next_on: nextOn(action, found, now),

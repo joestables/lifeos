@@ -12,7 +12,7 @@ at the start of Stage 2, are at the end.*
   makes a Thought, which lands in Inbox, with a one-tap switch to Task; a
   deterministic parser offers, never forces, a Task when it spots a date
   ([ADR-0027](../../20-architecture/adr/0027-quick-capture.md), Provisionally agreed).
-- **A Thought whose text contains a date gets a Reminder** for that date
+- **A Thought whose text contains a date gets an Alert** for that date
   ([ADR-0023](../../20-architecture/adr/0023-reminders.md), Provisionally agreed).
 - **A bare date fills do-on**; a deadline must be said ("due fri", "by fri")
   ([ADR-0022](../../20-architecture/adr/0022-repeating-items.md), Provisionally agreed).
@@ -72,7 +72,7 @@ Acceptance criteria
    appears in Inbox, waiting to be sorted.
 2. Given I switch capture to Task before saving "renew insurance fri", when I
    save, then a Task "Renew insurance" is created, to do on Friday, with my
-   default Reminder at 09:00 on Friday.
+   default Alert at 09:00 on Friday.
 3. Given I type "call mum fri 6pm" and leave it as a Thought, when the parser
    finds the date, then it offers "Task, Fri 18:00?" and does not switch on
    its own.
@@ -125,12 +125,12 @@ Acceptance criteria
 
 **As** Joe, **I want** a dated Thought to remind me even before I sort it,
 **so that** a jotted "dentist tue 3pm?" isn't forgotten in Inbox.
-Priority: Should · Status: built (the Reminder firing is verified with step 11)
+Priority: Should · Status: built (the Alert firing is verified with step 11)
 
 Acceptance criteria
-1. Given I save "dentist tue 3pm?" as a Thought, then it has a Reminder for
+1. Given I save "dentist tue 3pm?" as a Thought, then it has an Alert for
    Tuesday at 15:00; with a date but no time, at my default time.
-2. Given I then convert it into a Task, then the Reminder stays
+2. Given I then convert it into a Task, then the Alert stays
    ([ADR-0037](../../20-architecture/adr/0037-thoughts.md)).
 
 ### CAP-009 — Label what I capture

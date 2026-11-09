@@ -43,7 +43,7 @@ const rows = () => ({
     { item_id: id(7), label_id: 'l-family' },
   ],
   marks: [{ item_id: id(3) }],
-  reminders: [{ id: 'r-6', item_id: id(6), fires_at: '2026-10-13T14:00:00Z', is_default: false }],
+  alerts: [{ id: 'r-6', item_id: id(6), fires_at: '2026-10-13T14:00:00Z', is_default: false }],
 })
 
 async function start(page: Page) {
@@ -113,7 +113,7 @@ test('INB-002: a Thought becomes a Task in one action, its date understood, and 
 }) => {
   const db = await start(page)
   const thought = rowOf(page, 'dentist tue 3pm?')
-  // Whether its own Reminder goes depends on the Reminders: converted once the
+  // Whether its own Alert goes depends on the Alerts: converted once the
   // page has them, as its row then shows.
   await expect(thought).toContainText('15:00')
   if (isMobile) {
@@ -151,8 +151,8 @@ test('INB-002: a Thought becomes a Task in one action, its date understood, and 
   await expect
     .poll(() => db.items.find((i) => i.id === id(6)))
     .toMatchObject({ type: 'task', title: 'Dentist?', do_on: '2026-10-13', do_at: '15:00' })
-  // The Task's own Reminder fires at 15:00 on Tuesday: the Thought's isn't kept as well.
-  await expect.poll(() => db.reminders.length).toBe(0)
+  // The Task's own Alert fires at 15:00 on Tuesday: the Thought's isn't kept as well.
+  await expect.poll(() => db.alerts.length).toBe(0)
 })
 
 test('INB-002: a Thought becomes a Note, with Undo, or is deleted with Undo', async ({

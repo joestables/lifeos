@@ -33,7 +33,7 @@ export function ItemRow({
   /** Opens the Item: the whole row, but for its controls. */
   onOpen?: () => void
   done?: boolean
-  /** Its time has gone (a Reminder whose alerts have all gone off): faded, as on Plan. */
+  /** Its time has gone (an Alert whose alerts have all gone off): faded, as on Plan. */
   past?: boolean
   /** Whether the Item's latest change has reached the server (patterns.md#states). */
   sync?: 'pending' | 'failed'

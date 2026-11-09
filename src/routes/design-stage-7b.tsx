@@ -45,8 +45,8 @@ import {
   PlanDay,
   PlanToolbar,
   PlanWeek,
-  ReminderDialog,
-  ReminderList,
+  AlertEditDialog,
+  AlertList,
   RepeatField,
   SectionLabel,
   TabsRow,
@@ -60,7 +60,7 @@ import {
   type CaptureLook,
   type DrawerPage,
   type PlanWeekDay,
-  type ReminderLine,
+  type AlertLine,
   type WidgetCard,
 } from '@/components/lifeos'
 import { Button } from '@/components/ui/button'
@@ -247,7 +247,7 @@ function TaskLine({
   )
 }
 
-function ReminderLineRow({
+function AlertLineRow({
   title,
   times,
   meta = [],
@@ -354,7 +354,7 @@ function TodayList() {
           meta={['Breakfast']}
           past
         />
-        <ReminderLineRow
+        <AlertLineRow
           title="Take vitamins"
           times={[{ at: '08:00' }]}
           meta={[repeats('Daily')]}
@@ -376,7 +376,7 @@ function TodayList() {
           meta={['13:30–14:00', 'Smile Clinic']}
           past
         />
-        <ReminderLineRow
+        <AlertLineRow
           title="Move the car before 16:00"
           times={[{ at: '15:00' }, { at: '15:40', alarm: true }]}
         />
@@ -384,7 +384,7 @@ function TodayList() {
       <Group label="Evening">
         <TileLine colour="green" icon={UtensilsIcon} title="Thai green curry" meta={['Dinner']} />
         <TaskLine title="Call mum" meta={['18:00']} starred />
-        <ReminderLineRow title="Bins out" times={[{ at: '19:00' }]} meta={[repeats('Weekly')]} />
+        <AlertLineRow title="Bins out" times={[{ at: '19:00' }]} meta={[repeats('Weekly')]} />
         <TileLine
           colour="blue"
           icon={EventIcon}
@@ -791,38 +791,38 @@ function PlanReminders() {
   return (
     <>
       <Group label="Today" count={3}>
-        <ReminderLineRow
+        <AlertLineRow
           title="Take vitamins"
           times={[{ at: '08:00' }]}
           meta={[repeats('Daily')]}
           past
         />
-        <ReminderLineRow
+        <AlertLineRow
           title="Move the car before 16:00"
           times={[{ at: '15:00' }, { at: '15:40', alarm: true }]}
         />
-        <ReminderLineRow title="Bins out" times={[{ at: '19:00' }]} meta={[repeats('Weekly')]} />
+        <AlertLineRow title="Bins out" times={[{ at: '19:00' }]} meta={[repeats('Weekly')]} />
       </Group>
       <Group label="Wednesday" count={1}>
-        <ReminderLineRow title="Ring the garage" times={[{ at: '10:00' }]} />
+        <AlertLineRow title="Ring the garage" times={[{ at: '10:00' }]} />
       </Group>
       <Group label="Thursday" count={1}>
-        <ReminderLineRow title="Parcel arriving" times={[{ at: '09:00' }, { at: '12:00' }]} />
+        <AlertLineRow title="Parcel arriving" times={[{ at: '09:00' }, { at: '12:00' }]} />
       </Group>
       <Group label="Sunday" count={1}>
-        <ReminderLineRow
+        <AlertLineRow
           title="Water the plants"
           times={[{ at: '10:00' }]}
           meta={[repeats('Weekly')]}
         />
       </Group>
       <Group label="Later" count={2}>
-        <ReminderLineRow
+        <AlertLineRow
           title="Check the tyre pressure"
           times={[{ at: '09:00' }]}
           meta={['Sat 21 Nov']}
         />
-        <ReminderLineRow
+        <AlertLineRow
           title="Wake up for the airport"
           times={[{ at: '04:30', alarm: true }]}
           meta={['Fri 20 Nov']}
@@ -851,17 +851,17 @@ function PlanRecurring() {
         />
       </Group>
       <Group label="Reminders" count={3}>
-        <ReminderLineRow
+        <AlertLineRow
           title="Take vitamins"
           times={[{ at: '08:00' }]}
           meta={[repeats('Every day'), 'Next tomorrow']}
         />
-        <ReminderLineRow
+        <AlertLineRow
           title="Bins out"
           times={[{ at: '19:00' }]}
           meta={[repeats('Every Monday'), 'Next today']}
         />
-        <ReminderLineRow
+        <AlertLineRow
           title="Water the plants"
           times={[{ at: '10:00' }]}
           meta={[repeats('Every Sunday'), 'Next Sun 15 Nov']}
@@ -912,16 +912,8 @@ function Field({ label, children }: { label: string; children: ReactNode }) {
   )
 }
 
-function Alerts({ lines }: { lines: ReminderLine[] }) {
-  return (
-    <ReminderList
-      noun="alert"
-      reminders={lines}
-      onOpen={nothing}
-      onRemove={nothing}
-      onAdd={nothing}
-    />
-  )
+function Alerts({ lines }: { lines: AlertLine[] }) {
+  return <AlertList alerts={lines} onOpen={nothing} onRemove={nothing} onAdd={nothing} />
 }
 
 /** New task, from Plan's Tasks: do-on today to start, its alert an hour from now. */
@@ -998,8 +990,7 @@ function OpenReminder({ alert = false }: { alert?: boolean }) {
         </Field>
       </ItemDialog>
       {alert && (
-        <ReminderDialog
-          title="Alert"
+        <AlertEditDialog
           value={{ kind: 'fixed', day: '2026-11-09', time: '15:40', alarm: true }}
           anchors={[]}
           onSave={nothing}
@@ -1258,8 +1249,7 @@ function V5({ state }: { state: 'empty' | 'one' | 'two' | 'alert' | 'more' | 'th
         )}
       </NewDialog>
       {state === 'alert' && (
-        <ReminderDialog
-          title="Alert"
+        <AlertEditDialog
           value={{ kind: 'fixed', day: '2026-11-09', time: '18:00', alarm: true }}
           anchors={[]}
           onSave={nothing}

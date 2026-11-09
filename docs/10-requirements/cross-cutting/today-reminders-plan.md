@@ -195,7 +195,7 @@ Acceptance criteria
 
 **As** Joe, **I want** one word for an Item's notifications, and none on
 Thoughts, **so that** "Reminder" means one thing.
-Priority: Must · Status: agreed
+Priority: Must · Status: built in part (1, step 4: Alerts by name in the app, its code and the database; 2–4, step 8)
 
 Acceptance criteria
 1. Given a Task, an Event, a Meal, a Shopping list or a Reminder, then its
