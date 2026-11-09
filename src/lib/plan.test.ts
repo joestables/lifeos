@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { Item } from '@/data'
 import {
+  alertTimes,
   cardLine,
   dayTitle,
   isPast,
@@ -238,5 +239,73 @@ describe('PLN-008: Meals on Plan', () => {
     expect(moveTo(meal('m', 'lunch'), '2026-10-15', '2026-10-17', TZ)).toEqual({
       do_on: '2026-10-17',
     })
+  })
+})
+
+describe('a Reminder on Plan (RMD-003, ADR-0065 2)', () => {
+  const r = item('bins', { type: 'reminder', do_on: '2026-11-10' })
+  const alert = (fields: Partial<Parameters<typeof alertTimes>[1][number]>) => ({
+    anchor: 'do_on' as const,
+    offset_days: 0,
+    at_time: '15:00:00',
+    fires_at: null,
+    snoozed_until: null,
+    alarm: false,
+    ...fields,
+  })
+  const now = new Date('2026-11-10T12:00:00Z')
+  const times = alertTimes(
+    r,
+    [
+      alert({}),
+      alert({ at_time: '15:40:00', alarm: true }),
+      alert({ offset_days: 2, at_time: '09:00:00' }),
+    ],
+    TZ,
+    now,
+  )
+
+  it('works out each Alert on its day, from the Reminder’s day, soonest first', () => {
+    expect(times.map((t) => [t.day, t.time, t.alarm])).toEqual([
+      ['2026-11-10', '15:00', false],
+      ['2026-11-10', '15:40', true],
+      ['2026-11-12', '09:00', false],
+    ])
+  })
+
+  it('takes a snoozed Alert where the server says it fires', () => {
+    const snoozed = alertTimes(
+      r,
+      [alert({ snoozed_until: '2026-11-10T16:00:00Z', fires_at: '2026-11-10T16:00:00Z' })],
+      TZ,
+      now,
+    )
+    expect(snoozed.map((t) => t.time)).toEqual(['16:00'])
+  })
+
+  it('is on each day it alerts, saying that day’s times', () => {
+    const days = planDays([r], '2026-11-09', '2026-11-15', TZ, [], () => times)
+    expect([...days].filter(([, l]) => l.length).map(([d]) => d)).toEqual([
+      '2026-11-10',
+      '2026-11-12',
+    ])
+    const tue = days.get('2026-11-10')![0]!
+    expect(cardLine(tue, '2026-11-10', TZ).time).toBe('15:00, 15:40')
+    expect(isPast(r, now, tue)).toBe(false)
+    expect(isPast(r, new Date('2026-11-10T16:00:00Z'), tue)).toBe(true)
+  })
+
+  it('with no Alerts, is on its own day', () => {
+    const days = planDays([r], '2026-11-09', '2026-11-15', TZ, [], () => [])
+    expect(days.get('2026-11-10')!.map((p) => p.item.id)).toEqual(['bins'])
+  })
+
+  it('moves its day by as many days as it is dragged, its Alerts with it', () => {
+    expect(moveTo(r, '2026-11-12', '2026-11-13', TZ)).toEqual({ do_on: '2026-11-11' })
+  })
+
+  it('is left out when Reminders are hidden', () => {
+    const days = planDays([r], '2026-11-09', '2026-11-15', TZ, ['reminder'], () => times)
+    expect([...days.values()].flat()).toEqual([])
   })
 })

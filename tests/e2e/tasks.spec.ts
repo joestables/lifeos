@@ -134,6 +134,9 @@ test('TSK-001: "New task" opens a new Task with all its fields, kept on Save', a
   const dialog = page.getByRole('dialog', { name: 'New task' })
   await expect(dialog.getByRole('textbox', { name: 'Title' })).toBeFocused()
   await expect(dialog.getByRole('button', { name: 'Save' })).toBeDisabled()
+  // PLA-006: on today; its default Alert (09:00) gone by, an hour from now.
+  await expect(dialog.getByRole('button', { name: 'Do on' })).toContainText('Today')
+  await expect(dialog.getByRole('button', { name: /^Today 10:00/ })).toBeVisible()
   await dialog.getByRole('textbox', { name: 'Title' }).fill('Renew insurance')
   await dialog.getByRole('textbox', { name: 'Notes' }).fill('Policy 123')
   await dialog.getByRole('button', { name: 'Add', exact: true }).click()
@@ -154,12 +157,20 @@ test('TSK-001: "New task" opens a new Task with all its fields, kept on Save', a
       return (
         t && [
           t.body,
+          t.do_on,
           db.item_labels.some((r) => r.item_id === t.id && r.label_id === 'l-car'),
           db.subtasks.filter((x) => x.item_id === t.id).map((x) => x.title),
+          db.alerts.filter((r) => r.item_id === t.id).map((r) => [r.is_default, r.fixed_at]),
         ]
       )
     })
-    .toEqual(['Policy 123', true, ['Get quotes']])
+    .toEqual([
+      'Policy 123',
+      '2026-10-12',
+      true,
+      ['Get quotes'],
+      [[false, '2026-10-12T09:00:00.000Z']],
+    ])
 })
 
 test('TSK-001: a new Task cancelled leaves nothing behind, and a click outside keeps it open once typed in', async ({
@@ -184,8 +195,10 @@ test('REM-002 1: New task shows its default Alert; left, changed or removed, tha
     await page.getByRole('button', { name: 'New task' }).click()
     const dialog = page.getByRole('dialog', { name: 'New task' })
     await dialog.getByRole('textbox', { name: 'Title' }).fill(title)
-    await pickTime(dialog.getByLabel('Time'), '20:00')
+    // It starts on today (PLA-006 1); tomorrow instead.
+    await dialog.getByRole('button', { name: 'Do on' }).click()
     await page.getByRole('button', { name: /13th/ }).click()
+    await pickTime(dialog.getByLabel('Time'), '20:00')
     return dialog
   }
   const alertsOf = (title: string) => {

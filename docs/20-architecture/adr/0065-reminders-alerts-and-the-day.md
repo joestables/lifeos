@@ -2,6 +2,10 @@
 
 **Status:** Provisionally agreed · 2026-11-09 (Joe, the full rename to Alerts included)
 
+**Amended:** 2026-11-09, as step 5 built the Type: a Reminder's day is
+`do_on` and its Alerts hang on it (decision 2); its one time field is
+`do_on` (decision 1).
+
 ## Context
 
 Stage 7b's spec, [Today, Reminders and Plan](../../10-requirements/cross-cutting/today-reminders-plan.md)
@@ -31,25 +35,35 @@ Alerts are rows in `core.reminders`, each person's own.
 1. **A Reminder is a core Type**, `reminder` in the ontology (stage 7.5):
    Schedulable and Capturable; not Completable or Shareable; status
    *active* only; Personal; blue; no Labels, mark, sub-tasks or place; no
-   default Alert (it is always made with one). Its time fields are
-   `do_on` and `do_at`.
+   default Alert (it is always made with one). Its one time field is
+   `do_on`, its day.
 
 2. **A Reminder's days are its Alerts' days.** It is on each local date
-   that one of its Alerts fires (`fires_at`, so a Snooze moves it too).
-   `src/lib/plan.ts` and `core.plan_items` place it so, reading
-   `core.reminders` for this one Type; Today, Week, Plan's Reminders tab
-   and the widget all use that. **`do_on` and `do_at` hold its next Alert**
-   (the last, once all have gone off), kept by a trigger on its Alerts, so
-   it sorts, converts and reads like a Task without reading its Alerts.
-   ADR-0029 is amended: Plan reads `core.items`, and for Reminders their
-   Alerts. *Rejected:* each Alert an Item of its own (a Reminder would be
-   several Items); a separate table of a Reminder's days (a second copy of
-   what its Alerts already say).
+   that one of its Alerts fires (a Snooze moves it too). **Its `do_on` is
+   its day, and its Alerts hang on it**: each is anchored to `do_on`, a
+   number of days after it at a time, as a Task's own Alerts can be
+   ([ADR-0023](0023-reminders.md)). So moving it on Week moves its Alerts,
+   and a Repeat gives each occurrence the same Alerts on its own day, with
+   nothing more to keep in step. The app makes them so (a new Reminder's
+   `do_on` is its first Alert's day), and so does converting into one,
+   where the database hangs the Item's Alerts on the day of its first.
+   `src/lib/plan.ts` places it from its Alerts, worked out on the device so
+   it shows at once, offline too; Today, Week, Plan's Reminders tab and the
+   widget use that. `core.plan_items` and `device-plan` place it by
+   `do_on` until step 10 has them read its Alerts. ADR-0029 is amended:
+   Plan reads `core.items`, and for Reminders their Alerts. *Rejected:*
+   `do_on` and `do_at` as its next Alert, kept by a trigger on its Alerts
+   (the first design: moving or repeating it would have to move each
+   Alert by hand, and the trigger and the Alerts could disagree); each
+   Alert an Item of its own (a Reminder would be several Items); a
+   separate table of a Reminder's days (a second copy of what its Alerts
+   already say).
 
 3. **A Reminder always has an Alert, in the app.** Its popup won't remove
    the last, and "New" makes a Reminder only with one. The database doesn't
    refuse a Reminder without Alerts — the write queue sends an Item before
-   its Alerts — and one so left shows on no day until it has one.
+   its Alerts — and one so left shows on its day, with no time, until it
+   has one.
 
 4. **Alerts, by name, everywhere but the wire.** The table, its functions
    and the app's code take the name: `core.reminders` becomes
@@ -115,11 +129,11 @@ Alerts are rows in `core.reminders`, each person's own.
 
 ## Consequences
 
-- One migration (step 4) adds the Type, renames the Alert tables and
-  functions, adds `takes_alerts`, drops sub-tasks and the Labels on Tasks
-  and Events, and changes Joe's data as the plan says: the 19 Thoughts'
-  Alerts already gone off removed, the 3 still to come converted to
-  Reminders, the Note's removed.
+- The migrations follow the plan's steps: step 4 renames the Alert tables
+  and functions; step 5 adds the Type and `takes_alerts`; step 8 changes
+  Joe's data as the plan says (the Thoughts' Alerts already gone off
+  removed, those still to come converted to Reminders, the Note's
+  removed); step 9 drops sub-tasks and the Labels on Tasks and Events.
 - The Edge Functions that read Alerts (`send-notifications`,
   `notification-action`, `device-reminders`, `device-plan`) are redeployed
   with the migration; the Android app keeps working through the old names

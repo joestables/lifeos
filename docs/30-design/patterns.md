@@ -374,6 +374,9 @@ DayColumn, PlanWeek, PlanDay, PlanToolbar, WeekStrip and AddToDay in
   PlanCard in its Type's colour saying its own time ("All day", "18:00").
   An all-day Item over several days is a card on each of them; past and done
   Items fade.
+- **A Reminder** (Stage 7b, [RMD-003](../10-requirements/cross-cutting/today-reminders-plan.md#rmd-003--a-reminder-on-today-and-week))
+  is a card on each day it has an Alert, saying that day's times ("09:00,
+  12:00"); once they have all gone off, it fades.
 - **A day** (chosen on a computer; always on a phone): the WeekStrip, then a
   PlanDay, up to `max-w-3xl`. Times are inside the cards; nothing sits to
   their left.

@@ -1,7 +1,7 @@
 import { addDays, daysBetween, weekdayOf } from '@lifeos/recurrence'
 import { hasTrait, typeByKey } from '@lifeos/ontology'
-import type { Item } from '@/data'
-import { dueWhen, fromIsoDay, shortDate, zonedParts } from './dates'
+import type { Alert, Item } from '@/data'
+import { dueWhen, fromIsoDay, shortDate, zonedInstant, zonedParts } from './dates'
 
 const weekday = new Intl.DateTimeFormat('en-GB', { weekday: 'short' })
 const weekdayName = (d: Date) => weekday.format(d)
@@ -29,6 +29,46 @@ export interface Placed {
   last: string
   /** Its time on the clock, for ordering a day; empty when all day or untimed. */
   time: string
+  /** A Reminder's Alerts on its day (RMD-003 1), soonest first. */
+  alerts?: AlertTime[]
+}
+
+/** An Alert as Plan places a Reminder: its day and time, an Alarm or not, and when it fires. */
+export interface AlertTime {
+  day: string
+  time: string
+  alarm: boolean
+  at: number
+}
+
+/**
+ * A Reminder's Alerts as days and times (RMD-003, ADR-0065 2): each on the
+ * Reminder's day and its offset from it, at its time, worked out here so it
+ * shows at once, offline too; a snoozed one, or one at a set time, where the
+ * server says it fires.
+ */
+export function alertTimes(
+  item: Pick<Item, 'do_on'>,
+  alerts: readonly Pick<
+    Alert,
+    'anchor' | 'offset_days' | 'at_time' | 'fires_at' | 'snoozed_until' | 'alarm'
+  >[],
+  timezone: string,
+  now: Date = new Date(),
+): AlertTime[] {
+  const out: AlertTime[] = []
+  for (const a of alerts) {
+    const snoozed = a.snoozed_until !== null && Date.parse(a.snoozed_until) > now.getTime()
+    if (!snoozed && a.anchor === 'do_on' && item.do_on && a.at_time) {
+      const day = addDays(item.do_on, a.offset_days)
+      const time = a.at_time.slice(0, 5)
+      out.push({ day, time, alarm: a.alarm, at: Date.parse(zonedInstant(day, time, timezone)) })
+    } else if (a.fires_at) {
+      const p = zonedParts(a.fires_at, timezone)
+      out.push({ day: p.day, time: p.time, alarm: a.alarm, at: Date.parse(a.fires_at) })
+    }
+  }
+  return out.sort((a, b) => a.at - b.at)
 }
 
 /**
@@ -63,11 +103,22 @@ export function planDays(
   to: string,
   timezone: string,
   hidden: readonly string[] = [],
+  /** A Reminder's Alerts: it is on each day one of them is (RMD-003 1). */
+  alertsOf: (item: Item) => AlertTime[] = () => [],
 ): Map<string, Placed[]> {
   const days = new Map<string, Placed[]>()
   for (let d = from; d <= to; d = addDays(d, 1)) days.set(d, [])
   for (const item of items) {
     if (hidden.includes(item.type)) continue
+    const times = item.type === 'reminder' && placeOf(item, timezone) ? alertsOf(item) : []
+    if (times.length > 0) {
+      for (const day of new Set(times.map((t) => t.day))) {
+        if (day < from || day > to) continue
+        const on = times.filter((t) => t.day === day)
+        days.get(day)!.push({ item, first: day, last: day, time: on[0]!.time, alerts: on })
+      }
+      continue
+    }
     const p = placeOf(item, timezone)
     if (!p || p.last < from || p.first > to) continue
     for (let d = p.first < from ? from : p.first; d <= p.last && d <= to; d = addDays(d, 1))
@@ -104,6 +155,8 @@ export function cardLine(
   { long = false, now = new Date() }: { long?: boolean; now?: Date } = {},
 ): { time?: string; detail?: string } {
   const { item } = p
+  // A Reminder: its Alerts' times that day (RMD-003 1).
+  if (p.alerts) return { time: p.alerts.map((a) => a.time).join(', ') }
   if (item.starts_at) {
     const t = eventTimes(item, timezone)!
     const place = item.place?.trim() || undefined
@@ -129,9 +182,13 @@ export function cardLine(
   }
 }
 
-/** Whether a card has gone by: an Event that has ended; a done Item (PLN-001 6). */
-export function isPast(item: Item, now: Date = new Date()): boolean {
+/**
+ * Whether a card has gone by: an Event that has ended; a done Item (PLN-001
+ * 6); a Reminder whose Alerts that day have all gone off (RMD-003 2).
+ */
+export function isPast(item: Item, now: Date = new Date(), placed?: Placed): boolean {
   if (item.status === 'done') return true
+  if (placed?.alerts) return placed.alerts.every((a) => a.at <= now.getTime())
   return item.ends_at !== null && Date.parse(item.ends_at) <= now.getTime()
 }
 
@@ -154,6 +211,9 @@ export function moveTo(
   // A Meal keeps its slot; a Shopping list moves to the day (PLN-008 5).
   if (item.type === 'task' || item.type === 'meal' || item.type === 'shopping_list')
     return { do_on: to }
+  // A Reminder's day moves by as many days, its Alerts with it (RMD-003 3).
+  if (item.type === 'reminder' && item.do_on)
+    return { do_on: addDays(item.do_on, daysBetween(from, to)) }
   return null
 }
 

@@ -22,9 +22,11 @@ export interface TypeDefinition {
   subtasks: boolean
   /** Whether it has a place (an Event's "The Ivy, Richmond"). */
   place: boolean
+  /** Whether it takes Alerts (ADR-0065 5); the database refuses an Alert on any other. */
+  alerts: boolean
   /** The time field its default Alert follows (ADR-0023), if it has one. */
   defaultAlert?: TimeField
-  /** The roadmap stage that builds it: the app offers a Type only from then. 4.5 is Stage 4b. */
+  /** The roadmap stage that builds it: the app offers a Type only from then. 4.5 is Stage 4b, 7.5 Stage 7b. */
   stage: number
   /** For the data model's generated table: a few words after its name. */
   about?: string
@@ -49,6 +51,7 @@ export const TYPES = [
     labels: true,
     subtasks: false,
     place: false,
+    alerts: true,
     stage: 2,
   },
   {
@@ -64,6 +67,7 @@ export const TYPES = [
     mark: 'pinned',
     subtasks: false,
     place: false,
+    alerts: false,
     stage: 2,
   },
   {
@@ -82,6 +86,7 @@ export const TYPES = [
     mark: 'starred',
     subtasks: true,
     place: false,
+    alerts: true,
     defaultAlert: 'do_on',
     stage: 2,
   },
@@ -99,9 +104,28 @@ export const TYPES = [
     labels: true,
     subtasks: false,
     place: true,
+    alerts: true,
     // 30 minutes before a timed Event I make; none when all day or from Google (EVT-003).
     defaultAlert: 'starts_at',
     stage: 3,
+  },
+  {
+    // A nudge: a title, its Alerts and a Repeat; never done (ADR-0065 1). Its
+    // day is its first Alert's, each Alert on it relative to that day.
+    key: 'reminder',
+    module: 'core',
+    label: 'Reminder',
+    about: 'a title, its Alerts and a Repeat; never done',
+    traits: ['schedulable', 'capturable'],
+    statuses: ['active'],
+    defaultSpace: 'personal',
+    timeFields: ['do_on'],
+    colour: 'blue',
+    labels: false,
+    subtasks: false,
+    place: false,
+    alerts: true,
+    stage: 7.5,
   },
   {
     // The dish: its heading. Its status is worked out from its Variations'
@@ -125,6 +149,7 @@ export const TYPES = [
     mark: 'favourited',
     subtasks: false,
     place: false,
+    alerts: false,
     stage: 4,
   },
   {
@@ -145,6 +170,7 @@ export const TYPES = [
     labels: false,
     subtasks: false,
     place: false,
+    alerts: false,
     stage: 4,
   },
   {
@@ -165,6 +191,7 @@ export const TYPES = [
     labels: false,
     subtasks: false,
     place: false,
+    alerts: true,
     stage: 4,
   },
   {
@@ -183,6 +210,7 @@ export const TYPES = [
     labels: false,
     subtasks: false,
     place: false,
+    alerts: true,
     stage: 4.5,
   },
   {
@@ -201,6 +229,7 @@ export const TYPES = [
     labels: false,
     subtasks: false,
     place: false,
+    alerts: false,
     stage: 5,
   },
   {
@@ -216,6 +245,7 @@ export const TYPES = [
     labels: false,
     subtasks: false,
     place: false,
+    alerts: false,
     stage: 5,
   },
   {
@@ -235,6 +265,7 @@ export const TYPES = [
     labels: false,
     subtasks: false,
     place: false,
+    alerts: false,
     stage: 5,
   },
 ] as const satisfies readonly TypeDefinition[]

@@ -90,7 +90,7 @@ proposed → agreed → built → verified.*
 **As** Joe, **I want** a Reminder that is just a title and when, **so
 that** "move the car at 3" is out of my head in seconds and nags me on
 time.
-Priority: Must · Status: agreed
+Priority: Must · Status: built in part (step 5: 1–3, and 4 from a day's "+" on Week, still called Plan; New reminder on Plan and a row's menu with step 6)
 
 Acceptance criteria
 1. Given a Reminder, then it has a title, one or more Alerts, and
@@ -110,7 +110,7 @@ Acceptance criteria
 **As** Joe, **I want** a Reminder to alert me as many times as I need,
 any of them as an Alarm, **so that** "parcel arriving" can nudge me at 9
 and again at 12.
-Priority: Must · Status: agreed
+Priority: Must · Status: built (step 5)
 
 Acceptance criteria
 1. Given a Reminder, then each Alert is at a date and time; I can add,
@@ -126,7 +126,7 @@ Acceptance criteria
 
 **As** Joe, **I want** a Reminder on the days it alerts me, with its
 times, **so that** my day shows what I'll be nudged about.
-Priority: Must · Status: agreed
+Priority: Must · Status: built in part (step 5: on Week, still called Plan, faded once gone, moved by dragging; on Today, and an Alarm's clock on its card, step 6)
 
 Acceptance criteria
 1. Given a Reminder with Alerts on Tuesday and Thursday, then it is on
@@ -141,7 +141,7 @@ Acceptance criteria
 
 **As** Joe, **I want** a Reminder to repeat, **so that** "bins out" comes
 every Monday without my making it again.
-Priority: Must · Status: agreed
+Priority: Must · Status: built in part (step 5: 1 and 2, and each occurrence on Week; Plan's tabs, step 6)
 
 Acceptance criteria
 1. Given a Reminder, then I can give it a Repeat on a schedule, as a Task's
@@ -174,7 +174,7 @@ Acceptance criteria
 **As** Joe, **I want** to turn a Reminder into a Task or an Event and back,
 and a Thought into a Reminder, **so that** what turns out to be a job, or
 a fixed time, becomes one without retyping.
-Priority: Must · Status: agreed
+Priority: Must · Status: built (step 5; 1 from Inbox's Thoughts until Notes' Thoughts tab, step 6)
 
 Acceptance criteria
 1. Given a Thought, when I convert it to a Reminder (in Notes' Thoughts,
@@ -507,7 +507,7 @@ Acceptance criteria
 
 **As** Joe, **I want** a new Task to be for today unless I say otherwise,
 **so that** I needn't set the date each time.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified (`tasks.spec.ts`)
 
 Acceptance criteria
 1. Given New task, then Do on is today, and I can change or clear it.

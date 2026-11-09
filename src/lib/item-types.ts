@@ -9,9 +9,16 @@ export const APP_STAGE = 4.5
 
 /**
  * The Types the app has so far from the stages under way: Stage 4b's, and
- * Stage 5's, built alongside it; the rest wait for their step.
+ * Stage 5's, built alongside it, and Stage 7b's Reminder; the rest wait for
+ * their step.
  */
-const BUILT_NOW: readonly string[] = ['shopping_list', 'exercise', 'workout_template', 'workout']
+const BUILT_NOW: readonly string[] = [
+  'shopping_list',
+  'exercise',
+  'workout_template',
+  'workout',
+  'reminder',
+]
 
 /** Whether the app offers a Type yet: an earlier stage's, or one built in this stage. */
 export function offered(key: string): boolean {
@@ -34,6 +41,7 @@ const HOMES: Record<string, Pick<TypeLook, 'home' | 'homeLabel'>> = {
   task: { home: '/tasks', homeLabel: 'Tasks' },
   note: { home: '/notes', homeLabel: 'Notes' },
   event: { home: '/plan', homeLabel: 'Plan' },
+  reminder: { home: '/plan', homeLabel: 'Plan' },
   recipe: { home: '/recipes', homeLabel: 'Recipes' },
   variation: { home: '/recipes', homeLabel: 'Recipes' },
   shopping_list: { home: '/shopping', homeLabel: 'Shopping' },

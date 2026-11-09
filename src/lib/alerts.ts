@@ -1,4 +1,4 @@
-import { addDays } from '@lifeos/recurrence'
+import { addDays, daysBetween, todayIn } from '@lifeos/recurrence'
 import type { AlertAnchor, AlertChoice } from '@/components/lifeos'
 import type { ItemRow } from '@/data/types'
 import type { Alert, AlertFields } from '@/data'
@@ -178,3 +178,51 @@ export const sameChoice = (a: AlertChoice, b: AlertChoice) =>
     : a.kind === 'fixed'
       ? a.day === (b as typeof a).day && a.time === b.time
       : a.daysBefore === (b as typeof a).daysBefore && a.time === b.time)
+
+/**
+ * A Reminder's Alert as the Alert dialog shows it: a date and a time
+ * (RMD-002 2), whichever way it is kept.
+ */
+export function reminderChoice(t: { day: string; time: string; alarm: boolean }): AlertChoice {
+  return { kind: 'fixed', day: t.day, time: t.time, alarm: t.alarm }
+}
+
+/**
+ * What a Reminder's Alert, chosen as a date and time, is kept as: on the
+ * Reminder's day, as many days on and at that time, so moving or repeating
+ * the Reminder moves it (ADR-0065 2).
+ */
+export function reminderAlertFields(choice: AlertChoice, reminderDay: string): AlertFields {
+  const day = choice.kind === 'fixed' && choice.day ? choice.day : reminderDay
+  return {
+    anchor: 'do_on',
+    offset_days: daysBetween(reminderDay, day),
+    at_time: choice.time,
+    offset_minutes: 0,
+    fixed_at: null,
+    alarm: choice.alarm ?? false,
+  }
+}
+
+/** An hour from now, to the minute: a new Reminder's first Alert today (RMD-001 4). */
+export function inAnHour(now: Date, timezone: string): { day: string; time: string } {
+  return zonedParts(new Date(now.getTime() + 3_600_000).toISOString(), timezone)
+}
+
+/** Whether a date and time chosen for an Alert is still to come (RMD-002 4). */
+export function toCome(choice: AlertChoice, timezone: string, now: Date = new Date()): boolean {
+  if (choice.kind !== 'fixed' || !choice.day) return false
+  return Date.parse(zonedInstant(choice.day, choice.time, timezone)) > now.getTime()
+}
+
+/** An Alert for a new Reminder on a day: an hour from now today, else my default time (RMD-001 4). */
+export function firstAlert(
+  day: string,
+  timezone: string,
+  defaultTime: string,
+  now: Date = new Date(),
+): AlertChoice {
+  const today = todayIn(timezone, now)
+  if (day <= today) return { kind: 'fixed', ...inAnHour(now, timezone), alarm: false }
+  return { kind: 'fixed', day, time: defaultTime, alarm: false }
+}

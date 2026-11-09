@@ -43,7 +43,7 @@ function row(t: TypeDefinition): string {
     t.colour,
     tick(t.labels),
     t.mark ?? '—',
-    t.stage === 4.5 ? '4b' : String(t.stage),
+    Number.isInteger(t.stage) ? String(t.stage) : `${Math.floor(t.stage)}b`,
   ].join(' | ')
 }
 

@@ -194,6 +194,7 @@ these, so the database enforces them.
 | core | **Note** | — | — | — | ✓ | Personal | active | yellow | ✓ | pinned | 2 |
 | core | **Task** | ✓ do-on / due | ✓ | ✓ | ✓ | Personal, or a Household chosen in its popup (HSH-005) | idea "Someday" · active · done · cancelled — a missed repeat: "Skipped" | blue | ✓ | starred | 2 |
 | core | **Event** (a place; not captured, but a Thought can become one) | ✓ start / end | — | ✓ | ✓ | Personal, or a Household chosen in its popup, from Google Calendar too (HSH-005) | active · cancelled | blue | ✓ | — | 3 |
+| core | **Reminder** (a title, its Alerts and a Repeat; never done) | ✓ do-on | — | — | ✓ | Personal | active | blue | — | — | 7b |
 | food | **Recipe** (the dish) | — | — | ✓ | ✓ | Its author's Personal, seen read-only by their Households ([ADR-0051](adr/0051-who-sees-food.md)) | idea "Idea" · active "Draft" · done "Complete" · cancelled "Archived" — the highest of its Variations', worked out | green | — | favourited | 4 |
 | food | **Variation** (a way of making it) | — | — | ✓ | — | Its own author's: the Recipe's, or a Household member's added to it (ADR-0051) | idea "Idea" · active "Draft" · done "Complete" · cancelled "Archived" — set by hand; never back to Idea once it has ingredients or a method | green | — | — | 4 |
 | food | **Meal** (from a Variation, typed, or leftovers of another) | ✓ do-on / slot | ✓ "eaten" | ✓ | — | Household when in one, else Personal | active "Planned" · done "Eaten" · cancelled — ticking it eaten logs no cook | green | — | — | 4 |
@@ -208,7 +209,6 @@ these, so the database enforces them.
 
 | Module | Type | S | C | Sh | Cap | Default Space | Statuses used (labels) | Colour | Labels | Mark | Stage |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| core | **Reminder** (a title, its Alerts and a Repeat; spec agreed, [Stage 7b](../10-requirements/cross-cutting/today-reminders-plan.md)) | ✓ its Alerts | — | — | ✓ | Personal | active | blue | — | — | 7b |
 | fitness | **Cardio activity** | ✓ start | ✓ | — | — | Personal | active "Planned" · done · cancelled "Skipped" | coral | — | — | 8 (manual entry earlier if wanted) |
 | goals | **Goal** | — (deadline in `goal`; not on Plan) | ✓ | ✓ | ✓ | Personal | idea · active · done "Achieved" · cancelled "Abandoned" | purple | — | — | 5 |
 | wardrobe | **Garment** | — | — | — | ✓ | Personal | idea "Wishlist" · active "Owned" · cancelled "Retired" | orange | — | — | 6 |
@@ -221,7 +221,8 @@ Recipe and Variation: [ADR-0011](adr/0011-recipe-and-variation.md) (Provisionall
 Ingredient lines and the Pantry: [ADR-0012](adr/0012-ingredients-and-shopping-lists.md), [ADR-0051](adr/0051-who-sees-food.md) (Provisionally agreed).
 
 **In-place conversions:** Thought → any Capturable Type (sorting the Inbox);
-Note → any other Capturable Type; Task ↔ Event. Everything else is "create from" + *became*
+Note → any other Capturable Type but a Reminder (a title only); Task, Event and Reminder
+into each other ([ADR-0065](adr/0065-reminders-alerts-and-the-day.md)). Everything else is "create from" + *became*
 ([ADR-0018](adr/0018-changing-an-items-type.md), Provisionally agreed).
 Thoughts and Notes: [ADR-0037](adr/0037-thoughts.md) (Provisionally agreed).
 
@@ -345,6 +346,7 @@ flowchart LR
     Note[Note]
     Task[Task]
     Event[Event]
+    Reminder[Reminder]
   end
   subgraph FOOD[Food]
     Recipe[Recipe]
@@ -363,13 +365,16 @@ flowchart LR
   Thought == converts in place ==> Event
   Thought == converts in place ==> Note
   Thought == converts in place ==> Recipe
+  Thought == converts in place ==> Reminder
   Thought == converts in place ==> Shopping_list
   Thought == converts in place ==> Task
   Note == converts in place ==> Event
   Note == converts in place ==> Recipe
   Note == converts in place ==> Shopping_list
   Note == converts in place ==> Task
+  Event -. converts .- Reminder
   Event -. converts .- Task
+  Reminder -. converts .- Task
 
   Task -- for --> Event
   Shopping_list -- for --> Event
@@ -443,7 +448,7 @@ flowchart LR
 
 Drawn selectively to stay readable: a Thought also converts to Event,
 Shopping list, Goal and Garment (every Capturable Type), and a Note to any other
-Capturable Type; *contributes to* also comes from Shopping lists,
+Capturable Type but a Reminder; *contributes to* also comes from Shopping lists,
 Workouts and Cardio; a Shopping list's line can point at an Event as well as
 a Meal; measures also exist for Meals and Tasks. Two link types
 connect any pair of Types and are not drawn: *became* and *relates to*.

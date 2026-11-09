@@ -23,6 +23,8 @@ import { toast } from '@/components/ui/sonner'
 import { NewEventDialog } from '@/app/event-details'
 import { useGoogleLocked, useSyncOnOpen } from '@/app/google-source'
 import { useOpenItem } from '@/app/item-navigation'
+import { useAlertTimes } from '@/app/alert-times'
+import { NewReminderDialog } from '@/app/new-reminder'
 import { NewTaskDialog } from '@/app/new-task'
 import {
   archiveItem,
@@ -121,7 +123,8 @@ function Plan() {
   const day = search.day ?? today
   const week = weekOf(day)
   const hidden = settings.planHiddenTypes
-  const days = planDays(items, week[0]!, week[6]!, settings.timezone, hidden)
+  const alertsOf = useAlertTimes()
+  const days = planDays(items, week[0]!, week[6]!, settings.timezone, hidden, alertsOf)
   const [adding, setAdding] = useState<{ type: string; day: string } | null>(null)
   // Asked from outside (the Today widget, WID-002 8): "+" open on the day,
   // each time it is asked, Plan already open or not.
@@ -203,7 +206,7 @@ function Plan() {
         detail={
           [line.detail, households.get(p.item.space_id)].filter(Boolean).join(' · ') || undefined
         }
-        past={isPast(p.item, now)}
+        past={isPast(p.item, now, p)}
         done={p.item.status === 'done'}
         wide={wide}
         dragging={drag?.item.id === p.item.id && drag.from === on}
@@ -340,6 +343,9 @@ function Plan() {
         addTo(day, <Fab label="Add" />, 'top', { open: addOpen, onOpenChange: setAddOpen })}
       {adding?.type === 'task' && (
         <NewTaskDialog doOn={adding.day} onClose={() => setAdding(null)} />
+      )}
+      {adding?.type === 'reminder' && (
+        <NewReminderDialog day={adding.day} onClose={() => setAdding(null)} />
       )}
       {adding?.type === 'event' && (
         <NewEventDialog day={adding.day} onClose={() => setAdding(null)} />

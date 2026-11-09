@@ -31,6 +31,8 @@ export interface AlertLine {
   says: string
   /** Rings as an Alarm on the Android app (REM-011). */
   alarm?: boolean
+  /** False for one that can't go: a Reminder's last (RMD-002 3). */
+  removable?: boolean
 }
 
 /**
@@ -64,14 +66,16 @@ export function AlertList({
               <span className="truncate tabular-nums">{r.when ?? r.says}</span>
               {r.when && <span className="truncate text-sm text-muted-foreground">{r.says}</span>}
             </button>
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              aria-label={`Remove alert ${r.when ?? r.says}`}
-              onClick={() => onRemove(r.id)}
-            >
-              <XIcon />
-            </Button>
+            {r.removable !== false && (
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                aria-label={`Remove alert ${r.when ?? r.says}`}
+                onClick={() => onRemove(r.id)}
+              >
+                <XIcon />
+              </Button>
+            )}
           </div>
         )
       })}

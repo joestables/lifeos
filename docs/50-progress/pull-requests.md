@@ -2,6 +2,35 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#77](https://github.com/joestables/lifeos/pull/77) — Stage 7b, step 5: the Reminder Type
+
+Branch `claude/relaxed-fermi-nehy7e` · 2026-11-09
+
+**What it did**
+- **A Reminder is a Type** ([ADR-0065](../20-architecture/adr/0065-reminders-alerts-and-the-day.md) 1,
+  RMD-001): `reminder` in the ontology (stage 7.5; blue, a ringing bell;
+  Schedulable and Capturable, never done, Personal), and a new
+  `*_ontology.sql`. Migration `stage7b_reminder_type` adds
+  `item_types.takes_alerts` (ADR-0065 5: the database refuses an Alert on
+  a Note; a Thought keeps taking them until step 8), refuses a Reminder a
+  Repeat "after it's done", and teaches `core.convert_item` to make a
+  Thought, Task or Event into a Reminder and back (RMD-006).
+- **Its Alerts hang on its day** (ADR-0065 2, amended): each is anchored to
+  its `do_on`, so dragging it on Plan, or a Repeat, moves them. Plan
+  (still the week page) places it from its Alerts on each day one falls,
+  saying that day's times, faded once all have gone (RMD-003); the widget
+  feed too. A day's "+" makes one (New reminder: its first Alert an hour
+  from now today, else my default time). Its popup holds its Alerts
+  (never the last removed, never a time gone) and its Repeat, on a
+  schedule only (RMD-002, RMD-004).
+- A Note isn't offered Reminder: it is more than a title.
+- **A new Task starts today** (PLA-006), its default Alert an hour from
+  now when that time has gone.
+- Database tests `reminder_type_test`; walks in `plan.spec.ts`,
+  `tasks.spec.ts`, `items.spec.ts`; unit tests for placing a Reminder.
+  The spec's statuses, ADR-0065, the glossary, data model, components,
+  patterns and the plan updated.
+
 ## [#76](https://github.com/joestables/lifeos/pull/76) — Stage 7b, step 4: Alerts by name
 
 Branch `claude/relaxed-fermi-nehy7e` · 2026-11-10

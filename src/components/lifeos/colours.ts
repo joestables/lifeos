@@ -1,4 +1,5 @@
 import {
+  BellRingIcon,
   CalendarIcon,
   ChefHatIcon,
   ClipboardListIcon,
@@ -24,6 +25,7 @@ export const TYPE_ICONS: Record<string, LucideIcon> = {
   note: FileTextIcon,
   task: SquareCheckBigIcon,
   event: CalendarIcon,
+  reminder: BellRingIcon,
   recipe: ChefHatIcon,
   variation: ChefHatIcon,
   meal: UtensilsIcon,
