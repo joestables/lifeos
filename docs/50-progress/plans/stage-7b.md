@@ -12,7 +12,9 @@ with a **Thoughts** tab. "New" makes Thoughts and Reminders only.
 they missed, and Joe answered the same day ([his answers](#joes-answers-9-november)).
 Step 3's design, drawn first so Joe could choose how "New" works, is on
 `/design-stage-7b` and the [Stage 7b design canvas](https://claude.ai/artifact/EqX4D326Apjs5aGVF2W4Gs)
-(private to Joe), waiting on Joe. Step 1's specs follow his choice.
+(private to Joe). Joe leant to option A, refined ([his second answers](#joes-answers-9-november-second-round));
+its second pass, and five directions for the "New" button, wait on Joe.
+Step 1's specs follow his choice.
 
 ## Steps
 
@@ -24,7 +26,7 @@ checklist.
 |---|---|---|---|
 | 1 | **Joe** — specs: the Reminder Type (a title, Alerts, Repeat; Personal only; blue; not Completable; leaves Today at the end of its day; Thought → Reminder, Reminder ↔ Task and Event); Alerts (the rename of an Item's Reminders); Today (views/inbox.md becomes views/today.md); Week (views/plan.md); Plan (views/tasks.md: Tasks, Events, Reminders, Recurring; no Completed, Labels or sub-tasks; a new Task on today, its alert an hour from now); Notes' Thoughts tab; capture ("New": Thoughts and Reminders); the digest without Thoughts; the glossary, data model and capability map | To do, after step 3's choice | Specs |
 | 2 | Decisions: an ADR for the Reminder Type and Alerts, superseding parts of ADR-0020 (a reminder is not a Type), ADR-0023 (a Thought with a date gets one), ADR-0026 (the drawer's pages), ADR-0027 (capture) and ADR-0037 (Thoughts wait in Inbox); where a Reminder's times live so Week shows it on each of its days and still reads `core.items` (ADR-0029); Labels and sub-tasks removed | To do | ADRs |
-| 3 | **Joe** — design: the five ways "New" could work (A two tabs, B one line, C choose first, D quick times, and B + D recommended); Today; Week with Reminders; Plan's four tabs; a Reminder, its Alerts and New reminder; New task; Notes' Thoughts; the widget as Today | First pass 9 November, drawn from the real components on `/design-stage-7b` (development and preview builds only; `DESIGN_PAGE=design-stage-7b scripts/design-shots.mjs` takes its screenshots), dark and light, desktop and phone, on the [design canvas](https://claude.ai/artifact/EqX4D326Apjs5aGVF2W4Gs). Drafts in the spec: ItemRow `past`, CaptureDialog's `title`, `badge` and slot, ReminderList's `noun`. Waiting on Joe | [design system](../../30-design/README.md) |
+| 3 | **Joe** — design: how "New" works, and the button that opens it; Today; Week with Reminders; Plan's four tabs; a Reminder, its Alerts and New reminder; New task; Notes' Thoughts; the widget as Today | First pass 9 November, with five ways "New" could work (A two tabs, B one line, C choose first, D quick times, B + D recommended); Joe chose A, refined: opening on Reminder, the time understood and taken out of the title as Alerts (and a Repeat), "+ Alert" with quick times, Alarm as a chip; and five directions for the button (today's ghost "New", a solid "+ New", a round "+", Reminder split from Thought, a box reading "Remind me to…"). Second pass the same day; drawn from the real components on `/design-stage-7b` (development and preview builds only; `DESIGN_PAGE=design-stage-7b scripts/design-shots.mjs` takes its screenshots), dark and light, desktop and phone, on the [design canvas](https://claude.ai/artifact/EqX4D326Apjs5aGVF2W4Gs). Drafts in the spec: ItemRow `past`; CaptureDialog's `title`, `badge`, `placeholder` and slot; ReminderList's `noun`; CaptureButton's `look` (AppShell's `captureLook`); ParsedTitle, WhenChip, AddAlertMenu and AlarmChip. Waiting on Joe | [design system](../../30-design/README.md) |
 | 4 | Schema: the `reminder` Type in the ontology (Schedulable by its Alerts, not Completable, Personal, Capturable); a Thought's Reminders not kept (the 19 already gone off removed; the 3 to come converted to Reminders); Labels removed from Tasks and Events (the 18 "Work" on Events deleted); sub-tasks dropped (`core.subtasks`); migration, database tests, advisors | To do | Migration |
 | 5 | Today, Week and Plan, with routes from `/inbox`, `/plan` and `/tasks` kept working (the widget's links, notifications, bookmarks); the drawer | To do | Code |
 | 6 | "New", as chosen in step 3; Notes' Thoughts tab | To do | Code |
@@ -56,3 +58,24 @@ To the questions Claude asked after Joe set out the changes:
    converts to a Task or an Event; Alarm one tap away.
 9. **A new Task's alert** is an hour from now when its default time has
    passed; the Events tab as Claude suggested; a Reminders widget later.
+
+## Joe's answers (9 November, second round)
+
+To the first pass of the design and Claude's seven questions:
+
+1. **"New":** none of the five quite right; option A, refined. It opens on
+   the Reminder tab. Dates are understood, and smarter: "clean bedroom
+   Tues 8pm" suggests the Reminder "Clean bedroom" with an Alert on
+   Tuesday at 20:00, the words for the time not kept in the title; more
+   Alerts can be added; clean, fluid and low friction. The "New" button
+   redesigned too, with directions to choose from.
+2. **The Tasks page's name:** Plan, for now.
+3. **Today's groups:** Anytime (no time), Morning (00:00–12:00), Afternoon
+   (12:00–17:00), Evening (17:00–24:00); Meals by slot, Breakfast in the
+   Morning, Lunch the Afternoon, Dinner the Evening.
+4. **A Reminder** is a title only.
+5. **A Reminder's notification:** Done dismisses it; Snooze removes it and
+   sets another Alert an hour from then.
+6. **Today's count in the drawer:** every Item on the Today page (Meals,
+   Tasks, Reminders, Events, Workouts, anything), never Thoughts.
+7. **"Stage 7b":** fine.

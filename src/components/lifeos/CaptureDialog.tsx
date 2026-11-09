@@ -41,9 +41,12 @@ export function CaptureDialog({
   onLabelsChange,
   onSave,
   title = 'Capture',
+  placeholder,
   badge,
   children,
 }: {
+  /** The empty line's hint ("Remind me to…"), in Stage 7b's designs. */
+  placeholder?: string
   /** "Capture", or "New" in Stage 7b's designs. */
   title?: string
   /** In place of the Types' switch: what the line will be saved as. */
@@ -105,6 +108,7 @@ export function CaptureDialog({
               ref={input}
               size="lg"
               aria-label="What's on your mind"
+              placeholder={placeholder}
               autoComplete="off"
               enterKeyHint="done"
               value={text}

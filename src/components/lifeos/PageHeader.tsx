@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils'
 import { BackLink } from './BackLink'
 import { CaptureButton } from './CaptureButton'
 import { Fab } from './Fab'
-import { ShellCapture } from './shell-context'
+import { ShellCapture, ShellCaptureLook } from './shell-context'
 
 /**
  * One per page: the title and, on a computer, capture's "New" on the right.
@@ -31,6 +31,7 @@ export function PageHeader({
   trailing?: ReactNode
 }) {
   const capture = useContext(ShellCapture)
+  const look = useContext(ShellCaptureLook)
   return (
     <header className="flex items-end gap-3 px-5 pt-3 pb-5 sm:px-9 sm:pt-[30px] sm:pb-[18px]">
       <div className="flex min-w-0 flex-1 flex-col gap-1">
@@ -42,7 +43,11 @@ export function PageHeader({
       </div>
       {trailing}
       {capture && !trailing && (
-        <CaptureButton className="hidden md:inline-flex" onClick={capture} />
+        <CaptureButton
+          look={look}
+          className={look === 'split' ? 'hidden md:flex' : 'hidden md:inline-flex'}
+          onClick={capture}
+        />
       )}
       {action && <Fab label={action.label} onClick={action.onClick} />}
     </header>

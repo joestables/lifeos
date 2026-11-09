@@ -1,17 +1,14 @@
 import { createFileRoute, notFound } from '@tanstack/react-router'
 import {
   AlarmClockIcon,
-  ArrowRightLeftIcon,
   BellIcon,
   BellRingIcon,
   CalendarDaysIcon,
   ChefHatIcon,
-  ClockIcon,
   DumbbellIcon,
   EllipsisIcon,
   FootprintsIcon,
   ListTodoIcon,
-  MessageCirclePlusIcon,
   RepeatIcon,
   ShirtIcon,
   ShoppingCartIcon,
@@ -25,7 +22,9 @@ import {
 } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
 import {
+  AddAlertMenu,
   AddToDay,
+  AlarmChip,
   AppShell,
   CaptureDialog,
   CardRow,
@@ -37,6 +36,7 @@ import {
   LabelChips,
   NoteCard,
   NoteGrid,
+  ParsedTitle,
   PageAction,
   PageHeader,
   PlanCard,
@@ -51,11 +51,12 @@ import {
   TimeField,
   TodayWidget,
   TYPE_ICONS,
-  TypeBadge,
   TypeScope,
   TypeTile,
   WeekStrip,
+  WhenChip,
   type AddChoice,
+  type CaptureLook,
   type DrawerPage,
   type PlanWeekDay,
   type ReminderLine,
@@ -75,7 +76,6 @@ import {
 import { Label } from '@/components/ui/label'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Textarea } from '@/components/ui/textarea'
-import { Switch } from '@/components/ui/switch'
 import { Toggle } from '@/components/ui/toggle'
 
 /**
@@ -104,7 +104,7 @@ const ReminderIcon = BellRingIcon
 
 const PAGES = (here: string): DrawerPage[] =>
   [
-    { to: '/today', label: 'Today', colour: 'none' as const, icon: SunIcon, count: 3 },
+    { to: '/today', label: 'Today', colour: 'none' as const, icon: SunIcon, count: 13 },
     { to: '/week', label: 'Week', colour: 'none' as const, icon: CalendarDaysIcon },
     { to: '/plan', label: 'Plan', colour: 'blue' as const, icon: ListTodoIcon },
     { to: '/notes', label: 'Notes', colour: 'yellow' as const, icon: StickyNoteIcon },
@@ -124,9 +124,18 @@ const PAGES = (here: string): DrawerPage[] =>
     },
   ].map((p) => (p.label === here ? { ...p, to: '/design-stage-7b' } : p))
 
-function Shell({ here, children }: { here: string; children: ReactNode }) {
+function Shell({
+  here,
+  look = 'ghost',
+  children,
+}: {
+  here: string
+  look?: CaptureLook
+  children: ReactNode
+}) {
   return (
     <AppShell
+      captureLook={look}
       pages={PAGES(here)}
       me={{ name: 'Joe Stables', space: 'Personal' }}
       sync={{ pending: 0, failed: 0 }}
@@ -333,11 +342,17 @@ function TodayList() {
       </Group>
       <Group label="Anytime">
         <TileLine colour="coral" icon={DumbbellIcon} title="Push" meta={['Workout']} />
-        <TileLine colour="green" icon={UtensilsIcon} title="Thai green curry" meta={['Dinner']} />
         <TaskLine title="Pick up dry cleaning" />
         <TaskLine title="Renew car insurance" done />
       </Group>
       <Group label="Morning">
+        <TileLine
+          colour="green"
+          icon={UtensilsIcon}
+          title="Overnight oats"
+          meta={['Breakfast']}
+          past
+        />
         <ReminderLineRow
           title="Take vitamins"
           times={[{ at: '08:00' }]}
@@ -366,6 +381,7 @@ function TodayList() {
         />
       </Group>
       <Group label="Evening">
+        <TileLine colour="green" icon={UtensilsIcon} title="Thai green curry" meta={['Dinner']} />
         <TaskLine title="Call mum" meta={['18:00']} starred />
         <ReminderLineRow title="Bins out" times={[{ at: '19:00' }]} meta={[repeats('Weekly')]} />
         <TileLine
@@ -379,9 +395,9 @@ function TodayList() {
   )
 }
 
-function Today({ empty = false }: { empty?: boolean }) {
+function Today({ empty = false, look }: { empty?: boolean; look?: CaptureLook }) {
   return (
-    <Shell here="Today">
+    <Shell here="Today" look={look}>
       <PageHeader title="Today" eyebrow="Monday 9 November" />
       <div className="flex max-w-3xl flex-col gap-5 px-5 pb-28 sm:px-9 sm:pb-8">
         {empty ? (
@@ -394,7 +410,6 @@ function Today({ empty = false }: { empty?: boolean }) {
         )}
         <ThoughtsToSort count={5} />
       </div>
-      <Fab label="New" onClick={nothing} />
     </Shell>
   )
 }
@@ -1174,60 +1189,24 @@ function Notes({ tab }: { tab: 'notes' | 'thoughts' }) {
   )
 }
 
-/* ---------- "New": five ways ---------- */
+/* ---------- "New": A, refined ---------- */
 
-const THOUGHT_BADGE = (
-  <TypeBadge colour="yellow">
-    <ThoughtIcon aria-hidden /> Thought
-  </TypeBadge>
-)
-const REMINDER_BADGE = (
-  <TypeBadge colour="blue">
-    <ReminderIcon aria-hidden /> Reminder
-  </TypeBadge>
-)
-
-/** Quick times: each one makes the line a Reminder, with that alert. */
-function QuickTimes({ chosen }: { chosen?: string }) {
-  const [on, setOn] = useState(chosen)
-  const chip = (key: string, label: string) => (
-    <FilterChip
-      colour="blue"
-      pressed={on === key}
-      onPressedChange={(p) => setOn(p ? key : undefined)}
-    >
-      {label}
-    </FilterChip>
-  )
-  return (
-    <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Remind me">
-      {chip('hour', 'In an hour')}
-      {chip('tonight', 'Tonight 18:00')}
-      {chip('tomorrow', 'Tomorrow 09:00')}
-      <Button variant="ghost" size="sm" className="text-muted-foreground">
-        <ClockIcon /> Pick a time
-      </Button>
-    </div>
-  )
-}
-
-/** One tap makes the new Reminder's alerts Alarms, as the Alert dialog's switch does for one. */
-function AlarmRow({ on = false }: { on?: boolean }) {
-  return (
-    <CardRow icon={<AlarmClockIcon />} label="Alarm" chevron={false}>
-      <Switch aria-label="Alarm" defaultChecked={on} className="ml-auto" />
-    </CardRow>
-  )
-}
-
-const THOUGHT_AND_REMINDER = [
-  { key: 'thought', label: 'Thought', colour: 'yellow' as const, icon: ThoughtIcon },
+/** Reminder first: "New" opens on it. */
+const REMINDER_AND_THOUGHT = [
   { key: 'reminder', label: 'Reminder', colour: 'blue' as const, icon: ReminderIcon },
+  { key: 'thought', label: 'Thought', colour: 'yellow' as const, icon: ThoughtIcon },
 ]
 
-function Behind({ children }: { children: ReactNode }) {
+const QUICK = [
+  { label: 'In an hour', when: '15:20' },
+  { label: 'This evening', when: '18:00' },
+  { label: 'Tomorrow morning', when: 'Tue 09:00' },
+  { label: 'This weekend', when: 'Sat 09:00' },
+]
+
+function Behind({ look, children }: { look?: CaptureLook; children: ReactNode }) {
   return (
-    <Shell here="Today">
+    <Shell here="Today" look={look}>
       <PageHeader title="Today" eyebrow="Monday 9 November" />
       <div className="flex max-w-3xl flex-col gap-5 px-5 pb-28 sm:px-9 sm:pb-8">
         <TodayList />
@@ -1237,172 +1216,79 @@ function Behind({ children }: { children: ReactNode }) {
   )
 }
 
-/** A: a switch at the top, Thought or Reminder; a Reminder lists its alerts. */
-function OptionA({ as = 'reminder' }: { as?: 'thought' | 'reminder' }) {
+type AState = 'empty' | 'parsed' | 'more' | 'menu' | 'repeat' | 'notime' | 'thought'
+
+const TYPED: Record<AState, string> = {
+  empty: '',
+  parsed: 'clean bedroom tues 8pm',
+  more: 'clean bedroom tues 8pm and 9pm',
+  menu: 'clean bedroom tues 8pm',
+  repeat: 'bins out every tue 7pm',
+  notime: 'call the garage',
+  thought: 'ceramics class for the anniversary?',
+}
+
+/**
+ * A, refined: opens on Reminder. What is typed is understood as it is
+ * typed — the words for the time come out of the title and become Alerts
+ * ("clean bedroom tues 8pm": "Clean bedroom", Tue 10 Nov 20:00), a repeat
+ * becomes the Repeat; more Alerts with "+ Alert". No time: an hour from now.
+ */
+function OptionA({ state }: { state: AState }) {
+  const thought = state === 'thought'
+  const chips: ReactNode[] = []
+  const chip = (key: string, icon: typeof BellIcon, label: string, alarm = false) =>
+    chips.push(
+      <WhenChip key={key} icon={icon} alarm={alarm} removeLabel={`Remove ${label}`}>
+        {label}
+      </WhenChip>,
+    )
+  if (state === 'parsed' || state === 'menu') chip('1', BellIcon, 'Tue 10 Nov, 20:00')
+  if (state === 'more') {
+    chip('1', AlarmClockIcon, 'Tue 10 Nov, 20:00', true)
+    chip('2', AlarmClockIcon, 'Tue 10 Nov, 21:00', true)
+  }
+  if (state === 'repeat') {
+    chip('1', BellIcon, 'Tue 10 Nov, 19:00')
+    chip('r', RepeatIcon, 'Every Tuesday')
+  }
+  if (state === 'notime') chip('1', BellIcon, 'In an hour, 15:20')
+  const title =
+    state === 'repeat'
+      ? 'Bins out'
+      : state === 'notime'
+        ? 'Call the garage'
+        : state === 'empty'
+          ? ''
+          : 'Clean bedroom'
   return (
     <Behind>
       <CaptureDialog
         open
         onOpenChange={nothing}
         title="New"
-        types={THOUGHT_AND_REMINDER}
-        type={as}
+        types={REMINDER_AND_THOUGHT}
+        type={thought ? 'thought' : 'reminder'}
         onTypeChange={nothing}
-        text={as === 'reminder' ? 'Move the car' : 'Ceramics class for the anniversary?'}
+        placeholder={thought ? 'What’s on your mind?' : 'Remind me to…'}
+        text={TYPED[state]}
         onTextChange={nothing}
-        labels={as === 'thought' ? LABELS : []}
+        labels={thought ? LABELS : []}
         chosenLabels={new Set(['ideas'])}
         onLabelsChange={nothing}
         onSave={nothing}
       >
-        {as === 'reminder' && (
-          <div className="flex flex-col gap-1">
-            <Alerts
-              lines={[
-                { id: '1', when: 'Today 15:20', says: 'In an hour' },
-                { id: '2', when: 'Today 15:40', says: 'Alarm', alarm: true },
-              ]}
+        {!thought && (
+          <ParsedTitle colour="blue" icon={ReminderIcon} title={title} placeholder="Your reminder">
+            {chips}
+            <AddAlertMenu
+              label={state === 'empty' ? 'Add a time' : 'Alert'}
+              choices={QUICK}
+              open={state === 'menu' ? true : undefined}
             />
-          </div>
+            {state !== 'empty' && <AlarmChip defaultPressed={state === 'more'} />}
+          </ParsedTitle>
         )}
-      </CaptureDialog>
-    </Behind>
-  )
-}
-
-/** B: one line; a time in it makes a Reminder, shown as what was understood. */
-function OptionB({ as = 'reminder' }: { as?: 'thought' | 'reminder' }) {
-  const reminder = as === 'reminder'
-  return (
-    <Behind>
-      <CaptureDialog
-        open
-        onOpenChange={nothing}
-        title="New"
-        badge={reminder ? REMINDER_BADGE : THOUGHT_BADGE}
-        types={[]}
-        type={as}
-        onTypeChange={nothing}
-        text={reminder ? 'bins out tue 7pm' : 'ceramics class for the anniversary?'}
-        onTextChange={nothing}
-        understood={reminder ? [{ icon: BellIcon, label: 'Tue 10 Nov 19:00' }] : []}
-        labels={reminder ? [] : LABELS}
-        chosenLabels={new Set()}
-        onLabelsChange={nothing}
-        onSave={nothing}
-      >
-        {reminder && (
-          <>
-            <AlarmRow />
-            <Button variant="ghost" size="sm" className="self-start px-0 text-muted-foreground">
-              <ArrowRightLeftIcon /> Save as a Thought
-            </Button>
-          </>
-        )}
-      </CaptureDialog>
-    </Behind>
-  )
-}
-
-/** C: New is a menu first, Thought or Reminder, each with its own popup. */
-function OptionC({ step = 'menu' }: { step?: 'menu' | 'reminder' }) {
-  return (
-    <Shell here="Today">
-      <header className="flex items-end gap-3 px-5 pt-3 pb-5 sm:px-9 sm:pt-8 sm:pb-5">
-        <div className="flex min-w-0 flex-1 flex-col gap-1">
-          <span className="pt-1 text-sm font-semibold">Monday 9 November</span>
-          <h1 className="text-h1">Today</h1>
-        </div>
-        <DropdownMenu open={step === 'menu' ? true : undefined}>
-          <DropdownMenuTrigger render={<Button variant="ghost" />}>
-            <MessageCirclePlusIcon /> New
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="min-w-52">
-            <DropdownMenuGroup>
-              <DropdownMenuLabel>New</DropdownMenuLabel>
-              {THOUGHT_AND_REMINDER.map((c) => (
-                <DropdownMenuItem key={c.key}>
-                  <TypeTile colour={c.colour} icon={c.icon} size="sm" />
-                  {c.label}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuGroup>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </header>
-      <div className="flex max-w-3xl flex-col gap-5 px-5 pb-28 sm:px-9 sm:pb-8">
-        <TodayList />
-      </div>
-      {step === 'reminder' && <NewReminder title="Move the car" />}
-    </Shell>
-  )
-}
-
-/** D: one line, and quick times; choosing one makes it a Reminder. */
-function OptionD({ chosen }: { chosen?: string }) {
-  const reminder = chosen !== undefined
-  return (
-    <Behind>
-      <CaptureDialog
-        open
-        onOpenChange={nothing}
-        title="New"
-        badge={reminder ? REMINDER_BADGE : THOUGHT_BADGE}
-        types={[]}
-        type="thought"
-        onTypeChange={nothing}
-        text={reminder ? 'Move the car' : 'Ceramics class for the anniversary?'}
-        onTextChange={nothing}
-        labels={reminder ? [] : LABELS}
-        chosenLabels={new Set()}
-        onLabelsChange={nothing}
-        onSave={nothing}
-      >
-        <QuickTimes chosen={chosen} />
-      </CaptureDialog>
-    </Behind>
-  )
-}
-
-/**
- * B + D, recommended: one line, a Thought until it has a time; a time typed
- * or a quick time chosen makes it a Reminder, and its alerts are the same
- * list as any Item's, with Alarm on each.
- */
-function Recommended({ state }: { state: 'empty' | 'thought' | 'typed' | 'chosen' }) {
-  const reminder = state === 'typed' || state === 'chosen'
-  const text =
-    state === 'empty'
-      ? ''
-      : state === 'thought'
-        ? 'Ceramics class for the anniversary?'
-        : state === 'typed'
-          ? 'bins out tue 7pm'
-          : 'Move the car'
-  const lines: ReminderLine[] =
-    state === 'typed'
-      ? [{ id: '1', when: 'Tue 10 Nov 19:00', says: 'From “tue 7pm”' }]
-      : [{ id: '1', when: 'Today 15:20', says: 'In an hour', alarm: true }]
-  return (
-    <Behind>
-      <CaptureDialog
-        open
-        onOpenChange={nothing}
-        title="New"
-        badge={reminder ? REMINDER_BADGE : THOUGHT_BADGE}
-        types={[]}
-        type="thought"
-        onTypeChange={nothing}
-        text={text}
-        onTextChange={nothing}
-        labels={reminder ? [] : LABELS}
-        chosenLabels={new Set(state === 'thought' ? ['ideas'] : [])}
-        onLabelsChange={nothing}
-        onSave={nothing}
-      >
-        <QuickTimes chosen={state === 'chosen' ? 'hour' : undefined} />
-        {reminder && <Alerts lines={lines} />}
-        {reminder && <AlarmRow on={state === 'chosen'} />}
       </CaptureDialog>
     </Behind>
   )
@@ -1464,18 +1350,18 @@ const SCREENS: Record<string, () => ReactNode> = {
   ),
   'notes-notes': () => <Notes tab="notes" />,
   'notes-thoughts': () => <Notes tab="thoughts" />,
-  'new-a': () => <OptionA />,
-  'new-a-thought': () => <OptionA as="thought" />,
-  'new-b': () => <OptionB />,
-  'new-b-thought': () => <OptionB as="thought" />,
-  'new-c': () => <OptionC />,
-  'new-c-reminder': () => <OptionC step="reminder" />,
-  'new-d': () => <OptionD />,
-  'new-d-chosen': () => <OptionD chosen="hour" />,
-  'new-rec-empty': () => <Recommended state="empty" />,
-  'new-rec-thought': () => <Recommended state="thought" />,
-  'new-rec-typed': () => <Recommended state="typed" />,
-  'new-rec-chosen': () => <Recommended state="chosen" />,
+  'a-empty': () => <OptionA state="empty" />,
+  'a-parsed': () => <OptionA state="parsed" />,
+  'a-more': () => <OptionA state="more" />,
+  'a-menu': () => <OptionA state="menu" />,
+  'a-repeat': () => <OptionA state="repeat" />,
+  'a-notime': () => <OptionA state="notime" />,
+  'a-thought': () => <OptionA state="thought" />,
+  'look-ghost': () => <Today look="ghost" />,
+  'look-primary': () => <Today look="primary" />,
+  'look-icon': () => <Today look="icon" />,
+  'look-split': () => <Today look="split" />,
+  'look-field': () => <Today look="field" />,
   widget: () => <Widget />,
 }
 
