@@ -16,7 +16,7 @@ act on them.
 | **Status** | Where an Item is in its life: *idea*, *active*, *done* or *cancelled*. Each Type uses a subset and gives it its own labels (a Task's *idea* is "Someday"). Only Completable Types use *done*, so *done* always means finished. |
 | **Idea** | An Item in the *idea* status. Not a Type. |
 | **Link** / **link type** | A named relationship between two Items, named in both directions ("uses" / "used in"). |
-| **View** | A query plus a layout (list, board, calendar, timeline, lanes), declared in code. Inbox, Plan, Tasks and Recipes are Views. |
+| **View** | A query plus a layout (list, board, calendar, timeline, lanes), declared in code. Inbox, Plan, Tasks and Recipes are Views (from Stage 7b, Today, Week and Plan). |
 | **Screen** | A page for *doing* something rather than looking at a set of Items: an Item's own page, logging a workout, cooking a recipe, importing a recipe, capture, search, Settings. Declared in code by a Module or the core. Owns no data. |
 | **Module** | Code packaging only: a bundle of Types, Views, Screens, measures and link types (e.g. Fitness). Replaces "App" / "Domain". |
 | **Integration** | An outside source feeding Items in: Google Calendar, Oura, Health Connect, later banks. |
@@ -24,7 +24,8 @@ act on them.
 | **Household** | A group of people who share: its **owner** made it and invites others by email; **members** joined by accepting. A person may be in several ([ADR-0039](../20-architecture/adr/0039-accounts-contacts-households.md)). |
 | **Thought** | A Type: a raw, unsorted capture. What capture makes by default. It waits in Inbox until it is sorted — converted in place into a Note, Task, Shopping list or other Capturable Type — ticked off (*done*), or deleted. |
 | **Note** | A Type: a note, kept, labelled and shown in the Notes View. A Thought can be turned into one, and a Note can be converted into other Types. Personal only. |
-| **Reminder** | A notification attached to an Item. Not a Type. |
+| **Reminder** | A notification attached to an Item. Not a Type. *From Stage 7b (spec agreed 9 November, [not yet built](../10-requirements/cross-cutting/today-reminders-plan.md)): a Type, a title with its Alerts and a Repeat, not Completable; the notifications are then Alerts.* |
+| **Alert** | *From Stage 7b (not yet built):* a notification attached to an Item at a time, what is called its Reminder until then; an Alarm is an Alert that rings. |
 
 **The test for View or Screen.** If the page is "these Items, laid out like
 this", it is a View. If it has a workflow — steps, a timer, a form, an

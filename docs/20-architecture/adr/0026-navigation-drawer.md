@@ -2,7 +2,7 @@
 
 **Status:** Provisionally agreed · 2026-10-09
 
-**Amended:** 2026-10-09 by [ADR-0032](0032-delete-means-archive.md) (recovery in Settings);
+**Amended:** 2026-10-09 by [ADR-0032](0032-delete-means-archive.md) (recovery in Settings); 2026-11-09 by [ADR-0065](0065-reminders-alerts-and-the-day.md) (the drawer opens on Today, then Week and Plan; Inbox becomes Today, Plan Week, Tasks Plan; Stage 7b, as it is built).
 2026-10-11 by the Stage 2 design agreed with Joe (Settings from your row);
 2026-10-17 by Joe's brief for [Stage 4](../../50-progress/plans/stage-4.md)
 (Recipes, Meal plan and Shopping as three pages; Cardio moves up beside

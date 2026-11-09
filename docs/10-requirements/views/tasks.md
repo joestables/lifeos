@@ -3,6 +3,8 @@
 *Stage 2. The decisions come first; the requirements, drafted at the start of
 Stage 2, are at the end.*
 
+> **Changing in Stage 7b** (spec agreed 9 November, not yet built): Makes this page **Plan**, with Tasks, Events, Reminders and Recurring tabs and no Completed; Labels and sub-tasks go, and a new Task starts today (PLA-001–007). [Today, Reminders and Plan](../cross-cutting/today-reminders-plan.md). Until it is built, this page is how it works.
+
 **In one line:** Tasks and their Reminders
 ([ADR-0026](../../20-architecture/adr/0026-navigation-drawer.md),
 Provisionally agreed). It replaces Google Tasks.

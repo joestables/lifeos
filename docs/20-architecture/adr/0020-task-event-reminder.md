@@ -2,6 +2,8 @@
 
 **Status:** Provisionally agreed · 2026-10-09
 
+**Amended:** 2026-11-09 by [ADR-0065](0065-reminders-alerts-and-the-day.md) (a Reminder is a Type, not Completable; an Item's notifications are its Alerts; Stage 7b, as it is built).
+
 ## Context
 
 Tasks, Events and reminders overlap in everyday use.

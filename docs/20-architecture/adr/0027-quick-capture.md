@@ -2,7 +2,7 @@
 
 **Status:** Provisionally agreed · 2026-10-09
 
-**Amended:** 2026-10-09 by [ADR-0037](0037-thoughts.md) (Thoughts); 2026-10-10 by Joe, writing the Stage 2 specs (capture opens over any screen; Android's shortcut and share move to [ADR-0028](0028-capture-from-outside-the-app.md)); 2026-10-14 by Joe, writing the Stage 3 specs (capture makes no Events).
+**Amended:** 2026-10-09 by [ADR-0037](0037-thoughts.md) (Thoughts); 2026-10-10 by Joe, writing the Stage 2 specs (capture opens over any screen; Android's shortcut and share move to [ADR-0028](0028-capture-from-outside-the-app.md)); 2026-10-14 by Joe, writing the Stage 3 specs (capture makes no Events). 2026-11-09 by [ADR-0065](0065-reminders-alerts-and-the-day.md) ("New" is one line making a Thought, or a Reminder when it has a time; no switch to Task; Stage 7b, as it is built).
 
 ## Context
 

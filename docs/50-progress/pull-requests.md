@@ -2,6 +2,31 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#75](https://github.com/joestables/lifeos/pull/75) — Stage 7b: the plan, design, specs and decisions
+
+Branch `claude/relaxed-fermi-nehy7e` · 2026-11-09
+
+**What it did**
+- **Stage 7b's plan**, written from Joe's notes after a few days' use:
+  Thoughts used as reminders, Events too much friction. Joe's four rounds
+  of answers are in it.
+- **The design**, on `/design-stage-7b` and the
+  [Stage 7b design canvas](https://claude.ai/artifact/EqX4D326Apjs5aGVF2W4Gs):
+  Today (was Inbox), Week (was Plan), Plan (was Tasks: Tasks, Events,
+  Reminders, Recurring), Notes' Thoughts tab, the Reminder Type and its
+  Alerts, New task on today, the widget as Today; "New" as one smart line,
+  chosen by Joe from five variations; the "New" button with a bell and a
+  plus. Draft components in the spec and `@/components/lifeos` (ItemRow
+  `past`, ReminderList `noun`, CaptureButton `look`, NewDialog, SmartLine,
+  SavesAs, QuickChip, ChipRow, AddAlertMenu), unused by the app until
+  built. Joe agreed it.
+- **The spec**, [Today, Reminders and Plan](../10-requirements/cross-cutting/today-reminders-plan.md)
+  (RMD, ALR, TDY, NEW, WEK, PLA, NTE-005), agreed by Joe; each spec it
+  changes points to it until it is built.
+- **The decision**, [ADR-0065](../20-architecture/adr/0065-reminders-alerts-and-the-day.md),
+  Provisionally agreed, the full rename to Alerts included; ADR-0014,
+  0020, 0023, 0026, 0027, 0029 and 0037 say what it changes.
+
 ## [#74](https://github.com/joestables/lifeos/pull/74) — Stage 7, step 11: the app icon, and a bug hunt
 
 Branch `claude/intelligent-shannon-umfm64` · 2026-11-07

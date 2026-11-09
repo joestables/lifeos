@@ -2,7 +2,7 @@
 
 **Status:** Provisionally agreed · 2026-10-09
 
-**Amended:** 2026-10-10 by Joe, writing the Stage 2 specs (a Note has no *idea* status). 2026-10-13 by Joe, using Stage 2 (a Thought can be ticked off, and takes Labels).
+**Amended:** 2026-10-10 by Joe, writing the Stage 2 specs (a Note has no *idea* status). 2026-10-13 by Joe, using Stage 2 (a Thought can be ticked off, and takes Labels). 2026-11-09 by [ADR-0065](0065-reminders-alerts-and-the-day.md) (Thoughts are sorted on Notes' Thoughts tab, not Inbox; Stage 7b, as it is built).
 
 ## Context
 

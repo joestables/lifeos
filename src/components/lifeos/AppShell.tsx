@@ -1,3 +1,4 @@
+import { cn } from '@/lib/utils'
 import { Link } from '@tanstack/react-router'
 import { SearchIcon, type LucideIcon } from 'lucide-react'
 import type { ReactNode } from 'react'
@@ -24,9 +25,9 @@ import {
 } from '@/components/ui/sidebar'
 import type { TypeColour } from './colours'
 import { BrandMark } from './BrandMark'
-import { CaptureButton } from './CaptureButton'
+import { CaptureButton, type CaptureLook } from './CaptureButton'
 import { PullToRefresh } from './PullToRefresh'
-import { ShellCapture } from './shell-context'
+import { ShellCapture, ShellCaptureLook } from './shell-context'
 import { SyncStatus } from './SyncStatus'
 
 export interface DrawerPage {
@@ -50,6 +51,8 @@ interface ShellProps {
   notice?: ReactNode
   /** Opens capture (CAP-002): "New" at the top right, in the PageHeader on a computer, the top bar on a phone. */
   onCapture?: () => void
+  /** How "New" looks: 'ghost', or one of Stage 7b's draft directions. */
+  captureLook?: CaptureLook
   /** Opens Search (SRC-001): beside the brand in the drawer's header. */
   onSearch?: () => void
   /** Pulled down from the top of a page on a phone. */
@@ -185,6 +188,7 @@ function Drawer({
 export function AppShell({
   children,
   onCapture,
+  captureLook = 'ghost',
   onSearch,
   onRefresh = () => window.location.reload(),
   notice,
@@ -199,20 +203,28 @@ export function AppShell({
         <div className="box-content flex h-16 shrink-0 items-center gap-2 bg-background px-2 pt-[env(safe-area-inset-top)] md:hidden">
           <SidebarTrigger />
           <Brand />
-          {onCapture && <CaptureButton className="ml-auto h-11" onClick={onCapture} />}
+          {onCapture && (
+            <CaptureButton
+              look={captureLook}
+              className={cn('ml-auto', 'h-11')}
+              onClick={onCapture}
+            />
+          )}
         </div>
-        <ShellCapture.Provider value={onCapture}>
-          <PullToRefresh onRefresh={onRefresh}>
-            <ScrollArea
-              className="flex-1"
-              viewportClassName="pb-[env(safe-area-inset-bottom)]"
-              restorationId="page"
-            >
-              {notice && <div className="px-5 pt-3 sm:px-9 sm:pt-6">{notice}</div>}
-              {children}
-            </ScrollArea>
-          </PullToRefresh>
-        </ShellCapture.Provider>
+        <ShellCaptureLook.Provider value={captureLook}>
+          <ShellCapture.Provider value={onCapture}>
+            <PullToRefresh onRefresh={onRefresh}>
+              <ScrollArea
+                className="flex-1"
+                viewportClassName="pb-[env(safe-area-inset-bottom)]"
+                restorationId="page"
+              >
+                {notice && <div className="px-5 pt-3 sm:px-9 sm:pt-6">{notice}</div>}
+                {children}
+              </ScrollArea>
+            </PullToRefresh>
+          </ShellCapture.Provider>
+        </ShellCaptureLook.Provider>
       </SidebarInset>
     </SidebarProvider>
   )

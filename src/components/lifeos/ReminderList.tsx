@@ -43,11 +43,14 @@ export function ReminderList({
   onOpen,
   onRemove,
   onAdd,
+  noun = 'reminder',
 }: {
   reminders: ReminderLine[]
   onOpen: (id: string) => void
   onRemove: (id: string) => void
   onAdd: () => void
+  /** What one is called: "reminder", or "alert" in Stage 7b's designs. */
+  noun?: string
 }) {
   return (
     <div className="flex flex-col">
@@ -67,7 +70,7 @@ export function ReminderList({
             <Button
               variant="ghost"
               size="icon-sm"
-              aria-label={`Remove reminder ${r.when ?? r.says}`}
+              aria-label={`Remove ${noun} ${r.when ?? r.says}`}
               onClick={() => onRemove(r.id)}
             >
               <XIcon />
@@ -81,7 +84,7 @@ export function ReminderList({
         className="self-start px-0 text-muted-foreground hover:bg-transparent"
         onClick={onAdd}
       >
-        <PlusIcon /> Add a reminder
+        <PlusIcon /> Add {/^[aeiou]/.test(noun) ? 'an' : 'a'} {noun}
       </Button>
     </div>
   )
@@ -133,7 +136,10 @@ export function ReminderDialog({
   anchors,
   onSave,
   onClose,
+  title = 'Reminder',
 }: {
+  /** The Dialog's title: "Reminder", or "Alert" in Stage 7b's designs. */
+  title?: string
   value: ReminderChoice
   /** The Item's dates a Reminder can hang on. */
   anchors: ReminderAnchor[]
@@ -167,7 +173,7 @@ export function ReminderDialog({
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Reminder</DialogTitle>
+          <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
         <form
           className="flex flex-col gap-4"

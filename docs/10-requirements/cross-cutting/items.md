@@ -5,6 +5,8 @@ and recovering it, converting it — and the Labels that Thoughts, Notes, Tasks
 and Events share. The decisions come first; the requirements, drafted at the start of
 Stage 2, are at the end.*
 
+> **Changing in Stage 7b** (spec agreed 9 November, not yet built): Adds the Reminder Type and its conversions (RMD-006), and keeps Labels for Notes and Thoughts only (PLA-007). [Today, Reminders and Plan](today-reminders-plan.md). Until it is built, this page is how it works.
+
 ## Decisions
 
 - **How an Item opens depends on the page and the Type**: on a page of its

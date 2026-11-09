@@ -2,7 +2,7 @@
 
 **Status:** Provisionally agreed · 2026-10-09
 
-**Amended:** 2026-10-10 by Joe, writing the Stage 2 specs (Labels only on the Types that declare them; on Notes they filter, not head). 2026-10-13 by Joe, using Stage 2 (Thoughts take Labels; Labels filter Tasks and Inbox rather than group Tasks). 2026-10-14 by Joe, writing the Stage 3 specs (Events take Labels).
+**Amended:** 2026-10-10 by Joe, writing the Stage 2 specs (Labels only on the Types that declare them; on Notes they filter, not head). 2026-10-13 by Joe, using Stage 2 (Thoughts take Labels; Labels filter Tasks and Inbox rather than group Tasks). 2026-10-14 by Joe, writing the Stage 3 specs (Events take Labels). 2026-11-09 by [ADR-0065](0065-reminders-alerts-and-the-day.md) (Labels only on Notes and Thoughts; Tasks and Events lose theirs; Stage 7b, as it is built).
 
 ## Context
 
