@@ -16,6 +16,7 @@ export function ItemRow({
   trailing,
   onOpen,
   done = false,
+  past = false,
   sync,
   className,
 }: {
@@ -32,6 +33,8 @@ export function ItemRow({
   /** Opens the Item: the whole row, but for its controls. */
   onOpen?: () => void
   done?: boolean
+  /** Its time has gone (a Reminder whose alerts have all gone off): faded, as on Plan. */
+  past?: boolean
   /** Whether the Item's latest change has reached the server (patterns.md#states). */
   sync?: 'pending' | 'failed'
   className?: string
@@ -54,6 +57,7 @@ export function ItemRow({
       data-slot="item-row"
       className={cn(
         'group/row relative flex min-h-14 items-center gap-3 rounded-row bg-card px-3.5 py-2.5 shadow-card',
+        past && 'opacity-50 shadow-none',
         className,
       )}
     >
