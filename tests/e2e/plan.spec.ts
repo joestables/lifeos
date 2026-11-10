@@ -170,6 +170,38 @@ test.describe('on a computer', () => {
       .toBe('2026-10-16T08:00:00.000Z')
   })
 
+  test('RMD-001 4, RMD-003 1: a day’s "+" adds a Reminder, on its day with its Alert’s time', async ({
+    page,
+  }) => {
+    const db = await start(page)
+    const thu = day(page, 'Thu 15')
+    await thu.hover()
+    await thu.getByRole('button', { name: 'Add to Thu 15 Oct' }).click()
+    await page.getByRole('menuitem', { name: 'Reminder' }).click()
+    const dialog = page.getByRole('dialog', { name: 'New reminder' })
+    // Another day: my default time on it.
+    await expect(dialog.getByRole('button', { name: /09:00/ })).toBeVisible()
+    await expect(dialog.getByRole('button', { name: /Remove alert/ })).toHaveCount(0)
+    await dialog.getByRole('textbox', { name: 'Title' }).fill('Parcel arriving')
+    await dialog.getByRole('button', { name: 'Save' }).click()
+    await expect(cards(thu)).toHaveText([/Annual leave/, /Reminder.*Parcel arriving.*09:00/])
+    await expect
+      .poll(() => db.items.find((i) => i.title === 'Parcel arriving')?.do_on)
+      .toBe('2026-10-15')
+
+    // Today: an hour from now.
+    const wed = day(page, 'Wed 14')
+    await wed.hover()
+    await wed.getByRole('button', { name: 'Add to Today' }).click()
+    await page.getByRole('menuitem', { name: 'Reminder' }).click()
+    await page.getByRole('textbox', { name: 'Title' }).fill('Move the car')
+    await page
+      .getByRole('dialog', { name: 'New reminder' })
+      .getByRole('button', { name: 'Save' })
+      .click()
+    await expect(cards(wed)).toHaveText([/Book Japan flights/, /Move the car.*11:00/])
+  })
+
   test('PLN-007: dragging a Task or an Event to another day, with Undo', async ({ page }) => {
     const db = await start(page)
     await cards(day(page, 'Tue 13')).filter({ hasText: 'Call mum' }).dragTo(day(page, 'Thu 15'))

@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import {
+  inAnHour,
+  reminderAlertFields,
+  reminderChoice,
   byFiring,
   choiceFiresAt,
   defaultAlert,
@@ -189,5 +192,39 @@ describe('the default a new Item is given (REM-002 1, EVT-003 1)', () => {
     expect(sameChoice(d, { ...d })).toBe(true)
     expect(sameChoice(d, { ...d, time: '19:00' })).toBe(false)
     expect(sameChoice(d, { kind: 'due_on', daysBefore: 0, time: '20:00' })).toBe(false)
+  })
+})
+
+describe('a Reminder’s Alerts (RMD-002, ADR-0065 2)', () => {
+  it('keeps a date and time as days on from the Reminder’s day, at that time', () => {
+    expect(
+      reminderAlertFields(
+        { kind: 'fixed', day: '2026-11-12', time: '09:00', alarm: true },
+        '2026-11-10',
+      ),
+    ).toEqual({
+      anchor: 'do_on',
+      offset_days: 2,
+      at_time: '09:00',
+      offset_minutes: 0,
+      fixed_at: null,
+      alarm: true,
+    })
+  })
+
+  it('shows one as a date and time in the Alert dialog', () => {
+    expect(reminderChoice({ day: '2026-11-12', time: '09:00', alarm: false })).toEqual({
+      kind: 'fixed',
+      day: '2026-11-12',
+      time: '09:00',
+      alarm: false,
+    })
+  })
+
+  it('starts a new one an hour from now, to the minute', () => {
+    expect(inAnHour(new Date('2026-11-10T14:20:30Z'), 'Europe/London')).toEqual({
+      day: '2026-11-10',
+      time: '15:20',
+    })
   })
 })

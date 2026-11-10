@@ -25,7 +25,7 @@ act on them.
 | **Thought** | A Type: a raw, unsorted capture. What capture makes by default. It waits in Inbox until it is sorted — converted in place into a Note, Task, Shopping list or other Capturable Type — ticked off (*done*), or deleted. |
 | **Note** | A Type: a note, kept, labelled and shown in the Notes View. A Thought can be turned into one, and a Note can be converted into other Types. Personal only. |
 | **Alert** | A notification attached to an Item at a time, each person's own; an Alarm is an Alert that rings. Called a Reminder until Stage 7b ([ADR-0065](../20-architecture/adr/0065-reminders-alerts-and-the-day.md)). |
-| **Reminder** | *From Stage 7b (spec agreed 9 November, [not yet built](../10-requirements/cross-cutting/today-reminders-plan.md)):* a Type, a title with its Alerts and a Repeat, not Completable. |
+| **Reminder** | A Type (Stage 7b, [RMD-001](../10-requirements/cross-cutting/today-reminders-plan.md#rmd-001--a-reminder)): a title with its Alerts and a Repeat, not Completable, Personal only. Its day is its do-on date and its Alerts hang on it; it is on each day one of them falls ([ADR-0065](../20-architecture/adr/0065-reminders-alerts-and-the-day.md)). |
 
 **The test for View or Screen.** If the page is "these Items, laid out like
 this", it is a View. If it has a workflow — steps, a timer, a form, an

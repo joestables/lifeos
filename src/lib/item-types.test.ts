@@ -4,11 +4,13 @@ import { convertTargets, itemTitle, offered, opensAsPage, typeLook } from './ite
 describe('Types in the app', () => {
   it('ITM-004: offers only conversions into Types the app has yet', () => {
     // A Thought sorts into a Recipe from Stage 4 (RCP-002 4), a Shopping list
-    // from Stage 4b (offered only when it names a Pantry ingredient, SHP-003 5).
+    // from Stage 4b (offered only when it names a Pantry ingredient, SHP-003 5),
+    // a Reminder from Stage 7b (RMD-006).
     expect(convertTargets('thought').map((t) => t.key)).toEqual([
       'event',
       'note',
       'recipe',
+      'reminder',
       'shopping_list',
       'task',
     ])
@@ -18,8 +20,9 @@ describe('Types in the app', () => {
       'shopping_list',
       'task',
     ])
-    expect(convertTargets('task').map((t) => t.key)).toEqual(['event'])
-    expect(convertTargets('event').map((t) => t.key)).toEqual(['task'])
+    expect(convertTargets('task').map((t) => t.key)).toEqual(['event', 'reminder'])
+    expect(convertTargets('event').map((t) => t.key)).toEqual(['reminder', 'task'])
+    expect(convertTargets('reminder').map((t) => t.key)).toEqual(['event', 'task'])
   })
 
   it('offers the stage being built only its Types built so far', () => {

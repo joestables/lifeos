@@ -1,3 +1,4 @@
+import { todayIn } from '@lifeos/recurrence'
 import { useRef, useState } from 'react'
 import { ItemDialog, type AlertChoice, type Repeat } from '@/components/lifeos'
 import { Button } from '@/components/ui/button'
@@ -18,7 +19,7 @@ import {
 } from '@/data'
 import { isoDayOf } from '@/lib/dates'
 import { typeLook } from '@/lib/item-types'
-import { defaultAlert, alertFields } from '@/lib/alerts'
+import { choiceFiresAt, defaultAlert, alertFields, inAnHour } from '@/lib/alerts'
 import { draftItem } from './item-navigation'
 import { useDraftLabels } from './draft-labels'
 import { DraftAlerts, type DraftAlert } from './draft-alerts'
@@ -36,15 +37,16 @@ const TASK = typeLook('task')
 export function NewTaskDialog({
   onClose,
   labelIds = [],
-  doOn = null,
+  doOn,
 }: {
   onClose: () => void
-  /** To do on this day: a day's "+" on Plan (PLN-006). */
+  /** To do on this day: a day's "+" on Plan (PLN-006); today if not said (PLA-006 1). */
   doOn?: string | null
   /** Starts with these Labels: the ones the page is narrowed to (TSK-001). */
   labelIds?: readonly string[]
 }) {
   const settings = useSettings(queue)
+  const startOn = doOn === undefined ? todayIn(settings.timezone) : doOn
   const { personal } = useFoodSpaces(queue)
   // Personal to start; or a Household (HSH-005 1).
   const [space, setSpace] = useState<string | null>(null)
@@ -53,7 +55,7 @@ export function NewTaskDialog({
   const [title, setTitle] = useState('')
   const [notes, setNotes] = useState('')
   const [dates, setDates] = useState<TaskDates>({
-    do_on: doOn,
+    do_on: startOn,
     do_at: null,
     due_on: null,
     status: 'active',
@@ -62,13 +64,19 @@ export function NewTaskDialog({
   const [alerts, setAlerts] = useState<DraftAlert[]>([])
   // The default changed or removed before Save (REM-002 1).
   const [defaultGone, setDefaultGone] = useState(false)
-  const byDefault = defaultAlert({ type: 'task', do_on: dates.do_on, do_at: dates.do_at }, settings)
+  const given = defaultAlert({ type: 'task', do_on: dates.do_on, do_at: dates.do_at }, settings)
+  // A default already gone by today is an hour from now instead (PLA-006 2).
+  const givenAt = given && choiceFiresAt(given, dates, settings.timezone)
+  const [opened] = useState(() => Date.now())
+  const late = !!givenAt && Date.parse(givenAt) <= opened
+  const byDefault: AlertChoice | null =
+    given && late ? { kind: 'fixed', ...inAnHour(new Date(opened), settings.timezone) } : given
   const [subtasks, setSubtasks] = useState<{ id: string; title: string; done: boolean }[]>([])
 
   const dirty =
     title.trim() !== '' ||
     notes !== '' ||
-    dates.do_on !== doOn ||
+    dates.do_on !== startOn ||
     dates.due_on !== null ||
     subtasks.length > 0 ||
     alerts.length > 0 ||
@@ -89,6 +97,10 @@ export function NewTaskDialog({
     const id = createItem('task', fields)
     // The server gives it its default; changed or removed here, it goes.
     if (byDefault && defaultGone) removeDefaultAlert(id)
+    else if (byDefault && late) {
+      removeDefaultAlert(id)
+      addAlert(id, alertFields(byDefault, settings.timezone))
+    }
     const labelIds = draftLabels.save(id)
     for (const s of subtasks) {
       const sid = addSubtask(id, s.title)

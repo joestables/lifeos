@@ -38,6 +38,7 @@ import { useGoogleSource } from './google-source'
 import { deleteItem, draftNote, useCloseItem } from './item-navigation'
 import { NoteBody } from './note-body'
 import { ItemAlerts } from './item-alerts'
+import { ReminderDetails } from './reminder-details'
 import { Field, ItemLabels, TaskDetails, TaskTitle } from './task-details'
 import { useMine } from './mine'
 import { SeenDetails, VisibleTo } from './seen-item'
@@ -167,7 +168,7 @@ export function ItemPopup({ id, isNew = false }: { id: string | undefined; isNew
       typeLabel={look.label}
       title={itemTitle(item)}
       wide={item.type === 'note'}
-      standard={item.type === 'task' || item.type === 'event'}
+      standard={item.type === 'task' || item.type === 'event' || item.type === 'reminder'}
       leading={
         item.type === 'thought' && (
           <Checkbox
@@ -189,7 +190,9 @@ export function ItemPopup({ id, isNew = false }: { id: string | undefined; isNew
         ) : item.type === 'event' && google?.readOnly ? (
           <div className="pt-1 text-day">{itemTitle(item)}</div>
         ) : (
-          item.type === 'event' && <EventTitle key={item.id} item={item} />
+          (item.type === 'event' || item.type === 'reminder') && (
+            <EventTitle key={item.id} item={item} />
+          )
         )
       }
       actions={
@@ -219,6 +222,8 @@ export function ItemPopup({ id, isNew = false }: { id: string | undefined; isNew
           <VisibleTo item={item} />
           <EventDetails key={item.id} item={item} />
         </div>
+      ) : item.type === 'reminder' ? (
+        <ReminderDetails key={item.id} item={item} />
       ) : item.type === 'thought' ? (
         // A Thought: its text, Alerts at a set time (REM-003) and Labels (ITM-005).
         <div className="flex flex-col gap-4">

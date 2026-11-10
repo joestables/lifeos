@@ -1,7 +1,7 @@
 import { addDays } from '@lifeos/recurrence'
 import type { Item } from '@/data'
 import { itemTitle, typeLook } from './item-types'
-import { cardLine, planDays, type Placed } from './plan'
+import { cardLine, planDays, type AlertTime, type Placed } from './plan'
 
 /**
  * A card on the Today widget (WID-002, ADR-0064), as the phone keeps it:
@@ -34,7 +34,8 @@ export function widgetCard(p: Placed, day: string, timezone: string): WidgetCard
     title: itemTitle(p.item),
     time: cardLine(p, day, timezone).time ?? null,
     done: p.item.status === 'done',
-    ends: p.item.ends_at,
+    // A Reminder fades once its last Alert of the day has gone off (RMD-003 2).
+    ends: p.alerts ? new Date(p.alerts.at(-1)!.at).toISOString() : p.item.ends_at,
   }
 }
 
@@ -44,8 +45,9 @@ export function widgetDays(
   today: string,
   timezone: string,
   hidden: readonly string[],
+  alertsOf?: (item: Item) => AlertTime[],
 ): WidgetDay[] {
-  const days = planDays(items, today, addDays(today, 1), timezone, hidden)
+  const days = planDays(items, today, addDays(today, 1), timezone, hidden, alertsOf)
   return [...days].map(([day, list]) => ({
     day,
     cards: list.map((p) => widgetCard(p, day, timezone)),

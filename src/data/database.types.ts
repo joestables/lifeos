@@ -476,6 +476,7 @@ export type Database = {
           schedulable: boolean
           shareable: boolean
           statuses: string[]
+          takes_alerts: boolean
           time_fields: string[]
           uses_labels: boolean
         }
@@ -496,6 +497,7 @@ export type Database = {
           schedulable: boolean
           shareable: boolean
           statuses: string[]
+          takes_alerts?: boolean
           time_fields: string[]
           uses_labels?: boolean
         }
@@ -515,6 +517,7 @@ export type Database = {
           schedulable?: boolean
           shareable?: boolean
           statuses?: string[]
+          takes_alerts?: boolean
           time_fields?: string[]
           uses_labels?: boolean
         }

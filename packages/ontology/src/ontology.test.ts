@@ -55,12 +55,16 @@ describe('ontology', () => {
       'event',
       'note',
       'recipe',
+      'reminder',
       'shopping_list',
       'task',
     ])
+    // A Reminder is a title only: a Note, with its text, doesn't become one.
     expect(convertsTo(typeByKey('note')!)).toEqual(['event', 'recipe', 'shopping_list', 'task'])
-    expect(convertsTo(typeByKey('task')!)).toEqual(['event'])
-    expect(convertsTo(typeByKey('event')!)).toEqual(['task'])
+    expect(convertsTo(typeByKey('task')!)).toEqual(['event', 'reminder'])
+    expect(convertsTo(typeByKey('event')!)).toEqual(['reminder', 'task'])
+    // RMD-006: a Reminder to and from a Task and an Event.
+    expect(convertsTo(typeByKey('reminder')!)).toEqual(['event', 'task'])
   })
 
   it('gives Labels, marks, sub-tasks and a place as the data model says (ADR-0014, ADR-0043, EVT-001)', () => {
@@ -84,6 +88,7 @@ describe('ontology', () => {
       ['note', 2],
       ['task', 2],
       ['event', 3],
+      ['reminder', 7.5],
       ['recipe', 4],
       ['variation', 4],
       ['meal', 4],
@@ -112,6 +117,23 @@ describe('ontology', () => {
     expect(typeByKey('meal')!.timeFields).toEqual(['do_on', 'slot'])
     // A date and no time: a Shopping list has no time or place (ADR-0050, 24 October).
     expect(typeByKey('shopping_list')!.timeFields).toEqual(['do_on'])
+  })
+
+  it('gives Alerts to the Types that take them, a Reminder Personal and never done (ADR-0065)', () => {
+    expect(TYPES.filter((t) => t.alerts).map((t) => t.key)).toEqual([
+      'thought',
+      'task',
+      'event',
+      'reminder',
+      'meal',
+      'shopping_list',
+    ])
+    const r = typeByKey('reminder')!
+    expect(hasTrait(r, 'completable')).toBe(false)
+    expect(hasTrait(r, 'shareable')).toBe(false)
+    expect(r.defaultSpace).toBe('personal')
+    expect(r.timeFields).toEqual(['do_on'])
+    expect(r.colour).toBe('blue')
   })
 
   it('has no idea status on Notes (ADR-0037)', () => {

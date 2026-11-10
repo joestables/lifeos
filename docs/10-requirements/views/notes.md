@@ -29,7 +29,8 @@ Recipe ideas live in Recipes.
   colour, and a Note has no colour of its own
   ([ADR-0043](../../20-architecture/adr/0043-colour-by-type.md),
   Provisionally agreed).
-- A Note can be converted into any other Capturable Type.
+- A Note can be converted into any other Capturable Type but a Reminder,
+  which is a title only (RMD-006).
 
 ## What the page shows (Stage 2)
 

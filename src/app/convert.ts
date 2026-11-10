@@ -16,6 +16,7 @@ import {
 import { zonedInstant } from '@/lib/dates'
 import { eventAsTask, taskAsEvent } from '@/lib/events'
 import { typeLook } from '@/lib/item-types'
+import { useOpenItem } from './item-navigation'
 
 /** "a Task", "an Event". */
 const withArticle = (label: string) => `${/^[aeiou]/i.test(label) ? 'an' : 'a'} ${label}`
@@ -33,7 +34,33 @@ export function useConvert() {
   const settings = useSettings(queue)
   const alerts = useAlerts(queue)
   const navigate = useNavigate()
+  const open = useOpenItem()
   return (item: Item, type: string) => {
+    // A Thought into a Reminder (RMD-006 1): an Alert at the time its text
+    // names, those words out of its title; the server gives it one an hour
+    // from now if it names none, or one gone by. Its popup opens.
+    if (item.type === 'thought' && type === 'reminder') {
+      const dates = parseCapture(item.title, new Date(item.created_at))
+      const title = dates.title || item.title
+      const day = dates.doOn ?? dates.dueOn
+      if (day)
+        addAlert(item.id, {
+          fixed_at: zonedInstant(day, dates.doAt ?? settings.defaultAlertTime, settings.timezone),
+        })
+      if (title !== item.title) updateItem(item.id, { title })
+      convertItem(item.id, type)
+      toast('Converted into a Reminder', {
+        action: {
+          label: 'Undo',
+          onClick: () => {
+            updateItem(item.id, { do_on: null, title: item.title })
+            convertItem(item.id, item.type)
+          },
+        },
+      })
+      open({ id: item.id, type })
+      return
+    }
     convertItem(item.id, type)
     // Sorted into a Recipe it is an Idea, its text the Idea's notes (RCP-002 4): no way
     // back that keeps the text, so it opens instead of undoing.
