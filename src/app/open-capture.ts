@@ -1,7 +1,7 @@
 import { createContext, useContext } from 'react'
 
-/** Opens capture; as a Task for "New task" (TSK-001). */
-export const OpenCapture = createContext<(type?: 'thought' | 'task') => void>(() => {})
+/** Opens "New" (NEW-001). */
+export const OpenCapture = createContext<() => void>(() => {})
 
-/** Opens capture from anywhere inside CaptureProvider (CAP-002). */
+/** Opens "New" from anywhere inside CaptureProvider (NEW-001 2). */
 export const useOpenCapture = () => useContext(OpenCapture)

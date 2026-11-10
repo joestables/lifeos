@@ -73,7 +73,7 @@ or idea, and this page shrinks to a pointer:
 |---|---|
 | Today (TDY) | [today](../views/today.md), which replaced Inbox: TDY-001–005 moved there (step 6) |
 | The Reminder Type (RMD) and Alerts (ALR) | [reminders](reminders.md) and [items](items.md); the glossary and [data model](../../20-architecture/data-model.md) |
-| "New" (NEW) | [capture](capture.md) |
+| "New" (NEW) | [capture](capture.md#new): moved there (step 7) |
 | Week (WEK) | [week](../views/week.md), renamed from Plan: moved there (step 6) |
 | Plan (PLA) | [plan](../views/plan.md), from Tasks: PLA-001–006 moved there (steps 5, 6) |
 | Notes' Thoughts (NTE-005) | [notes](../views/notes.md): moved there (step 6) |
@@ -195,7 +195,7 @@ Acceptance criteria
 
 **As** Joe, **I want** one word for an Item's notifications, and none on
 Thoughts, **so that** "Reminder" means one thing.
-Priority: Must · Status: built in part (1, step 4: Alerts by name in the app, its code and the database; 2–4, step 8)
+Priority: Must · Status: built in part (1, step 4: Alerts by name in the app, its code and the database; 2, step 7: "New" makes no Thought Alert and Settings has no Thought default; the rest of 2, and 3 and 4, step 8)
 
 Acceptance criteria
 1. Given a Task, an Event, a Meal, a Shopping list or a Reminder, then its
@@ -229,103 +229,7 @@ Acceptance criteria
 
 ### "New"
 
-### NEW-001 — The "New" button
-
-**As** Joe, **I want** "New" where it always is, **so that** making a
-Reminder is one tap from anywhere.
-Priority: Must · Status: agreed
-
-Acceptance criteria
-1. Given any page, then "New" is at the top right on a computer and in the
-   top bar on a phone: the quiet button it is now, with a bell and a plus
-   in place of the speech bubble; on a computer, N opens it too.
-2. Given I press it, then "New" opens over the page, the line ready to type
-   in, as capture does now (CAP-002).
-
-### NEW-002 — One smart line
-
-**As** Joe, **I want** to type a reminder as I'd say it, **so that** it's
-quick and there's nothing to choose first.
-Priority: Must · Status: agreed
-
-Acceptance criteria
-1. Given "New", then it is one line ("Remind me to…"), quick times under it
-   (NEW-005), and Cancel and Save; there is no Thought / Reminder switch.
-2. Given the line has a time (one typed, NEW-003, or one added, NEW-005),
-   then Save makes a Reminder; with none, a Thought. A tile at the top right
-   says which as I type: the Reminder's blue bell or the Thought's yellow
-   lightbulb. The button says only "Save".
-3. Given the line is empty, then Save is off; Enter saves.
-4. Given I save, then it is made in my Personal Space, offline too (CAP-001
-   4), and "New" closes.
-
-### NEW-003 — Times are understood, and kept out of the title
-
-**As** Joe, **I want** "clean bedroom tues 8pm" to become "Clean bedroom"
-at 20:00 on Tuesday, **so that** the title reads as I'd write it.
-Priority: Must · Status: agreed
-
-Acceptance criteria
-1. Given I type "clean bedroom tues 8pm", then the words for the time
-   become an Alert pill, Tue 10 Nov, 20:00, and the title is "Clean
-   bedroom" (its first letter a capital); the words are understood as
-   everywhere else (CAP-003).
-2. Given "… tues 8pm and 9pm", then there are two Alert pills.
-3. Given a date with no time ("call mum tomorrow"), then the Alert is at my
-   default time (09:00 unless changed).
-4. Given a time with no date ("bins out 7pm"), then it is today, or
-   tomorrow if 19:00 has passed; a weekday is the next one, today if its
-   time is still to come.
-5. Given "in 2 hours", "tonight", "this weekend", then they are understood
-   as the quick times are (NEW-005).
-6. Given no Alert can be in the past, then nothing typed makes one.
-7. Given "every tuesday", then no Repeat is set from the line (Joe, 9
-   November); a Repeat is set in the Reminder's popup (RMD-004).
-
-### NEW-004 — Alert pills in the line
-
-**As** Joe, **I want** each Alert as a pill I can change or remove,
-**so that** fixing what was understood is a tap.
-Priority: Must · Status: agreed
-
-Acceptance criteria
-1. Given an Alert, typed or added, then it is a pill in the line after the
-   title, in the Reminder's blue tint, with a bell (an alarm clock for an
-   Alarm) and its date and time, and × at its end.
-2. Given I tap a pill, then the Alert dialog opens: its date and time, and
-   Alarm (RMD-002 2).
-3. Given I press × or Backspace just after a pill, then it is removed; the
-   last one removed, the line is a Thought again.
-
-### NEW-005 — Quick times
-
-**As** Joe, **I want** the likely times a tap away, **so that** on my
-phone I needn't type a time at all.
-Priority: Must · Status: agreed
-
-Acceptance criteria
-1. Given "New", then under the line are three pills: **In 1 hour**; the
-   likeliest next time — **This evening** (18:00) before 17:00, **Tomorrow
-   morning** (my default time tomorrow) from 17:00; and **More**.
-2. Given I tap one, then its Alert is added as a pill (NEW-004); the pill
-   tapped doesn't stay chosen, and tapping it again adds nothing new.
-3. Given More, then it offers In 1 hour, This evening, Tomorrow morning,
-   This weekend (Saturday at my default time) each with its time, and
-   "Pick a date and time", which opens the Alert dialog.
-4. Given a phone, then the pills scroll sideways rather than wrapping.
-
-### NEW-006 — A Thought from "New"
-
-**As** Joe, **I want** to jot a Thought as before, **so that** an idea
-with no time is still captured in seconds.
-Priority: Must · Status: agreed
-
-Acceptance criteria
-1. Given the line has no time, then my Labels show under the quick times,
-   to give the Thought (CAP-009); with a time, they hide (a Reminder has
-   none).
-2. Given I save a Thought, then it waits in Notes' Thoughts tab (NTE-005),
-   counted on Today's Thoughts line (TDY-001 3).
+NEW-001–006 are built and have moved to [capture](capture.md#new) (step 7).
 
 ### Week
 

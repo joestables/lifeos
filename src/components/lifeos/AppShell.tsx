@@ -188,7 +188,7 @@ function Drawer({
 export function AppShell({
   children,
   onCapture,
-  captureLook = 'ghost',
+  captureLook = 'bell',
   onSearch,
   onRefresh = () => window.location.reload(),
   notice,

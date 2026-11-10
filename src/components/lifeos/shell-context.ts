@@ -5,4 +5,4 @@ import type { CaptureLook } from './CaptureButton'
 export const ShellCapture = createContext<(() => void) | undefined>(undefined)
 
 /** How "New" looks: 'ghost', or one of Stage 7b's draft directions. */
-export const ShellCaptureLook = createContext<CaptureLook>('ghost')
+export const ShellCaptureLook = createContext<CaptureLook>('bell')

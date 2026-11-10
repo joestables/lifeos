@@ -1,4 +1,4 @@
-import { expect, test, type Page, type Route } from '@playwright/test'
+import { expect, test, type Locator, type Page, type Route } from '@playwright/test'
 import { itemRow, standIn } from './stand-in'
 
 // Sunday 11 October 2026, 14:00 in London.
@@ -6,7 +6,7 @@ const NOW = new Date('2026-10-11T14:00:00+01:00')
 const TASK = '01990000-0000-7000-8000-000000000001'
 const NOTE = '01990000-0000-7000-8000-000000000002'
 
-test.use({ timezoneId: 'Europe/London' })
+test.use({ timezoneId: 'Europe/London', locale: 'en-GB' })
 
 async function start(page: Page, path = '/today') {
   await page.clock.setFixedTime(NOW)
@@ -31,20 +31,23 @@ async function start(page: Page, path = '/today') {
 /** "New" at the top right: the page header's on a computer, the top bar's on a phone. */
 async function openCapture(page: Page) {
   await page.getByRole('button', { name: 'New', exact: true }).first().click()
-  const capture = page.getByRole('dialog', { name: 'Capture' })
+  const capture = page.getByRole('dialog', { name: 'New', exact: true })
   await expect(capture.getByRole('textbox')).toBeFocused()
   return capture
 }
 
-test('CAP-001, CAP-002: a thought in one line, from any page, and I stay where I was', async ({
+const pills = (capture: Locator) => capture.locator('[data-slot="line-pill"]')
+const savesAs = (capture: Locator, type: string) =>
+  capture.getByRole('img', { name: `Saves as a ${type}` })
+
+test('NEW-001, NEW-006: a Thought in one line, from any page, and I stay where I was', async ({
   page,
 }) => {
   const db = await start(page, '/notes')
   const capture = await openCapture(page)
-  await expect(capture.getByRole('button', { name: 'Thought', exact: true })).toHaveAttribute(
-    'aria-pressed',
-    'true',
-  )
+  await expect(savesAs(capture, 'Thought')).toBeVisible()
+  await expect(capture.getByRole('button', { name: 'Task', exact: true })).toHaveCount(0)
+  await expect(capture.getByRole('button', { name: 'Save' })).toBeDisabled()
   await capture.getByRole('textbox').fill('ceramics class for the anniversary?')
   await capture.getByRole('textbox').press('Enter')
   await expect(capture).toBeHidden()
@@ -53,84 +56,137 @@ test('CAP-001, CAP-002: a thought in one line, from any page, and I stay where I
   await expect
     .poll(() => db.items.find((i) => i.type === 'thought')?.title)
     .toBe('ceramics class for the anniversary?')
+  expect(db.alerts).toEqual([])
 })
 
-test('CAP-002: N opens capture on a computer, but not while typing', async ({ page, isMobile }) => {
+test('NEW-001: N opens "New" on a computer, but not while typing', async ({ page, isMobile }) => {
   test.skip(isMobile, 'a key on a computer')
   await start(page)
   await page.keyboard.press('n')
-  const capture = page.getByRole('dialog', { name: 'Capture' })
+  const capture = page.getByRole('dialog', { name: 'New', exact: true })
   await expect(capture.getByRole('textbox')).toBeFocused()
   await capture.getByRole('textbox').press('n')
   await expect(capture.getByRole('textbox')).toHaveValue('n')
-  // Nor while capture is open with the switch focused: the line stays.
-  await capture.getByRole('button', { name: 'Task', exact: true }).focus()
+  // Nor with a quick time focused: the line stays.
+  await capture.getByRole('button', { name: 'In 1 hour' }).focus()
   await page.keyboard.press('n')
   await expect(capture.getByRole('textbox')).toHaveValue('n')
   await page.keyboard.press('Escape')
   await expect(capture).toBeHidden()
 })
 
-test('CAP-001, CAP-003: switched to Task, the date is understood and taken out of the title', async ({
+test('NEW-002, NEW-003: a time typed makes a Reminder, its words a pill, the title without them', async ({
   page,
 }) => {
   const db = await start(page)
   const capture = await openCapture(page)
-  await capture.getByRole('button', { name: 'Task', exact: true }).click()
-  await capture.getByRole('textbox').fill('renew insurance fri')
-  await expect(capture.getByText('Fri 16 Oct')).toBeVisible()
-  await expect(capture.getByText('09:00')).toBeVisible()
+  await capture.getByRole('textbox').pressSequentially('clean bedroom tues 8pm and 9pm')
+  await expect(savesAs(capture, 'Reminder')).toBeVisible()
+  await expect(pills(capture)).toHaveText([/Tue 13 Oct, 20:00/, /Tue 13 Oct, 21:00/])
+  // A whole word after them: the words leave the line for their pills.
+  await capture.getByRole('textbox').pressSequentially(' with mum ')
+  await expect(capture.getByRole('textbox')).toHaveValue('clean bedroom with mum ')
+  await expect(pills(capture)).toHaveCount(2)
   await capture.getByRole('button', { name: 'Save' }).click()
-  await expect(page.getByText('Task saved · Fri')).toBeVisible()
+  await expect(page.getByText('Reminder saved · Tue 13 Oct, 20:00')).toBeVisible()
   await expect
-    .poll(() => db.items.find((i) => i.type === 'task' && i.id !== TASK))
-    .toMatchObject({ title: 'Renew insurance', do_on: '2026-10-16' })
+    .poll(() => db.items.find((i) => i.type === 'reminder'))
+    .toMatchObject({ title: 'Clean bedroom with mum', do_on: '2026-10-13' })
+  const r = db.items.find((i) => i.type === 'reminder')!
+  expect(
+    db.alerts
+      .filter((a) => a.item_id === r.id)
+      .map((a) => [a.anchor, a.offset_days, a.at_time])
+      .sort(),
+  ).toEqual([
+    ['do_on', 0, '20:00'],
+    ['do_on', 0, '21:00'],
+  ])
 })
 
-test('CAP-001, CAP-004: a dated line is offered as a Task, and kept as a Thought reminds me', async ({
+test('NEW-003 3, 4: a date alone is at my default time; a time gone today is tomorrow', async ({
   page,
 }) => {
   const db = await start(page)
   let capture = await openCapture(page)
-  await capture.getByRole('textbox').fill('call mum fri 6pm')
-  const offer = capture.getByRole('button', { name: 'Task, Fri 18:00?' })
-  await expect(offer).toBeVisible()
-  await expect(capture.getByRole('button', { name: 'Thought', exact: true })).toHaveAttribute(
-    'aria-pressed',
-    'true',
-  )
-  await capture.getByRole('button', { name: 'Save' }).click()
-  await expect(page.getByText('Thought saved')).toBeVisible()
-  await expect.poll(() => db.alerts).toHaveLength(1)
-  const thought = db.items.find((i) => i.type === 'thought')!
-  expect(thought.title).toBe('call mum fri 6pm')
-  expect(db.alerts[0]).toMatchObject({
-    item_id: thought.id,
-    fixed_at: '2026-10-16T17:00:00.000Z',
-  })
+  await capture.getByRole('textbox').fill('call mum tomorrow')
+  await expect(pills(capture)).toHaveText([/Tomorrow 09:00/])
+  await capture.getByRole('textbox').press('Enter')
+  await expect.poll(() => db.items.find((i) => i.title === 'Call mum')?.do_on).toBe('2026-10-12')
 
   capture = await openCapture(page)
-  await capture.getByRole('textbox').fill('dentist tue 3pm?')
-  await capture.getByRole('button', { name: 'Task, Tue 15:00?' }).click()
-  await expect(capture.getByRole('button', { name: 'Task', exact: true })).toHaveAttribute(
-    'aria-pressed',
-    'true',
-  )
-  await expect(capture.getByText('Tue 13 Oct 15:00')).toBeVisible()
-  await capture.getByRole('button', { name: 'Save' }).click()
-  await expect
-    .poll(() => db.items.find((i) => i.title === 'Dentist?'))
-    .toMatchObject({ type: 'task', do_on: '2026-10-13', do_at: '15:00' })
+  await capture.getByRole('textbox').fill('bins out 9am')
+  await expect(pills(capture)).toHaveText([/Tomorrow 09:00/])
+  await capture.getByRole('textbox').fill('bins out 7pm')
+  await expect(pills(capture)).toHaveText([/Today 19:00/])
 })
 
-test('CAP-009: Labels chosen in capture are given to the Thought or the Task', async ({ page }) => {
+test('NEW-004: a pill opens the Alert dialog, Alarm there; × or Backspace removes it', async ({
+  page,
+}) => {
+  const db = await start(page)
+  const capture = await openCapture(page)
+  await capture.getByRole('textbox').pressSequentially('bins out 7pm ')
+  await capture.getByRole('button', { name: 'Change alert Today 19:00' }).click()
+  const alert = page.getByRole('dialog', { name: 'Alert' })
+  await alert.getByRole('switch', { name: 'Alarm' }).click()
+  await alert.getByRole('button', { name: 'Save' }).click()
+  await expect(alert).toBeHidden()
+  // Changed, its words left the line for it.
+  await expect(capture.getByRole('textbox')).toHaveValue('bins out ')
+  await expect(pills(capture)).toHaveCount(1)
+  await expect(pills(capture).getByLabel('Change alert Today 19:00')).toBeVisible()
+
+  // Backspace at the end of the words takes the last pill; the line is a Thought again.
+  await capture.getByRole('textbox').press('End')
+  await capture.getByRole('textbox').press('Backspace')
+  await expect(pills(capture)).toHaveCount(0)
+  await expect(savesAs(capture, 'Thought')).toBeVisible()
+
+  // × on a typed time keeps its words as words.
+  await capture.getByRole('textbox').fill('meet at 8pm')
+  await capture.getByRole('button', { name: 'Remove alert Today 20:00' }).click()
+  await expect(pills(capture)).toHaveCount(0)
+  await capture.getByRole('button', { name: 'Save' }).click()
+  await expect.poll(() => db.items.find((i) => i.title === 'meet at 8pm')?.type).toBe('thought')
+})
+
+test('NEW-005: quick times add pills; tapped again, nothing new; More has the rest', async ({
+  page,
+}) => {
+  const db = await start(page)
+  const capture = await openCapture(page)
+  await capture.getByRole('textbox').fill('water the plants')
+  await capture.getByRole('button', { name: 'In 1 hour' }).click()
+  await capture.getByRole('button', { name: 'This evening' }).click()
+  await capture.getByRole('button', { name: 'This evening' }).click()
+  await expect(pills(capture)).toHaveText([/Today 15:00/, /Today 18:00/])
+  await capture.getByRole('button', { name: 'More' }).click()
+  await expect(page.getByRole('menu').getByRole('menuitem')).toHaveText([
+    /^In 1 hour15:00$/,
+    /^This evening18:00$/,
+    /^Tomorrow morningMon 09:00$/,
+    /^This weekendSat 09:00$/,
+    'Pick a date and time',
+  ])
+  await page.getByRole('menuitem', { name: /This weekend/ }).click()
+  await expect(pills(capture)).toHaveCount(3)
+  await capture.getByRole('button', { name: 'Save' }).click()
+  await expect
+    .poll(() => {
+      const r = db.items.find((i) => i.title === 'Water the plants')
+      return r && [r.do_on, db.alerts.filter((a) => a.item_id === r.id).length]
+    })
+    .toEqual(['2026-10-11', 3])
+})
+
+test('NEW-006: my Labels show for a Thought, and hide for a Reminder', async ({ page }) => {
   const db = await start(page)
   let capture = await openCapture(page)
   const labels = capture.getByRole('group', { name: 'Labels' }).getByRole('button')
   await expect(labels).toHaveText(['Car', 'Home'])
   await capture.getByRole('textbox').fill('paint the shed')
   await labels.filter({ hasText: 'Home' }).click()
-  await expect(labels.filter({ hasText: 'Home' })).toHaveAttribute('aria-pressed', 'true')
   await capture.getByRole('button', { name: 'Save' }).click()
   await expect(page.getByText('Thought saved')).toBeVisible()
   await expect
@@ -140,19 +196,11 @@ test('CAP-009: Labels chosen in capture are given to the Thought or the Task', a
     })
     .toEqual(['l-home'])
 
-  // Opened again, nothing is chosen.
+  // Opened again, nothing is chosen; with a time, no Labels.
   capture = await openCapture(page)
   await expect(labels.filter({ hasText: 'Home' })).toHaveAttribute('aria-pressed', 'false')
-  await capture.getByRole('button', { name: 'Task', exact: true }).click()
-  await capture.getByRole('textbox').fill('wash the car')
-  await labels.filter({ hasText: 'Car' }).click()
-  await capture.getByRole('button', { name: 'Save' }).click()
-  await expect
-    .poll(() => {
-      const t = db.items.find((i) => i.title === 'Wash the car')
-      return t && [t.type, db.item_labels.filter((r) => r.item_id === t.id).map((r) => r.label_id)]
-    })
-    .toEqual(['task', ['l-car']])
+  await capture.getByRole('textbox').fill('wash the car tomorrow')
+  await expect(capture.getByRole('group', { name: 'Labels' })).toHaveCount(0)
 })
 
 test('CAP-001: with no signal, what I capture waits to be sorted at once and is sent when the connection returns', async ({
@@ -176,7 +224,7 @@ test('CAP-001: with no signal, what I capture waits to be sorted at once and is 
   await expect.poll(() => db.items.some((i) => i.title === 'buy oat milk')).toBe(true)
 })
 
-test('CAP-002: capture over an open Item leaves it open, and Undo takes the new one back', async ({
+test('NEW-001 2: "New" over an open Item leaves it open, and Undo takes the new one back', async ({
   page,
   isMobile,
 }) => {
@@ -189,7 +237,7 @@ test('CAP-002: capture over an open Item leaves it open, and Undo takes the new 
   const url = page.url()
   if (isMobile) await openCapture(page)
   else await page.keyboard.press('n')
-  const capture = page.getByRole('dialog', { name: 'Capture' })
+  const capture = page.getByRole('dialog', { name: 'New', exact: true })
   await capture.getByRole('textbox').fill('ask about no-claims bonus')
   await capture.getByRole('button', { name: 'Save' }).click()
   await expect(capture).toBeHidden()

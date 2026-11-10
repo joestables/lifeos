@@ -173,17 +173,6 @@ test('REM-003: a Thought gets an Alert at a set time', async ({ page }) => {
   await expect(thought).toContainText('Today 19:00')
 })
 
-test('REM-007 2: with the Thought default off, a dated Thought gets no Alert', async ({ page }) => {
-  const db = await start(page, '/today', { people: [{ alert_defaults: { thought: false } }] })
-  await expect(page.getByRole('heading', { name: 'Today', level: 1 })).toBeVisible()
-  await page.getByRole('button', { name: 'New', exact: true }).first().click()
-  const capture = page.getByRole('dialog', { name: 'Capture' })
-  await capture.getByRole('textbox').fill('book the dentist fri')
-  await capture.getByRole('textbox').press('Enter')
-  await expect.poll(() => db.items.some((i) => i.title === 'book the dentist fri')).toBe(true)
-  expect(db.alerts.filter((r) => r.item_id !== id(1))).toEqual([])
-})
-
 test("REM-006: a tapped notification opens its Item in the window that's open", async ({
   page,
 }) => {

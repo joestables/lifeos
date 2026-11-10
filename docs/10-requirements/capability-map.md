@@ -13,7 +13,7 @@ Owner: **core**, a **Module** (`shopping`, `food`, `fitness`, `goals`,
 | Sign up and sign in with Google; a Personal Space for everyone | core | — | 1 | [spaces-and-sharing](cross-cutting/spaces-and-sharing.md) |
 | Design system: tokens and shared components | core | — | 1 | [design system](../30-design/README.md) |
 | Navigation drawer | core | — | 1 | [ADR-0026](../20-architecture/adr/0026-navigation-drawer.md) |
-| Quick capture in the app (Thought by default, one-tap Task) | core | Capture Screen | 2 | [capture](cross-cutting/capture.md) |
+| Quick capture in the app (a Thought; from Stage 7b, "New") | core | Capture Screen | 2, 7b | [capture](cross-cutting/capture.md) |
 | Notes: Labels to filter, pin, simple formatting | core | Notes | 2 | [notes](views/notes.md) |
 | Plan: Tasks, Events and Reminders as lists, and what repeats; Tasks' do-on and due, star, sub-tasks, Someday, repeating | core | Plan (was Tasks) | 2, 7b | [plan](views/plan.md) |
 | Today: everything on today, and overdue Tasks | core | Today | 2, 7b | [today](views/today.md) |
@@ -41,7 +41,7 @@ Owner: **core**, a **Module** (`shopping`, `food`, `fitness`, `goals`,
 | Alerts on time, and Alarms (Android app) | core | — | 7 | [alerts](cross-cutting/reminders.md#rem-010--on-time-on-the-android-app) |
 | Reminders as a Type; an Item's Reminders renamed Alerts, none on Thoughts | core | Today, Week, Plan | 7b | [today, reminders and plan](cross-cutting/today-reminders-plan.md) |
 | Today (replacing Inbox), Week (Plan renamed), Plan (Tasks, Events, Reminders, Recurring), Notes' Thoughts tab | core | Today, Week, Plan, Notes | 7b | [today, reminders and plan](cross-cutting/today-reminders-plan.md) |
-| "New" as one smart line: Thoughts and Reminders, times understood | core | Capture Screen | 7b | [today, reminders and plan](cross-cutting/today-reminders-plan.md#new-002--one-smart-line) |
+| "New" as one smart line: Thoughts and Reminders, times understood | core | Capture Screen | 7b | [capture](cross-cutting/capture.md#new-002--one-smart-line) |
 | A home-screen widget on Android: Today's Plan | core | Android home screen | 7 | [the Android app](cross-cutting/android.md#wid-002--todays-plan-on-the-home-screen) |
 | Health Connect | Integration | — | 8 | [integrations](cross-cutting/integrations.md) |
 | Cardio, with Oura and Health Connect (a blank page in the drawer until then) | `fitness`, Integration | Cardio | 8 | — |

@@ -2,6 +2,27 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#79](https://github.com/joestables/lifeos/pull/79) — Stage 7b, step 7: "New"
+
+Branch `claude/relaxed-fermi-nehy7e` · 2026-11-10
+
+**What it did**
+- **"New" is one smart line** ([NEW-001–006](../10-requirements/cross-cutting/capture.md#new)):
+  a time in it makes a Reminder, none a Thought, and SavesAs at the top
+  right says which. Its Alerts are pills in the line; the typed words leave
+  for them once a whole word follows, or on Save; a pill opens the Alert
+  dialog (Alarm there), × or Backspace removes it.
+- **`readLine`** in `packages/capture` reads several times in a line, "tues",
+  "thurs" and "weds", a date alone at my default time, a time gone today as
+  tomorrow, "tonight" and "this weekend" as the quick times, and nothing in
+  the past; "every" sets no Repeat.
+- **Quick times** (`src/lib/new-line.ts`): In 1 hour, This evening before
+  17:00 or Tomorrow morning after, and More, with This weekend and "Pick a
+  date and time".
+- The bell-plus "New" button everywhere. CaptureDialog and its switch to
+  Task are gone, and with them Settings' "Dated thoughts".
+- Capture's spec takes NEW-001–006; CAP-004 is superseded.
+
 ## [#78](https://github.com/joestables/lifeos/pull/78) — Stage 7b, step 6: Today, Week, Plan and Notes' Thoughts
 
 Branch `claude/relaxed-fermi-nehy7e` · 2026-11-10

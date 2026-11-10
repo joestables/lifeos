@@ -1228,9 +1228,11 @@ function V5({ state }: { state: 'empty' | 'one' | 'two' | 'alert' | 'more' | 'th
   return (
     <Behind look="bell">
       <NewDialog
-        saveLabel="Save"
+        open
+        onOpenChange={nothing}
+        onSave={nothing}
         saveDisabled={state === 'empty'}
-        switcher={
+        savesAs={
           thought ? (
             <SavesAs colour="yellow" icon={ThoughtIcon} label="Thought" />
           ) : (
@@ -1238,7 +1240,11 @@ function V5({ state }: { state: 'empty' | 'one' | 'two' | 'alert' | 'more' | 'th
           )
         }
       >
-        <SmartLine text={text} tokens={tokens} placeholder="Remind me to…" />
+        <SmartLine
+          value={text}
+          pills={tokens.map((t) => ({ id: t.label, ...t }))}
+          placeholder="Remind me to…"
+        />
         <ChipRow>
           <QuickChip>In 1 hour</QuickChip>
           <QuickChip>{state === 'late' ? 'Tomorrow morning' : 'This evening'}</QuickChip>
