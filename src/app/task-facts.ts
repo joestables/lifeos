@@ -1,45 +1,28 @@
 import { shortRule } from '@lifeos/recurrence'
 import { useMemo } from 'react'
-import { queue, useFoodSpaces, useLabels, useMarks, useSubtasks, type Item } from '@/data'
+import { queue, useFoodSpaces, useMarks, type Item } from '@/data'
 import { repeatOf, useSeriesById } from './repeat'
 
 /**
- * What a Task's row shows besides the Task itself: its Labels, star,
- * sub-tasks, repeat and, shared, its Household's name (HSH-005 2).
+ * What a Task's row shows besides the Task itself: its star, repeat and,
+ * shared, its Household's name (HSH-005 2).
  */
 export function useTaskFacts() {
   const marks = useMarks(queue)
   const { householdName } = useFoodSpaces(queue)
-  const { labels, itemLabels } = useLabels(queue)
-  const subtasks = useSubtasks(queue)
   const series = useSeriesById()
-  return useMemo(() => {
-    const names = new Map(labels.map((l) => [l.id, l.name]))
-    const labelsOf = new Map<string, string[]>()
-    for (const r of itemLabels) {
-      const name = names.get(r.label_id)
-      if (name !== undefined) labelsOf.set(r.item_id, [...(labelsOf.get(r.item_id) ?? []), name])
-    }
-    for (const list of labelsOf.values()) list.sort((a, b) => a.localeCompare(b))
-    const counts = new Map<string, { done: number; total: number }>()
-    for (const s of subtasks) {
-      const c = counts.get(s.item_id) ?? { done: 0, total: 0 }
-      counts.set(s.item_id, { done: c.done + (s.done ? 1 : 0), total: c.total + 1 })
-    }
-    return {
-      labels,
-      itemLabels,
+  return useMemo(
+    () => ({
       series,
       of: (task: Item) => {
         const repeat = repeatOf(task, series)
         return {
-          labels: labelsOf.get(task.id) ?? [],
           starred: marks.has(task.id),
-          subtasks: counts.get(task.id),
           repeat: repeat ? shortRule(repeat.rule, repeat.mode) : undefined,
           household: householdName(task.space_id),
         }
       },
-    }
-  }, [marks, labels, itemLabels, subtasks, series, householdName])
+    }),
+    [marks, series, householdName],
+  )
 }

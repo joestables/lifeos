@@ -16,7 +16,7 @@ export function validateLabels(search: Record<string, unknown>): LabelsSearch {
 }
 
 /**
- * Filtering a page by Label (NTE-002, TSK-004, INB-007): all my Labels as
+ * Filtering a page by Label (NTE-002, NTE-005): all my Labels as
  * pills, any number chosen; an Item shows if it has any of them. The choice
  * stays in the address, so switching a page's views keeps it.
  */

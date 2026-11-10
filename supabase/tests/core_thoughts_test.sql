@@ -15,7 +15,7 @@ select core.create_item('00000000-0000-7000-8000-000000000002', 'thought', '{"ti
 select core.create_item('00000000-0000-7000-8000-000000000003', 'thought', '{"title": "Japan in spring"}');
 select core.create_label('00000000-0000-7000-8000-0000000000a1', 'Home');
 
--- CAP-009, ITM-005: a Thought takes a Label, and keeps it as a Task.
+-- CAP-009, ITM-005: a Thought takes a Label, and loses it as a Task (PLA-007).
 select core.add_label('00000000-0000-7000-8000-000000000001', '00000000-0000-7000-8000-0000000000a1');
 select is(
   (select count(*)::int from core.item_labels where item_id = '00000000-0000-7000-8000-000000000001'),
@@ -25,8 +25,8 @@ select is(
 select core.convert_item('00000000-0000-7000-8000-000000000001', 'task');
 select is(
   (select count(*)::int from core.item_labels where item_id = '00000000-0000-7000-8000-000000000001'),
-  1,
-  'ITM-004: a labelled Thought made a Task keeps its Label'
+  0,
+  'PLA-007: a labelled Thought made a Task loses its Label'
 );
 
 -- INB-006: a Thought ticked off is done, and can be unticked.

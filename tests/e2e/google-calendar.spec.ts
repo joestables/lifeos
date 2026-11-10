@@ -49,7 +49,6 @@ const connected = (state = 'connected'): Rows => ({
       all_day: false,
     }),
   ],
-  labels: [{ id: 'l-health', name: 'Health' }],
   connections: [
     {
       id: 'conn',
@@ -100,7 +99,7 @@ test('GCL-001, GCL-003: connecting lists my calendars, the main one incoming, an
   ).toContainText(/14:30.* · Smile Clinic/)
 })
 
-test('GCL-004: an Event from an incoming calendar is Google’s; its Labels and Alerts are mine', async ({
+test('GCL-004: an Event from an incoming calendar is Google’s; its Alerts are mine', async ({
   page,
 }) => {
   const db = await start(page, connected(), `/week?item=${DENTIST}`)
@@ -117,9 +116,10 @@ test('GCL-004: an Event from an incoming calendar is Google’s; its Labels and 
   await expect(page.getByRole('menu').getByRole('menuitem')).toHaveText(['Open in Google Calendar'])
   await page.keyboard.press('Escape')
 
-  await popup.getByRole('button', { name: 'Add', exact: true }).click()
-  await page.getByRole('checkbox', { name: 'Health' }).click()
-  await expect.poll(() => db.item_labels).toEqual([{ item_id: DENTIST, label_id: 'l-health' }])
+  // Its Alerts are mine; it has no Labels (PLA-007).
+  await expect(popup.getByText('Alerts', { exact: true })).toBeVisible()
+  await expect(popup.getByText('Labels', { exact: true })).toHaveCount(0)
+  expect(db.item_labels).toEqual([])
 })
 
 test('PLN-007 4: an Event from an incoming calendar can’t be dragged', async ({

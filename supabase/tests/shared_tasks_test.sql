@@ -6,7 +6,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = extensions, public;
-select plan(15);
+select plan(14);
 
 insert into auth.users (id, email) values
   ('00000000-0000-4000-8000-00000000000a', 'ann@example.com'),
@@ -54,19 +54,11 @@ select is(
   'A Personal Task has only its maker''s'
 );
 
--- Ann shares her own Task, Labelled "Errands": Ben gains his default; hers
--- isn't doubled; her Personal Label comes off.
+-- Ann shares her own Task: Ben gains his default; hers isn't doubled.
 set local role authenticated;
 select pg_temp.sign_in('00000000-0000-4000-8000-00000000000a', 'ann@example.com');
-select core.create_label('00000000-0000-7000-8000-0000000000c1', 'Errands');
-select core.add_label('00000000-0000-7000-8000-000000000002', '00000000-0000-7000-8000-0000000000c1');
 update core.items set space_id = '00000000-0000-7000-8000-0000000000f1' where id = '00000000-0000-7000-8000-000000000002';
 reset role;
-select is(
-  (select count(*)::int from core.item_labels where item_id = '00000000-0000-7000-8000-000000000002'),
-  0,
-  'A Label is its Item''s Space''s: a Personal one comes off when the Item is shared'
-);
 select is(
   (select array_agg(person_id::text order by person_id) from core.alerts
    where item_id = '00000000-0000-7000-8000-000000000002' and is_default),

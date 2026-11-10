@@ -5,14 +5,11 @@ import { Button } from '@/components/ui/button'
 import { toast } from '@/components/ui/sonner'
 import {
   addAlert,
-  addSubtask,
   archiveItem,
   createItem,
-  newId,
   queue,
   removeDefaultAlert,
   stopRepeat,
-  updateSubtask,
   useFoodSpaces,
   useSettings,
   type ItemFields,
@@ -21,7 +18,6 @@ import { isoDayOf } from '@/lib/dates'
 import { typeLook } from '@/lib/item-types'
 import { choiceFiresAt, defaultAlert, alertFields, inAnHour } from '@/lib/alerts'
 import { draftItem } from './item-navigation'
-import { useDraftLabels } from './draft-labels'
 import { DraftAlerts, type DraftAlert } from './draft-alerts'
 import { SpaceField } from './space-field'
 import { repeatTask } from './repeat'
@@ -36,21 +32,17 @@ const TASK = typeLook('task')
  */
 export function NewTaskDialog({
   onClose,
-  labelIds = [],
   doOn,
 }: {
   onClose: () => void
   /** To do on this day: a day's "+" on Plan (PLN-006); today if not said (PLA-006 1). */
   doOn?: string | null
-  /** Starts with these Labels: the ones the page is narrowed to (TSK-001). */
-  labelIds?: readonly string[]
 }) {
   const settings = useSettings(queue)
   const startOn = doOn === undefined ? todayIn(settings.timezone) : doOn
   const { personal } = useFoodSpaces(queue)
   // Personal to start; or a Household (HSH-005 1).
   const [space, setSpace] = useState<string | null>(null)
-  const draftLabels = useDraftLabels(labelIds, { id: space, personal })
   const titleRef = useRef<HTMLInputElement>(null)
   const [title, setTitle] = useState('')
   const [notes, setNotes] = useState('')
@@ -71,14 +63,12 @@ export function NewTaskDialog({
   const late = !!givenAt && Date.parse(givenAt) <= opened
   const byDefault: AlertChoice | null =
     given && late ? { kind: 'fixed', ...inAnHour(new Date(opened), settings.timezone) } : given
-  const [subtasks, setSubtasks] = useState<{ id: string; title: string; done: boolean }[]>([])
 
   const dirty =
     title.trim() !== '' ||
     notes !== '' ||
     dates.do_on !== startOn ||
     dates.due_on !== null ||
-    subtasks.length > 0 ||
     alerts.length > 0 ||
     defaultGone ||
     (space !== null && space !== personal)
@@ -101,11 +91,6 @@ export function NewTaskDialog({
       removeDefaultAlert(id)
       addAlert(id, alertFields(byDefault, settings.timezone))
     }
-    const labelIds = draftLabels.save(id)
-    for (const s of subtasks) {
-      const sid = addSubtask(id, s.title)
-      if (s.done) updateSubtask(id, sid, { done: true })
-    }
     // An Alert on a date the Task hasn't got is left out.
     const kept = alerts.filter(
       (r) =>
@@ -126,7 +111,6 @@ export function NewTaskDialog({
         },
         repeat,
         {
-          labelIds,
           timezone: settings.timezone,
           alerts: anchored.map((f) => ({
             anchor: f.anchor!,
@@ -211,19 +195,6 @@ export function NewTaskDialog({
             onDefaultGone={() => setDefaultGone(true)}
           />
         }
-        labels={draftLabels.labels}
-        chosen={draftLabels.chosen}
-        onToggleLabel={draftLabels.toggle}
-        onCreateLabel={draftLabels.create}
-        subtasks={subtasks}
-        onAddSubtask={(t) => setSubtasks((s) => [...s, { id: newId(), title: t, done: false }])}
-        onToggleSubtask={(id, done) =>
-          setSubtasks((s) => s.map((x) => (x.id === id ? { ...x, done } : x)))
-        }
-        onRenameSubtask={(id, t) =>
-          setSubtasks((s) => s.map((x) => (x.id === id ? { ...x, title: t } : x)))
-        }
-        onRemoveSubtask={(id) => setSubtasks((s) => s.filter((x) => x.id !== id))}
         space={<SpaceField value={space} onChange={setSpace} />}
       />
     </ItemDialog>

@@ -123,20 +123,11 @@ function Plan() {
   const tz = settings.timezone
   const current = TABS.find((t) => t.value === tab)!
 
-  // A Task as before, without Labels or sub-tasks (PLA-002 3).
+  // A Task as before (PLA-002 3).
   const task = (t: Item, showDay = false, repeat?: string) => {
     const f = facts.of(t)
     return (
-      <TaskRow
-        key={t.id}
-        task={t}
-        now={now}
-        showDay={showDay}
-        {...f}
-        labels={[]}
-        subtasks={undefined}
-        repeat={repeat ?? f.repeat}
-      />
+      <TaskRow key={t.id} task={t} now={now} showDay={showDay} {...f} repeat={repeat ?? f.repeat} />
     )
   }
 

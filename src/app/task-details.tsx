@@ -1,5 +1,5 @@
 import { useId, useRef, useState, type ReactNode } from 'react'
-import { DateField, RepeatField, SubtaskList, TimeField, type Repeat } from '@/components/lifeos'
+import { DateField, RepeatField, TimeField, type Repeat } from '@/components/lifeos'
 import { LabelPicker } from '@/components/lifeos/LabelPicker'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -8,19 +8,15 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import {
   addLabel,
-  addSubtask,
   createLabel,
   queue,
   removeLabel,
-  removeSubtask,
   stopRepeat,
   updateItem,
-  updateSubtask,
   useFoodSpaces,
   useLabels,
   useAlerts,
   useSettings,
-  useSubtasks,
   type Item,
   type ItemFields,
 } from '@/data'
@@ -110,7 +106,7 @@ export function LabelsField({
   )
 }
 
-/** An Item's own Labels, each change kept at once. */
+/** An Item's own Labels, each change kept at once: a Thought's (ITM-005). */
 export function ItemLabels({ item }: { item: Item }) {
   const { labels, itemLabels } = useLabels(queue)
   const { personal } = useFoodSpaces(queue)
@@ -137,8 +133,9 @@ export interface TaskDates {
 
 /**
  * A Task's fields (TSK-002), for a Task kept as it is changed or a new one
- * kept on Save: notes, do-on date and time, due date, repeat, Alerts,
- * Labels, sub-tasks. A time needs a day, so a time on its own asks for one.
+ * kept on Save: notes, do-on date and time, due date, repeat and Alerts;
+ * no Labels or sub-tasks (PLA-007). A time needs a day, so a time on its
+ * own asks for one.
  */
 export function TaskFields({
   notes,
@@ -151,15 +148,6 @@ export function TaskFields({
   startsOn,
   describeFrom,
   alerts,
-  labels,
-  chosen,
-  onToggleLabel,
-  onCreateLabel,
-  subtasks,
-  onAddSubtask,
-  onToggleSubtask,
-  onRenameSubtask,
-  onRemoveSubtask,
   forEvent,
   space,
 }: {
@@ -176,16 +164,6 @@ export function TaskFields({
   describeFrom?: string
   /** Its Alerts, listed and changed. */
   alerts: ReactNode
-  /** Mine, A to Z. */
-  labels: { id: string; name: string }[]
-  chosen: ReadonlySet<string>
-  onToggleLabel: (id: string, on: boolean) => void
-  onCreateLabel: (name: string) => void
-  subtasks: readonly { id: string; title: string; done: boolean }[]
-  onAddSubtask: (title: string) => void
-  onToggleSubtask: (id: string, done: boolean) => void
-  onRenameSubtask: (id: string, title: string) => void
-  onRemoveSubtask: (id: string) => void
   /** The Events it is for (EVT-006 3). */
   forEvent?: ReactNode
 }) {
@@ -265,24 +243,7 @@ export function TaskFields({
         </Field>
       </div>
       <Field label="Alerts">{alerts}</Field>
-      <Field label="Labels">
-        <LabelsField
-          labels={labels}
-          chosen={chosen}
-          onToggle={onToggleLabel}
-          onCreate={onCreateLabel}
-        />
-      </Field>
       {forEvent}
-      <Field label="Sub-tasks">
-        <SubtaskList
-          subtasks={subtasks}
-          onToggle={onToggleSubtask}
-          onRename={onRenameSubtask}
-          onRemove={onRemoveSubtask}
-          onAdd={onAddSubtask}
-        />
-      </Field>
       {space}
     </div>
   )
@@ -295,21 +256,14 @@ export function TaskFields({
  */
 export function TaskDetails({ item }: { item: Item }) {
   const [notes, setNotes, flushNotes] = useKeptText(item.id, 'body', item.body ?? '')
-  const { labels: allLabels, itemLabels } = useLabels(queue)
-  const { personal } = useFoodSpaces(queue)
-  // A Label belongs to its Item's Space.
-  const labels = allLabels.filter(labelIn(item.space_id, personal))
-  const subtasks = useSubtasks(queue).filter((s) => s.item_id === item.id)
   const settings = useSettings(queue)
   const alerts = useAlerts(queue)
   const series = useSeriesById()
   const repeat = repeatOf(item, series)
 
-  const chosen = new Set(itemLabels.filter((r) => r.item_id === item.id).map((r) => r.label_id))
   const setRepeatTo = (next: Repeat | null) => {
     if (!next) return stopRepeat(item.id)
     repeatTask(item, next, {
-      labelIds: [...chosen],
       timezone: settings.timezone,
       alerts: alerts
         .filter((r) => r.item_id === item.id && r.anchor && !r.is_default)
@@ -334,15 +288,6 @@ export function TaskDetails({ item }: { item: Item }) {
       startsOn={repeatStart(item, isoDayOf(new Date()))}
       describeFrom={series.get(item.series_id ?? '')?.starts_on}
       alerts={<ItemAlerts item={item} />}
-      labels={[...labels].sort((a, b) => a.name.localeCompare(b.name))}
-      chosen={chosen}
-      onToggleLabel={(id, on) => (on ? addLabel(item.id, id) : removeLabel(item.id, id))}
-      onCreateLabel={(name) => addLabel(item.id, createLabel(name, item.space_id))}
-      subtasks={subtasks}
-      onAddSubtask={(title) => addSubtask(item.id, title)}
-      onToggleSubtask={(id, done) => updateSubtask(item.id, id, { done })}
-      onRenameSubtask={(id, title) => updateSubtask(item.id, id, { title })}
-      onRemoveSubtask={(id) => removeSubtask(item.id, id)}
       forEvent={<TaskFor task={item} />}
       space={
         <ItemSpaceField

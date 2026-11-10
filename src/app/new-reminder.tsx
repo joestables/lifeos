@@ -40,7 +40,6 @@ export function NewReminderDialog({ day, onClose }: { day: string; onClose: () =
     for (const f of fields) addAlert(id, f)
     if (repeat) {
       repeatTask({ ...draftItem(id, 'reminder'), title: title.trim(), do_on: first }, repeat, {
-        labelIds: [],
         timezone: settings.timezone,
         alerts: fields.map((f) => ({
           anchor: 'do_on',

@@ -5,7 +5,7 @@
 at the start of Stage 3 ([plan](../../50-progress/plans/stage-3.md)), are at
 the end.*
 
-> **Changing in Stage 7b** (spec agreed 9 November): Plan has an Events tab since step 6 ([PLA-003](../views/plan.md#pla-003--the-events-tab)); still to come, Labels off Events (PLA-007, step 9). [Today, Reminders and Plan](today-reminders-plan.md). Until then, this page is how the rest works.
+> **Changed in Stage 7b** (spec agreed 9 November): Plan has an Events tab since step 6 ([PLA-003](../views/plan.md#pla-003--the-events-tab)), and Events have no Labels since step 9 ([PLA-007](../views/plan.md#pla-007--no-labels-on-tasks-and-events-no-sub-tasks)). [Today, Reminders and Plan](today-reminders-plan.md).
 
 ## Decisions
 
@@ -14,12 +14,12 @@ the end.*
   ([ADR-0020](../../20-architecture/adr/0020-task-event-reminder.md),
   Provisionally agreed).
 - **What an Event holds** (Joe, 14 October): a title, a start and an end (or
-  all day, over one day or several), a place, notes, Labels, Alerts and a
-  repeat. It has no mark and no sub-tasks.
-- **Events take Labels**, from the same set as Thoughts, Notes and Tasks
-  (Joe, 14 October;
-  [ADR-0014](../../20-architecture/adr/0014-reference-data-and-labels.md),
-  Provisionally agreed).
+  all day, over one day or several), a place, notes, Alerts and a repeat.
+  It has no mark.
+- **Events have no Labels** (Joe, 9 November; they took them from Stage 3
+  until Stage 7b): Labels are for Notes and Thoughts
+  ([PLA-007](../views/plan.md#pla-007--no-labels-on-tasks-and-events-no-sub-tasks),
+  [ADR-0065](../../20-architecture/adr/0065-reminders-alerts-and-the-day.md)).
 - **Events aren't captured** (Joe, 14 October): capture makes Thoughts and
   Tasks. An Event is made on Week, by switching a Task, or by sorting a
   Thought into one on Notes' Thoughts.
@@ -61,7 +61,7 @@ Acceptance criteria
 1. Given a new Event (from a day's "+" on Week, or Week's "Add"), then
    a new Event opens with all its fields — title, all day or a start and end
    time, Alerts (its default among them, EVT-003) just below the end
-   (Joe, 4 November), place, repeat, notes, Labels, and with a Household its
+   (Joe, 4 November), place, repeat, notes, and with a Household its
    Space at the foot
    ([HSH-005](spaces-and-sharing.md#hsh-005--share-tasks-and-events)) —
    and is kept only when I save it; cancelled, nothing is left behind.
@@ -80,8 +80,8 @@ Priority: Must · Status: verified
 
 Acceptance criteria
 1. Given an Event, when I open it, then I can change its title, times (or
-   all day), Alerts (just below the end), place, repeat, notes, Labels
-   and, if I made it, its Space, and each change is kept as I make it.
+   all day), Alerts (just below the end), place, repeat, notes and, if
+   I made it, its Space, and each change is kept as I make it.
 2. Given an Event, then I can delete it, with Undo, and recover it from
    Recently deleted ([ITM-002, ITM-003](items.md#requirements)).
 
@@ -132,11 +132,11 @@ Priority: Must · Status: verified
 Acceptance criteria
 1. Given a Task to do on Friday at 19:00, when I make it an Event, then it
    starts on Friday at 19:00 and lasts an hour, keeping its title, notes,
-   Labels, Alerts, links and history; with no time, it is all day.
+   Alerts, links and history; with no time, it is all day.
 2. Given an Event, when I make it a Task, then its start becomes the do-on
    date and time.
-3. Given a Task with sub-tasks, then they are kept, unseen on the Event, and
-   back if it becomes a Task again.
+3. ~~Given a Task with sub-tasks, then they are kept, unseen on the Event,
+   and back if it becomes a Task again.~~ A Task has no sub-tasks (PLA-007).
 4. Given I've just switched, then I can undo it
    ([ITM-004](items.md#itm-004--convert-an-item)).
 

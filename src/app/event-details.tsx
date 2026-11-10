@@ -37,7 +37,6 @@ import {
   updateItem,
   useItems,
   useFoodSpaces,
-  useLabels,
   useLinks,
   useAlerts,
   googleEventUrl,
@@ -61,7 +60,6 @@ import {
 } from '@/lib/events'
 import { itemTitle, typeLook } from '@/lib/item-types'
 import { defaultAlert, freshAlert, alertAnchors, alertFields } from '@/lib/alerts'
-import { useDraftLabels } from './draft-labels'
 import { DraftAlerts, type DraftAlert } from './draft-alerts'
 import { ItemAlerts } from './item-alerts'
 import { CalendarSelect } from './calendar-select'
@@ -72,7 +70,7 @@ import { MoreMenu } from './more-menu'
 import { draftItem, useOpenItem } from './item-navigation'
 import { eventRepeatStart, repeatEvent, repeatOf, useSeriesById, useTickDone } from './repeat'
 import { useKeptText } from './kept-text'
-import { Field, ItemLabels, LabelsField } from './task-details'
+import { Field } from './task-details'
 
 const EVENT = typeLook('event')
 const TASK = typeLook('task')
@@ -123,7 +121,8 @@ function useTimes(initial: EventTimes, keep: (t: EventTimes) => void) {
 
 /**
  * An Event's Alerts just below its times (Joe, 4 November), then place,
- * repeat, notes, Labels, Tasks and its Space last (components.md#eventdetails).
+ * repeat, notes, Tasks and its Space last; no Labels (PLA-007,
+ * components.md#eventdetails).
  */
 function EventFields({
   times,
@@ -137,7 +136,6 @@ function EventFields({
   repeat,
   calendar,
   alerts,
-  labels,
   tasks,
 }: {
   times: ReactNode
@@ -152,7 +150,6 @@ function EventFields({
   onNotes: (notes: string) => void
   onNotesBlur?: () => void
   alerts: ReactNode
-  labels: ReactNode
   tasks?: ReactNode
   /** Where it is (HSH-005 1). */
   space?: ReactNode
@@ -190,7 +187,6 @@ function EventFields({
         onBlur={onNotesBlur}
         className="min-h-16"
       />
-      <Field label="Labels">{labels}</Field>
       {tasks}
       {space}
     </div>
@@ -202,7 +198,7 @@ const LEVEL_NAME = { off: 'Off', incoming: 'Incoming', two_way: 'Two-way' } as c
 /**
  * An Event from an incoming-only Google calendar (GCL-004): its date and
  * time, place and notes are Google's, shown as lines, with "Open in Google
- * Calendar"; its Alerts, Labels and Tasks are LifeOS's own.
+ * Calendar"; its Alerts and Tasks are LifeOS's own.
  */
 export function GoogleEventDetails({ item }: { item: Item }) {
   const settings = useSettings(queue)
@@ -243,9 +239,6 @@ export function GoogleEventDetails({ item }: { item: Item }) {
       <Field label="Alerts">
         <ItemAlerts item={item} />
       </Field>
-      <Field label="Labels">
-        <ItemLabels item={item} />
-      </Field>
       <EventTasks event={item} />
     </div>
   )
@@ -260,14 +253,12 @@ export function EventDetails({ item }: { item: Item }) {
   const times = useTimes(eventTimes(item, settings.timezone) ?? newEventTimes(today, today), (t) =>
     updateItem(item.id, eventFields(t, settings.timezone)),
   )
-  const { itemLabels } = useLabels(queue)
   const alerts = useAlerts(queue)
   const series = useSeriesById()
   // A change to one occurrence is to that one; a new repeat applies from it on (EVT-004 3).
   const setRepeatTo = (next: Repeat | null) => {
     if (!next) return stopRepeat(item.id)
     repeatEvent(item, next, {
-      labelIds: itemLabels.filter((r) => r.item_id === item.id).map((r) => r.label_id),
       timezone: settings.timezone,
       alerts: alerts
         .filter((r) => r.item_id === item.id && r.anchor && !r.is_default)
@@ -308,7 +299,6 @@ export function EventDetails({ item }: { item: Item }) {
       onNotes={setNotes}
       onNotesBlur={flushNotes}
       alerts={<ItemAlerts item={item} />}
-      labels={<ItemLabels item={item} />}
       tasks={<EventTasks event={item} />}
       space={
         <ItemSpaceField
@@ -343,7 +333,6 @@ export function NewEventDialog({ day, onClose }: { day: string; onClose: () => v
   const { personal } = useFoodSpaces(queue)
   // Personal to start; or a Household (HSH-005 1).
   const [space, setSpace] = useState<string | null>(null)
-  const labels = useDraftLabels([], { id: space, personal })
   // Which Google calendar it goes to: my default, unless I choose (GCL-005 1).
   const calendar = useCalendar(queue)
   const twoWay = isOn(calendar.connection) && calendar.links.some((l) => l.level === 'two_way')
@@ -374,7 +363,6 @@ export function NewEventDialog({ day, onClose }: { day: string; onClose: () => v
     createItem('event', fields, id)
     // The server gives it its default; changed or removed here, it goes.
     if (byDefault && defaultGone) removeDefaultAlert(id)
-    const labelIds = labels.save(id)
     const own = alerts.map((r) => alertFields(r.choice, settings.timezone))
     for (const f of own) addAlert(id, f)
     if (repeat)
@@ -387,7 +375,6 @@ export function NewEventDialog({ day, onClose }: { day: string; onClose: () => v
         },
         repeat,
         {
-          labelIds,
           timezone: settings.timezone,
           alerts: own
             .filter((f) => f.anchor)
@@ -483,14 +470,6 @@ export function NewEventDialog({ day, onClose }: { day: string; onClose: () => v
             fresh={freshAlert(anchors, settings.defaultAlertTime, today)}
             byDefault={defaultGone ? null : byDefault}
             onDefaultGone={() => setDefaultGone(true)}
-          />
-        }
-        labels={
-          <LabelsField
-            labels={labels.labels}
-            chosen={labels.chosen}
-            onToggle={labels.toggle}
-            onCreate={labels.create}
           />
         }
         space={<SpaceField value={space} onChange={setSpace} />}

@@ -35,10 +35,8 @@ function Today() {
     (i) => i.type === 'thought' && i.archived_at === null && i.status === 'active',
   ).length
 
-  // A Task as on Plan, without its Labels (PLA-002 3).
-  const task = (t: Item) => (
-    <TaskRow key={t.id} task={t} now={now} {...facts.of(t)} labels={[]} subtasks={undefined} />
-  )
+  // A Task as on Plan (PLA-002 3).
+  const task = (t: Item) => <TaskRow key={t.id} task={t} now={now} {...facts.of(t)} />
   const row = ({ placed, past }: OnToday) => {
     const { item } = placed
     if (item.type === 'task') return task(item)

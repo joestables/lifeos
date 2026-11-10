@@ -237,12 +237,13 @@ NoteEditor and LabelPicker in [components](components.md).
 ## Tasks
 
 [TSK-001–011](../10-requirements/views/plan.md#requirements); TaskDetails,
-DateField, TimeField, RepeatField, SubtaskList and AddRow in
+DateField, TimeField and RepeatField in
 [components](components.md). Tasks are listed on Plan ([Plan](#plan)), Today
 and Week.
 - "New task" opens a new Task in a popup with every field a Task has —
-  title, notes, do-on date and time, due date, repeat, Alerts, Labels,
-  sub-tasks, and with a Household its Space last — and Cancel and Save at
+  title, notes, do-on date and time, due date, repeat, Alerts, and with a
+  Household its Space last; no Labels or sub-tasks (PLA-007) — and Cancel
+  and Save at
   its foot; nothing is kept until Save,
   and once anything is typed a click outside doesn't close it. Changing a
   Task needs no Save: each change is kept as it is made.
@@ -257,8 +258,7 @@ and Week.
   Monday") and its next date.
 - A Task's row: its Checkbox (ticking it is done, with Undo), then title and
   meta: time, "Since Thu", the due date (red once passed), its repeat
-  (`repeat` and "Weekly"), its Household; no Labels or sub-tasks on Plan
-  and Today; on hover Tomorrow and the star; the "…" menu holds
+  (`repeat` and "Weekly"), its Household; on hover Tomorrow and the star; the "…" menu holds
   Tomorrow, Someday, Convert to (Event, Reminder) and Delete. A starred Task shows its filled star.
 - "New task" opens capture as a Task.
 - Setting a time with no do-on date opens the do-on Calendar to ask for the
@@ -912,8 +912,7 @@ pressed Toggles. Each Type always uses the same icon: Thought `lightbulb`, Note
 Meal `utensils`, Recipe `chef-hat`, Workout and Exercise `dumbbell`
 (Joe, 3 November), Workout template `clipboard-list`, Cardio activity
 `footprints`, Goal `target`, Outfit and Garment `shirt`. Marks: star (Task),
-pin (Note), heart (Recipe). A Task that repeats shows `repeat` in its meta;
-sub-tasks `list-checks` with "2/5".
+pin (Note), heart (Recipe). A Task that repeats shows `repeat` in its meta.
 
 ## Copy
 

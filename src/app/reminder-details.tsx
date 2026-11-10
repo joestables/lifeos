@@ -116,7 +116,6 @@ export function ReminderDetails({ item }: { item: Item }) {
   const setRepeatTo = (next: Repeat | null) => {
     if (!next) return stopRepeat(item.id)
     repeatTask(item, next, {
-      labelIds: [],
       timezone: settings.timezone,
       alerts: alerts
         .filter((a) => a.item_id === item.id && a.anchor === 'do_on')

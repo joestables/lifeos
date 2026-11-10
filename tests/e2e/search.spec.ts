@@ -35,7 +35,12 @@ const rows = () => ({
       title: 'Cancel old insurance',
       archived_at: '2026-10-10T10:00:00Z',
     }),
-    itemRow({ id: id(6), type: 'task', title: 'Phone the garage' }),
+    itemRow({
+      id: id(6),
+      type: 'thought',
+      title: 'Phone the garage',
+      created_at: '2026-10-06T10:00:00Z',
+    }),
     // A repeating Task: this week's and next week's occurrences.
     itemRow({
       id: id(7),
@@ -102,16 +107,16 @@ test('SRC-001: I type a few words and find the Items, by Type, best match first'
     /^Renew car insurance\s*Due Thu 8 Oct$/,
     /^Check travel insurance covers Japan\s*Completed Sun 4 Oct$/,
     /^Pay insurance premium\s*Fri 16 Oct$/,
-    /^Phone the garage\s*Insurance$/,
   ])
   // The match in bold.
   await expect(tasks.first().locator('strong').first()).toHaveText('insur')
   await expect(list.getByRole('group', { name: 'Notes' })).toContainText(
     'House detailsHome insurance renews in January',
   )
-  await expect(list.getByRole('group', { name: 'Thoughts' })).toContainText(
-    'Is the bike covered by home insurance?Tue',
-  )
+  await expect(list.getByRole('group', { name: 'Thoughts' }).getByRole('option')).toHaveText([
+    /^Is the bike covered by home insurance\?/,
+    /^Phone the garage\s*Insurance/,
+  ])
 
   // SRC-001 3: a deleted Item isn't found.
   await expect(list).not.toContainText('Cancel old insurance')
@@ -179,8 +184,8 @@ test('SRC-002: offline, the Items on the device are searched, and I am told it m
     /^Check travel insurance/,
     /^Renew car insurance/,
     /^Pay insurance premium/,
-    /^Phone the garage/,
     /^Is the bike covered/,
+    /^Phone the garage/,
     /^House details/,
   ])
   await context.setOffline(false)

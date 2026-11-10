@@ -14,12 +14,10 @@ export interface TypeDefinition {
   /** The time fields this Type may set; the database refuses the others. */
   timeFields: readonly TimeField[]
   colour: Colour
-  /** Whether the Type uses Labels (ADR-0014): Thoughts, Notes, Tasks and Events. */
+  /** Whether the Type uses Labels (ADR-0014): Thoughts and Notes (ADR-0065 8). */
   labels: boolean
   /** Its per-person mark, if it has one. */
   mark?: Mark
-  /** Whether it holds sub-tasks: lines you tick inside it. */
-  subtasks: boolean
   /** Whether it has a place (an Event's "The Ivy, Richmond"). */
   place: boolean
   /** Whether it takes Alerts (ADR-0065 5); the database refuses an Alert on any other. */
@@ -49,7 +47,6 @@ export const TYPES = [
     timeFields: [],
     colour: 'yellow',
     labels: true,
-    subtasks: false,
     place: false,
     alerts: false,
     stage: 2,
@@ -65,7 +62,6 @@ export const TYPES = [
     colour: 'yellow',
     labels: true,
     mark: 'pinned',
-    subtasks: false,
     place: false,
     alerts: false,
     stage: 2,
@@ -82,9 +78,8 @@ export const TYPES = [
     defaultSpace: 'personal',
     timeFields: ['do_on', 'do_at', 'due_on'],
     colour: 'blue',
-    labels: true,
+    labels: false,
     mark: 'starred',
-    subtasks: true,
     place: false,
     alerts: true,
     defaultAlert: 'do_on',
@@ -101,8 +96,7 @@ export const TYPES = [
     defaultSpace: 'personal',
     timeFields: ['starts_at', 'ends_at', 'all_day'],
     colour: 'blue',
-    labels: true,
-    subtasks: false,
+    labels: false,
     place: true,
     alerts: true,
     // 30 minutes before a timed Event I make; none when all day or from Google (EVT-003).
@@ -122,7 +116,6 @@ export const TYPES = [
     timeFields: ['do_on'],
     colour: 'blue',
     labels: false,
-    subtasks: false,
     place: false,
     alerts: true,
     stage: 7.5,
@@ -147,7 +140,6 @@ export const TYPES = [
     colour: 'green',
     labels: false,
     mark: 'favourited',
-    subtasks: false,
     place: false,
     alerts: false,
     stage: 4,
@@ -168,7 +160,6 @@ export const TYPES = [
     timeFields: [],
     colour: 'green',
     labels: false,
-    subtasks: false,
     place: false,
     alerts: false,
     stage: 4,
@@ -189,7 +180,6 @@ export const TYPES = [
     timeFields: ['do_on', 'slot'],
     colour: 'green',
     labels: false,
-    subtasks: false,
     place: false,
     alerts: true,
     stage: 4,
@@ -208,7 +198,6 @@ export const TYPES = [
     timeFields: ['do_on'],
     colour: 'yellow',
     labels: false,
-    subtasks: false,
     place: false,
     alerts: true,
     stage: 4.5,
@@ -227,7 +216,6 @@ export const TYPES = [
     timeFields: [],
     colour: 'coral',
     labels: false,
-    subtasks: false,
     place: false,
     alerts: false,
     stage: 5,
@@ -243,7 +231,6 @@ export const TYPES = [
     timeFields: [],
     colour: 'coral',
     labels: false,
-    subtasks: false,
     place: false,
     alerts: false,
     stage: 5,
@@ -263,7 +250,6 @@ export const TYPES = [
     timeFields: ['do_on'],
     colour: 'coral',
     labels: false,
-    subtasks: false,
     place: false,
     alerts: false,
     stage: 5,

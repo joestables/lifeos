@@ -1,6 +1,5 @@
 import { newId } from './ids'
 import { sameName, type Label } from './labels'
-import { nextPosition } from './subtasks'
 import type { WriteQueue } from './queue/queue'
 import type { AlertFields } from './alerts'
 import type { SettingsPatch } from './settings'
@@ -128,23 +127,6 @@ export function writes(queue: WriteQueue, labelsNow: () => readonly Label[] = ()
      */
     removeDefaultAlert(itemId: string): void {
       queue.enqueue('remove_default_alert', { p_item: itemId }, [itemId])
-    },
-
-    /** A line ticked inside a Task (TSK-006), after the others. */
-    addSubtask(itemId: string, title: string): string {
-      const id = newId()
-      queue.enqueue(
-        'add_subtask',
-        { p_id: id, p_item: itemId, p_title: title, p_position: nextPosition() },
-        [itemId],
-      )
-      return id
-    },
-    updateSubtask(itemId: string, id: string, patch: { title?: string; done?: boolean }): void {
-      queue.enqueue('update_subtask', { p_id: id, p_patch: patch }, [itemId])
-    },
-    removeSubtask(itemId: string, id: string): void {
-      queue.enqueue('remove_subtask', { p_id: id }, [itemId])
     },
 
     /**

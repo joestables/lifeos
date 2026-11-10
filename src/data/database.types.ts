@@ -468,7 +468,6 @@ export type Database = {
           default_alert: string | null
           default_space: string
           has_place: boolean
-          has_subtasks: boolean
           key: string
           label: string
           mark: string | null
@@ -489,7 +488,6 @@ export type Database = {
           default_alert?: string | null
           default_space: string
           has_place?: boolean
-          has_subtasks?: boolean
           key: string
           label: string
           mark?: string | null
@@ -509,7 +507,6 @@ export type Database = {
           default_alert?: string | null
           default_space?: string
           has_place?: boolean
-          has_subtasks?: boolean
           key?: string
           label?: string
           mark?: string | null
@@ -1088,45 +1085,6 @@ export type Database = {
           },
         ]
       }
-      subtasks: {
-        Row: {
-          created_at: string
-          done: boolean
-          id: string
-          item_id: string
-          position: string
-          title: string
-          updated_at: string
-        }
-        ComputedFields: never
-        Insert: {
-          created_at?: string
-          done?: boolean
-          id?: string
-          item_id: string
-          position: string
-          title?: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          done?: boolean
-          id?: string
-          item_id?: string
-          position?: string
-          title?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: 'subtasks_item_id_fkey'
-            columns: ['item_id']
-            isOneToOne: false
-            referencedRelation: 'items'
-            referencedColumns: ['id']
-          },
-        ]
-      }
     }
     Views: {
       reminders: {
@@ -1282,24 +1240,6 @@ export type Database = {
         SetofOptions: {
           from: '*'
           to: 'alerts'
-          isOneToOne: true
-          isSetofReturn: false
-        }
-      }
-      add_subtask: {
-        Args: { p_id: string; p_item: string; p_position: string; p_title: string }
-        Returns: {
-          created_at: string
-          done: boolean
-          id: string
-          item_id: string
-          position: string
-          title: string
-          updated_at: string
-        }
-        SetofOptions: {
-          from: '*'
-          to: 'subtasks'
           isOneToOne: true
           isSetofReturn: false
         }
@@ -1712,7 +1652,6 @@ export type Database = {
       remove_member: { Args: { p_person: string; p_space: string }; Returns: undefined }
       remove_photo: { Args: { p_item: string }; Returns: undefined }
       remove_reminder: { Args: { p_id: string }; Returns: undefined }
-      remove_subtask: { Args: { p_id: string }; Returns: undefined }
       rename_household: {
         Args: { p_id: string; p_name: string }
         Returns: {
@@ -2179,24 +2118,6 @@ export type Database = {
         SetofOptions: {
           from: '*'
           to: 'people'
-          isOneToOne: true
-          isSetofReturn: false
-        }
-      }
-      update_subtask: {
-        Args: { p_id: string; p_patch: Json }
-        Returns: {
-          created_at: string
-          done: boolean
-          id: string
-          item_id: string
-          position: string
-          title: string
-          updated_at: string
-        }
-        SetofOptions: {
-          from: '*'
-          to: 'subtasks'
           isOneToOne: true
           isSetofReturn: false
         }

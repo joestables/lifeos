@@ -1,7 +1,6 @@
 /**
  * Whether an Item shows on a page narrowed to some Labels (NTE-002,
- * TSK-004, INB-007): with none chosen, everything; otherwise what has any
- * of them.
+ * NTE-005): with none chosen, everything; otherwise what has any of them.
  */
 export function labelMatcher(
   chosen: ReadonlySet<string>,

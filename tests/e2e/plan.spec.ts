@@ -25,20 +25,7 @@ const rows = () => ({
       updated_at: '2026-10-11T10:00:00Z',
     }),
   ],
-  labels: [
-    { id: 'l-car', name: 'Car' },
-    { id: 'l-home', name: 'Home' },
-  ],
-  item_labels: [
-    { item_id: id(1), label_id: 'l-car' },
-    { item_id: id(5), label_id: 'l-car' },
-    { item_id: id(3), label_id: 'l-home' },
-  ],
   marks: [{ item_id: id(2) }],
-  subtasks: [
-    { id: 's1', item_id: id(1), title: 'Get a quote', done: true, position: 'a' },
-    { id: 's2', item_id: id(1), title: 'Pay', done: false, position: 'b' },
-  ],
 })
 
 async function start(page: Page, path = '/plan') {
@@ -53,9 +40,7 @@ const rowOf = (page: Page, title: string) =>
   page.locator('[data-slot="item-row"]').filter({ hasText: title })
 const headings = (page: Page) => page.getByRole('main').getByRole('heading', { level: 2 })
 
-test('PLA-002, TSK-004, TSK-007: Tasks by when, Someday last; no Labels or sub-tasks', async ({
-  page,
-}) => {
+test('PLA-002, TSK-007: Tasks by when, Someday last', async ({ page }) => {
   await start(page)
   await expect(headings(page)).toHaveText([
     'Overdue1',
@@ -111,7 +96,9 @@ test('PLA-001 1: /tasks opens Plan, Recurring kept', async ({ page }) => {
   await expect(page).toHaveURL(/\/plan\?tab=recurring$/)
 })
 
-test('TSK-001: "New task" opens a new Task with all its fields, kept on Save', async ({ page }) => {
+test('TSK-001, PLA-007: "New task" opens a new Task with all its fields, no Labels or sub-tasks, kept on Save', async ({
+  page,
+}) => {
   const db = await start(page)
   await page.getByRole('button', { name: 'New task' }).click()
   const dialog = page.getByRole('dialog', { name: 'New task' })
@@ -122,11 +109,8 @@ test('TSK-001: "New task" opens a new Task with all its fields, kept on Save', a
   await expect(dialog.getByRole('button', { name: /^Today 10:00/ })).toBeVisible()
   await dialog.getByRole('textbox', { name: 'Title' }).fill('Renew insurance')
   await dialog.getByRole('textbox', { name: 'Notes' }).fill('Policy 123')
-  await dialog.getByRole('button', { name: 'Add', exact: true }).click()
-  await page.getByRole('checkbox', { name: 'Car' }).click()
-  await page.keyboard.press('Escape')
-  await dialog.getByPlaceholder('Add a sub-task').fill('Get quotes')
-  await dialog.getByPlaceholder('Add a sub-task').press('Enter')
+  await expect(dialog.getByText('Labels', { exact: true })).toHaveCount(0)
+  await expect(dialog.getByText('Sub-tasks', { exact: true })).toHaveCount(0)
   // Nothing is kept yet.
   expect(db.items.some((i) => i.title === 'Renew insurance')).toBe(false)
 
@@ -141,19 +125,11 @@ test('TSK-001: "New task" opens a new Task with all its fields, kept on Save', a
         t && [
           t.body,
           t.do_on,
-          db.item_labels.some((r) => r.item_id === t.id && r.label_id === 'l-car'),
-          db.subtasks.filter((x) => x.item_id === t.id).map((x) => x.title),
           db.alerts.filter((r) => r.item_id === t.id).map((r) => [r.is_default, r.fixed_at]),
         ]
       )
     })
-    .toEqual([
-      'Policy 123',
-      '2026-10-12',
-      true,
-      ['Get quotes'],
-      [[false, '2026-10-12T09:00:00.000Z']],
-    ])
+    .toEqual(['Policy 123', '2026-10-12', [[false, '2026-10-12T09:00:00.000Z']]])
 })
 
 test('TSK-001: a new Task cancelled leaves nothing behind, and a click outside keeps it open once typed in', async ({
@@ -265,7 +241,7 @@ test('TSK-007: moved to Someday it loses its date; a date makes it active again'
     .toMatchObject({ status: 'active', do_on: '2026-10-14' })
 })
 
-test("TSK-002, TSK-005, TSK-006: a Task's details, each kept as it is changed", async ({
+test("TSK-002, TSK-005, PLA-007: a Task's details, each kept as it is changed; no Labels or sub-tasks", async ({
   page,
 }) => {
   const db = await start(page)
@@ -283,13 +259,9 @@ test("TSK-002, TSK-005, TSK-006: a Task's details, each kept as it is changed", 
   await pickTime(task.getByLabel('Time'), '18:30')
   await page.getByRole('button', { name: /13th/ }).click()
 
-  await task.getByRole('checkbox', { name: 'Done: Pay' }).click()
-  await task.getByRole('textbox', { name: 'Add a sub-task' }).fill('File the certificate')
-  await task.getByRole('textbox', { name: 'Add a sub-task' }).press('Enter')
-
-  await task.getByRole('button', { name: 'Add', exact: true }).click()
-  await page.getByRole('checkbox', { name: 'Home' }).click()
-  await page.keyboard.press('Escape')
+  // PLA-007 1: no Labels or sub-tasks.
+  await expect(task.getByText('Labels', { exact: true })).toHaveCount(0)
+  await expect(task.getByText('Sub-tasks', { exact: true })).toHaveCount(0)
 
   await expect
     .poll(() => db.items.find((i) => i.id === id(1)))
@@ -300,22 +272,6 @@ test("TSK-002, TSK-005, TSK-006: a Task's details, each kept as it is changed", 
       do_at: '18:30',
     })
   await expect.poll(() => db.marks.some((m) => m.item_id === id(1))).toBe(true)
-  await expect
-    .poll(() => db.subtasks.filter((s) => s.item_id === id(1)).map((s) => [s.title, s.done]))
-    .toEqual([
-      ['Get a quote', true],
-      ['Pay', true],
-      ['File the certificate', false],
-    ])
-  await expect
-    .poll(() =>
-      db.item_labels
-        .filter((r) => r.item_id === id(1))
-        .map((r) => r.label_id)
-        .sort(),
-    )
-    .toEqual(['l-car', 'l-home'])
   await page.keyboard.press('Escape')
-  // Plan's row says no Labels or sub-tasks (PLA-002 3).
-  await expect(rowOf(page, 'Renew the car insurance')).not.toContainText('2/3')
+  await expect(rowOf(page, 'Renew the car insurance')).toBeVisible()
 })

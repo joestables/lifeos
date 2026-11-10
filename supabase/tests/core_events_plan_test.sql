@@ -80,7 +80,6 @@ select core.update_settings('{"alert_defaults": {"event": true}}');
 select core.create_label('00000000-0000-7000-8000-0000000000c1', 'Family');
 select core.create_item('00000000-0000-7000-8000-000000000010', 'task',
   '{"title": "Dinner with Sam", "do_on": "2026-10-16", "do_at": "19:00"}');
-select core.add_label('00000000-0000-7000-8000-000000000010', '00000000-0000-7000-8000-0000000000c1');
 select core.add_alert('00000000-0000-7000-8000-0000000000e1', '00000000-0000-7000-8000-000000000010',
   '{"anchor": "do_on", "offset_days": -1, "at_time": "18:00"}');
 select core.convert_item('00000000-0000-7000-8000-000000000010', 'event');
@@ -94,10 +93,10 @@ select is(
   array['true', 'true'],
   'EVT-005 1: it no longer has a do-on date'
 );
-select is(
-  (select count(*)::int from core.item_labels where item_id = '00000000-0000-7000-8000-000000000010'),
-  1,
-  'EVT-005 1: it keeps its Labels'
+select throws_ok(
+  $$select core.add_label('00000000-0000-7000-8000-000000000010', '00000000-0000-7000-8000-0000000000c1')$$,
+  '23514', null,
+  'PLA-007: an Event has no Labels'
 );
 select is(
   (select fires_at from core.alerts where id = '00000000-0000-7000-8000-0000000000e1'),
@@ -259,8 +258,9 @@ select throws_ok(
   'GCL-004 1: nor deleted'
 );
 select lives_ok(
-  $$select core.add_label('00000000-0000-7000-8000-000000000040', '00000000-0000-7000-8000-0000000000c1')$$,
-  'GCL-004 2: it can still have my Labels'
+  $$select core.add_alert('00000000-0000-7000-8000-0000000000e9', '00000000-0000-7000-8000-000000000040',
+    '{"anchor": "starts_at", "offset_minutes": -30}')$$,
+  'GCL-004 2: it can still have my Alerts'
 );
 select is(
   (select title from core.update_item('00000000-0000-7000-8000-000000000041', '{"title": "Dentist (check-up)"}')),

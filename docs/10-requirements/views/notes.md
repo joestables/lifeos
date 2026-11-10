@@ -24,8 +24,10 @@ Recipe ideas live in Recipes.
   such as a Shopping list. A packing or DIY list is a Note
   with a checklist ([ADR-0050](../../20-architecture/adr/0050-shopping-list.md)).
 - **Labels filter the page**, as in Google Keep; a Note's own title is its
-  heading. Thoughts, Notes, Tasks and Events share one set of Labels
+  heading. Thoughts and Notes share one set of Labels; Tasks and Events
+  have none since Stage 7b
   ([ADR-0014](../../20-architecture/adr/0014-reference-data-and-labels.md),
+  [ADR-0065](../../20-architecture/adr/0065-reminders-alerts-and-the-day.md),
   Provisionally agreed).
 - **Notes are pinned**, not starred: pinning is the Note's mark, kept at the
   top of the page.
@@ -84,8 +86,8 @@ Acceptance criteria
 2. Given Notes labelled Home and Recipes, when I choose Home, then only Notes
    labelled Home show, until I unchoose it; choosing Recipes too shows
    Notes with either.
-3. Given the Labels I use on Tasks, then the same Labels are offered on
-   Notes ([ITM-005](../cross-cutting/items.md#itm-005--labels-on-thoughts-notes-and-tasks)).
+3. Given the Labels I use on Thoughts, then the same Labels are offered on
+   Notes ([ITM-005](../cross-cutting/items.md#itm-005--labels-on-thoughts-and-notes)).
 
 ### NTE-003 — Pin a Note
 

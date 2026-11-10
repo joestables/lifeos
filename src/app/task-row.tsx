@@ -25,30 +25,25 @@ const tomorrowOf = (now: Date) =>
 /**
  * A Task in a list (patterns.md#tasks): tick it done, open it, move it to
  * tomorrow or Someday, star it, convert it (RMD-006) or delete it. Its meta: time, the day when the group
- * doesn't say it, the due date (red once passed), its repeat, Labels,
- * sub-tasks "2/5".
+ * doesn't say it, the due date (red once passed), its repeat and
+ * Household; no Labels or sub-tasks (PLA-007).
  */
 export function TaskRow({
   task,
   now,
-  labels = [],
   starred = false,
-  subtasks,
   repeat,
   household,
   showDay = false,
 }: {
   task: Item
   now: Date
-  /** Its Labels' names, A to Z. */
-  labels?: string[]
   starred?: boolean
-  subtasks?: { done: number; total: number }
   /** How it repeats, in a word or two ("Weekly"), while it does. */
   repeat?: string
   /** Its Household's name, when it is shared (HSH-005 2). */
   household?: string
-  /** Say its day ("Tomorrow", "Mon 19 Oct"): in Later, By label. */
+  /** Say its day ("Tomorrow", "Mon 19 Oct"): in Later. */
   showDay?: boolean
 }) {
   const open = useOpenItem()
@@ -80,13 +75,6 @@ export function TaskRow({
       <span className="inline-flex items-center gap-1">
         <RepeatIcon className="size-3.5" aria-label="Repeats" />
         {repeat}
-      </span>,
-    )
-  meta.push(...labels)
-  if (subtasks && subtasks.total > 0)
-    meta.push(
-      <span className="tabular-nums">
-        {subtasks.done}/{subtasks.total}
       </span>,
     )
   if (household) meta.push(household)

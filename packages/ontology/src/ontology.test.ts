@@ -67,19 +67,19 @@ describe('ontology', () => {
     expect(convertsTo(typeByKey('reminder')!)).toEqual(['event', 'task'])
   })
 
-  it('gives Labels, marks, sub-tasks and a place as the data model says (ADR-0014, ADR-0043, EVT-001)', () => {
+  it('gives Labels, marks and a place as the data model says (ADR-0014, ADR-0043, ADR-0065 8, EVT-001)', () => {
     const look = (key: string) => {
       const t = typeByKey(key)!
-      return [t.colour, t.labels, t.mark, t.subtasks, t.defaultAlert, t.place]
+      return [t.colour, t.labels, t.mark, t.defaultAlert, t.place]
     }
-    expect(look('thought')).toEqual(['yellow', true, undefined, false, undefined, false])
-    expect(look('note')).toEqual(['yellow', true, 'pinned', false, undefined, false])
-    expect(look('task')).toEqual(['blue', true, 'starred', true, 'do_on', false])
-    expect(look('event')).toEqual(['blue', true, undefined, false, 'starts_at', true])
-    expect(look('recipe')).toEqual(['green', false, 'favourited', false, undefined, false])
-    expect(look('variation')).toEqual(['green', false, undefined, false, undefined, false])
-    expect(look('meal')).toEqual(['green', false, undefined, false, undefined, false])
-    expect(look('shopping_list')).toEqual(['yellow', false, undefined, false, undefined, false])
+    expect(look('thought')).toEqual(['yellow', true, undefined, undefined, false])
+    expect(look('note')).toEqual(['yellow', true, 'pinned', undefined, false])
+    expect(look('task')).toEqual(['blue', false, 'starred', 'do_on', false])
+    expect(look('event')).toEqual(['blue', false, undefined, 'starts_at', true])
+    expect(look('recipe')).toEqual(['green', false, 'favourited', undefined, false])
+    expect(look('variation')).toEqual(['green', false, undefined, undefined, false])
+    expect(look('meal')).toEqual(['green', false, undefined, undefined, false])
+    expect(look('shopping_list')).toEqual(['yellow', false, undefined, undefined, false])
   })
 
   it('builds each Type in its roadmap stage (data-model.md#types)', () => {

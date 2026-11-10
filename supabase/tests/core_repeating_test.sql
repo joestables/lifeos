@@ -18,7 +18,6 @@ set local role authenticated;
 select core.create_label('00000000-0000-7000-8000-0000000000a1', 'Home');
 select core.create_item('00000000-0000-7000-8000-000000000101', 'task',
   '{"title": "Bins", "do_on": "2026-10-12", "do_at": "18:30", "due_on": "2026-10-13"}');
-select core.add_label('00000000-0000-7000-8000-000000000101', '00000000-0000-7000-8000-0000000000a1');
 
 select core.set_repeat(
   '00000000-0000-7000-8000-000000000101',
@@ -47,8 +46,8 @@ select is(
 select is(
   (select count(*)::int from core.item_labels l join core.items i on i.id = l.item_id
    where i.series_id = '00000000-0000-7000-8000-0000000001f1'),
-  4,
-  'TSK-008: each occurrence has the Task''s Labels'
+  0,
+  'PLA-007: no occurrence has Labels, even from a template naming them'
 );
 select is(
   (select count(*)::int from core.items where series_id = '00000000-0000-7000-8000-0000000001f1' and touched_at is not null),

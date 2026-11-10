@@ -62,10 +62,9 @@ templates, and starting a session opens the session-logging Screen.
 | **Reference data** | A Module's small lookup lists (muscle groups, cuisines, brands…). Not Items. |
 | **Type colour** | The colour that marks a Type's Items, and the pages about them; related Types share one (Tasks, Events and Reminders blue). Today and Week are neutral ([ADR-0043](../20-architecture/adr/0043-colour-by-type.md)). |
 | **Design token** | A named design value — a colour, size, radius, shadow — defined once and used by every component ([tokens](../30-design/tokens.md)). |
-| **Label** | A per-Space grouping on the Types that use one (Thoughts, Notes, Tasks and Events): filters Notes and its Thoughts (Plan and Today have none from Stage 7b). Replaces "tags". |
+| **Label** | A per-Space grouping on the Types that use one (Thoughts and Notes; Tasks and Events had them until Stage 7b): filters Notes and its Thoughts. Replaces "tags". |
 | **Sorting** | Dealing with a Thought on Notes' Thoughts tab: converting it into another Type, ticking it off, or deleting it. |
 | **Mark** | A per-person flag a Type may have, under its own name: a Note is **pinned**, a Task **starred**, a Recipe **favourited**. Types without one have none. |
-| **Sub-task** | A line ticked inside a Task: a title and a tick, not a Task of its own. |
 | **Alarm** | An Alert marked to ring until stopped, over the lock screen, on the Android app; elsewhere an ordinary notification ([REM-011](../10-requirements/cross-cutting/reminders.md#rem-011--an-alarm)). |
 | **Widget** | A small piece of LifeOS on the Android home screen: Today, the day's Items ([the Android app](../10-requirements/cross-cutting/android.md)). |
 | **Capture address** | A personal URL and secret that creates Items in its owner's Personal Space. |
@@ -83,4 +82,5 @@ templates, and starting a session opens the session-logging Screen.
 ## Not used
 
 "Object" (Anytype; collides with code), "Entry", "Domain" (internal only),
-"Source" (renamed Integration), "App" (v1), "tags" (now Labels).
+"Source" (renamed Integration), "App" (v1), "tags" (now Labels), "Sub-task"
+(a line ticked inside a Task, until Stage 7b).

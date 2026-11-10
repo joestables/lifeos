@@ -2,6 +2,29 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#81](https://github.com/joestables/lifeos/pull/81) — Stage 7b, step 9: Labels off Tasks and Events, sub-tasks gone
+
+Branch `claude/relaxed-fermi-nehy7e` · 2026-11-10
+
+**What it did**
+- **Labels are for Notes and Thoughts** ([PLA-007](../10-requirements/views/plan.md#pla-007--no-labels-on-tasks-and-events-no-sub-tasks)):
+  the ontology's `uses_labels` is false for Tasks and Events, so the
+  database refuses one; their popups, New task and New event have no
+  Labels field, and a repeat's occurrences take none.
+- **Sub-tasks are gone**: `core.subtasks`, its functions and
+  `has_subtasks` dropped; the SubtaskList component, the sub-task writes
+  and Plan's "2/5" with them.
+- **Joe's data**, migration `stage7b_labels_and_subtasks` (applied as
+  `MIGRATION_VERSION`, with `ontology` as `ONTOLOGY_VERSION`; ADVISORS): the
+  "Work" Label came off 18 Events and one repeating Event's pattern, and
+  "Work" and "Home" off 5 Tasks; the one Task with sub-tasks ("Test Note",
+  two lines) lost them. The Labels themselves stay.
+- PLA-007 moved into Plan's spec; TSK-006 superseded; ITM-005 is Labels on
+  Thoughts and Notes; Events, Google Calendar, Sharing, Notes, the
+  glossary, data model, capability map and design system say no Labels on
+  Tasks and Events and no sub-tasks; the database and browser tests that
+  labelled Tasks and Events now check they can't be.
+
 ## [#80](https://github.com/joestables/lifeos/pull/80) — Stage 7b, step 8: Thoughts lose their Alerts
 
 Branch `claude/relaxed-fermi-nehy7e` · 2026-11-10
