@@ -92,16 +92,19 @@ test('NEW-002, NEW-003: a time typed makes a Reminder, its words a pill, the tit
   await expect
     .poll(() => db.items.find((i) => i.type === 'reminder'))
     .toMatchObject({ title: 'Clean bedroom with mum', do_on: '2026-10-13' })
-  const r = db.items.find((i) => i.type === 'reminder')!
-  expect(
-    db.alerts
-      .filter((a) => a.item_id === r.id)
-      .map((a) => [a.anchor, a.offset_days, a.at_time])
-      .sort(),
-  ).toEqual([
-    ['do_on', 0, '20:00'],
-    ['do_on', 0, '21:00'],
-  ])
+  // The write queue sends its Alerts after it.
+  await expect
+    .poll(() => {
+      const r = db.items.find((i) => i.type === 'reminder')!
+      return db.alerts
+        .filter((a) => a.item_id === r.id)
+        .map((a) => [a.anchor, a.offset_days, a.at_time])
+        .sort()
+    })
+    .toEqual([
+      ['do_on', 0, '20:00'],
+      ['do_on', 0, '21:00'],
+    ])
 })
 
 test('NEW-003 3, 4: a date alone is at my default time; a time gone today is tomorrow', async ({
