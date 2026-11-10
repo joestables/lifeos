@@ -99,14 +99,12 @@ select throws_ok(
   'ADR-0042: a Reminder write with an unknown field is refused'
 );
 
--- CAP-004: a Thought with a date reminds me, and keeps it as a Task.
-select core.add_alert('00000000-0000-7000-8000-0000000000e4', '00000000-0000-7000-8000-000000000002',
-  '{"fixed_at": "2026-10-13T14:00:00Z"}');
-update core.items set type = 'task' where id = '00000000-0000-7000-8000-000000000002';
-select is(
-  (select count(*)::int from core.alerts where item_id = '00000000-0000-7000-8000-000000000002'),
-  1,
-  'CAP-004: a dated Thought''s Reminder stays when it becomes a Task'
+-- ALR-001 2: a Thought takes no Alert, even at a set time (CAP-004 went).
+select throws_ok(
+  $$select core.add_alert('00000000-0000-7000-8000-0000000000e4', '00000000-0000-7000-8000-000000000002',
+      '{"fixed_at": "2026-10-13T14:00:00Z"}')$$,
+  '23514', null,
+  'ALR-001 2: a Thought takes no Alert'
 );
 
 -- ITM-003: restoring a deleted Item brings its Reminders back with it.

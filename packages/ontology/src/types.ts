@@ -51,7 +51,7 @@ export const TYPES = [
     labels: true,
     subtasks: false,
     place: false,
-    alerts: true,
+    alerts: false,
     stage: 2,
   },
   {

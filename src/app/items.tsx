@@ -37,7 +37,6 @@ import { EventDetails, EventTitle, GoogleEventDetails } from './event-details'
 import { useGoogleSource } from './google-source'
 import { deleteItem, draftNote, useCloseItem } from './item-navigation'
 import { NoteBody } from './note-body'
-import { ItemAlerts } from './item-alerts'
 import { ReminderDetails } from './reminder-details'
 import { Field, ItemLabels, TaskDetails, TaskTitle } from './task-details'
 import { useMine } from './mine'
@@ -225,12 +224,9 @@ export function ItemPopup({ id, isNew = false }: { id: string | undefined; isNew
       ) : item.type === 'reminder' ? (
         <ReminderDetails key={item.id} item={item} />
       ) : item.type === 'thought' ? (
-        // A Thought: its text, Alerts at a set time (REM-003) and Labels (ITM-005).
+        // A Thought: its text and Labels (ITM-005); no Alerts (ALR-001).
         <div className="flex flex-col gap-4">
           <ItemContent item={item} />
-          <Field label="Alerts">
-            <ItemAlerts item={item} />
-          </Field>
           <Field label="Labels">
             <ItemLabels item={item} />
           </Field>

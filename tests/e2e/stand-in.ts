@@ -1554,6 +1554,35 @@ export async function standIn(
       }
       if (a.p_type === 'shopping_list' && !db.shopping_list.some((l) => l.item_id === i.id))
         db.shopping_list.push({ item_id: i.id, kind: 'food' })
+      // Into a Reminder (RMD-006 1): its day and first Alert, at the time it
+      // was given, else an hour from now (by the server's clock).
+      if (a.p_type === 'reminder' && !db.alerts.some((r) => r.item_id === i.id)) {
+        const given = typeof a.p_alert_at === 'string' ? Date.parse(a.p_alert_at) : NaN
+        const at = new Date(given > Date.parse(now()) ? given : Date.parse(now()) + 3_600_000)
+        const london = new Intl.DateTimeFormat('en-CA', {
+          timeZone: 'Europe/London',
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          hourCycle: 'h23',
+        }).formatToParts(at)
+        const part = (t: string) => london.find((x) => x.type === t)!.value
+        db.alerts.push({
+          id: crypto.randomUUID(),
+          item_id: i.id,
+          is_default: false,
+          anchor: 'do_on',
+          offset_days: 0,
+          at_time: `${part('hour')}:${part('minute')}:00`,
+          fixed_at: null,
+          snoozed_until: null,
+          alarm: false,
+          fires_at: at.toISOString(),
+        })
+        i.do_on = `${part('year')}-${part('month')}-${part('day')}`
+      }
       return Object.assign(i, {
         type: a.p_type,
         status: keeps.includes(String(i.status)) ? i.status : 'active',

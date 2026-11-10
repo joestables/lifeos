@@ -72,7 +72,7 @@ or idea, and this page shrinks to a pointer:
 | Part | Into |
 |---|---|
 | Today (TDY) | [today](../views/today.md), which replaced Inbox: TDY-001–005 moved there (step 6) |
-| The Reminder Type (RMD) and Alerts (ALR) | [reminders](reminders.md) and [items](items.md); the glossary and [data model](../../20-architecture/data-model.md) |
+| The Reminder Type (RMD) and Alerts (ALR) | [reminders](reminders.md) and [items](items.md); the glossary and [data model](../../20-architecture/data-model.md). ALR-001 moved to reminders (step 8); RMD with step 10 |
 | "New" (NEW) | [capture](capture.md#new): moved there (step 7) |
 | Week (WEK) | [week](../views/week.md), renamed from Plan: moved there (step 6) |
 | Plan (PLA) | [plan](../views/plan.md), from Tasks: PLA-001–006 moved there (steps 5, 6) |
@@ -191,22 +191,7 @@ Acceptance criteria
 
 ### Alerts
 
-### ALR-001 — Reminders become Alerts; Thoughts have none
-
-**As** Joe, **I want** one word for an Item's notifications, and none on
-Thoughts, **so that** "Reminder" means one thing.
-Priority: Must · Status: built in part (1, step 4: Alerts by name in the app, its code and the database; 2, step 7: "New" makes no Thought Alert and Settings has no Thought default; the rest of 2, and 3 and 4, step 8)
-
-Acceptance criteria
-1. Given a Task, an Event, a Meal, a Shopping list or a Reminder, then its
-   notifications are listed under "Alerts", added with "Add an alert", and
-   each opens the "Alert" dialog; Settings says Alerts too (REM-007).
-2. Given a Thought, then it has no Alerts, and none is made for a date in
-   its text (CAP-004 goes); Settings has no Thought default.
-3. Given I convert a Thought, then it has no Alert to carry; a Note never
-   has one.
-4. Given the morning digest, then it counts no Thoughts: "2 overdue · 5
-   today" (REM-008).
+ALR-001 is built and has moved to [Alerts](reminders.md#alr-001--reminders-become-alerts-thoughts-have-none) (steps 4, 7 and 8).
 
 ### Today
 

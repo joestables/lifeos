@@ -264,8 +264,8 @@ and Week.
 - Setting a time with no do-on date opens the do-on Calendar to ask for the
   day.
 - **Alerts** sit under the dates: an AlertList, each line opening the
-  Alert Dialog to change it. A Thought's popup has Alerts too, at a
-  set time only, and its Labels; its checkbox sits before its title.
+  Alert Dialog to change it. A Thought's popup has its Labels and no
+  Alerts (ALR-001); its checkbox sits before its title.
 - **Repeat** sits with Do on, Time and Due. It opens a Dialog, "Repeat": a
   RadioGroup of `cards` ("On a schedule", "After it's done"), then Every
   (a number and a Select of Days, Weeks, Months, Years); on a schedule, also

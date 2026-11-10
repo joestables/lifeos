@@ -1460,7 +1460,7 @@ export type Database = {
         }
       }
       convert_item: {
-        Args: { p_id: string; p_type: string }
+        Args: { p_alert_at?: string; p_id: string; p_type: string }
         Returns: {
           all_day: boolean | null
           archived_at: string | null

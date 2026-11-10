@@ -120,8 +120,8 @@ describe('ontology', () => {
   })
 
   it('gives Alerts to the Types that take them, a Reminder Personal and never done (ADR-0065)', () => {
+    // Not a Thought or a Note (ALR-001).
     expect(TYPES.filter((t) => t.alerts).map((t) => t.key)).toEqual([
-      'thought',
       'task',
       'event',
       'reminder',
