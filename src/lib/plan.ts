@@ -124,27 +124,33 @@ export function planDays(
     for (let d = p.first < from ? from : p.first; d <= p.last && d <= to; d = addDays(d, 1))
       days.get(d)!.push(p)
   }
-  for (const [day, list] of days)
-    list.sort((a, b) => {
-      // An Event running on from an earlier day counts as all day there.
-      const at = (p: Placed) => (p.first < day ? '' : p.time)
-      return (
-        at(a).localeCompare(at(b)) ||
-        // Meals in slot order, among the untimed (PLN-008 1).
-        slotRank(a.item) - slotRank(b.item) ||
-        (a.item.position ?? '').localeCompare(b.item.position ?? '') ||
-        a.item.created_at.localeCompare(b.item.created_at) ||
-        a.item.id.localeCompare(b.item.id)
-      )
-    })
+  for (const [day, list] of days) list.sort(dayOrder(day))
   return days
 }
+
+/**
+ * How a day orders its Items (PLN-001 2): all-day and untimed first, then by
+ * time; an Event running on from an earlier day counts as all day there.
+ */
+export const dayOrder =
+  (day: string) =>
+  (a: Placed, b: Placed): number => {
+    const at = (p: Placed) => (p.first < day ? '' : p.time)
+    return (
+      at(a).localeCompare(at(b)) ||
+      // Meals in slot order, among the untimed (PLN-008 1).
+      slotRank(a.item) - slotRank(b.item) ||
+      (a.item.position ?? '').localeCompare(b.item.position ?? '') ||
+      a.item.created_at.localeCompare(b.item.created_at) ||
+      a.item.id.localeCompare(b.item.id)
+    )
+  }
 
 const SLOT_ORDER = ['breakfast', 'lunch', 'dinner']
 const slotRank = (item: Item) => (item.slot ? SLOT_ORDER.indexOf(item.slot) + 1 : 0)
 
 /**
- * What a card says on a day (patterns.md#plan): its time ("18:00", in a
+ * What a card says on a day (patterns.md#week): its time ("18:00", in a
  * day's list "12:30–13:15", "All day", "Until 15:00") and a detail (a
  * place, "Until Tue", "Due Fri").
  */

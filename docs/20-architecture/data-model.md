@@ -45,7 +45,7 @@ one.
 | Link / link type | A named edge between two Items | `core.links` + code constant |
 | Child row | Part of one Item, not an Item | Module tables |
 | Reference data | A Module's lookup list (muscle groups, cuisines, brands…) | Module lookup tables |
-| Label | A per-Space grouping on the Types that use one: it filters Inbox, Notes and Tasks | `core.labels`, `core.item_labels` |
+| Label | A per-Space grouping on the Types that use one: it filters Notes and their Thoughts | `core.labels`, `core.item_labels` |
 | Mark | A per-person flag under the Type's own name: pinned, starred, favourited | `core.marks` |
 | Series | A repeat rule that generates occurrences | `core.series` |
 | Alert | A per-person notification on an Item | `core.alerts` |
@@ -190,7 +190,7 @@ these, so the database enforces them.
 
 | Module | Type | S | C | Sh | Cap | Default Space | Statuses used (labels) | Colour | Labels | Mark | Stage |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| core | **Thought** (raw, unsorted; waits in Inbox until sorted or ticked off) | — | ✓ | — | — | Personal | active · done | yellow | ✓ | — | 2 |
+| core | **Thought** (raw, unsorted; waits on Notes' Thoughts until sorted or ticked off) | — | ✓ | — | — | Personal | active · done | yellow | ✓ | — | 2 |
 | core | **Note** | — | — | — | ✓ | Personal | active | yellow | ✓ | pinned | 2 |
 | core | **Task** | ✓ do-on / due | ✓ | ✓ | ✓ | Personal, or a Household chosen in its popup (HSH-005) | idea "Someday" · active · done · cancelled — a missed repeat: "Skipped" | blue | ✓ | starred | 2 |
 | core | **Event** (a place; not captured, but a Thought can become one) | ✓ start / end | — | ✓ | ✓ | Personal, or a Household chosen in its popup, from Google Calendar too (HSH-005) | active · cancelled | blue | ✓ | — | 3 |
@@ -220,7 +220,7 @@ Shopping list: [ADR-0050](adr/0050-shopping-list.md) (Provisionally agreed), sup
 Recipe and Variation: [ADR-0011](adr/0011-recipe-and-variation.md) (Provisionally agreed).
 Ingredient lines and the Pantry: [ADR-0012](adr/0012-ingredients-and-shopping-lists.md), [ADR-0051](adr/0051-who-sees-food.md) (Provisionally agreed).
 
-**In-place conversions:** Thought → any Capturable Type (sorting the Inbox);
+**In-place conversions:** Thought → any Capturable Type (sorting Thoughts);
 Note → any other Capturable Type but a Reminder (a title only); Task, Event and Reminder
 into each other ([ADR-0065](adr/0065-reminders-alerts-and-the-day.md)). Everything else is "create from" + *became*
 ([ADR-0018](adr/0018-changing-an-items-type.md), Provisionally agreed).
@@ -299,7 +299,7 @@ rule and create no links.
 | `core.links` | Every link |
 | `core.alerts` · `core.alert_deliveries` | Alerts per person, each Item's default one kept by a trigger, each an Alarm or not (`alarm`, off by default: rings on the Android app, REM-011) (made when it gains the date, gone when the date is cleared), `fires_at` worked out in the person's timezone; one row per notification and device — an Alert, the morning digest or an overdue nudge — with when it was sent, or why not (missed, skipped, *on device*: the Android app set it itself), and a token for its buttons; a device gets only what comes due after it was turned on ([ADR-0044](adr/0044-reminder-delivery.md), [ADR-0063](adr/0063-notifications-on-the-android-app.md), Provisionally agreed). Until Stage 7b's step 10, `core.reminders` is a view of `core.alerts`, and the old function names wrap the new, for clients that still use them (ADR-0065 4) |
 | `core.push_devices` | Web Push subscriptions and the Android app's FCM tokens (`kind`) per person; a device the push service says is gone is no longer sent to; the Android app's secret, as a hash, and when its Alerts last changed for it to look again ([ADR-0063](adr/0063-notifications-on-the-android-app.md)) |
-| `core.inbox_state` | Per-person dismiss / snooze of Inbox entries |
+| `core.inbox_state` | Per-person dismiss / snooze of entries on Today (Inbox until Stage 7b) |
 | `core.activity` | The activity log, written by triggers: `created`, `updated`, `converted`, `archived`, `restored`, `linked`, `unlinked`, with the changed fields |
 | `core.item_types` · `core.link_types` | The ontology's lookup tables, generated from `packages/ontology` ([ADR-0008](adr/0008-registries-declared-in-code.md)) |
 | `core.labels` · `core.item_labels` | Labels: one set per Space, names unique whatever their case, only on the Types that use them and from the Item's own Space; renaming shows everywhere, deleting keeps the Items. A Label made under a name already taken keeps the new id in its `aliases`, so a device that made it offline still gives and takes it off |

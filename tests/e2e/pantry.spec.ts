@@ -29,7 +29,7 @@ test.describe('The Pantry', () => {
     isMobile,
   }) => {
     await standIn(page, { signedIn: true, rows: pantryRows() })
-    await page.goto('/inbox')
+    await page.goto('/today')
     if (isMobile) await page.getByRole('button', { name: 'Menu' }).click()
     await page.getByRole('link', { name: 'Meal plan' }).click()
     await expect(page.getByRole('heading', { name: 'Meal plan', level: 1 })).toBeVisible()

@@ -68,11 +68,11 @@ const rows = () => ({
   ],
 })
 
-async function start(page: Page, path = '/inbox') {
+async function start(page: Page, path = '/today') {
   await page.clock.setFixedTime(NOW)
   const db = await standIn(page, { signedIn: true, rows: rows() })
   await page.goto(path)
-  await expect(page.getByRole('heading', { name: 'Inbox', level: 1 })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Today', level: 1 })).toBeVisible()
   return db
 }
 
@@ -191,5 +191,5 @@ test('SRC-001: Search closes with a tap outside it', async ({ page, isMobile }) 
   const input = await openSearch(page, isMobile)
   await page.mouse.click(10, 800)
   await expect(input).toBeHidden()
-  await expect(page.getByRole('heading', { name: 'Inbox', level: 1 })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Today', level: 1 })).toBeVisible()
 })

@@ -65,7 +65,7 @@ test('REM-001: notifications turned on for this device, off, and the device remo
 test('REM-001 1: Inbox offers to turn notifications on while no device has them', async ({
   page,
 }) => {
-  const db = await start(page, '/inbox')
+  const db = await start(page, '/today')
   const offer = page.getByRole('status').filter({ hasText: 'Notifications are off' })
   await expect(offer).toBeVisible()
   await offer.getByRole('button', { name: 'Turn on' }).click()
@@ -74,12 +74,12 @@ test('REM-001 1: Inbox offers to turn notifications on while no device has them'
 })
 
 test('REM-001 1: "Not now" puts the offer away', async ({ page }) => {
-  await start(page, '/inbox')
+  await start(page, '/today')
   const offer = page.getByRole('status').filter({ hasText: 'Notifications are off' })
   await offer.getByRole('button', { name: 'Not now' }).click()
   await expect(offer).toBeHidden()
   await page.reload()
-  await expect(page.getByRole('heading', { name: 'Inbox', level: 1 })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Today', level: 1 })).toBeVisible()
   await expect(offer).toBeHidden()
 })
 
@@ -115,7 +115,7 @@ test('REM-007, REM-008: my default time, the defaults by Type and the morning di
 test("REM-002, REM-003: a Task's Alerts, its default and my own, changed and removed", async ({
   page,
 }) => {
-  const db = await start(page, `/tasks?item=${id(1)}`)
+  const db = await start(page, `/plan?item=${id(1)}`)
   const task = page.getByRole('dialog', { name: 'Renew insurance' })
   await expect(task).toContainText('Fri 09:00')
   await expect(task).toContainText('On the day')
@@ -143,7 +143,7 @@ test("REM-002, REM-003: a Task's Alerts, its default and my own, changed and rem
 })
 
 test('REM-011 1: an Alert made an Alarm, off to start, on any device', async ({ page }) => {
-  const db = await start(page, `/tasks?item=${id(1)}`)
+  const db = await start(page, `/plan?item=${id(1)}`)
   const task = page.getByRole('dialog', { name: 'Renew insurance' })
   await task.getByRole('button', { name: /^Fri 09:00/ }).click()
   const dialog = page.getByRole('dialog', { name: 'Alert' })
@@ -161,7 +161,7 @@ test('REM-011 1: an Alert made an Alarm, off to start, on any device', async ({ 
 })
 
 test('REM-003: a Thought gets an Alert at a set time', async ({ page }) => {
-  const db = await start(page, `/inbox?item=${id(2)}`)
+  const db = await start(page, `/today?item=${id(2)}`)
   const thought = page.getByRole('dialog', { name: 'Gift idea for Sam' })
   await thought.getByRole('button', { name: 'Add an alert' }).click()
   const dialog = page.getByRole('dialog', { name: 'Alert' })
@@ -174,8 +174,8 @@ test('REM-003: a Thought gets an Alert at a set time', async ({ page }) => {
 })
 
 test('REM-007 2: with the Thought default off, a dated Thought gets no Alert', async ({ page }) => {
-  const db = await start(page, '/inbox', { people: [{ alert_defaults: { thought: false } }] })
-  await expect(page.getByRole('heading', { name: 'Inbox', level: 1 })).toBeVisible()
+  const db = await start(page, '/today', { people: [{ alert_defaults: { thought: false } }] })
+  await expect(page.getByRole('heading', { name: 'Today', level: 1 })).toBeVisible()
   await page.getByRole('button', { name: 'New', exact: true }).first().click()
   const capture = page.getByRole('dialog', { name: 'Capture' })
   await capture.getByRole('textbox').fill('book the dentist fri')
@@ -187,8 +187,8 @@ test('REM-007 2: with the Thought default off, a dated Thought gets no Alert', a
 test("REM-006: a tapped notification opens its Item in the window that's open", async ({
   page,
 }) => {
-  await start(page, '/inbox')
-  await expect(page.getByRole('heading', { name: 'Inbox', level: 1 })).toBeVisible()
+  await start(page, '/today')
+  await expect(page.getByRole('heading', { name: 'Today', level: 1 })).toBeVisible()
   // What the service worker says when its notification is tapped.
   await page.evaluate(
     (url) =>

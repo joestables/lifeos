@@ -8,7 +8,7 @@ const NOTE = '01990000-0000-7000-8000-000000000002'
 
 test.use({ timezoneId: 'Europe/London' })
 
-async function start(page: Page, path = '/inbox') {
+async function start(page: Page, path = '/today') {
   await page.clock.setFixedTime(NOW)
   const db = await standIn(page, {
     signedIn: true,
@@ -155,7 +155,7 @@ test('CAP-009: Labels chosen in capture are given to the Thought or the Task', a
     .toEqual(['task', ['l-car']])
 })
 
-test('CAP-001: with no signal, what I capture shows in Inbox at once and is sent when the connection returns', async ({
+test('CAP-001: with no signal, what I capture waits to be sorted at once and is sent when the connection returns', async ({
   page,
   context,
 }) => {
@@ -168,10 +168,8 @@ test('CAP-001: with no signal, what I capture shows in Inbox at once and is sent
   await capture.getByRole('textbox').fill('buy oat milk')
   await capture.getByRole('button', { name: 'Save' }).click()
   await expect(page.getByText('Thought saved')).toBeVisible()
-  // It is in Inbox at once, waiting to be sorted.
-  await expect(
-    page.locator('section').filter({ hasText: 'Thoughts' }).getByText('buy oat milk'),
-  ).toBeVisible()
+  // It waits to be sorted at once, counted on Today.
+  await expect(page.getByRole('link', { name: '1 thought to sort' })).toBeVisible()
   expect(db.items.some((i) => i.title === 'buy oat milk')).toBe(false)
   await page.unroute('**/rest/v1/rpc/**', noSignal)
   await context.setOffline(false)
@@ -183,7 +181,7 @@ test('CAP-002: capture over an open Item leaves it open, and Undo takes the new 
   isMobile,
 }) => {
   // On a phone a Note opens on its own page, under the top bar; a computer has N.
-  const db = await start(page, isMobile ? `/item/${NOTE}` : `/tasks?item=${TASK}`)
+  const db = await start(page, isMobile ? `/item/${NOTE}` : `/plan?item=${TASK}`)
   const item = isMobile
     ? page.getByRole('heading', { name: 'Car details' })
     : page.getByRole('dialog', { name: 'Renew car insurance' })

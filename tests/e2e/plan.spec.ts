@@ -1,292 +1,321 @@
 import { expect, test, type Page } from '@playwright/test'
-import { itemRow, standIn } from './stand-in'
+import { itemRow, pickTime, standIn } from './stand-in'
 
-// Wednesday 14 October 2026, 10:00 in London.
-const NOW = new Date('2026-10-14T10:00:00+01:00')
-const id = (n: number) => `01990000-0000-7000-8000-0000000004${String(n).padStart(2, '0')}`
+// Monday 12 October 2026, 09:00 in London: tomorrow is Tuesday, and
+// Wednesday to Sunday have their own groups.
+const NOW = new Date('2026-10-12T09:00:00+01:00')
+const id = (n: number) => `01990000-0000-7000-8000-0000000002${String(n).padStart(2, '0')}`
 
-test.use({ timezoneId: 'Europe/London', locale: 'en-GB' })
+test.use({ timezoneId: 'Europe/London' })
 
 const rows = () => ({
   items: [
-    itemRow({ id: id(1), type: 'task', title: 'Call mum', do_on: '2026-10-13', do_at: '18:00:00' }),
-    itemRow({ id: id(2), type: 'task', title: 'Pay the plumber', do_on: '2026-10-13' }),
-    itemRow({ id: id(3), type: 'task', title: 'Book Japan flights', due_on: '2026-10-14' }),
-    itemRow({
-      id: id(4),
-      type: 'event',
-      title: 'Annual leave',
-      starts_at: '2026-10-15T00:00:00Z',
-      ends_at: '2026-10-16T00:00:00Z',
-      all_day: true,
-    }),
-    itemRow({
-      id: id(5),
-      type: 'event',
-      title: 'Dinner with Sam',
-      place: 'Dishoom',
-      starts_at: '2026-10-16T18:30:00Z',
-      ends_at: '2026-10-16T20:30:00Z',
-      all_day: false,
-    }),
-    itemRow({
-      id: id(6),
-      type: 'event',
-      title: 'Edinburgh',
-      starts_at: '2026-10-17T00:00:00Z',
-      ends_at: '2026-10-20T00:00:00Z',
-      all_day: true,
-    }),
-    itemRow({ id: id(7), type: 'task', title: 'Fix the gate' }),
+    itemRow({ id: id(1), type: 'task', title: 'Renew car insurance', due_on: '2026-10-08' }),
+    itemRow({ id: id(2), type: 'task', title: 'Call mum', do_on: '2026-10-12', do_at: '18:00:00' }),
+    itemRow({ id: id(3), type: 'task', title: 'Take the bins out', do_on: '2026-10-13' }),
+    itemRow({ id: id(4), type: 'task', title: 'Order a present', do_on: '2026-10-16' }),
+    itemRow({ id: id(5), type: 'task', title: 'Book MOT', due_on: '2026-10-30' }),
+    itemRow({ id: id(6), type: 'task', title: 'Fix the gate' }),
+    itemRow({ id: id(7), type: 'task', title: 'Learn Japanese', status: 'idea' }),
     itemRow({
       id: id(8),
       type: 'task',
-      title: 'Learn Japanese',
-      do_on: '2026-10-15',
-      status: 'idea',
-    }),
-    itemRow({
-      id: id(9),
-      type: 'task',
-      title: 'Take the bins out',
-      do_on: '2026-10-12',
+      title: 'Return the jacket',
       status: 'done',
+      updated_at: '2026-10-11T10:00:00Z',
     }),
-    itemRow({
-      id: id(10),
-      type: 'task',
-      title: 'Recycling',
-      do_on: '2026-10-12',
-      status: 'cancelled',
-      series_id: 's1',
-      occurrence_on: '2026-10-12',
-    }),
-    itemRow({
-      id: id(11),
-      type: 'task',
-      title: 'Recycling',
-      do_on: '2026-10-19',
-      series_id: 's1',
-      occurrence_on: '2026-10-19',
-    }),
-    itemRow({ id: id(12), type: 'note', title: 'Boiler details' }),
+  ],
+  labels: [
+    { id: 'l-car', name: 'Car' },
+    { id: 'l-home', name: 'Home' },
+  ],
+  item_labels: [
+    { item_id: id(1), label_id: 'l-car' },
+    { item_id: id(5), label_id: 'l-car' },
+    { item_id: id(3), label_id: 'l-home' },
+  ],
+  marks: [{ item_id: id(2) }],
+  subtasks: [
+    { id: 's1', item_id: id(1), title: 'Get a quote', done: true, position: 'a' },
+    { id: 's2', item_id: id(1), title: 'Pay', done: false, position: 'b' },
   ],
 })
 
 async function start(page: Page, path = '/plan') {
   await page.clock.setFixedTime(NOW)
-  const db = await standIn(page, { signedIn: true, rows: rows() })
+  const db = await standIn(page, { signedIn: true, rows: rows(), clock: NOW })
   await page.goto(path)
   await expect(page.getByRole('heading', { name: 'Plan', level: 1 })).toBeVisible()
   return db
 }
 
-const day = (page: Page, name: string) => page.getByRole('group', { name, exact: true })
-const cards = (scope: ReturnType<Page['locator']>) => scope.locator('[data-slot="plan-card"]')
+const rowOf = (page: Page, title: string) =>
+  page.locator('[data-slot="item-row"]').filter({ hasText: title })
+const headings = (page: Page) => page.getByRole('main').getByRole('heading', { level: 2 })
 
-test.describe('on a computer', () => {
-  test.skip(({ isMobile }) => isMobile, 'The week is a computer’s')
-
-  test('PLN-001: the week, each Item on its days, untimed first, then by time', async ({
-    page,
-  }) => {
-    await start(page)
-    await expect(page.getByRole('heading', { level: 2, name: /12 – 18 October/ })).toBeVisible()
-    await expect(cards(day(page, 'Mon 12'))).toHaveText([/Take the bins out/])
-    await expect(cards(day(page, 'Tue 13'))).toHaveText([/Pay the plumber/, /Call mum.*18:00/])
-    await expect(cards(day(page, 'Wed 14'))).toHaveText([/Book Japan flights.*Due today/])
-    await expect(cards(day(page, 'Thu 15'))).toHaveText([/Annual leave.*All day/])
-    await expect(cards(day(page, 'Fri 16'))).toHaveText([/Dinner with Sam.*19:30 · Dishoom/])
-    await expect(cards(day(page, 'Sat 17'))).toHaveText([/Edinburgh.*All day · Until Mon/])
-    await expect(cards(day(page, 'Sun 18'))).toHaveText([/Edinburgh/])
-    // Not on Plan: no date, Someday, skipped, a Note.
-    for (const title of ['Fix the gate', 'Learn Japanese', 'Boiler details'])
-      await expect(page.getByText(title)).toHaveCount(0)
-    await expect(page.getByText('Recycling')).toHaveCount(0)
-
-    await page.getByRole('button', { name: 'Next week' }).click()
-    await expect(page.getByRole('heading', { level: 2, name: /19 – 25 October/ })).toBeVisible()
-    await expect(cards(day(page, 'Mon 19'))).toHaveText([/Edinburgh/, /Recycling/])
-  })
-
-  test('PLN-002, PLN-003: a day, kept on this computer; moving through time', async ({ page }) => {
-    await start(page)
-    await page.getByRole('button', { name: 'Day', exact: true }).click()
-    await expect(
-      page.getByRole('heading', { level: 2, name: /Wednesday 14 October/ }),
-    ).toBeVisible()
-    await page.getByRole('tab', { name: /Fri/ }).click()
-    await expect(page.getByRole('heading', { level: 2, name: /Friday 16 October/ })).toBeVisible()
-    await expect(cards(page.getByRole('main'))).toHaveText([
-      /Dinner with Sam.*19:30–21:30 · Dishoom/,
-    ])
-    await page.getByRole('button', { name: 'Next day' }).click()
-    await expect(page.getByRole('heading', { level: 2, name: /Saturday 17 October/ })).toBeVisible()
-    await page.getByRole('button', { name: 'Today' }).click()
-    await expect(
-      page.getByRole('heading', { level: 2, name: /Wednesday 14 October/ }),
-    ).toBeVisible()
-
-    await page.reload()
-    await expect(
-      page.getByRole('heading', { level: 2, name: /Wednesday 14 October/ }),
-    ).toBeVisible()
-
-    // Choosing a date shows it.
-    await page.getByRole('heading', { level: 2 }).getByRole('button').click()
-    await page.getByRole('button', { name: /October 28/ }).click()
-    await expect(
-      page.getByRole('heading', { level: 2, name: /Wednesday 28 October/ }),
-    ).toBeVisible()
-    await page.getByRole('button', { name: 'Week', exact: true }).click()
-    await expect(
-      page.getByRole('heading', { level: 2, name: /26 October – 1 November/ }),
-    ).toBeVisible()
-  })
-
-  test('PLN-006: a day’s "+" adds a Task or an Event on that day', async ({ page }) => {
-    const db = await start(page)
-    const thu = day(page, 'Thu 15')
-    await thu.hover()
-    await thu.getByRole('button', { name: 'Add to Thu 15 Oct' }).click()
-    await page.getByRole('menuitem', { name: 'Task' }).click()
-    const task = page.getByRole('dialog', { name: 'New task' })
-    await expect(task.getByRole('button', { name: 'Do on' })).toHaveText(/Tomorrow/)
-    await task.getByRole('textbox', { name: 'Title' }).fill('Collect the suit')
-    await task.getByRole('button', { name: 'Save' }).click()
-    await expect(cards(thu)).toHaveText([/Annual leave/, /Collect the suit/])
-
-    const fri = day(page, 'Fri 16')
-    await fri.hover()
-    await fri.getByRole('button', { name: 'Add to Fri 16 Oct' }).click()
-    await page.getByRole('menuitem', { name: 'Event' }).click()
-    const event = page.getByRole('dialog', { name: 'New event' })
-    await expect(event.getByRole('combobox', { name: 'Starts time' })).toContainText('09:00')
-    await event.getByRole('textbox', { name: 'Title' }).fill('Haircut')
-    await event.getByRole('button', { name: 'Save' }).click()
-    await expect(cards(fri)).toHaveText([/Haircut.*09:00/, /Dinner with Sam/])
-    await expect
-      .poll(() => db.items.find((i) => i.title === 'Haircut')?.starts_at)
-      .toBe('2026-10-16T08:00:00.000Z')
-  })
-
-  test('RMD-001 4, RMD-003 1: a day’s "+" adds a Reminder, on its day with its Alert’s time', async ({
-    page,
-  }) => {
-    const db = await start(page)
-    const thu = day(page, 'Thu 15')
-    await thu.hover()
-    await thu.getByRole('button', { name: 'Add to Thu 15 Oct' }).click()
-    await page.getByRole('menuitem', { name: 'Reminder' }).click()
-    const dialog = page.getByRole('dialog', { name: 'New reminder' })
-    // Another day: my default time on it.
-    await expect(dialog.getByRole('button', { name: /09:00/ })).toBeVisible()
-    await expect(dialog.getByRole('button', { name: /Remove alert/ })).toHaveCount(0)
-    await dialog.getByRole('textbox', { name: 'Title' }).fill('Parcel arriving')
-    await dialog.getByRole('button', { name: 'Save' }).click()
-    await expect(cards(thu)).toHaveText([/Annual leave/, /Reminder.*Parcel arriving.*09:00/])
-    await expect
-      .poll(() => db.items.find((i) => i.title === 'Parcel arriving')?.do_on)
-      .toBe('2026-10-15')
-
-    // Today: an hour from now.
-    const wed = day(page, 'Wed 14')
-    await wed.hover()
-    await wed.getByRole('button', { name: 'Add to Today' }).click()
-    await page.getByRole('menuitem', { name: 'Reminder' }).click()
-    await page.getByRole('textbox', { name: 'Title' }).fill('Move the car')
-    await page
-      .getByRole('dialog', { name: 'New reminder' })
-      .getByRole('button', { name: 'Save' })
-      .click()
-    await expect(cards(wed)).toHaveText([/Book Japan flights/, /Move the car.*11:00/])
-  })
-
-  test('PLN-007: dragging a Task or an Event to another day, with Undo', async ({ page }) => {
-    const db = await start(page)
-    await cards(day(page, 'Tue 13')).filter({ hasText: 'Call mum' }).dragTo(day(page, 'Thu 15'))
-    await expect(cards(day(page, 'Thu 15'))).toHaveText([/Annual leave/, /Call mum.*18:00/])
-    await expect
-      .poll(() => db.items.find((i) => i.id === id(1)))
-      .toMatchObject({ do_on: '2026-10-15', do_at: '18:00:00' })
-    await page.getByRole('button', { name: 'Undo' }).click()
-    await expect(cards(day(page, 'Tue 13'))).toHaveText([/Pay the plumber/, /Call mum/])
-
-    await cards(day(page, 'Fri 16')).dragTo(day(page, 'Sat 17'))
-    await expect
-      .poll(() => db.items.find((i) => i.id === id(5)))
-      .toMatchObject({ starts_at: '2026-10-17T18:30:00.000Z', ends_at: '2026-10-17T20:30:00.000Z' })
-  })
-})
-
-test('WID-002 8: opened from the Today widget\'s "+", Plan\'s "+" is open on today', async ({
-  page,
-}) => {
-  await start(page, '/plan?add=1')
-  await expect(page.getByRole('menu')).toContainText('Add to Today')
-  await page.getByRole('menuitem', { name: 'Task' }).click()
-  const task = page.getByRole('dialog', { name: 'New task' })
-  await expect(task.getByRole('button', { name: 'Do on' })).toHaveText(/Today/)
-  // Not open again on coming back to the page.
-  await expect(page).toHaveURL(/\/plan$/)
-})
-
-test('WID-002 8: with Plan already open, the widget\'s "+" still opens its list', async ({
+test('PLA-002, TSK-004, TSK-007: Tasks by when, Someday last; no Labels or sub-tasks', async ({
   page,
 }) => {
   await start(page)
-  // The app sent to /plan?add=1 while on Plan, as a tap on the widget does.
-  await page.evaluate(() => {
-    window.history.pushState({}, '', '/plan?add=1')
-    window.dispatchEvent(new PopStateEvent('popstate'))
-  })
-  await expect(page.getByRole('menu')).toContainText('Add to Today')
+  await expect(headings(page)).toHaveText([
+    'Overdue1',
+    'Today1',
+    'Tomorrow1',
+    'Friday1',
+    'Later1',
+    'No date1',
+    'Someday1',
+  ])
+  await expect(rowOf(page, 'Renew car insurance')).toHaveText(/Due Thu 8 Oct$/)
+  await expect(rowOf(page, 'Book MOT')).toContainText('Due Fri 30 Oct')
+  await expect(rowOf(page, 'Call mum').getByRole('button', { name: 'Star' })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  )
+  await expect(page.getByText('Return the jacket')).toBeHidden()
 })
 
-test('PLN-004: Types turned off stay off, on every device', async ({ page }) => {
-  const db = await start(page, '/plan?day=2026-10-13')
-  await expect(page.getByText('Call mum')).toBeVisible()
-  await page.getByRole('button', { name: 'Tasks' }).click()
-  await expect(page.getByText('Call mum')).toHaveCount(0)
-  await expect.poll(() => db.people[0]!.plan_hidden_types).toEqual(['task'])
+test('PLA-001: Tasks, Events, Reminders and Recurring; no Completed tab or Labels; the action follows the tab', async ({
+  page,
+  isMobile,
+}) => {
+  await start(page)
+  await expect(page.getByRole('tablist', { name: 'View' }).getByRole('tab')).toHaveText([
+    'Tasks',
+    'Events',
+    'Reminders',
+    'Recurring',
+  ])
+  await expect(page.getByRole('group', { name: 'Filter by label' })).toHaveCount(0)
+  for (const [tab, action] of [
+    ['Events', 'New event'],
+    ['Reminders', 'New reminder'],
+    ['Tasks', 'New task'],
+  ]) {
+    await page.getByRole('tab', { name: tab }).click()
+    await expect(page.getByRole('button', { name: action }).first()).toBeVisible()
+  }
+  await page.getByRole('tab', { name: 'Recurring' }).click()
+  await expect(page).toHaveURL(/\/plan\?tab=recurring$/)
+  await page.getByRole('button', { name: 'New', exact: true }).last().click()
+  await expect(page.getByRole('menu').getByRole('menuitem')).toHaveText([
+    'Task',
+    'Event',
+    'Reminder',
+  ])
+  if (!isMobile) await page.keyboard.press('Escape')
+})
+
+test('PLA-001 1: /tasks opens Plan, Recurring kept', async ({ page }) => {
+  await start(page, '/tasks?view=recurring')
+  await expect(page).toHaveURL(/\/plan\?tab=recurring$/)
+})
+
+test('TSK-001: "New task" opens a new Task with all its fields, kept on Save', async ({ page }) => {
+  const db = await start(page)
+  await page.getByRole('button', { name: 'New task' }).click()
+  const dialog = page.getByRole('dialog', { name: 'New task' })
+  await expect(dialog.getByRole('textbox', { name: 'Title' })).toBeFocused()
+  await expect(dialog.getByRole('button', { name: 'Save' })).toBeDisabled()
+  // PLA-006: on today; its default Alert (09:00) gone by, an hour from now.
+  await expect(dialog.getByRole('button', { name: 'Do on' })).toContainText('Today')
+  await expect(dialog.getByRole('button', { name: /^Today 10:00/ })).toBeVisible()
+  await dialog.getByRole('textbox', { name: 'Title' }).fill('Renew insurance')
+  await dialog.getByRole('textbox', { name: 'Notes' }).fill('Policy 123')
+  await dialog.getByRole('button', { name: 'Add', exact: true }).click()
+  await page.getByRole('checkbox', { name: 'Car' }).click()
+  await page.keyboard.press('Escape')
+  await dialog.getByPlaceholder('Add a sub-task').fill('Get quotes')
+  await dialog.getByPlaceholder('Add a sub-task').press('Enter')
+  // Nothing is kept yet.
+  expect(db.items.some((i) => i.title === 'Renew insurance')).toBe(false)
+
+  await dialog.getByRole('button', { name: 'Save' }).click()
+  await expect(dialog).toBeHidden()
+  await expect(page.getByText('Task saved')).toBeVisible()
+  await expect(rowOf(page, 'Renew insurance')).toBeVisible()
+  await expect
+    .poll(() => {
+      const t = db.items.find((i) => i.title === 'Renew insurance')
+      return (
+        t && [
+          t.body,
+          t.do_on,
+          db.item_labels.some((r) => r.item_id === t.id && r.label_id === 'l-car'),
+          db.subtasks.filter((x) => x.item_id === t.id).map((x) => x.title),
+          db.alerts.filter((r) => r.item_id === t.id).map((r) => [r.is_default, r.fixed_at]),
+        ]
+      )
+    })
+    .toEqual([
+      'Policy 123',
+      '2026-10-12',
+      true,
+      ['Get quotes'],
+      [[false, '2026-10-12T09:00:00.000Z']],
+    ])
+})
+
+test('TSK-001: a new Task cancelled leaves nothing behind, and a click outside keeps it open once typed in', async ({
+  page,
+}) => {
+  const db = await start(page)
+  await page.getByRole('button', { name: 'New task' }).click()
+  const dialog = page.getByRole('dialog', { name: 'New task' })
+  await dialog.getByRole('textbox', { name: 'Title' }).fill('Paint the shed')
+  await page.mouse.click(5, 5)
+  await expect(dialog).toBeVisible()
+  await dialog.getByRole('button', { name: 'Cancel' }).click()
+  await expect(dialog).toBeHidden()
+  expect(db.items.some((i) => i.title === 'Paint the shed')).toBe(false)
+})
+
+test('REM-002 1: New task shows its default Alert; left, changed or removed, that is what it gets', async ({
+  page,
+}) => {
+  const db = await start(page)
+  const newTask = async (title: string) => {
+    await page.getByRole('button', { name: 'New task' }).click()
+    const dialog = page.getByRole('dialog', { name: 'New task' })
+    await dialog.getByRole('textbox', { name: 'Title' }).fill(title)
+    // It starts on today (PLA-006 1); tomorrow instead.
+    await dialog.getByRole('button', { name: 'Do on' }).click()
+    await page.getByRole('button', { name: /13th/ }).click()
+    await pickTime(dialog.getByLabel('Time'), '20:00')
+    return dialog
+  }
+  const alertsOf = (title: string) => {
+    const t = db.items.find((i) => i.title === title)
+    return t && db.alerts.filter((r) => r.item_id === t.id).map((r) => [r.is_default, r.at_time])
+  }
+
+  // Left as it is: the default, and no second at the same time.
+  let dialog = await newTask('Put the bins out')
+  await expect(dialog.getByRole('button', { name: /^Tomorrow 20:00/ })).toContainText('On the day')
+  await dialog.getByRole('button', { name: 'Save' }).click()
+  await expect.poll(() => alertsOf('Put the bins out')).toEqual([[true, null]])
+
+  // Changed: mine, at the time I chose, instead of the default.
+  dialog = await newTask('Call the vet')
+  await dialog.getByRole('button', { name: /^Tomorrow 20:00/ }).click()
+  const alert = page.getByRole('dialog', { name: 'Alert' })
+  await pickTime(alert.getByRole('combobox', { name: 'Time' }), '19:00')
+  await alert.getByRole('button', { name: 'Save' }).click()
+  await expect(dialog.getByRole('button', { name: /^Tomorrow 19:00/ })).toBeVisible()
+  await expect(dialog.getByRole('button', { name: /^Tomorrow 20:00/ })).toHaveCount(0)
+  await dialog.getByRole('button', { name: 'Save' }).click()
+  await expect.poll(() => alertsOf('Call the vet')).toEqual([[false, '19:00']])
+
+  // Removed: none.
+  dialog = await newTask('Water the plants')
+  await dialog.getByRole('button', { name: 'Remove alert Tomorrow 20:00' }).click()
+  await expect(dialog.getByRole('button', { name: /^Tomorrow 20:00/ })).toHaveCount(0)
+  await dialog.getByRole('button', { name: 'Save' }).click()
+  await expect.poll(() => alertsOf('Water the plants')).toEqual([])
+})
+
+test('TSK-003, PLA-002 2: ticked done with no day, it leaves; Undo brings it back; one for today stays, struck through', async ({
+  page,
+}) => {
+  await start(page)
+  await rowOf(page, 'Fix the gate').getByRole('checkbox').click()
+  await expect(rowOf(page, 'Fix the gate')).toBeHidden()
+  await page.getByRole('button', { name: 'Undo' }).click()
+  await expect(rowOf(page, 'Fix the gate')).toBeVisible()
+
+  const call = rowOf(page, 'Call mum')
+  await call.getByRole('checkbox').click()
+  await expect(call.getByRole('checkbox')).toBeChecked()
+  await expect(call.getByRole('button', { name: /^Call mum/ })).toHaveCSS(
+    'text-decoration-line',
+    'line-through',
+  )
   await page.reload()
-  await expect(page.getByRole('button', { name: 'Tasks' })).toHaveAttribute('aria-pressed', 'false')
-  await expect(page.getByText('Call mum')).toHaveCount(0)
-  await page.getByRole('button', { name: 'Tasks' }).click()
-  await expect(page.getByText('Call mum')).toBeVisible()
+  await expect(call.getByRole('checkbox')).toBeChecked()
+  // Done before today, it isn't listed.
+  await expect(page.getByText('Return the jacket')).toBeHidden()
+  // Unticked, it is open again.
+  await call.getByRole('checkbox').click()
+  await expect(call.getByRole('checkbox')).not.toBeChecked()
 })
 
-test('PLN-005: a card opens its Item, and closing it leaves me on Plan', async ({ page }) => {
-  await start(page, '/plan?day=2026-10-16')
-  await page.getByRole('button', { name: 'Dinner with Sam' }).click()
-  const popup = page.getByRole('dialog', { name: 'Dinner with Sam' })
-  await expect(popup.getByRole('textbox', { name: 'Place' })).toHaveValue('Dishoom')
-  await popup.getByRole('button', { name: 'Close' }).click()
-  await expect(popup).toBeHidden()
-  await expect(page).toHaveURL(/day=2026-10-16/)
+test('TSK-007: moved to Someday it loses its date; a date makes it active again', async ({
+  page,
+}) => {
+  const db = await start(page)
+  await rowOf(page, 'Take the bins out').getByRole('button', { name: 'More' }).click()
+  await page.getByRole('menuitem', { name: 'Someday' }).click()
+  const someday = page
+    .getByRole('main')
+    .locator('section')
+    .filter({ hasText: /^Someday/ })
+  await expect(someday).toContainText('Take the bins out')
+  await expect
+    .poll(() => db.items.find((i) => i.id === id(3)))
+    .toMatchObject({ status: 'idea', do_on: null })
+
+  await rowOf(page, 'Learn Japanese')
+    .getByRole('button', { name: /^Learn Japanese/ })
+    .click()
+  const task = page.getByRole('dialog', { name: 'Learn Japanese' })
+  await task.getByRole('button', { name: 'Do on' }).click()
+  await page.getByRole('button', { name: /14th/ }).click()
+  await expect
+    .poll(() => db.items.find((i) => i.id === id(7)))
+    .toMatchObject({ status: 'active', do_on: '2026-10-14' })
 })
 
-test.describe('on a phone', () => {
-  test.skip(({ isMobile }) => !isMobile, 'A phone shows a day')
+test("TSK-002, TSK-005, TSK-006: a Task's details, each kept as it is changed", async ({
+  page,
+}) => {
+  const db = await start(page)
+  await rowOf(page, 'Renew car insurance')
+    .getByRole('button', { name: /^Renew car insurance/ })
+    .click()
+  // Renaming it renames the popup, so it is found as the one open.
+  const task = page.getByRole('dialog')
 
-  test('PLN-002: today, with the week above it; another day chosen; the Fab adds to it', async ({
-    page,
-  }) => {
-    const db = await start(page)
-    await expect(page.getByRole('heading', { level: 2, name: /Wed 14 October/ })).toBeVisible()
-    await expect(page.getByRole('button', { name: 'Week', exact: true })).toBeHidden()
-    await expect(cards(page.getByRole('main'))).toHaveText([/Book Japan flights/])
-    await page.getByRole('tab', { name: /Tue/ }).click()
-    await expect(cards(page.getByRole('main'))).toHaveText([/Pay the plumber/, /Call mum/])
-    await page.getByRole('button', { name: 'Add' }).click()
-    await page.getByRole('menuitem', { name: 'Task' }).click()
-    const task = page.getByRole('dialog', { name: 'New task' })
-    await task.getByRole('textbox', { name: 'Title' }).fill('Post the card')
-    await task.getByRole('button', { name: 'Save' }).click()
-    await expect
-      .poll(() => db.items.find((i) => i.title === 'Post the card')?.do_on)
-      .toBe('2026-10-13')
-    await page.getByRole('button', { name: 'Next week' }).click()
-    await expect(page.getByRole('heading', { level: 2, name: /Tue 20 October/ })).toBeVisible()
-  })
+  await task.getByRole('textbox', { name: 'Title' }).fill('Renew the car insurance')
+  await task.getByRole('textbox', { name: 'Notes' }).fill('Admiral quoted £412')
+  await task.getByRole('button', { name: 'Star' }).click()
+
+  // A time needs a day: the do-on Calendar opens to ask for it.
+  await pickTime(task.getByLabel('Time'), '18:30')
+  await page.getByRole('button', { name: /13th/ }).click()
+
+  await task.getByRole('checkbox', { name: 'Done: Pay' }).click()
+  await task.getByRole('textbox', { name: 'Add a sub-task' }).fill('File the certificate')
+  await task.getByRole('textbox', { name: 'Add a sub-task' }).press('Enter')
+
+  await task.getByRole('button', { name: 'Add', exact: true }).click()
+  await page.getByRole('checkbox', { name: 'Home' }).click()
+  await page.keyboard.press('Escape')
+
+  await expect
+    .poll(() => db.items.find((i) => i.id === id(1)))
+    .toMatchObject({
+      title: 'Renew the car insurance',
+      body: 'Admiral quoted £412',
+      do_on: '2026-10-13',
+      do_at: '18:30',
+    })
+  await expect.poll(() => db.marks.some((m) => m.item_id === id(1))).toBe(true)
+  await expect
+    .poll(() => db.subtasks.filter((s) => s.item_id === id(1)).map((s) => [s.title, s.done]))
+    .toEqual([
+      ['Get a quote', true],
+      ['Pay', true],
+      ['File the certificate', false],
+    ])
+  await expect
+    .poll(() =>
+      db.item_labels
+        .filter((r) => r.item_id === id(1))
+        .map((r) => r.label_id)
+        .sort(),
+    )
+    .toEqual(['l-car', 'l-home'])
+  await page.keyboard.press('Escape')
+  // Plan's row says no Labels or sub-tasks (PLA-002 3).
+  await expect(rowOf(page, 'Renew the car insurance')).not.toContainText('2/3')
 })

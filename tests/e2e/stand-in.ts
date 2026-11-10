@@ -166,8 +166,20 @@ export const itemRow = (fields: Record<string, unknown> & { id: string; type: st
  */
 export async function standIn(
   page: Page,
-  { signedIn = false, rows = {}, ai }: { signedIn?: boolean; rows?: Rows; ai?: Rows['ai'] } = {},
+  {
+    signedIn = false,
+    rows = {},
+    ai,
+    clock,
+  }: {
+    signedIn?: boolean
+    rows?: Rows
+    ai?: Rows['ai']
+    /** The server's time, from this moment on, as the test's page clock is set (TDY-003). */
+    clock?: Date
+  } = {},
 ) {
+  const started = Date.now()
   const db = {
     // Each row copied, so a test's changes never reach the next test's rows.
     items: (rows.items ?? []).map((r) => ({ ...r })),
@@ -406,7 +418,8 @@ export async function standIn(
       current_reps: row?.current_reps,
     }
   }
-  const now = () => new Date().toISOString()
+  const now = () =>
+    new Date(clock ? clock.getTime() + Date.now() - started : Date.now()).toISOString()
   // Repeats, as core.set_repeat, stop_repeat and complete_occurrence make them.
   const endSeries = (seriesId: unknown, last: string, keep?: unknown) => {
     for (const s of db.series)

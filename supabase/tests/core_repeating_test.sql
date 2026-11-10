@@ -3,7 +3,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = extensions, public;
-select plan(28);
+select plan(29);
 
 insert into auth.users (id, email) values
   ('00000000-0000-4000-8000-00000000000a', 'ann@example.com'),
@@ -236,9 +236,22 @@ select is(
   'ADR-0045: the run records how far it made the series'
 );
 
+-- A daily Reminder: yesterday's, untouched, is overtaken by today's.
+insert into core.series (id, type, space_id, owner_id, mode, rule, starts_on, timezone, template, generated_until)
+values ('00000000-0000-7000-8000-0000000004f1', 'reminder', :'a_space', '00000000-0000-4000-8000-00000000000a',
+        'schedule', 'FREQ=DAILY', (:'london_today')::date - 1, 'Europe/London', '{"title": "Vitamins"}', (:'london_today')::date);
+insert into core.items (id, type, title, space_id, owner_id, do_on, series_id, occurrence_on) values
+  ('00000000-0000-7000-8000-000000000401', 'reminder', 'Vitamins', :'a_space', '00000000-0000-4000-8000-00000000000a', (:'london_today')::date - 1, '00000000-0000-7000-8000-0000000004f1', (:'london_today')::date - 1),
+  ('00000000-0000-7000-8000-000000000402', 'reminder', 'Vitamins', :'a_space', '00000000-0000-4000-8000-00000000000a', (:'london_today')::date, '00000000-0000-7000-8000-0000000004f1', (:'london_today')::date);
+
 -- TSK-010: today's has come due, so yesterday's untouched one is skipped;
 -- the day before's, which I changed, stays open.
 select core.finish_series_run(true, '{"series": 1}');
+select is(
+  (select array_agg(status order by occurrence_on) from core.items where series_id = '00000000-0000-7000-8000-0000000004f1'),
+  array['active', 'active'],
+  'ADR-0065 1: a Reminder, never done, keeps its past occurrences on their days, and the run goes on'
+);
 select is(
   (select array_agg(status order by occurrence_on) from core.items where series_id = '00000000-0000-7000-8000-0000000003f1'),
   array['active', 'cancelled', 'active', 'active'],

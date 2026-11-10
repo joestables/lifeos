@@ -163,7 +163,7 @@ test.describe('workouts', () => {
     await expect.poll(() => db.items.find((i) => i.type === 'workout')?.do_on).toBe(TODAY)
     expect(db.links.some((l) => l.link_type === 'follows' && l.to_item === 't-push')).toBe(true)
 
-    await page.goto('/plan')
+    await page.goto('/week')
     await page
       .getByRole('button', { name: /Push A/ })
       .first()
@@ -173,8 +173,8 @@ test.describe('workouts', () => {
 
   test('PLN-004, PLN-006: Workouts on Plan’s filter, and Add plans one', async ({ page }) => {
     const db = await standIn(page, { signedIn: true, rows: PLANNED })
-    await page.goto('/plan')
-    const chip = page.getByRole('group', { name: 'Show on Plan' }).getByRole('button', {
+    await page.goto('/week')
+    const chip = page.getByRole('group', { name: 'Show on Week' }).getByRole('button', {
       name: 'Workouts',
     })
     await expect(chip).toHaveAttribute('aria-pressed', 'true')

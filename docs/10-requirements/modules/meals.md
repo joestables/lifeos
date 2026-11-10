@@ -18,8 +18,8 @@ Provisionally agreed).
 
 ### The Meal plan
 
-- **A week view** (Joe, 18 October). On a computer, laid out as Plan's week
-  ([patterns](../../30-design/patterns.md#plan)); on a phone, the week's
+- **A week view** (Joe, 18 October). On a computer, laid out as Week's week
+  ([patterns](../../30-design/patterns.md#week)); on a phone, the week's
   days stacked one under another. Meals drag between days and slots on
   both. The week starts on Monday.
 - **Three fixed slots: Breakfast, Lunch, Dinner** (Joe, 18 October), the
@@ -49,7 +49,7 @@ Provisionally agreed).
   Personal, one Household or all (Joe, 18 October).
 - **Ticking a Meal eaten logs no cook**: a cook is logged from Cooking
   ([recipes](recipes.md#the-log); Joe, 18 October). No Alert by default.
-- **Meals are on Plan too**, as every Schedulable Type is, and Plan's "+"
+- **Meals are on Week too**, as every Schedulable Type is, and Week's "+"
   adds one ([ADR-0029](../../20-architecture/adr/0029-plan-reads-core-items.md),
   Provisionally agreed).
 
@@ -90,7 +90,7 @@ Provisionally agreed).
   shopping (packing, DIY jobs) are Notes with a checklist.
 - **A Shopping list** is one Type, a food shop or a list
   ([ADR-0050](../../20-architecture/adr/0050-shopping-list.md),
-  Provisionally agreed). Either may have a date (then it's on Plan) or none.
+  Provisionally agreed). Either may have a date (then it's on Week) or none.
   A food shop's lines are grouped by aisle, Pantry entries (ingredients and
   household items) or typed, those without an entry under **Other**, last.
   A list's are typed, or the Pantry's household items, under my own
@@ -106,7 +106,7 @@ Provisionally agreed).
   dated the day of the first. On Shopping → Food, **New shop** opens with
   the plan's Meals from today, those on no open shop, each toggled on or
   off. Meals are added or taken off later from the shop. A shop's date can
-  be dragged on Plan (Joe, 18 October).
+  be dragged on Week (Joe, 18 October).
 - **All · Meals · Extra** at the top of a food shop (Joe, 24 October).
   **All** is the whole shop by aisle: lines for one ingredient show as one,
   totalled where the units allow ("Chicken thighs 1.2 kg"), with no Meals
@@ -156,7 +156,7 @@ Provisionally agreed).
 **Meal plan.** Two tabs. **Week**: Monday to Sunday — columns on a computer,
 days stacked on a phone — each day's Breakfast, Lunch and Dinner with their
 Meals (photo, name, servings; leftovers marked); ‹ Today › and a date, as on
-Plan; a filter for Personal, each Household or all; Select, to choose
+Week; a filter for Personal, each Household or all; Select, to choose
 Meals and Add to shop. **Pantry**: the chosen Space's staples and
 Essentials picked from it (All · Staples · Essentials), ingredients by
 aisle or sorted by use or A–Z, then household items, with a search; Pending
@@ -179,7 +179,7 @@ what we eat.
 Priority: Must · Status: built
 
 Acceptance criteria
-1. Given Meal plan on a computer, then this week shows as Plan's week does,
+1. Given Meal plan on a computer, then this week shows as Week's week does,
    Monday first, each day with Breakfast, Lunch and Dinner and their Meals:
    photo, name, servings, and the Variation when the Recipe has more than
    one.
@@ -215,7 +215,7 @@ Acceptance criteria
    of my Households) until I change it.
 3. Given the "+", then I can instead type a Meal ("Out: Dishoom"), or
    choose Leftovers of an earlier Meal.
-4. Given Plan's "+" on a day, when I choose Meal, then the same search adds
+4. Given Week's "+" on a day, when I choose Meal, then the same search adds
    it to that day, in the slot I choose.
 
 ### MPL-003 — Change a Meal
@@ -358,7 +358,7 @@ Acceptance criteria
    no done lists; Joe, 26 October). Online comes later.
 2. Given New shop or New list, then I name it, and may give it a date
    (no time or place; Joe, 24 October) and, for a shop, its Space; a dated
-   one shows on Plan. New shop also offers the
+   one shows on Week. New shop also offers the
    plan's Meals from today, those on no open shop, each toggled on or off
    (SHP-002).
 3. Given a food shop, then its lines are grouped by aisle, Other last; given
@@ -419,7 +419,7 @@ Acceptance criteria
 4. Given a line added from a Space's needed, when I tick it, then its out
    of stock or Required is cleared there; given any other line out of stock
    or Required in the shop's own Space, then there.
-5. Given a Thought in Inbox ("buy milk, bread, eggs"), then Shopping list
+5. Given a Thought on Notes' Thoughts ("buy milk, bread, eggs"), then Shopping list
    is offered only when a line names a Pantry ingredient (Joe, 25 October);
    when I sort it into one, then a new food shop is made with milk, bread
    and eggs as its lines, split at the commas, "buy" dropped. Or they're

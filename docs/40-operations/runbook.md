@@ -42,9 +42,9 @@ Done 9 October 2026.
   syncing), and records what it finds in `ops.health_runs`. **Nobody is
   notified** (Joe, 10 October): Joe checks, or asks Claude "any problems?",
   and Claude reads `ops.health_runs` and `ops.events`. Notifications can be
-  added later. A broken Integration also shows in Inbox.
+  added later. A broken Integration also shows on Today.
 - **A nightly smoke walk** of production with the test account, confirming
-  that sign-in, capture and Inbox still work, is deferred until the roadmap
+  that sign-in, capture and Today still work, is deferred until the roadmap
   is complete (Joe, 12 October 2026).
 
 ## Notifications
@@ -121,7 +121,7 @@ Edge Functions deployed by Claude through the Supabase MCP, sharing
 - **`calendar-sync`** (every five minutes, `pg_cron` job `calendar-sync`,
   through `pg_net` with `calendar_secret` from Vault, only while a calendar
   is on): a fresh access token per connection; Google refusing it marks the
-  connection broken (`core.calendar_broken`, an `ops.events` row, Inbox's
+  connection broken (`core.calendar_broken`, an `ops.events` row, Today's
   notice, the health check); the calendar list refreshed; each calendar
   that is on read from its sync token, or from four weeks back (first time,
   after a 410, and weekly so repeats reach 12 weeks ahead); then instances

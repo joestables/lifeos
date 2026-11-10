@@ -35,7 +35,7 @@ export function byTime(a: Item, b: Item): number {
 }
 
 /**
- * "All tasks" (views/tasks.md): Overdue, Today, Tomorrow, each remaining day
+ * Plan's Tasks (views/week.md): Overdue, Today, Tomorrow, each remaining day
  * of this week, Later, No date, Someday — empty groups left out. A Task sits
  * under its do-on date, or its due date when it has none; only a due date
  * makes it overdue (TSK-004).
@@ -72,6 +72,13 @@ export function taskGroups(items: readonly Item[], now: Date = new Date()): Task
       else group('later').tasks.push(t)
     }
   }
+  // Ticked done today, it stays in Today, struck through, until the day ends (PLA-002 2).
+  for (const t of items) {
+    const day = t.do_on ?? t.due_on
+    if (t.type !== 'task' || t.archived_at !== null || t.status !== 'done') continue
+    if (day !== null && day <= today && isoDayOf(new Date(t.updated_at)) === today)
+      group('today').tasks.push(t)
+  }
   for (const g of groups) {
     if (g.key === 'overdue')
       g.tasks.sort((a, b) => a.due_on!.localeCompare(b.due_on!) || byTime(a, b))
@@ -82,13 +89,6 @@ export function taskGroups(items: readonly Item[], now: Date = new Date()): Task
     else g.tasks.sort(byTime)
   }
   return groups.filter((g) => g.tasks.length > 0)
-}
-
-/** "Completed": done Tasks, most recently changed first. */
-export function completedTasks(items: readonly Item[]): Item[] {
-  return items
-    .filter((i) => i.type === 'task' && i.archived_at === null && i.status === 'done')
-    .sort((a, b) => b.updated_at.localeCompare(a.updated_at))
 }
 
 /**

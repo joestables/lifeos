@@ -61,7 +61,7 @@ function ItemRoute() {
       <>
         <PageHeader title="This can't be found" />
         <div className="px-5 sm:px-9">
-          <Button onClick={() => void navigate({ to: '/inbox' })}>Go to Inbox</Button>
+          <Button onClick={() => void navigate({ to: '/today' })}>Go to Today</Button>
         </div>
       </>
     )

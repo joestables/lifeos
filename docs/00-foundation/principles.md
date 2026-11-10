@@ -22,7 +22,7 @@ unless marked.*
    contributes:
    - Types and migrations;
    - Views and Screens;
-   - capture patterns and Inbox entries;
+   - capture patterns and entries on Today;
    - optionally, how its Items look on Plan (principle 2);
    - measures and search;
    - settings and default Space.
@@ -43,7 +43,7 @@ unless marked.*
    (schedule or webhook) → store the raw payload → map to Items, tagged with
    `external_id` so re-runs never duplicate. Tokens are stored server-side in
    Supabase Vault (`core.connections`).
-4. **An activity log, written by triggers,** that Goals, Inbox, AI and future
+4. **An activity log, written by triggers,** that Goals, Today, AI and future
    automations read, rather than calling each other.
 5. **A measures registry**, declared in code, so any Module's numbers can be
    goals.

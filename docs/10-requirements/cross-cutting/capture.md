@@ -9,7 +9,7 @@ at the start of Stage 2, are at the end.*
 ## Decisions
 
 - **Quick capture** opens over whatever you are doing, from any page; it
-  makes a Thought, which lands in Inbox, with a one-tap switch to Task; a
+  makes a Thought, which waits on Notes' Thoughts tab, with a one-tap switch to Task; a
   deterministic parser offers, never forces, a Task when it spots a date
   ([ADR-0027](../../20-architecture/adr/0027-quick-capture.md), Provisionally agreed).
 - **A Thought whose text contains a date gets an Alert** for that date
@@ -31,7 +31,7 @@ at the start of Stage 2, are at the end.*
   Provisionally agreed).
 - **Capture makes Thoughts and Tasks only** (Joe, 14 October): an
   event-shaped line is saved as a Thought or a Task. Events are made on
-  Plan, by switching a Task, or by sorting a Thought
+  Week or Plan, by switching a Task, or by sorting a Thought
   ([events](events.md#decisions)).
 
 ## Where capture comes from
@@ -69,7 +69,7 @@ Priority: Must · Status: verified
 Acceptance criteria
 1. Given I am on any page, when I open capture, type "ceramics class for the
    anniversary?" and save, then a Thought is created in my Personal Space and
-   appears in Inbox, waiting to be sorted.
+   appears on Notes' Thoughts, waiting to be sorted, counted on Today.
 2. Given I switch capture to Task before saving "renew insurance fri", when I
    save, then a Task "Renew insurance" is created, to do on Friday, with my
    default Alert at 09:00 on Friday.
@@ -124,7 +124,7 @@ Acceptance criteria
 ### CAP-004 — A Thought with a date reminds me
 
 **As** Joe, **I want** a dated Thought to remind me even before I sort it,
-**so that** a jotted "dentist tue 3pm?" isn't forgotten in Inbox.
+**so that** a jotted "dentist tue 3pm?" isn't forgotten among the Thoughts.
 Priority: Should · Status: built (the Alert firing is verified with step 11)
 
 Acceptance criteria

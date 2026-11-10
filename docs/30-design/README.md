@@ -10,7 +10,7 @@ the screen then uses what was added.
 | [design-language.md](design-language.md) | The principles and the decisions behind the look |
 | [tokens.md](tokens.md) | Every design token, with its exact light and dark value: colour, Type colours ([ADR-0043](../20-architecture/adr/0043-colour-by-type.md)), type, spacing, radius, shadow, size, motion |
 | [components.md](components.md) | Every component a screen may use — shadcn's and LifeOS's own — with its variants, sizes and rules |
-| [patterns.md](patterns.md) | How screens are put together: page anatomy, the drawer, colour by Type, opening an Item, lists, Plan, Recipes, the Meal plan, the Gym, forms, states, icons, copy, phone |
+| [patterns.md](patterns.md) | How screens are put together: page anatomy, the drawer, colour by Type, opening an Item, lists, Week, Today, Plan, Recipes, the Meal plan, the Gym, forms, states, icons, copy, phone |
 | [reference.html](reference.html) | A frozen picture of the look agreed in Stage 1 ([published copy](https://claude.ai/artifact/RKXtYq2tiCHrfM1XeMX4wK), private to Joe), from before colour by Type and the standard Sidebar. The Stage 2 screens agreed on 11 October 2026 are on the [Stage 2 design canvas](https://claude.ai/artifact/N5ZmkZnYg51kcHySQ8c6F6), Stage 3's (Plan, Events, Google Calendar), agreed on 14 October, on the [Stage 3 design canvas](https://claude.ai/artifact/S7eLUszjswnPN77EkbTcxK), Stage 4's (Recipes, the Meal plan, the Pantry, Households), agreed on 18 October, on the [Stage 4 design canvas](https://claude.ai/artifact/6GfJTp2G1BF6n573dqHxpy), Stage 4b's (Shopping), agreed on 24 October, on the [Stage 4b design canvas](https://claude.ai/artifact/KZyE2VPa3jTsVZ4mjxanGk), and Stage 5's (the Gym), agreed on 1 November, on the [Stage 5 design canvas](https://claude.ai/artifact/NXxJeLcMza7iuHQjqDadmG) (all private to Joe). Stage 7b's (Today, Week, Plan, the Reminder Type and "New"), agreed on 9 November, are on the [Stage 7b design canvas](https://claude.ai/artifact/EqX4D326Apjs5aGVF2W4Gs). Where either differs from the written spec, the written spec wins; the app's own page, `/design`, shows the real components. |
 
 The direction itself is [ADR-0041](../20-architecture/adr/0041-visual-direction.md);
@@ -26,8 +26,8 @@ request.
    and build the content only from [components.md](components.md). Layout
    (flex, grid, gap, padding) uses the spacing scale; nothing else is styled
    on the screen.
-2. **A page about one family of Types** (Tasks, Notes, Recipes, Gym…) is
-   wrapped in `TypeScope` with their colour; Inbox, Plan, Search and
+2. **A page about one family of Types** (Plan, Notes, Recipes, Gym…) is
+   wrapped in `TypeScope` with their colour; Today, Week, Search and
    Settings are not ([patterns](patterns.md#colour-by-type)).
 3. **Every Item shows its colour** — a `TypeTile`, a coloured checkbox, a
    `TypeBadge` or a dot — wherever it appears.

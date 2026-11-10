@@ -1,218 +1,341 @@
 # Plan
 
-*Stage 3. The decisions come first; the requirements, drafted at the start of
-Stage 3 ([plan](../../50-progress/plans/stage-3.md)), are at the end.*
+*Stage 2, as Tasks; Plan from Stage 7b, with Events and Reminders as lists
+too. The decisions come first; the requirements, drafted at the start of
+Stage 2 and in [Today, Reminders and
+Plan](../cross-cutting/today-reminders-plan.md), are at the end.*
 
-> **Changing in Stage 7b** (spec agreed 9 November, being built): Renames Plan **Week** and puts Reminders on it (WEK-001–002); the name Plan goes to the Tasks page. [Today, Reminders and Plan](../cross-cutting/today-reminders-plan.md). Reminders are on it already, on each day they alert (RMD-003, step 5), and a day's "+" makes one; otherwise, until it is built, this page is how it works.
-
-**In one line:** the one place to plan meals, outfits, shops, gym, cardio,
-events and tasks ([ADR-0026](../../20-architecture/adr/0026-navigation-drawer.md),
-  Provisionally agreed).
+**In one line:** my Tasks, Events and Reminders as lists, and what repeats
+([ADR-0026](../../20-architecture/adr/0026-navigation-drawer.md),
+[ADR-0065](../../20-architecture/adr/0065-reminders-alerts-and-the-day.md),
+Provisionally agreed). It replaces Google Tasks.
 
 ## Decisions
 
-- **Plan is a query**: Schedulable Items in a date range. Nothing links to
-  Plan ([ADR-0005](../../20-architecture/adr/0005-traits-links-rules.md),
+- **A Task is done by you**; an Event happens. They are separate Types with
+  an in-place switch (Events arrive in Stage 3)
+  ([ADR-0020](../../20-architecture/adr/0020-task-event-reminder.md),
   Provisionally agreed).
-- **Plan reads `core.items`**; Modules may only enrich how their Items look,
-  so a new Schedulable Type — dated Shopping lists, Meals, Workouts, Outfits worn — appears
-  on Plan with no Plan work
-  ([ADR-0029](../../20-architecture/adr/0029-plan-reads-core-items.md),
+- **Do-on and due:** do-on (a date, with an optional time) is when you mean to
+  do it; due is a deadline, and only due makes a Task overdue
+  ([ADR-0021](../../20-architecture/adr/0021-time.md), Provisionally agreed).
+- **No Labels on Plan** (Joe, 9 November): its lists have no Label pills,
+  and its rows show none. Labels on Tasks and Events go in Stage 7b's step
+  9 (PLA-007); until then a Task's popup still has them
+  ([ADR-0014](../../20-architecture/adr/0014-reference-data-and-labels.md),
+  amended).
+- **Tasks are starred**, as in Google Tasks: starring is the Task's mark,
+  private to the person who stars it.
+- **A Task can be shared with a Household** (Joe, 4 November;
+  [HSH-005](../cross-cutting/spaces-and-sharing.md#hsh-005--share-tasks-and-events)):
+  its Space, at the foot of its popup. Nobody is assigned: a shared Task is
+  on every member's Today and Plan, and whoever ticks it ticks it for
+  all.
+- **Sub-tasks** are lines ticked inside a Task — a title and a tick, nothing
+  more. They are not Tasks of their own, so they never appear on Today or
+  Week, and Plan's rows don't count them; they go in Stage 7b's step 9
+  (PLA-007).
+- **Someday** is a Task's *idea* status.
+- **Repeating Tasks** are generated occurrences: one engine, generated in
+  local time, touched occurrences kept, "this and all following" starts a new
+  series, two modes (*on a schedule*, *after completion*), and only a
+  series' next open occurrence shows; an older untouched one is closed as
+  *skipped* when a newer one comes due
+  ([ADR-0022](../../20-architecture/adr/0022-repeating-items.md),
   Provisionally agreed).
-- **Where an Item shows:** on the first of `starts_at` (as a local date),
-  `do_on`, `due_on` that it has. A Task with only a deadline shows on its due
-  date; a Task with neither (Someday, No date) isn't on Plan. A Goal is not on
-  Plan ([data model](../../20-architecture/data-model.md#time-fields-per-schedulable-type)).
-  An Event over several days shows on each of them.
-- **Every Type by default, filtered by Type** (Joe, 14 October): each
-  Schedulable Type that exists is a pill to show or hide; the choice is
-  remembered for me, on every device.
-- **A week on a computer, a day on a phone** (Joe, 14 October): a computer
-  opens on the week and can switch to a day; a phone shows one day. The week
-  starts on Monday.
-- **A day is a column of cards**, not an hour grid: all-day and untimed
-  Items first, then the rest by time (Joe, 14 October; [patterns](../../30-design/patterns.md#plan)).
-- **Every occurrence shows.** Plan is a calendar, so each occurrence of a
-  repeating Task or Event is on its own day; ones closed as *skipped* aren't
-  shown. (The Tasks View and Inbox show only a series' next open occurrence,
-  [ADR-0022](../../20-architecture/adr/0022-repeating-items.md).)
-- **Done stays on its day**, faded and struck through; an overdue Task stays
-  on the day it was for, and Inbox carries it.
-- **Add with "+"** on a day, choosing among the Schedulable Types that exist;
-  **move by dragging** to another day on a computer (Joe, 14 October).
-- **Plan is neutral**: it mixes Types, so each Item shows its own Type's
-  colour ([ADR-0043](../../20-architecture/adr/0043-colour-by-type.md),
+- **Tasks are blue**, with Events and Reminders; the page takes that colour
+  ([ADR-0043](../../20-architecture/adr/0043-colour-by-type.md),
   Provisionally agreed).
-- Meals use fixed slots: breakfast, lunch, dinner (Stage 4), shown in
-  that order among a day's untimed Items
-  ([PLN-008](#pln-008--meals-and-shopping-lists-on-plan)).
-- The standard time fields hold the plan; detail tables hold what happened,
-  enabling planned-vs-done ([ADR-0021](../../20-architecture/adr/0021-time.md)).
-- Planning is mostly creating occurrences of definitions, and the action
-  creates the link (planning a recipe for Thursday creates the Meal and its
-  *uses* link) — from Stage 4.
-- Later: readiness-aware gym suggestions; "plan my week"
-  ([roadmap](../../roadmap.md#later-opportunities)).
+- **No Google Tasks import** ([ADR-0028](../../20-architecture/adr/0028-capture-from-outside-the-app.md)).
 
-## What the page shows (Stage 3)
+## What the page shows
 
-The dates shown, with Today and the arrows to move a week (or a day) at a
-time, and, on a computer, a switch between Day and Week and "Add"; then
-the Type pills (Tasks and Events in Stage 3; more as their stages arrive).
+Four tabs (Joe, 9 November), each a list; the page's main action follows
+the tab: New task, New event, New reminder, and on Recurring "New", a menu
+of the three.
 
-| Layout | Where | What it shows |
-|---|---|---|
-| **Week** | A computer, by default | Seven days, Monday to Sunday, side by side, each a column of cards with a "+" |
-| **Day** | A computer, when chosen; always on a phone | One day's cards, with a strip of the week's days above to move between them |
+| Tab | What it shows |
+|---|---|
+| **Tasks** (first) | Open Tasks under Overdue, Today, Tomorrow, each remaining day of this week, Later, No date, and Someday last; one ticked done today stays in Today, struck through, until the day ends |
+| **Events** (`?tab=events`) | My Events from today on, Google's too, under Today, Tomorrow, each remaining day of this week and Later, each with its time and place; a repeating one's next only; one ended today stays, faded |
+| **Reminders** (`?tab=reminders`) | My Reminders on the day of their next Alert, under the same groups, each with that day's Alert times and its repeat; today's whose Alerts have all gone off stay, faded |
+| **Recurring** (`?tab=recurring`) | Each repeating Task, Event and Reminder once, under Tasks, Events and Reminders, with its repeat in full and its next date, soonest first |
 
-Each card shows its Type's icon and name in its colour, its title, then its
-time (or "All day") and one detail: an Event's place, a Task's due date where
-it differs. Nothing else (Joe, 14 October): no checkbox, star or marks; they
-are in the Item. In the day's list each card says its own time. A card opens
-its Item as that Item opens anywhere else
-([ITM-001](../cross-cutting/items.md#itm-001--open-an-item)).
+There is no Completed tab. `/tasks` opens Plan (`/tasks?view=recurring`,
+Recurring); `/plan?day=…` and `/plan?add=1`, Week's addresses before
+Stage 7b, open Week.
+
+Each Task shows its title and, where it has them: do-on (and time), due
+(marked once overdue), whether it repeats, its Household and whether it is
+starred; its "…" menu moves it to tomorrow or Someday, converts it into an
+Event or a Reminder, or deletes it. A Task opens as a popup over the page, on a computer
+and on a phone ([ITM-001](../cross-cutting/items.md#itm-001--open-an-item)).
+
+**A repeat** is set in the Task's Repeat field: on a schedule, or a while
+after it's done. The Task becomes the repeat's first occurrence, from its
+do-on date (today, if it has none or it has passed); each occurrence after it
+is made with the Task's title, notes, time, Labels and due date (the same
+distance after its do-on date), but not its sub-tasks. Changing the repeat
+of an occurrence applies from that occurrence on (TSK-011); "Don't repeat"
+stops it there. Occurrences a repeat takes away when it changes or stops
+don't appear in Recently deleted: they were never edited.
 
 ## Requirements
 
-*Stage 3. Statuses: proposed → agreed → built → verified.*
+*Stage 2, and Stage 7b's PLA-001–006. Statuses: proposed → agreed → built → verified.*
 
-### PLN-001 — See my week
+### TSK-001 — Add a Task quickly
 
-**As** Joe, **I want** my week on one page, whatever kind of thing is in it,
-**so that** I can see the shape of it at a glance.
+**As** Joe, **I want** to add a Task from Plan in one line, **so
+that** it's as quick as Google Tasks.
 Priority: Must · Status: verified
 
 Acceptance criteria
-1. Given a computer, when I open Plan, then it shows this week, Monday to
-   Sunday, with today marked.
-2. Given a Task to do on Tuesday at 18:00, a Task due on Wednesday with no
-   do-on date, an all-day Event on Thursday and an Event on Friday at 19:30,
-   then each is on its day; on each day, all-day and untimed Items come
-   first, then the rest by time.
-3. Given an Event from Saturday to Monday, then it shows on each of those
-   days.
-4. Given a Task with no date, or in Someday, then it isn't on Plan.
-5. Given a Task repeating every Monday, then each Monday shows its
-   occurrence; one closed as *skipped* isn't shown.
-6. Given a done Task, then it stays on its day, faded and struck through;
-   an overdue Task stays on the day it was to be done.
+1. Given Plan, when I add "renew insurance fri", then a Task
+   "Renew insurance" to do on Friday is created, its date understood as
+   capture understands it
+   ([CAP-003](../cross-cutting/capture.md#cap-003--dates-and-times-are-understood-the-same-way-everywhere)).
+3. Given I have no signal, then the Task appears at once and is sent later.
+4. Given "New task", then a new Task opens with all its fields — title,
+   notes, do-on date (today, PLA-006) and time, due date, repeat, Alerts (its default
+   among them once it has a do-on date,
+   [REM-002](../cross-cutting/reminders.md#rem-002--a-task-reminds-me-on-its-do-on-date)),
+   Labels and sub-tasks, and with a Household its Space at the foot
+   ([HSH-005](../cross-cutting/spaces-and-sharing.md#hsh-005--share-tasks-and-events)) —
+   and is kept only when I save it; cancelled, nothing is left behind (Joe,
+   12 October).
 
-### PLN-002 — See one day
+### TSK-002 — A Task's details
 
-**As** Joe, **I want** one day on its own, **so that** on my phone, or when
-a day is full, I can see it properly.
+**As** Joe, **I want** to set everything about a Task in one place, **so
+that** a Task can hold what I need to do it.
 Priority: Must · Status: verified
 
 Acceptance criteria
-1. Given a phone, when I open Plan, then it shows today, with the week's
-   days above it; choosing another day shows that day.
-2. Given a computer, when I switch to Day, then it shows one day; switching
-   back shows its week. The layout I chose is kept next time on that
-   computer.
+1. Given a Task, when I open it, then I can change its title, notes, do-on
+   date and time, due date, Labels, sub-tasks, repeat, Alerts, star and,
+   if I made it, its Space, and each change is kept as I make it.
+2. Given I set a time without a date, then I'm asked for the date, as a
+   do-on time needs a do-on date.
 
-### PLN-003 — Move through time
+### TSK-003 — Tick a Task done
 
-**As** Joe, **I want** to move to other weeks and days and back to today,
-**so that** I can plan ahead and look back.
+**As** Joe, **I want** to tick a Task off and see it go, **so that** the
+list shows only what's left.
 Priority: Must · Status: verified
 
 Acceptance criteria
-1. Given the week, when I press the next arrow, then the next week shows;
-   on a day, the next day.
-2. Given any week or day, when I press Today, then this week (or today)
-   shows.
-3. Given I choose a date, then its week (or that day) shows.
+1. Given an open Task, when I tick it, then it is done (I can undo that)
+   and its Alerts are cleared; for today or an earlier day, it stays in
+   Today, struck through, until the day ends (PLA-002 2), and otherwise it
+   leaves the list.
+2. Given a done Task, when I untick it, then it is open again, and its
+   Alerts still in the future come back.
 
-### PLN-004 — Choose which Types to show
+### TSK-004 — Tasks by date
 
-**As** Joe, **I want** to hide the kinds of thing I don't want to see now,
-**so that** Plan shows what I'm planning.
+**As** Joe, **I want** to see my Tasks by when, **so that** I can plan the
+day.
 Priority: Must · Status: verified
 
 Acceptance criteria
-1. Given Plan, then every Schedulable Type that exists is shown as a pill,
-   all on by default.
-2. Given I turn Task off, then no Tasks show until I turn it on again.
-3. Given I turned Task off on my computer, when I open Plan on my phone,
-   then Task is off there too.
-4. Given a new Schedulable Type arrives with a later stage, then it is on
-   until I turn it off.
+1. Given open Tasks to do today, tomorrow, next month, and with no date,
+   then Plan's Tasks shows them under Today, Tomorrow, Later and No date.
+2. Given a Task, when I give it a Label, then I can pick one I already have
+   or make a new one, from the same set as Notes
+   ([ITM-005](../cross-cutting/items.md#itm-005--labels-on-thoughts-notes-and-tasks)).
 
-### PLN-005 — Act on an Item from Plan
+### TSK-005 — Star a Task
 
-**As** Joe, **I want** to open things and tick them off from Plan, **so
-that** I needn't go to another page.
-Priority: Must · Status: verified
-
-Acceptance criteria
-1. Given a card, when I open it, then the Item opens as it does anywhere
-   else, and closing it leaves me where I was on Plan.
-2. Given a Task's card, when I open it and tick it, then it is done, stays
-   on its day struck through, and I can undo that.
-3. Given I have no signal, then what this device already has shows, marked
-   as possibly out of date
-   ([OFF-005](../cross-cutting/offline.md#off-005--read-what-ive-already-loaded)), and my changes show
-   at once and are sent later.
-
-### PLN-006 — Add something to a day
-
-**As** Joe, **I want** to add anything that can be planned straight onto a
-day, **so that** planning is one step.
-Priority: Must · Status: verified
-
-Acceptance criteria
-1. Given a day, when I press its "+", then I choose among the Schedulable
-   Types that exist (Task and Event in Stage 3; Meal and Shopping list in
-   Stage 4; Workout in Stage 5, opening New workout on that day), and a new
-   Item of that Type opens with all its fields, dated that day; it is kept
-   only when I save it.
-2. Given a new Task from "+", then its do-on date is that day; a new Event
-   starts that day at the next whole hour on my home clock if the day is
-   today (late in the evening, the next quarter hour), otherwise at my
-   default time, and lasts an hour.
-3. Given I save it, then it is on that day at once.
-
-### PLN-007 — Drag to another day
-
-**As** Joe on a computer, **I want** to drag something to another day, **so
-that** rearranging the week is quick.
+**As** Joe, **I want** to star the Tasks that matter most, as in Google
+Tasks, **so that** they stand out wherever they appear.
 Priority: Should · Status: verified
 
 Acceptance criteria
-1. Given the week, when I drag a Task from Tuesday to Thursday, then its
-   do-on date is Thursday, keeping its time and due date, and its Alerts
-   move with it; I can undo that.
-2. Given I drag an Event, then it starts on the new day at the same time
-   and keeps its length.
-3. Given an occurrence of a repeating Item, then only that occurrence moves
-   ([TSK-011](tasks.md#tsk-011--change-or-stop-a-repeat)).
-4. Given an Event from a Google calendar that is incoming only, then it
-   can't be dragged ([GCL-004](../cross-cutting/integrations.md#gcl-004--incoming-events-are-googles)).
+1. Given a Task, when I star it, then it shows as starred wherever it
+   appears; unstarring it removes the star.
+2. Given a Task shared with the Household (from Stage 4), then my star is
+   mine alone.
 
-### PLN-008 — Meals and shopping lists on Plan
+### TSK-006 — Sub-tasks
 
-**As** Joe, **I want** Meals and dated shopping lists on Plan with
-everything else, **so that** Plan stays the one view of my days.
-Priority: Must · Status: built
+**As** Joe, **I want** to tick off parts of a Task inside it, **so that** a
+job with parts stays one Task.
+Priority: Could · Status: verified
 
 Acceptance criteria
-1. Given Meals I can see, then each shows on its day as a card: Meal, its
-   name (or "Leftovers: Katsu curry"), and its slot in place of a time;
-   Breakfast, Lunch and Dinner in that order, among the day's untimed
-   Items.
-2. Given a dated Shopping list, then it shows on its day among the untimed
-   Items (a list has a date, never a time or place: ADR-0050).
-3. Given the Type pills, then Meal and Shopping list are among them.
-4. Given a day's "+", when I choose Meal, then the Meal plan's search adds
-   one to that day in the slot I choose
-   ([MPL-002](../modules/meals.md#mpl-002--plan-a-meal)); when I choose
-   Shopping list, then a new list opens dated that day.
-5. Given a computer, when I drag a Meal to another day, then it keeps its
-   slot; a Shopping list moves to the new day.
-6. Given a Meal's card, when I open it and tick it eaten, then it is done
-   and no cook is logged.
+1. Given a Task, when I add five sub-tasks and tick two, then the Task shows
+   "2/5" wherever it appears.
+2. Given I tick the Task done, then its sub-tasks are left as they were.
 
-Non-goals (Stage 3): an hour grid; a month view; dragging on a phone (a
-phone moves an Item by changing its date); dragging to a time within a day;
-Workouts and Outfits (with their stages); readiness
-suggestions and "plan my week" (later); Plan in Inbox's digest.
+### TSK-007 — Someday
+
+**As** Joe, **I want** to park a Task for someday, **so that** it's kept but
+not in my way.
+Priority: Should · Status: verified
+
+Acceptance criteria
+1. Given a Task, when I move it to Someday, then it loses its do-on date,
+   leaves the dated groups and shows under Someday, last in Plan's Tasks; giving it a do-on date
+   makes it active again.
+
+### TSK-008 — Repeat on a schedule
+
+**As** Joe, **I want** a Task to repeat on a schedule, **so that** "take
+the bins out" comes back every Monday.
+Priority: Must · Status: verified
+
+Acceptance criteria
+1. Given a Task, then I can make it repeat daily, every weekday, weekly on
+   chosen days, every N days, weeks or months, monthly on a date or on the
+   nth weekday ("first Saturday"), or yearly, with an optional end.
+2. Given a repeating Task, then Plan and Today show only its next
+   open occurrence; when I tick it, the one after appears.
+3. Given a Task repeating every Monday at 18:30, then each occurrence is at
+   18:30 London time, either side of the clocks changing.
+4. Given a repeating Task, then its occurrences are always there for the
+   next two months or so, including when the repeat was set up offline.
+
+### TSK-009 — Repeat after completion
+
+**As** Joe, **I want** some Tasks to come back a while after I last did
+them, **so that** "descale the kettle" is three months after the last time,
+not on a fixed date.
+Priority: Should · Status: verified
+
+Acceptance criteria
+1. Given a Task repeating three months after completion, when I tick it
+   on 10 October, then the next occurrence is to do on 10 January.
+
+### TSK-010 — A missed repeat doesn't pile up
+
+**As** Joe, **I want** a missed daily Task to be skipped rather than stack
+up, **so that** missing vitamins on Monday doesn't leave seven overdue
+Tasks by Sunday.
+Priority: Must · Status: verified
+
+Acceptance criteria
+1. Given a daily Task not done on Monday, when Tuesday's occurrence comes
+   due, then Monday's is closed as *skipped* if I hadn't changed it, and only
+   Tuesday's shows.
+2. Given I had changed Monday's occurrence, then it stays open.
+
+### TSK-011 — Change or stop a repeat
+
+**As** Joe, **I want** to change a repeat from a given date, or stop it,
+**so that** past occurrences and my edits are kept.
+Priority: Must · Status: verified
+
+Acceptance criteria
+1. Given a weekly Task, when I change one occurrence's title, then only
+   that occurrence changes.
+2. Given a weekly Task, when I change the repeat "for this and all
+   following", then occurrences from there follow the new repeat, except
+   ones I had changed, which stay as they are; earlier ones are unchanged.
+3. Given I stop the repeat, then future occurrences I hadn't changed go,
+   and done, past or changed ones are kept.
+
+### TSK-012 — Reorder by hand
+
+**As** Joe, **I want** to put Tasks in my own order within a group, **so
+that** the list reads in the order I'll do things.
+Priority: Could · Status: agreed
+
+Acceptance criteria
+1. Given two Tasks under Today, when I move the second above the first, then
+   that order is kept on every device.
+
+
+### PLA-001 — Plan: Tasks, Events, Reminders, Recurring
+
+*Stage 7b, agreed by Joe on 9 November.*
+
+**As** Joe, **I want** my Tasks, Events and Reminders as lists on one
+page, **so that** I can see what's coming of each.
+Priority: Must · Status: verified (`plan.spec.ts`, `sign-in.spec.ts`)
+
+Acceptance criteria
+1. Given the drawer, then Plan is third, blue, with a list icon; `/tasks`
+   opens it.
+2. Given Plan, then its tabs are **Tasks**, **Events**, **Reminders** and
+   **Recurring**; it has no Completed tab and no Label pills.
+3. Given a tab, then the page's main action follows it: New task, New
+   event, New reminder; on Recurring, "New", a menu of the three.
+
+### PLA-002 — The Tasks tab
+
+**As** Joe, **I want** my Tasks by when, as before, **so that** nothing
+changes but what I don't use.
+Priority: Must · Status: verified (`plan.spec.ts`, `src/lib/tasks.test.ts`)
+
+Acceptance criteria
+1. Given Tasks, then open Tasks are under Overdue, Today, Tomorrow, each
+   remaining day of this week, Later, No date and Someday (TSK-004),
+   without Labels.
+2. Given a Task ticked done today, then it stays in Today, struck through,
+   until the day ends (TDY-003 1).
+3. Given a Task's row, then it shows its time, day, due date, repeat, star
+   and Household, but no Labels or sub-tasks.
+
+### PLA-003 — The Events tab
+
+**As** Joe, **I want** my coming Events as a list, **so that** I can see
+what's on without paging through weeks.
+Priority: Must · Status: built (`src/lib/plan-lists.test.ts`)
+
+Acceptance criteria
+1. Given Events, then my Events from today on, those from Google Calendar
+   too, are under Today, Tomorrow, each remaining day of this week and
+   Later, each with its time (or "All day") and place; one over several
+   days is on the day it starts, saying until when, and one going on since
+   an earlier day is under Today.
+2. Given a repeating Event, then only its next occurrence is listed.
+3. Given an Event today that has ended, then it stays, faded, until the
+   day ends; ones before today aren't listed.
+
+### PLA-004 — The Reminders tab
+
+**As** Joe, **I want** my Reminders as a list, **so that** I can see every
+nudge to come.
+Priority: Must · Status: built (`src/lib/plan-lists.test.ts`)
+
+Acceptance criteria
+1. Given Reminders, then my Reminders are under Today, Tomorrow, each
+   remaining day of this week and Later, on the day of their next Alert,
+   each with its Alert times that day, its repeat, and in Later its date; a
+   repeating one's next only.
+2. Given today's Reminders whose Alerts have all gone off, then they stay,
+   faded, until the day ends.
+
+### PLA-005 — The Recurring tab
+
+**As** Joe, **I want** everything that repeats in one place, **so that** I
+can see and change my routines.
+Priority: Must · Status: verified (`repeating.spec.ts`; Events and Reminders by `src/lib/plan-lists.test.ts`)
+
+Acceptance criteria
+1. Given Recurring, then each repeating Task, Event and Reminder is listed
+   once, under Tasks, Events and Reminders, each with its repeat in full
+   ("Every 2 weeks", "1 week after it's done") and its next date, soonest
+   first.
+
+### PLA-006 — A new Task starts today
+
+**As** Joe, **I want** a new Task to be for today unless I say otherwise,
+**so that** I needn't set the date each time.
+Priority: Must · Status: verified (`plan.spec.ts`)
+
+Acceptance criteria
+1. Given New task, then Do on is today, and I can change or clear it.
+2. Given its default Alert (REM-002 1) would be at a time already gone
+   today, then it is an hour from now instead, shown in its Alerts before I
+   save.
+
+PLA-007, Labels and sub-tasks gone from Tasks and Events, comes with Stage
+7b's step 9 ([Today, Reminders and Plan](../cross-cutting/today-reminders-plan.md#pla-007--no-labels-on-tasks-and-events-no-sub-tasks)).
+
+Non-goals (Stage 2): Events and the Task ↔ Event switch (Stage 3); sharing
+Tasks with the Household (HSH-005); Tasks *for* an Event (Stage 3); sub-tasks
+with their own dates or Alerts; a Project Type
+([ADR-0014](../../20-architecture/adr/0014-reference-data-and-labels.md));
+importing from Google Tasks.

@@ -18,7 +18,7 @@ export interface PlanWeekDay {
 }
 
 /**
- * Plan's week (patterns.md#plan): seven DayColumns side by side, Monday
+ * Plan's week (patterns.md#week): seven DayColumns side by side, Monday
  * first, each running the height of the page.
  */
 export function PlanWeek({ days }: { days: PlanWeekDay[] }) {

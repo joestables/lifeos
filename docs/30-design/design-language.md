@@ -38,7 +38,7 @@ agreed)*
   Wardrobe orange; Goals purple.
 - **A page takes the colour of the Types it is about:** it becomes shadcn's
   primary and ring there, so the main button, selected tab, checkboxes,
-  progress and focus take it. Pages that mix Types — Inbox, Plan, Search,
+  progress and focus take it. Pages that mix Types — Today, Week, Search,
   Settings — are neutral, with an ink primary, and each Item on them shows
   its own colour.
 - **No Module name above the page title:** the title and the colour say

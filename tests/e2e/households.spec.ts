@@ -81,7 +81,7 @@ test.describe('Households', () => {
     await expect.poll(() => db.space_members.some((m) => m.space_id === CLUB)).toBe(true)
 
     // Not on Inbox (HSH-002 2).
-    await page.goto('/inbox')
+    await page.goto('/today')
     await expect(page.getByText('From Sam Carter')).toHaveCount(0)
   })
 

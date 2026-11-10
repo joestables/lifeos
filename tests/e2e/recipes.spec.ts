@@ -602,7 +602,7 @@ test.describe('Recipes', () => {
         ],
       },
     })
-    await page.goto('/inbox')
+    await page.goto('/notes?tab=thoughts')
     const row = page.locator('[data-slot="item-row"]').filter({ hasText: 'Crispy chilli beef' })
     await row.getByRole('button', { name: 'More' }).click()
     await page.getByRole('menuitem', { name: 'Recipe' }).click()

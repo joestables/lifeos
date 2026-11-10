@@ -66,7 +66,7 @@ test.describe('Shopping', () => {
     page,
     isMobile,
   }) => {
-    const db = await start(page, '/inbox', mealRows())
+    const db = await start(page, '/today', mealRows())
     if (isMobile) await page.getByRole('button', { name: 'Menu' }).click()
     await page.getByRole('link', { name: 'Shopping' }).click()
     await expect(page.getByRole('heading', { name: 'Shopping', level: 1 })).toBeVisible()
@@ -332,10 +332,10 @@ test.describe('Shopping', () => {
     page,
     isMobile,
   }) => {
-    const db = await start(page, '/plan?day=2026-10-17')
+    const db = await start(page, '/week?day=2026-10-17')
     const card = page.locator('[data-slot="plan-card"]').filter({ hasText: 'Big shop' })
     await expect(card).toBeVisible()
-    await page.goto('/plan?day=2026-10-16')
+    await page.goto('/week?day=2026-10-16')
     if (isMobile) await page.getByRole('button', { name: 'Add' }).last().click()
     else await page.getByRole('button', { name: /^Add to .*16/ }).click()
     await page.getByRole('menuitem', { name: 'Shopping list' }).click()
@@ -347,7 +347,7 @@ test.describe('Shopping', () => {
   })
 
   test('SRC-003 2: Search finds a list by name or by a line on it', async ({ page, isMobile }) => {
-    await start(page, '/inbox')
+    await start(page, '/today')
     if (isMobile) await page.getByRole('button', { name: 'Menu' }).click()
     await page.getByRole('button', { name: 'Search', exact: true }).click()
     const input = page.getByRole('combobox', { name: 'Search' })
@@ -505,7 +505,7 @@ test.describe('Shopping', () => {
   }) => {
     const base = mealRows()
     const thought = id(91)
-    const db = await start(page, '/inbox', {
+    const db = await start(page, '/notes?tab=thoughts', {
       ...base,
       items: [
         ...(base.items ?? []),
@@ -549,7 +549,7 @@ test.describe('Shopping', () => {
   test('SHP-003 5: a Thought’s lines added to an open shop instead', async ({ page }) => {
     const base = shopRows()
     const thought = id(93)
-    const db = await start(page, '/inbox', {
+    const db = await start(page, '/notes?tab=thoughts', {
       ...base,
       items: [...(base.items ?? []), itemRow({ id: thought, type: 'thought', title: 'Buy milk' })],
     })

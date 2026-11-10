@@ -17,7 +17,7 @@ async function start(page: Page, path = '/meal-plan', { clock = true } = {}) {
   if (clock) await page.clock.setFixedTime(NOW)
   const db = await standIn(page, { signedIn: true, rows: mealRows() })
   await page.goto(path)
-  await expect(page.getByRole('heading', { name: /^(Meal plan|Plan)$/, level: 1 })).toBeVisible()
+  await expect(page.getByRole('heading', { name: /^(Meal plan|Week)$/, level: 1 })).toBeVisible()
   return db
 }
 
@@ -273,7 +273,7 @@ test.describe('The Meal plan', () => {
     page,
     isMobile,
   }) => {
-    const db = await start(page, '/plan?day=2026-10-15')
+    const db = await start(page, '/week?day=2026-10-15')
     const card = page.locator('[data-slot="plan-card"]').filter({ hasText: 'Katsu curry' }).first()
     await expect(card).toContainText('Dinner')
     if (isMobile) await page.getByRole('button', { name: 'Add' }).last().click()

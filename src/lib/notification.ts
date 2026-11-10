@@ -46,7 +46,7 @@ export function notificationFor(raw: string | null | undefined): {
       icon: '/icon-192.png',
       tag: p.tag,
       data: {
-        url: p.url?.startsWith('/') ? p.url : '/inbox',
+        url: p.url?.startsWith('/') ? p.url : '/today',
         delivery: p.delivery,
         token: p.token,
       },

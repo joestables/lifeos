@@ -2,12 +2,18 @@ import { ArrowRightIcon, ArchiveIcon, RepeatIcon, StarIcon, Trash2Icon } from 'l
 import { ItemRow } from '@/components/lifeos'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
-import { DropdownMenuItem } from '@/components/ui/dropdown-menu'
+import {
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+} from '@/components/ui/dropdown-menu'
 import { toast } from '@/components/ui/sonner'
 import { Toggle } from '@/components/ui/toggle'
 import { setMark, updateItem, type Item } from '@/data'
 import { dateName, dueWhen, isoDayOf, sinceWhen } from '@/lib/dates'
-import { itemTitle } from '@/lib/item-types'
+import { convertTargets, itemTitle } from '@/lib/item-types'
+import { useConvert } from './convert'
 import { deleteItem, useOpenItem } from './item-navigation'
 import { useTickDone } from './repeat'
 import { toSomeday } from './task-actions'
@@ -18,7 +24,7 @@ const tomorrowOf = (now: Date) =>
 
 /**
  * A Task in a list (patterns.md#tasks): tick it done, open it, move it to
- * tomorrow or Someday, star it. Its meta: time, the day when the group
+ * tomorrow or Someday, star it, convert it (RMD-006) or delete it. Its meta: time, the day when the group
  * doesn't say it, the due date (red once passed), its repeat, Labels,
  * sub-tasks "2/5".
  */
@@ -47,6 +53,7 @@ export function TaskRow({
 }) {
   const open = useOpenItem()
   const tickDone = useTickDone()
+  const convert = useConvert()
   const title = itemTitle(task)
   const today = isoDayOf(now)
   const isDone = task.status === 'done'
@@ -135,6 +142,16 @@ export function TaskRow({
               <ArchiveIcon /> Someday
             </DropdownMenuItem>
           )}
+          <DropdownMenuSeparator />
+          <DropdownMenuGroup>
+            <DropdownMenuLabel>Convert to</DropdownMenuLabel>
+            {convertTargets('task').map((t) => (
+              <DropdownMenuItem key={t.key} onClick={() => convert(task, t.key)}>
+                <t.icon /> {t.label}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuGroup>
+          <DropdownMenuSeparator />
           <DropdownMenuItem variant="destructive" onClick={() => deleteItem(task)}>
             <Trash2Icon /> Delete
           </DropdownMenuItem>

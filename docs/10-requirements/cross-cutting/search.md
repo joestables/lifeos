@@ -19,7 +19,7 @@ Stage 2, are at the end.*
 - It opens over the page, on a phone as on a computer, and a tap outside it
   closes it (Joe, 12 October; [patterns](../../30-design/patterns.md#search)).
 - A repeating Task (and, from Stage 3, a repeating Event) is found once, as its lists show it
-  ([TSK-008](../views/tasks.md#requirements)).
+  ([TSK-008](../views/plan.md#requirements)).
 
 ## Requirements
 

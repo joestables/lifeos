@@ -33,13 +33,14 @@ export interface TypeLook {
   icon: LucideIcon
   mark?: Mark
   /** The page an Item of this Type lives on, and that page's name. */
-  home: '/inbox' | '/tasks' | '/notes' | '/plan' | '/recipes' | '/shopping'
+  home: '/today' | '/plan' | '/notes' | '/recipes' | '/shopping'
   homeLabel: string
 }
 
 const HOMES: Record<string, Pick<TypeLook, 'home' | 'homeLabel'>> = {
-  task: { home: '/tasks', homeLabel: 'Tasks' },
+  task: { home: '/plan', homeLabel: 'Plan' },
   note: { home: '/notes', homeLabel: 'Notes' },
+  thought: { home: '/notes', homeLabel: 'Notes' },
   event: { home: '/plan', homeLabel: 'Plan' },
   reminder: { home: '/plan', homeLabel: 'Plan' },
   recipe: { home: '/recipes', homeLabel: 'Recipes' },
@@ -56,7 +57,7 @@ export function typeLook(key: string): TypeLook {
     colour: t?.colour ?? 'yellow',
     icon: TYPE_ICONS[key] ?? FileIcon,
     mark: t?.mark,
-    ...(HOMES[key] ?? { home: '/inbox', homeLabel: 'Inbox' }),
+    ...(HOMES[key] ?? { home: '/today', homeLabel: 'Today' }),
   }
 }
 

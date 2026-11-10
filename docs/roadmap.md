@@ -76,7 +76,7 @@ Each is a later stage's decision; listed so nothing closes the door on them.
 
 - **Readiness-aware gym planning** — the Gym's recovery engine plus Oura's
   readiness: "you're recovered for push, not legs", offered as a suggestion
-  on Plan and in Inbox.
+  on Week and Today.
 - **Weather** — an Integration that feeds outfit suggestions ("12°C, dry")
   and run planning.
 - **Nutrition** — the Pantry can carry nutrition data later

@@ -1,11 +1,11 @@
 # Events
 
 *Stage 3. An Event is a core Type with no page of its own: it lives on
-[Plan](../views/plan.md). The decisions come first; the requirements, drafted
+[Week](../views/week.md). The decisions come first; the requirements, drafted
 at the start of Stage 3 ([plan](../../50-progress/plans/stage-3.md)), are at
 the end.*
 
-> **Changing in Stage 7b** (spec agreed 9 November, not yet built): Takes Labels off Events and adds an Events tab on Plan (PLA-003, PLA-007). [Today, Reminders and Plan](today-reminders-plan.md). Until it is built, this page is how it works.
+> **Changing in Stage 7b** (spec agreed 9 November): Plan has an Events tab since step 6 ([PLA-003](../views/plan.md#pla-003--the-events-tab)); still to come, Labels off Events (PLA-007, step 9). [Today, Reminders and Plan](today-reminders-plan.md). Until then, this page is how the rest works.
 
 ## Decisions
 
@@ -21,8 +21,8 @@ the end.*
   [ADR-0014](../../20-architecture/adr/0014-reference-data-and-labels.md),
   Provisionally agreed).
 - **Events aren't captured** (Joe, 14 October): capture makes Thoughts and
-  Tasks. An Event is made on Plan, by switching a Task, or by sorting a
-  Thought into one in Inbox.
+  Tasks. An Event is made on Week, by switching a Task, or by sorting a
+  Thought into one on Notes' Thoughts.
 - **An Event I make reminds me 30 minutes before** it starts, if it has a
   time; an all-day Event and one from Google Calendar have no Alert
   unless I add one (Joe, 14 October;
@@ -30,7 +30,7 @@ the end.*
 - **Repeating Events** use the same engine and rules as repeating Tasks, on
   a schedule only (an Event isn't done)
   ([ADR-0022](../../20-architecture/adr/0022-repeating-items.md),
-  Provisionally agreed). Unlike Tasks, every occurrence shows on Plan.
+  Provisionally agreed). Unlike Tasks, every occurrence shows on Week.
 - **Tasks *for* an Event** ("buy a card" for "Mum's birthday lunch") are
   linked with the *for* link
   ([data model](../../20-architecture/data-model.md#link-types)).
@@ -54,11 +54,11 @@ the end.*
 ### EVT-001 — Make an Event
 
 **As** Joe, **I want** to put something that's happening on a day, **so
-that** Plan shows it.
+that** Week shows it.
 Priority: Must · Status: verified
 
 Acceptance criteria
-1. Given a new Event (from a day's "+" on Plan, or Plan's "Add"), then
+1. Given a new Event (from a day's "+" on Week, or Week's "Add"), then
    a new Event opens with all its fields — title, all day or a start and end
    time, Alerts (its default among them, EVT-003) just below the end
    (Joe, 4 November), place, repeat, notes, Labels, and with a Household its
@@ -115,13 +115,13 @@ Priority: Must · Status: verified
 Acceptance criteria
 1. Given an Event, then I can make it repeat with the same choices as a Task
    on a schedule
-   ([TSK-008](../views/tasks.md#tsk-008--repeat-on-a-schedule)), with an
+   ([TSK-008](../views/plan.md#tsk-008--repeat-on-a-schedule)), with an
    optional end.
-2. Given a weekly Event, then each occurrence is on Plan at its time, London
+2. Given a weekly Event, then each occurrence is on Week at its time, London
    time either side of the clocks changing, for the next two months or so.
 3. Given I change one occurrence, or the repeat "for this and all
    following", or stop it, then it behaves as for a Task
-   ([TSK-011](../views/tasks.md#tsk-011--change-or-stop-a-repeat)).
+   ([TSK-011](../views/plan.md#tsk-011--change-or-stop-a-repeat)).
 
 ### EVT-005 — Switch between Task and Event
 

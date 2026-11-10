@@ -54,7 +54,7 @@ Priority: Must · Status: built (step 5; Joe checks it on his phone)
 
 Acceptance criteria
 1. Given the APK, when I install it, then LifeOS is on my home screen with
-   its icon, opens on Inbox, and shows as "LifeOS".
+   its icon, opens on Today, and shows as "LifeOS".
 2. Given a change is deployed, then the app has it the next time it opens,
    as the web app does now; only a change to the app's own native parts
    needs a new APK, and the app says when one is ready to install.
