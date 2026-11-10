@@ -21,7 +21,8 @@ Branch `claude/relaxed-fermi-nehy7e` · 2026-11-10
   with Reminder a tap away beside Task and Note.
 - `/inbox`, `/tasks` and Week's old `/plan?day=`, `/plan?add=1` redirect.
   Tasks and Reminders convert from their rows' menus.
-- Migration `stage7b_series_reminders`: the nightly series run closes only
+- Migration `stage7b_series_reminders` (applied as `20261110155215`; the
+  advisors found nothing new): the nightly series run closes only
   occurrences whose Type has *cancelled*, so a repeating Reminder can't fail
   it.
 - The specs moved into their pages' own (`views/today.md`, `week.md`,
