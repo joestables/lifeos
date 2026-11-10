@@ -83,7 +83,6 @@ import {
   SectionLabel,
   AlertList,
   RepeatField,
-  SubtaskList,
   SwipeAction,
   SyncStatus,
   TimeField,
@@ -756,16 +755,6 @@ function DesignPage() {
                 { id: 'c', when: 'Fri 07:00', says: 'At a set time', alarm: true },
               ]}
               onOpen={() => {}}
-              onRemove={() => {}}
-              onAdd={() => {}}
-            />
-            <SubtaskList
-              subtasks={[
-                { id: 'a', title: 'Get a quote from Admiral', done: true },
-                { id: 'b', title: 'Get a quote from Direct Line', done: false },
-              ]}
-              onToggle={() => {}}
-              onRename={() => {}}
               onRemove={() => {}}
               onAdd={() => {}}
             />

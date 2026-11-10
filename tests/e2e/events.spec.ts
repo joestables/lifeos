@@ -49,7 +49,6 @@ const rows = () => ({
       all_day: false,
     }),
   ],
-  labels: [{ id: 'l-family', name: 'Family' }],
   links: [{ from_item: CARD, to_item: LUNCH, link_type: 'for' }],
 })
 

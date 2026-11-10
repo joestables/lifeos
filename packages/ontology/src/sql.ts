@@ -30,7 +30,6 @@ export function lookupMigrationSql(): string {
       text(t.colour),
       t.labels,
       optional(t.mark),
-      t.subtasks,
       optional(t.defaultAlert),
       t.place,
       t.alerts,
@@ -46,7 +45,7 @@ export function lookupMigrationSql(): string {
 insert into core.item_types
   (key, module, label, schedulable, completable, shareable, capturable,
    statuses, default_space, time_fields, converts_to, colour, uses_labels,
-   mark, has_subtasks, default_alert, has_place, takes_alerts)
+   mark, default_alert, has_place, takes_alerts)
 values
 ${types.map((r) => `  (${r})`).join(',\n')}
 on conflict (key) do update set
@@ -63,7 +62,6 @@ on conflict (key) do update set
   colour = excluded.colour,
   uses_labels = excluded.uses_labels,
   mark = excluded.mark,
-  has_subtasks = excluded.has_subtasks,
   default_alert = excluded.default_alert,
   has_place = excluded.has_place,
   takes_alerts = excluded.takes_alerts;

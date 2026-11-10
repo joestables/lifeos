@@ -107,8 +107,8 @@ core.activity  item_id, verb, changed (jsonb), at, actor — written by triggers
 - **`do_on` is a date with an optional time.** A Task is something *you do*,
   by or on a date; an Event is something that *happens* at a time. "Big
   shop, Sat" is a Shopping list with a do-on date; "Dishoom 19:30" is an Event.
-- **`touched_at`** is set the first time a person edits, ticks, labels,
-  adds a sub-task to or links an occurrence; what the series itself writes
+- **`touched_at`** is set the first time a person edits, ticks or links an
+  occurrence; what the series itself writes
   doesn't count ([ADR-0022](adr/0022-repeating-items.md)).
 - **An occurrence is unique by its series and `occurrence_on`**, the date
   the series made it for, which stays put when the occurrence is moved
@@ -178,8 +178,10 @@ from the copy, never from the definition's current values.
 S = Schedulable · C = Completable · Sh = Shareable · Cap = Capturable.
 Colour: the Type's colour ([ADR-0043](adr/0043-colour-by-type.md),
 Provisionally agreed). Labels: whether the Type uses Labels. Mark: the
-per-person mark the Type has, under its own name. The ontology package also
-declares which Types hold sub-tasks (Task) and which time field a Type's
+per-person mark the Type has, under its own name; Tasks and Events have no
+Labels since Stage 7b, and there are no sub-tasks
+([ADR-0065](adr/0065-reminders-alerts-and-the-day.md) 8). The ontology
+package also declares which time field a Type's
 default Alert follows (a Task's do-on date; an Event's start, 30 minutes
 before) and which have a place (Event); the lookup table carries all of
 these, so the database enforces them.
@@ -192,8 +194,8 @@ these, so the database enforces them.
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | core | **Thought** (raw, unsorted; waits on Notes' Thoughts until sorted or ticked off) | — | ✓ | — | — | Personal | active · done | yellow | ✓ | — | 2 |
 | core | **Note** | — | — | — | ✓ | Personal | active | yellow | ✓ | pinned | 2 |
-| core | **Task** | ✓ do-on / due | ✓ | ✓ | ✓ | Personal, or a Household chosen in its popup (HSH-005) | idea "Someday" · active · done · cancelled — a missed repeat: "Skipped" | blue | ✓ | starred | 2 |
-| core | **Event** (a place; not captured, but a Thought can become one) | ✓ start / end | — | ✓ | ✓ | Personal, or a Household chosen in its popup, from Google Calendar too (HSH-005) | active · cancelled | blue | ✓ | — | 3 |
+| core | **Task** | ✓ do-on / due | ✓ | ✓ | ✓ | Personal, or a Household chosen in its popup (HSH-005) | idea "Someday" · active · done · cancelled — a missed repeat: "Skipped" | blue | — | starred | 2 |
+| core | **Event** (a place; not captured, but a Thought can become one) | ✓ start / end | — | ✓ | ✓ | Personal, or a Household chosen in its popup, from Google Calendar too (HSH-005) | active · cancelled | blue | — | — | 3 |
 | core | **Reminder** (a title, its Alerts and a Repeat; never done) | ✓ do-on | — | — | ✓ | Personal | active | blue | — | — | 7b |
 | food | **Recipe** (the dish) | — | — | ✓ | ✓ | Its author's Personal, seen read-only by their Households ([ADR-0051](adr/0051-who-sees-food.md)) | idea "Idea" · active "Draft" · done "Complete" · cancelled "Archived" — the highest of its Variations', worked out | green | — | favourited | 4 |
 | food | **Variation** (a way of making it) | — | — | ✓ | — | Its own author's: the Recipe's, or a Household member's added to it (ADR-0051) | idea "Idea" · active "Draft" · done "Complete" · cancelled "Archived" — set by hand; never back to Idea once it has ingredients or a method | green | — | — | 4 |
@@ -227,7 +229,7 @@ into each other ([ADR-0065](adr/0065-reminders-alerts-and-the-day.md)). Everythi
 Thoughts and Notes: [ADR-0037](adr/0037-thoughts.md) (Provisionally agreed).
 
 **Not Items, deliberately:** people, Spaces, series, Alerts, Labels,
-marks, sub-tasks,
+marks,
 reference data, list lines, ingredient lines, method steps, cook log entries,
 template exercises, workout sets, health metrics (Oura sleep and readiness,
 weight — a time series; [ADR-0015](adr/0015-health-data-as-a-time-series.md),
@@ -241,7 +243,7 @@ more than Labels).
 
 | Module | Detail tables (1:1 with an Item) | Child rows |
 |---|---|---|
-| core | — (Thought, Note, Task use `core.items` only; where an Event's place is kept is decided with Stage 3's schema) | `subtasks(item_id, title, done, position)` — a Task's sub-tasks |
+| core | — (Thought, Note, Task, Event and Reminder use `core.items` only; an Event's place is its `place`) | — |
 | shopping | `shopping_list(kind: food · list)` | `list_meals(list_id, meal_id)` (a food shop's Meals; a Meal on one open shop at most); `lines(position, heading?, pantry_id?, text?, qty?, qty_max?, approx, unit?, checked, meal_id?, source_id?, needed_space_id?)` — in the list's own Space; a Meal's lines written by the database as its Meal changes, ticked ones kept, each with the id its list, Meal and source line give it ([ADR-0057](adr/0057-shopping-in-the-database.md)) |
 | food | `recipe(category, cuisine, tags, protein, carbs, default_variation)` (its name is the Item's title; its photo is in `core.attachments`), `variation(servings, prep_min, cook_min, sources, notes, archived_from)` (its name and state are the Item's title and status; `archived_from` keeps its state while its Recipe is archived), `meal(servings, leftovers_of?, source?)` (a typed Meal is one with no *uses* link, named by its title; `source` its recipe link, MPL-006) | `variation_lines(position, heading?, pantry_id?, text?, qty?, qty_max?, approx, unit?)` (a row with a heading is a subheading and nothing else), `meal_lines(position, pantry_id?, text?, qty?, qty_max?, approx, unit?)` (a Meal's own lines, no subheadings, never on leftovers; MPL-006), `variation_steps(position, text)` (an "@" reference to a Recipe kept in the text, and in a Variation's notes, as `@[Name](recipe id)`: shown under the Recipe's name now, plain once it is gone; RCP-008), `cooks(person, cooked_at, verdict?, notes?, servings?, meal_id?, snapshot)`; each person's `values` (kind: category · cuisine · tag · protein · carb; renamed with `food.rename_value`, which renames them on their Recipes, unlogged, and merged with `food.move_value_uses` then `food.remove_value`; a Recipe restored from Recently deleted puts its names back on its author's lists; RCP-018 1); each person's `recent_views(recipe_id, viewed_at)`, the Recipes they opened, the latest view kept (MPL-002 1; read and written only by them, through `food.view_recipe`); `change_notes(activity_id, item_id, note, person_id)`, the words of whoever made a change on what it changed, by the activity entry it starts with (RCP-013; written only through `food.note_change`, by its maker); not Items: the Pantry `pantry(name, kind: ingredient · household, aisle?, default_unit?, added_by)` — one name once, ignoring case; an ingredient has an aisle (fruit_veg · bakery · protein · chilled · cupboard · frozen), a household item none — and each Space's `space_entries(pantry_id, kind: staple · essential, needed)` (needed is out of stock for a staple, Required for an Essential; Stage 4b) ([ADR-0052](adr/0052-food-in-the-database.md)) |
 | fitness | `exercise(equipment_id, current_weight, current_reps, notes?)`, `workout(stage: planned · in_progress · complete, started_at?, ended_at?, how_it_went? (1–5), motivation? (1–3), notes?, discarded)` (one in progress per person, by its `owner_id`; one in progress deleted is ended, `discarded`, and comes back in progress when restored, if no other is), `cardio_activity(kind, distance_m, duration_s, avg_hr)` (Stage 8) | `exercise_muscles(exercise_id, muscle_id, contribution)` (one primary at 1.0, secondary 0.1–0.9), `template_exercises(template_id, exercise_id, position, sets)`, `workout_entries(workout_id, exercise_id, place: backlog · session, planned_sets, begun_at?, done_at?, snapshot)`, `workout_sets(entry_id, position, weight?, reps?, rir?, logged_at)` (all three or none: a quick set); weights `numeric(7,3)` kg; reference data, each person's: `equipment(name, increment)`, `muscle_groups(person?, name, category: push · pull · core · legs, body_part?, default_recovery, position)` (twenty built in with no person, shared and read-only), `muscle_settings(person, muscle_id, recovery_type, frequency_target, stimulus_target)`, `settings(person, preferred_rir, workouts_to_stall, points_per_fatigue_set, t_fast_h, t_normal_h, t_slow_h)`; readiness, stimulus sets and progression worked out by `packages/fitness` (on the device, and on the server when needed), never stored ([ADR-0058](adr/0058-fitness-in-the-database.md), [ADR-0059](adr/0059-recovery-on-the-device.md)) |
@@ -304,7 +306,6 @@ rule and create no links.
 | `core.item_types` · `core.link_types` | The ontology's lookup tables, generated from `packages/ontology` ([ADR-0008](adr/0008-registries-declared-in-code.md)) |
 | `core.labels` · `core.item_labels` | Labels: one set per Space, names unique whatever their case, only on the Types that use them and from the Item's own Space; renaming shows everywhere, deleting keeps the Items. A Label made under a name already taken keeps the new id in its `aliases`, so a device that made it offline still gives and takes it off |
 | `core.marks` | Per-person marks: pinned Notes, starred Tasks, favourited Recipes. A converted Item keeps its mark if the new Type has one (a pinned Note becomes a starred Task), and its Labels if the new Type uses them |
-| `core.subtasks` | A Task's sub-tasks: title, done, position |
 | `core.capture_tokens` | Each person's capture-address secrets (hashed), revocable (Stage 10) |
 | `core.attachments` | Photos on Items: one per Item, `kind` photo, its `path` in Storage's private `photos` bucket (`{item id}/{id}.webp`, WebP only, at most 2 MB), its width, height and size. Read by whoever can read the Item, a Household member's Recipe too; added (`core.set_photo`, in place of the old one) and removed (`core.remove_photo`) by whoever can write it; Storage's policies follow the Item the folder names (ADR-0052) |
 | `core.connections` | Integration connections; tokens in Vault. A disconnected one is kept, emptied (`disconnected_at`), so reconnecting finds its calendars and outside ids again |

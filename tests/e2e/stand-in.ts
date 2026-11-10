@@ -23,7 +23,6 @@ export interface Rows {
   people?: Record<string, unknown>[]
   alerts?: Record<string, unknown>[]
   push_devices?: Record<string, unknown>[]
-  subtasks?: { id: string; item_id: string; title: string; done: boolean; position: string }[]
   series?: Record<string, unknown>[]
   links?: { from_item: string; to_item: string; link_type: string }[]
   connections?: Record<string, unknown>[]
@@ -219,7 +218,6 @@ export async function standIn(
       last_sent_at: null,
       ...d,
     })),
-    subtasks: [...(rows.subtasks ?? [])],
     series: [...(rows.series ?? [])],
     links: [...(rows.links ?? [])],
     connections: [...(rows.connections ?? [])],
@@ -485,7 +483,6 @@ export async function standIn(
         occurrence_on: on,
       }),
     )
-    for (const label of t.label_ids ?? []) db.item_labels.push({ item_id: id, label_id: label })
   }
   // Food, as the food schema's functions and triggers do it (ADR-0011, ADR-0052).
   const recipeOf = (variation: unknown) =>
@@ -1525,6 +1522,9 @@ export async function standIn(
     convert_item: (a) => {
       const i = item(a.p_id)
       if (!i) return {}
+      // Its Labels go if the new Type has none (ITM-004, PLA-007).
+      if (!typeByKey(String(a.p_type))?.labels)
+        db.item_labels = db.item_labels.filter((r) => r.item_id !== a.p_id)
       const keeps = (typeByKey(String(a.p_type))?.statuses as readonly string[]) ?? []
       // Sorted into a Recipe, an Idea with a first Variation holding its text and links (RCP-002 4).
       if (a.p_type === 'recipe' && i.type !== 'recipe') {
@@ -1602,22 +1602,9 @@ export async function standIn(
       db.labels = db.labels.filter((l) => l.id !== a.p_id)
       db.item_labels = db.item_labels.filter((r) => r.label_id !== a.p_id)
     },
-    add_subtask: (a) => {
-      if (db.subtasks.some((x) => x.id === a.p_id)) return
-      db.subtasks.push({
-        id: String(a.p_id),
-        item_id: String(a.p_item),
-        title: String(a.p_title),
-        done: false,
-        position: String(a.p_position),
-      })
-    },
-    update_subtask: (a) =>
-      db.subtasks.filter((x) => x.id === a.p_id).forEach((x) => Object.assign(x, a.p_patch)),
-    remove_subtask: (a) => {
-      db.subtasks = db.subtasks.filter((x) => x.id !== a.p_id)
-    },
     add_label: (a) => {
+      // Labels are a Thought's or a Note's (PLA-007).
+      if (!typeByKey(String(item(a.p_item)?.type))?.labels) return
       if (!db.item_labels.some((r) => r.item_id === a.p_item && r.label_id === a.p_label))
         db.item_labels.push({ item_id: String(a.p_item), label_id: String(a.p_label) })
     },

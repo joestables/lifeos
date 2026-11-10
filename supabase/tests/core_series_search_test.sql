@@ -63,15 +63,16 @@ select is(
   '2026-10-19'::date,
   'ADR-0045: a moved occurrence keeps the date it was made for'
 );
--- Labelling an occurrence touches it too.
+-- Linking an occurrence touches it too.
 insert into core.items (id, type, title, space_id, do_on, series_id, occurrence_on) values
   ('00000000-0000-7000-8000-000000000014', 'task', 'Bins', :'a_space', '2026-10-26', '00000000-0000-7000-8000-0000000000f1', '2026-10-26');
-select core.create_label('00000000-0000-7000-8000-0000000000a1', 'Home');
-select core.add_label('00000000-0000-7000-8000-000000000014', '00000000-0000-7000-8000-0000000000a1');
+select core.create_item('00000000-0000-7000-8000-000000000015', 'note', '{"title": "Bin rota"}');
+select core.link_items('00000000-0000-7000-8000-0000000000e9',
+  '00000000-0000-7000-8000-000000000015', '00000000-0000-7000-8000-000000000014', 'relates_to');
 select isnt(
   (select touched_at from core.items where id = '00000000-0000-7000-8000-000000000014'),
   null,
-  'ADR-0022: labelling an occurrence touches it'
+  'ADR-0022: linking an occurrence touches it'
 );
 select is(
   (select count(*)::int from core.activity where item_id = '00000000-0000-7000-8000-000000000014' and verb = 'updated'),

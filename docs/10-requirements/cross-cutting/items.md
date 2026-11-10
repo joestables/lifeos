@@ -1,11 +1,11 @@
 # Working with Items
 
 *Stage 2. What every Item offers, whatever its Type — opening it, deleting
-and recovering it, converting it — and the Labels that Thoughts, Notes, Tasks
-and Events share. The decisions come first; the requirements, drafted at the start of
+and recovering it, converting it — and the Labels that Thoughts and Notes
+share. The decisions come first; the requirements, drafted at the start of
 Stage 2, are at the end.*
 
-> **Changing in Stage 7b** (spec agreed 9 November): the Reminder Type and its conversions are built (RMD-006, steps 5 and 6); still to come, Labels for Notes and Thoughts only (PLA-007, step 9). [Today, Reminders and Plan](today-reminders-plan.md). Until then, this page is how the rest works.
+> **Changed in Stage 7b** (spec agreed 9 November): the Reminder Type and its conversions (RMD-006, steps 5 and 6); Labels for Notes and Thoughts only (PLA-007, step 9). [Today, Reminders and Plan](today-reminders-plan.md).
 
 ## Decisions
 
@@ -25,8 +25,10 @@ Stage 2, are at the end.*
   Provisionally agreed). The ontology package decides which conversions
   exist.
 - **Not every Type has every feature.** Each Type declares what it has:
-  - **Labels** — Thoughts, Notes, Tasks and Events (from Stage 3), one shared set per Space; other Types
-    don't use them ([ADR-0014](../../20-architecture/adr/0014-reference-data-and-labels.md),
+  - **Labels** — Thoughts and Notes, one shared set per Space; other Types
+    don't use them. Tasks and Events had them until Stage 7b
+    ([ADR-0014](../../20-architecture/adr/0014-reference-data-and-labels.md),
+    amended by [ADR-0065](../../20-architecture/adr/0065-reminders-alerts-and-the-day.md),
     Provisionally agreed).
   - **A mark, under its own name** — Notes are *pinned*, Tasks *starred*,
     Recipes *favourited* (Stage 4, on anyone's Recipe I can see); a Type
@@ -99,22 +101,22 @@ Acceptance criteria
 1. Given an Item, then I'm offered only the Types it can be converted into,
    among the Types that exist.
 2. Given I convert a Note into a Task, then it keeps its title, body,
-   Labels, links and Alerts, and its history records the conversion; its
+   links and Alerts (its Labels go, as a Task has none, PLA-007), and its
+   history records the conversion; its
    status is kept where the new Type has it, else it is active (a done
    Thought becomes an active Note).
 3. Given I've just converted an Item, then I can undo it, and it is the
    Type it was, as it was (Joe, 12 October).
 
-### ITM-005 — Labels on Thoughts, Notes and Tasks
+### ITM-005 — Labels on Thoughts and Notes
 
-**As** Joe, **I want** one set of Labels for my Thoughts, Notes and Tasks
-(and Events, from Stage 3) that I can tidy, **so that** "Home" means the
-same thing everywhere.
-Priority: Must · Status: verified (Events: agreed, Stage 3)
+**As** Joe, **I want** one set of Labels for my Thoughts and Notes that I
+can tidy, **so that** "Home" means the same thing everywhere.
+Priority: Must · Status: verified (Tasks and Events had them until Stage 7b, PLA-007)
 
 Acceptance criteria
-1. Given a Thought, a Note, a Task or an Event, when I type a Label's name, then I
-   can pick an existing Label or make a new one.
+1. Given a Thought or a Note, when I type a Label's name, then I can pick
+   an existing Label or make a new one.
 2. Given I rename a Label, then every Item with it shows the new name; when
    I delete a Label, it is removed from every Item, and they are kept.
 3. Given a Label "Home" exists, when I make "home", then I get the existing

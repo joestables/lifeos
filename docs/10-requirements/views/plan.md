@@ -19,11 +19,11 @@ Provisionally agreed). It replaces Google Tasks.
 - **Do-on and due:** do-on (a date, with an optional time) is when you mean to
   do it; due is a deadline, and only due makes a Task overdue
   ([ADR-0021](../../20-architecture/adr/0021-time.md), Provisionally agreed).
-- **No Labels on Plan** (Joe, 9 November): its lists have no Label pills,
-  and its rows show none. Labels on Tasks and Events go in Stage 7b's step
-  9 (PLA-007); until then a Task's popup still has them
-  ([ADR-0014](../../20-architecture/adr/0014-reference-data-and-labels.md),
-  amended).
+- **No Labels on Plan** (Joe, 9 November): Tasks and Events have none, so
+  its lists have no Label pills and a Task's popup no Labels field; Labels
+  are for Notes and Thoughts (PLA-007;
+  [ADR-0014](../../20-architecture/adr/0014-reference-data-and-labels.md),
+  amended by [ADR-0065](../../20-architecture/adr/0065-reminders-alerts-and-the-day.md)).
 - **Tasks are starred**, as in Google Tasks: starring is the Task's mark,
   private to the person who stars it.
 - **A Task can be shared with a Household** (Joe, 4 November;
@@ -31,10 +31,7 @@ Provisionally agreed). It replaces Google Tasks.
   its Space, at the foot of its popup. Nobody is assigned: a shared Task is
   on every member's Today and Plan, and whoever ticks it ticks it for
   all.
-- **Sub-tasks** are lines ticked inside a Task — a title and a tick, nothing
-  more. They are not Tasks of their own, so they never appear on Today or
-  Week, and Plan's rows don't count them; they go in Stage 7b's step 9
-  (PLA-007).
+- **No sub-tasks** (Joe, 9 November; PLA-007): a Task is one thing to do.
 - **Someday** is a Task's *idea* status.
 - **Repeating Tasks** are generated occurrences: one engine, generated in
   local time, touched occurrences kept, "this and all following" starts a new
@@ -74,15 +71,15 @@ and on a phone ([ITM-001](../cross-cutting/items.md#itm-001--open-an-item)).
 **A repeat** is set in the Task's Repeat field: on a schedule, or a while
 after it's done. The Task becomes the repeat's first occurrence, from its
 do-on date (today, if it has none or it has passed); each occurrence after it
-is made with the Task's title, notes, time, Labels and due date (the same
-distance after its do-on date), but not its sub-tasks. Changing the repeat
+is made with the Task's title, notes, time, Alerts and due date (the same
+distance after its do-on date). Changing the repeat
 of an occurrence applies from that occurrence on (TSK-011); "Don't repeat"
 stops it there. Occurrences a repeat takes away when it changes or stops
 don't appear in Recently deleted: they were never edited.
 
 ## Requirements
 
-*Stage 2, and Stage 7b's PLA-001–006. Statuses: proposed → agreed → built → verified.*
+*Stage 2, and Stage 7b's PLA-001–007. Statuses: proposed → agreed → built → verified.*
 
 ### TSK-001 — Add a Task quickly
 
@@ -100,7 +97,7 @@ Acceptance criteria
    notes, do-on date (today, PLA-006) and time, due date, repeat, Alerts (its default
    among them once it has a do-on date,
    [REM-002](../cross-cutting/reminders.md#rem-002--a-task-reminds-me-on-its-do-on-date)),
-   Labels and sub-tasks, and with a Household its Space at the foot
+   and with a Household its Space at the foot
    ([HSH-005](../cross-cutting/spaces-and-sharing.md#hsh-005--share-tasks-and-events)) —
    and is kept only when I save it; cancelled, nothing is left behind (Joe,
    12 October).
@@ -113,7 +110,7 @@ Priority: Must · Status: verified
 
 Acceptance criteria
 1. Given a Task, when I open it, then I can change its title, notes, do-on
-   date and time, due date, Labels, sub-tasks, repeat, Alerts, star and,
+   date and time, due date, repeat, Alerts, star and,
    if I made it, its Space, and each change is kept as I make it.
 2. Given I set a time without a date, then I'm asked for the date, as a
    do-on time needs a do-on date.
@@ -141,9 +138,9 @@ Priority: Must · Status: verified
 Acceptance criteria
 1. Given open Tasks to do today, tomorrow, next month, and with no date,
    then Plan's Tasks shows them under Today, Tomorrow, Later and No date.
-2. Given a Task, when I give it a Label, then I can pick one I already have
-   or make a new one, from the same set as Notes
-   ([ITM-005](../cross-cutting/items.md#itm-005--labels-on-thoughts-notes-and-tasks)).
+2. ~~Given a Task, when I give it a Label, then I can pick one I already have
+   or make a new one, from the same set as Notes.~~ A Task has no Labels
+   (PLA-007).
 
 ### TSK-005 — Star a Task
 
@@ -161,12 +158,12 @@ Acceptance criteria
 
 **As** Joe, **I want** to tick off parts of a Task inside it, **so that** a
 job with parts stays one Task.
-Priority: Could · Status: verified
+Priority: Could · Status: superseded (Stage 7b: no sub-tasks, PLA-007)
 
 Acceptance criteria
-1. Given a Task, when I add five sub-tasks and tick two, then the Task shows
-   "2/5" wherever it appears.
-2. Given I tick the Task done, then its sub-tasks are left as they were.
+1. ~~Given a Task, when I add five sub-tasks and tick two, then the Task shows
+   "2/5" wherever it appears.~~
+2. ~~Given I tick the Task done, then its sub-tasks are left as they were.~~
 
 ### TSK-007 — Someday
 
@@ -331,11 +328,21 @@ Acceptance criteria
    today, then it is an hour from now instead, shown in its Alerts before I
    save.
 
-PLA-007, Labels and sub-tasks gone from Tasks and Events, comes with Stage
-7b's step 9 ([Today, Reminders and Plan](../cross-cutting/today-reminders-plan.md#pla-007--no-labels-on-tasks-and-events-no-sub-tasks)).
+### PLA-007 — No Labels on Tasks and Events, no sub-tasks
+
+**As** Joe, **I want** the fields I don't use gone, **so that** a Task's
+popup is shorter.
+Priority: Must · Status: verified (`plan.spec.ts`, `google-calendar.spec.ts`; the database by `core_labels_marks_test`)
+
+Acceptance criteria
+1. Given a Task's or an Event's popup, new or opened, then it has no Labels
+   field; a Task's has no Sub-tasks.
+2. Given the Labels on my Tasks and Events and the sub-tasks on my Tasks,
+   then they are deleted, those a repeat gives each occurrence too, and the
+   database refuses new ones; the Labels themselves stay, for Notes and
+   Thoughts.
 
 Non-goals (Stage 2): Events and the Task ↔ Event switch (Stage 3); sharing
-Tasks with the Household (HSH-005); Tasks *for* an Event (Stage 3); sub-tasks
-with their own dates or Alerts; a Project Type
+Tasks with the Household (HSH-005); Tasks *for* an Event (Stage 3); a Project Type
 ([ADR-0014](../../20-architecture/adr/0014-reference-data-and-labels.md));
 importing from Google Tasks.

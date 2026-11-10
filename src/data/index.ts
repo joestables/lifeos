@@ -107,7 +107,6 @@ import { applyPendingAlerts, alertsKey, type Alert } from './alerts'
 import { applyPendingSeries, seriesKey, type Series } from './series'
 import { applyPendingSettings, settingsKey, type Settings } from './settings'
 import { applyPendingDevices, devicesKey, type Device } from './devices'
-import { applyPendingSubtasks, subtasksKey, type Subtask } from './subtasks'
 import {
   applyPendingHouseholds,
   applyPendingMyInvites,
@@ -435,11 +434,6 @@ const collections: {
     fold: (rows: SetRow[], e: QueueEntry) => applyPendingSets(rows, [e]),
   },
   {
-    key: subtasksKey,
-    fns: ['add_subtask', 'update_subtask', 'remove_subtask'],
-    fold: (rows: Subtask[], e: QueueEntry) => applyPendingSubtasks(rows, [e]),
-  },
-  {
     key: settingsKey,
     fns: ['update_settings'],
     fold: (settings: Settings, e: QueueEntry) => applyPendingSettings(settings, [e]),
@@ -535,9 +529,6 @@ export const {
   registerDevice,
   setDevice,
   removeDevice,
-  addSubtask,
-  updateSubtask,
-  removeSubtask,
   setCalendarLevel,
   setNewEventsCalendar,
   setEventCalendar,
@@ -677,7 +668,6 @@ export {
   useAlerts,
   useSeries,
   useSettings,
-  useSubtasks,
   useSyncCounts,
 } from './hooks'
 export { googleEventUrl } from './calendar'
@@ -771,7 +761,6 @@ export type { Device } from './devices'
 export { fetchVapidPublicKey, registerAndroidDevice } from './devices'
 export type { RepeatArgs, RepeatMode, Series, SeriesTemplate } from './series'
 export type { Settings, SettingsPatch } from './settings'
-export type { Subtask } from './subtasks'
 export type { Item, ItemFields, SyncState } from './types'
 
 /**

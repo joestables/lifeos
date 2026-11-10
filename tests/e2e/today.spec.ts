@@ -36,8 +36,6 @@ const rows = () => ({
       slot: 'dinner',
     }),
   ],
-  labels: [{ id: 'l-car', name: 'Car' }],
-  item_labels: [{ item_id: id(1), label_id: 'l-car' }],
   marks: [{ item_id: id(3) }],
   alerts: [
     { id: 'a-1', item_id: id(10), anchor: 'do_on', offset_days: 0, at_time: '15:00:00' },

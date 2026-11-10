@@ -21,7 +21,6 @@ import type { WriteQueue } from './queue/queue'
 import type { QueueEntry } from './queue/store'
 import { applyPendingAlerts, fetchAlerts, alertsKey, type Alert } from './alerts'
 import { applyPendingSeries, fetchSeries, seriesKey, type Series } from './series'
-import { applyPendingSubtasks, fetchSubtasks, subtasksKey, type Subtask } from './subtasks'
 import {
   applyPendingSettings,
   DEFAULT_SETTINGS,
@@ -185,13 +184,6 @@ export function useAlerts(queue: WriteQueue): readonly Alert[] {
   const entries = useQueueEntries(queue)
   const query = useQuery({ queryKey: alertsKey, queryFn: fetchAlerts })
   return useMemo(() => applyPendingAlerts(query.data ?? [], entries), [query.data, entries])
-}
-
-/** Every sub-task of the Tasks I can see, in order, with unsent ones laid over them. */
-export function useSubtasks(queue: WriteQueue): readonly Subtask[] {
-  const entries = useQueueEntries(queue)
-  const query = useQuery({ queryKey: subtasksKey, queryFn: fetchSubtasks })
-  return useMemo(() => applyPendingSubtasks(query.data ?? [], entries), [query.data, entries])
 }
 
 /** Every series behind the Items I can see, with unsent repeat changes laid over them. */

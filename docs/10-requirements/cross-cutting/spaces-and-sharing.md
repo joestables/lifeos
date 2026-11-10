@@ -194,8 +194,8 @@ Acceptance criteria
    Households. A new one starts Personal; only its maker changes it later,
    so it shows only on Items I made (HSH-003 3). Without a Household there
    is no Space field. A repeat's Space is the whole repeat's: moving one
-   occurrence moves them all. An Item's Labels are its Space's: its popup
-   offers that Space's Labels, and moving it takes the old Space's off.
+   occurrence moves them all. (A Label is its Item's Space's; Tasks and
+   Events have none since Stage 7b, PLA-007.)
 2. Given a shared Task or Event, then every member sees it on Plan, Today
    and on Week, its Household's name in its meta, and can change it or
    delete it (with Undo, and from Recently deleted); a change one makes

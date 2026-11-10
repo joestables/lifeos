@@ -31,7 +31,6 @@ export { LabelPicker } from './LabelPicker'
 export { NoteCard, NoteGrid } from './NoteCard'
 export { AddRow } from './AddRow'
 export { DateField } from './DateField'
-export { SubtaskList } from './SubtaskList'
 export { TimeField } from './TimeField'
 export { RepeatField, type Repeat } from './RepeatField'
 export {

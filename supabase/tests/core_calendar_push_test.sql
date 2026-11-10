@@ -43,13 +43,11 @@ select core.set_new_events_calendar(:'main');
 select core.create_item('00000000-0000-7000-8000-000000000002', 'event',
   '{"title": "Dinner", "place": "Dishoom", "starts_at": "2026-10-21T18:30:00Z", "ends_at": "2026-10-21T20:30:00Z"}');
 select core.create_item('00000000-0000-7000-8000-000000000003', 'task', '{"title": "Bins"}');
-select core.create_label('00000000-0000-7000-8000-0000000000c1', 'Family');
-select core.add_label('00000000-0000-7000-8000-000000000002', '00000000-0000-7000-8000-0000000000c1');
 reset role;
 select is(
   (select array_agg(item_id::text) from core_private.calendar_outbox where sent_at is null),
   array['00000000-0000-7000-8000-000000000002'],
-  'GCL-005 1, 4, 5: a new Event waits to go out; a Task and a Label don''t'
+  'GCL-005 1, 4, 5: a new Event waits to go out; a Task doesn''t'
 );
 
 set local role authenticated;

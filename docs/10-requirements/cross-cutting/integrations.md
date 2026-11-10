@@ -52,7 +52,7 @@ of Stage 3 ([plan](../../50-progress/plans/stage-3.md)), are at the end.*
   LifeOS deletes every copy (GCL-007).
 - **An Event from an incoming-only calendar is Google's** (Joe, 14
   October): it can't be changed, moved or deleted in LifeOS, only opened in
-  Google Calendar. Labels, Alerts and Tasks *for* it are LifeOS's own,
+  Google Calendar. Alerts and Tasks *for* it are LifeOS's own,
   and stay in LifeOS on either level.
 - **No Alert by default** on an Event from Google (Joe, 14 October);
   Google's own notifications are left to Google.
@@ -135,8 +135,8 @@ Acceptance criteria
 1. Given an Event from an incoming-only calendar, when I open it, then its
    title, times, place, notes and repeat can't be changed, it can't be
    deleted or dragged, and it offers "Open in Google Calendar".
-2. Given that Event, then I can still give it Labels, Alerts and Tasks
-   *for* it, which stay in LifeOS.
+2. Given that Event, then I can still give it Alerts and Tasks *for* it,
+   which stay in LifeOS (no Labels: an Event has none, PLA-007).
 
 #### GCL-005 — Two-way: my Events go to Google
 
@@ -157,8 +157,8 @@ Acceptance criteria
    restoring it puts it back.
 3. Given a repeating Event made in LifeOS, then Google has it as a repeating
    event.
-4. Given an Event's Labels, Alerts and Tasks *for* it, then they aren't
-   sent to Google.
+4. Given an Event's Alerts and Tasks *for* it, then they aren't sent to
+   Google.
 5. Given a Task, or any Type but Event, then nothing is sent to Google.
 6. Given I make an Event offline, then it goes to Google once it reaches the
    server.

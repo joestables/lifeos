@@ -36,7 +36,6 @@ const rows = () => ({
   item_labels: [
     { item_id: id(1), label_id: 'l-travel' },
     { item_id: id(2), label_id: 'l-home' },
-    { item_id: id(4), label_id: 'l-car' },
   ],
   marks: [{ item_id: id(1) }],
 })
@@ -121,7 +120,7 @@ test('NTE-002, NTE-003: Labels from the picker narrow the page; pinned stays fir
   const db = await start(page)
   await card(page, 'Japan packing list').click()
   await page.getByRole('button', { name: 'Label' }).click()
-  // The same Labels as Tasks have (ITM-005).
+  // The same Labels as Thoughts have (ITM-005).
   await expect(page.getByRole('group', { name: 'Labels' }).getByRole('checkbox')).toHaveCount(3)
   await page.getByRole('checkbox', { name: 'Home' }).click()
   await page.getByRole('textbox', { name: 'Label' }).fill('Packing')

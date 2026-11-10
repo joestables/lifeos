@@ -44,10 +44,7 @@ const rows = (): Rows => ({
     { id: 'l-car', name: 'Car' },
     { id: 'l-home', name: 'Home' },
   ],
-  item_labels: [
-    { item_id: TASK, label_id: 'l-car' },
-    { item_id: NOTE, label_id: 'l-home' },
-  ],
+  item_labels: [{ item_id: NOTE, label_id: 'l-home' }],
 })
 
 test('ITM-001: an Item has a link of its own; a Task opens in a popup, and closes back to the page', async ({

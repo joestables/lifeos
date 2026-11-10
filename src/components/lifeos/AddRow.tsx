@@ -11,7 +11,7 @@ export function AddRow({
   onAdd,
   className,
 }: {
-  /** Its name, as its placeholder: "Add a sub-task". */
+  /** Its name, as its placeholder: "Add an item". */
   placeholder: string
   onAdd: (text: string) => void
   className?: string

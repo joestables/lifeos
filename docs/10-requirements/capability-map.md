@@ -15,11 +15,11 @@ Owner: **core**, a **Module** (`shopping`, `food`, `fitness`, `goals`,
 | Navigation drawer | core | — | 1 | [ADR-0026](../20-architecture/adr/0026-navigation-drawer.md) |
 | Quick capture in the app (a Thought; from Stage 7b, "New") | core | Capture Screen | 2, 7b | [capture](cross-cutting/capture.md) |
 | Notes: Labels to filter, pin, simple formatting | core | Notes | 2 | [notes](views/notes.md) |
-| Plan: Tasks, Events and Reminders as lists, and what repeats; Tasks' do-on and due, star, sub-tasks, Someday, repeating | core | Plan (was Tasks) | 2, 7b | [plan](views/plan.md) |
+| Plan: Tasks, Events and Reminders as lists, and what repeats; Tasks' do-on and due, star, Someday, repeating | core | Plan (was Tasks) | 2, 7b | [plan](views/plan.md) |
 | Today: everything on today, and overdue Tasks | core | Today | 2, 7b | [today](views/today.md) |
 | Sorting Thoughts into other Types | core | Notes | 2, 7b | [notes](views/notes.md#thoughts) |
 | Alerts by Web Push; Done/Snooze actions, overdue nudges, morning digest | core | — | 2 | [alerts](cross-cutting/reminders.md) |
-| Opening an Item; delete and recover; convert; Labels on Thoughts, Notes and Tasks (Events from Stage 3) | core | Each page; Settings | 2 | [items](cross-cutting/items.md) |
+| Opening an Item; delete and recover; convert; Labels on Thoughts and Notes (Tasks and Events until Stage 7b) | core | Each page; Settings | 2 | [items](cross-cutting/items.md) |
 | Colour by Type; the app icon | core | — | 2 | [ADR-0043](../20-architecture/adr/0043-colour-by-type.md), [design system](../30-design/README.md) |
 | Search (full-text) | core | Search Screen | 2 | [search](cross-cutting/search.md) |
 | Offline writes (data layer and write queue) | core | — | 1 | [offline](cross-cutting/offline.md) |

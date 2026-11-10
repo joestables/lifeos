@@ -222,20 +222,7 @@ WEK-001 and WEK-002 are built and have moved to [Week](../views/week.md#wek-001-
 
 ### Plan
 
-PLA-001–006 are built and have moved to [Plan](../views/plan.md#pla-001--plan-tasks-events-reminders-recurring) (steps 5 and 6). PLA-007 comes with step 9.
-
-### PLA-007 — No Labels on Tasks and Events, no sub-tasks
-
-**As** Joe, **I want** the fields I don't use gone, **so that** a Task's
-popup is shorter.
-Priority: Must · Status: agreed
-
-Acceptance criteria
-1. Given a Task's or an Event's popup, new or opened, then it has no Labels
-   field; a Task's has no Sub-tasks.
-2. Given the Labels on my Tasks and Events and the sub-tasks on my Tasks,
-   then they are deleted (step 4: the "Work" Label on 18 Events, one Task's
-   sub-tasks); the Labels themselves stay, for Notes and Thoughts.
+PLA-001–007 are built and have moved to [Plan](../views/plan.md#pla-001--plan-tasks-events-reminders-recurring) (steps 5, 6 and 9).
 
 ### Notes
 
