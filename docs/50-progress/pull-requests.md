@@ -10,7 +10,8 @@ Branch `claude/relaxed-fermi-nehy7e` · 2026-11-09
 - **A Reminder is a Type** ([ADR-0065](../20-architecture/adr/0065-reminders-alerts-and-the-day.md) 1,
   RMD-001): `reminder` in the ontology (stage 7.5; blue, a ringing bell;
   Schedulable and Capturable, never done, Personal), and a new
-  `*_ontology.sql`. Migration `stage7b_reminder_type` adds
+  `*_ontology.sql` (applied as `20261109235154` and `20261109235204`; the
+  advisors found nothing new). Migration `stage7b_reminder_type` adds
   `item_types.takes_alerts` (ADR-0065 5: the database refuses an Alert on
   a Note; a Thought keeps taking them until step 8), refuses a Reminder a
   Repeat "after it's done", and teaches `core.convert_item` to make a
