@@ -10,7 +10,7 @@ Connect (OAuth) → fetch new data (schedule or webhook) → store the raw
 payload → map to Items, tagged with `external_id` so re-runs never duplicate.
 Tokens in Supabase Vault (`core.connections`); ids and raw payloads in
 `core.external_refs` ([contracts](../../20-architecture/contracts.md#integrationadapter)).
-A broken Integration shows in Inbox and in the nightly health check.
+A broken Integration shows on Today and in the nightly health check.
 
 ## By source
 
@@ -65,7 +65,7 @@ of Stage 3 ([plan](../../50-progress/plans/stage-3.md)), are at the end.*
   sides change: [ADR-0047](../../20-architecture/adr/0047-google-calendar-sync.md)
   and [ADR-0048](../../20-architecture/adr/0048-google-calendar-two-way.md)
   (Provisionally agreed).
-- **A broken connection shows in Inbox** and in the nightly health check;
+- **A broken connection shows on Today** and in the nightly health check;
   the Events already in LifeOS stay.
 
 ### Requirements
@@ -76,7 +76,7 @@ stand-in for Google; a real connection is checked by hand.*
 #### GCL-001 — Connect my Google Calendar
 
 **As** Joe, **I want** to connect my Google Calendar to LifeOS, **so that**
-everything I'm doing is on Plan.
+everything I'm doing is on Week.
 Priority: Must · Status: verified (a real connection is checked by hand)
 
 Acceptance criteria
@@ -87,7 +87,7 @@ Acceptance criteria
 2. Given I connect, then my main calendar is *incoming* and the rest *off*,
    until I change them.
 3. Given I disconnect, then LifeOS stops reading and writing my calendars,
-   and the Events it brought in leave Plan; Events I made in LifeOS stay,
+   and the Events it brought in leave Week; Events I made in LifeOS stay,
    even those sent to Google, and stay mine to change.
 
 #### GCL-002 — Choose each calendar's sync level
@@ -103,20 +103,20 @@ Acceptance criteria
    of them, or None; the first I make two-way is it until I choose. With
    None, or none two-way, Events I make stay in LifeOS unless I choose a
    calendar for one.
-3. Given I turn a calendar off, then the Events it brought in leave Plan;
+3. Given I turn a calendar off, then the Events it brought in leave Week;
    those I made in LifeOS stay.
 
 #### GCL-003 — Events come in from Google
 
-**As** Joe, **I want** what's in my Google Calendar to show on Plan and keep
+**As** Joe, **I want** what's in my Google Calendar to show on Week and keep
 up to date, **so that** I needn't look in two places.
 Priority: Must · Status: verified
 
 Acceptance criteria
 1. Given a calendar set to incoming or two-way, then its Events from four
-   weeks ago onwards are on Plan as Events in my Personal Space, each marked
+   weeks ago onwards are on Week as Events in my Personal Space, each marked
    as from Google Calendar, with no Alert.
-2. Given an Event is added, changed or deleted in Google, then Plan shows
+2. Given an Event is added, changed or deleted in Google, then Week shows
    the change within a few minutes; a deleted one goes to Recently deleted.
 3. Given a repeating event in Google, then each instance is its own Event on
    its day, and changing one instance in Google changes only that one.
@@ -166,16 +166,16 @@ Acceptance criteria
 #### GCL-006 — A broken connection tells me
 
 **As** Joe, **I want** to know when Google Calendar stops syncing, **so
-that** Plan isn't quietly out of date.
+that** Week isn't quietly out of date.
 Priority: Must · Status: verified
 
 Acceptance criteria
 1. Given Google refuses LifeOS's access (I revoked it, or it expired), then
-   Inbox shows "Google Calendar isn't syncing" with Reconnect, and the
+   Today shows "Google Calendar isn't syncing" with Reconnect, and the
    nightly health check records it.
 2. Given I reconnect, then sync carries on from where it stopped, with
-   nothing duplicated, and the entry leaves Inbox.
-3. Given it is broken, then the Events already in LifeOS stay on Plan.
+   nothing duplicated, and the entry leaves Today.
+3. Given it is broken, then the Events already in LifeOS stay on Week.
 
 #### GCL-007 — A shared Event in everyone's calendar
 

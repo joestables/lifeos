@@ -51,8 +51,8 @@ describe('Types in the app', () => {
   })
 
   it('ADR-0043: each Type has its colour and home', () => {
-    expect(typeLook('task')).toMatchObject({ colour: 'blue', mark: 'starred', home: '/tasks' })
-    expect(typeLook('thought')).toMatchObject({ colour: 'yellow', home: '/inbox' })
+    expect(typeLook('task')).toMatchObject({ colour: 'blue', mark: 'starred', home: '/plan' })
+    expect(typeLook('thought')).toMatchObject({ colour: 'yellow', home: '/notes' })
     expect(typeLook('recipe')).toMatchObject({
       colour: 'green',
       mark: 'favourited',

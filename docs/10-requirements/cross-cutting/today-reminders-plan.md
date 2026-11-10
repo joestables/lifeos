@@ -71,12 +71,12 @@ or idea, and this page shrinks to a pointer:
 
 | Part | Into |
 |---|---|
-| Today (TDY) | `views/today.md`, replacing [inbox](../views/inbox.md) |
+| Today (TDY) | [today](../views/today.md), which replaced Inbox: TDY-001–005 moved there (step 6) |
 | The Reminder Type (RMD) and Alerts (ALR) | [reminders](reminders.md) and [items](items.md); the glossary and [data model](../../20-architecture/data-model.md) |
 | "New" (NEW) | [capture](capture.md) |
-| Week (WEK) | `views/week.md`, renamed from [plan](../views/plan.md) |
-| Plan (PLA) | `views/plan.md`, from [tasks](../views/tasks.md) |
-| Notes' Thoughts (NTE-005) | [notes](../views/notes.md) |
+| Week (WEK) | [week](../views/week.md), renamed from Plan: moved there (step 6) |
+| Plan (PLA) | [plan](../views/plan.md), from Tasks: PLA-001–006 moved there (steps 5, 6) |
+| Notes' Thoughts (NTE-005) | [notes](../views/notes.md): moved there (step 6) |
 
 ## Requirements
 
@@ -90,7 +90,7 @@ proposed → agreed → built → verified.*
 **As** Joe, **I want** a Reminder that is just a title and when, **so
 that** "move the car at 3" is out of my head in seconds and nags me on
 time.
-Priority: Must · Status: built in part (step 5: 1–3, and 4 from a day's "+" on Week, still called Plan; New reminder on Plan and a row's menu with step 6)
+Priority: Must · Status: built (step 5: 1–4, from a day's "+" on Week; step 6: New reminder on Plan, and a row's "…" menu on Today and Plan)
 
 Acceptance criteria
 1. Given a Reminder, then it has a title, one or more Alerts, and
@@ -126,7 +126,7 @@ Acceptance criteria
 
 **As** Joe, **I want** a Reminder on the days it alerts me, with its
 times, **so that** my day shows what I'll be nudged about.
-Priority: Must · Status: built in part (step 5: on Week, still called Plan, faded once gone, moved by dragging; on Today, and an Alarm's clock on its card, step 6)
+Priority: Must · Status: built (step 5: on Week, faded once gone, moved by dragging; step 6: on Today, and an Alarm's clock on Week's card)
 
 Acceptance criteria
 1. Given a Reminder with Alerts on Tuesday and Thursday, then it is on
@@ -141,7 +141,7 @@ Acceptance criteria
 
 **As** Joe, **I want** a Reminder to repeat, **so that** "bins out" comes
 every Monday without my making it again.
-Priority: Must · Status: built in part (step 5: 1 and 2, and each occurrence on Week; Plan's tabs, step 6)
+Priority: Must · Status: built (step 5: 1 and 2, and each occurrence on Week; step 6: Plan's Reminders and Recurring tabs)
 
 Acceptance criteria
 1. Given a Reminder, then I can give it a Repeat on a schedule, as a Task's
@@ -174,7 +174,7 @@ Acceptance criteria
 **As** Joe, **I want** to turn a Reminder into a Task or an Event and back,
 and a Thought into a Reminder, **so that** what turns out to be a job, or
 a fixed time, becomes one without retyping.
-Priority: Must · Status: built (step 5; 1 from Inbox's Thoughts until Notes' Thoughts tab, step 6)
+Priority: Must · Status: built (steps 5 and 6: 1 from Notes' Thoughts)
 
 Acceptance criteria
 1. Given a Thought, when I convert it to a Reminder (in Notes' Thoughts,
@@ -210,86 +210,8 @@ Acceptance criteria
 
 ### Today
 
-### TDY-001 — Today
-
-**As** Joe, **I want** one page with everything on today, **so that** I
-open the app and see my day.
-Priority: Must · Status: agreed
-
-Acceptance criteria
-1. Given Today, then it is the first page in the drawer and where the app
-   opens; it shows today's date over its title ("Monday 9 November").
-2. Given Today, then it shows my overdue Tasks (due before today, not done)
-   under **Overdue**, then everything Week shows today, of every Type,
-   whatever Week's Type pills: Tasks, Events, Reminders, Meals, Shopping
-   lists, Workouts and later Types.
-3. Given Thoughts, then none is on Today; while any waits, one quiet line
-   at the foot says how many ("5 thoughts to sort") and opens Notes'
-   Thoughts tab (NTE-005).
-4. Given Today, then it has no Label pills.
-5. Given nothing today and nothing overdue, then it says "Nothing today",
-   with the Thoughts line under it if any wait.
-6. Given a broken Integration, or none of my devices with notifications
-   on, then their Alerts show at the top, as on Inbox.
-7. Given `/inbox` (a bookmark, an old notification), then Today opens.
-
-### TDY-002 — The day in four parts
-
-**As** Joe, **I want** the day split into parts, **so that** I can see at
-a glance what's this morning and what's tonight.
-Priority: Must · Status: agreed
-
-Acceptance criteria
-1. Given today's Items, then they are grouped, each group hidden when
-   empty: **Anytime** (no time: an untimed Task, a Workout, a Shopping
-   list, an all-day Event), **Morning** (00:00–12:00), **Afternoon**
-   (12:00–17:00) and **Evening** (17:00–24:00).
-2. Given a Meal, then Breakfast is in the Morning, Lunch the Afternoon and
-   Dinner the Evening, first in its group.
-3. Given a Reminder, then it is in the part of its first Alert that day,
-   listing all that day's times; an Event in the part it starts in (one
-   that began on an earlier day, in Anytime).
-4. Given a group, then its Items are in time order; Anytime's as Week's day
-   orders them.
-
-### TDY-003 — Done and past stay as the day's record
-
-**As** Joe, **I want** what I've done and what has passed to stay on
-Today, **so that** the page is a record of my day.
-Priority: Must · Status: agreed
-
-Acceptance criteria
-1. Given a Task ticked done today, then it stays in its place, struck
-   through, until the day ends; unticking it brings it back.
-2. Given an Event that has ended, or a Reminder whose Alerts that day have
-   all gone off, or a Meal whose slot has passed, then it stays, faded.
-3. Given the day ends, then everything of the day leaves, but for overdue
-   Tasks, which move to Overdue.
-
-### TDY-004 — Act on what's on Today
-
-**As** Joe, **I want** to act on things where they are, **so that** I
-needn't go to their own page.
-Priority: Must · Status: agreed
-
-Acceptance criteria
-1. Given a Task on Today, then I can tick it, move it to tomorrow, star it
-   and open it, as on Plan (INB-003, INB-004).
-2. Given any other Item, then it shows its Type's tile, its title and its
-   time and one detail (a place, "Dinner", a Reminder's times and repeat);
-   tapping it opens it (ITM-001).
-3. Given a Reminder or a Task, then its "…" menu converts it (RMD-006) or
-   deletes it.
-
-### TDY-005 — How much is on Today, in the drawer
-
-**As** Joe, **I want** the drawer to say how much is on Today, **so that**
-I can see it from any page.
-Priority: Should · Status: agreed
-
-Acceptance criteria
-1. Given Today, then the drawer's count beside it is the number of Items on
-   the page, every group, done and past ones too; Thoughts aren't counted.
+TDY-001–005 are built and have moved to [Today](../views/today.md#requirements)
+(Stage 7b, step 6). TDY-006 comes with the Android app's next release (step 10).
 
 ### TDY-006 — The Today widget is Today
 
@@ -407,113 +329,11 @@ Acceptance criteria
 
 ### Week
 
-### WEK-001 — Plan becomes Week
-
-**As** Joe, **I want** the week's page called Week, **so that** Plan can
-name the lists of what I plan.
-Priority: Must · Status: agreed
-
-Acceptance criteria
-1. Given the drawer, then Week is second, with Plan's calendar icon, and
-   is what Plan is now (PLN-001–008), renamed.
-2. Given `/plan?add=1` from a widget not yet updated, then Week opens with
-   its "+" pressed for today.
-
-### WEK-002 — Reminders on Week
-
-**As** Joe, **I want** Reminders on Week, **so that** I see what I'll be
-nudged about each day.
-Priority: Must · Status: agreed
-
-Acceptance criteria
-1. Given Week, then Reminders are a Type pill to show or hide (PLN-004),
-   and a choice under a day's "+" (PLN-006, RMD-001 4).
-2. Given a Reminder's card, then it shows its Type, title and that day's
-   Alert times ("15:00, 15:40"), and fades once they have all gone off
-   (RMD-003).
+WEK-001 and WEK-002 are built and have moved to [Week](../views/week.md#wek-001--plan-becomes-week) (step 6).
 
 ### Plan
 
-### PLA-001 — Plan: Tasks, Events, Reminders, Recurring
-
-**As** Joe, **I want** my Tasks, Events and Reminders as lists on one
-page, **so that** I can see what's coming of each.
-Priority: Must · Status: agreed
-
-Acceptance criteria
-1. Given the drawer, then Plan is third, blue, with a list icon; `/tasks`
-   opens it.
-2. Given Plan, then its tabs are **Tasks**, **Events**, **Reminders** and
-   **Recurring**; it has no Completed tab and no Label pills.
-3. Given a tab, then the page's main action follows it: New task, New
-   event, New reminder; on Recurring, "New", a menu of the three.
-
-### PLA-002 — The Tasks tab
-
-**As** Joe, **I want** my Tasks by when, as now, **so that** nothing
-changes but what I don't use.
-Priority: Must · Status: agreed
-
-Acceptance criteria
-1. Given Tasks, then open Tasks are under Overdue, Today, Tomorrow, each
-   remaining day of this week, Later, No date and Someday, as All tasks is
-   now (TSK-004), without Labels.
-2. Given a Task ticked done today, then it stays in Today, struck through,
-   until the day ends (TDY-003 1).
-3. Given a Task's row, then it shows its time, day, due date, repeat, star
-   and Household, but no Labels or sub-tasks.
-
-### PLA-003 — The Events tab
-
-**As** Joe, **I want** my coming Events as a list, **so that** I can see
-what's on without paging through weeks.
-Priority: Must · Status: agreed
-
-Acceptance criteria
-1. Given Events, then my Events from today on, those from Google Calendar
-   too, are under Today, Tomorrow, each remaining day of this week and
-   Later, each with its time (or "All day") and place; one over several
-   days is on the day it starts, saying until when.
-2. Given a repeating Event, then only its next occurrence is listed.
-3. Given an Event today that has ended, then it stays, faded, until the
-   day ends; ones before today aren't listed.
-
-### PLA-004 — The Reminders tab
-
-**As** Joe, **I want** my Reminders as a list, **so that** I can see every
-nudge to come.
-Priority: Must · Status: agreed
-
-Acceptance criteria
-1. Given Reminders, then my Reminders are under Today, Tomorrow, each
-   remaining day of this week and Later, on the day of their next Alert,
-   each with its Alert times that day, its repeat, and in Later its date.
-2. Given today's Reminders whose Alerts have all gone off, then they stay,
-   faded, until the day ends.
-
-### PLA-005 — The Recurring tab
-
-**As** Joe, **I want** everything that repeats in one place, **so that** I
-can see and change my routines.
-Priority: Must · Status: agreed
-
-Acceptance criteria
-1. Given Recurring, then each repeating Task, Event and Reminder is listed
-   once, under Tasks, Events and Reminders, each with its repeat in full
-   ("Every 2 weeks", "1 week after it's done") and its next date, soonest
-   first.
-
-### PLA-006 — A new Task starts today
-
-**As** Joe, **I want** a new Task to be for today unless I say otherwise,
-**so that** I needn't set the date each time.
-Priority: Must · Status: verified (`tasks.spec.ts`)
-
-Acceptance criteria
-1. Given New task, then Do on is today, and I can change or clear it.
-2. Given its default Alert (REM-002 1) would be at a time already gone
-   today, then it is an hour from now instead, shown in its Alerts before I
-   save.
+PLA-001–006 are built and have moved to [Plan](../views/plan.md#pla-001--plan-tasks-events-reminders-recurring) (steps 5 and 6). PLA-007 comes with step 9.
 
 ### PLA-007 — No Labels on Tasks and Events, no sub-tasks
 
@@ -530,35 +350,5 @@ Acceptance criteria
 
 ### Notes
 
-### NTE-005 — Thoughts on Notes
+NTE-005 is built and has moved to [Notes](../views/notes.md#nte-005--thoughts-on-notes) (step 6).
 
-**As** Joe, **I want** my Thoughts on Notes, on a tab of their own, **so
-that** they're sorted somewhere calm rather than crowding my day.
-Priority: Must · Status: agreed
-
-Acceptance criteria
-1. Given Notes, then its tabs are **Notes** and **Thoughts**; my Labels
-   are pills under them and narrow either tab (NTE-002).
-2. Given Thoughts, then my Thoughts not ticked off are listed newest first,
-   each with when it was captured and its Labels.
-3. Given a Thought, then I can tick it off (INB-006), delete it, or convert
-   it: Reminder, Task and Note one tap each, any other Capturable Type from
-   its menu (INB-002, RMD-006 1).
-4. Given the Thoughts tab, then the page's main action is New thought,
-   opening "New" (NEW-002).
-
-## Non-goals
-
-Shared Reminders; a Reminder with notes, Labels or a place; Alerts on
-Thoughts or Notes; a Completed list of Tasks; choosing which Types Today
-shows; a widget for "New" (later, with capture from outside the app,
-Stage 10).
-
-## Joe's answers to the open points (9 November)
-
-Joe agreed Claude's choices in this spec and answered its two points:
-
-1. **"every tuesday" in "New"** sets no Repeat (NEW-003 7).
-2. **Snooze is the same for Tasks, Events and Reminders**: that Alert moves
-   to an hour from then, for me only, shown as "Snoozed" in the Item's
-   Alerts, as a Task's does now (RMD-005 3). Events get no Done.

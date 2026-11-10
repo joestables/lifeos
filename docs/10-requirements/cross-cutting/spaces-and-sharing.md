@@ -35,8 +35,8 @@ is shared is in [recipes](../modules/recipes.md) and
 - **Default Space per Type** ([data model](../../20-architecture/data-model.md#types)).
   Gym sessions, Thoughts and Notes are always Personal. A Recipe is its
   author's, and a Variation its own author's (ADR-0051).
-- **Per person on shared Items:** Alerts, snooze, marks (a starred Task, a favourited Recipe), Inbox
-  dismiss / snooze.
+- **Per person on shared Items:** Alerts, snooze, marks (a starred Task, a favourited Recipe), dismissing
+  or snoozing something on Today.
 - **Tasks and Events are shared with a Household** (Joe, 4 November;
   [HSH-005](#hsh-005--share-tasks-and-events)): chosen in their popup's
   Space, at its foot. Nobody is assigned: a shared Task is everyone's, and
@@ -135,7 +135,7 @@ Acceptance criteria
    has an account.
 2. Given an invitation for my address (whether I had an account or sign
    up later), then it waits in Settings → Households, and only there (not
-   Inbox; Joe, 18 October), with the Household's name and who sent it;
+   on Today; Joe, 18 October), with the Household's name and who sent it;
    Join makes me a member, Decline removes it.
 3. Given I'm a member, not the owner, then I can't invite anyone.
 4. Given an invitation not yet answered, then the owner can withdraw it.
@@ -144,7 +144,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to be in more than one Household, **so that** I can
 share different things with different people.
-Priority: Should · Status: built (1 for Meals and Plan's cards; 2 for Meals, a shopping list's with Shopping, Stage 4b)
+Priority: Should · Status: built (1 for Meals and Week's cards; 2 for Meals, a shopping list's with Shopping, Stage 4b)
 
 Acceptance criteria
 1. Given I'm in two Households, then everything shared in each is shown to
@@ -196,12 +196,12 @@ Acceptance criteria
    is no Space field. A repeat's Space is the whole repeat's: moving one
    occurrence moves them all. An Item's Labels are its Space's: its popup
    offers that Space's Labels, and moving it takes the old Space's off.
-2. Given a shared Task or Event, then every member sees it in Tasks, Inbox
-   and on Plan, its Household's name in its meta, and can change it or
+2. Given a shared Task or Event, then every member sees it on Plan, Today
+   and on Week, its Household's name in its meta, and can change it or
    delete it (with Undo, and from Recently deleted); a change one makes
    shows for all.
 3. Given a shared Task, then nobody is assigned: it is in every member's
-   Inbox (Today, Overdue) and counted in each one's morning digest
+   Today (in its part of the day, or Overdue) and counted in each one's morning digest
    ([REM-008](reminders.md#rem-008--a-morning-digest)) or overdue nudge;
    ticked by anyone, it is done for everyone, and a repeat's next
    occurrence follows as for my own.
@@ -219,7 +219,7 @@ Acceptance criteria
    calendar; given someone leaves or is removed, its Events leave their
    calendar and their Alerts on its Items go (HSH-004).
 7. Given a Personal Item of someone else's that I see only through a link
-   to a shared Item, then it isn't in my Inbox or Tasks, and it opens
+   to a shared Item, then it isn't on my Today or Plan, and it opens
    read-only, saying whose it is; my own Personal Item linked to a shared
    one says "Visible to" the Household
    ([ADR-0016](../../20-architecture/adr/0016-sharing-and-visibility.md)).

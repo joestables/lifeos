@@ -10,7 +10,7 @@ import { isAndroidApp } from '@/native/platform'
 /** Google is the only way in; there is no email sign-up (ACC-001, patterns.md#sign-in-page). */
 export const Route = createFileRoute('/sign-in')({
   beforeLoad: async () => {
-    if ((await authReady()).status === 'signed-in') throw redirect({ to: '/inbox' })
+    if ((await authReady()).status === 'signed-in') throw redirect({ to: '/today' })
   },
   component: SignIn,
 })

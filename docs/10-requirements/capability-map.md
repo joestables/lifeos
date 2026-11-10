@@ -15,19 +15,20 @@ Owner: **core**, a **Module** (`shopping`, `food`, `fitness`, `goals`,
 | Navigation drawer | core | — | 1 | [ADR-0026](../20-architecture/adr/0026-navigation-drawer.md) |
 | Quick capture in the app (Thought by default, one-tap Task) | core | Capture Screen | 2 | [capture](cross-cutting/capture.md) |
 | Notes: Labels to filter, pin, simple formatting | core | Notes | 2 | [notes](views/notes.md) |
-| Tasks: Labels, do-on and due, star, sub-tasks, Someday, repeating | core | Tasks | 2 | [tasks](views/tasks.md) |
-| Inbox, including sorting Thoughts into other Types | core | Inbox | 2 | [inbox](views/inbox.md) |
+| Plan: Tasks, Events and Reminders as lists, and what repeats; Tasks' do-on and due, star, sub-tasks, Someday, repeating | core | Plan (was Tasks) | 2, 7b | [plan](views/plan.md) |
+| Today: everything on today, and overdue Tasks | core | Today | 2, 7b | [today](views/today.md) |
+| Sorting Thoughts into other Types | core | Notes | 2, 7b | [notes](views/notes.md#thoughts) |
 | Alerts by Web Push; Done/Snooze actions, overdue nudges, morning digest | core | — | 2 | [alerts](cross-cutting/reminders.md) |
 | Opening an Item; delete and recover; convert; Labels on Thoughts, Notes and Tasks (Events from Stage 3) | core | Each page; Settings | 2 | [items](cross-cutting/items.md) |
 | Colour by Type; the app icon | core | — | 2 | [ADR-0043](../20-architecture/adr/0043-colour-by-type.md), [design system](../30-design/README.md) |
 | Search (full-text) | core | Search Screen | 2 | [search](cross-cutting/search.md) |
 | Offline writes (data layer and write queue) | core | — | 1 | [offline](cross-cutting/offline.md) |
 | Activity log: changes to items and links | core | — | 1 | [ADR-0030](../20-architecture/adr/0030-activity-log-by-triggers.md) |
-| Plan: every Schedulable Type, a week or a day, filtered by Type | core | Plan | 3 | [plan](views/plan.md) |
-| Events, repeating Events, Tasks for an Event | core | Plan | 3 | [events](cross-cutting/events.md) |
+| Week: every Schedulable Type, a week or a day, filtered by Type | core | Week (was Plan) | 3, 7b | [week](views/week.md) |
+| Events, repeating Events, Tasks for an Event | core | Week, Plan | 3 | [events](cross-cutting/events.md) |
 | Google Calendar: incoming only or two-way per calendar; a shared Event in every member's calendar | Integration | Settings | 3 | [integrations](cross-cutting/integrations.md#google-calendar) |
 | Recipes, Variations, ideas, cook log | `food` | Recipes | 4 | [recipes](modules/recipes.md) |
-| Meal planning; the Pantry | `food` | Meal plan (Meals on Plan too) | 4 | [meals](modules/meals.md) |
+| Meal planning; the Pantry | `food` | Meal plan (Meals on Week and Today too) | 4 | [meals](modules/meals.md) |
 | Shared AI service; food preferences | core | — | 4 | — |
 | Households: create, invite by email, accept, owner and members, several per person; sharing on | core | Settings | 4 | [spaces-and-sharing](cross-cutting/spaces-and-sharing.md) |
 | Shopping lists: food shops and other lists, Essentials, live updates | `shopping` | Shopping | 4b | [meals](modules/meals.md#shopping) |

@@ -75,7 +75,7 @@ const rowOf = (page: Page, title: string) =>
 test('HSH-005 1, 2: New task is made for a Household from the Space at its foot', async ({
   page,
 }) => {
-  const db = await start(page, '/tasks')
+  const db = await start(page, '/plan')
   await page.getByRole('button', { name: 'New task' }).click()
   const dialog = page.getByRole('dialog', { name: 'New task' })
   await dialog.getByRole('textbox', { name: 'Title' }).fill('Water the plants')
@@ -89,7 +89,7 @@ test('HSH-005 1, 2: New task is made for a Household from the Space at its foot'
 })
 
 test('HSH-005 1: no Space without a Household', async ({ page }) => {
-  await start(page, '/tasks', false)
+  await start(page, '/plan', false)
   await page.getByRole('button', { name: 'New task' }).click()
   const dialog = page.getByRole('dialog', { name: 'New task' })
   await expect(dialog.getByRole('combobox', { name: 'Space' })).toHaveCount(0)
@@ -98,7 +98,7 @@ test('HSH-005 1: no Space without a Household', async ({ page }) => {
 test('HSH-005 2, 3: a shared Task is in my Inbox and Tasks, saying so; only its maker moves it', async ({
   page,
 }) => {
-  await start(page, '/inbox')
+  await start(page, '/today')
   await expect(rowOf(page, 'Put the bins out')).toContainText('Home')
   await rowOf(page, 'Put the bins out').getByText('Put the bins out').click()
   const dialog = page.getByRole('dialog')
@@ -109,10 +109,10 @@ test('HSH-005 2, 3: a shared Task is in my Inbox and Tasks, saying so; only its 
 test('HSH-005 7: someone else’s Task seen through a link isn’t mine: read-only, out of Inbox and Tasks', async ({
   page,
 }) => {
-  await start(page, '/inbox')
+  await start(page, '/today')
   await expect(rowOf(page, 'Bake a cake')).toBeVisible()
   await expect(rowOf(page, 'Buy flowers')).toHaveCount(0)
-  await page.goto(`/tasks?item=${SAMS_TASK}`)
+  await page.goto(`/plan?item=${SAMS_TASK}`)
   await expect(rowOf(page, 'Buy flowers')).toHaveCount(0)
   const dialog = page.getByRole('dialog')
   await expect(dialog).toContainText('Sam’s')
@@ -125,12 +125,12 @@ test('HSH-005 7: someone else’s Task seen through a link isn’t mine: read-on
 test('ADR-0016: my Personal Task linked to a shared Event says it is visible to the Household', async ({
   page,
 }) => {
-  await start(page, `/tasks?item=${MY_TASK}`)
+  await start(page, `/plan?item=${MY_TASK}`)
   await expect(page.getByRole('dialog')).toContainText('Visible to Home')
 })
 
 test('EVT-001 1: an Event’s Alerts sit just below its end; its Space last', async ({ page }) => {
-  await start(page, `/plan?item=${DINNER}`)
+  await start(page, `/week?item=${DINNER}`)
   const dialog = page.getByRole('dialog')
   const labels = dialog.locator('[data-slot="label"]')
   await expect(labels.filter({ hasText: 'Place' })).toBeVisible()

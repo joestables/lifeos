@@ -42,7 +42,7 @@ export const TYPES = [
     key: 'thought',
     module: 'core',
     label: 'Thought',
-    about: 'raw, unsorted; waits in Inbox until sorted or ticked off',
+    about: "raw, unsorted; waits on Notes' Thoughts until sorted or ticked off",
     traits: ['completable'],
     statuses: ['active', 'done'],
     defaultSpace: 'personal',

@@ -55,14 +55,14 @@ test('ITM-001: an Item has a link of its own; a Task opens in a popup, and close
 }) => {
   await standIn(page, { signedIn: true, rows: rows() })
   await page.goto(`/item/${TASK}`)
-  await expect(page).toHaveURL(new RegExp(`/tasks\\?item=${TASK}$`))
+  await expect(page).toHaveURL(new RegExp(`/plan\\?item=${TASK}$`))
   const popup = page.getByRole('dialog', { name: 'Renew car insurance' })
   await expect(popup).toContainText('Task')
   await expect(popup).toContainText('Admiral quoted £412')
   await popup.getByRole('button', { name: 'Close' }).click()
   await expect(popup).toBeHidden()
-  await expect(page).toHaveURL(/\/tasks$/)
-  await expect(page.getByRole('heading', { name: 'Tasks' })).toBeVisible()
+  await expect(page).toHaveURL(/\/plan$/)
+  await expect(page.getByRole('heading', { name: 'Plan', level: 1 })).toBeVisible()
 })
 
 test('ITM-001: a Note opens in a popup on a computer, and on its own page on a phone', async ({
@@ -87,7 +87,7 @@ test("ITM-001: a link to an Item I can't see says it can't be found", async ({ p
   await standIn(page, { signedIn: true, rows: rows() })
   await page.goto('/item/01990000-0000-7000-8000-0000000000ff')
   await expect(page.getByRole('heading', { name: "This can't be found" })).toBeVisible()
-  await page.goto('/inbox?item=01990000-0000-7000-8000-0000000000ff')
+  await page.goto('/today?item=01990000-0000-7000-8000-0000000000ff')
   await expect(page.getByRole('dialog', { name: "This can't be found" })).toBeVisible()
 })
 
@@ -95,7 +95,7 @@ test('ITM-002, ITM-003: deleting is undoable at once, and recoverable later from
   page,
 }) => {
   await standIn(page, { signedIn: true, rows: rows() })
-  await page.goto(`/tasks?item=${TASK}`)
+  await page.goto(`/plan?item=${TASK}`)
   const popup = page.getByRole('dialog', { name: 'Renew car insurance' })
   await popup.getByRole('button', { name: 'More' }).click()
   await page.getByRole('menuitem', { name: 'Delete' }).click()
@@ -103,7 +103,7 @@ test('ITM-002, ITM-003: deleting is undoable at once, and recoverable later from
   const toast = page.getByText('Deleted "Renew car insurance"')
   await expect(toast).toBeVisible()
   await page.getByRole('button', { name: 'Undo' }).click()
-  await openInApp(page, `/tasks?item=${TASK}`)
+  await openInApp(page, `/plan?item=${TASK}`)
   await expect(page.getByRole('dialog', { name: 'Renew car insurance' })).toBeVisible()
 
   await page.getByRole('button', { name: 'More' }).click()
@@ -120,7 +120,7 @@ test('ITM-002, ITM-003: deleting is undoable at once, and recoverable later from
   await rowsShown.first().getByRole('button', { name: 'Restore' }).click()
   await expect(page.getByText('Restored "Renew car insurance"')).toBeVisible()
   await expect(rowsShown).toHaveCount(2)
-  await openInApp(page, `/tasks?item=${TASK}`)
+  await openInApp(page, `/plan?item=${TASK}`)
   await expect(page.getByRole('dialog', { name: 'Renew car insurance' })).toBeVisible()
 })
 
@@ -128,7 +128,7 @@ test('ITM-004: an Item converts only into Types the app has, keeping what it hol
   page,
 }) => {
   await standIn(page, { signedIn: true, rows: rows() })
-  await page.goto(`/inbox?item=${THOUGHT}`)
+  await page.goto(`/today?item=${THOUGHT}`)
   const popup = page.getByRole('dialog', { name: 'ceramics class?' })
   await expect(popup).toContainText('Thought')
   await popup.getByRole('button', { name: 'More' }).click()
@@ -222,6 +222,6 @@ test('OFF-005: offline, what was loaded still shows, marked as possibly out of d
     'These may be out of date',
   )
   // Open it again from inside the app, as a link in a list would.
-  await openInApp(page, `/tasks?item=${TASK}`)
+  await openInApp(page, `/plan?item=${TASK}`)
   await expect(page.getByRole('dialog', { name: 'Renew car insurance' })).toBeVisible()
 })

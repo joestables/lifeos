@@ -5,11 +5,11 @@ import {
   CloudOffIcon,
   DumbbellIcon,
   FootprintsIcon,
-  InboxIcon,
+  ListTodoIcon,
   ShirtIcon,
   ShoppingCartIcon,
-  SquareCheckBigIcon,
   StickyNoteIcon,
+  SunIcon,
   TargetIcon,
   UtensilsIcon,
   WalletIcon,
@@ -27,14 +27,25 @@ import { useMine } from '@/app/mine'
 import { ItemPopup } from '@/app/items'
 import { useOpenSearch } from '@/app/open-search'
 import { SearchProvider } from '@/app/search'
-import { authReady, clearRefused, queue, useAuth, useItems, useOnline, useSyncCounts } from '@/data'
-import { inboxCount, inboxGroups } from '@/lib/inbox'
+import {
+  authReady,
+  clearRefused,
+  queue,
+  useAuth,
+  useItems,
+  useOnline,
+  useSettings,
+  useSyncCounts,
+} from '@/data'
+import { todayIn } from '@lifeos/recurrence'
+import { useAlertTimes } from '@/app/alert-times'
+import { todayList } from '@/lib/today'
 
 /** The drawer's pages, in ADR-0026's order. */
 const PAGES: DrawerPage[] = [
-  { to: '/inbox', label: 'Inbox', colour: 'none', icon: InboxIcon },
-  { to: '/plan', label: 'Plan', colour: 'none', icon: CalendarDaysIcon },
-  { to: '/tasks', label: 'Tasks', colour: 'blue', icon: SquareCheckBigIcon },
+  { to: '/today', label: 'Today', colour: 'none', icon: SunIcon },
+  { to: '/week', label: 'Week', colour: 'none', icon: CalendarDaysIcon },
+  { to: '/plan', label: 'Plan', colour: 'blue', icon: ListTodoIcon },
   { to: '/notes', label: 'Notes', colour: 'yellow', icon: StickyNoteIcon },
   { to: '/gym', label: 'Gym', colour: 'coral', icon: DumbbellIcon },
   { to: '/cardio', label: 'Cardio', colour: 'coral', icon: FootprintsIcon },
@@ -68,7 +79,15 @@ function SignedIn() {
   const { item, new: isNew } = Route.useSearch()
   const { items, outOfDate } = useItems(queue)
   const mine = useMine()
-  const waiting = inboxCount(inboxGroups(items.filter(mine)))
+  const settings = useSettings(queue)
+  const alertsOf = useAlertTimes()
+  // How much is on Today, done and past too; never Thoughts (TDY-005).
+  const waiting = todayList(
+    items.filter(mine),
+    todayIn(settings.timezone),
+    settings.timezone,
+    alertsOf,
+  ).count
   const online = useOnline()
 
   useEffect(() => {
@@ -112,7 +131,7 @@ function Shell({
   isNew: boolean
   outOfDate: boolean
   online: boolean
-  /** What waits in Inbox, beside it in the drawer (INB-005). */
+  /** How much is on Today, beside it in the drawer (TDY-005). */
   waiting: number
 }) {
   const sync = useSyncCounts(queue)
@@ -122,7 +141,7 @@ function Shell({
     <AppShell
       onCapture={() => openCapture()}
       onSearch={openSearch}
-      pages={PAGES.map((p) => (p.to === '/inbox' && waiting > 0 ? { ...p, count: waiting } : p))}
+      pages={PAGES.map((p) => (p.to === '/today' && waiting > 0 ? { ...p, count: waiting } : p))}
       me={{ name, space: 'Personal' }}
       sync={sync}
       onClearRefused={() => void clearRefused()}

@@ -6,7 +6,7 @@ const NOW = new Date('2026-10-12T09:00:00+01:00')
 
 test.use({ timezoneId: 'Europe/London' })
 
-async function start(page: import('@playwright/test').Page, path = '/inbox') {
+async function start(page: import('@playwright/test').Page, path = '/today') {
   await page.clock.setFixedTime(NOW)
   await standIn(page, {
     signedIn: true,
@@ -40,7 +40,7 @@ test('capture is "New" at the top right, and the drawer says nothing while all i
 
 test('whatever can be pressed shows the pointing hand', async ({ page, isMobile }) => {
   test.skip(isMobile, 'A mouse pointer')
-  await start(page, '/tasks')
+  await start(page, '/plan')
   const cursor = (l: import('@playwright/test').Locator) =>
     l.evaluate((el) => getComputedStyle(el).cursor)
   expect(await cursor(page.getByRole('button', { name: 'Call mum' }))).toBe('pointer')
@@ -88,7 +88,7 @@ test('OFF-004 2: a change the server refused can be cleared, and the Item is as 
   page,
   isMobile,
 }) => {
-  await start(page, '/tasks')
+  await start(page, '/plan')
   await page.route('**/rest/v1/rpc/update_item', (route) =>
     route.fulfill({ status: 400, json: { code: '23514', message: 'refused' } }),
   )

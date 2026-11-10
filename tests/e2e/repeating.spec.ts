@@ -57,16 +57,19 @@ const rows = () => ({
   ],
 })
 
-async function start(page: Page, path = '/tasks') {
+async function start(page: Page, path = '/plan') {
   await page.clock.setFixedTime(NOW)
   const db = await standIn(page, { signedIn: true, rows: rows() })
   await page.goto(path)
-  await expect(page.getByRole('heading', { name: 'Tasks', level: 1 })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Plan', level: 1 })).toBeVisible()
   return db
 }
 
 const rowOf = (page: Page, title: string | RegExp) =>
   page.locator('[data-slot="item-row"]').filter({ hasText: title })
+/** The open one of a repeating Task's rows: one ticked today stays beside it (PLA-002 2). */
+const open = (page: Page, title: string) =>
+  rowOf(page, title).filter({ has: page.getByRole('checkbox', { checked: false }) })
 
 async function openTask(page: Page, title: string) {
   await rowOf(page, title)
@@ -102,7 +105,7 @@ test('TSK-008: a Task repeats every Monday; only its next shows, and ticking it 
   const schedule = page
     .getByRole('main')
     .locator('section')
-    .filter({ hasText: /^On a schedule/ })
+    .filter({ hasText: /^Tasks/ })
   // Soonest first: Sunday's Stretch, then today's.
   await expect(schedule.locator('[data-slot="item-row"]')).toHaveText([
     /^Stretch \(sore back\).*Every day/,
@@ -111,9 +114,10 @@ test('TSK-008: a Task repeats every Monday; only its next shows, and ticking it 
     /^Vitamins.*Every day/,
   ])
 
-  await page.getByRole('tab', { name: 'All tasks' }).click()
+  await page.getByRole('tab', { name: 'Tasks' }).click()
   await rowOf(page, 'Take the bins out').getByRole('checkbox').click()
-  await expect(rowOf(page, 'Take the bins out')).toContainText('Mon 19 Oct')
+  // Ticked, it stays in Today, struck through (PLA-002 2); the next one waits.
+  await expect(open(page, 'Take the bins out')).toContainText('Mon 19 Oct')
 })
 
 test('TSK-008: monthly on the nth weekday, with an end', async ({ page }) => {
@@ -167,7 +171,7 @@ test('TSK-009: three months after it is done', async ({ page }) => {
       ['done', '2026-10-12'],
       ['active', '2027-01-12'],
     ])
-  await expect(rowOf(page, 'Descale the kettle')).toContainText('Tue 12 Jan')
+  await expect(open(page, 'Descale the kettle')).toContainText('Tue 12 Jan')
 })
 
 test('TSK-010: a missed repeat is skipped, unless I had changed it', async ({ page }) => {
@@ -183,8 +187,8 @@ test('TSK-010: a missed repeat is skipped, unless I had changed it', async ({ pa
   await expect(rowOf(page, /^Stretch/)).toHaveCount(1)
   await expect(rowOf(page, 'Stretch (sore back)')).toContainText('Since yesterday')
 
-  // Inbox shows the same.
-  await page.goto('/inbox')
+  // Today shows the same.
+  await page.goto('/today')
   await expect(rowOf(page, 'Vitamins')).toHaveCount(1)
   await expect(rowOf(page, /^Stretch/)).toHaveText(/^Stretch \(sore back\)/)
 })

@@ -26,10 +26,10 @@ AppShell
 - No browser scrollbars: whatever scrolls is a ScrollArea.
 - Content never fills edge to edge without the 36px page padding.
 - **One reading width for rows** (Joe, 24 October): a page or tab whose
-  content is a column of rows or Cards — Inbox, Tasks, Ideas, Settings,
-  the Pantry, Plan's day, Shopping's Food and Other, a list — is at most
+  content is a column of rows or Cards — Today, Plan, Notes' Thoughts, Ideas, Settings,
+  the Pantry, Week's day, Shopping's Food and Other, a list — is at most
   `max-w-3xl` (768px) wide, left-aligned. Grids and weeks (the library,
-  Notes, the Meal plan's week, Plan's week) and a food shop's aisles take
+  Notes, the Meal plan's week, Week's week) and a food shop's aisles take
   the page's width.
 
 ## The drawer
@@ -37,13 +37,13 @@ AppShell
 - Order and pages are fixed by [ADR-0026](../20-architecture/adr/0026-navigation-drawer.md).
 - shadcn's standard Sidebar: full height, attached to the left edge, a
   hairline between it and the page.
-- Each page's icon is in its Type colour; Inbox's and Plan's are grey.
+- Each page's icon is in its Type colour; Today's and Week's are grey.
 - The current page is filled `--sidebar-accent`, with text in `--foreground`
   at weight 650, on every page.
 - Counts are 12px, muted, tabular, on the right. "Later" pages sit at 50%
   opacity.
-- Each page's icon: Inbox `inbox`, Plan `calendar-days`, Tasks
-  `square-check-big`, Notes `sticky-note`, Gym `dumbbell`, Cardio
+- Each page's icon: Today `sun`, Week `calendar-days`, Plan
+  `list-todo`, Notes `sticky-note`, Gym `dumbbell`, Cardio
   `footprints`, Recipes `chef-hat`, Meal plan `utensils`, Shopping
   `shopping-cart`, Goals `target`, Wardrobe `shirt`, Finance `wallet`.
 - The header holds the brand (the app icon at 24px, then "LifeOS" at 16px
@@ -94,7 +94,7 @@ sections.
 agreed.)* The rule: **colour says what Type an Item is, and nothing else**,
 used the same way on every screen.
 
-| Where | Neutral page (Inbox, Plan, Search, Settings) | Page about one family of Types (Tasks, Notes, Recipes, Gym…) |
+| Where | Neutral page (Today, Week, Search, Settings) | Page about one family of Types (Plan, Notes, Recipes, Gym…) |
 |---|---|---|
 | Drawer icon | Each page's own colour | Each page's own colour |
 | An Item anywhere | Its TypeTile, or its checkbox, in its Type's colour | Same |
@@ -105,7 +105,7 @@ used the same way on every screen.
 | Needs seeing to: out of stock | Amber (`--warning`), with a word | Same |
 
 - An Item keeps its own colour on another page: the Goal a workout counts
-  towards stays purple on the Gym page; a Task's checkbox is blue on Inbox.
+  towards stays purple on the Gym page; a Task's checkbox is blue on Today.
 - **No line above the page title** naming the Module: the title and the
   colour say where you are.
 - **Text in a Type colour** uses its text value (`--tc-text`), which reaches
@@ -120,11 +120,12 @@ used the same way on every screen.
 | Thought | A Dialog over the page | A Dialog over the page |
 | Task | A Dialog over the page | A Dialog over the page |
 | Event | A Dialog over the page | A Dialog over the page |
+| Reminder | A Dialog over the page | A Dialog over the page |
 | Note | A Dialog over the page | Its own page, with a back link to where you were |
 
 - **Every Item has a link of its own**, `/item/<id>`: its own page where its
-  Type opens as one, otherwise its home page (Inbox for a Thought, Tasks,
-  Notes) with it open in a Dialog. A Dialog is `?item=<id>` on the page
+  Type opens as one, otherwise its home page (Notes for a Note or a Thought;
+  Plan for a Task, an Event or a Reminder; Today for the rest) with it open in a Dialog. A Dialog is `?item=<id>` on the page
   beneath, so Back closes it; a link to an Item that can't be seen says
   "This can't be found" (ITM-001).
 - A Dialog keeps the page beneath where it was; closing it returns there,
@@ -163,7 +164,7 @@ used the same way on every screen.
 [CAP-001–004](../10-requirements/cross-cutting/capture.md#requirements);
 the CaptureDialog in [components](components.md).
 
-- Opens over the page from "New" at the top right, Inbox's Fab, or N on a
+- Opens over the page from "New" at the top right, Notes' New thought, or N on a
   computer (not while typing in a field or with a menu open; over an open
   Item it is fine), the
   line ready to type; Enter saves. Saving or closing changes nothing on the
@@ -206,17 +207,24 @@ Command in [components](components.md). Neutral, as it mixes Types.
 
 ## Notes
 
-[NTE-001–004](../10-requirements/views/notes.md#requirements); NoteCard,
+[NTE-001–005](../10-requirements/views/notes.md#requirements); NoteCard,
 NoteEditor and LabelPicker in [components](components.md).
 
-- Under the title, LabelChips: every Label I have, A–Z, then "New note"
-  on a computer; choosing one or more narrows the page to the Notes with
-  any of them, until they are unchosen.
+- Under the title, a TabsRow: the Tabs Notes and Thoughts, then the tab's
+  PageAction ("New note", "New thought") on a computer; 12px under them,
+  LabelChips: every Label I have, A–Z; choosing one or more narrows either
+  tab to what has any of them, until they are unchosen.
+- **Thoughts** (Stage 7b, NTE-005): a column of ItemRows, `max-w-3xl`,
+  newest first: the yellow Checkbox, the title, "08:12 · Family"; on hover
+  outline `sm` Reminder, Task and Note, each with its Type's icon in its
+  colour; the "…" menu has Convert to (Reminder, Task, Event, Note, then
+  the rest) and Delete. A swipe right makes a Task on a phone. "New
+  thought" opens "New". None: "No thoughts to sort".
 - "Pinned", then "Others", each NoteCards in a masonry, as Keep has them:
   columns of cards fitting together with no gaps however tall each is, the
   most recently changed first (left to right, then down); without pinned
   Notes it has no heading.
-- "New note" (beside the LabelChips on a computer, the Fab on a phone) opens an
+- "New note" (beside the Tabs on a computer, the Fab on a phone) opens an
   empty Note — in a popup on a computer, on its own page on a phone — with
   its title ready to type; nothing is
   kept until something is typed, so closing it untouched leaves nothing
@@ -226,15 +234,10 @@ NoteEditor and LabelPicker in [components](components.md).
 
 ## Tasks
 
-[TSK-001–011](../10-requirements/views/tasks.md#requirements); TaskDetails,
+[TSK-001–011](../10-requirements/views/plan.md#requirements); TaskDetails,
 DateField, TimeField, RepeatField, SubtaskList and AddRow in
-[components](components.md).
-
-- Under the title, Tabs: All tasks, Recurring, Completed, then "New task"
-  on a computer (the Fab on a phone); 12px under them, LabelChips. The
-  Labels chosen narrow every view, stay chosen as the view changes (they
-  are kept in the page's address), and are given to a "New task"; none
-  left, "No tasks labelled Home".
+[components](components.md). Tasks are listed on Plan ([Plan](#plan)), Today
+and Week.
 - "New task" opens a new Task in a popup with every field a Task has —
   title, notes, do-on date and time, due date, repeat, Alerts, Labels,
   sub-tasks, and with a Household its Space last — and Cancel and Save at
@@ -242,19 +245,19 @@ DateField, TimeField, RepeatField, SubtaskList and AddRow in
   and once anything is typed a click outside doesn't close it. Changing a
   Task needs no Save: each change is kept as it is made.
 - A repeating Task shows only its next open occurrence, in every list.
-- **All tasks**: Overdue, Today, Tomorrow, each remaining day of this week by
+- **Plan's Tasks**: Overdue, Today, Tomorrow, each remaining day of this week by
   its name, Later, No date, Someday; each a SectionLabel and its rows,
   hidden when empty. A Task sits under its do-on date, or its due date when
-  it has none.
-- **Recurring**: "On a schedule", then "After it's done", each a
-  SectionLabel and rows of each repeating Task's next occurrence, soonest
-  first; the row's meta gives its day and its repeat in full ("Every
-  Monday").
-- **Completed**: done Tasks, struck through, most recently changed first.
+  it has none; one ticked today stays in Today, struck through.
+- **Plan's Recurring**: Tasks, Events and Reminders, each a
+  SectionLabel and rows of each repeating one's next occurrence, soonest
+  first; the row's meta gives its repeat in full ("Every
+  Monday") and its next date.
 - A Task's row: its Checkbox (ticking it is done, with Undo), then title and
   meta: time, "Since Thu", the due date (red once passed), its repeat
-  (`repeat` and "Weekly"), Labels, sub-tasks "2/5"; on hover Tomorrow and the star; the "…" menu holds
-  Tomorrow, Someday and Delete. A starred Task shows its filled star.
+  (`repeat` and "Weekly"), its Household; no Labels or sub-tasks on Plan
+  and Today; on hover Tomorrow and the star; the "…" menu holds
+  Tomorrow, Someday, Convert to (Event, Reminder) and Delete. A starred Task shows its filled star.
 - "New task" opens capture as a Task.
 - Setting a time with no do-on date opens the do-on Calendar to ask for the
   day.
@@ -295,7 +298,7 @@ DateField, TimeField, RepeatField, SubtaskList and AddRow in
   the Household's name, "From Sam Carter" muted, and a ghost Decline and an
   outline Join; on a phone they are `icon-sm` Buttons, `x` and `check`, so
   the name has room.
-  Invitations show here and nowhere else, never on Inbox.
+  Invitations show here and nowhere else, never on Today.
 - **A Household's page** has a BackLink to Settings: a Members Card (an
   outline `sm` "Invite" with `mail` for the owner; a CardRow per member
   with an Avatar and "Owner" or "Member", the owner's "…" menu on the
@@ -330,7 +333,7 @@ DateField, TimeField, RepeatField, SubtaskList and AddRow in
   can't be read, the Card says "Couldn't load" with an outline "Try
   again", never "Connect"; meanwhile Events from Google stay Google's. The Alerts
   Card gains "Events, 30 min before" (a Switch).
-- **Google Calendar isn't syncing** (GCL-006): on Inbox, above the groups,
+- **Google Calendar isn't syncing** (GCL-006): on Today, above the groups,
   an Alert with `calendar-x-2`, "Google Calendar isn't syncing", since
   when, and an outline "Reconnect".
 - **Recently deleted** has a back link to Settings above its title, and an
@@ -347,6 +350,10 @@ DateField, TimeField, RepeatField, SubtaskList and AddRow in
 - A Task's row starts with its checkbox (blue), never a tile; ticking it
   does it. A Thought's starts with its checkbox (yellow); ticking it ticks
   it off. Other Items start with their TypeTile.
+- A Reminder's row says that day's Alert times, each with a muted `bell`
+  (`alarm-clock` for an Alarm), then its repeat with `repeat`; an Event's
+  or a Meal's says its time and one detail as its Week card does
+  ("09:30–09:45 · Zoom", "Dinner"), else its Type.
 - A done Item: title struck through in `--muted-foreground`.
 - A starred Task shows a filled star at the end of its row.
 - Row actions (Task, Note, Tomorrow, then the "…" menu) appear on hover and
@@ -355,15 +362,15 @@ DateField, TimeField, RepeatField, SubtaskList and AddRow in
 - Overdue's heading and count are red; a due date that has passed is red in
   the row's meta.
 
-## Plan
+## Week
 
-[PLN-001–007](../10-requirements/views/plan.md#requirements); PlanCard,
+[PLN-001–007](../10-requirements/views/week.md#requirements); PlanCard,
 DayColumn, PlanWeek, PlanDay, PlanToolbar, WeekStrip and AddToDay in
 [components](components.md). Agreed with Joe on 14 October on the
 [Stage 3 design canvas](https://claude.ai/artifact/S7eLUszjswnPN77EkbTcxK)
 (private to Joe), after a first pass he found too busy.
 
-- Plan is neutral: no TypeScope; its primary button is ink.
+- Week is neutral: no TypeScope; its primary button is ink.
 - Under the PageHeader, the PlanToolbar ("12 – 18 October" on the left,
   opening a Calendar to go to any date; previous, Today, next, Day / Week
   and "Add" on the right), then the
@@ -376,7 +383,8 @@ DayColumn, PlanWeek, PlanDay, PlanToolbar, WeekStrip and AddToDay in
   Items fade.
 - **A Reminder** (Stage 7b, [RMD-003](../10-requirements/cross-cutting/today-reminders-plan.md#rmd-003--a-reminder-on-today-and-week))
   is a card on each day it has an Alert, saying that day's times ("09:00,
-  12:00"); once they have all gone off, it fades.
+  12:00"), an Alarm's with a 12px `alarm-clock` before it; once they have
+  all gone off, it fades.
 - **A day** (chosen on a computer; always on a phone): the WeekStrip, then a
   PlanDay, up to `max-w-3xl`. Times are inside the cards; nothing sits to
   their left.
@@ -391,6 +399,44 @@ DayColumn, PlanWeek, PlanDay, PlanToolbar, WeekStrip and AddToDay in
   popup, not on the card.
 - A phone has no Week / Day switch and no dragging: the WeekStrip chooses
   the day, and the Fab adds to it.
+
+## Today
+
+[TDY-001–005](../10-requirements/views/today.md#requirements); agreed with
+Joe on 9 November on the [Stage 7b design
+canvas](https://claude.ai/artifact/EqX4D326Apjs5aGVF2W4Gs) (private to
+Joe), `/design-stage-7b`.
+
+- Today is neutral: no TypeScope. Its PageHeader has the date over the
+  title as its eyebrow ("Monday 9 November").
+- Under it, the broken-Integration and notifications Alerts, then the
+  groups as SectionLabels: Overdue (red, with its count), then Anytime,
+  Morning, Afternoon and Evening, with no counts; each a column of
+  ItemRows, `max-w-3xl`. No Label pills and no Fab: "New" is in the top
+  bar.
+- Tasks are TaskRows, Reminders and everything else rows with their
+  TypeTile ([Lists of Items](#lists-of-items)); done ones struck through,
+  past ones faded (ItemRow `past`).
+- At the foot, while Thoughts wait, a muted CardRow linking to Notes'
+  Thoughts: a small yellow TypeTile (`lightbulb`) and "5 thoughts to sort".
+- Nothing today: an EmptyState with `sun`, "Nothing today", the Thoughts
+  line under it.
+
+## Plan
+
+[PLA-001–006](../10-requirements/views/plan.md#pla-001--plan-tasks-events-reminders-recurring);
+on the Stage 7b design canvas.
+
+- Plan is blue (TypeScope), as its three Types are. Under the PageHeader, a
+  TabsRow: the Tabs Tasks, Events, Reminders and Recurring, then the
+  PageAction for the tab ("New task", "New event", "New reminder"); on
+  Recurring, "New" opens an AddToDay of the three for today. A phone has
+  the same as its Fab.
+- Each tab is a column of groups (SectionLabels with counts: Overdue,
+  Today, Tomorrow, a weekday, Later, No date, Someday on Tasks; Tasks,
+  Events and Reminders on Recurring), `max-w-3xl`. No Label pills.
+- In Later, a row's meta starts with its date ("Fri 20 Nov"); on Recurring,
+  with its repeat in full and "Next Wed 11 Nov".
 
 ## Recipes
 
@@ -582,7 +628,7 @@ MealCard, MealSlot, AddMealButton, MealWeek, MealDay and PantryRow in
   day its "+" and its Meals as one-line cards saying their slot, no slots
   named (Joe, 25 and 26 October). A Meal's name is its Recipe's, a typed
   Meal's what was typed; leftovers take the name of the Meal they are of.
-- **Moving:** on a computer a MealCard is dragged to any slot, as on Plan;
+- **Moving:** on a computer a MealCard is dragged to any slot, as on Week;
   on a phone it is pressed and held until it lifts, then dragged to another
   day, the day under the finger lit, and let go there, keeping its slot
   (Move to… changes the slot). It lifts without turning (Joe, 26 October). A slot can hold several Meals.
@@ -590,7 +636,7 @@ MealCard, MealSlot, AddMealButton, MealWeek, MealDay and PantryRow in
   when its leftovers were at or before there, they go, and the toast ends
   "and removed its leftovers".
 - **Adding:** a slot's "+" opens a Popover (320px) on a computer; on a
-  phone, a day's "+" opens the Dialog Plan's "+" → Meal opens, Dinner to
+  phone, a day's "+" opens the Dialog Week's "+" → Meal opens, Dinner to
   start (Joe, 25 October: a Popover over the page let taps through). In it, an `sm` search, my
   the categories of the Recipes I can plan as LabelChips (none chosen), then "Recently viewed": the
   three Recipes I opened last ("Planned lately", from my latest Meals,
@@ -627,8 +673,8 @@ MealCard, MealSlot, AddMealButton, MealWeek, MealDay and PantryRow in
   start),
   then Cancel and Move, or Add. **Remove** takes its leftovers with it, in
   a toast with Undo.
-- **On Plan** (PLN-008): a Meal's card says Meal, its name ("Leftovers:
-  Katsu curry" for leftovers) and its slot where a time would be. Plan's
+- **On Week** (PLN-008): a Meal's card says Meal, its name ("Leftovers:
+  Katsu curry" for leftovers) and its slot where a time would be. Week's
   "+" → Meal opens a Dialog, "Add a meal · Thu 15 Oct": a ToggleGroup of
   Breakfast, Lunch and Dinner (Dinner to start), then the Popover's search
   and list in its place. "+" → Shopping list opens New shop dated that day
@@ -808,10 +854,10 @@ Agreed with Joe on 1 November 2026, on the
 
 Two kinds, the same everywhere (Joe, 2 November):
 
-- **Onto a space** (a Plan day, a Meal plan slot or day): the space under
+- **Onto a space** (a Week day, a Meal plan slot or day): the space under
   the pointer is shaded, `--foreground` 7%, with nothing drawn inside it
   (no dashed slot) on a computer; the Meal plan's slot is also outlined
-  round its edge, a 2px `--ring-soft` ring (Joe, 3 November), and Plan's
+  round its edge, a 2px `--ring-soft` ring (Joe, 3 November), and Week's
   day isn't. On a phone the Meal plan's day under the finger is lit as it
   is. Letting go puts the card there, with Undo in a toast.
 - **To reorder** (a template's exercises, a Variation's lines): the card
@@ -849,7 +895,7 @@ Two kinds, the same everywhere (Joe, 2 November):
 | Loading | Skeletons shaped like the content, after about 300ms |
 | Saved / waiting to send | Nothing while all is saved; SyncStatus in the drawer while changes wait; an Item not yet sent shows "Not sent yet" with a cloud icon in its meta |
 | Not saved | An Item whose change the server refused shows "Not saved" in red with a `cloud-alert` icon in its meta, and SyncStatus counts it, with "Clear" to put the Items back as they were saved ([OFF-004](../10-requirements/cross-cutting/offline.md#off-004--a-write-that-cant-be-saved-is-not-lost-silently)) |
-| Notifications off | On Inbox, while none of my devices has notifications: an Alert with `bell`, "Notifications are off", "Alerts can't reach you" (or "Add LifeOS to your Home Screen first" in an iPhone's browser), and "Not now" (ghost) and "Turn on" (outline) on the right, under the text on a phone. "Not now" puts it away on this device ([REM-001](../10-requirements/cross-cutting/reminders.md#rem-001--turn-on-notifications-for-a-device)) |
+| Notifications off | On Today, while none of my devices has notifications: an Alert with `bell`, "Notifications are off", "Alerts can't reach you" (or "Add LifeOS to your Home Screen first" in an iPhone's browser), and "Not now" (ghost) and "Turn on" (outline) on the right, under the text on a phone. "Not now" puts it away on this device ([REM-001](../10-requirements/cross-cutting/reminders.md#rem-001--turn-on-notifications-for-a-device)) |
 | Offline | An Alert at the top of every page, with `cloud-off`: "Offline" (or "Can't refresh" when the server can't be reached) and "These may be out of date". What was loaded still shows (OFF-005) |
 | Error | Red text under the field, or a toast that says what went wrong and what to do |
 | A screen that crashes | Its PageHeader title says "Something went wrong", with one primary button, "Reload", under it. The crash is recorded in `ops.events` ([runbook](../40-operations/runbook.md#noticing-problems)). A page whose code went with a new deploy reloads by itself instead, once a minute at most |
@@ -887,7 +933,7 @@ sub-tasks `list-checks` with "2/5".
   closes it.
 - Page padding 20px; page title 22px; Tabs and LabelChips scroll sideways under it.
 - **The main action floats** bottom right as a Fab: a "+" only, no words.
-  Inbox's Fab opens capture, as the top bar's "New" does.
+  Today has none: the top bar's "New" is its main action.
 - **Pull to refresh:** the page scrolls in its own box, which the browser's
   pull to refresh can't reach, so pulling down from the top of any page
   shows a round indicator that turns as it follows the finger; let go past
@@ -895,7 +941,7 @@ sub-tasks `list-checks` with "2/5".
 - Dialogs sit inset 18px from the sides, as tall as their content; their
   actions, an AlertDialog's too, sit side by side at the bottom right, as
   wide as their words (Joe, 24 October).
-- Row actions: the "…" menu is always visible; a Thought in Inbox can be
+- Row actions: the "…" menu is always visible; a Thought on Notes' Thoughts can be
   swiped to make it a Task.
 - A long press starts choosing several where a computer has Select (the
   library, Ideas).
@@ -933,8 +979,10 @@ what follows is what only it has.
   "Install"; a toast says so once when the app opens ("A new version of
   the app is ready", Install).
 - **The Today widget** is a TodayWidget ([components](components.md)): 4 ×
-  3 cells to start, resizable. "+" opens Plan with its "+" pressed for today;
-  the date opens Plan on today; a card opens its Item.
+  3 cells to start, resizable. "+" opens Week with its "+" pressed for today
+  (its `/plan?add=1` goes to Week); the date opens `/plan`, which is Plan's
+  lists from Stage 7b until the next APK opens Today (TDY-006); a card
+  opens its Item.
 
 ## Dark and light
 

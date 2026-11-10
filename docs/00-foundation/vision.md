@@ -84,7 +84,7 @@ ontology, so an AI can be handed the whole picture:
 - *"I've got Dishoom on Friday — suggest an outfit I haven't worn recently."*
   — Events, Outfits and wear history.
 - *"Turn these five thoughts into tasks and the rest into notes."* — sorting
-  the Inbox.
+  Thoughts.
 - *"Why did my running drop off in September?"* — Cardio, Oura readiness,
   Events and Tasks across the same weeks.
 - A weekly review written from the activity log.

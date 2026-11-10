@@ -34,6 +34,6 @@ describe('a push becomes a notification', () => {
     expect(notificationFor('not json').title).toBe('LifeOS')
     expect(
       notificationFor(JSON.stringify({ url: 'https://elsewhere.example' })).options.data.url,
-    ).toBe('/inbox')
+    ).toBe('/today')
   })
 })

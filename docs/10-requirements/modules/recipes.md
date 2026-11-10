@@ -203,7 +203,7 @@ Acceptance criteria
    cuisine first (RCP-010 6); its name, links, notes and photo stay, and its
    Variation's ingredients and method open to fill.
 5. Given an Idea, then it can be deleted, not archived (Joe, 20 October).
-6. Given a Thought in Inbox, when I sort it into a Recipe, then it becomes an
+6. Given a Thought on Notes' Thoughts, when I sort it into a Recipe, then it becomes an
    Idea, any link in it kept as a source.
 
 ### RCP-003 — Save an idea from another app

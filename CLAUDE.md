@@ -74,7 +74,7 @@ screen follows it exactly ([ADR-0038](docs/20-architecture/adr/0038-one-design-s
 - **Something new goes into the spec first**, in the same pull request, then
   into the shared components — never as a one-off.
 - **Colour means Type**, and nothing else: related Types share a colour, a
-  page takes its Types' colour, and Inbox and Plan are neutral; red and
+  page takes its Types' colour, and Today and Week are neutral; red and
   green keep their usual meaning, and amber is a warning, never by colour
   alone
   ([ADR-0043](docs/20-architecture/adr/0043-colour-by-type.md),

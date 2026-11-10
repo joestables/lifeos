@@ -21,7 +21,7 @@ function Arrow({ label, onClick, next }: { label: string; onClick: () => void; n
 }
 
 /**
- * Plan's toolbar (patterns.md#plan): the dates shown on the left, which open
+ * Plan's toolbar (patterns.md#week): the dates shown on the left, which open
  * a Calendar to go to any date (PLN-003 3); on the right the previous arrow,
  * Today, the next arrow, then on a computer Week or Day and the page's main
  * action.

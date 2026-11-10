@@ -3,7 +3,7 @@ import { ANN, queuedWrites, standIn } from './stand-in'
 
 test('ACC-001: the sign-in page offers Google and no email sign-up', async ({ page }) => {
   await standIn(page)
-  await page.goto('/inbox')
+  await page.goto('/today')
   await expect(page).toHaveURL(/\/sign-in$/)
   await expect(page.getByRole('button', { name: 'Continue with Google' })).toBeVisible()
   await expect(page.locator('input')).toHaveCount(0)
@@ -15,14 +15,14 @@ test('ACC-001: signed in, I land in the app with the navigation drawer', async (
 }) => {
   await standIn(page, { signedIn: true })
   await page.goto('/')
-  await expect(page).toHaveURL(/\/inbox$/)
-  await expect(page.getByRole('heading', { name: 'Inbox' })).toBeVisible()
+  await expect(page).toHaveURL(/\/today$/)
+  await expect(page.getByRole('heading', { name: 'Today', level: 1 })).toBeVisible()
   if (isMobile) await page.getByRole('button', { name: 'Menu' }).click()
   const pages = page.getByRole('navigation', { name: 'Pages' })
   await expect(pages.getByRole('link')).toHaveText([
-    'Inbox',
+    'Today',
+    'Week',
     'Plan',
-    'Tasks',
     'Notes',
     'Gym',
     'Cardio',
@@ -33,8 +33,8 @@ test('ACC-001: signed in, I land in the app with the navigation drawer', async (
     'Wardrobe',
   ])
   await expect(page.getByText(ANN.name).filter({ visible: true })).toBeVisible()
-  await pages.getByRole('link', { name: 'Tasks' }).click()
-  await expect(page.getByRole('heading', { name: 'Tasks', level: 1 })).toBeVisible()
+  await pages.getByRole('link', { name: 'Plan', exact: true }).click()
+  await expect(page.getByRole('heading', { name: 'Plan', level: 1 })).toBeVisible()
   if (isMobile) await expect(pages).toBeHidden()
 })
 
@@ -43,7 +43,7 @@ test('ACC-003: signing out returns to the sign-in page and clears the device', a
   isMobile,
 }) => {
   await standIn(page, { signedIn: true })
-  await page.goto('/inbox')
+  await page.goto('/today')
   if (isMobile) await page.getByRole('button', { name: 'Menu' }).click()
   await page.evaluate(() => sessionStorage.setItem('stand-in-signed-out', '1'))
   await page.getByRole('link', { name: `${ANN.name}, Settings` }).click()
@@ -57,7 +57,7 @@ test('ACC-003: signing out returns to the sign-in page and clears the device', a
 test('ACC-003: signing out with writes not yet sent warns first', async ({ page, isMobile }) => {
   await standIn(page, { signedIn: true })
   await queuedWrites(page, 2)
-  await page.goto('/inbox')
+  await page.goto('/today')
   if (isMobile) await page.getByRole('button', { name: 'Menu' }).click()
   await page.evaluate(() => sessionStorage.setItem('stand-in-signed-out', '1'))
   await page.getByRole('link', { name: `${ANN.name}, Settings` }).click()
@@ -109,8 +109,8 @@ test('ACC-003 4: someone else signing in clears what the device kept for the las
           id,
         )
   }, theirs)
-  await page.goto('/inbox')
-  await expect(page.getByRole('heading', { name: 'Inbox' })).toBeVisible()
+  await page.goto('/today')
+  await expect(page.getByRole('heading', { name: 'Today', level: 1 })).toBeVisible()
   await expect
     .poll(() => page.evaluate(() => localStorage.getItem('lifeos-device-owner')))
     .toBe(ANN.id)

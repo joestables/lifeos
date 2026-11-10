@@ -55,7 +55,7 @@ self.addEventListener('notificationclick', (event) => {
     event.waitUntil(press({ delivery: data.delivery, token: data.token, action: event.action }))
     return
   }
-  event.waitUntil(open(data.url ?? '/inbox'))
+  event.waitUntil(open(data.url ?? '/today'))
 })
 
 // LifeOS asks for anything kept to be sent when it opens.

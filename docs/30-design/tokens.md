@@ -70,7 +70,7 @@ Proposed; Joe, 3 November: dark's tone 35 chosen, light's suggested).
 *([ADR-0043](../20-architecture/adr/0043-colour-by-type.md), Provisionally
 agreed; the colours agreed with Joe on 11 October 2026.)* Related Types share
 a colour; Account's (Finance) is chosen in Stage 9, and until then Finance is
-neutral. Inbox, Plan, Search and Settings are neutral.
+neutral. Today, Week, Search and Settings are neutral.
 
 | Token | Light | Dark | Types · pages |
 |---|---|---|---|
@@ -144,7 +144,7 @@ keyboard shortcuts and code. Numbers that line up use tabular figures.
 | `text-display` | 32px / 1.1 | 750 | −0.03em | One figure a page leads with: the Gym's overall readiness (Joe, 31 October) |
 | `text-h1` | 24px / 1.2 | 750 | −0.025em | Page title (22px on a phone) |
 | `text-h2` | 17px / 1.3 | 700 | −0.015em | Card and section titles, dialog titles |
-| `text-day` | 20px | 750 | −0.02em | Day numbers on Plan; an Item's title in its Dialog |
+| `text-day` | 20px | 750 | −0.02em | Day numbers on Week; an Item's title in its Dialog |
 | `text-base` | 14px / 1.45 | 400; 600 for titles | 0 | Body, row titles, buttons |
 | `text-sm` | 13px | 400–700 | 0 | Meta, small buttons, section labels (700) |
 | `text-xs` | 12px | 400–700 | 0 | Badges, counts, help text, captions |
@@ -173,9 +173,9 @@ Tailwind's 4px-based scale, using only these steps: **2, 4, 6, 8, 10, 12, 14,
 | `--radius-xs` | 6px | Checkbox, kbd |
 | `--radius-sm` | 8px | Small tile (24px), menu item, tooltip, skeleton |
 | `--radius-md` | 10px | Tile (32px) |
-| `--radius` | 12px | Buttons, inputs, selects, toggle group, drawer items, Plan cards |
+| `--radius` | 12px | Buttons, inputs, selects, toggle group, drawer items, Week cards |
 | `--radius-row` | 14px | List rows, the large tile |
-| `--radius-lg` | 18px | Cards, popovers, menus, Plan day columns, the phone's floating button |
+| `--radius-lg` | 18px | Cards, popovers, menus, Week day columns, the phone's floating button |
 | `--radius-xl` | 24px | Dialogs, sheets |
 | `--radius-full` | 999px | Badges, tabs, chips, switch, avatar, progress |
 

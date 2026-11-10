@@ -5,7 +5,7 @@ and recovering it, converting it — and the Labels that Thoughts, Notes, Tasks
 and Events share. The decisions come first; the requirements, drafted at the start of
 Stage 2, are at the end.*
 
-> **Changing in Stage 7b** (spec agreed 9 November, not yet built): Adds the Reminder Type and its conversions (RMD-006), and keeps Labels for Notes and Thoughts only (PLA-007). [Today, Reminders and Plan](today-reminders-plan.md). Until it is built, this page is how it works.
+> **Changing in Stage 7b** (spec agreed 9 November): the Reminder Type and its conversions are built (RMD-006, steps 5 and 6); still to come, Labels for Notes and Thoughts only (PLA-007, step 9). [Today, Reminders and Plan](today-reminders-plan.md). Until then, this page is how the rest works.
 
 ## Decisions
 
@@ -87,7 +87,7 @@ Acceptance criteria
    was, with its Labels, links and Alerts.
 3. Given a repeat I changed or stopped, then the occurrences it took away,
    which I had never changed, are not listed: I didn't delete them
-   ([TSK-011](../views/tasks.md#tsk-011--change-or-stop-a-repeat)).
+   ([TSK-011](../views/plan.md#tsk-011--change-or-stop-a-repeat)).
 
 ### ITM-004 — Convert an Item
 

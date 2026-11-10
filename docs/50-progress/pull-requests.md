@@ -2,6 +2,32 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#78](https://github.com/joestables/lifeos/pull/78) — Stage 7b, step 6: Today, Week, Plan and Notes' Thoughts
+
+Branch `claude/relaxed-fermi-nehy7e` · 2026-11-10
+
+**What it did**
+- **Today** (`/today`, [views/today.md](../10-requirements/views/today.md),
+  TDY-001–005) replaces Inbox: overdue Tasks, then everything Week has on
+  today in Anytime, Morning, Afternoon and Evening (`src/lib/today.ts`);
+  done and past stay, faded; no Thoughts but a line counting them; the
+  drawer's count is the page's.
+- **Week** (`/week`) is Plan renamed (WEK-001–002); a Reminder's Alarm has
+  its alarm clock on its card.
+- **Plan** (`/plan`) is Tasks reshaped: Tasks, Events, Reminders and
+  Recurring tabs (`src/lib/plan-lists.ts`, PLA-001–005); no Completed tab
+  or Label pills; a Task ticked today stays in Today.
+- **Notes** has a Thoughts tab (NTE-005), where Inbox's Thought rows went,
+  with Reminder a tap away beside Task and Note.
+- `/inbox`, `/tasks` and Week's old `/plan?day=`, `/plan?add=1` redirect.
+  Tasks and Reminders convert from their rows' menus.
+- Migration `stage7b_series_reminders` (applied as `20261110155215`; the
+  advisors found nothing new): the nightly series run closes only
+  occurrences whose Type has *cancelled*, so a repeating Reminder can't fail
+  it.
+- The specs moved into their pages' own (`views/today.md`, `week.md`,
+  `plan.md`, `notes.md`), and every document says Today, Week and Plan.
+
 ## [#77](https://github.com/joestables/lifeos/pull/77) — Stage 7b, step 5: the Reminder Type
 
 Branch `claude/relaxed-fermi-nehy7e` · 2026-11-09
@@ -1736,7 +1762,7 @@ Branch `claude/kind-babbage-p00wl4` · 2026-10-14 to 2026-10-17
   capability map, data model, Modules list and Notes spec follow, and
   ADR-0042 (live updates) and ADR-0036 (the generated data-model now comes
   with the first Module, `food`, in Stage 4) are amended.
-- Drafted Stage 3's specs with Joe's answers: [Plan](../10-requirements/views/plan.md#requirements)
+- Drafted Stage 3's specs with Joe's answers: [Plan](../10-requirements/views/week.md#requirements)
   (PLN-001–007), a new [Events](../10-requirements/cross-cutting/events.md#requirements)
   spec (EVT-001–006) and [Google Calendar](../10-requirements/cross-cutting/integrations.md#google-calendar)
   (GCL-001–006), all *proposed*. Capture stays Thoughts and Tasks
@@ -2126,7 +2152,7 @@ Branch `claude/kind-dijkstra-1kv0xt` · 2026-10-10 to 2026-10-11
 - Drafted the Stage 2 requirements, all *proposed*: capture (CAP-001–008),
   Inbox (INB-001–005), Notes (NTE-001–005), Tasks with repeats
   (TSK-001–011), Reminders (REM-001–009), working with Items (ITM-001–007)
-  and Search (SRC-001–003). New specs: `views/notes.md`, `views/tasks.md`,
+  and Search (SRC-001–003). New specs: `views/notes.md`, `views/plan.md`,
   `cross-cutting/items.md`.
 - Re-checked before Stage 2: iOS Web Push still shows no notification
   buttons; Gemini can't post to a custom address. Recorded in the reminders

@@ -1,4 +1,5 @@
 import type { LucideIcon } from 'lucide-react'
+import { Fragment, type ReactNode } from 'react'
 import { cn } from '@/lib/utils'
 import type { TypeColour } from './colours'
 
@@ -26,8 +27,8 @@ export function PlanCard({
   /** "Task", "Event", "Dinner" */
   type: string
   title: string
-  /** "19:30", "19:30–21:30", "All day"; none for an untimed Task. */
-  time?: string
+  /** "19:30", "19:30–21:30", "All day"; a Reminder's times, an Alarm's with its clock; none for an untimed Task. */
+  time?: ReactNode
   /** A place, "Due Fri". */
   detail?: string
   past?: boolean
@@ -36,7 +37,7 @@ export function PlanCard({
   wide?: boolean
   onOpen?: () => void
 }) {
-  const meta = [time, detail].filter(Boolean).join(' · ')
+  const meta = [time, detail].filter(Boolean)
   return (
     <div
       data-slot="plan-card"
@@ -71,14 +72,19 @@ export function PlanCard({
           title
         )}
       </div>
-      {meta && (
+      {meta.length > 0 && (
         <div
           className={cn(
             'truncate text-muted-foreground tabular-nums',
             wide ? 'text-sm' : 'text-xs',
           )}
         >
-          {meta}
+          {meta.map((m, i) => (
+            <Fragment key={i}>
+              {i > 0 && ' · '}
+              {m}
+            </Fragment>
+          ))}
         </div>
       )}
     </div>

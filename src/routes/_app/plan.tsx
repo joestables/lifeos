@@ -1,379 +1,286 @@
-import { AddMealDialog } from '@/app/add-meal'
-import { NewListDialog } from '@/app/new-list'
-import { NewWorkoutDialog } from '@/app/new-workout'
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { addDays, todayIn } from '@lifeos/recurrence'
-import { useEffect, useState, type DragEvent, type ReactElement } from 'react'
+import { describeRule, todayIn } from '@lifeos/recurrence'
+import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
+import { BellRingIcon, CalendarDaysIcon, RepeatIcon, SquareCheckBigIcon } from 'lucide-react'
+import { useMemo, useState, type ReactNode } from 'react'
 import {
   AddToDay,
+  EmptyState,
   Fab,
-  FilterChip,
   PageAction,
   PageHeader,
-  PlanCard,
-  PlanDay,
-  PlanToolbar,
-  PlanWeek,
-  WeekStrip,
+  SectionLabel,
+  TabsRow,
+  TypeScope,
   type AddChoice,
-  type PlanWeekDay,
-  type TypeColour,
 } from '@/components/lifeos'
-import { toast } from '@/components/ui/sonner'
-import { NewEventDialog } from '@/app/event-details'
-import { useGoogleLocked, useSyncOnOpen } from '@/app/google-source'
-import { useOpenItem } from '@/app/item-navigation'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useAlertTimes } from '@/app/alert-times'
+import { NewEventDialog } from '@/app/event-details'
+import { repeatBit } from '@/app/item-meta'
+import { useMine } from '@/app/mine'
 import { NewReminderDialog } from '@/app/new-reminder'
 import { NewTaskDialog } from '@/app/new-task'
-import {
-  archiveItem,
-  queue,
-  restoreItem,
-  updateItem,
-  updateSettings,
-  useGym,
-  useHouseholds,
-  useItems,
-  useMeals,
-  useSettings,
-  type Item,
-} from '@/data'
-import { leftoversBefore } from '@/lib/meals'
+import { PlacedRow } from '@/app/placed-row'
+import { ReminderRow } from '@/app/reminder-row'
+import { useTaskFacts } from '@/app/task-facts'
+import { TaskRow } from '@/app/task-row'
 import { useIsMobile } from '@/hooks/use-mobile'
-import { dayName, fromIsoDay, shortDate } from '@/lib/dates'
-import { itemTitle, plannedTypes, typeLook } from '@/lib/item-types'
-import {
-  cardLine,
-  dayTitle,
-  isPast,
-  moveTo,
-  planDays,
-  weekOf,
-  weekTitle,
-  type Placed,
-} from '@/lib/plan'
+import { queue, useItems, useSettings, type Item, type RepeatMode, type Series } from '@/data'
+import { dateName, fromIsoDay, shortDate } from '@/lib/dates'
+import { typeLook } from '@/lib/item-types'
+import { byDay, eventEntries, recurringEntries, reminderEntries, startTime } from '@/lib/plan-lists'
+import { taskGroups } from '@/lib/tasks'
 
-type Layout = 'week' | 'day'
-const LAYOUT_KEY = 'lifeos.plan.layout'
+type Tab = 'tasks' | 'events' | 'reminders' | 'recurring'
+const TABS: { value: Tab; label: string; action: string }[] = [
+  { value: 'tasks', label: 'Tasks', action: 'New task' },
+  { value: 'events', label: 'Events', action: 'New event' },
+  { value: 'reminders', label: 'Reminders', action: 'New reminder' },
+  { value: 'recurring', label: 'Recurring', action: 'New' },
+]
+const isTab = (v: unknown): v is Tab => TABS.some((t) => t.value === v)
+const NEW: AddChoice[] = (['task', 'event', 'reminder'] as const).map((key) => {
+  const t = typeLook(key)
+  return { key, label: t.label, colour: t.colour as AddChoice['colour'], icon: t.icon }
+})
 
-/** Plan (views/plan.md): the day shown, kept in the page's address. */
+interface PlanSearch {
+  tab?: Exclude<Tab, 'tasks'>
+  /** Week's, from a link made before Plan was renamed Week (WEK-001 2). */
+  day?: string
+  add?: true
+}
+
+/** My Tasks, Events and Reminders as lists, and what repeats (views/week.md). */
 export const Route = createFileRoute('/_app/plan')({
-  // `add`: opened with "+" pressed, as the Today widget's "+" asks (WID-002 8).
-  validateSearch: (search: Record<string, unknown>): { day?: string; add?: true } => ({
-    ...(typeof search.day === 'string' && /^\d{4}-\d\d-\d\d$/.test(search.day)
-      ? { day: search.day }
-      : {}),
+  validateSearch: (search: Record<string, unknown>): PlanSearch => ({
+    ...(isTab(search.tab) && search.tab !== 'tasks' ? { tab: search.tab } : {}),
+    ...(typeof search.day === 'string' ? { day: search.day } : {}),
     ...(search.add === true || search.add === 'true' || search.add === 1 || search.add === '1'
       ? { add: true as const }
       : {}),
   }),
+  // Plan was the week until Stage 7b: its day and "+" are Week's now (WEK-001 2).
+  beforeLoad: ({ search }) => {
+    if (search.day || search.add)
+      throw redirect({
+        to: '/week',
+        search: {
+          ...(search.day ? { day: search.day } : {}),
+          ...(search.add ? { add: true } : {}),
+        },
+        replace: true,
+      })
+  },
   component: Plan,
 })
 
-/** The Schedulable Types the app has yet: Plan's filter and what "+" adds (PLN-004, PLN-006). */
-const PLANNED = plannedTypes()
-const ADD: AddChoice[] = PLANNED.map((t) => ({
-  key: t.key,
-  label: t.label,
-  colour: t.colour as AddChoice['colour'],
-  icon: t.icon,
-}))
-
-/** Week or Day on a computer, kept on this device only (PLN-002 2, ADR-0049). */
-function useLayout(): [Layout, (layout: Layout) => void] {
-  const [layout, setLayout] = useState<Layout>(() => {
-    try {
-      return localStorage.getItem(LAYOUT_KEY) === 'day' ? 'day' : 'week'
-    } catch {
-      return 'week'
-    }
-  })
-  return [
-    layout,
-    (next) => {
-      setLayout(next)
-      try {
-        localStorage.setItem(LAYOUT_KEY, next)
-      } catch {
-        // Kept for this visit only.
-      }
-    },
-  ]
+/** "Next today", "Next Wed 11 Nov" (PLA-005). */
+const nextWhen = (day: string, now: Date, at?: string) => {
+  const name = dateName(day, now)
+  const words = name === 'Today' || name === 'Tomorrow' ? name.toLowerCase() : name
+  return `Next ${words}${at ? `, ${at}` : ''}`
 }
+const inLater = (key: string, day: string) => (key === 'later' ? [shortDate(fromIsoDay(day))] : [])
+const rule = (s: Series) => describeRule(s.rule, s.starts_on, s.mode as RepeatMode)
 
-const dayLabel = (day: string, today: string) =>
-  day === today ? 'Today' : shortDate(fromIsoDay(day))
+function Group({
+  label,
+  count,
+  danger,
+  children,
+}: {
+  label: string
+  count: number
+  danger?: boolean
+  children: ReactNode
+}) {
+  return (
+    <section>
+      <SectionLabel danger={danger} count={count}>
+        {label}
+      </SectionLabel>
+      <div className="flex flex-col gap-1.5">{children}</div>
+    </section>
+  )
+}
 
 function Plan() {
   const search = Route.useSearch()
+  const tab: Tab = search.tab ?? 'tasks'
   const navigate = useNavigate()
   const isMobile = useIsMobile()
   const settings = useSettings(queue)
-  // A shared Item says which Household it is in (HSH-003 1).
-  const { households: mine } = useHouseholds(queue)
-  const households = new Map(mine.map((h) => [h.id, h.name]))
-  const { items } = useItems(queue)
-  const open = useOpenItem()
-  const [chosenLayout, setLayout] = useLayout()
-  const googleLocked = useGoogleLocked()
-  useSyncOnOpen()
-  const layout: Layout = isMobile ? 'day' : chosenLayout
-  const today = todayIn(settings.timezone)
-  const day = search.day ?? today
-  const week = weekOf(day)
-  const hidden = settings.planHiddenTypes
+  const [adding, setAdding] = useState<string | null>(null)
+  const { items: visible, isLoading } = useItems(queue)
+  // Only what is mine: in one of my Spaces (HSH-005 7).
+  const mine = useMine()
+  const items = useMemo(() => visible.filter(mine), [visible, mine])
+  const facts = useTaskFacts()
   const alertsOf = useAlertTimes()
-  const days = planDays(items, week[0]!, week[6]!, settings.timezone, hidden, alertsOf)
-  const [adding, setAdding] = useState<{ type: string; day: string } | null>(null)
-  // Asked from outside (the Today widget, WID-002 8): "+" open on the day,
-  // each time it is asked, Plan already open or not.
-  const [addOpen, setAddOpen] = useState(false)
-  const [asked, setAsked] = useState(false)
-  if (search.add && !asked) {
-    setAsked(true)
-    setAddOpen(true)
-  } else if (!search.add && asked) setAsked(false)
-  useEffect(() => {
-    if (search.add) void navigate({ to: '/plan', search: { day: search.day }, replace: true })
-  }, [search.add, search.day, navigate])
-  const [drag, setDrag] = useState<{ item: Item; from: string } | null>(null)
-  const [over, setOver] = useState<string | null>(null)
   const now = new Date()
+  const today = todayIn(settings.timezone)
+  const tz = settings.timezone
+  const current = TABS.find((t) => t.value === tab)!
 
-  const goTo = (next: string) =>
-    void navigate({
-      to: '.',
-      search: (prev) => ({ ...prev, day: next === today ? undefined : next }),
-      replace: true,
-    })
-  // A phone's arrows move a week, its WeekStrip the day (patterns.md#plan).
-  const step = layout === 'week' || isMobile ? 7 : 1
-  const toggle = (type: string, on: boolean) =>
-    updateSettings({
-      plan_hidden_types: on ? hidden.filter((t) => t !== type) : [...hidden, type],
-    })
-
-  const { meals } = useMeals(queue)
-  const move = (item: Item, from: string, to: string) => {
-    const patch = moveTo(item, from, to, settings.timezone)
-    if (!patch) return
-    const was = Object.fromEntries(
-      Object.keys(patch).map((k) => [k, item[k as keyof typeof patch]]),
-    ) as typeof patch
-    // A Meal's leftovers at or before where it goes are removed (MPL-003 2).
-    const gone =
-      item.type === 'meal' && item.slot
-        ? leftoversBefore(
-            item.id,
-            to,
-            item.slot,
-            meals.map((m) => ({
-              id: m.item.id,
-              leftoversOf: m.leftoversOf,
-              day: m.item.do_on,
-              slot: m.item.slot,
-            })),
-          )
-        : []
-    updateItem(item.id, patch)
-    for (const l of gone) archiveItem(l.id)
-    toast(
-      `Moved "${itemTitle(item)}" to ${dayName(to, now)}${gone.length ? ' and removed its leftovers' : ''}`,
-      {
-        action: {
-          label: 'Undo',
-          onClick: () => {
-            updateItem(item.id, was)
-            for (const l of gone) restoreItem(l.id)
-          },
-        },
-      },
-    )
-  }
-
-  const card = (p: Placed, on: string, wide = false) => {
-    const look = typeLook(p.item.type)
-    const line = cardLine(p, on, settings.timezone, { long: wide, now })
-    const node = (
-      <PlanCard
-        key={`${p.item.id}-${on}`}
-        colour={look.colour}
-        icon={look.icon}
-        type={look.label}
-        title={itemTitle(p.item)}
-        time={line.time}
-        detail={
-          [line.detail, households.get(p.item.space_id)].filter(Boolean).join(' · ') || undefined
-        }
-        past={isPast(p.item, now, p)}
-        done={p.item.status === 'done'}
-        wide={wide}
-        dragging={drag?.item.id === p.item.id && drag.from === on}
-        onOpen={() => open(p.item)}
+  // A Task as before, without Labels or sub-tasks (PLA-002 3).
+  const task = (t: Item, showDay = false, repeat?: string) => {
+    const f = facts.of(t)
+    return (
+      <TaskRow
+        key={t.id}
+        task={t}
+        now={now}
+        showDay={showDay}
+        {...f}
+        labels={[]}
+        subtasks={undefined}
+        repeat={repeat ?? f.repeat}
       />
     )
-    // An Event from an incoming-only Google calendar stays where Google has it (PLN-007 4).
-    if (wide || isMobile || googleLocked(p.item)) return node
-    // On a computer's week, a card is dragged to another day (PLN-007).
-    return (
-      <div
-        key={`${p.item.id}-${on}`}
-        draggable
-        onDragStart={(e: DragEvent) => {
-          e.dataTransfer.effectAllowed = 'move'
-          e.dataTransfer.setData('text/plain', p.item.id)
-          setDrag({ item: p.item, from: on })
-        }}
-        onDragEnd={() => {
-          setDrag(null)
-          setOver(null)
-        }}
-      >
-        {node}
-      </div>
+  }
+
+  let body: ReactNode
+  let empty: { icon: typeof RepeatIcon; title: string } | null = null
+  if (tab === 'tasks') {
+    const groups = taskGroups(items, now)
+    if (groups.length === 0) empty = { icon: SquareCheckBigIcon, title: 'No tasks yet' }
+    body = groups.map((g) => (
+      <Group key={g.key} label={g.label} count={g.tasks.length} danger={g.danger}>
+        {g.tasks.map((t) => task(t, g.key === 'later' || g.key === 'someday'))}
+      </Group>
+    ))
+  } else if (tab === 'events') {
+    const groups = byDay(
+      eventEntries(items, today, tz, now).map((e) => ({ day: e.day, value: e })),
+      today,
+    )
+    if (groups.length === 0) empty = { icon: CalendarDaysIcon, title: 'No events coming' }
+    body = groups.map((g) => (
+      <Group key={g.key} label={g.label} count={g.entries.length}>
+        {g.entries.map((e) => (
+          <PlacedRow
+            key={e.placed.item.id}
+            placed={e.placed}
+            day={e.day}
+            past={e.past}
+            before={inLater(g.key, e.day)}
+            repeat={facts.of(e.placed.item).repeat}
+          />
+        ))}
+      </Group>
+    ))
+  } else if (tab === 'reminders') {
+    const groups = byDay(
+      reminderEntries(items, today, alertsOf, now).map((e) => ({ day: e.day, value: e })),
+      today,
+    )
+    if (groups.length === 0) empty = { icon: BellRingIcon, title: 'No reminders coming' }
+    body = groups.map((g) => (
+      <Group key={g.key} label={g.label} count={g.entries.length}>
+        {g.entries.map((e) => (
+          <ReminderRow
+            key={e.item.id}
+            item={e.item}
+            alerts={e.alerts}
+            repeat={facts.of(e.item).repeat}
+            meta={inLater(g.key, e.day)}
+            past={e.past}
+          />
+        ))}
+      </Group>
+    ))
+  } else {
+    const r = recurringEntries(items, facts.series, today, tz, alertsOf, now)
+    if (r.tasks.length + r.events.length + r.reminders.length === 0)
+      empty = { icon: RepeatIcon, title: 'Nothing repeats' }
+    body = (
+      <>
+        {r.tasks.length > 0 && (
+          <Group label="Tasks" count={r.tasks.length}>
+            {r.tasks.map(({ task: t, series }) => task(t, true, rule(series)))}
+          </Group>
+        )}
+        {r.events.length > 0 && (
+          <Group label="Events" count={r.events.length}>
+            {r.events.map((e) => (
+              <PlacedRow
+                key={e.placed.item.id}
+                placed={e.placed}
+                day={e.day}
+                meta={[
+                  repeatBit(rule(e.series)),
+                  nextWhen(e.day, now, startTime(e.placed.item, tz)),
+                ]}
+              />
+            ))}
+          </Group>
+        )}
+        {r.reminders.length > 0 && (
+          <Group label="Reminders" count={r.reminders.length}>
+            {r.reminders.map((e) => (
+              <ReminderRow
+                key={e.item.id}
+                item={e.item}
+                alerts={e.alerts}
+                repeat={rule(e.series)}
+                meta={[nextWhen(e.day, now)]}
+              />
+            ))}
+          </Group>
+        )}
+      </>
     )
   }
 
-  const addTo = (
-    d: string,
-    trigger?: ReactElement,
-    side?: 'top' | 'bottom',
-    control?: { open: boolean; onOpenChange: (open: boolean) => void },
-  ) => (
-    <AddToDay
-      day={dayLabel(d, today)}
-      choices={ADD}
-      onChoose={(type) => setAdding({ type, day: d })}
-      trigger={trigger}
-      side={side}
-      {...control}
-    />
+  const add = () =>
+    setAdding(
+      current.value === 'events' ? 'event' : current.value === 'reminders' ? 'reminder' : 'task',
+    )
+  // On Recurring, "New" is a menu of the three (PLA-001 3).
+  const newMenu = (trigger: React.ReactElement, side?: 'top' | 'bottom') => (
+    <AddToDay day="Today" choices={NEW} onChoose={setAdding} trigger={trigger} side={side} />
   )
 
-  const weekDays: PlanWeekDay[] = week.map((d) => {
-    const date = fromIsoDay(d)
-    const list = days.get(d) ?? []
-    return {
-      key: d,
-      name: shortDate(date).slice(0, 3),
-      number: date.getDate(),
-      today: d === today,
-      add: addTo(d),
-      dropping: drag !== null && over === d,
-      drop: {
-        onDragOver: (e) => {
-          if (!drag) return
-          e.preventDefault()
-          e.dataTransfer.dropEffect = 'move'
-          if (over !== d) setOver(d)
-        },
-        onDrop: (e) => {
-          e.preventDefault()
-          if (drag) move(drag.item, drag.from, d)
-          setDrag(null)
-          setOver(null)
-        },
-      },
-      children: <>{list.map((p) => card(p, d))}</>,
-    }
-  })
-
-  const strip = week.map((d) => {
-    const date = fromIsoDay(d)
-    return {
-      key: d,
-      name: shortDate(date).slice(0, 3),
-      number: date.getDate(),
-      today: d === today,
-      dots: (days.get(d) ?? []).map((p) => typeLook(p.item.type).colour as TypeColour),
-    }
-  })
-
-  // "Add" adds to the day shown, or in a week to today when it is in it.
-  const addDay = layout === 'day' ? day : week.includes(today) ? today : week[0]!
-
   return (
-    <>
-      <PageHeader title="Plan" />
-      <div className="flex flex-col gap-4 px-5 pb-28 sm:px-9 sm:pb-8">
-        <PlanToolbar
-          title={layout === 'week' ? weekTitle(week[0]!) : dayTitle(day, isMobile)}
-          day={day}
-          onChooseDay={goTo}
-          layout={layout}
-          onLayout={setLayout}
-          onToday={() => goTo(today)}
-          onPrevious={() => goTo(addDays(day, -step))}
-          onNext={() => goTo(addDays(day, step))}
-          step={step === 7 ? 'week' : 'day'}
-          action={addTo(
-            addDay,
-            <PageAction label="Add" />,
-            undefined,
-            isMobile ? undefined : { open: addOpen, onOpenChange: setAddOpen },
+    <TypeScope colour="blue">
+      <PageHeader
+        title="Plan"
+        action={tab === 'recurring' ? undefined : { label: current.action, onClick: add }}
+      />
+      <div className="flex max-w-3xl flex-col gap-5 px-5 pb-28 sm:px-9 sm:pb-8">
+        <TabsRow>
+          <Tabs
+            value={tab}
+            onValueChange={(value: Tab) =>
+              void navigate({
+                to: '.',
+                search: (prev) => ({ ...prev, tab: value === 'tasks' ? undefined : value }),
+                replace: true,
+              })
+            }
+          >
+            <TabsList aria-label="View">
+              {TABS.map((t) => (
+                <TabsTrigger key={t.value} value={t.value}>
+                  {t.label}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
+          {tab === 'recurring' ? (
+            newMenu(<PageAction label="New" />)
+          ) : (
+            <PageAction label={current.action} onClick={add} />
           )}
-        />
-        <div
-          role="group"
-          aria-label="Show on Plan"
-          className="flex items-center gap-2 overflow-x-auto"
-        >
-          {PLANNED.map((t) => (
-            <FilterChip
-              key={t.key}
-              colour={t.colour}
-              pressed={!hidden.includes(t.key)}
-              onPressedChange={(on) => toggle(t.key, on)}
-            >
-              {t.label}s
-            </FilterChip>
-          ))}
-        </div>
-        {layout === 'week' ? (
-          <PlanWeek days={weekDays} />
-        ) : (
-          <div className="flex max-w-3xl flex-col gap-4">
-            <WeekStrip days={strip} chosen={day} onChoose={goTo} />
-            <PlanDay>{(days.get(day) ?? []).map((p) => card(p, day, true))}</PlanDay>
-          </div>
-        )}
+        </TabsRow>
+        {!isLoading && empty && <EmptyState icon={empty.icon} title={empty.title} />}
+        {body}
       </div>
-      {isMobile &&
-        addTo(day, <Fab label="Add" />, 'top', { open: addOpen, onOpenChange: setAddOpen })}
-      {adding?.type === 'task' && (
-        <NewTaskDialog doOn={adding.day} onClose={() => setAdding(null)} />
-      )}
-      {adding?.type === 'reminder' && (
-        <NewReminderDialog day={adding.day} onClose={() => setAdding(null)} />
-      )}
-      {adding?.type === 'event' && (
-        <NewEventDialog day={adding.day} onClose={() => setAdding(null)} />
-      )}
-      {adding?.type === 'meal' && (
-        <AddMealDialog day={adding.day} onClose={() => setAdding(null)} />
-      )}
-      {adding?.type === 'shopping_list' && (
-        <NewListDialog kind="food" day={adding.day} onClose={() => setAdding(null)} />
-      )}
-      {adding?.type === 'workout' && (
-        <PlanWorkout day={adding.day} today={today} onClose={() => setAdding(null)} />
-      )}
-    </>
-  )
-}
-
-/** A workout planned from Plan (PLN-006, GYM-007 1): New workout on the chosen day, then its page. */
-function PlanWorkout({ day, today, onClose }: { day: string; today: string; onClose: () => void }) {
-  const navigate = useNavigate()
-  const gym = useGym(queue)
-  return (
-    <NewWorkoutDialog
-      gym={gym}
-      today={today}
-      day={day}
-      onClose={onClose}
-      onMade={(id) => void navigate({ to: '/gym/workouts/$id', params: { id } })}
-    />
+      {tab === 'recurring' && isMobile && newMenu(<Fab label="New" />, 'top')}
+      {adding === 'task' && <NewTaskDialog onClose={() => setAdding(null)} />}
+      {adding === 'event' && <NewEventDialog day={today} onClose={() => setAdding(null)} />}
+      {adding === 'reminder' && <NewReminderDialog day={today} onClose={() => setAdding(null)} />}
+    </TypeScope>
   )
 }

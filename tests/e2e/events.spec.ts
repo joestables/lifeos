@@ -63,7 +63,7 @@ async function start(page: Page, path: string) {
 test('EVT-001: a new Event from Plan, an hour long until I change it, kept only on Save', async ({
   page,
 }) => {
-  const db = await start(page, '/plan')
+  const db = await start(page, '/week')
   // Plan's "Add" (the Fab on a phone), for today.
   const newEvent = async () => {
     await page.getByRole('button', { name: 'Add', exact: true }).filter({ visible: true }).click()
@@ -113,7 +113,7 @@ test('EVT-001: a new Event from Plan, an hour long until I change it, kept only 
 test('EVT-003 1: New event shows its default Alert, 30 minutes before; removed, it has none', async ({
   page,
 }) => {
-  const db = await start(page, '/plan')
+  const db = await start(page, '/week')
   const newEvent = async (title: string) => {
     await page.getByRole('button', { name: 'Add', exact: true }).filter({ visible: true }).click()
     await page.getByRole('menuitem', { name: 'Event' }).click()
@@ -143,7 +143,7 @@ test('EVT-003 1: New event shows its default Alert, 30 minutes before; removed, 
 test('EVT-001 3, EVT-002: an Event changed in its popup; all day kept as dates; deleted with Undo', async ({
   page,
 }) => {
-  const db = await start(page, `/plan?item=${LUNCH}`)
+  const db = await start(page, `/week?item=${LUNCH}`)
   const popup = page.getByRole('dialog', { name: "Mum's birthday lunch" })
   await expect(popup.getByRole('combobox', { name: 'Starts time' })).toContainText('13:00')
   await expect(popup.getByRole('combobox', { name: 'Ends time' })).toContainText('15:00')
@@ -182,7 +182,7 @@ test('EVT-001 3, EVT-002: an Event changed in its popup; all day kept as dates; 
 test('EVT-003 3: an Event reminds me before it starts, or on a day before it at a time', async ({
   page,
 }) => {
-  const db = await start(page, `/plan?item=${LUNCH}`)
+  const db = await start(page, `/week?item=${LUNCH}`)
   const popup = page.getByRole('dialog', { name: "Mum's birthday lunch" })
   // Opened: the popup takes the focus, which would close a Dialog opened sooner.
   await expect(popup).toBeFocused()
@@ -214,7 +214,7 @@ test('EVT-003 3: an Event reminds me before it starts, or on a day before it at 
 test('EVT-005: a Task becomes an Event at its time, an hour long, and back with Undo', async ({
   page,
 }) => {
-  const db = await start(page, `/tasks?item=${DINNER}`)
+  const db = await start(page, `/plan?item=${DINNER}`)
   const popup = page.getByRole('dialog', { name: 'Dinner with Sam' })
   await popup.getByRole('button', { name: 'More' }).first().click()
   await page.getByRole('menuitem', { name: 'Event' }).click()
@@ -238,7 +238,7 @@ test('EVT-005: a Task becomes an Event at its time, an hour long, and back with 
 test('EVT-006: Tasks for an Event, linked or made there, unlinked; the Task shows what it is for', async ({
   page,
 }) => {
-  const db = await start(page, `/plan?item=${LUNCH}`)
+  const db = await start(page, `/week?item=${LUNCH}`)
   const popup = page.getByRole('dialog', { name: "Mum's birthday lunch" })
   const tasks = popup.locator('[data-slot="item-row"]')
   await expect(tasks).toHaveText([/Buy a card for mum/])
@@ -274,7 +274,7 @@ test('EVT-006: Tasks for an Event, linked or made there, unlinked; the Task show
 })
 
 test('INB-002 3: a Thought sorted into an Event, its date and time its start', async ({ page }) => {
-  const db = await start(page, `/inbox?item=${THOUGHT}`)
+  const db = await start(page, `/today?item=${THOUGHT}`)
   const popup = page.getByRole('dialog', { name: 'drinks with Alex sat 6pm' })
   await popup.getByRole('button', { name: 'More' }).first().click()
   await page.getByRole('menuitem', { name: 'Event' }).click()
@@ -299,7 +299,7 @@ test('REM-007 2: the Event default is turned off in Settings', async ({ page }) 
 test('EVT-004: a weekly Event at its time either side of the clocks changing; one changed alone; stopped', async ({
   page,
 }) => {
-  const db = await start(page, `/plan?item=${FOOTBALL}`)
+  const db = await start(page, `/week?item=${FOOTBALL}`)
   const popup = page.getByRole('dialog', { name: '5-a-side' })
   await popup.getByRole('button', { name: 'Repeat' }).click()
   const repeat = page.getByRole('dialog', { name: 'Repeat' })
@@ -332,7 +332,7 @@ test('EVT-004: a weekly Event at its time either side of the clocks changing; on
   // One occurrence changed is that one alone.
   const second = String(weeks()[1]!.id)
   await page.keyboard.press('Escape')
-  await page.goto(`/plan?item=${second}`)
+  await page.goto(`/week?item=${second}`)
   const next = page.getByRole('dialog', { name: '5-a-side' })
   await next.getByRole('textbox', { name: 'Place' }).fill('Goals, Wimbledon')
   await next.getByRole('textbox', { name: 'Place' }).blur()

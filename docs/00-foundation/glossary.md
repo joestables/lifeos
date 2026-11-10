@@ -16,13 +16,13 @@ act on them.
 | **Status** | Where an Item is in its life: *idea*, *active*, *done* or *cancelled*. Each Type uses a subset and gives it its own labels (a Task's *idea* is "Someday"). Only Completable Types use *done*, so *done* always means finished. |
 | **Idea** | An Item in the *idea* status. Not a Type. |
 | **Link** / **link type** | A named relationship between two Items, named in both directions ("uses" / "used in"). |
-| **View** | A query plus a layout (list, board, calendar, timeline, lanes), declared in code. Inbox, Plan, Tasks and Recipes are Views (from Stage 7b, Today, Week and Plan). |
+| **View** | A query plus a layout (list, board, calendar, timeline, lanes), declared in code. Today, Week, Plan and Recipes are Views (Inbox, Plan and Tasks until Stage 7b). |
 | **Screen** | A page for *doing* something rather than looking at a set of Items: an Item's own page, logging a workout, cooking a recipe, importing a recipe, capture, search, Settings. Declared in code by a Module or the core. Owns no data. |
 | **Module** | Code packaging only: a bundle of Types, Views, Screens, measures and link types (e.g. Fitness). Replaces "App" / "Domain". |
 | **Integration** | An outside source feeding Items in: Google Calendar, Oura, Health Connect, later banks. |
 | **Space** | Who can see an Item: **Personal** or **Household**. |
 | **Household** | A group of people who share: its **owner** made it and invites others by email; **members** joined by accepting. A person may be in several ([ADR-0039](../20-architecture/adr/0039-accounts-contacts-households.md)). |
-| **Thought** | A Type: a raw, unsorted capture. What capture makes by default. It waits in Inbox until it is sorted — converted in place into a Note, Task, Shopping list or other Capturable Type — ticked off (*done*), or deleted. |
+| **Thought** | A Type: a raw, unsorted capture. What capture makes by default. It waits on Notes' Thoughts tab until it is sorted — converted in place into a Note, Task, Shopping list or other Capturable Type — ticked off (*done*), or deleted. |
 | **Note** | A Type: a note, kept, labelled and shown in the Notes View. A Thought can be turned into one, and a Note can be converted into other Types. Personal only. |
 | **Alert** | A notification attached to an Item at a time, each person's own; an Alarm is an Alert that rings. Called a Reminder until Stage 7b ([ADR-0065](../20-architecture/adr/0065-reminders-alerts-and-the-day.md)). |
 | **Reminder** | A Type (Stage 7b, [RMD-001](../10-requirements/cross-cutting/today-reminders-plan.md#rmd-001--a-reminder)): a title with its Alerts and a Repeat, not Completable, Personal only. Its day is its do-on date and its Alerts hang on it; it is on each day one of them falls ([ADR-0065](../20-architecture/adr/0065-reminders-alerts-and-the-day.md)). |
@@ -36,7 +36,7 @@ templates, and starting a session opens the session-logging Screen.
 
 | Trait | Meaning |
 |---|---|
-| **Schedulable** | Has a time; appears on Plan. |
+| **Schedulable** | Has a time; appears on Week and Today. |
 | **Completable** | Can be ticked off. |
 | **Shareable** | Can belong to the Household Space. |
 | **Capturable** | A Thought can become one in place. |
@@ -60,14 +60,14 @@ templates, and starting a session opens the session-logging Screen.
 | **Conversion** | Changing an Item's Type in place; the Item keeps its id, links and history. |
 | ***became*** | The link from a new Item to the old one it was "created from". |
 | **Reference data** | A Module's small lookup lists (muscle groups, cuisines, brands…). Not Items. |
-| **Type colour** | The colour that marks a Type's Items, and the pages about them; related Types share one (Tasks and Events blue). Inbox and Plan are neutral ([ADR-0043](../20-architecture/adr/0043-colour-by-type.md)). |
+| **Type colour** | The colour that marks a Type's Items, and the pages about them; related Types share one (Tasks, Events and Reminders blue). Today and Week are neutral ([ADR-0043](../20-architecture/adr/0043-colour-by-type.md)). |
 | **Design token** | A named design value — a colour, size, radius, shadow — defined once and used by every component ([tokens](../30-design/tokens.md)). |
-| **Label** | A per-Space grouping on the Types that use one (Thoughts, Notes, Tasks and Events): filters Inbox, Notes and Tasks. Replaces "tags". |
-| **Sorting** | Dealing with a Thought in Inbox: converting it into another Type, ticking it off, or deleting it. |
+| **Label** | A per-Space grouping on the Types that use one (Thoughts, Notes, Tasks and Events): filters Notes and its Thoughts (Plan and Today have none from Stage 7b). Replaces "tags". |
+| **Sorting** | Dealing with a Thought on Notes' Thoughts tab: converting it into another Type, ticking it off, or deleting it. |
 | **Mark** | A per-person flag a Type may have, under its own name: a Note is **pinned**, a Task **starred**, a Recipe **favourited**. Types without one have none. |
 | **Sub-task** | A line ticked inside a Task: a title and a tick, not a Task of its own. |
 | **Alarm** | An Alert marked to ring until stopped, over the lock screen, on the Android app; elsewhere an ordinary notification ([REM-011](../10-requirements/cross-cutting/reminders.md#rem-011--an-alarm)). |
-| **Widget** | A small piece of LifeOS on the Android home screen: Today, the day's Plan ([the Android app](../10-requirements/cross-cutting/android.md)). |
+| **Widget** | A small piece of LifeOS on the Android home screen: Today, the day's Items ([the Android app](../10-requirements/cross-cutting/android.md)). |
 | **Capture address** | A personal URL and secret that creates Items in its owner's Personal Space. |
 | **Current set** | An Exercise's weight and reps — "60 kg × 8" — that a workout's sets start at, called **Current** in the app; changed by hand or from a workout's review ([gym](../10-requirements/modules/gym.md)). |
 | **Strength** | How a set is measured and compared: weight × (1 + (reps + RIR) ÷ 30) — Epley's formula, never named in the app — for sets of 1–12 reps. A **PR** is the set with the best. A quick set has none. |

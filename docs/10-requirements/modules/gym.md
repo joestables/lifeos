@@ -110,7 +110,7 @@ Provisionally agreed).
 - **A Workout is planned for a day** — the one I pick, or today; a day
   only, never a time (Joe, 29 October) — from a template or from scratch,
   and starts only when I press **Start** (Joe, 22 October). A planned
-  Workout is on Plan
+  Workout is on Week
   ([ADR-0029](../../20-architecture/adr/0029-plan-reads-core-items.md),
   Provisionally agreed) and always Personal
   ([spaces and sharing](../cross-cutting/spaces-and-sharing.md)).
@@ -433,7 +433,7 @@ Acceptance criteria
 ### GYM-007 — Plan a workout
 
 **As** Joe, **I want** to plan a workout for a day, from a template or from
-scratch, **so that** it is on Plan and ready when I get to the gym.
+scratch, **so that** it is on Week and ready when I get to the gym.
 Priority: Must · Status: verified (`gym-workouts.spec.ts`; 4 and 5 also by `src/lib/gym.test.ts`)
 
 Acceptance criteria
@@ -441,7 +441,7 @@ Acceptance criteria
    cards to choose from, the chosen one edged in coral, with Empty, and Another template… choosing any
    other; then a day (today to start). A template's name is the workout's
    name, an empty one is called "Workout" until I rename it.
-2. Given a planned workout, then it shows on Plan on its day, coral, and
+2. Given a planned workout, then it shows on Week on its day, coral, and
    opens there.
 3. Given a planned workout, then I can change its day or template, or
    delete it, until I start it.
@@ -810,8 +810,8 @@ Non-goals (Stage 5): cardio (Stage 8); Oura's readiness (Stage 8); a rest
 timer; pounds; plate calculators; bodyweight tracking; sharing workouts or
 templates with a Household; AI that writes programmes; warm-up sets (I
 don't log them); a time of day for a planned workout; goals on an
-Exercise (the Goals app's); RIR in a template; suggestions on Plan or in
-Inbox; a body map that turns, or views other than front and back.
+Exercise (the Goals app's); RIR in a template; suggestions on Week or
+Today; a body map that turns, or views other than front and back.
 
 How it is held and worked out: [ADR-0058](../../20-architecture/adr/0058-fitness-in-the-database.md)
 and [ADR-0059](../../20-architecture/adr/0059-recovery-on-the-device.md)

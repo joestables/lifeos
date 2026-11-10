@@ -11,7 +11,7 @@ core nor other Modules ([principles](../00-foundation/principles.md)):
 
 - Types and migrations;
 - Views and Screens;
-- capture patterns and Inbox entries;
+- capture patterns and entries on Today;
 - optionally, how its Items look on Plan (below);
 - measures and search;
 - settings and default Space.

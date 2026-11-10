@@ -197,7 +197,7 @@ test.describe('Food shared through a Household', () => {
   })
 
   test('HSH-003 1: on Plan a Household’s Item says which', async ({ page }) => {
-    await start(page, '/plan?day=2026-10-14')
+    await start(page, '/week?day=2026-10-14')
     await expect(page.getByRole('button', { name: /Out: Wagamama/ }).first()).toBeVisible()
     await expect(page.getByText(/Dinner · Home/).first()).toBeVisible()
   })

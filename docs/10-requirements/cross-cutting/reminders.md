@@ -4,7 +4,7 @@
 and REM-011 drafted 5 November). The decisions come
 first; the requirements, drafted at the start of Stage 2, are at the end.*
 
-> **Changing in Stage 7b** (spec agreed 9 November): an Item's Reminders are its **Alerts**, by name, since step 4; still to come, **Reminder** becomes a Type of its own, Thoughts lose their Alerts and the digest its Thoughts (RMD-001–006, ALR-001). [Today, Reminders and Plan](today-reminders-plan.md). Until it is built, this page is how it works.
+> **Changing in Stage 7b** (spec agreed 9 November): an Item's Reminders are its **Alerts**, by name, since step 4, and **Reminder** is a Type of its own since step 5 (RMD-001–004, RMD-006); still to come, Thoughts lose their Alerts and the digest its Thoughts (ALR-001, step 8), and a Reminder's notification (RMD-005, step 10). [Today, Reminders and Plan](today-reminders-plan.md). Until then, this page is how the rest works.
 
 ## Decisions
 
@@ -39,7 +39,7 @@ first; the requirements, drafted at the start of Stage 2, are at the end.*
 - **What a notification says:** the Item's title (an overdue nudge
   "Overdue: …"), its do-on time and due date, or an Event's start and place
   ("Sat 17 Oct 13:00 · The Ivy"), Done (Tasks only) and "Snooze 1 hour". The digest says only its counts ("2 overdue · 3 today · 4 to
-  sort") and opens Inbox.
+  sort") and opens Today.
 - **On the Android app (Stage 7):** notifications come by Firebase Cloud
   Messaging (FCM) in place of Web Push, with the same Done and Snooze;
   each Alert is also set on the phone, so it arrives on time even when
@@ -60,7 +60,7 @@ I use, **so that** Alerts reach me wherever I am.
 Priority: Must · Status: verified
 
 Acceptance criteria
-1. Given none of my devices has notifications on, then Inbox offers to turn
+1. Given none of my devices has notifications on, then Today offers to turn
    them on.
 2. Given Settings, when I turn notifications on for this device and allow
    them, then this device receives my Alerts from then on; turning them
@@ -144,7 +144,7 @@ Priority: Must · Status: built (verified but for a press with no signal, checke
 
 Acceptance criteria
 1. Given a Task's or a Thought's notification, when I choose Done, then it
-   is done (a Thought leaves Inbox), offline too (sent when the connection
+   is done (a Thought leaves Notes' Thoughts), offline too (sent when the connection
    returns).
 2. Given any Alert's notification, when I choose Snooze, then it comes
    back in one hour, for me only.
@@ -183,8 +183,8 @@ Priority: Should · Status: verified
 Acceptance criteria
 1. Given the digest is on (it is by default, at 07:00), then each morning
    one notification says "2 overdue · 3 today · 4 thoughts", and tapping it
-   opens Inbox. A Household's shared Tasks count for every member, as they
-   are in every member's Inbox (HSH-005 3).
+   opens Today. A Household's shared Tasks count for every member, as they
+   are on every member's Today (HSH-005 3).
 2. Given nothing needs me, then no digest is sent.
 3. Given Settings, then I can change its time or turn it off.
 

@@ -6,7 +6,7 @@
 
 [ADR-0029](0029-plan-reads-core-items.md) has Plan read `core.items`, so a
 new Schedulable Type shows with no Plan work. The
-[Plan spec](../../10-requirements/views/plan.md#requirements) (PLN-001–007)
+[Plan spec](../../10-requirements/views/week.md#requirements) (PLN-001–007)
 puts each Item on the local date of `starts_at`, else `do_on`, else
 `due_on`, an Event over several days on each of them, every occurrence of a
 repeat, and remembers the Types I've hidden on every device.

@@ -94,7 +94,7 @@ test('GCL-001, GCL-003: connecting lists my calendars, the main one incoming, an
   await expect(card.getByRole('combobox', { name: 'UK holidays: sync' })).toContainText('Off')
   await expect(card).toContainText('Can’t edit')
 
-  await page.goto('/plan')
+  await page.goto('/week')
   await expect(
     page.locator('[data-slot="plan-card"]').filter({ hasText: 'Dentist' }),
   ).toContainText(/14:30.* · Smile Clinic/)
@@ -103,7 +103,7 @@ test('GCL-001, GCL-003: connecting lists my calendars, the main one incoming, an
 test('GCL-004: an Event from an incoming calendar is Google’s; its Labels and Alerts are mine', async ({
   page,
 }) => {
-  const db = await start(page, connected(), `/plan?item=${DENTIST}`)
+  const db = await start(page, connected(), `/week?item=${DENTIST}`)
   const popup = page.getByRole('dialog', { name: 'Dentist' })
   await expect(popup).toContainText('Google Calendar · Ann · Incoming')
   await expect(popup).toContainText('Smile Clinic')
@@ -127,7 +127,7 @@ test('PLN-007 4: an Event from an incoming calendar can’t be dragged', async (
   isMobile,
 }) => {
   test.skip(isMobile, 'Dragging is a computer’s')
-  const db = await start(page, connected(), '/plan')
+  const db = await start(page, connected(), '/week')
   const day = (name: string) => page.getByRole('group', { name, exact: true })
   await day('Fri 16')
     .locator('[data-slot="plan-card"]')
@@ -146,7 +146,7 @@ test('GCL-002 3: a calendar turned off takes its Events off Plan', async ({ page
   await page.getByRole('combobox', { name: 'Ann: sync' }).click()
   await page.getByRole('option', { name: 'Off' }).click()
   await expect.poll(() => db.calendar_links[0]!.level).toBe('off')
-  await page.goto('/plan')
+  await page.goto('/week')
   await expect(page.getByText('Lunch with Sam')).toBeVisible()
   await expect(page.getByText('Dentist')).toHaveCount(0)
 })
@@ -225,7 +225,7 @@ test('GCL-005 1: a new Event goes to the calendar chosen for it, my default unle
     level: 'two_way',
     new_events: false,
   })
-  const db = await start(page, rows, '/plan')
+  const db = await start(page, rows, '/week')
   const make = async (title: string, calendar?: string) => {
     await page.getByRole('button', { name: 'Add', exact: true }).filter({ visible: true }).click()
     await page.getByRole('menuitem', { name: 'Event' }).click()
@@ -262,7 +262,7 @@ test('GCL-005 2: an Event from a two-way calendar is mine to change and drag', a
 }) => {
   const rows = connected()
   rows.calendar_links![0]!.level = 'two_way'
-  const db = await start(page, rows, `/plan?item=${DENTIST}`)
+  const db = await start(page, rows, `/week?item=${DENTIST}`)
   const popup = page.getByRole('dialog', { name: 'Dentist' })
   await expect(popup).toContainText('Google Calendar · Ann · Two-way')
   const title = popup.getByRole('textbox', { name: 'Title' })
@@ -280,7 +280,7 @@ test('GCL-005 2: an Event from a two-way calendar is mine to change and drag', a
 })
 
 test('GCL-006 1: a broken connection shows in Inbox, with Reconnect', async ({ page }) => {
-  await start(page, connected('broken'), '/inbox')
+  await start(page, connected('broken'), '/today')
   const alert = page.getByRole('status').filter({ hasText: 'Google Calendar isn’t syncing' })
   await expect(alert).toContainText('Since today 09:12')
   await expect(alert.getByRole('button', { name: 'Reconnect' })).toBeVisible()
@@ -337,7 +337,7 @@ test('GCL-001: when my calendars can’t be read, Settings says so rather than o
 
   // Meanwhile Google's Events stay Google's, with no empty "…" menu.
   fail = true
-  await page.goto(`/plan?item=${DENTIST}`)
+  await page.goto(`/week?item=${DENTIST}`)
   const popup = page.getByRole('dialog', { name: 'Dentist' })
   await expect(popup).toBeVisible()
   await expect(popup.getByRole('textbox', { name: 'Title' })).toHaveCount(0)

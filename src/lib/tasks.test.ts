@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { Item } from '@/data'
-import { completedTasks, recurringTasks, taskGroups } from './tasks'
+import { recurringTasks, taskGroups } from './tasks'
 
 const item = (id: string, fields: Partial<Item>): Item => ({
   id,
@@ -34,7 +34,7 @@ const shape = (groups: { label: string; tasks: Item[] }[]) =>
 // Monday 12 October 2026: Tuesday is tomorrow, Wednesday to Sunday have names.
 const MON = new Date(2026, 9, 12, 9, 0)
 
-describe('All tasks (views/tasks.md)', () => {
+describe("Plan's Tasks (views/week.md)", () => {
   it('TSK-004, TSK-007: by when, Someday last; due alone makes a Task overdue', () => {
     const items = [
       item('late', { due_on: '2026-10-08' }),
@@ -83,17 +83,23 @@ describe('All tasks (views/tasks.md)', () => {
   })
 })
 
-describe('Completed', () => {
-  const items = [
-    item('mot', { due_on: '2026-10-30' }),
-    item('insurance', { do_on: '2026-10-12' }),
-    item('bins', { do_on: '2026-10-13' }),
-    item('passport', {}),
-    item('done', { status: 'done', updated_at: '2026-10-11T09:00:00Z' }),
-    item('done-later', { status: 'done', updated_at: '2026-10-12T09:00:00Z' }),
-  ]
-  it('TSK-003: done Tasks, most recently changed first', () => {
-    expect(completedTasks(items).map((t) => t.id)).toEqual(['done-later', 'done'])
+describe('Done today', () => {
+  it('PLA-002 2: a Task ticked done today stays in Today, struck through; one done before goes', () => {
+    const items = [
+      item('open', { do_on: '2026-10-12' }),
+      item('ticked', { do_on: '2026-10-12', status: 'done', updated_at: '2026-10-12T08:00:00Z' }),
+      item('ticked-late', {
+        do_on: '2026-10-09',
+        status: 'done',
+        updated_at: '2026-10-12T08:30:00Z',
+      }),
+      item('yesterday', {
+        do_on: '2026-10-11',
+        status: 'done',
+        updated_at: '2026-10-11T09:00:00Z',
+      }),
+    ]
+    expect(shape(taskGroups(items, MON))).toEqual([['Today', ['open', 'ticked', 'ticked-late']]])
   })
 })
 
