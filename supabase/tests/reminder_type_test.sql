@@ -5,7 +5,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = extensions, public;
-select plan(18);
+select plan(20);
 
 insert into auth.users (id, email) values ('00000000-0000-4000-8000-00000000000a', 'ann@example.com');
 
@@ -56,20 +56,19 @@ select throws_ok(
   'RMD-004 1: a Reminder repeats on a schedule, not after it is done'
 );
 
--- RMD-006 1: a Thought with an Alert to come becomes a Reminder on its day.
+-- RMD-006 1: a Thought whose text names a time becomes a Reminder on its
+-- day, its Alert at that time (the device reads it; ALR-001 3).
 select core.create_item('00000000-0000-7000-8000-000000000003', 'thought', '{"title": "Ring the garage"}');
-select core.add_alert('00000000-0000-7000-8000-0000000000e4', '00000000-0000-7000-8000-000000000003',
-  '{"fixed_at": "2030-02-05T10:00:00Z"}');
-select core.convert_item('00000000-0000-7000-8000-000000000003', 'reminder');
+select core.convert_item('00000000-0000-7000-8000-000000000003', 'reminder', '2030-02-05T10:00:00Z');
 select is(
   (select row(type, do_on, status)::text from core.items where id = '00000000-0000-7000-8000-000000000003'),
   row('reminder', date '2030-02-05', 'active')::text,
-  'RMD-006 1: a Thought becomes a Reminder on the day of its Alert'
+  'RMD-006 1: a Thought becomes a Reminder on the day its text names'
 );
 select is(
-  (select row(anchor, offset_days, at_time, fires_at)::text from core.alerts where id = '00000000-0000-7000-8000-0000000000e4'),
-  row('do_on', 0, time '10:00', timestamptz '2030-02-05 10:00:00+00')::text,
-  'Its Alert stays at its time, now on the Reminder''s day'
+  (select array_agg(row(anchor, offset_days, at_time, fires_at)::text) from core.alerts where item_id = '00000000-0000-7000-8000-000000000003'),
+  array[row('do_on', 0, time '10:00', timestamptz '2030-02-05 10:00:00+00')::text],
+  'Its Alert at that time, on the Reminder''s day'
 );
 
 -- A Thought with no Alert: one an hour from now.
@@ -135,15 +134,13 @@ select is(
   'Its Alerts hang on that day again'
 );
 
--- ADR-0065 5: into a Note, its Alerts go.
-select core.create_item('00000000-0000-7000-8000-000000000006', 'thought', '{"title": "Gift ideas"}');
-select core.add_alert('00000000-0000-7000-8000-0000000000e6', '00000000-0000-7000-8000-000000000006',
-  '{"fixed_at": "2030-04-01T09:00:00Z"}');
-select core.convert_item('00000000-0000-7000-8000-000000000006', 'note');
-select is(
-  (select count(*)::int from core.alerts where item_id = '00000000-0000-7000-8000-000000000006'),
-  0,
-  'ADR-0065 5: a Thought converted into a Note keeps no Alert'
+-- ALR-001 2: a Thought takes no Alert.
+select core.create_item('00000000-0000-7000-8000-000000000007', 'thought', '{"title": "Paint the shed"}');
+select throws_ok(
+  $$select core.add_alert('00000000-0000-7000-8000-0000000000e7', '00000000-0000-7000-8000-000000000007',
+      '{"fixed_at": "2030-04-01T09:00:00Z"}')$$,
+  '23514', null,
+  'ALR-001 2: a Thought takes no Alert'
 );
 
 -- RMD-001 3: never done.
@@ -153,6 +150,36 @@ select throws_ok(
   'RMD-001 3: a Reminder can''t be ticked done'
 );
 reset role;
+
+-- ALR-001, Joe's data (9 November): Thoughts made before Stage 7b, with
+-- Alerts. One with an Alert to come becomes a Reminder keeping it; the
+-- rest, and a Note's, lose theirs.
+-- As they were before Thoughts lost Alerts.
+update core.item_types set takes_alerts = true where key = 'thought';
+insert into core.items (id, type, title, space_id, owner_id) values
+  ('00000000-0000-7000-8000-000000000021', 'thought', 'Sports massage 24th Nov 3pm',
+   (select id from core.spaces where created_by = '00000000-0000-4000-8000-00000000000a' and kind = 'personal'),
+   '00000000-0000-4000-8000-00000000000a'),
+  ('00000000-0000-7000-8000-000000000022', 'thought', 'Old idea',
+   (select id from core.spaces where created_by = '00000000-0000-4000-8000-00000000000a' and kind = 'personal'),
+   '00000000-0000-4000-8000-00000000000a');
+insert into core.alerts (item_id, person_id, fixed_at) values
+  ('00000000-0000-7000-8000-000000000021', '00000000-0000-4000-8000-00000000000a', '2030-11-24 15:00:00+00'),
+  ('00000000-0000-7000-8000-000000000021', '00000000-0000-4000-8000-00000000000a', '2020-11-01 09:00:00+00'),
+  ('00000000-0000-7000-8000-000000000022', '00000000-0000-4000-8000-00000000000a', '2020-01-01 09:00:00+00');
+update core.item_types set takes_alerts = false where key = 'thought';
+select is(
+  (select row(reminders, removed)::text from core_private.thoughts_lose_alerts()),
+  row(1, 2)::text,
+  'ALR-001: one Thought with an Alert to come becomes a Reminder; two Alerts gone by go'
+);
+select is(
+  (select row(i.type, i.do_on, a.anchor, a.at_time)::text
+   from core.items i join core.alerts a on a.item_id = i.id
+   where i.id = '00000000-0000-7000-8000-000000000021'),
+  row('reminder', date '2030-11-24', 'do_on', time '15:00')::text,
+  'Its Alert to come kept, on the Reminder''s day'
+);
 
 select * from finish();
 rollback;

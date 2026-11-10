@@ -10,8 +10,6 @@ export interface Settings {
   defaultAlertTime: string
   /** Whether a dated Task reminds me on its do-on date. */
   taskAlerts: boolean
-  /** Whether a dated Thought reminds me. */
-  thoughtAlerts: boolean
   /** Whether an Event I make reminds me 30 minutes before (EVT-003). */
   eventAlerts: boolean
   digestOn: boolean
@@ -28,7 +26,6 @@ export const DEFAULT_SETTINGS: Settings = {
   timezone: 'Europe/London',
   defaultAlertTime: '09:00',
   taskAlerts: true,
-  thoughtAlerts: true,
   eventAlerts: true,
   digestOn: true,
   digestTime: '07:00',
@@ -66,7 +63,6 @@ export async function fetchSettings(me: string): Promise<Settings> {
     timezone: mine.timezone || DEFAULT_SETTINGS.timezone,
     defaultAlertTime: mine.default_alert_time.slice(0, 5),
     taskAlerts: defaults.task !== false,
-    thoughtAlerts: defaults.thought !== false,
     eventAlerts: defaults.event !== false,
     digestOn: mine.digest_on,
     digestTime: mine.digest_time.slice(0, 5),
@@ -85,9 +81,6 @@ export function applyPendingSettings(settings: Settings, entries: readonly Queue
       ...out,
       ...(p.default_alert_time && { defaultAlertTime: p.default_alert_time.slice(0, 5) }),
       ...(p.alert_defaults?.task !== undefined && { taskAlerts: p.alert_defaults.task }),
-      ...(p.alert_defaults?.thought !== undefined && {
-        thoughtAlerts: p.alert_defaults.thought,
-      }),
       ...(p.alert_defaults?.event !== undefined && {
         eventAlerts: p.alert_defaults.event,
       }),

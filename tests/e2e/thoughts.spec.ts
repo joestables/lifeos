@@ -45,7 +45,7 @@ const rows = () => ({
 
 async function start(page: Page) {
   await page.clock.setFixedTime(NOW)
-  const db = await standIn(page, { signedIn: true, rows: rows() })
+  const db = await standIn(page, { signedIn: true, rows: rows(), clock: NOW })
   await page.goto('/notes?tab=thoughts')
   await expect(page.getByRole('tab', { name: 'Thoughts' })).toHaveAttribute('aria-selected', 'true')
   return db

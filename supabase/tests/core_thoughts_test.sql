@@ -40,12 +40,12 @@ select throws_ok(
   'INB-006: a Thought has no Someday'
 );
 
--- REM-008: the digest counts only the Thoughts still to deal with.
+-- ALR-001 4: the digest counts no Thoughts.
 reset role;
 select is(
   (select c.to_sort from core_private.day_counts('00000000-0000-4000-8000-00000000000a', '2026-10-13') c),
-  1,
-  'REM-008: a Thought ticked off isn''t counted'
+  0,
+  'ALR-001 4: the digest counts no Thoughts'
 );
 set local role authenticated;
 

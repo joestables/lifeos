@@ -1,18 +1,7 @@
 import { parseCapture } from '@lifeos/capture'
 import { useNavigate } from '@tanstack/react-router'
 import { toast } from '@/components/ui/sonner'
-import {
-  addAlert,
-  convertItem,
-  queue,
-  removeAlert,
-  updateItem,
-  useAlerts,
-  useSettings,
-  type Item,
-  type ItemFields,
-  type Alert,
-} from '@/data'
+import { convertItem, queue, updateItem, useSettings, type Item, type ItemFields } from '@/data'
 import { zonedInstant } from '@/lib/dates'
 import { eventAsTask, taskAsEvent } from '@/lib/events'
 import { typeLook } from '@/lib/item-types'
@@ -24,31 +13,28 @@ const withArticle = (label: string) => `${/^[aeiou]/i.test(label) ? 'an' : 'a'} 
 /**
  * Converts an Item in place (ITM-004), saying so, with Undo. A Thought becoming a Task
  * has its dates understood as they were meant when it was captured
- * (INB-002, CAP-003); its own Alert stays (CAP-004) unless the Task's
- * default Alert fires at the same moment. Becoming an Event, the date is
+ * (INB-002, CAP-003). Becoming an Event, the date is
  * its start (INB-002 3). A Task and an Event swap their times (EVT-005): the
  * server maps them, and they are laid over here too so they show at once,
  * offline as well. Sorted into a Recipe, it offers Open rather than Undo.
  */
 export function useConvert() {
   const settings = useSettings(queue)
-  const alerts = useAlerts(queue)
   const navigate = useNavigate()
   const open = useOpenItem()
   return (item: Item, type: string) => {
-    // A Thought into a Reminder (RMD-006 1): an Alert at the time its text
+    // A Thought into a Reminder (RMD-006 1): its Alert at the time its text
     // names, those words out of its title; the server gives it one an hour
     // from now if it names none, or one gone by. Its popup opens.
     if (item.type === 'thought' && type === 'reminder') {
       const dates = parseCapture(item.title, new Date(item.created_at))
       const title = dates.title || item.title
       const day = dates.doOn ?? dates.dueOn
-      if (day)
-        addAlert(item.id, {
-          fixed_at: zonedInstant(day, dates.doAt ?? settings.defaultAlertTime, settings.timezone),
-        })
+      const at = day
+        ? zonedInstant(day, dates.doAt ?? settings.defaultAlertTime, settings.timezone)
+        : undefined
       if (title !== item.title) updateItem(item.id, { title })
-      convertItem(item.id, type)
+      convertItem(item.id, type, at)
       toast('Converted into a Reminder', {
         action: {
           label: 'Undo',
@@ -73,7 +59,6 @@ export function useConvert() {
       })
       return
     }
-    const removed: Alert[] = []
     let changed: ItemFields | null = null
     const swapped =
       item.type === 'task' && type === 'event'
@@ -83,20 +68,13 @@ export function useConvert() {
           : null
     if (swapped) updateItem(item.id, swapped)
     toast(`Converted into ${withArticle(typeLook(type).label)}`, {
-      // Back to its Type, its dates and title as they were, its own Alert kept.
+      // Back to its Type, its dates and title as they were.
       action: {
         label: 'Undo',
         onClick: () => {
           // Its dates go first: a Thought has none.
           if (changed) updateItem(item.id, changed)
           convertItem(item.id, item.type)
-          for (const r of removed)
-            addAlert(item.id, {
-              anchor: r.anchor as 'do_on' | 'due_on' | null,
-              offset_days: r.offset_days,
-              at_time: r.at_time,
-              fixed_at: r.fixed_at,
-            })
         },
       },
     })
@@ -121,19 +99,6 @@ export function useConvert() {
     if (patch.title !== item.title || dates.doOn || dates.dueOn) {
       updateItem(item.id, patch)
       changed = { title: item.title, do_on: item.do_on, do_at: item.do_at, due_on: item.due_on }
-    }
-
-    // Only a default that will be made can stand in for the Thought's own.
-    if (dates.doOn && settings.taskAlerts) {
-      const at = new Date(
-        zonedInstant(dates.doOn, dates.doAt ?? settings.defaultAlertTime, settings.timezone),
-      ).getTime()
-      for (const r of alerts) {
-        if (r.item_id === item.id && !r.is_default && r.fires_at && Date.parse(r.fires_at) === at) {
-          removeAlert(item.id, r.id)
-          removed.push(r)
-        }
-      }
     }
   }
 }

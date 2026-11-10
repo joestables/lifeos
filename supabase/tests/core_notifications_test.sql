@@ -28,7 +28,7 @@ insert into core.items (id, type, title, space_id, owner_id, do_on, do_at, due_o
   ('00000000-0000-7000-8000-000000000001', 'task', 'Call mum', :'a_space', '00000000-0000-4000-8000-00000000000a', '2026-10-12', '18:30', null, 'active'),
   ('00000000-0000-7000-8000-000000000002', 'task', 'Return the jacket', :'a_space', '00000000-0000-4000-8000-00000000000a', null, null, null, 'done'),
   ('00000000-0000-7000-8000-000000000003', 'task', 'Renew insurance', :'a_space', '00000000-0000-4000-8000-00000000000a', null, null, '2026-10-11', 'active'),
-  ('00000000-0000-7000-8000-000000000004', 'thought', 'Gift idea for Sam', :'a_space', '00000000-0000-4000-8000-00000000000a', null, null, null, 'active');
+  ('00000000-0000-7000-8000-000000000004', 'reminder', 'Gift idea for Sam', :'a_space', '00000000-0000-4000-8000-00000000000a', '2026-10-12', null, null, 'active');
 insert into core.alerts (id, item_id, person_id, fixed_at, updated_at) values
   ('00000000-0000-7000-8000-0000000000e1', '00000000-0000-7000-8000-000000000001', '00000000-0000-4000-8000-00000000000a', '2026-10-12 17:30:00+00', '2026-10-05 09:00:00+00'),
   ('00000000-0000-7000-8000-0000000000e2', '00000000-0000-7000-8000-000000000002', '00000000-0000-4000-8000-00000000000a', '2026-10-12 17:30:00+00', '2026-10-05 09:00:00+00'),
@@ -124,12 +124,12 @@ select is(
 );
 select is(
   (select array[c.overdue, c.today, c.to_sort] from core_private.day_counts('00000000-0000-4000-8000-00000000000b', '2026-10-13') c),
-  array[0, 1, 1],
-  'REM-008: the digest counts what is overdue, today and the Thoughts'
+  array[0, 1, 0],
+  'REM-008, ALR-001 4: the digest counts what is overdue and today, and no Thoughts'
 );
 
--- Sending: what is due now, by the real clock. A Reminder on Call mum and
--- one on the Thought, Ben's digest and Ann's overdue nudge, each a minute
+-- Sending: what is due now, by the real clock. An Alert on Call mum and
+-- one on the Reminder, Ben's digest and Ann's overdue nudge, each a minute
 -- ago.
 delete from core.alert_deliveries;
 delete from core.items where owner_id = '00000000-0000-4000-8000-00000000000b';
@@ -163,14 +163,13 @@ select is(
 select is(
   (select payload -> 'actions' from claimed where payload ->> 'tag' = 'reminder:00000000-0000-7000-8000-0000000000e4'),
   jsonb_build_array(
-    jsonb_build_object('action', 'done', 'title', 'Done'),
     jsonb_build_object('action', 'snooze', 'title', 'Snooze 1 hour')),
-  'REM-005 1: a Thought''s notification offers Done and Snooze, as it can be ticked off'
+  'REM-005 1: a Reminder''s notification offers Snooze; its Done comes with RMD-005'
 );
 select is(
   (select payload ->> 'title' from claimed where payload ->> 'tag' like 'digest:%'),
-  '1 today · 1 thought',
-  'REM-008 1: the digest says what needs me'
+  '1 today',
+  'REM-008 1, ALR-001 4: the digest says what needs me, and no Thoughts'
 );
 select is(
   (select payload ->> 'title' from claimed where payload ->> 'tag' like 'overdue:%'),

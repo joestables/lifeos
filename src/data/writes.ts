@@ -33,8 +33,16 @@ export function writes(queue: WriteQueue, labelsNow: () => readonly Label[] = ()
       queue.enqueue('restore_item', { p_id: id }, [id])
     },
     /** In place, keeping its id, links, Labels and Alerts (ITM-004). */
-    convertItem(id: string, type: string): void {
-      queue.enqueue('convert_item', { p_id: id, p_type: type }, [id])
+    /**
+     * Converts an Item in place (ITM-004). Into a Reminder, `alertAt` is the
+     * time its first Alert is for, when its text names one (RMD-006 1).
+     */
+    convertItem(id: string, type: string, alertAt?: string): void {
+      queue.enqueue(
+        'convert_item',
+        { p_id: id, p_type: type, ...(alertAt ? { p_alert_at: alertAt } : {}) },
+        [id],
+      )
     },
     linkItems(from: string, to: string, linkType: string): void {
       queue.enqueue(

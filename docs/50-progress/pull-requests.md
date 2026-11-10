@@ -2,6 +2,28 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#80](https://github.com/joestables/lifeos/pull/80) — Stage 7b, step 8: Thoughts lose their Alerts
+
+Branch `claude/relaxed-fermi-nehy7e` · 2026-11-10
+
+**What it did**
+- **Thoughts and Notes take no Alerts** ([ALR-001](../10-requirements/cross-cutting/reminders.md#alr-001--reminders-become-alerts-thoughts-have-none)):
+  the ontology's `takes_alerts` is false for a Thought, so the database
+  refuses one; a Thought's popup has no Alerts.
+- **The morning digest counts no Thoughts** ("2 overdue · 5 today") and
+  opens Today. The Thought default leaves my settings.
+- **`convert_item` takes the time a Thought's text names** (`p_alert_at`):
+  converting a Thought into a Reminder gives it that Alert once it is a
+  Reminder, as the Thought can't hold it first.
+- **Joe's data**, migration `stage7b_thoughts_lose_alerts` (applied as
+  `20261110200905`, with `ontology` as `20261110200921`; the advisors found
+  nothing new): the 3 Thoughts with an Alert still to come became
+  Reminders, keeping it; the other 36 Alerts on a Thought or a Note were
+  removed.
+- ALR-001 moved into the Alerts spec; REM-003, REM-005 and REM-008 say no
+  Thoughts; the database tests that gave Thoughts Alerts give them to
+  Reminders, and a new one checks the data change.
+
 ## [#79](https://github.com/joestables/lifeos/pull/79) — Stage 7b, step 7: "New"
 
 Branch `claude/relaxed-fermi-nehy7e` · 2026-11-10

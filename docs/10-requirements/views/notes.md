@@ -154,8 +154,7 @@ Priority: Must · Status: verified
 
 Acceptance criteria
 1. Given a Thought, when I make it a Task (one action, on a phone or a
-   computer), then it becomes a Task in place, keeping its text, Alerts
-   (one at the same moment as the Task's own isn't kept twice) and
+   computer), then it becomes a Task in place, keeping its text and
    history, with any date in it understood as it was meant when captured
    ([CAP-003](../cross-cutting/capture.md#cap-003--dates-and-times-are-understood-the-same-way-everywhere)),
    and it leaves the tab for Plan.

@@ -4,7 +4,7 @@
 and REM-011 drafted 5 November). The decisions come
 first; the requirements, drafted at the start of Stage 2, are at the end.*
 
-> **Changing in Stage 7b** (spec agreed 9 November): an Item's Reminders are its **Alerts**, by name, since step 4, and **Reminder** is a Type of its own since step 5 (RMD-001–004, RMD-006); still to come, Thoughts lose their Alerts and the digest its Thoughts (ALR-001, step 8), and a Reminder's notification (RMD-005, step 10). [Today, Reminders and Plan](today-reminders-plan.md). Until then, this page is how the rest works.
+> **Changing in Stage 7b** (spec agreed 9 November): an Item's Reminders are its **Alerts**, by name, since step 4, and **Reminder** is a Type of its own since step 5 (RMD-001–004, RMD-006); Thoughts and Notes have none and the digest counts no Thoughts since step 8 (ALR-001, below); still to come, a Reminder's notification (RMD-005, step 10). [Today, Reminders and Plan](today-reminders-plan.md). Until then, this page is how the rest works.
 
 ## Decisions
 
@@ -13,9 +13,12 @@ first; the requirements, drafted at the start of Stage 2, are at the end.*
   the person's default time (09:00 unless changed); an Event I make, 30
   minutes before it starts if it has a time, and one from Google Calendar
   none (Stage 3, [events](events.md#decisions)); Meals and Shopping lists
-  none, though I may add one to either (Stage 4); per person; a Thought with
-  a date gets one ([ADR-0023](../../20-architecture/adr/0023-reminders.md),
-  Provisionally agreed).
+  none, though I may add one to either (Stage 4); a Reminder is made with
+  its own (Stage 7b); per person
+  ([ADR-0023](../../20-architecture/adr/0023-reminders.md),
+  Provisionally agreed). **Thoughts and Notes take none** (Stage 7b,
+  ALR-001, [ADR-0065](../../20-architecture/adr/0065-reminders-alerts-and-the-day.md)
+  5): the database refuses one.
 - **Anchors per Type** are tabled in the
   [data model](../../20-architecture/data-model.md#time-fields-per-schedulable-type).
 - **Delivery:** a minute job finds what is due and an Edge Function sends
@@ -34,12 +37,11 @@ first; the requirements, drafted at the start of Stage 2, are at the end.*
   due date or at a set time; an Event's in its popup, some minutes before it
   starts ("30 minutes before"), on the day it starts or days before at a
   time ("1 day before at 18:00"; an all-day Event's only so), or at a set
-  time (Stage 3); a Thought's at a set time. Notes get theirs
-  with their own page's menu, later.
+  time (Stage 3); a Reminder's at a date and time (Stage 7b, RMD-002).
 - **What a notification says:** the Item's title (an overdue nudge
   "Overdue: …"), its do-on time and due date, or an Event's start and place
-  ("Sat 17 Oct 13:00 · The Ivy"), Done (Tasks only) and "Snooze 1 hour". The digest says only its counts ("2 overdue · 3 today · 4 to
-  sort") and opens Today.
+  ("Sat 17 Oct 13:00 · The Ivy"), Done (Tasks only) and "Snooze 1 hour". The digest says only its counts ("2 overdue · 3 today"; no
+  Thoughts from Stage 7b, ALR-001 4) and opens Today.
 - **On the Android app (Stage 7):** notifications come by Firebase Cloud
   Messaging (FCM) in place of Web Push, with the same Done and Snooze;
   each Alert is also set on the phone, so it arrives on time even when
@@ -97,7 +99,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to add, change and remove Alerts on any Item,
 **so that** I'm reminded when it suits me.
-Priority: Must · Status: verified (on Tasks, Thoughts and Events)
+Priority: Must · Status: verified (on Tasks and Events; Reminders by RMD-002)
 
 Acceptance criteria
 1. Given an Item, then I can add an Alert at a fixed date and time, or,
@@ -143,9 +145,9 @@ from the notification, **so that** I needn't open the app.
 Priority: Must · Status: built (verified but for a press with no signal, checked by hand)
 
 Acceptance criteria
-1. Given a Task's or a Thought's notification, when I choose Done, then it
-   is done (a Thought leaves Notes' Thoughts), offline too (sent when the connection
-   returns).
+1. Given a Task's notification, when I choose Done, then it is done,
+   offline too (sent when the connection returns). (A Thought's went with
+   its Alerts, ALR-001.)
 2. Given any Alert's notification, when I choose Snooze, then it comes
    back in one hour, for me only.
 3. Given an Item that isn't Completable (a Note), then the notification
@@ -183,7 +185,7 @@ Priority: Should · Status: verified
 
 Acceptance criteria
 1. Given the digest is on (it is by default, at 07:00), then each morning
-   one notification says "2 overdue · 3 today · 4 thoughts", and tapping it
+   one notification says "2 overdue · 3 today" (no Thoughts, ALR-001 4), and tapping it
    opens Today. A Household's shared Tasks count for every member, as they
    are on every member's Today (HSH-005 3).
 2. Given nothing needs me, then no digest is sent.
@@ -242,6 +244,23 @@ Acceptance criteria
    there as an ordinary notification.
 4. Given the phone is on silent or Do Not Disturb, then an Alarm still
    rings, as the clock app's do.
+
+### ALR-001 — Reminders become Alerts; Thoughts have none
+
+**As** Joe, **I want** one word for an Item's notifications, and none on
+Thoughts, **so that** "Reminder" means one thing.
+Priority: Must · Status: verified (database tests `reminder_type_test`, `core_reminders_test`, `core_notifications_test`; `capture.spec.ts`)
+
+Acceptance criteria
+1. Given a Task, an Event, a Meal, a Shopping list or a Reminder, then its
+   notifications are listed under "Alerts", added with "Add an alert", and
+   each opens the "Alert" dialog; Settings says Alerts too (REM-007).
+2. Given a Thought, then it has no Alerts, and none is made for a date in
+   its text (CAP-004 goes); Settings has no Thought default.
+3. Given I convert a Thought, then it has no Alert to carry; a Note never
+   has one.
+4. Given the morning digest, then it counts no Thoughts: "2 overdue · 5
+   today" (REM-008).
 
 Non-goals (Stage 2): choosing which device an Alert goes to;
 location Alerts (later); notification

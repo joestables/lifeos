@@ -160,19 +160,6 @@ test('REM-011 1: an Alert made an Alarm, off to start, on any device', async ({ 
   await expect(dialog.getByRole('switch', { name: 'Alarm' })).toBeChecked()
 })
 
-test('REM-003: a Thought gets an Alert at a set time', async ({ page }) => {
-  const db = await start(page, `/today?item=${id(2)}`)
-  const thought = page.getByRole('dialog', { name: 'Gift idea for Sam' })
-  await thought.getByRole('button', { name: 'Add an alert' }).click()
-  const dialog = page.getByRole('dialog', { name: 'Alert' })
-  await pickTime(dialog.getByLabel('Time'), '19:00')
-  await dialog.getByRole('button', { name: 'Save' }).click()
-  await expect
-    .poll(() => db.alerts.find((r) => r.item_id === id(2)))
-    .toMatchObject({ anchor: null, fixed_at: '2026-10-12T18:00:00.000Z' })
-  await expect(thought).toContainText('Today 19:00')
-})
-
 test("REM-006: a tapped notification opens its Item in the window that's open", async ({
   page,
 }) => {
