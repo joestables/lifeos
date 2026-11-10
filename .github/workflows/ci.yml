@@ -2,11 +2,13 @@ name: CI
 
 # Runs once per push to a pull request, and on master after a merge
 # (docs/40-operations/environments.md#ci). A branch without a pull request
-# gets no CI: open a draft one to have it checked.
+# gets no CI: open a draft one to have it checked. The browser tests wait
+# until it is marked ready (Joe, 10 November: the minutes ran out).
 on:
   push:
     branches: [master]
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -73,8 +75,11 @@ jobs:
   e2e:
     name: Browser tests (stand-in Supabase)
     needs: check
-    # Pull requests only: master gets nothing a merge didn't already test.
-    if: github.event_name == 'pull_request' && needs.check.outputs.web == 'true'
+    # Pull requests ready for review only: master gets nothing a merge didn't
+    # already test, and a draft's pushes get the quicker checks alone.
+    if: >-
+      github.event_name == 'pull_request' && !github.event.pull_request.draft
+      && needs.check.outputs.web == 'true'
     runs-on: ubuntu-latest
     # In four parts at once, so the wait is about a quarter (Joe, 5 November).
     strategy:

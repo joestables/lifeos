@@ -17,7 +17,10 @@ migrations, `npm run db:test`; with Android changes (`android/`,
 `src/native/`), the Android workflow on the pull request, as a cloud
 session can't build the APK. GitHub's CI runs only on pull requests
 ([CI](docs/40-operations/environments.md#ci)): open a draft one before
-applying a migration. Vite + React + TypeScript; the app is in
+applying a migration. Its minutes are few: a draft's pushes get the checks
+and database tests, and the browser tests run once it is marked ready, so
+push as few times as the work allows and mark it ready only when all of
+it is pushed. Vite + React + TypeScript; the app is in
 `src/`, shared packages in `packages/`.
 
 ## Spec-driven development: the docs are the source of truth
@@ -44,7 +47,7 @@ This matters more than anything else here.
 ## Merging and releasing
 
 **Claude merges its own pull requests** once CI is green on the current
-head (Joe, 6 November): squash, titled as the pull request with its number,
+head, marked ready so the browser tests have run (Joe, 6 November): squash, titled as the pull request with its number,
 then the branch restarted from `master` for the next piece. Joe doesn't
 merge them. When the Android app's native parts changed, Claude also
 raises `public/android.json` and runs the release (Actions → Android → Run

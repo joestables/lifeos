@@ -49,9 +49,14 @@ where it earns its minutes (Joe, 18 October 2026):
   them, and don't start if they fail.
 - **Only documents changed** (`docs/`, `.claude/`, Markdown at the root):
   the database and browser tests are skipped.
-- **Browser tests on pull requests only**, not on `master` after a merge,
-  **in four parts at once** (`--shard`), so they take about a quarter of
-  the time (Joe, 5 November); skipped too when only documents, the
+- **Browser tests on pull requests ready for review only**: not on a
+  draft's pushes, which get the checks and the database tests alone, and
+  not on `master` after a merge (Joe, 10 November, after the month's
+  minutes ran out). Marking a pull request ready runs them; each push
+  after that runs them again, so Claude marks it ready once its work is
+  pushed, migrations renamed included. They run **in four parts at once**
+  (`--shard`), so they take about a quarter of the time (Joe, 5
+  November); skipped too when only documents, the
   Android app (`android/`, `native-shell/`, its workflow) or the site's
   files for it (`public/.well-known/`, `public/android.json`) changed.
 
