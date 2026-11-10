@@ -14,9 +14,9 @@ Branch `claude/relaxed-fermi-nehy7e` · 2026-11-10
   [Environments](../40-operations/environments.md#ci) and `CLAUDE.md` say so,
   and that Claude pushes as few times as it can and marks a pull request
   ready only once all its work, migrations renamed included, is pushed.
-- #81 was merged without CI, at Joe's word, as the month's minutes had run
-  out (they come back on 1 December); its checks ran in the session
-  instead.
+- #81 and this pull request were merged without CI, at Joe's word, as the
+  month's minutes had run out (they come back on 1 December); #81's checks
+  ran in the session instead, and this one's first run is December's.
 
 ## [#81](https://github.com/joestables/lifeos/pull/81) — Stage 7b, step 9: Labels off Tasks and Events, sub-tasks gone
 
