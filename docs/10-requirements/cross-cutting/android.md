@@ -187,9 +187,9 @@ Acceptance criteria
 1. Given the widget on my home screen, then it is a single bar reading
    "Capture a thought", with LifeOS's icon.
 2. Given I tap it, then capture opens straight away with the keyboard up,
-   as CAP-001 in the app: a Thought by default, the switch to Task, dates
-   understood (CAP-003), Labels (CAP-009).
-3. Given I save, then the Thought (or Task) is kept, offline too, "Thought
+   as "New" in the app: one line, a Thought, or a Reminder with a time in
+   it (NEW-002), Labels for a Thought (NEW-006).
+3. Given I save, then the Thought (or Reminder) is kept, offline too, "Thought
    saved" shows, and I'm back on the home screen. Closing without saving
    also goes back to the home screen.
 4. Given I'm signed out, then tapping it signs me in first and then opens

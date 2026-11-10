@@ -171,8 +171,9 @@ Acceptance criteria
 1. Given Settings, when I change my default time to 08:00, then new
    date-only Alerts are at 08:00, and existing ones are unchanged.
 2. Given Settings, then I can turn off the Task default (a dated Task
-   reminds me on its do-on date) and the Thought default (a dated Thought
-   reminds me); from Stage 3, the Event default (30 minutes before).
+   reminds me on its do-on date) and, from Stage 3, the Event default (30
+   minutes before). The Thought default went in Stage 7b: a line with a time
+   in "New" is a Reminder (ALR-001 2).
 
 ### REM-008 — A morning digest
 

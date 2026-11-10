@@ -159,29 +159,31 @@ used the same way on every screen.
 - **Delete** closes the Item and says so in a toast with Undo ("Deleted
   "Renew insurance""); the Item waits in Recently deleted.
 
-## Capture
+## "New"
 
-[CAP-001–004](../10-requirements/cross-cutting/capture.md#requirements);
-the CaptureDialog in [components](components.md).
+[NEW-001–006](../10-requirements/cross-cutting/capture.md#new) and
+[CAP-001–003](../10-requirements/cross-cutting/capture.md#requirements);
+NewDialog, SmartLine, SavesAs, QuickChip, ChipRow and AddAlertMenu in
+[components](components.md). Agreed with Joe on 9 November on the
+[Stage 7b design canvas](https://claude.ai/artifact/EqX4D326Apjs5aGVF2W4Gs)
+(private to Joe), option 5, refined.
 
-- Opens over the page from "New" at the top right, Notes' New thought, or N on a
-  computer (not while typing in a field or with a menu open; over an open
-  Item it is fine), the
-  line ready to type; Enter saves. Saving or closing changes nothing on the
-  page but the new Item.
-- It makes a Thought unless switched to Task, and starts as a Thought every
-  time.
-- Under the line, my Labels as LabelChips, none chosen each time; what is
-  chosen is given to the Thought or Task saved.
-- Under the line, for a Thought with a date: the offer, "Task, Fri 18:00?",
-  which switches to Task when tapped and is never taken on its own. For a
-  Task: what it will be saved with, as Badges ("Fri 16 Oct 18:00", "Due
-  Fri 16 Oct", and the Alert's time with a bell). Nothing shows when the
-  line has no date.
-- Dates as capture says them: "Today", "Tomorrow", "Fri" within the week,
-  else "Fri 23 Oct".
-- A toast says what was made, with Undo: "Thought saved", "Task saved · Fri
-  18:00".
+- Opens over the page from "New" at the top right (the bell-plus
+  CaptureButton), Notes' New thought, or N on a computer (not while typing
+  in a field or with a menu open; over an open Item it is fine), the line
+  ready to type, "Remind me to…" in it; Enter saves. Saving or closing
+  changes nothing on the page but the new Item.
+- One line and no switch: SavesAs at the top right says what Save makes,
+  the Reminder's blue bell while the line has an Alert, else the Thought's
+  yellow lightbulb. The button says only "Save", off while there is
+  nothing to save.
+- A time typed shows as a pill at once; its words leave the line for it
+  when a word that isn't part of a time follows, or on Save. The title is
+  saved without them, its first letter a capital.
+- Under the line, a ChipRow: In 1 hour, the likeliest next time, More.
+  Then, for a Thought, my Labels as LabelChips, none chosen each time.
+- A toast says what was made, with Undo: "Thought saved", "Reminder saved ·
+  Tue 10 Nov, 20:00".
 
 ## Search
 
@@ -283,7 +285,7 @@ and Week.
   a CardRow per device: its name ("Android · Chrome"), "This device" or
   "Can't be reached" muted, a Switch, and a "…" menu with Remove.
 - **Alerts** (REM-007, REM-008): a titled Card of CardRows: Default time
-  (a TimeField), Dated tasks and Dated thoughts (Switches), Morning digest
+  (a TimeField), Dated tasks and Events, 30 min before (Switches), Morning digest
   (a Switch) and, while it is on, Digest time.
 - **Labels** is a Card on a computer — its title, "New label" (outline) on
   the right, then a CardRow per Label: its name, how many Items have it, and

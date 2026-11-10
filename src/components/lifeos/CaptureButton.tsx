@@ -5,9 +5,9 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { cn } from '@/lib/utils'
 
 /**
- * How "New" looks: `ghost`, today's; `bell`, Stage 7b's (Joe's choice, 9
- * November, a draft until the stage builds it): the same quiet button with
- * a bell and a plus in place of the speech bubble.
+ * How "New" looks: `bell`, from Stage 7b (Joe's choice, 9 November): the
+ * quiet button with a bell and a plus; `ghost`, the speech bubble it had
+ * before, kept to draw earlier designs.
  */
 export type CaptureLook = 'ghost' | 'bell'
 
@@ -17,13 +17,13 @@ const ICONS: Record<CaptureLook, LucideIcon> = {
 }
 
 /**
- * Capture's button (components.md): a speech bubble with a plus and "New",
+ * "New"'s button (components.md, NEW-001): a bell with a plus and "New",
  * ghost, at the top right of every page — in a computer's PageHeader, with
  * N in its Tooltip, and in a phone's top bar.
  */
 export function CaptureButton({
   onClick,
-  look = 'ghost',
+  look = 'bell',
   className,
 }: {
   onClick: () => void

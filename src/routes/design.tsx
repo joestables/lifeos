@@ -2,7 +2,7 @@ import { createFileRoute, notFound } from '@tanstack/react-router'
 import {
   ArchiveIcon,
   BellIcon,
-  CalendarIcon,
+  BellRingIcon,
   ChefHatIcon,
   CloudOffIcon,
   DumbbellIcon,
@@ -60,7 +60,12 @@ import {
   WeekStrip,
   BackLink,
   BrandMark,
-  CaptureDialog,
+  AddAlertMenu,
+  ChipRow,
+  NewDialog,
+  QuickChip,
+  SavesAs,
+  SmartLine,
   CardRow,
   DateField,
   EmptyState,
@@ -299,11 +304,6 @@ const DEMO_LABELS = [
   { id: 'work', name: 'Work' },
 ]
 
-const CAPTURE_TYPES = [
-  { key: 'thought', label: 'Thought', colour: 'yellow' as const, icon: TYPE_ICONS.thought! },
-  { key: 'task', label: 'Task', colour: 'blue' as const, icon: TaskIcon },
-]
-
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section className="flex flex-col gap-3">
@@ -322,7 +322,7 @@ function DesignPage() {
   const [itemOpen, setItemOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
   const [search, setSearch] = useState('insur')
-  const [capture, setCapture] = useState({ open: false, type: 'thought', text: 'call mum fri 6pm' })
+  const [capture, setCapture] = useState({ open: false, text: 'call mum' })
   const [chips, setChips] = useState({ core: true, food: true, fitness: false })
   const [chosenLabels, setChosenLabels] = useState<string[]>(['home'])
   const [planLayout, setPlanLayout] = useState<'week' | 'day'>('week')
@@ -412,7 +412,7 @@ function DesignPage() {
         <Section title="Buttons">
           <Row>
             <Button>
-              <PlusIcon /> Capture <Kbd>N</Kbd>
+              <PlusIcon /> New <Kbd>N</Kbd>
             </Button>
             <Button variant="secondary">Secondary</Button>
             <Button variant="outline">Outline</Button>
@@ -1443,7 +1443,7 @@ function DesignPage() {
               Item dialog
             </Button>
             <Button variant="outline" onClick={() => setCapture((c) => ({ ...c, open: true }))}>
-              Capture
+              New
             </Button>
             <Button variant="outline" onClick={() => setSearchOpen(true)}>
               Search
@@ -1462,36 +1462,29 @@ function DesignPage() {
                 onChoose={() => setSearchOpen(false)}
               />
             </CommandDialog>
-            <CaptureDialog
+            <NewDialog
               open={capture.open}
               onOpenChange={(open) => setCapture((c) => ({ ...c, open }))}
-              types={CAPTURE_TYPES}
-              type={capture.type}
-              onTypeChange={(type) => setCapture((c) => ({ ...c, type }))}
-              text={capture.text}
-              onTextChange={(text) => setCapture((c) => ({ ...c, text }))}
-              offer={
-                capture.type === 'thought'
-                  ? {
-                      type: 'task',
-                      label: 'Task, Fri 18:00?',
-                      onTake: () => setCapture((c) => ({ ...c, type: 'task' })),
-                    }
-                  : undefined
-              }
-              understood={
-                capture.type === 'task'
-                  ? [
-                      { icon: CalendarIcon, label: 'Fri 16 Oct 18:00' },
-                      { icon: BellIcon, label: '18:00' },
-                    ]
-                  : []
-              }
-              labels={DEMO_LABELS}
-              chosenLabels={new Set(chosenLabels)}
-              onLabelsChange={setChosenLabels}
               onSave={() => setCapture((c) => ({ ...c, open: false }))}
-            />
+              savesAs={<SavesAs colour="blue" icon={BellRingIcon} label="Reminder" />}
+            >
+              <SmartLine
+                value={capture.text}
+                onValueChange={(text) => setCapture((c) => ({ ...c, text }))}
+                placeholder="Remind me to…"
+                pills={[{ id: 'fri', label: 'Fri 16 Oct, 18:00' }]}
+              />
+              <ChipRow>
+                <QuickChip>In 1 hour</QuickChip>
+                <QuickChip>This evening</QuickChip>
+                <AddAlertMenu
+                  choices={[
+                    { label: 'In 1 hour', when: '15:20' },
+                    { label: 'This evening', when: '18:00' },
+                  ]}
+                />
+              </ChipRow>
+            </NewDialog>
             <ItemDialog
               open={itemOpen}
               onOpenChange={setItemOpen}

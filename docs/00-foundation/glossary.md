@@ -22,7 +22,7 @@ act on them.
 | **Integration** | An outside source feeding Items in: Google Calendar, Oura, Health Connect, later banks. |
 | **Space** | Who can see an Item: **Personal** or **Household**. |
 | **Household** | A group of people who share: its **owner** made it and invites others by email; **members** joined by accepting. A person may be in several ([ADR-0039](../20-architecture/adr/0039-accounts-contacts-households.md)). |
-| **Thought** | A Type: a raw, unsorted capture. What capture makes by default. It waits on Notes' Thoughts tab until it is sorted — converted in place into a Note, Task, Shopping list or other Capturable Type — ticked off (*done*), or deleted. |
+| **Thought** | A Type: a raw, unsorted capture. What "New" makes from a line with no time (one with a time makes a Reminder). It waits on Notes' Thoughts tab until it is sorted — converted in place into a Note, Task, Shopping list or other Capturable Type — ticked off (*done*), or deleted. |
 | **Note** | A Type: a note, kept, labelled and shown in the Notes View. A Thought can be turned into one, and a Note can be converted into other Types. Personal only. |
 | **Alert** | A notification attached to an Item at a time, each person's own; an Alarm is an Alert that rings. Called a Reminder until Stage 7b ([ADR-0065](../20-architecture/adr/0065-reminders-alerts-and-the-day.md)). |
 | **Reminder** | A Type (Stage 7b, [RMD-001](../10-requirements/cross-cutting/today-reminders-plan.md#rmd-001--a-reminder)): a title with its Alerts and a Repeat, not Completable, Personal only. Its day is its do-on date and its Alerts hang on it; it is on each day one of them falls ([ADR-0065](../20-architecture/adr/0065-reminders-alerts-and-the-day.md)). |

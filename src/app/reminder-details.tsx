@@ -26,7 +26,7 @@ import { repeatOf, repeatStart, repeatTask, useSeriesById } from './repeat'
 import { Field } from './task-details'
 
 /** The Alert dialog for a Reminder: a date and time still to come, and Alarm (RMD-002). */
-function ReminderAlertDialog({
+export function ReminderAlertDialog({
   value,
   onSave,
   onClose,

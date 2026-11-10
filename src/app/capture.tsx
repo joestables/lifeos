@@ -1,66 +1,47 @@
-import { parseCapture, type CaptureDates } from '@lifeos/capture'
-import { BellIcon, CalendarIcon, FlagIcon } from 'lucide-react'
+import { readLine, type LineAlert } from '@lifeos/capture'
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
-import { toast } from '@/components/ui/sonner'
-import { CaptureDialog, type CaptureType } from '@/components/lifeos/CaptureDialog'
 import {
-  addFixedAlert,
-  addLabel,
-  archiveItem,
-  createItem,
-  queue,
-  useLabels,
-  useSettings,
-  type Settings,
-} from '@/data'
-import { dayName, fromIsoDay, shortDate, zonedInstant } from '@/lib/dates'
+  AddAlertMenu,
+  ChipRow,
+  LabelChips,
+  NewDialog,
+  QuickChip,
+  SavesAs,
+  SmartLine,
+  type AlertChoice,
+} from '@/components/lifeos'
+import { toast } from '@/components/ui/sonner'
+import { addAlert, addLabel, archiveItem, createItem, queue, useLabels, useSettings } from '@/data'
+import { reminderAlertFields } from '@/lib/alerts'
 import { typeLook } from '@/lib/item-types'
+import {
+  likeliest,
+  pillLabel,
+  quickTimes,
+  sameAlert,
+  settled,
+  withoutWords,
+  type NewAlert,
+} from '@/lib/new-line'
 import { OpenCapture } from './open-capture'
-import { createTaskFrom } from './task-actions'
+import { ReminderAlertDialog } from './reminder-details'
 
-/** Thought first: what capture makes unless switched (ADR-0027). */
-const TYPES: CaptureType[] = ['thought', 'task'].map((key) => {
-  const { label, colour, icon } = typeLook(key)
-  return { key, label, colour, icon }
-})
+const REMINDER = typeLook('reminder')
+const THOUGHT = typeLook('thought')
 
-/** "Fri 18:00", "Tomorrow", "Due Fri". */
-function when(dates: CaptureDates, now: Date): string | undefined {
-  if (dates.doOn) return [dayName(dates.doOn, now), dates.doAt].filter(Boolean).join(' ')
-  if (dates.dueOn) return `Due ${dayName(dates.dueOn, now)}`
-  return undefined
+/** An Alert taken from the line or added: its own, until Save. */
+interface Pill extends NewAlert {
+  id: string
 }
 
-/** What a line becomes, as one call each to the write queue, with the Labels I chose (CAP-009). */
-function save(
-  type: string,
-  line: string,
-  dates: CaptureDates,
-  labelIds: readonly string[],
-  settings: Settings,
-): string {
-  const id = make(type, line, dates, settings)
-  for (const label of labelIds) addLabel(id, label)
-  return id
-}
-
-function make(type: string, line: string, dates: CaptureDates, settings: Settings): string {
-  if (type === 'task') return createTaskFrom(line, dates)
-  const id = createItem('thought', { title: line.trim() })
-  const day = dates.doOn ?? dates.dueOn
-  if (day && settings.thoughtAlerts) {
-    // A dated Thought reminds me, at my default time without one (CAP-004),
-    // unless I turned that off (REM-007).
-    const at = dates.doAt ?? settings.defaultAlertTime
-    addFixedAlert(id, zonedInstant(day, at, settings.timezone))
-  }
-  return id
-}
+/** Where an Alert dialog is open: a pill's, or Pick a date and time. */
+type Editing = { pill: string } | { typed: LineAlert } | { pick: true }
 
 /**
- * Capture over any page (CAP-001, CAP-002): N on a computer, the drawer's
- * button, the phone's top bar and Inbox's Fab. Saving leaves the page as it
- * was, says what was made, and offers Undo.
+ * "New" over any page (NEW-001–006): N on a computer, "New" at the top
+ * right, Notes' New thought. One line: a time in it makes a Reminder, none a
+ * Thought; its Alerts are pills; quick times add more. Saving leaves the page
+ * as it was, says what was made, and offers Undo.
  */
 export function CaptureProvider({ children }: { children: ReactNode }) {
   const settings = useSettings(queue)
@@ -75,16 +56,27 @@ export function CaptureProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     isOpen.current = open
   }, [open])
-  const [type, setType] = useState('thought')
+  const lineRef = useRef<HTMLInputElement>(null)
   const [text, setText] = useState('')
+  const [pills, setPills] = useState<Pill[]>([])
+  // Words whose pill I removed: kept as words (NEW-004 3).
+  const [literal, setLiteral] = useState<string[]>([])
   const [chosenLabels, setChosenLabels] = useState<string[]>([])
+  const [editing, setEditing] = useState<Editing | null>(null)
   const [now, setNow] = useState(() => new Date())
-  const dates = useMemo(() => parseCapture(text, now), [text, now])
+  const reading = useMemo(
+    () => readLine(text, now, settings.defaultAlertTime, literal),
+    [text, now, settings.defaultAlertTime, literal],
+  )
+  // Alerts still in the line's words; the rest are pills of their own.
+  const typed = reading.alerts.filter((a) => !pills.some((p) => sameAlert(p, a)))
 
-  const start = useCallback((as: 'thought' | 'task' = 'thought') => {
-    setType(as)
+  const start = useCallback(() => {
     setText('')
+    setPills([])
+    setLiteral([])
     setChosenLabels([])
+    setEditing(null)
     setNow(new Date())
     setOpen(true)
   }, [])
@@ -97,61 +89,167 @@ export function CaptureProvider({ children }: { children: ReactNode }) {
       // Not while a menu or list is open, where N picks an option.
       if (e.isComposing || document.querySelector('[role="menu"], [role="listbox"]')) return
       e.preventDefault()
-      start('thought')
+      start()
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [start])
 
-  const said = when(dates, now)
+  const add = (a: NewAlert) =>
+    setPills((list) =>
+      list.some((p) => sameAlert(p, a)) ? list : [...list, { ...a, id: crypto.randomUUID() }],
+    )
+  /** The words for these Alerts become their pills (NEW-003 1). */
+  const take = (line: string, alerts: readonly LineAlert[]) => {
+    for (const a of alerts) add({ day: a.day, time: a.time, alarm: false })
+    return alerts.length ? withoutWords(line, alerts) : line
+  }
+
+  const onText = (next: string) => {
+    const r = readLine(next, now, settings.defaultAlertTime, literal)
+    setText(
+      take(
+        next,
+        r.alerts.filter((a) => settled(next, a)),
+      ),
+    )
+  }
+  const focusLine = () => setTimeout(() => lineRef.current?.focus(), 0)
+
+  const alerts: NewAlert[] = [
+    ...pills,
+    ...typed.map((a) => ({ day: a.day, time: a.time, alarm: false })),
+  ]
+  const isReminder = alerts.length > 0
+  const title = isReminder
+    ? readLine(text, now, settings.defaultAlertTime, literal).title
+    : text.trim()
+
   const onSave = () => {
-    // A Label deleted while the Dialog was open isn't given.
-    const ids = chosenLabels.filter((l) => allLabels.some((a) => a.id === l))
-    const id = save(type, text, dates, ids, settings)
+    if (!title) return
     setOpen(false)
-    const made = `${typeLook(type).label} saved`
-    toast(type === 'task' && said ? `${made} · ${said}` : made, {
+    if (!isReminder) {
+      const id = createItem('thought', { title })
+      // A Label deleted while "New" was open isn't given (CAP-009).
+      for (const l of chosenLabels) if (allLabels.some((a) => a.id === l)) addLabel(id, l)
+      toast('Thought saved', { action: { label: 'Undo', onClick: () => archiveItem(id) } })
+      return
+    }
+    // Its day is its first Alert's; each Alert hangs on it (ADR-0065 2).
+    const sorted = [...alerts].sort(
+      (a, b) => a.day.localeCompare(b.day) || a.time.localeCompare(b.time),
+    )
+    const first = sorted[0]!
+    const id = createItem('reminder', { title, do_on: first.day })
+    for (const a of sorted)
+      addAlert(
+        id,
+        reminderAlertFields({ kind: 'fixed', day: a.day, time: a.time, alarm: a.alarm }, first.day),
+      )
+    toast(`Reminder saved · ${pillLabel(first, now)}`, {
       action: { label: 'Undo', onClick: () => archiveItem(id) },
     })
   }
 
-  const understood =
-    type === 'task'
-      ? [
-          dates.doOn && {
-            icon: CalendarIcon,
-            label: [shortDate(fromIsoDay(dates.doOn)), dates.doAt].filter(Boolean).join(' '),
-          },
-          dates.dueOn && { icon: FlagIcon, label: `Due ${shortDate(fromIsoDay(dates.dueOn))}` },
-          dates.doOn && {
-            icon: BellIcon,
-            label: dates.doAt ?? settings.defaultAlertTime,
-          },
-        ].filter((u) => !!u)
-      : []
+  const times = quickTimes(now, settings.defaultAlertTime)
+  const next = likeliest(times, now)
+  const quick = (t: (typeof times)[number]) => {
+    add({ ...t.alert, alarm: false })
+    focusLine()
+  }
+
+  const editingValue: AlertChoice | null = !editing
+    ? null
+    : 'pill' in editing
+      ? (() => {
+          const p = pills.find((x) => x.id === editing.pill)
+          return p ? { kind: 'fixed', day: p.day, time: p.time, alarm: p.alarm } : null
+        })()
+      : 'typed' in editing
+        ? { kind: 'fixed', day: editing.typed.day, time: editing.typed.time, alarm: false }
+        : { kind: 'fixed', ...times[0]!.alert, alarm: false }
+  const saveEdit = (choice: AlertChoice) => {
+    if (!editing || choice.kind !== 'fixed' || !choice.day) return
+    const a = { day: choice.day, time: choice.time, alarm: choice.alarm ?? false }
+    if ('pill' in editing)
+      setPills((list) => list.map((p) => (p.id === editing.pill ? { ...p, ...a } : p)))
+    else if ('typed' in editing) {
+      // Changed, the words leave the line for their pill.
+      setText(withoutWords(text, [editing.typed]))
+      add(a)
+    } else add(a)
+    setEditing(null)
+    focusLine()
+  }
 
   return (
     <OpenCapture.Provider value={start}>
       {children}
-      <CaptureDialog
+      <NewDialog
         open={open}
         onOpenChange={setOpen}
-        types={TYPES}
-        type={type}
-        onTypeChange={setType}
-        text={text}
-        onTextChange={setText}
-        offer={
-          type === 'thought' && said
-            ? { type: 'task', label: `Task, ${said}?`, onTake: () => setType('task') }
-            : undefined
-        }
-        understood={understood}
-        labels={allLabels}
-        chosenLabels={new Set(chosenLabels)}
-        onLabelsChange={setChosenLabels}
         onSave={onSave}
-      />
+        saveDisabled={!title}
+        savesAs={
+          isReminder ? (
+            <SavesAs colour="blue" icon={REMINDER.icon} label="Reminder" />
+          ) : (
+            <SavesAs colour="yellow" icon={THOUGHT.icon} label="Thought" />
+          )
+        }
+      >
+        <SmartLine
+          inputRef={lineRef}
+          value={text}
+          onValueChange={onText}
+          placeholder="Remind me to…"
+          // Soonest first, typed or added.
+          pills={[
+            ...pills.map((p) => ({ ...p, id: p.id })),
+            ...typed.map((a) => ({ ...a, id: `typed:${a.index}`, alarm: false })),
+          ]
+            .sort((x, y) => x.day.localeCompare(y.day) || x.time.localeCompare(y.time))
+            .map((p) => ({ id: p.id, label: pillLabel(p, now), alarm: p.alarm }))}
+          onOpenPill={(id) => {
+            const t = typed.find((a) => `typed:${a.index}` === id)
+            setEditing(t ? { typed: t } : { pill: id })
+          }}
+          onRemovePill={(id) => {
+            const t = typed.find((a) => `typed:${a.index}` === id)
+            if (t) setLiteral((l) => [...l, t.text.trim().toLowerCase()])
+            else setPills((list) => list.filter((p) => p.id !== id))
+            focusLine()
+          }}
+        />
+        <ChipRow>
+          <QuickChip onClick={() => quick(times[0]!)}>{times[0]!.label}</QuickChip>
+          <QuickChip onClick={() => quick(next)}>{next.label}</QuickChip>
+          <AddAlertMenu
+            label="More"
+            choices={times.map((t) => ({ label: t.label, when: t.when, onChoose: () => quick(t) }))}
+            onPick={() => setEditing({ pick: true })}
+          />
+        </ChipRow>
+        {/* Labels are a Thought's; a Reminder has none (NEW-006 1). */}
+        {!isReminder && allLabels.length > 0 && (
+          <LabelChips
+            aria-label="Labels"
+            labels={allLabels}
+            chosen={new Set(chosenLabels)}
+            onChange={(ids) => setChosenLabels([...ids])}
+          />
+        )}
+      </NewDialog>
+      {editingValue && (
+        <ReminderAlertDialog
+          value={editingValue}
+          onSave={saveEdit}
+          onClose={() => {
+            setEditing(null)
+            focusLine()
+          }}
+        />
+      )}
     </OpenCapture.Provider>
   )
 }

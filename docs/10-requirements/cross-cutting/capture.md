@@ -1,20 +1,24 @@
 # Capture
 
-*Stage 2: capture in the app. Capture from outside the app comes after every
+*Stage 2: capture in the app; from Stage 7b, "New", one smart line for
+Thoughts and Reminders. Capture from outside the app comes after every
 other stage (Stage 10). The decisions come first; the requirements, drafted
-at the start of Stage 2, are at the end.*
-
-> **Changing in Stage 7b** (spec agreed 9 November, not yet built): Makes "New" one smart line for Thoughts and Reminders, a time in it making a Reminder, and Thoughts get no Alerts (NEW-001–006, ALR-001). [Today, Reminders and Plan](today-reminders-plan.md). Until it is built, this page is how it works.
+at the start of Stage 2 and in [Today, Reminders and
+Plan](today-reminders-plan.md), are at the end.*
 
 ## Decisions
 
-- **Quick capture** opens over whatever you are doing, from any page; it
-  makes a Thought, which waits on Notes' Thoughts tab, with a one-tap switch to Task; a
-  deterministic parser offers, never forces, a Task when it spots a date
-  ([ADR-0027](../../20-architecture/adr/0027-quick-capture.md), Provisionally agreed).
-- **A Thought whose text contains a date gets an Alert** for that date
-  ([ADR-0023](../../20-architecture/adr/0023-reminders.md), Provisionally agreed).
-- **A bare date fills do-on**; a deadline must be said ("due fri", "by fri")
+- **"New"** opens over whatever you are doing, from any page: one line, with
+  no switch between Types. A time in it makes a **Reminder**, its words an
+  Alert pill and out of the title; none makes a **Thought**, which waits on
+  Notes' Thoughts tab. A deterministic parser reads the times, with no
+  signal (Joe, 9 November; [ADR-0027](../../20-architecture/adr/0027-quick-capture.md),
+  [ADR-0065](../../20-architecture/adr/0065-reminders-alerts-and-the-day.md)
+  11, Provisionally agreed).
+- **A Thought gets no Alert from its text**: a line with a time is a
+  Reminder (ADR-0065 5; the Thought default went from Settings).
+- **A bare date fills do-on** when a line becomes a Task (sorting a Thought,
+  CAP-003); a deadline must be said ("due fri", "by fri")
   ([ADR-0022](../../20-architecture/adr/0022-repeating-items.md), Provisionally agreed).
 - **Sorting a Thought:** convert it in place into a Note, Task, Shopping list or other
   Capturable Type, or delete it (archive, with undo)
@@ -22,22 +26,21 @@ at the start of Stage 2, are at the end.*
   agreed). From Stage 4 a Thought can become a Recipe Idea, any link in it
   kept as a source, or a Shopping list, split at its commas
   ([ITM-006](items.md#itm-006--food-items)).
-- **Capture stays Thoughts and Tasks in Stage 4 too:** it makes no Recipe,
-  Meal or Shopping list, and matches nothing against the Pantry; that
-  happens when a Thought is sorted.
+- **Capture makes no food:** no Recipe, Meal or Shopping list, and it
+  matches nothing against the Pantry; that happens when a Thought is
+  sorted.
 - **Capture from outside the app** through a personal capture address, built
   last, after every other stage
   ([ADR-0028](../../20-architecture/adr/0028-capture-from-outside-the-app.md),
   Provisionally agreed).
-- **Capture makes Thoughts and Tasks only** (Joe, 14 October): an
-  event-shaped line is saved as a Thought or a Task. Events are made on
-  Week or Plan, by switching a Task, or by sorting a Thought
+- **"New" makes Thoughts and Reminders only** (Joe, 9 November): Tasks and
+  Events are made on Plan and Week, by converting, or by sorting a Thought
   ([events](events.md#decisions)).
 
 ## Where capture comes from
 
-- **In the app (Stage 2):** "New" at the top right of every page (on a
-  phone, in the top bar) and a key on a computer.
+- **In the app:** "New" at the top right of every page (on a phone, in the
+  top bar), N on a computer, and Notes' New thought.
 - **From outside the app (Stage 10)** — see [deferred](#deferred-to-stage-10):
   - **The capture address**, which anything that can make a web request can
     post to: **iOS Shortcuts and Siri** ("Hey Siri, LifeOS: buy oat milk"),
@@ -70,14 +73,11 @@ Acceptance criteria
 1. Given I am on any page, when I open capture, type "ceramics class for the
    anniversary?" and save, then a Thought is created in my Personal Space and
    appears on Notes' Thoughts, waiting to be sorted, counted on Today.
-2. Given I switch capture to Task before saving "renew insurance fri", when I
-   save, then a Task "Renew insurance" is created, to do on Friday, with my
-   default Alert at 09:00 on Friday.
-3. Given I type "call mum fri 6pm" and leave it as a Thought, when the parser
-   finds the date, then it offers "Task, Fri 18:00?" and does not switch on
-   its own.
-4. Given I have no signal, when I save, then the Item appears immediately and
+2. Given I have no signal, when I save, then the Item appears immediately and
    is sent when the connection returns.
+
+(Its switch to Task, and the offer of one for a dated line, went with "New"
+in Stage 7b: a time in the line makes a Reminder, NEW-002.)
 
 ### CAP-002 — Capture from any page without losing my place
 
@@ -93,8 +93,8 @@ Acceptance criteria
    open), when I save or close capture, then I am back exactly where I was,
    with nothing on the page changed except for the new Item where it
    belongs.
-3. Given I save, then I'm told what was made ("Thought saved", "Task saved ·
-   Fri") and can undo it.
+3. Given I save, then I'm told what was made ("Thought saved", "Reminder
+   saved · Tue 10 Nov, 20:00") and can undo it.
 
 ### CAP-003 — Dates and times are understood, the same way everywhere
 
@@ -102,7 +102,8 @@ Acceptance criteria
 open a date picker for the common cases.
 Priority: Must · Status: verified
 
-Capture and adding a Task understand dates the same way, with no signal.
+A Thought sorted into a Task or an Event, and adding a Task, understand
+dates the same way, with no signal. "New" reads its line by NEW-003.
 
 Acceptance criteria
 1. Given "renew insurance fri", then do-on is the coming Friday (today, if it
@@ -118,31 +119,137 @@ Acceptance criteria
    "second"), then it counts as a date only next to a number or after "on"
    ("3 may", "on sun").
 5. Given the line becomes a Task, then the date words are removed from the
-   title and its first letter is capitalised; a Thought keeps the line as
-   typed.
+   title and its first letter is capitalised.
 
 ### CAP-004 — A Thought with a date reminds me
 
 **As** Joe, **I want** a dated Thought to remind me even before I sort it,
 **so that** a jotted "dentist tue 3pm?" isn't forgotten among the Thoughts.
-Priority: Should · Status: built (the Alert firing is verified with step 11)
+Priority: Should · Status: superseded (Stage 7b: a line with a time is a Reminder, NEW-002; a Thought has no Alerts, ALR-001)
 
 Acceptance criteria
-1. Given I save "dentist tue 3pm?" as a Thought, then it has an Alert for
-   Tuesday at 15:00; with a date but no time, at my default time.
-2. Given I then convert it into a Task, then the Alert stays
-   ([ADR-0037](../../20-architecture/adr/0037-thoughts.md)).
+1. ~~Given I save "dentist tue 3pm?" as a Thought, then it has an Alert for
+   Tuesday at 15:00.~~ "New" makes it a Reminder for Tuesday at 15:00.
 
 ### CAP-009 — Label what I capture
 
-**As** Joe, **I want** to give a Thought or a Task its Labels as I capture
-it, **so that** it is filed from the start.
+**As** Joe, **I want** to give a Thought its Labels as I capture it, **so
+that** it is filed from the start.
 Priority: Should · Status: verified
 
 Acceptance criteria
 1. Given my Labels shown as pills in capture, when I choose Home and save,
-   then the Thought (or Task) has the Label Home.
+   then the Thought has the Label Home; a Reminder has none (NEW-006 1).
 2. Given I open capture again, then no Label is chosen.
+
+## "New"
+
+*Stage 7b, agreed by Joe on 9 November in [Today, Reminders and
+Plan](today-reminders-plan.md); built in its step 7.*
+
+### NEW-001 — The "New" button
+
+**As** Joe, **I want** "New" where it always is, **so that** making a
+Reminder is one tap from anywhere.
+Priority: Must · Status: verified (`capture.spec.ts`)
+
+Acceptance criteria
+1. Given any page, then "New" is at the top right on a computer and in the
+   top bar on a phone: the quiet button it is now, with a bell and a plus
+   in place of the speech bubble; on a computer, N opens it too.
+2. Given I press it, then "New" opens over the page, the line ready to type
+   in, as capture does now (CAP-002).
+
+### NEW-002 — One smart line
+
+**As** Joe, **I want** to type a reminder as I'd say it, **so that** it's
+quick and there's nothing to choose first.
+Priority: Must · Status: verified (`capture.spec.ts`)
+
+Acceptance criteria
+1. Given "New", then it is one line ("Remind me to…"), quick times under it
+   (NEW-005), and Cancel and Save; there is no Thought / Reminder switch.
+2. Given the line has a time (one typed, NEW-003, or one added, NEW-005),
+   then Save makes a Reminder; with none, a Thought. A tile at the top right
+   says which as I type: the Reminder's blue bell or the Thought's yellow
+   lightbulb. The button says only "Save".
+3. Given the line is empty, then Save is off; Enter saves.
+4. Given I save, then it is made in my Personal Space, offline too (CAP-001
+   4), and "New" closes.
+
+### NEW-003 — Times are understood, and kept out of the title
+
+**As** Joe, **I want** "clean bedroom tues 8pm" to become "Clean bedroom"
+at 20:00 on Tuesday, **so that** the title reads as I'd write it.
+Priority: Must · Status: verified (`capture.spec.ts`, `packages/capture`'s `reminder.test.ts`)
+
+Acceptance criteria
+1. Given I type "clean bedroom tues 8pm", then the words for the time
+   become an Alert pill, Tue 10 Nov, 20:00, and the title is "Clean
+   bedroom" (its first letter a capital); the words are understood as
+   everywhere else (CAP-003), "tues", "thurs" and "weds" too. The words
+   leave the line for their pill once a word that isn't part of a time
+   follows them ("… tues 8pm with mum"), or on Save; until then the pill
+   shows beside them.
+2. Given "… tues 8pm and 9pm", then there are two Alert pills.
+3. Given a date with no time ("call mum tomorrow"), then the Alert is at my
+   default time (09:00 unless changed).
+4. Given a time with no date ("bins out 7pm"), then it is today, or
+   tomorrow if 19:00 has passed; a weekday is the next one, today if its
+   time is still to come.
+5. Given "in 2 hours", "tonight", "this weekend", then they are understood
+   as the quick times are (NEW-005).
+6. Given no Alert can be in the past, then nothing typed makes one.
+7. Given "every tuesday", then no Repeat is set from the line (Joe, 9
+   November); a Repeat is set in the Reminder's popup (RMD-004).
+
+### NEW-004 — Alert pills in the line
+
+**As** Joe, **I want** each Alert as a pill I can change or remove,
+**so that** fixing what was understood is a tap.
+Priority: Must · Status: verified (`capture.spec.ts`)
+
+Acceptance criteria
+1. Given an Alert, typed or added, then it is a pill in the line after the
+   title, in the Reminder's blue tint, with a bell (an alarm clock for an
+   Alarm) and its date and time, and × at its end.
+2. Given I tap a pill, then the Alert dialog opens: its date and time, and
+   Alarm (RMD-002 2).
+3. Given I press × on a pill, or Backspace at the end of the line when its
+   words end there, then the pill is removed (a typed time's words stay, as
+   words); the last one removed, the line is a Thought again. A changed
+   pill's words leave the line.
+
+### NEW-005 — Quick times
+
+**As** Joe, **I want** the likely times a tap away, **so that** on my
+phone I needn't type a time at all.
+Priority: Must · Status: verified (`capture.spec.ts`, `src/lib/new-line.test.ts`)
+
+Acceptance criteria
+1. Given "New", then under the line are three pills: **In 1 hour**; the
+   likeliest next time — **This evening** (18:00) before 17:00, **Tomorrow
+   morning** (my default time tomorrow) from 17:00; and **More**.
+2. Given I tap one, then its Alert is added as a pill (NEW-004); the pill
+   tapped doesn't stay chosen, and tapping it again adds nothing new.
+3. Given More, then it offers In 1 hour, This evening (until 18:00),
+   Tomorrow morning, This weekend (the next Saturday at my default time
+   still to come) each with its time, and
+   "Pick a date and time", which opens the Alert dialog.
+4. Given a phone, then the pills scroll sideways rather than wrapping.
+
+### NEW-006 — A Thought from "New"
+
+**As** Joe, **I want** to jot a Thought as before, **so that** an idea
+with no time is still captured in seconds.
+Priority: Must · Status: verified (`capture.spec.ts`, `today.spec.ts`)
+
+Acceptance criteria
+1. Given the line has no time, then my Labels show under the quick times,
+   to give the Thought (CAP-009); with a time, they hide (a Reminder has
+   none).
+2. Given I save a Thought, then it waits in Notes' Thoughts tab (NTE-005),
+   counted on Today's Thoughts line (TDY-001 3).
 
 Non-goals (Stage 2): repeats typed in words ("every monday"); an LLM in
 capture; matching the Pantry or making food Items (Stage 4 does this when a

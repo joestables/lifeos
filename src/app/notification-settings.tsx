@@ -179,13 +179,6 @@ export function AlertsCard() {
           onCheckedChange={(on) => updateSettings({ alert_defaults: { task: on } })}
         />
       </CardRow>
-      <CardRow label="Dated thoughts">
-        <Switch
-          aria-label="Remind me of dated thoughts"
-          checked={settings.thoughtAlerts}
-          onCheckedChange={(on) => updateSettings({ alert_defaults: { thought: on } })}
-        />
-      </CardRow>
       <CardRow label="Events, 30 min before">
         <Switch
           aria-label="Remind me 30 minutes before events"
