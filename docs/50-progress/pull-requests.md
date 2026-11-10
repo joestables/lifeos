@@ -15,7 +15,7 @@ Branch `claude/relaxed-fermi-nehy7e` · 2026-11-10
   `has_subtasks` dropped; the SubtaskList component, the sub-task writes
   and Plan's "2/5" with them.
 - **Joe's data**, migration `stage7b_labels_and_subtasks` (applied as
-  `MIGRATION_VERSION`, with `ontology` as `ONTOLOGY_VERSION`; ADVISORS): the
+  `20261110213408`, with `ontology` as `20261110213425`; the advisors: nothing new): the
   "Work" Label came off 18 Events and one repeating Event's pattern, and
   "Work" and "Home" off 5 Tasks; the one Task with sub-tasks ("Test Note",
   two lines) lost them. The Labels themselves stay.
