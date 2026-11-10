@@ -2,6 +2,22 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#82](https://github.com/joestables/lifeos/pull/82) — CI: browser tests once a pull request is ready
+
+Branch `claude/relaxed-fermi-nehy7e` · 2026-11-10
+
+**What it did**
+- **The browser tests wait until a pull request is marked ready** (Joe, 10
+  November, after the month's Actions minutes ran out): a draft's pushes
+  get the checks and the database tests alone; marking it ready, and each
+  push after, runs the four browser-test parts too.
+  [Environments](../40-operations/environments.md#ci) and `CLAUDE.md` say so,
+  and that Claude pushes as few times as it can and marks a pull request
+  ready only once all its work, migrations renamed included, is pushed.
+- #81 was merged without CI, at Joe's word, as the month's minutes had run
+  out (they come back on 1 December); its checks ran in the session
+  instead.
+
 ## [#81](https://github.com/joestables/lifeos/pull/81) — Stage 7b, step 9: Labels off Tasks and Events, sub-tasks gone
 
 Branch `claude/relaxed-fermi-nehy7e` · 2026-11-10
