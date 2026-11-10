@@ -15,9 +15,11 @@ Branch `claude/relaxed-fermi-nehy7e` · 2026-11-10
 - **`convert_item` takes the time a Thought's text names** (`p_alert_at`):
   converting a Thought into a Reminder gives it that Alert once it is a
   Reminder, as the Thought can't hold it first.
-- **Joe's data**, migration `stage7b_thoughts_lose_alerts`: the 3 Thoughts
-  with an Alert still to come became Reminders, keeping it; every other
-  Alert on a Thought or a Note was removed.
+- **Joe's data**, migration `stage7b_thoughts_lose_alerts` (applied as
+  `20261110200905`, with `ontology` as `20261110200921`; the advisors found
+  nothing new): the 3 Thoughts with an Alert still to come became
+  Reminders, keeping it; the other 36 Alerts on a Thought or a Note were
+  removed.
 - ALR-001 moved into the Alerts spec; REM-003, REM-005 and REM-008 say no
   Thoughts; the database tests that gave Thoughts Alerts give them to
   Reminders, and a new one checks the data change.
