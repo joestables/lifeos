@@ -28,9 +28,18 @@ export const persister = createAsyncStoragePersister({
   },
 })
 
+/**
+ * The shape of what is kept: raised whenever a kept query's data changes
+ * shape (a field renamed, as `defaultReminderTime` became `defaultAlertTime`
+ * in Stage 7b), so a device holding the old shape starts afresh rather than
+ * reading it as the new (OFF-005). Raising it costs one refresh.
+ */
+export const CACHE_SHAPE = '2026-11-11'
+
 export const persistOptions = {
   persister,
   maxAge: WEEK,
+  buster: CACHE_SHAPE,
   // Searches are asked afresh (SRC-001); offline, the device's Items are
   // searched (SRC-002). Whether the AI can be used is only true now.
   dehydrateOptions: {

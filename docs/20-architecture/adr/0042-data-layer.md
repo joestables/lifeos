@@ -26,7 +26,11 @@ TanStack DB collections, whose core is still pre-1.0.
   imported anywhere else.
 - **Reads:** TanStack Query, selecting from tables and views under RLS. The
   cache is kept in IndexedDB, so Items already loaded show with no signal,
-  marked as possibly out of date (OFF-005). Data refreshes on focus and on
+  marked as possibly out of date (OFF-005). It is kept under a shape
+  version (`CACHE_SHAPE`, the persister's buster), raised whenever a kept
+  query's data changes shape, so a device holding the old shape starts
+  afresh rather than reading it as the new (from Stage 7b, when Settings'
+  renamed field crashed a page reading what an older build had kept). Data refreshes on focus and on
   reconnecting. **A table read whole is read a page at a time** (`allRows`,
   1000 rows a page, the Data API's most), in a stable order ending in a
   unique column, so nothing past the first thousand rows is silently left
