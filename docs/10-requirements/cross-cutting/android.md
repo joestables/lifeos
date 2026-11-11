@@ -5,7 +5,7 @@ first, then the requirements (drafted 5 November, from Joe's answers that
 day, and his answers to its open points), then the deferred Thought
 widget. How it is built: ADR-0061–0064 (Provisionally agreed).*
 
-> **Changing in Stage 7b** (spec agreed 9 November, not yet built): Makes the Today widget show what the Today page shows (TDY-006). [Today, Reminders and Plan](today-reminders-plan.md). Until it is built, this page is how it works.
+> **Changing in Stage 7b** (spec agreed 9 November): the Today widget shows what the Today page shows (TDY-006 1, built in step 10a, WID-002 1 below); its date opens Today with the Android app's next release (TDY-006 2, step 10b). [Today, Reminders and Plan](today-reminders-plan.md).
 
 ## Decisions
 
@@ -136,15 +136,18 @@ the shape of my day without opening anything.
 Priority: Must · Status: built (Stage 7, step 10; Joe checks it on his phone)
 
 Acceptance criteria
-1. Given the widget, then it shows today's date and today's cards as
-   Plan's day shows them (PLN-002): all-day and untimed first, then by
-   time; each card its Type's icon and colour, title, and time (or "All
-   day"); done ones faded and struck through; only the Types I show on
-   Plan (PLN-004).
+1. Given the widget, then it shows today's date and Today's list
+   (TDY-006 1, from Stage 7b): overdue Tasks first, "Overdue" for their
+   time, then the day from Anytime to Evening; each card its Type's icon
+   and colour, title, and time (or "All day"; a Reminder its first time
+   that day); done ones faded and struck through, and gone ones faded (an
+   Event ended, a Reminder after its last Alert that day, a Meal after its
+   part of the day); every Type Today shows.
 2. Given more cards than fit, then the list scrolls inside the widget.
 3. Given nothing today, then it says "Nothing planned".
 4. Given I tap a card, then the app opens on that Item (ITM-001); given I
-   tap the date, then Plan opens on today.
+   tap the date, then Plan opens (Today, with the next release: TDY-006
+   2).
 5. Given I change something on the phone, then the widget shows it within
    seconds; given it changes elsewhere (on my computer, by my girlfriend,
    from Google Calendar), then within a minute or two while the phone has
@@ -153,7 +156,7 @@ Acceptance criteria
 7. Given the widget's size, then I can make it smaller or larger on the
    home screen and it shows as many cards as fit.
 8. Given I press the "+" at the widget's top right, then the app opens on
-   Plan with its "+" already pressed for today, whether or not Plan was
+   Week (Plan before Stage 7b) with its "+" already pressed for today, whether or not Plan was
    open (Joe, 7 November: the Add list on the widget itself didn't show on
    his phone in 0.1.8–0.1.10, so this as he chose instead); choosing a
    Type opens its new popup, dated today, as PLN-006; saving it puts it on
