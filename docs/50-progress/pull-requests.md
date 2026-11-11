@@ -2,6 +2,25 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#84](https://github.com/joestables/lifeos/pull/84) — Stage 7b, step 10b: the old names gone
+
+Branch `claude/relaxed-fermi-nehy7e` · 2026-11-11
+
+**What it did**
+- **The names from before Alerts leave the database** (ADR-0065 4): the
+  `core.reminders` view, Settings' `default_reminder_time` and
+  `reminder_defaults`, and the eight wrapper functions step 4 kept for
+  writes queued before the rename and apps left open. The API logs showed
+  the last request by them on 10 November at 19:36 UTC; none since.
+- The installed Android app never called them (it speaks to the Edge
+  Functions, which use the new names), so no release was needed; its own
+  wire names wait for the release, now step 10c.
+- Migration `stage7b_old_names_gone` (applied as `20261111184957`;
+  the advisors found nothing new); `alerts_rename_test` checks they are gone; the database types
+  regenerated.
+- Merged without CI, as Joe had #81–#83 merged, the month's minutes
+  having run out; its checks ran in the session instead.
+
 ## [#83](https://github.com/joestables/lifeos/pull/83) — Stage 7b, step 10a: Reminder notifications and the widget as Today
 
 Branch `claude/relaxed-fermi-nehy7e` · 2026-11-11
@@ -20,7 +39,7 @@ Branch `claude/relaxed-fermi-nehy7e` · 2026-11-11
   last (ADR-0065 2).
 - Migration `stage7b_reminder_notifications_and_widget` (applied as
   `20261111121610`; the advisors found nothing new). Step 10 split: the release, the widget's
-  date opening Today and dropping the old names wait for step 10b, once
+  date opening Today and the old wire names wait for the release, once
   Actions credit is added.
 - Merged without CI, at Joe's word, the month's minutes having run out;
   its checks ran in the session instead.

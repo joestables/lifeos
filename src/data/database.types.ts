@@ -101,13 +101,6 @@ export type Database = {
             referencedColumns: ['id']
           },
           {
-            foreignKeyName: 'alert_deliveries_alert_id_fkey'
-            columns: ['alert_id']
-            isOneToOne: false
-            referencedRelation: 'reminders'
-            referencedColumns: ['id']
-          },
-          {
             foreignKeyName: 'alert_deliveries_device_id_fkey'
             columns: ['device_id']
             isOneToOne: false
@@ -798,14 +791,12 @@ export type Database = {
           alert_defaults: NonNullable<Json>
           created_at: string
           default_alert_time: string
-          default_reminder_time: string | null
           digest_on: boolean
           digest_time: string
           id: string
           meal_space_id: string | null
           name: string
           plan_hidden_types: string[]
-          reminder_defaults: Json | null
           timezone: string
         }
         ComputedFields: never
@@ -813,28 +804,24 @@ export type Database = {
           alert_defaults?: NonNullable<Json>
           created_at?: string
           default_alert_time?: string
-          default_reminder_time?: never
           digest_on?: boolean
           digest_time?: string
           id: string
           meal_space_id?: string | null
           name?: string
           plan_hidden_types?: string[]
-          reminder_defaults?: never
           timezone?: string
         }
         Update: {
           alert_defaults?: NonNullable<Json>
           created_at?: string
           default_alert_time?: string
-          default_reminder_time?: never
           digest_on?: boolean
           digest_time?: string
           id?: string
           meal_space_id?: string | null
           name?: string
           plan_hidden_types?: string[]
-          reminder_defaults?: never
           timezone?: string
         }
         Relationships: [
@@ -1087,76 +1074,7 @@ export type Database = {
       }
     }
     Views: {
-      reminders: {
-        Row: {
-          alarm: boolean | null
-          anchor: string | null
-          at_time: string | null
-          created_at: string | null
-          default_time: string | null
-          fires_at: string | null
-          fixed_at: string | null
-          id: string | null
-          is_default: boolean | null
-          item_id: string | null
-          offset_days: number | null
-          offset_minutes: number | null
-          person_id: string | null
-          snoozed_until: string | null
-          updated_at: string | null
-        }
-        ComputedFields: never
-        Insert: {
-          alarm?: boolean | null
-          anchor?: string | null
-          at_time?: string | null
-          created_at?: string | null
-          default_time?: string | null
-          fires_at?: string | null
-          fixed_at?: string | null
-          id?: string | null
-          is_default?: boolean | null
-          item_id?: string | null
-          offset_days?: number | null
-          offset_minutes?: number | null
-          person_id?: string | null
-          snoozed_until?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          alarm?: boolean | null
-          anchor?: string | null
-          at_time?: string | null
-          created_at?: string | null
-          default_time?: string | null
-          fires_at?: string | null
-          fixed_at?: string | null
-          id?: string | null
-          is_default?: boolean | null
-          item_id?: string | null
-          offset_days?: number | null
-          offset_minutes?: number | null
-          person_id?: string | null
-          snoozed_until?: string | null
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: 'alerts_item_id_fkey'
-            columns: ['item_id']
-            isOneToOne: false
-            referencedRelation: 'items'
-            referencedColumns: ['id']
-          },
-          {
-            foreignKeyName: 'alerts_person_id_fkey'
-            columns: ['person_id']
-            isOneToOne: false
-            referencedRelation: 'people'
-            referencedColumns: ['id']
-          },
-        ]
-      }
+      [_ in never]: never
     }
     Functions: {
       act_on_alert: {
@@ -1177,17 +1095,6 @@ export type Database = {
           p_next?: string
           p_next_on?: string
           p_token: string
-        }
-        Returns: boolean
-      }
-      act_on_reminder: {
-        Args: {
-          p_action: string
-          p_device: string
-          p_next?: string
-          p_next_on?: string
-          p_reminder: string
-          p_secret: string
         }
         Returns: boolean
       }
@@ -1218,32 +1125,6 @@ export type Database = {
         }
       }
       add_label: { Args: { p_item: string; p_label: string }; Returns: undefined }
-      add_reminder: {
-        Args: { p_fields: Json; p_id: string; p_item: string }
-        Returns: {
-          alarm: boolean
-          anchor: string | null
-          at_time: string | null
-          created_at: string
-          default_time: string | null
-          fires_at: string | null
-          fixed_at: string | null
-          id: string
-          is_default: boolean
-          item_id: string
-          offset_days: number
-          offset_minutes: number
-          person_id: string
-          snoozed_until: string | null
-          updated_at: string
-        }
-        SetofOptions: {
-          from: '*'
-          to: 'alerts'
-          isOneToOne: true
-          isSetofReturn: false
-        }
-      }
       ai_failed: {
         Args: { p_message: string; p_person: string; p_task: string }
         Returns: undefined
@@ -1528,14 +1409,6 @@ export type Database = {
           day: string
         }[]
       }
-      device_reminders: {
-        Args: { p_device: string; p_secret: string }
-        Returns: {
-          fires_at: string
-          payload: Json
-          reminder_id: string
-        }[]
-      }
       device_secret: { Args: { p_device: string }; Returns: string }
       extend_series: {
         Args: { p_days: string[]; p_series: string; p_until: string }
@@ -1634,24 +1507,12 @@ export type Database = {
           isSetofReturn: false
         }
       }
-      reminder_for_action: {
-        Args: { p_device: string; p_reminder: string; p_secret: string }
-        Returns: {
-          item_id: string
-          kind: string
-          mode: string
-          rule: string
-          timezone: string
-        }[]
-      }
       remove_alert: { Args: { p_id: string }; Returns: undefined }
       remove_default_alert: { Args: { p_item: string }; Returns: undefined }
-      remove_default_reminder: { Args: { p_item: string }; Returns: undefined }
       remove_device: { Args: { p_id: string }; Returns: undefined }
       remove_label: { Args: { p_item: string; p_label: string }; Returns: undefined }
       remove_member: { Args: { p_person: string; p_space: string }; Returns: undefined }
       remove_photo: { Args: { p_item: string }; Returns: undefined }
-      remove_reminder: { Args: { p_id: string }; Returns: undefined }
       rename_household: {
         Args: { p_id: string; p_name: string }
         Returns: {
@@ -1949,32 +1810,6 @@ export type Database = {
           isSetofReturn: false
         }
       }
-      snooze_reminder: {
-        Args: { p_id: string; p_until: string }
-        Returns: {
-          alarm: boolean
-          anchor: string | null
-          at_time: string | null
-          created_at: string
-          default_time: string | null
-          fires_at: string | null
-          fixed_at: string | null
-          id: string
-          is_default: boolean
-          item_id: string
-          offset_days: number
-          offset_minutes: number
-          person_id: string
-          snoozed_until: string | null
-          updated_at: string
-        }
-        SetofOptions: {
-          from: '*'
-          to: 'alerts'
-          isOneToOne: true
-          isSetofReturn: false
-        }
-      }
       stop_repeat: {
         Args: { p_item: string }
         Returns: {
@@ -2073,46 +1908,18 @@ export type Database = {
           isSetofReturn: false
         }
       }
-      update_reminder: {
-        Args: { p_id: string; p_patch: Json }
-        Returns: {
-          alarm: boolean
-          anchor: string | null
-          at_time: string | null
-          created_at: string
-          default_time: string | null
-          fires_at: string | null
-          fixed_at: string | null
-          id: string
-          is_default: boolean
-          item_id: string
-          offset_days: number
-          offset_minutes: number
-          person_id: string
-          snoozed_until: string | null
-          updated_at: string
-        }
-        SetofOptions: {
-          from: '*'
-          to: 'alerts'
-          isOneToOne: true
-          isSetofReturn: false
-        }
-      }
       update_settings: {
         Args: { p_patch: Json }
         Returns: {
           alert_defaults: NonNullable<Json>
           created_at: string
           default_alert_time: string
-          default_reminder_time: string | null
           digest_on: boolean
           digest_time: string
           id: string
           meal_space_id: string | null
           name: string
           plan_hidden_types: string[]
-          reminder_defaults: Json | null
           timezone: string
         }
         SetofOptions: {
