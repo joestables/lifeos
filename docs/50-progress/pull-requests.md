@@ -22,6 +22,8 @@ Branch `claude/relaxed-fermi-nehy7e` · 2026-11-11
   `20261111121610`; the advisors found nothing new). Step 10 split: the release, the widget's
   date opening Today and dropping the old names wait for step 10b, once
   Actions credit is added.
+- Merged without CI, at Joe's word, the month's minutes having run out;
+  its checks ran in the session instead.
 
 ## [#82](https://github.com/joestables/lifeos/pull/82) — CI: browser tests once a pull request is ready
 
