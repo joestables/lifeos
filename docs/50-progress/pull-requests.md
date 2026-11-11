@@ -2,6 +2,27 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#83](https://github.com/joestables/lifeos/pull/83) — Stage 7b, step 10a: Reminder notifications and the widget as Today
+
+Branch `claude/relaxed-fermi-nehy7e` · 2026-11-11
+
+**What it did**
+- **A Reminder's notification** ([RMD-005](../10-requirements/cross-cutting/today-reminders-plan.md#rmd-005--a-reminders-notification))
+  says its Alert's time and offers Done, which only clears it, and Snooze;
+  all on the server, so the installed Android app and the web have it.
+- **The widget is Today** (TDY-006 1): its cards are Today's list, overdue
+  Tasks first, then the day from Anytime to Evening, a Reminder at its first
+  time that day, faded after its last; worked out by the web app
+  (`widgetDays` from `todayList`) and by `core.device_plan`
+  (`core_private.today_cards`), so no release is needed. A change to
+  anything dated before today tells the phone to look.
+- **`core.plan_items`** places a Reminder from its first Alert's day to its
+  last (ADR-0065 2).
+- Migration `stage7b_reminder_notifications_and_widget` (applied as
+  `MIGRATION_VERSION`; ADVISORS). Step 10 split: the release, the widget's
+  date opening Today and dropping the old names wait for step 10b, once
+  Actions credit is added.
+
 ## [#82](https://github.com/joestables/lifeos/pull/82) — CI: browser tests once a pull request is ready
 
 Branch `claude/relaxed-fermi-nehy7e` · 2026-11-10

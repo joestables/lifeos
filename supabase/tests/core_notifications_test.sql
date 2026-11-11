@@ -163,8 +163,9 @@ select is(
 select is(
   (select payload -> 'actions' from claimed where payload ->> 'tag' = 'reminder:00000000-0000-7000-8000-0000000000e4'),
   jsonb_build_array(
+    jsonb_build_object('action', 'done', 'title', 'Done'),
     jsonb_build_object('action', 'snooze', 'title', 'Snooze 1 hour')),
-  'REM-005 1: a Reminder''s notification offers Snooze; its Done comes with RMD-005'
+  'RMD-005 1: a Reminder''s notification offers Done and Snooze'
 );
 select is(
   (select payload ->> 'title' from claimed where payload ->> 'tag' like 'digest:%'),

@@ -1,10 +1,10 @@
--- The Today widget (Stage 7 step 10, WID-002, ADR-0064): what the phone
--- reads is Plan's day, in Plan's order (the same examples as
--- src/lib/today-widget.test.ts); and a change elsewhere tells it to look.
+-- The Today widget (Stage 7 step 10, WID-002, ADR-0064; Stage 7b, TDY-006):
+-- what the phone reads is Today's list, in Today's order (the same examples
+-- as src/lib/today-widget.test.ts); and a change elsewhere tells it to look.
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = extensions, public;
-select plan(10);
+select plan(13);
 
 insert into auth.users (id, email) values
   ('00000000-0000-4000-8000-00000000000a', 'ann@example.com'),
@@ -43,16 +43,16 @@ select is(
    from core.device_plan('00000000-0000-7000-8000-0000000000f1', :'secret') p,
         jsonb_array_elements(p.cards) with ordinality as e(c, o)
    where p.day = :'today'),
-  array['Renew insurance', 'Dinner', 'Pay rent', 'Dentist'],
-  'WID-002 1: today in Plan''s order, untimed first, Meals by slot; nothing of Bob''s'
+  array['Renew insurance', 'Pay rent', 'Dentist', 'Dinner'],
+  'TDY-006 1: today in Today''s order, Anytime to Evening, a Meal by its slot; nothing of Bob''s'
 );
 select is(
   (select array_agg(coalesce(c ->> 'time', '-') || ' ' || (c ->> 'done') order by o)
    from core.device_plan('00000000-0000-7000-8000-0000000000f1', :'secret') p,
         jsonb_array_elements(p.cards) with ordinality as e(c, o)
    where p.day = :'today'),
-  array['- true', 'Dinner false', '09:00 false', '14:00 false'],
-  'WID-002 1: each with Plan''s time, and done or not'
+  array['- true', '09:00 false', '14:00 false', 'Dinner false'],
+  'TDY-006 1: each with its time, and done or not'
 );
 select is(
   (select c ->> 'colour' from core.device_plan('00000000-0000-7000-8000-0000000000f1', :'secret') p,
@@ -63,8 +63,8 @@ select is(
 select is(
   (select array_agg(c ->> 'title') from core.device_plan('00000000-0000-7000-8000-0000000000f1', :'secret') p,
      jsonb_array_elements(p.cards) c where p.day = :'today'::date + 1),
-  array['Tomorrow'],
-  'WID-002 5: tomorrow is held too, for midnight'
+  array['Tomorrow', 'Pay rent'],
+  'WID-002 5: tomorrow is held too, for midnight, with what is left to do from today'
 );
 
 update core.people set plan_hidden_types = '{meal,event}' where id = '00000000-0000-4000-8000-00000000000a';
@@ -73,8 +73,40 @@ select is(
    from core.device_plan('00000000-0000-7000-8000-0000000000f1', :'secret') p,
         jsonb_array_elements(p.cards) with ordinality as e(c, o)
    where p.day = :'today'),
-  array['Renew insurance', 'Pay rent'],
-  'PLN-004: only the Types shown on Plan'
+  array['Renew insurance', 'Pay rent', 'Dentist', 'Dinner'],
+  'TDY-006 1: every Type Today shows, whatever Week hides'
+);
+
+-- An overdue Task comes first; a Reminder is at its first time that day,
+-- fading after its last.
+insert into core.items (id, type, title, space_id, owner_id, do_on, due_on, status, created_at) values
+  ('00000000-0000-7000-8000-000000000008', 'task', 'Tax return', :'a_space', '00000000-0000-4000-8000-00000000000a',
+   null, :'today'::date - 3, 'active', '2026-10-01 09:00+00'),
+  ('00000000-0000-7000-8000-000000000009', 'reminder', 'Call mum', :'a_space', '00000000-0000-4000-8000-00000000000a',
+   :'today', null, 'active', '2026-10-01 09:00+00');
+insert into core.alerts (item_id, person_id, anchor, offset_days, at_time) values
+  ('00000000-0000-7000-8000-000000000009', '00000000-0000-4000-8000-00000000000a', 'do_on', 0, '20:00'),
+  ('00000000-0000-7000-8000-000000000009', '00000000-0000-4000-8000-00000000000a', 'do_on', 0, '08:00'),
+  ('00000000-0000-7000-8000-000000000009', '00000000-0000-4000-8000-00000000000a', 'do_on', 2, '09:00');
+select is(
+  (select array_agg((c ->> 'title') || ' ' || coalesce(c ->> 'time', '-') order by o)
+   from core.device_plan('00000000-0000-7000-8000-0000000000f1', :'secret') p,
+        jsonb_array_elements(p.cards) with ordinality as e(c, o)
+   where p.day = :'today'),
+  array['Tax return Overdue', 'Renew insurance -', 'Call mum 08:00', 'Pay rent 09:00', 'Dentist 14:00', 'Dinner Dinner'],
+  'TDY-006 1: overdue Tasks first, saying so; a Reminder at its first time that day'
+);
+select is(
+  (select (c ->> 'ends')::timestamptz from core.device_plan('00000000-0000-7000-8000-0000000000f1', :'secret') p,
+     jsonb_array_elements(p.cards) c where p.day = :'today' and c ->> 'title' = 'Call mum'),
+  (:'today'::date + time '20:00') at time zone 'Europe/London',
+  'TDY-006 1: and it fades once its last Alert that day has gone off'
+);
+select is(
+  (select array[p.plan_from, p.plan_to] from core.plan_items(:'today'::date + 1, :'today'::date + 5) p
+   where (p.item).id = '00000000-0000-7000-8000-000000000009'),
+  array[:'today'::date, :'today'::date + 2],
+  'ADR-0065 2: Plan''s read places a Reminder from its first Alert''s day to its last'
 );
 select isnt(
   (select look_wanted_at from core.push_devices where id = '00000000-0000-7000-8000-0000000000f1'),

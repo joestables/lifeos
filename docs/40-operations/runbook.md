@@ -75,8 +75,8 @@ Alerts, the morning digest and overdue nudges
   takes Done and Snooze for one of those, proved the same way
   (`core.act_on_alert`).
 - **`device-plan`** (the Android app, with its device's secret) hands the
-  Today widget today's and tomorrow's cards in Plan's order
-  (`core.device_plan`).
+  Today widget today's and tomorrow's cards as Today lists them
+  (`core.device_plan`, TDY-006).
 - **`notification-action`** does Done and Snooze from a notification's
   buttons, proved by the delivery's token; the service worker keeps a press
   made with no signal and sends it later.
