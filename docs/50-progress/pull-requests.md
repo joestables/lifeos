@@ -2,6 +2,26 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#86](https://github.com/joestables/lifeos/pull/86) — Stage 7b: a bug hunt
+
+Branch `claude/relaxed-fermi-nehy7e` · 2026-11-11
+
+**What it did**
+- **Production, checked** (11 November): no database or Edge Function
+  errors from this stage; the nightly jobs and the minute run clean;
+  Joe's Reminders each with their day and Alerts, none on a Thought or a
+  Note, no Labels on Tasks or Events; notifications sent or set on the
+  phone, none failed.
+- **Settings crashed** on a device holding what a build before Stage 7b
+  had kept (10 November, Joe's phone, once): Settings' field had been
+  renamed, and the kept copy was read as the new shape. The kept cache now
+  has a shape version (`CACHE_SHAPE`), raised with any such change, and an
+  older copy is dropped (ADR-0042, OFF-005); a unit test checks it.
+- The plan records 0.1.13's release.
+- Found and left for Joe: a Google birthday Event changed in LifeOS can't
+  be sent back (Google refuses it), so its change is retried (Stage 3's
+  sending, not this stage's).
+
 ## [#85](https://github.com/joestables/lifeos/pull/85) — Stage 7b, step 10c: the Android app 0.1.13
 
 Branch `claude/relaxed-fermi-nehy7e` · 2026-11-11

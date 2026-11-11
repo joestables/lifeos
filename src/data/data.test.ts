@@ -6,7 +6,7 @@ import {
 import { describe, expect, it, vi } from 'vitest'
 import { foldSent, itemsKey } from './items'
 import { applyPending } from './overlay'
-import { persister, queryClient } from './queryClient'
+import { CACHE_SHAPE, persister, queryClient } from './queryClient'
 import { indexedDbQueueStore, WriteError, WriteQueue } from './queue'
 import { clearForSomeoneElse, session } from './session'
 import type { ItemRow } from './types'
@@ -45,6 +45,16 @@ describe('reading', () => {
     const after = new QueryClient()
     await persistQueryClientRestore({ queryClient: after, persister })
     expect(after.getQueryData(itemsKey)).toEqual([row('a', 'Dentist')])
+  })
+
+  it('OFF-005: what was kept in an older shape is dropped, not read as the new', async () => {
+    const before = new QueryClient()
+    before.setQueryData(['settings'], { defaultReminderTime: '09:00' })
+    await persistQueryClientSave({ queryClient: before, persister, buster: 'older' })
+
+    const after = new QueryClient()
+    await persistQueryClientRestore({ queryClient: after, persister, buster: CACHE_SHAPE })
+    expect(after.getQueryData(['settings'])).toBeUndefined()
   })
 
   it('OFF-001, OFF-004: lays unsent edits over loaded Items, marked; folds them in once sent', () => {
