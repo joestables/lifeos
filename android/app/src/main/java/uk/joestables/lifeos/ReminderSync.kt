@@ -13,8 +13,8 @@ import java.util.Calendar
 import java.util.TimeZone
 
 /**
- * The Reminders the phone sets itself (REM-010, ADR-0063): fetched for the
- * week ahead from device-reminders, kept on the phone, and each set as an
+ * The Alerts the phone sets itself (REM-010, ADR-0063): fetched for the
+ * week ahead from device-alerts, kept on the phone, and each set as an
  * exact alarm, so it arrives at its minute with the phone idle or offline.
  * One up to 12 hours late (the phone was off) is shown at once; none twice.
  */
@@ -25,7 +25,7 @@ object ReminderSync {
     /** Fetches the week's Reminders; throws when there's no signal, so the work is tried again. */
     fun fetch(context: Context) {
         val prefs = Prefs.of(context)
-        val url = prefs.getString(Prefs.REMINDERS_URL, null) ?: return
+        val url = Prefs.alertsUrl(prefs) ?: return
         val device = prefs.getString(Prefs.DEVICE, null) ?: return
         val secret = prefs.getString(Prefs.SECRET, null) ?: return
         val connection = URL(url).openConnection() as HttpURLConnection
@@ -48,7 +48,7 @@ object ReminderSync {
         }
         if (status !in 200..299) {
             connection.disconnect()
-            throw java.io.IOException("device-reminders: $status")
+            throw java.io.IOException("device-alerts: $status")
         }
         val body = connection.inputStream.bufferedReader().use { it.readText() }
         connection.disconnect()
@@ -72,7 +72,7 @@ object ReminderSync {
         for (i in 0 until firings.length()) {
             val firing = firings.getJSONObject(i)
             val at = epochMillis(firing.getString("at")) ?: continue
-            val key = firing.getString("reminder") + "|" + at
+            val key = idOf(firing) + "|" + at
             if (key in shown) continue
             if (at <= now) {
                 if (now - at <= LATE_MS) fire(context, firing.toString(), key)
@@ -87,9 +87,9 @@ object ReminderSync {
 
     /** Sets one firing an hour from now: Snooze pressed with no signal (REM-005 2). */
     fun snoozeHere(context: Context, firing: String) {
-        val reminder = runCatching { JSONObject(firing).getString("reminder") }.getOrNull() ?: return
+        val alert = runCatching { idOf(JSONObject(firing)) }.getOrNull()?.ifEmpty { null } ?: return
         val at = System.currentTimeMillis() + 60 * 60 * 1000L
-        val key = "$reminder|$at"
+        val key = "$alert|$at"
         set(context, context.getSystemService(AlarmManager::class.java), at, key.hashCode(), firing, key)
         // Kept with the others, so the server's own snoozed firing, fetched
         // when there's signal, replaces it rather than coming as well.
@@ -159,6 +159,12 @@ object ReminderSync {
         return false
     }
 
+    /**
+     * A firing's Alert: `alert` from device-alerts, `reminder` in what was
+     * kept from device-reminders before 0.1.13 (ADR-0065 4).
+     */
+    fun idOf(firing: JSONObject): String = firing.optString("alert").ifEmpty { firing.optString("reminder") }
+
     /** A firing as Notifications.show takes it, with what Done and Snooze need. */
     fun dataOf(json: JSONObject, payload: JSONObject): Map<String, String> {
         val data = mutableMapOf<String, String>()
@@ -166,7 +172,7 @@ object ReminderSync {
             data[name] = if (name == "actions") payload.optJSONArray(name)?.toString() ?: "[]" else payload.optString(name)
         }
         data["kind"] = "reminder"
-        data["reminder"] = json.getString("reminder")
+        data["alert"] = idOf(json)
         data["firing"] = json.toString()
         return data
     }

@@ -58,7 +58,7 @@ class AlarmService : Service() {
                         this,
                         delivery = -1,
                         token = "",
-                        reminder = json.optString("reminder"),
+                        alert = ReminderSync.idOf(json),
                         action = if (intent.action == DONE) "done" else "snooze",
                         tag = payload.optString("tag"),
                         firing = current,

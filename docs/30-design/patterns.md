@@ -981,9 +981,9 @@ what follows is what only it has.
   the app is ready", Install).
 - **The Today widget** is a TodayWidget ([components](components.md)): 4 ×
   3 cells to start, resizable. "+" opens Week with its "+" pressed for today
-  (its `/plan?add=1` goes to Week); the date opens `/plan`, which is Plan's
-  lists from Stage 7b until the next APK opens Today (TDY-006); a card
-  opens its Item.
+  (`/week?add=1`; an app before 0.1.13 opens `/plan?add=1`, which goes to
+  Week); the date opens Today (`/today`, TDY-006; `/plan` before 0.1.13);
+  a card opens its Item.
 
 ## Dark and light
 

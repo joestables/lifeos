@@ -104,14 +104,15 @@ private fun Content(
             return@Column
         }
         Row(modifier = GlanceModifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Box(modifier = GlanceModifier.defaultWeight().clickable(open(context, "/plan"))) {
+            // The date opens Today (TDY-006 2).
+            Box(modifier = GlanceModifier.defaultWeight().clickable(open(context, "/today"))) {
                 Words(context, R.layout.widget_date, SimpleDateFormat("EEE d MMM", Locale.UK).format(Date(now)))
             }
             Box(
                 modifier = GlanceModifier.size(32.dp).cornerRadius(10.dp)
                     .background(colour(R.color.lifeos_secondary))
-                    // Plan, its Add list open for today (WID-002 8).
-                    .clickable(open(context, "/plan?add=1")),
+                    // Week, its "+" pressed for today (WID-002 8).
+                    .clickable(open(context, "/week?add=1")),
                 contentAlignment = Alignment.Center,
             ) {
                 Image(

@@ -17,13 +17,14 @@ class ActionWorker(context: Context, params: WorkerParameters) : Worker(context,
         val prefs = Prefs.of(applicationContext)
         val url = prefs.getString(Prefs.ACTION_URL, null) ?: return Result.failure()
         val apikey = prefs.getString(Prefs.API_KEY, null) ?: return Result.failure()
-        val reminder = inputData.getString("reminder").orEmpty()
-        val body = if (reminder.isNotEmpty()) {
-            // A Reminder the phone set: proved by the device's secret (ADR-0063).
+        // A press queued before 0.1.13 names its Alert `reminder`.
+        val alert = (inputData.getString("alert") ?: inputData.getString("reminder")).orEmpty()
+        val body = if (alert.isNotEmpty()) {
+            // An Alert the phone set: proved by the device's secret (ADR-0063).
             JSONObject()
                 .put("device", prefs.getString(Prefs.DEVICE, null) ?: return Result.failure())
                 .put("secret", prefs.getString(Prefs.SECRET, null) ?: return Result.failure())
-                .put("reminder", reminder)
+                .put("alert", alert)
                 .put("action", inputData.getString("action"))
                 .toString()
         } else {

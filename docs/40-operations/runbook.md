@@ -69,11 +69,13 @@ Alerts, the morning digest and overdue nudges
   recorded *on device* and not sent: it sets them itself; and devices
   whose Alerts, or today's or tomorrow's Plan, changed are sent a "look
   again" FCM message (`core.claim_looks`). Its heartbeat is `send-notifications`.
-- **`device-reminders`** (the Android app, with its device's secret) hands
+- **`device-alerts`** (the Android app, with its device's secret) hands
   it its Alerts from 12 hours ago to a week ahead, each with what its
   notification says (`core.device_alerts`); `notification-action` also
-  takes Done and Snooze for one of those, proved the same way
-  (`core.act_on_alert`).
+  takes Done and Snooze for one of those (`alert`), proved the same way
+  (`core.act_on_alert`). **`device-reminders`** is the same under its
+  name before Alerts (ids as `reminder`), for the app before 0.1.13, until
+  no phone uses it (ADR-0065 4).
 - **`device-plan`** (the Android app, with its device's secret) hands the
   Today widget today's and tomorrow's cards as Today lists them
   (`core.device_plan`, TDY-006).
