@@ -16,8 +16,6 @@ async function becomeDevice(token: string): Promise<void> {
     device: id,
     secret,
     alertsUrl: `${FUNCTIONS}/device-alerts`,
-    // For the app before 0.1.13 (ADR-0065 4).
-    remindersUrl: `${FUNCTIONS}/device-reminders`,
   })
   remember(token)
 }

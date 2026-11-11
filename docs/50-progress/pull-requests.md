@@ -2,6 +2,20 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#87](https://github.com/joestables/lifeos/pull/87) — Stage 7b: the Android app's old names gone
+
+Branch `claude/relaxed-fermi-nehy7e` · 2026-11-11
+
+**What it did**
+- **The old wire names leave the server** (ADR-0065 4), Joe's phone being
+  on 0.1.13 (the logs: `device-alerts` called from 20:48, `device-reminders`
+  last at 20:38): `device-reminders` answers 410 Gone, its code removed
+  from the repository; `notification-action` takes the Alert as `alert`
+  only; the site hands the app `alertsUrl` only. The app's own fallbacks
+  for what it kept from 0.1.12 stay until its next release, harmless.
+- `device-reminders` can be deleted in Supabase's dashboard; no tool Claude
+  has deletes an Edge Function.
+
 ## [#86](https://github.com/joestables/lifeos/pull/86) — Stage 7b: a bug hunt
 
 Branch `claude/relaxed-fermi-nehy7e` · 2026-11-11
