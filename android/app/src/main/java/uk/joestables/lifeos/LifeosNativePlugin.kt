@@ -143,15 +143,18 @@ class LifeosNativePlugin : Plugin() {
     fun setDevice(call: PluginCall) {
         val device = call.getString("device")
         val secret = call.getString("secret")
-        val url = call.getString("remindersUrl")
+        // The site before 0.1.13 sends only remindersUrl (ADR-0065 4).
+        val url = call.getString("alertsUrl")
+            ?: call.getString("remindersUrl")?.replace("device-reminders", "device-alerts")
         if (device == null || secret == null || url == null) {
-            call.reject("device, secret and remindersUrl are needed")
+            call.reject("device, secret and alertsUrl are needed")
             return
         }
         Prefs.of(context).edit()
             .putString(Prefs.DEVICE, device)
             .putString(Prefs.SECRET, secret)
-            .putString(Prefs.REMINDERS_URL, url)
+            .putString(Prefs.ALERTS_URL, url)
+            .remove(Prefs.REMINDERS_URL)
             .apply()
         SyncWorker.now(context)
         SyncWorker.daily(context)

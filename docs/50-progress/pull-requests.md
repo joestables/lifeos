@@ -2,6 +2,23 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#85](https://github.com/joestables/lifeos/pull/85) — Stage 7b, step 10c: the Android app 0.1.13
+
+Branch `claude/relaxed-fermi-nehy7e` · 2026-11-11
+
+**What it did**
+- **The widget's date opens Today** (TDY-006 2), and its "+" opens Week
+  with its "+" pressed for today (`/week?add=1`).
+- **The Android app speaks of Alerts** (ADR-0065 4): it fetches from
+  `device-alerts` (new) and sends Done and Snooze by `alert`; it still reads
+  `reminder` in what it kept and device-reminders' address from before, so
+  nothing is lost on updating. `notification-action` takes either; the
+  site hands both addresses, for 0.1.12 too. `device-reminders` stays
+  until no phone uses it.
+- `public/android.json` raised to 0.1.13, and the release run once merged.
+- The first pull request since the repository went public (11 November),
+  so CI ran again.
+
 ## [#84](https://github.com/joestables/lifeos/pull/84) — Stage 7b, step 10b: the old names gone
 
 Branch `claude/relaxed-fermi-nehy7e` · 2026-11-11

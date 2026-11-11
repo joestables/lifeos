@@ -17,14 +17,17 @@ export async function act(
     action: unknown
     device?: unknown
     secret?: unknown
+    alert?: unknown
+    /** The Alert's id as the Android app before 0.1.13 sends it (ADR-0065 4). */
     reminder?: unknown
   },
   now: Date = new Date(),
 ): Promise<boolean> {
   const { delivery, token, action } = press
-  // An Alert the Android app set itself (`reminder`, as the installed app sends it), proved by the device's secret
+  // An Alert the Android app set itself, proved by the device's secret
   // (REM-010, ADR-0063).
-  if (typeof press.reminder === 'string') return actOnAlert(rpc, press, now)
+  const alert = press.alert ?? press.reminder
+  if (typeof alert === 'string') return actOnAlert(rpc, { ...press, alert }, now)
   if (typeof delivery !== 'number' || typeof token !== 'string') return false
   if (action !== 'done' && action !== 'snooze') return false
   const [found] = (await rpc('delivery_for_action', { p_delivery: delivery, p_token: token })) as {
@@ -62,24 +65,23 @@ async function actOnAlert(
   {
     device,
     secret,
-    reminder,
+    alert,
     action,
-  }: { device?: unknown; secret?: unknown; reminder?: unknown; action: unknown },
+  }: { device?: unknown; secret?: unknown; alert: string; action: unknown },
   now: Date,
 ): Promise<boolean> {
-  if (typeof device !== 'string' || typeof secret !== 'string' || typeof reminder !== 'string')
-    return false
+  if (typeof device !== 'string' || typeof secret !== 'string') return false
   if (action !== 'done' && action !== 'snooze') return false
   const [found] = (await rpc('alert_for_action', {
     p_device: device,
     p_secret: secret,
-    p_alert: reminder,
+    p_alert: alert,
   })) as { mode: string | null; rule: string | null; timezone: string | null }[]
   if (!found) return false
   return (await rpc('act_on_alert', {
     p_device: device,
     p_secret: secret,
-    p_alert: reminder,
+    p_alert: alert,
     p_action: action,
     p_next: null,
     p_next_on: nextOn(action, found, now),

@@ -23,7 +23,8 @@ class NotificationActionReceiver : BroadcastReceiver() {
             context,
             delivery = intent.getLongExtra("delivery", -1),
             token = intent.getStringExtra("token").orEmpty(),
-            reminder = intent.getStringExtra("reminder").orEmpty(),
+            // A notification shown before 0.1.13 names its Alert `reminder`.
+            alert = (intent.getStringExtra("alert") ?: intent.getStringExtra("reminder")).orEmpty(),
             action = action,
             tag = intent.getStringExtra("tag").orEmpty(),
             firing = intent.getStringExtra("firing"),
@@ -36,24 +37,24 @@ class NotificationActionReceiver : BroadcastReceiver() {
             context: Context,
             delivery: Long,
             token: String,
-            reminder: String,
+            alert: String,
             action: String,
             tag: String,
             firing: String?,
         ) {
-            if (delivery < 0 && reminder.isEmpty()) return
+            if (delivery < 0 && alert.isEmpty()) return
             NotificationManagerCompat.from(context).cancel(Notifications.idOf(tag))
-            // A Reminder the phone set comes back in an hour even with no signal
+            // An Alert the phone set comes back in an hour even with no signal
             // (REM-005 2); with signal, the server's look again replaces it.
             if (action == "snooze") firing?.let { ReminderSync.snoozeHere(context, it) }
             val work = OneTimeWorkRequestBuilder<ActionWorker>()
                 .setInputData(
-                    workDataOf("delivery" to delivery, "token" to token, "reminder" to reminder, "action" to action),
+                    workDataOf("delivery" to delivery, "token" to token, "alert" to alert, "action" to action),
                 )
                 .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
                 .build()
             WorkManager.getInstance(context)
-                .enqueueUniqueWork("action-$delivery-$reminder-$action", ExistingWorkPolicy.KEEP, work)
+                .enqueueUniqueWork("action-$delivery-$alert-$action", ExistingWorkPolicy.KEEP, work)
         }
     }
 }

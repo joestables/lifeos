@@ -70,11 +70,11 @@ object Notifications {
         colourOf(data["colour"])?.let { builder.setColor(ContextCompat.getColor(context, it)) }
 
         // Done and Snooze: by the delivery and its token for one the server
-        // sent, by the Reminder for one the phone set (with the device's secret).
+        // sent, by the Alert for one the phone set (with the device's secret).
         val delivery = data["delivery"]?.toLongOrNull()
         val token = data["token"].orEmpty()
-        val reminder = data["reminder"].orEmpty()
-        if ((delivery != null && token.isNotEmpty()) || reminder.isNotEmpty()) {
+        val alert = data["alert"].orEmpty()
+        if ((delivery != null && token.isNotEmpty()) || alert.isNotEmpty()) {
             val actions = runCatching { JSONArray(data["actions"] ?: "[]") }.getOrDefault(JSONArray())
             for (i in 0 until actions.length()) {
                 val action = actions.getJSONObject(i)
@@ -82,7 +82,7 @@ object Notifications {
                 val press = Intent(context, NotificationActionReceiver::class.java)
                     .putExtra("delivery", delivery ?: -1L)
                     .putExtra("token", token)
-                    .putExtra("reminder", reminder)
+                    .putExtra("alert", alert)
                     .putExtra("firing", data["firing"])
                     .putExtra("action", name)
                     .putExtra("tag", tag)

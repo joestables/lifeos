@@ -79,7 +79,7 @@ object PlanStore {
     /** Fetches the two days from device-plan; throws when there's no signal, so the work is tried again. */
     fun fetch(context: Context) {
         val prefs = Prefs.of(context)
-        val url = prefs.getString(Prefs.REMINDERS_URL, null)?.replace("device-reminders", "device-plan") ?: return
+        val url = Prefs.alertsUrl(prefs)?.replace("device-alerts", "device-plan") ?: return
         val device = prefs.getString(Prefs.DEVICE, null) ?: return
         val secret = prefs.getString(Prefs.SECRET, null) ?: return
         val connection = URL(url).openConnection() as HttpURLConnection

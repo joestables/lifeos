@@ -5,7 +5,7 @@ first, then the requirements (drafted 5 November, from Joe's answers that
 day, and his answers to its open points), then the deferred Thought
 widget. How it is built: ADR-0061–0064 (Provisionally agreed).*
 
-> **Changing in Stage 7b** (spec agreed 9 November): the Today widget shows what the Today page shows (TDY-006 1, built in step 10a, WID-002 1 below); its date opens Today with the Android app's next release (TDY-006 2, step 10c). [Today, Reminders and Plan](today-reminders-plan.md).
+> **Changed in Stage 7b** (spec agreed 9 November): the Today widget shows what the Today page shows (TDY-006 1, step 10a, WID-002 1 below), and from 0.1.13 its date opens Today (TDY-006 2, step 10c). [Today, Reminders and Plan](today-reminders-plan.md).
 
 ## Decisions
 
@@ -146,8 +146,7 @@ Acceptance criteria
 2. Given more cards than fit, then the list scrolls inside the widget.
 3. Given nothing today, then it says "Nothing planned".
 4. Given I tap a card, then the app opens on that Item (ITM-001); given I
-   tap the date, then Plan opens (Today, with the next release: TDY-006
-   2).
+   tap the date, then Today opens (TDY-006 2; Plan before 0.1.13).
 5. Given I change something on the phone, then the widget shows it within
    seconds; given it changes elsewhere (on my computer, by my girlfriend,
    from Google Calendar), then within a minute or two while the phone has

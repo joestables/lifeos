@@ -1,4 +1,6 @@
-// device-reminders: the Android app's Alerts from 12 hours ago to a week
+// device-reminders: as device-alerts, under the name the Android app before
+// 0.1.13 calls, its Alerts' ids as `reminder` (ADR-0065 4); goes once no
+// phone uses it. The Android app's Alerts from 12 hours ago to a week
 // ahead, each with what its notification says, for the phone to set itself
 // (REM-010, ADR-0063). The phone proves itself with its device's secret,
 // checked by the database (core.device_alerts). Deployed by Claude
