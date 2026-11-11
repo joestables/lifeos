@@ -19,7 +19,7 @@ Branch `claude/relaxed-fermi-nehy7e` · 2026-11-11
 - **`core.plan_items`** places a Reminder from its first Alert's day to its
   last (ADR-0065 2).
 - Migration `stage7b_reminder_notifications_and_widget` (applied as
-  `MIGRATION_VERSION`; ADVISORS). Step 10 split: the release, the widget's
+  `20261111121610`; the advisors found nothing new). Step 10 split: the release, the widget's
   date opening Today and dropping the old names wait for step 10b, once
   Actions credit is added.
 
