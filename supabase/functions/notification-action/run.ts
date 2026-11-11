@@ -18,15 +18,13 @@ export async function act(
     device?: unknown
     secret?: unknown
     alert?: unknown
-    /** The Alert's id as the Android app before 0.1.13 sends it (ADR-0065 4). */
-    reminder?: unknown
   },
   now: Date = new Date(),
 ): Promise<boolean> {
   const { delivery, token, action } = press
   // An Alert the Android app set itself, proved by the device's secret
   // (REM-010, ADR-0063).
-  const alert = press.alert ?? press.reminder
+  const { alert } = press
   if (typeof alert === 'string') return actOnAlert(rpc, { ...press, alert }, now)
   if (typeof delivery !== 'number' || typeof token !== 'string') return false
   if (action !== 'done' && action !== 'snooze') return false

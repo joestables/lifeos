@@ -1,7 +1,6 @@
 // device-alerts: the Android app's Alerts from 12 hours ago to a week
 // ahead, each with what its notification says, for the phone to set itself
-// (REM-010, ADR-0063); `device-reminders` under its name before Alerts, for
-// the app before 0.1.13, until it is gone (ADR-0065 4). The phone proves itself with its device's secret,
+// (REM-010, ADR-0063). The phone proves itself with its device's secret,
 // checked by the database (core.device_alerts). Deployed by Claude
 // through the Supabase MCP without JWT checks (runbook.md#notifications).
 import { firings, type Rpc } from './run.ts'

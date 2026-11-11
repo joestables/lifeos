@@ -73,9 +73,9 @@ Alerts, the morning digest and overdue nudges
   it its Alerts from 12 hours ago to a week ahead, each with what its
   notification says (`core.device_alerts`); `notification-action` also
   takes Done and Snooze for one of those (`alert`), proved the same way
-  (`core.act_on_alert`). **`device-reminders`** is the same under its
-  name before Alerts (ids as `reminder`), for the app before 0.1.13, until
-  no phone uses it (ADR-0065 4).
+  (`core.act_on_alert`). **`device-reminders`**, its name before 0.1.13,
+  answers 410 Gone (ADR-0065 4); it can be deleted in Supabase's dashboard
+  (Edge Functions), which no tool Claude has can do.
 - **`device-plan`** (the Android app, with its device's secret) hands the
   Today widget today's and tomorrow's cards as Today lists them
   (`core.device_plan`, TDY-006).

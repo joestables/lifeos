@@ -55,17 +55,6 @@ describe('REM-005: Done and Snooze from a notification', () => {
 describe('REM-010: Done and Snooze on an Alert the Android app set', () => {
   const press = { device: 'd1', secret: 's', alert: 'r1' }
 
-  it('takes the Alert by the name the app before 0.1.13 sends, too (ADR-0065 4)', async () => {
-    const db = database(PLAIN)
-    expect(
-      await act(db.rpc, { device: 'd1', secret: 's', reminder: 'r1', action: 'snooze' }, NOW),
-    ).toBe(true)
-    expect(db.calls[0]).toEqual([
-      'alert_for_action',
-      { p_device: 'd1', p_secret: 's', p_alert: 'r1' },
-    ])
-  })
-
   it("proved by the device's secret, acts on the Alert", async () => {
     const db = database(PLAIN)
     expect(await act(db.rpc, { ...press, action: 'snooze' }, NOW)).toBe(true)

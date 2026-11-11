@@ -17,15 +17,9 @@ interface LifeosNative {
   enableNotifications(options: { actionUrl: string; apikey: string }): Promise<{ token: string }>
   /**
    * Keeps which device this phone is and its secret, and sets its Alerts
-   * from `alertsUrl` from now on (REM-010, ADR-0063); the app before 0.1.13
-   * reads `remindersUrl` (ADR-0065 4).
+   * from `alertsUrl` from now on (REM-010, ADR-0063).
    */
-  setDevice(options: {
-    device: string
-    secret: string
-    alertsUrl: string
-    remindersUrl: string
-  }): Promise<void>
+  setDevice(options: { device: string; secret: string; alertsUrl: string }): Promise<void>
   /** Whether this phone knows which device it is, to set its own Reminders. */
   deviceState(): Promise<{ hasDevice: boolean }>
   /** Fetches and sets the phone's Reminders again (the app opening). */

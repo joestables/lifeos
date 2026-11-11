@@ -142,8 +142,9 @@ Alerts are rows in `core.reminders`, each person's own.
   dropped them (the last on 10 November). The Android app's wire names
   (point 4) follow in 0.1.13 (step 10c): `device-alerts` and `alert` in
   its firings and its Done and Snooze, read by the app with the old ones
-  as a fallback, and the date opening `/today`; `device-reminders` and
-  `reminder` stay on the server until no phone uses them. The
+  as a fallback, and the date opening `/today`. Once Joe's phone was on it
+  (11 November), the server dropped the old ones: `device-reminders`
+  answers 410 Gone, and `notification-action` takes `alert` only. The
   notifications' `kind` and `key` keep `reminder`, stored on each
   delivery, and so do the plugin's method names and the notification
   channel's id, which Android keeps the person's settings under.
