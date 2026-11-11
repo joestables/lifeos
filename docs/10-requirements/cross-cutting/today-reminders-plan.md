@@ -196,13 +196,13 @@ ALR-001 is built and has moved to [Alerts](reminders.md#alr-001--reminders-becom
 ### Today
 
 TDY-001–005 are built and have moved to [Today](../views/today.md#requirements)
-(Stage 7b, step 6). TDY-006 1 is built (step 10a); 2 comes with the Android app's next release (step 10b).
+(Stage 7b, step 6). TDY-006 1 is built (step 10a); 2 comes with the Android app's next release (step 10c).
 
 ### TDY-006 — The Today widget is Today
 
 **As** Joe, **I want** the widget to show what Today shows, **so that**
 the phone's home screen and the app agree.
-Priority: Must · Status: 1 built (step 10a: the cards are worked out by the web app and `core.device_plan`, so the installed Android app shows them; `src/lib/today-widget.test.ts`, `today_widget_test`); 2 with the Android app's next release (step 10b)
+Priority: Must · Status: 1 built (step 10a: the cards are worked out by the web app and `core.device_plan`, so the installed Android app shows them; `src/lib/today-widget.test.ts`, `today_widget_test`); 2 with the Android app's next release (step 10c)
 
 Acceptance criteria
 1. Given the widget, then it shows Today's Items in Today's order —

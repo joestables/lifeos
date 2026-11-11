@@ -49,8 +49,8 @@ Alerts are rows in `core.reminders`, each person's own.
    where the database hangs the Item's Alerts on the day of its first.
    `src/lib/plan.ts` places it from its Alerts, worked out on the device so
    it shows at once, offline too; Today, Week, Plan's Reminders tab and the
-   widget use that. `core.plan_items` and `device-plan` place it by
-   `do_on` until step 10 has them read its Alerts. ADR-0029 is amended:
+   widget use that, and since step 10a so do `core.plan_items` and
+   `device-plan` (`core_private.alert_at`). ADR-0029 is amended:
    Plan reads `core.items`, and for Reminders their Alerts. *Rejected:*
    `do_on` and `do_at` as its next Alert, kept by a trigger on its Alerts
    (the first design: moving or repeating it would have to move each
@@ -136,7 +136,11 @@ Alerts are rows in `core.reminders`, each person's own.
   removed); step 9 drops sub-tasks and the Labels on Tasks and Events.
 - The Edge Functions that read Alerts (`send-notifications`,
   `notification-action`, `device-reminders`, `device-plan`) are redeployed
-  with the migration; the Android app keeps working through the old names
-  until its next release, which reads the new ones and opens `/today`.
+  with the migration. The database kept the old names for writes queued
+  before the rename and apps left open (wrappers, `core.reminders` as a
+  view, Settings' old columns) until no request used them; step 10b
+  dropped them (the last on 10 November). The Android app's wire names
+  (point 4) stay until its next release reads the new ones and opens
+  `/today` (step 10c).
 - ADR-0014, 0020, 0023, 0026, 0027, 0029 and 0037 each say what this one
   changes.

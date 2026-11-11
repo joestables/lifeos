@@ -5,7 +5,7 @@ first, then the requirements (drafted 5 November, from Joe's answers that
 day, and his answers to its open points), then the deferred Thought
 widget. How it is built: ADR-0061–0064 (Provisionally agreed).*
 
-> **Changing in Stage 7b** (spec agreed 9 November): the Today widget shows what the Today page shows (TDY-006 1, built in step 10a, WID-002 1 below); its date opens Today with the Android app's next release (TDY-006 2, step 10b). [Today, Reminders and Plan](today-reminders-plan.md).
+> **Changing in Stage 7b** (spec agreed 9 November): the Today widget shows what the Today page shows (TDY-006 1, built in step 10a, WID-002 1 below); its date opens Today with the Android app's next release (TDY-006 2, step 10c). [Today, Reminders and Plan](today-reminders-plan.md).
 
 ## Decisions
 
