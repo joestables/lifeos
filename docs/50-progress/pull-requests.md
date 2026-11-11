@@ -15,8 +15,8 @@ Branch `claude/relaxed-fermi-nehy7e` · 2026-11-11
 - The installed Android app never called them (it speaks to the Edge
   Functions, which use the new names), so no release was needed; its own
   wire names wait for the release, now step 10c.
-- Migration `stage7b_old_names_gone` (applied as `MIGRATION_VERSION`;
-  ADVISORS); `alerts_rename_test` checks they are gone; the database types
+- Migration `stage7b_old_names_gone` (applied as `20261111184957`;
+  the advisors found nothing new); `alerts_rename_test` checks they are gone; the database types
   regenerated.
 - Merged without CI, as Joe had #81–#83 merged, the month's minutes
   having run out; its checks ran in the session instead.
