@@ -140,6 +140,14 @@ export function writes(queue: WriteQueue, labelsNow: () => readonly Label[] = ()
     stopRepeat(itemId: string): void {
       queue.enqueue('stop_repeat', { p_item: itemId }, [itemId])
     },
+    /**
+     * Deletes a repeating Item and every later occurrence, changed or not,
+     * ending its series the day before (ITM-002 3); one that doesn't repeat
+     * is simply deleted.
+     */
+    deleteFollowing(itemId: string): void {
+      queue.enqueue('delete_following', { p_item: itemId }, [itemId])
+    },
     /** Ticks a Task repeated after completion, making its next (TSK-009). */
     completeOccurrence(itemId: string, nextOn: string): string {
       const id = newId()

@@ -192,14 +192,21 @@ test('TDY-003 2: a Meal never fades on Today; eaten, it is struck through', asyn
   )
 })
 
-test('TDY-004 4: on a phone, "+" adds a Task, an Event or a Reminder for today', async ({
+test('TDY-004 4: on a phone, "+" adds what Week\'s "+" does, for today', async ({
   page,
   isMobile,
 }) => {
   test.skip(!isMobile, "The Fab is a phone's")
   await start(page)
   await page.getByRole('button', { name: 'Add to Today' }).click()
-  await expect(page.getByRole('menuitem')).toHaveText(['Task', 'Event', 'Reminder'])
+  await expect(page.getByRole('menuitem')).toHaveText([
+    'Task',
+    'Event',
+    'Reminder',
+    'Meal',
+    'Shopping list',
+    'Workout',
+  ])
   await page.getByRole('menuitem', { name: 'Reminder' }).click()
   await expect(page.getByRole('dialog', { name: 'New reminder' })).toBeVisible()
 })

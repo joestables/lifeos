@@ -1497,6 +1497,22 @@ export async function standIn(
       const i = item(a.p_item)
       if (i?.series_id) endSeries(i.series_id, String(i.occurrence_on))
     },
+    // ITM-002 3: this and every later occurrence, changed or not.
+    delete_following: (a) => {
+      const i = item(a.p_item)
+      if (!i) return
+      if (!i.series_id || !i.occurrence_on) {
+        Object.assign(i, { archived_at: now() })
+        return
+      }
+      const on = String(i.occurrence_on)
+      const d = new Date(`${on}T00:00:00Z`)
+      d.setUTCDate(d.getUTCDate() - 1)
+      endSeries(String(i.series_id), d.toISOString().slice(0, 10))
+      for (const x of db.items)
+        if (x.series_id === i.series_id && String(x.occurrence_on) >= on && !x.archived_at)
+          Object.assign(x, { archived_at: now() })
+    },
     complete_occurrence: (a) => {
       const i = item(a.p_id)
       if (!i) return

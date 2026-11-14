@@ -1,8 +1,10 @@
 import { useLocation, useNavigate, useRouter } from '@tanstack/react-router'
-import { toast } from '@/components/ui/sonner'
-import { archiveItem, newId, restoreItem, type Item } from '@/data'
+import { newId, type Item } from '@/data'
 import { useIsMobile } from '@/hooks/use-mobile'
-import { itemTitle, opensAsPage, RECIPE_TYPES } from '@/lib/item-types'
+import { opensAsPage, RECIPE_TYPES } from '@/lib/item-types'
+
+// Delete: for a repeating Item, which (see delete-repeating).
+export { deleteItem } from './delete-repeating'
 
 declare module '@tanstack/react-router' {
   interface HistoryState {
@@ -77,14 +79,6 @@ export function useCloseItem() {
         replace: true,
       })
   }
-}
-
-/** Deletes at once, with Undo (ITM-002); it stays in Recently deleted (ITM-003). */
-export function deleteItem(item: Item) {
-  archiveItem(item.id)
-  toast(`Deleted "${itemTitle(item)}"`, {
-    action: { label: 'Undo', onClick: () => restoreItem(item.id) },
-  })
 }
 
 /** A Note opened before it is kept: "New note" (patterns.md#notes). */

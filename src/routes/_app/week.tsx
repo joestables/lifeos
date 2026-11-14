@@ -1,6 +1,5 @@
-import { AddMealDialog } from '@/app/add-meal'
-import { NewListDialog } from '@/app/new-list'
-import { NewWorkoutDialog } from '@/app/new-workout'
+import { ADD_CHOICES } from '@/app/add-choices'
+import { AddToDayDialog } from '@/app/add-to-day'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { addDays, todayIn } from '@lifeos/recurrence'
 import { AlarmClockIcon } from 'lucide-react'
@@ -16,24 +15,19 @@ import {
   PlanToolbar,
   PlanWeek,
   WeekStrip,
-  type AddChoice,
   type PlanWeekDay,
   type TypeColour,
 } from '@/components/lifeos'
 import { toast } from '@/components/ui/sonner'
-import { NewEventDialog } from '@/app/event-details'
 import { useGoogleLocked, useSyncOnOpen } from '@/app/google-source'
 import { useOpenItem } from '@/app/item-navigation'
 import { useAlertTimes } from '@/app/alert-times'
-import { NewReminderDialog } from '@/app/new-reminder'
-import { NewTaskDialog } from '@/app/new-task'
 import {
   archiveItem,
   queue,
   restoreItem,
   updateItem,
   updateSettings,
-  useGym,
   useHouseholds,
   useItems,
   useMeals,
@@ -75,12 +69,6 @@ export const Route = createFileRoute('/_app/week')({
 
 /** The Schedulable Types the app has yet: Week's filter and what "+" adds (PLN-004, PLN-006). */
 const PLANNED = plannedTypes()
-const ADD: AddChoice[] = PLANNED.map((t) => ({
-  key: t.key,
-  label: t.label,
-  colour: t.colour as AddChoice['colour'],
-  icon: t.icon,
-}))
 
 /** Week or Day on a computer, kept on this device only (PLN-002 2, ADR-0049). */
 function useLayout(): [Layout, (layout: Layout) => void] {
@@ -110,8 +98,10 @@ const alertTimesOf = (alerts: readonly AlertTime[]) =>
     <Fragment key={a.at}>
       {i > 0 && ', '}
       {a.alarm ? (
-        <span className="inline-flex items-center gap-0.5">
-          <AlarmClockIcon aria-label="Alarm" className="size-3" />
+        // Inline, not inline-flex: a flex box takes the icon's foot as its
+        // baseline, lifting this time above the others on the line.
+        <span className="whitespace-nowrap">
+          <AlarmClockIcon aria-label="Alarm" className="mr-0.5 inline size-3 align-middle" />
           {a.time}
         </span>
       ) : (
@@ -261,7 +251,7 @@ function Week() {
   ) => (
     <AddToDay
       day={dayLabel(d, today)}
-      choices={ADD}
+      choices={ADD_CHOICES}
       onChoose={(type) => setAdding({ type, day: d })}
       trigger={trigger}
       side={side}
@@ -359,39 +349,16 @@ function Week() {
       </div>
       {isMobile &&
         addTo(day, <Fab label="Add" />, 'top', { open: addOpen, onOpenChange: setAddOpen })}
-      {adding?.type === 'task' && (
-        <NewTaskDialog doOn={adding.day} onClose={() => setAdding(null)} />
-      )}
-      {adding?.type === 'reminder' && (
-        <NewReminderDialog day={adding.day} onClose={() => setAdding(null)} />
-      )}
-      {adding?.type === 'event' && (
-        <NewEventDialog day={adding.day} onClose={() => setAdding(null)} />
-      )}
-      {adding?.type === 'meal' && (
-        <AddMealDialog day={adding.day} onClose={() => setAdding(null)} />
-      )}
-      {adding?.type === 'shopping_list' && (
-        <NewListDialog kind="food" day={adding.day} onClose={() => setAdding(null)} />
-      )}
-      {adding?.type === 'workout' && (
-        <PlanWorkout day={adding.day} today={today} onClose={() => setAdding(null)} />
+      {adding && (
+        <AddToDayDialog
+          type={adding.type}
+          day={adding.day}
+          today={today}
+          onClose={() => setAdding(null)}
+        />
       )}
     </>
   )
 }
 
 /** A workout planned from Week (PLN-006, GYM-007 1): New workout on the chosen day, then its page. */
-function PlanWorkout({ day, today, onClose }: { day: string; today: string; onClose: () => void }) {
-  const navigate = useNavigate()
-  const gym = useGym(queue)
-  return (
-    <NewWorkoutDialog
-      gym={gym}
-      today={today}
-      day={day}
-      onClose={onClose}
-      onMade={(id) => void navigate({ to: '/gym/workouts/$id', params: { id } })}
-    />
-  )
-}

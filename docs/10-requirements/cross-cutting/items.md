@@ -74,6 +74,13 @@ Acceptance criteria
 1. Given an Item, when I delete it, then it leaves every page at once, and I
    can undo that straight away; undoing puts it back as it was.
 2. Given a deleted Item, then its Alerts don't fire.
+3. Given a repeating Task, Event or Reminder, when I delete it, then I'm
+   asked which: **this one** (deleted alone, with Undo), or **this and all
+   following** — it and every later occurrence go, ones I'd changed too,
+   and the series ends the day before; earlier ones stay as the record. A
+   Google-linked Event's series goes to Google as one change (Joe, 14
+   November; [ADR-0022](../../20-architecture/adr/0022-repeating-items.md),
+   amended).
 
 ### ITM-003 — Recover a deleted Item
 

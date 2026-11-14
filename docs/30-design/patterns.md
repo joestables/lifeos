@@ -418,8 +418,9 @@ Joe), `/design-stage-7b`.
 - Under it, the broken-Integration and notifications Alerts, then the
   groups as SectionLabels: Overdue (red, with its count), then Anytime,
   Morning, Afternoon and Evening, with no counts; each a column of
-  ItemRows, `max-w-3xl`. No Label pills. On a phone a Fab opens Plan's
-  "New" menu, "Add to Today": Task, Event, Reminder (Joe, 14 November).
+  ItemRows, `max-w-3xl`. No Label pills. On a phone a Fab opens Week's
+  "+" for today, "Add to Today", with every Schedulable Type (Joe, 14
+  November).
 - Tasks are TaskRows, Reminders and everything else rows with their
   TypeTile ([Lists of Items](#lists-of-items)); done ones struck through,
   past ones faded (ItemRow `past`).

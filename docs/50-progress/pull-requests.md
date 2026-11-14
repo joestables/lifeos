@@ -2,6 +2,28 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#90](https://github.com/joestables/lifeos/pull/90) — Stage 7b: deleting a repeating Item, Today's "+" as Week's, an Alarm's time aligned
+
+Branch `claude/great-albattani-b7azsb` · 2026-11-14
+
+**What it did**
+- **Delete asks which, for a repeating Task, Event or Reminder** (ITM-002
+  3): this one (with Undo), or this and all following, ones I'd changed
+  too, the series ended the day before (`core.delete_following`, migration
+  `delete_following`; ADR-0022 amended). A Google-linked series goes to
+  Google as one change: while a series is deleted, a changed occurrence is
+  queued with its series rather than as a delete of its own instance,
+  which Google refuses once the instance falls after the rule's end.
+- **Joe's Sunday Event, fixed by hand** (14 November): "New event" weekly
+  on Sunday had every occurrence marked changed by a Google sync, so Repeat
+  None (ended 6 December) kept them all, and four deletes after that end
+  were refused by Google and retried. Its occurrences after 6 December
+  were archived and those four retries closed.
+- **Today's "+" is Week's** (TDY-004 4): every Schedulable Type, from one
+  shared list and one set of dialogs (`add-choices`, `add-to-day`).
+- **An Alarm's time on a Week card sits on the line**, no longer lifted by
+  its icon.
+
 ## [#89](https://github.com/joestables/lifeos/pull/89) — Performance: faster to answer, less to load
 
 Branch `claude/lucid-tesla-0fhoxt` · 2026-11-14
