@@ -1,5 +1,5 @@
 import type { Item } from '@/data'
-import { isoDayOf, zonedInstant } from './dates'
+import { isoDayOf } from './dates'
 import { dayOrder, isPast, planDays, type AlertTime, type Placed } from './plan'
 import { currentOccurrences } from './series'
 import { byTime } from './tasks'
@@ -82,16 +82,10 @@ export function todayList(
     const part = p.item.slot
       ? (SLOT_PART[p.item.slot] ?? 'anytime')
       : partOf(p.first < today ? '' : p.time)
-    // A Meal fades once its part of the day has gone (TDY-003 2).
-    const until = DAY_PARTS.find((d) => d.key === part)!.until
-    const mealGone =
-      p.item.type === 'meal' &&
-      until !== '' &&
-      until !== '24:00' &&
-      Date.parse(zonedInstant(today, until, timezone)) <= now.getTime()
+    // A Meal never fades on Today: eaten, it is struck through (Joe, 14 November).
     parts
       .find((g) => g.key === part)!
-      .items.push({ placed: p, part, past: mealGone || isPast(p.item, now, p) })
+      .items.push({ placed: p, part, past: p.item.type !== 'meal' && isPast(p.item, now, p) })
   }
   return {
     overdue,

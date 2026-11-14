@@ -157,6 +157,7 @@ export function WeekTab({
           variation={several ? variation?.item.title : undefined}
           kind={m.leftoversOf ? 'leftovers' : m.variation ? 'recipe' : 'typed'}
           eaten={m.status === 'done'}
+          past={m.day !== null && m.day < today}
           dragging={drag.dragging === m.id}
           selecting={selecting && choosable(m)}
           unavailable={selecting ? unavailable(m) : undefined}

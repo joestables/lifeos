@@ -5,8 +5,9 @@ import { cn } from '@/lib/utils'
 import { Button } from './button'
 
 /**
- * Attached to its edge and the full height of the screen. Right: an Item's
- * details beside a list. Left: the drawer on a phone (components.md).
+ * Attached to the left edge and the full height of the screen: the drawer
+ * on a phone (components.md). A phone's Filters are a FilterDialog, so
+ * nothing else sits under Android's status bar.
  */
 function Sheet(props: SheetPrimitive.Root.Props) {
   return <SheetPrimitive.Root data-slot="sheet" {...props} />
@@ -25,12 +26,12 @@ const slide = 'duration-(--duration-sheet) ease-(--ease-sheet)'
 function SheetContent({
   className,
   children,
-  side = 'right',
+  side = 'left',
   showCloseButton = true,
   keepMounted = false,
   ...props
 }: SheetPrimitive.Popup.Props & {
-  side?: 'left' | 'right'
+  side?: 'left'
   showCloseButton?: boolean
   /** Stays in the page while closed, so it opens without rendering anything. */
   keepMounted?: boolean
@@ -51,7 +52,6 @@ function SheetContent({
           'fixed inset-y-0 z-50 flex flex-col gap-5 overflow-y-auto overscroll-contain bg-card p-6 text-card-foreground shadow-dialog outline-none transition-transform',
           slide,
           'data-[side=left]:left-0 data-[side=left]:w-72 data-[side=left]:max-w-[calc(100%-48px)] data-[side=left]:rounded-r-xl data-[side=left]:data-ending-style:-translate-x-full data-[side=left]:data-starting-style:-translate-x-full',
-          'data-[side=right]:right-0 data-[side=right]:w-[calc(100%-48px)] data-[side=right]:max-w-md data-[side=right]:rounded-l-xl data-[side=right]:data-ending-style:translate-x-full data-[side=right]:data-starting-style:translate-x-full',
           className,
         )}
         {...props}

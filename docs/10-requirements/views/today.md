@@ -127,8 +127,9 @@ Acceptance criteria
 1. Given a Task ticked done today, then it stays in its place, struck
    through, until the day ends; unticking it brings it back.
 2. Given an Event that has ended, or a Reminder whose Alerts that day have
-   all gone off, or a Meal whose part of the day has passed, then it stays,
-   faded.
+   all gone off, then it stays, faded. A Meal never fades on Today; eaten,
+   it is struck through, as any done Item is, never faded (Joe, 14
+   November).
 3. Given the day ends, then everything of the day leaves, but for overdue
    Tasks, which move to Overdue, and Tasks not done, which stay.
 
@@ -147,6 +148,8 @@ Acceptance criteria
    tapping it opens it (ITM-001).
 3. Given a Reminder or a Task, then its "…" menu converts it (RMD-006) or
    deletes it.
+4. Given a phone, then a Fab ("+") opens Plan's "New" menu, Add to Today:
+   a Task, an Event or a Reminder, each for today (Joe, 14 November).
 
 ### TDY-005 — How much is on Today, in the drawer
 

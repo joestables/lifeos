@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { ItemDialog, RepeatField, type Repeat } from '@/components/lifeos'
+import { ItemDialog, RepeatField, TitleField, type Repeat } from '@/components/lifeos'
 import { Button } from '@/components/ui/button'
 import { toast } from '@/components/ui/sonner'
 import { addAlert, archiveItem, createItem, queue, stopRepeat, useSettings } from '@/data'
@@ -19,7 +19,7 @@ const REMINDER = typeLook('reminder')
  */
 export function NewReminderDialog({ day, onClose }: { day: string; onClose: () => void }) {
   const settings = useSettings(queue)
-  const titleRef = useRef<HTMLInputElement>(null)
+  const titleRef = useRef<HTMLTextAreaElement>(null)
   const [title, setTitle] = useState('')
   const [repeat, setRepeat] = useState<Repeat | null>(null)
   const [alerts, setAlerts] = useState<DraftReminderAlert[]>(() => [
@@ -71,16 +71,12 @@ export function NewReminderDialog({ day, onClose }: { day: string; onClose: () =
       title="New reminder"
       keepOnOutsideClick={dirty}
       titleField={
-        <input
-          ref={titleRef}
-          aria-label="Title"
-          placeholder="Title"
-          autoComplete="off"
+        <TitleField
+          inputRef={titleRef}
           autoFocus
           value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && save()}
-          className="min-w-0 bg-transparent pt-1 text-day outline-none placeholder:text-muted-foreground"
+          onValueChange={setTitle}
+          onEnter={save}
         />
       }
       footer={

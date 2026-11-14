@@ -208,7 +208,8 @@ Acceptance criteria
 1. Given the widget, then it shows Today's Items in Today's order —
    overdue Tasks first ("Overdue" for their time), then the day — each its
    Type's icon, title and time, Reminders with their first time that day;
-   done and past faded (WID-002 1, amended).
+   done struck through and past muted (WID-002 1, amended; Joe, 14
+   November).
 2. Given I tap the date, then Today opens; "+" opens Week with its "+"
    pressed for today, as now (WID-002 8).
 

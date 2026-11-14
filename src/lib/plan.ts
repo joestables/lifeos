@@ -189,11 +189,12 @@ export function cardLine(
 }
 
 /**
- * Whether a card has gone by: an Event that has ended; a done Item (PLN-001
- * 6); a Reminder whose Alerts that day have all gone off (RMD-003 2).
+ * Whether a card has gone by: an Event that has ended; a Reminder whose
+ * Alerts that day have all gone off (RMD-003 2). A done Item is struck
+ * through, not past (PLN-001 6, Joe, 14 November); a Meal on a day gone by
+ * is faded where Week lists it.
  */
 export function isPast(item: Item, now: Date = new Date(), placed?: Placed): boolean {
-  if (item.status === 'done') return true
   if (placed?.alerts) return placed.alerts.every((a) => a.at <= now.getTime())
   return item.ends_at !== null && Date.parse(item.ends_at) <= now.getTime()
 }

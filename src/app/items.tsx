@@ -122,7 +122,7 @@ export function ItemActions({ item, onDelete }: { item: Item; onDelete: () => vo
 /** What an Item holds, until its Type's own editor (Notes, Tasks) takes over. */
 export function ItemContent({ item }: { item: Item }) {
   if (!item.body) return null
-  return <p className="whitespace-pre-wrap text-muted-foreground">{item.body}</p>
+  return <p className="whitespace-pre-wrap text-muted-foreground wrap-anywhere">{item.body}</p>
 }
 
 /** The popup for the Item named in the page's ?item= (ITM-001); a new Note with ?new=note. */
@@ -181,13 +181,13 @@ export function ItemPopup({ id, isNew = false }: { id: string | undefined; isNew
       }
       titleField={
         seen ? (
-          <div className="pt-1 text-day">{itemTitle(item)}</div>
+          <div className="pt-1 text-day wrap-anywhere">{itemTitle(item)}</div>
         ) : item.type === 'note' ? (
           <NoteBody key={item.id} item={item} draft={draft} />
         ) : item.type === 'task' ? (
           <TaskTitle key={item.id} item={item} />
         ) : item.type === 'event' && google?.readOnly ? (
-          <div className="pt-1 text-day">{itemTitle(item)}</div>
+          <div className="pt-1 text-day wrap-anywhere">{itemTitle(item)}</div>
         ) : (
           (item.type === 'event' || item.type === 'reminder') && (
             <EventTitle key={item.id} item={item} />

@@ -530,7 +530,9 @@ Acceptance criteria
    the same popup to change, or Delete (with Undo).
 5. Given an exercise, then its Strength history is in its "…": its ten
    most recent sets, under their workouts, newest first, RIR in brackets,
-   PRs marked.
+   PRs marked. Its "…" also has Edit exercise, in the session and the
+   backlog, opening the exercise's own Edit popup (GYM-002; Joe, 14
+   November).
 6. Given a logged set with the best strength yet for the exercise, then
    it is marked as a PR; a set of more than 12 reps, or a quick set, has
    no strength, so is never one.

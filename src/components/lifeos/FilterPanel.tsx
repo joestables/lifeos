@@ -4,6 +4,13 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import {
   Accordion,
   AccordionContent,
   AccordionItem,
@@ -32,7 +39,7 @@ export interface FilterGroup {
  * comes first (the State toggle), then each group. Open groups show every
  * value as chips; the others are an Accordion, all collapsed at first,
  * each naming how many of its values are chosen. Any of a group, all
- * groups together. On a phone the same panel sits in a Sheet.
+ * groups together. On a phone the same panel sits in a FilterDialog.
  */
 export function FilterPanel({
   groups,
@@ -43,7 +50,7 @@ export function FilterPanel({
   active,
 }: {
   groups: FilterGroup[]
-  /** In a Sheet (a phone): no Card and no heading; the Sheet has both, and Reset in its footer. */
+  /** In a FilterDialog (a phone): no Card and no heading; the Dialog has both, and Reset in its footer. */
   bare?: boolean
   onChange: (group: string, chosen: string[]) => void
   onReset: () => void
@@ -132,8 +139,8 @@ export function FilterSection({ title, children }: { title: string; children: Re
 
 /**
  * A page with its FilterPanel: a 248px column beside the content on a
- * computer; on a phone the panel is left to a Sheet and the content takes
- * the width.
+ * computer; on a phone the panel is left to a FilterDialog and the content
+ * takes the width.
  */
 export function FilterLayout({ filters, children }: { filters: ReactNode; children: ReactNode }) {
   return (
@@ -141,6 +148,50 @@ export function FilterLayout({ filters, children }: { filters: ReactNode; childr
       <div className="hidden lg:block">{filters}</div>
       <div className="flex min-w-0 flex-col gap-4">{children}</div>
     </div>
+  )
+}
+
+/**
+ * A phone's Filters: a Dialog carrying the page's Type colour, the panel
+ * (`bare`) scrolling inside it, and Reset and "Show 9 recipes" at its foot.
+ * A popup rather than a Sheet, so nothing sits under Android's status bar
+ * (Joe, 14 November).
+ */
+export function FilterDialog({
+  open,
+  onOpenChange,
+  colour,
+  onReset,
+  show,
+  children,
+}: {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  /** The page's Type colour. */
+  colour: string
+  onReset: () => void
+  /** The primary action's words: "Show 9 recipes". */
+  show: string
+  /** The FilterPanel, `bare`. */
+  children: ReactNode
+}) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent list initialFocus={false} data-colour={colour} className="overflow-hidden">
+        <DialogHeader>
+          <DialogTitle>Filters</DialogTitle>
+        </DialogHeader>
+        <div className="-mx-6 min-h-0 flex-1 overflow-y-auto overscroll-contain px-6">
+          {children}
+        </div>
+        <DialogFooter className="grid grid-cols-2">
+          <Button variant="outline" onClick={onReset}>
+            Reset
+          </Button>
+          <Button onClick={() => onOpenChange(false)}>{show}</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   )
 }
 

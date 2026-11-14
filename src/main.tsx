@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { createRouter, RouterProvider } from '@tanstack/react-router'
 import { listenToServiceWorker } from '@/app/notifications'
 import { reloadForNewCode } from '@/app/reload'
+import { trackBack } from '@/hooks/use-back'
 import { RouteError } from '@/app/RouteError'
 import { noteAction, startReporting } from '@/data'
 import { isAndroidApp } from '@/native/platform'
@@ -30,6 +31,8 @@ const router = createRouter({
 router.subscribe('onBeforeNavigate', ({ fromLocation, toLocation }) => {
   samePage = fromLocation?.pathname === toLocation.pathname
 })
+// A page's BackLink goes where the browser's Back goes (useBack).
+trackBack(router)
 
 startReporting()
 // A page's code from before a deploy: the new code is loaded instead, on

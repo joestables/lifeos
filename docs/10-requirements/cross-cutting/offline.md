@@ -40,7 +40,9 @@ Priority: Must · Status: verified
 
 Acceptance criteria
 1. Given I have no connection, when I create or edit an Item, then the
-   change shows immediately and is marked as not yet sent.
+   change shows immediately and is marked as not yet sent once it has
+   waited 3 seconds; one sent within them is never marked, so a change made
+   with a connection doesn't flash "Not sent yet" (Joe, 14 November).
 2. Given writes are waiting, when the connection returns, then they are sent
    in order without my doing anything (on iOS, when the app is next open).
 

@@ -15,6 +15,7 @@ import {
   ItemDialog,
   ItemRow,
   RepeatField,
+  TitleField,
   TypeTile,
   type Repeat,
 } from '@/components/lifeos'
@@ -78,17 +79,7 @@ const TASK = typeLook('task')
 /** An Event's title, edited in place (EVT-002). */
 export function EventTitle({ item }: { item: Item }) {
   const [title, setTitle, flush] = useKeptText(item.id, 'title', item.title)
-  return (
-    <input
-      aria-label="Title"
-      placeholder="Title"
-      autoComplete="off"
-      value={title}
-      onChange={(e) => setTitle(e.target.value)}
-      onBlur={flush}
-      className="min-w-0 bg-transparent pt-1 text-day outline-none placeholder:text-muted-foreground"
-    />
-  )
+  return <TitleField value={title} onValueChange={setTitle} onBlur={flush} />
 }
 
 /**
@@ -318,7 +309,7 @@ export function EventDetails({ item }: { item: Item }) {
 export function NewEventDialog({ day, onClose }: { day: string; onClose: () => void }) {
   const settings = useSettings(queue)
   const today = todayIn(settings.timezone)
-  const titleRef = useRef<HTMLInputElement>(null)
+  const titleRef = useRef<HTMLTextAreaElement>(null)
   const [title, setTitle] = useState('')
   const [place, setPlace] = useState('')
   const [notes, setNotes] = useState('')
@@ -411,16 +402,12 @@ export function NewEventDialog({ day, onClose }: { day: string; onClose: () => v
       title="New event"
       keepOnOutsideClick={dirty}
       titleField={
-        <input
-          ref={titleRef}
-          aria-label="Title"
-          placeholder="Title"
-          autoComplete="off"
+        <TitleField
+          inputRef={titleRef}
           autoFocus
           value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && save()}
-          className="min-w-0 bg-transparent pt-1 text-day outline-none placeholder:text-muted-foreground"
+          onValueChange={setTitle}
+          onEnter={save}
         />
       }
       footer={

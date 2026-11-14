@@ -2,7 +2,7 @@
 
 **Status:** Provisionally agreed · 2026-11-05 (Joe)
 
-**Amended:** 2026-11-11 by [ADR-0065](0065-reminders-alerts-and-the-day.md) (Stage 7b, step 10a): the cards are Today's list rather than Plan's day (TDY-006 1): overdue Tasks first, then the day from Anytime to Evening, every Type Today shows (Week's hidden Types are Week's alone), a Reminder on each day an Alert of mine falls at its first time that day. `src/lib/today-widget.ts` makes them from `todayList`, and `core.device_plan` from `core_private.today_cards`; `ends` also says when a Reminder's last Alert of the day and a Meal's part of the day are gone. A change to anything dated before today tells the phone to look, as overdue Tasks and those left from an earlier day are on it. From 0.1.13 the date opens `/today` and "+" `/week?add=1` (TDY-006 2); `/plan?add=1`, which earlier versions open, goes to Week.
+**Amended:** 2026-11-11 by [ADR-0065](0065-reminders-alerts-and-the-day.md) (Stage 7b, step 10a): the cards are Today's list rather than Plan's day (TDY-006 1): overdue Tasks first, then the day from Anytime to Evening, every Type Today shows (Week's hidden Types are Week's alone), a Reminder on each day an Alert of mine falls at its first time that day. `src/lib/today-widget.ts` makes them from `todayList`, and `core.device_plan` from `core_private.today_cards`; `ends` also says when a Reminder's last Alert of the day and a Meal's part of the day are gone (since 14 November the widget mutes no Meal, as Today fades none, and `src/lib/today-widget.ts` gives a Meal none). A change to anything dated before today tells the phone to look, as overdue Tasks and those left from an earlier day are on it. From 0.1.13 the date opens `/today` and "+" `/week?add=1` (TDY-006 2); `/plan?add=1`, which earlier versions open, goes to Week.
 
 ## Context
 
@@ -19,7 +19,8 @@ can't run LifeOS's React code, and it updates while the app is closed.
 - **Jetpack Glance**, in LifeOS's native plugin
   ([ADR-0061](0061-the-android-app.md)): a resizable widget showing the
   date, "+", and a scrolling list of cards (icon, title, time or "All
-  day"; done ones faded and struck through) or "Nothing planned".
+  day"; done ones struck through, ended ones muted — amended 14 November,
+  Joe: done is struck through, never faded) or "Nothing planned".
 - **What it shows is kept on the phone**, as today's and tomorrow's cards,
   so it shows without signal and turns to the new day at midnight with
   nothing to fetch.

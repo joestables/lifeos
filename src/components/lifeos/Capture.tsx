@@ -166,7 +166,8 @@ export interface LinePill {
 }
 
 /**
- * One line that understands as it goes (NEW-002–004): the words typed, then
+ * One line that understands as it goes (NEW-002–004), wrapping when it is
+ * longer than the line: the words typed, then
  * each Alert — a time typed, or one added from the quick times — as a pill
  * in the Reminder's tint: tapping it opens the Alert dialog (its date and
  * time, and Alarm); × removes it, and so does Backspace at the end of the
@@ -188,13 +189,19 @@ export function SmartLine({
   onOpenPill?: (id: string) => void
   onRemovePill?: (id: string) => void
   placeholder?: string
-  inputRef?: RefObject<HTMLInputElement | null>
+  inputRef?: RefObject<HTMLTextAreaElement | null>
   /** The line's name for a screen reader. */
   label?: string
 }) {
-  const own = useRef<HTMLInputElement>(null)
-  const onKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+  const own = useRef<HTMLTextAreaElement>(null)
+  const onKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     const el = e.currentTarget
+    // One line: Enter saves, as an input's would.
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      el.form?.requestSubmit()
+      return
+    }
     const atEnd = el.selectionStart === value.length && el.selectionEnd === value.length
     if (e.key === 'Backspace' && atEnd && pills.length > 0 && (value === '' || /\s$/.test(value))) {
       e.preventDefault()
@@ -207,21 +214,29 @@ export function SmartLine({
       onClick={(e) => e.target === e.currentTarget && ref.current?.focus()}
       className="flex min-h-13 min-w-0 cursor-text flex-wrap items-center gap-x-2 gap-y-1.5 rounded-control bg-input px-4 py-2.5 text-[16px] transition-[background-color,box-shadow] focus-within:bg-card focus-within:ring-3 focus-within:ring-ring-soft"
     >
-      {/* The input as wide as its words, so the pills follow them. */}
-      <span className="inline-grid min-w-0 max-w-full">
-        <span aria-hidden className="invisible col-start-1 row-start-1 whitespace-pre">
+      {/*
+        The words as wide as they are, so the pills follow them; at the
+        line's width they wrap onto the next line rather than running off
+        the side (Joe, 14 November). The hidden copy sizes the field.
+      */}
+      <span className="inline-grid max-w-full min-w-0">
+        <span
+          aria-hidden
+          className="invisible col-start-1 row-start-1 min-w-0 wrap-anywhere whitespace-pre-wrap"
+        >
           {value || placeholder || ' '}{' '}
         </span>
-        <input
+        <textarea
           ref={ref}
+          rows={1}
           aria-label={label}
           autoComplete="off"
           autoFocus
           value={value}
           placeholder={placeholder}
-          onChange={(e) => onValueChange?.(e.target.value)}
+          onChange={(e) => onValueChange?.(e.target.value.replace(/\r?\n/g, ' '))}
           onKeyDown={onKeyDown}
-          className="col-start-1 row-start-1 w-full min-w-0 bg-transparent outline-none placeholder:text-muted-foreground"
+          className="col-start-1 row-start-1 size-full min-w-0 resize-none overflow-hidden bg-transparent wrap-anywhere outline-none placeholder:text-muted-foreground"
         />
       </span>
       {pills.map((t) => {

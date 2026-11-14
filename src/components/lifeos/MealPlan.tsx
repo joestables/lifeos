@@ -29,6 +29,7 @@ export function MealCard({
   household,
   dragging = false,
   eaten = false,
+  past = false,
   selecting = false,
   selected = false,
   unavailable,
@@ -53,7 +54,10 @@ export function MealCard({
   /** Its Household's name, among the Meals of several (HSH-003 1). */
   household?: string
   dragging?: boolean
+  /** Eaten: struck through, not faded (Joe, 14 November). */
   eaten?: boolean
+  /** On a day gone by: faded. */
+  past?: boolean
   /** Choosing Meals for a food shop: Select on the week (SHP-002 1). */
   selecting?: boolean
   /**
@@ -90,7 +94,7 @@ export function MealCard({
         kind === 'recipe'
           ? 'bg-card shadow-card'
           : 'bg-[color-mix(in_oklch,var(--card)_50%,transparent)] shadow-[inset_0_0_0_1px_var(--border)]',
-        eaten && 'opacity-50 shadow-none',
+        past && 'opacity-50 shadow-none',
         unavailable && 'pointer-events-none opacity-45 shadow-none [&_img]:grayscale',
         dragging && 'z-10 cursor-grabbing opacity-100 shadow-pop',
         'data-selected:ring-2 data-selected:ring-ring',

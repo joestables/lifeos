@@ -130,6 +130,10 @@ used the same way on every screen.
   "This can't be found" (ITM-001).
 - A Dialog keeps the page beneath where it was; closing it returns there,
   and Back from an Item's own page returns to the same place on the list.
+- **A page's BackLink is the browser's Back** (Joe, 14 November): it names
+  the page Back returns to and goes there — a workout opened from Today
+  says "Today". Only a page reached from outside LifeOS (a link, a
+  notification, the widget) names and opens its own parent.
 - An Item's own page keeps the top bar (menu, brand, Capture), with a back
   link above the title.
 - On a phone, a Task's and an Event's Dialog are one height, 440px
@@ -356,7 +360,7 @@ and Week.
   (`alarm-clock` for an Alarm), then its repeat with `repeat`; an Event's
   or a Meal's says its time and one detail as its Week card does
   ("09:30–09:45 · Zoom", "Dinner"), else its Type.
-- A done Item: title struck through in `--muted-foreground`.
+- A done Item: title struck through, never muted or faded (Joe, 14 November).
 - A starred Task shows a filled star at the end of its row.
 - Row actions (Task, Note, Tomorrow, then the "…" menu) appear on hover and
   focus; on a phone only the "…" menu shows, always, holding the same
@@ -414,8 +418,8 @@ Joe), `/design-stage-7b`.
 - Under it, the broken-Integration and notifications Alerts, then the
   groups as SectionLabels: Overdue (red, with its count), then Anytime,
   Morning, Afternoon and Evening, with no counts; each a column of
-  ItemRows, `max-w-3xl`. No Label pills and no Fab: "New" is in the top
-  bar.
+  ItemRows, `max-w-3xl`. No Label pills. On a phone a Fab opens Plan's
+  "New" menu, "Add to Today": Task, Event, Reminder (Joe, 14 November).
 - Tasks are TaskRows, Reminders and everything else rows with their
   TypeTile ([Lists of Items](#lists-of-items)); done ones struck through,
   past ones faded (ItemRow `past`).
@@ -448,7 +452,7 @@ StepEditor. Agreed with Joe on 18 October on the
 [Stage 4 design canvas](https://claude.ai/artifact/6GfJTp2G1BF6n573dqHxpy)
 (private to Joe), after three passes.
 
-- Recipes is green (TypeScope); so are its Dialogs and its Filters Sheet.
+- Recipes is green (TypeScope); so are its Dialogs and its FilterDialog.
   Tabs: **Recipes** and **Ideas**; on both, the PageAction is "New", a
   DropdownMenu of New recipe, New idea and Import (`sparkles`; Joe, 23
   October), and on a phone the Fab opens the same menu. **New recipe** is
@@ -467,7 +471,7 @@ StepEditor. Agreed with Joe on 18 October on the
   "Filters" button (with a Badge counting what's chosen on its corner, so
   the row never moves) on one line, Sort
   and Group sharing the next; no S / M / L, cards two across; Filters open
-  in a right Sheet.
+  in a FilterDialog.
 - **Choosing several:** Select (a long press on a card or row on a phone)
   puts a SelectionBar in the toolbar's place: Archive and Delete for
   Recipes, Delete only for Ideas (Joe, 20 October). On a phone the actions
@@ -807,7 +811,7 @@ Agreed with Joe on 1 November 2026, on the
   template with its readiness. **All workouts** and **All templates** are
   pages of their own: StatTiles over the list, the FilterPanel (with
   RangeFilters, and Dates as two DateFields) beside it on a wide screen
-  and an outline `sm` Filters button opening it in a Sheet where it doesn't
+  and an outline `sm` Filters button opening it in a FilterDialog where it doesn't
   fit, Pagination under it. A finished workout's Edit puts a pencil on each
   set, Log set under them and How it went under its figures, with Done in
   place of its "…".
@@ -845,7 +849,7 @@ Agreed with Joe on 1 November 2026, on the
   (stacked on a phone for a muscle) and a Table of best sets for an
   exercise, each row opening its workout; a `warning` Badge marks a Stalled
   Exercise and a muscle's stalled count ("2 stalled"). Both lists are the
-  same: a SearchField, a Filters Sheet and a SortMenu over PanelRows with
+  same: a SearchField, a FilterDialog and a SortMenu over PanelRows with
   a TypeTile — `dumbbell` for an exercise, `biceps-flexed` for a muscle
   group — and their meta (Joe, 3 November).
 - **Readiness colours** run continuously from `--destructive` through
@@ -895,7 +899,7 @@ Two kinds, the same everywhere (Joe, 2 November):
 | Selected / current | `--accent` fill; the Type's tint inside `TypeScope` |
 | Disabled | 50% opacity, no hover |
 | Loading | Skeletons shaped like the content, after about 300ms |
-| Saved / waiting to send | Nothing while all is saved; SyncStatus in the drawer while changes wait; an Item not yet sent shows "Not sent yet" with a cloud icon in its meta |
+| Saved / waiting to send | Nothing while all is saved, and nothing for a change that is sent within 3 seconds, so a change made with a connection never flashes a state (Joe, 14 November); after that, SyncStatus in the drawer while changes wait, and an Item not yet sent shows "Not sent yet" with a cloud icon in its meta |
 | Not saved | An Item whose change the server refused shows "Not saved" in red with a `cloud-alert` icon in its meta, and SyncStatus counts it, with "Clear" to put the Items back as they were saved ([OFF-004](../10-requirements/cross-cutting/offline.md#off-004--a-write-that-cant-be-saved-is-not-lost-silently)) |
 | Notifications off | On Today, while none of my devices has notifications: an Alert with `bell`, "Notifications are off", "Alerts can't reach you" (or "Add LifeOS to your Home Screen first" in an iPhone's browser), and "Not now" (ghost) and "Turn on" (outline) on the right, under the text on a phone. "Not now" puts it away on this device ([REM-001](../10-requirements/cross-cutting/reminders.md#rem-001--turn-on-notifications-for-a-device)) |
 | Offline | An Alert at the top of every page, with `cloud-off`: "Offline" (or "Can't refresh" when the server can't be reached) and "These may be out of date". What was loaded still shows (OFF-005) |

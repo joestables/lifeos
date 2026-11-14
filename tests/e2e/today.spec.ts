@@ -133,6 +133,8 @@ test('TDY-003, TDY-004: a Task ticked stays, struck through; moved to tomorrow i
     'text-decoration-line',
     'line-through',
   )
+  // Struck through, never greyed (Joe, 14 November).
+  await expect(call).toHaveCSS('opacity', '1')
   await call.getByRole('checkbox', { name: 'Done: Call mum' }).click()
   await expect.poll(() => db.items.find((i) => i.id === id(3))?.status).toBe('active')
 
@@ -154,6 +156,52 @@ test('TDY-004: a Reminder opens, and converts from its menu', async ({ page }) =
   await page.getByRole('menuitem', { name: 'Task' }).click()
   await expect(page.getByText('Converted into a Task')).toBeVisible()
   await expect.poll(() => db.items.find((i) => i.id === id(10))?.type).toBe('task')
+})
+
+test('TDY-003 2: a Meal never fades on Today; eaten, it is struck through', async ({ page }) => {
+  await page.clock.setFixedTime(NOW)
+  await standIn(page, {
+    signedIn: true,
+    rows: {
+      items: [
+        itemRow({
+          id: id(1),
+          type: 'meal',
+          title: 'Porridge',
+          do_on: '2026-10-11',
+          slot: 'breakfast',
+        }),
+        itemRow({
+          id: id(2),
+          type: 'meal',
+          title: 'Soup',
+          do_on: '2026-10-11',
+          slot: 'lunch',
+          status: 'done',
+        }),
+      ],
+    },
+    clock: NOW,
+  })
+  await page.goto('/today')
+  await expect(rowOf(page, 'Porridge')).toHaveCSS('opacity', '1')
+  await expect(rowOf(page, 'Soup')).toHaveCSS('opacity', '1')
+  await expect(rowOf(page, 'Soup').getByRole('button', { name: /^Soup/ })).toHaveCSS(
+    'text-decoration-line',
+    'line-through',
+  )
+})
+
+test('TDY-004 4: on a phone, "+" adds a Task, an Event or a Reminder for today', async ({
+  page,
+  isMobile,
+}) => {
+  test.skip(!isMobile, "The Fab is a phone's")
+  await start(page)
+  await page.getByRole('button', { name: 'Add to Today' }).click()
+  await expect(page.getByRole('menuitem')).toHaveText(['Task', 'Event', 'Reminder'])
+  await page.getByRole('menuitem', { name: 'Reminder' }).click()
+  await expect(page.getByRole('dialog', { name: 'New reminder' })).toBeVisible()
 })
 
 test('TDY-001 5: with nothing today, it says so', async ({ page }) => {

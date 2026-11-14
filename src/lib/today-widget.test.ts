@@ -80,11 +80,11 @@ describe('the Today widget (WID-002, TDY-006)', () => {
     expect(tomorrow!.cards.map((c) => c.title)).toEqual(['Tax return', 'Tomorrow', 'Pay rent'])
   })
 
-  it('1: a Reminder fades after its last Alert that day, a Meal after its part of the day', () => {
+  it('1: a Reminder fades after its last Alert that day; a Meal never does', () => {
     const [today] = widgetDays(items, '2026-11-06', TZ, alertsOf, NOW)
     const ends = (title: string) => today!.cards.find((c) => c.title === title)!.ends
     expect(ends('Call mum')).toBe('2026-11-06T20:00:00.000Z')
-    expect(ends('Lunch')).toBe('2026-11-06T17:00:00.000Z')
+    expect(ends('Lunch')).toBeNull()
     expect(ends('Dinner')).toBeNull()
   })
 })

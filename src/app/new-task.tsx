@@ -1,6 +1,6 @@
 import { todayIn } from '@lifeos/recurrence'
 import { useRef, useState } from 'react'
-import { ItemDialog, type AlertChoice, type Repeat } from '@/components/lifeos'
+import { ItemDialog, TitleField, type AlertChoice, type Repeat } from '@/components/lifeos'
 import { Button } from '@/components/ui/button'
 import { toast } from '@/components/ui/sonner'
 import {
@@ -43,7 +43,7 @@ export function NewTaskDialog({
   const { personal } = useFoodSpaces(queue)
   // Personal to start; or a Household (HSH-005 1).
   const [space, setSpace] = useState<string | null>(null)
-  const titleRef = useRef<HTMLInputElement>(null)
+  const titleRef = useRef<HTMLTextAreaElement>(null)
   const [title, setTitle] = useState('')
   const [notes, setNotes] = useState('')
   const [dates, setDates] = useState<TaskDates>({
@@ -153,16 +153,12 @@ export function NewTaskDialog({
       title="New task"
       keepOnOutsideClick={dirty}
       titleField={
-        <input
-          ref={titleRef}
-          aria-label="Title"
-          placeholder="Title"
-          autoComplete="off"
+        <TitleField
+          inputRef={titleRef}
           autoFocus
           value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && save()}
-          className="min-w-0 bg-transparent pt-1 text-day outline-none placeholder:text-muted-foreground"
+          onValueChange={setTitle}
+          onEnter={save}
         />
       }
       footer={
