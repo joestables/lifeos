@@ -56,7 +56,10 @@ TanStack DB collections, whose core is still pre-1.0.
     failing at that moment. A rejection
     marks the entry failed and keeps it: the Item and `SyncStatus` show it,
     and `ops.events` records it without the Item's content (OFF-004).
-  - Once an entry is sent, the queries it touched are refreshed.
+  - Once an entry is sent it is folded into the queries it touched at
+    once, and they are refreshed when the last entry waiting has gone
+    (within two seconds if one can't be sent): a run of writes fetches each
+    query once, not once a write (14 November).
 - **Signing out** warns about unsent writes, then clears the queue and the
   cache (ACC-003).
 - **TypeScript types for tables and functions are generated** from the

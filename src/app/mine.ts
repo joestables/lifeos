@@ -1,3 +1,4 @@
+import { useCallback, useMemo } from 'react'
 import { queue, useFoodSpaces, type Item } from '@/data'
 
 /**
@@ -8,7 +9,10 @@ import { queue, useFoodSpaces, type Item } from '@/data'
  */
 export function useMine(): (item: Item) => boolean {
   const { spaces, personal } = useFoodSpaces(queue)
-  if (!personal) return () => true
-  const ids = new Set(spaces.map((s) => s.id))
-  return (item: Item) => !item.space_id || ids.has(item.space_id)
+  // The same function until my Spaces change, so what is worked out from it is kept.
+  const ids = useMemo(
+    () => (personal ? new Set(spaces.map((s) => s.id)) : null),
+    [spaces, personal],
+  )
+  return useCallback((item: Item) => !ids || !item.space_id || ids.has(item.space_id), [ids])
 }

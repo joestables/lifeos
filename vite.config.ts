@@ -54,10 +54,54 @@ export default defineConfig({
         // The body map's layers (ADR-0060) too, so it works offline.
         globPatterns: ['**/*.{js,css,html,svg,woff2,webp}'],
         // Only the Latin fonts are kept offline; other scripts load when needed.
-        globIgnores: ['**/*-{cyrillic,cyrillic-ext,greek,vietnamese,symbols2}-*.woff2'],
+        // Nor the design-system pages, which a production build never shows.
+        globIgnores: [
+          '**/*-{cyrillic,cyrillic-ext,greek,vietnamese,symbols2}-*.woff2',
+          '**/design-*.js',
+        ],
       },
     }),
   ],
+  build: {
+    rolldownOptions: {
+      // The shared components are one barrel (src/components/lifeos): without
+      // this, a page that uses one of them is sent all of them.
+      output: {
+        // Libraries in files of their own, whose names change only when the
+        // library does: a deploy then sends a device the app's own code, not
+        // React and Supabase again.
+        codeSplitting: {
+          groups: [
+            { name: 'react', test: /node_modules\/(react|react-dom|scheduler)\//, priority: 3 },
+            { name: 'supabase', test: /node_modules\/(@supabase|iceberg-js)\//, priority: 3 },
+            { name: 'tanstack', test: /node_modules\/@tanstack\//, priority: 3 },
+            {
+              name: 'editor',
+              test: /node_modules\/(@tiptap|prosemirror-[^/]+|marked)\//,
+              priority: 3,
+            },
+            { name: 'base-ui', test: /node_modules\/(@base-ui|@floating-ui)\//, priority: 3 },
+            { name: 'icons', test: /node_modules\/lucide-react\//, priority: 3 },
+            // What most pages share, as one file rather than a hundred small
+            // ones; a part only a few pages use (the body map, the Gym's
+            // charts, a Recipe's editor) stays with those pages.
+            {
+              name: 'shared',
+              test: /\/src\/(components|lib|hooks)\/|\/packages\/[^/]+\/src\//,
+              minShareCount: 8,
+              priority: 1,
+            },
+          ],
+        },
+      },
+      treeshake: {
+        moduleSideEffects: [
+          { test: /\/src\/components\//, sideEffects: false },
+          { external: true, sideEffects: true },
+        ],
+      },
+    },
+  },
   resolve: {
     alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
   },

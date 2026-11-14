@@ -4,6 +4,36 @@ const weekday = new Intl.DateTimeFormat('en-GB', { weekday: 'short' })
 const dayMonth = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short' })
 const time = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit' })
 
+/**
+ * One formatter for each timezone, made once: making one costs far more than
+ * using it, and a list asks for every Event's times each time it is drawn.
+ */
+const zoned = (options: Intl.DateTimeFormatOptions) => {
+  const kept = new Map<string, Intl.DateTimeFormat>()
+  return (timeZone: string) => {
+    let f = kept.get(timeZone)
+    if (!f) {
+      f = new Intl.DateTimeFormat('en-GB', { timeZone, hourCycle: 'h23', ...options })
+      kept.set(timeZone, f)
+    }
+    return f
+  }
+}
+const wallClock = zoned({
+  year: 'numeric',
+  month: 'numeric',
+  day: 'numeric',
+  hour: 'numeric',
+  minute: 'numeric',
+})
+const dayAndTime = zoned({
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+  hour: '2-digit',
+  minute: '2-digit',
+})
+
 const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate())
 
 /** "Fri 9 Oct" (patterns.md#copy). */
@@ -50,15 +80,7 @@ export function zonedInstant(day: string, at: string, timeZone: string): string 
   const [y, m, d] = day.split('-').map(Number)
   const [h, min] = at.split(':').map(Number)
   const wall = Date.UTC(y!, m! - 1, d, h, min)
-  const parts = new Intl.DateTimeFormat('en-GB', {
-    timeZone,
-    hourCycle: 'h23',
-    year: 'numeric',
-    month: 'numeric',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: 'numeric',
-  })
+  const parts = wallClock(timeZone)
   const offset = (t: number) => {
     const all = parts.formatToParts(t)
     const p = (type: string) => Number(all.find((x) => x.type === type)?.value)
@@ -127,15 +149,7 @@ export function dateName(day: string, now: Date = new Date()): string {
 
 /** A moment as a day and a time on the clock in a timezone: "2026-10-16", "18:00". */
 export function zonedParts(iso: string, timeZone: string): { day: string; time: string } {
-  const all = new Intl.DateTimeFormat('en-GB', {
-    timeZone,
-    hourCycle: 'h23',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-  }).formatToParts(new Date(iso))
+  const all = dayAndTime(timeZone).formatToParts(new Date(iso))
   const p = (type: string) => all.find((x) => x.type === type)?.value ?? ''
   return { day: `${p('year')}-${p('month')}-${p('day')}`, time: `${p('hour')}:${p('minute')}` }
 }

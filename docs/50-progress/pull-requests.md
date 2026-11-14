@@ -2,6 +2,48 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#89](https://github.com/joestables/lifeos/pull/89) — Performance: faster to answer, less to load
+
+Branch `claude/lucid-tesla-0fhoxt` · 2026-11-14
+
+**What it did**
+- **Measured first** (Chrome at a quarter speed, the stand-in with 990
+  Items; figures in
+  [non-functional](../10-requirements/non-functional.md#performance)):
+  ticking a Task on Plan took 2.2–3.7 s to answer, because every write
+  drew every row of the page again, several times over.
+- **A tick answers in under half a second**: a Task's row is drawn again
+  only when what it shows changes; tick-done and Convert read the series
+  and my settings when pressed (`seriesNow`, `settingsNow`) rather than
+  each row listening to every write; the Items with unsent writes laid over
+  them are worked out once for all who read them; the write queue says
+  nothing when it reads itself and finds the same; my settings' readers
+  hear only writes to my settings; the drawer's Today count is kept
+  between draws.
+- **Timezone formatters are made once**, not for every Event each time a
+  list is drawn (`zonedParts`, `zonedInstant`, `todayIn`): a sixth of the
+  time a tick took.
+- **A run of writes refreshes once**: each sent write is still folded in at
+  once; the queries it touched are fetched when the last one waiting has
+  gone, not after each (ADR-0042).
+- **Less to load**: the shared components are no longer sent whole to every
+  page (608 KB in one file, the body map and the Gym's charts with it); the
+  Calendar loads once the page is idle; React, Supabase, TanStack, Base UI
+  and the icons are files of their own, cached for a year, so a deploy
+  sends only the app's own code. Today's first visit: 500 KB in 67 files
+  to 443 KB in 48 (compressed). The design-system pages are no longer kept
+  offline; the first Supabase request finds its connection made.
+- **Checked and left alone**: the database (the advisors report only
+  unused indexes on a small database and foreign keys without one); the
+  Android app's own code, which waits on the network and the clock and
+  does no work in between, and whose pages are the web app's, so it gains
+  all of the above with no new APK.
+
+**Left for later**
+- Every Item is still fetched whole on each refresh (ADR-0042): fine at
+  hundreds, worth fetching only what changed once there are thousands.
+- A page's popups (an Item's details, New, Search) still load with it.
+
 ## [#88](https://github.com/joestables/lifeos/pull/88) — Stage 7b: Joe's eight changes (14 November)
 
 Branch `claude/great-albattani-b7azsb` · 2026-11-14

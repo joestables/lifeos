@@ -105,7 +105,7 @@ import { applyPendingPhotos, photosKey, photoWrites, type Photo } from './photos
 import { queryClient } from './queryClient'
 import { applyPendingAlerts, alertsKey, type Alert } from './alerts'
 import { applyPendingSeries, seriesKey, type Series } from './series'
-import { applyPendingSettings, settingsKey, type Settings } from './settings'
+import { applyPendingSettings, DEFAULT_SETTINGS, settingsKey, type Settings } from './settings'
 import { applyPendingDevices, devicesKey, type Device } from './devices'
 import {
   applyPendingHouseholds,
@@ -474,6 +474,30 @@ const collections: {
   },
 ]
 
+/**
+ * What is fetched again once the writes waiting have gone (ADR-0042): each
+ * sent write is folded in at once, so nothing waits on this, and a run of
+ * writes (ticks down a list, a Recipe's lines) fetches each collection once
+ * after the last, not once a write. A write that can't be sent yet doesn't
+ * hold the rest back for longer than REFRESH_WAIT.
+ */
+const REFRESH_WAIT = 2000
+const toRefresh = new Map<string, QueryKey>()
+let refreshTimer: ReturnType<typeof setTimeout> | undefined
+
+function refreshNow() {
+  clearTimeout(refreshTimer)
+  refreshTimer = undefined
+  const keys = [...toRefresh.values()]
+  toRefresh.clear()
+  for (const queryKey of keys) void queryClient.invalidateQueries({ queryKey })
+}
+
+function refreshAfter(queryKey: QueryKey) {
+  toRefresh.set(JSON.stringify(queryKey), queryKey)
+  refreshTimer ??= setTimeout(refreshNow, REFRESH_WAIT)
+}
+
 export const queue = new WriteQueue({
   store: indexedDbQueueStore(),
   transport: rpcTransport,
@@ -481,11 +505,11 @@ export const queue = new WriteQueue({
     for (const c of collections) {
       if (!c.fns.includes(entry.fn)) continue
       queryClient.setQueryData(c.key, (old: never) => old && c.fold(old, entry))
-      void queryClient.invalidateQueries({ queryKey: c.key })
+      refreshAfter(c.key)
     }
     // A Recipe's log follows what was changed (RCP-013); only an open one refetches.
     if (entry.fn.startsWith('food.') || entry.fn.endsWith('_item'))
-      void queryClient.invalidateQueries({ queryKey: ['core', 'activity'] })
+      refreshAfter(['core', 'activity'])
     // Joining or parting moves what I see between Spaces (HSH-004): all of it is fetched again.
     if (PARTING_FNS.includes(entry.fn)) void queryClient.invalidateQueries()
     // A shop's Meals by name, day and slot follow what was sent (SHP-002).
@@ -494,14 +518,36 @@ export const queue = new WriteQueue({
       entry.fn === 'food.update_meal' ||
       entry.fn === 'update_item'
     )
-      void queryClient.invalidateQueries({ queryKey: ['shopping', 'meals_of'] })
-    if (entry.fn === 'food.note_change')
-      void queryClient.invalidateQueries({ queryKey: ['food', 'change_notes'] })
+      refreshAfter(['shopping', 'meals_of'])
+    if (entry.fn === 'food.note_change') refreshAfter(['food', 'change_notes'])
   },
   // Recorded without the Item's content: only which function failed (OFF-004).
   onRejected: (entry, error) =>
     void reportEvent('write_refused', error.message, { fn: entry.fn, attempts: entry.attempts }),
 })
+
+// The last write waiting has gone: what the writes changed is fetched again.
+queue.subscribe(() => {
+  if (toRefresh.size > 0 && !queue.entries().some((e) => e.state === 'pending')) refreshNow()
+})
+
+/**
+ * My settings and the series as they are now, unsent changes laid over them,
+ * for something done on a press: a row in a list reads them then, rather
+ * than being drawn again each time anything is written (useSettings and
+ * useSeries are for what shows them).
+ */
+export const settingsNow = (): Settings =>
+  applyPendingSettings(
+    queryClient.getQueryData<Settings>(settingsKey) ?? DEFAULT_SETTINGS,
+    queue.entries(),
+  )
+export const seriesNow = (): Series[] =>
+  applyPendingSeries(
+    queryClient.getQueryData<Series[]>(seriesKey) ?? [],
+    queue.entries(),
+    queryClient.getQueryData<ItemRow[]>(itemsKey) ?? [],
+  )
 
 const labelsNow = () =>
   applyPendingLabels(queryClient.getQueryData<Label[]>(labelsKey) ?? [], queue.entries())
