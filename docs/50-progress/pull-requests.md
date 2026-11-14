@@ -2,7 +2,7 @@
 
 Newest first. Each entry is added in its own pull request.
 
-## [#89](https://github.com/joestables/lifeos/pull/89) — Stage 7b: deleting a repeating Item, Today's "+" as Week's, an Alarm's time aligned
+## [#90](https://github.com/joestables/lifeos/pull/90) — Stage 7b: deleting a repeating Item, Today's "+" as Week's, an Alarm's time aligned
 
 Branch `claude/great-albattani-b7azsb` · 2026-11-14
 
