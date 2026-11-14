@@ -184,7 +184,20 @@ export class WriteQueue {
     const stored = await this.opts.store.all()
     const ids = new Set(stored.map((e) => e.id))
     const unsaved = [...this.unsaved.values()].filter((e) => !ids.has(e.id))
-    this.publish([...stored, ...unsaved].sort((a, b) => (a.id < b.id ? -1 : 1)))
+    const next = [...stored, ...unsaved].sort((a, b) => (a.id < b.id ? -1 : 1))
+    // Read again and found the same: nothing is told, so no page draws again.
+    const same =
+      next.length === this.snapshot.length &&
+      next.every((e, i) => {
+        const was = this.snapshot[i]!
+        return (
+          e.id === was.id &&
+          e.state === was.state &&
+          e.attempts === was.attempts &&
+          e.error === was.error
+        )
+      })
+    if (!same) this.publish(next)
   }
 
   private publish(entries: readonly QueueEntry[]): void {

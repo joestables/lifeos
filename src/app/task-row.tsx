@@ -1,4 +1,5 @@
 import { ArrowRightIcon, ArchiveIcon, RepeatIcon, StarIcon, Trash2Icon } from 'lucide-react'
+import { memo } from 'react'
 import { ItemRow } from '@/components/lifeos'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -26,9 +27,22 @@ const tomorrowOf = (now: Date) =>
  * A Task in a list (patterns.md#tasks): tick it done, open it, move it to
  * tomorrow or Someday, star it, convert it (RMD-006) or delete it. Its meta: time, the day when the group
  * doesn't say it, the due date (red once passed), its repeat and
- * Household; no Labels or sub-tasks (PLA-007).
+ * Household; no Labels or sub-tasks (PLA-007). Drawn again only when what
+ * it shows has changed, the day `now` is in included: a list of hundreds
+ * redraws the one row a tick changed, not all of them.
  */
-export function TaskRow({
+export const TaskRow = memo(Row, (a, b) => {
+  return (
+    a.task === b.task &&
+    a.starred === b.starred &&
+    a.repeat === b.repeat &&
+    a.household === b.household &&
+    a.showDay === b.showDay &&
+    isoDayOf(a.now) === isoDayOf(b.now)
+  )
+})
+
+function Row({
   task,
   now,
   starred = false,
