@@ -45,7 +45,7 @@ function DialogContent({
   ...props
 }: DialogPrimitive.Popup.Props & {
   showCloseButton?: boolean
-  /** A long list (Add exercise, Strength history): no taller than 70% of a phone's screen, scrolling inside. */
+  /** A long list (Add exercise, Strength history, Filters): no taller than 70% of a phone's screen, scrolling inside. */
   list?: boolean
 }) {
   return (
@@ -65,7 +65,7 @@ function DialogContent({
         }
         data-slot="dialog-content"
         className={cn(
-          'fixed top-1/2 left-1/2 z-50 flex max-h-[calc(100svh-36px)] w-[calc(100%-36px)] max-w-lg -translate-x-1/2 -translate-y-1/2 flex-col gap-5 overflow-y-auto overscroll-contain rounded-xl bg-popover p-6 text-popover-foreground shadow-dialog outline-none data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95',
+          'fixed top-1/2 left-1/2 z-50 flex max-h-[calc(100svh-36px-2*max(env(safe-area-inset-top),env(safe-area-inset-bottom)))] w-[calc(100%-36px)] max-w-lg -translate-x-1/2 -translate-y-1/2 flex-col gap-5 overflow-y-auto overscroll-contain rounded-xl bg-popover p-6 text-popover-foreground shadow-dialog outline-none data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95',
           // A Dialog opened from this one dims it, as the page is dimmed.
           'after:pointer-events-none after:absolute after:inset-0 after:z-50 after:rounded-[inherit] after:bg-overlay after:opacity-0 after:transition-opacity data-nested-dialog-open:after:opacity-100',
           list && 'max-sm:max-h-[70svh]',

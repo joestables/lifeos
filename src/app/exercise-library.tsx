@@ -8,6 +8,7 @@ import {
 } from 'lucide-react'
 import { useState } from 'react'
 import {
+  FilterDialog,
   FilterPanel,
   PanelRow,
   SortMenu,
@@ -24,7 +25,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { toast } from '@/components/ui/sonner'
 import { archiveExercise, CATEGORIES, type ExerciseView, type GymData } from '@/data'
 import { LIBRARY_SORTS, since, withShare, type LibraryFilter, type LibrarySort } from '@/lib/gym'
@@ -42,7 +42,7 @@ const GROUP = {
 } as const
 
 /**
- * The exercise library's list (GYM-003): a search, filters (in a Sheet) and
+ * The exercise library's list (GYM-003): a search, filters (in a FilterDialog on a phone) and
  * a sort, then each Exercise with its primary muscle and when last done.
  */
 export function ExerciseList({
@@ -151,24 +151,15 @@ export function ExerciseList({
           ))}
         </div>
       )}
-      <Sheet open={sheet} onOpenChange={setSheet}>
-        <SheetContent side="right" initialFocus={false} data-colour="coral">
-          <SheetHeader>
-            <SheetTitle>Filters</SheetTitle>
-          </SheetHeader>
-          <div>
-            <FilterPanel bare groups={groups} onChange={onChange} onReset={reset} />
-          </div>
-          <SheetFooter className="grid grid-cols-2">
-            <Button variant="outline" onClick={reset}>
-              Reset
-            </Button>
-            <Button onClick={() => setSheet(false)}>
-              {shown.length === 1 ? 'Show 1 exercise' : `Show ${shown.length} exercises`}
-            </Button>
-          </SheetFooter>
-        </SheetContent>
-      </Sheet>
+      <FilterDialog
+        open={sheet}
+        onOpenChange={setSheet}
+        colour="coral"
+        onReset={reset}
+        show={shown.length === 1 ? 'Show 1 exercise' : `Show ${shown.length} exercises`}
+      >
+        <FilterPanel bare groups={groups} onChange={onChange} onReset={reset} />
+      </FilterDialog>
     </Card>
   )
 }

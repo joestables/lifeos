@@ -3,6 +3,7 @@ export { ItemDialog } from './ItemDialog'
 export { ItemPage } from './ItemPage'
 export { ItemRow } from './ItemRow'
 export { PageAction, PageHeader, TabsRow } from './PageHeader'
+export { TitleField } from './TitleField'
 export { CaptureButton, type CaptureLook } from './CaptureButton'
 export { AddAlertMenu, ChipRow, NewDialog, QuickChip, SavesAs, SmartLine } from './Capture'
 export { PlanCard } from './PlanCard'
@@ -45,6 +46,7 @@ export { EventFact, EventSource, ItemNote } from './EventFacts'
 export { RecipeCard, RecipeGrid, RecipePhoto, StarRating, type CardSize } from './RecipeCard'
 export {
   FilterLayout,
+  FilterDialog,
   FilterPanel,
   FilterSection,
   RangeFilter,

@@ -1,4 +1,5 @@
 import type * as React from 'react'
+import { useBack } from '@/hooks/use-back'
 import { BackLink } from './BackLink'
 import type { TypeColour } from './colours'
 import { TypeScope } from './TypeScope'
@@ -23,14 +24,17 @@ export function ItemPage({
   titleField?: React.ReactNode
   children?: React.ReactNode
 }) {
+  // Where the browser's Back goes, named for that page (useBack).
+  const backTo = useBack(back)!
   return (
     <TypeScope colour={colour} className="flex flex-col gap-3.5 px-5 pt-1 pb-6 sm:px-9 sm:pt-4">
       <div className="flex items-center gap-1">
-        <BackLink label={back.label} onClick={back.onClick} />
+        <BackLink label={backTo.label} onClick={backTo.onClick} />
         <div className="flex-1" />
         {actions}
       </div>
       <h1
+        data-slot="page-title"
         className={
           titleField
             ? 'sr-only'

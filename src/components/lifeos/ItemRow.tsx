@@ -1,6 +1,7 @@
 import { CloudAlertIcon, CloudIcon } from 'lucide-react'
 import { Fragment, type ReactNode } from 'react'
 import { cn } from '@/lib/utils'
+import { useLasting } from '@/hooks/use-lasting'
 
 /**
  * Any list of Items: tile or checkbox, title and meta, then actions that
@@ -35,12 +36,14 @@ export function ItemRow({
   done?: boolean
   /** Its time has gone (an Alert whose alerts have all gone off): faded, as on Plan. */
   past?: boolean
-  /** Whether the Item's latest change has reached the server (patterns.md#states). */
+  /** Whether the Item's latest change has reached the server (patterns.md#states); pending is said after 3s. */
   sync?: 'pending' | 'failed'
   className?: string
 }) {
   const parts = [...meta]
-  if (sync === 'pending')
+  // Said only once it has waited a while: not for one that sends at once.
+  const waiting = useLasting(sync === 'pending')
+  if (waiting)
     parts.push(
       <span className="inline-flex items-center gap-1">
         <CloudIcon className="size-3.5" /> Not sent yet
@@ -63,7 +66,7 @@ export function ItemRow({
     >
       <div className="relative z-10 flex">{leading}</div>
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-        <div className={cn('truncate font-semibold', done && 'text-muted-foreground line-through')}>
+        <div className={cn('truncate font-semibold', done && 'line-through')}>
           {onOpen ? (
             <button
               type="button"

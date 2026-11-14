@@ -15,6 +15,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   EmptyState,
   FilterLayout,
+  FilterDialog,
   FilterPanel,
   FilterSection,
   ItemRow,
@@ -42,7 +43,6 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { toast } from '@/components/ui/sonner'
-import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { useLibraryView } from '@/app/library-view'
@@ -513,32 +513,23 @@ function Library({
           )
         })}
       </FilterLayout>
-      <Sheet open={sheet} onOpenChange={setSheet}>
-        <SheetContent side="right" initialFocus={false} data-colour="green">
-          <SheetHeader>
-            <SheetTitle>Filters</SheetTitle>
-          </SheetHeader>
-          <div>
-            <FilterPanel
-              bare
-              groups={groups}
-              active={chosenCount > 0}
-              onChange={onChange}
-              onReset={reset}
-            >
-              {stateFilter}
-            </FilterPanel>
-          </div>
-          <SheetFooter className="grid grid-cols-2">
-            <Button variant="outline" onClick={reset}>
-              Reset
-            </Button>
-            <Button onClick={() => setSheet(false)}>
-              {shown.length === 1 ? 'Show 1 recipe' : `Show ${shown.length} recipes`}
-            </Button>
-          </SheetFooter>
-        </SheetContent>
-      </Sheet>
+      <FilterDialog
+        open={sheet}
+        onOpenChange={setSheet}
+        colour="green"
+        onReset={reset}
+        show={shown.length === 1 ? 'Show 1 recipe' : `Show ${shown.length} recipes`}
+      >
+        <FilterPanel
+          bare
+          groups={groups}
+          active={chosenCount > 0}
+          onChange={onChange}
+          onReset={reset}
+        >
+          {stateFilter}
+        </FilterPanel>
+      </FilterDialog>
     </>
   )
 }

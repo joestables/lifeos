@@ -56,7 +56,7 @@ export function CaptureProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     isOpen.current = open
   }, [open])
-  const lineRef = useRef<HTMLInputElement>(null)
+  const lineRef = useRef<HTMLTextAreaElement>(null)
   const [text, setText] = useState('')
   const [pills, setPills] = useState<Pill[]>([])
   // Words whose pill I removed: kept as words (NEW-004 3).

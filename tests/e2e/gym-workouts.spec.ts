@@ -125,7 +125,7 @@ const HISTORY: Rows = (() => {
   }
 })()
 
-/** All workouts' filters: beside the list on a computer, in a Sheet on a phone. */
+/** All workouts' filters: beside the list on a computer, in a FilterDialog on a phone. */
 async function workoutFilters(page: Page, isMobile: boolean) {
   if (isMobile) {
     await page.getByRole('button', { name: /^Filters/ }).click()
@@ -336,6 +336,33 @@ test.describe('workouts', () => {
       .click()
     await expect(backlog(page).getByRole('button', { name: 'Add Pushdown' })).toBeVisible()
     await expect.poll(() => db.workout_entries.length).toBe(3)
+  })
+
+  test('GYM-010 5: Edit exercise in the "…" of an exercise in the session and the backlog', async ({
+    page,
+  }) => {
+    await standIn(page, { signedIn: true, rows: PLANNED })
+    await startPushA(page)
+    await backlog(page).getByRole('button', { name: 'Pushdown options' }).click()
+    await page.getByRole('menuitem', { name: 'Edit exercise' }).click()
+    const edit = page.getByRole('dialog', { name: 'Edit exercise' })
+    await expect(edit.getByRole('textbox', { name: 'Name' })).toHaveValue('Pushdown')
+    await page.keyboard.press('Escape')
+    await page.getByRole('button', { name: 'Add Pushdown' }).click()
+    await session(page).getByRole('button', { name: 'Pushdown options' }).click()
+    await expect(page.getByRole('menuitem', { name: 'Edit exercise' })).toBeVisible()
+  })
+
+  test("A BackLink goes where the browser's Back goes, named for that page", async ({ page }) => {
+    await standIn(page, { signedIn: true, rows: PLANNED })
+    await page.goto('/today')
+    await page.getByRole('button', { name: /^Push A/ }).click()
+    await expect(page.getByRole('heading', { name: 'Push A', level: 1 })).toBeVisible()
+    await page.getByRole('button', { name: 'Today', exact: true }).click()
+    await expect(page.getByRole('heading', { name: 'Today', level: 1 })).toBeVisible()
+    // Opened from outside LifeOS, it names its own parent.
+    await page.goto('/gym/workouts/w-1')
+    await expect(page.getByRole('button', { name: 'Workouts', exact: true })).toBeVisible()
   })
 
   test('GYM-005 2: an archived exercise is left out of a workout started from its template', async ({

@@ -1,9 +1,11 @@
 import { CloudAlertIcon, CloudIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { useLasting } from '@/hooks/use-lasting'
 
 /**
- * In the drawer footer, only while changes wait to send or weren't saved;
- * changes not saved can be cleared once seen.
+ * In the drawer footer, only while changes have waited to send a while
+ * (3s, so one sent at once never shows) or weren't saved; changes not saved
+ * can be cleared once seen.
  */
 export function SyncStatus({
   pending,
@@ -14,7 +16,8 @@ export function SyncStatus({
   failed: number
   onClear?: () => void
 }) {
-  if (pending === 0 && failed === 0) return null
+  const waiting = useLasting(pending > 0)
+  if (failed === 0 && !waiting) return null
   return (
     <div
       role="status"

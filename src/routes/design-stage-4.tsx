@@ -41,6 +41,7 @@ import {
   AppShell,
   BackLink,
   CardRow,
+  FilterDialog,
   FilterPanel,
   FilterSection,
   SelectionBar,
@@ -110,7 +111,6 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
-import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Textarea } from '@/components/ui/textarea'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
@@ -397,7 +397,7 @@ function Library({
   size?: CardSize
   phone?: boolean
   selecting?: boolean
-  /** A phone's Filters, open in a Sheet. */
+  /** A phone's Filters, open in a FilterDialog. */
   filters?: boolean
 }) {
   return (
@@ -430,22 +430,17 @@ function Library({
           </div>
         </div>
         {filters && (
-          <Sheet open>
-            <SheetContent side="right" initialFocus={false} data-colour="green">
-              <SheetHeader>
-                <SheetTitle>Filters</SheetTitle>
-              </SheetHeader>
-              <div>
-                <FilterPanel bare groups={FILTER_GROUPS} onChange={nothing} onReset={nothing}>
-                  <StateFilter />
-                </FilterPanel>
-              </div>
-              <SheetFooter className="grid grid-cols-2">
-                <Button variant="outline">Reset</Button>
-                <Button>Show 9 recipes</Button>
-              </SheetFooter>
-            </SheetContent>
-          </Sheet>
+          <FilterDialog
+            open
+            onOpenChange={nothing}
+            colour="green"
+            onReset={nothing}
+            show="Show 9 recipes"
+          >
+            <FilterPanel bare groups={FILTER_GROUPS} onChange={nothing} onReset={nothing}>
+              <StateFilter />
+            </FilterPanel>
+          </FilterDialog>
         )}
       </TypeScope>
     </Shell>

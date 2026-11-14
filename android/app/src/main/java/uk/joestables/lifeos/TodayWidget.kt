@@ -144,15 +144,18 @@ private fun Content(
 
 /**
  * A widget line: 40dp, the card fill inside a hairline edge, the Type's
- * icon in its text colour, the title, and its time at the end; done or
- * gone by, muted and struck through (Android's widgets can't fade). Its
+ * icon in its text colour, the title, and its time at the end; done,
+ * struck through, as on Today; gone by, muted (Android's widgets can't
+ * fade). Its
  * words are drawn as pictures in LifeOS's font (WidgetText.kt), as the
  * scrolling list can't hold the text layouts the rest of the widget uses.
  */
 @Composable
 private fun Line(context: Context, card: JSONObject, now: Long) {
     val ends = card.optString("ends").takeIf { it.isNotEmpty() && it != "null" }?.let { ReminderSync.epochMillis(it) }
-    val past = card.optBoolean("done") || (ends != null && ends <= now)
+    val done = card.optBoolean("done")
+    // A Meal never fades on Today, whatever an older feed says (TDY-003 2).
+    val past = !done && card.optString("type") != "meal" && ends != null && ends <= now
     val time = card.optString("time").takeIf { it.isNotEmpty() && it != "null" }
     val ink = LocalContext.current
     // What the title may take: the widget less its padding, the line's
@@ -166,7 +169,7 @@ private fun Line(context: Context, card: JSONObject, now: Long) {
         13f,
         R.font.plus_jakarta_sans_semibold,
         maxWidthDp = room,
-        struck = past,
+        struck = done,
     )
     Box(
         modifier = GlanceModifier.fillMaxWidth().height(40.dp).cornerRadius(12.dp)

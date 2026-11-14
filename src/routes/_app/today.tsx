@@ -1,10 +1,23 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { todayIn } from '@lifeos/recurrence'
 import { SunIcon } from 'lucide-react'
+import { useState } from 'react'
 import { CalendarBrokenAlert } from '@/app/google-calendar'
-import { CardRow, EmptyState, PageHeader, SectionLabel, TypeTile } from '@/components/lifeos'
+import {
+  AddToDay,
+  CardRow,
+  EmptyState,
+  Fab,
+  PageHeader,
+  SectionLabel,
+  TypeTile,
+  type AddChoice,
+} from '@/components/lifeos'
 import { useAlertTimes } from '@/app/alert-times'
+import { NewEventDialog } from '@/app/event-details'
 import { useMine } from '@/app/mine'
+import { NewReminderDialog } from '@/app/new-reminder'
+import { NewTaskDialog } from '@/app/new-task'
 import { NotificationsOffer } from '@/app/notifications-offer'
 import { PlacedRow } from '@/app/placed-row'
 import { ReminderRow } from '@/app/reminder-row'
@@ -19,6 +32,11 @@ import { todayList, type OnToday } from '@/lib/today'
 export const Route = createFileRoute('/_app/today')({ component: Today })
 
 const THOUGHT = typeLook('thought')
+/** The phone's "+": a Task, an Event or a Reminder for today, as Plan's (TDY-004 5). */
+const NEW: AddChoice[] = (['task', 'event', 'reminder'] as const).map((key) => {
+  const t = typeLook(key)
+  return { key, label: t.label, colour: t.colour as AddChoice['colour'], icon: t.icon }
+})
 
 function Today() {
   const settings = useSettings(queue)
@@ -28,6 +46,7 @@ function Today() {
   const items = visible.filter(mine)
   const alertsOf = useAlertTimes()
   const facts = useTaskFacts()
+  const [adding, setAdding] = useState<string | null>(null)
   const now = new Date()
   const today = todayIn(settings.timezone)
   const list = todayList(items, today, settings.timezone, alertsOf, now)
@@ -92,6 +111,16 @@ function Today() {
           />
         )}
       </div>
+      <AddToDay
+        day="Today"
+        choices={NEW}
+        onChoose={setAdding}
+        trigger={<Fab label="Add to Today" />}
+        side="top"
+      />
+      {adding === 'task' && <NewTaskDialog onClose={() => setAdding(null)} />}
+      {adding === 'event' && <NewEventDialog day={today} onClose={() => setAdding(null)} />}
+      {adding === 'reminder' && <NewReminderDialog day={today} onClose={() => setAdding(null)} />}
     </>
   )
 }

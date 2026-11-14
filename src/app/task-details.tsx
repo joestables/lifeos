@@ -1,5 +1,5 @@
 import { useId, useRef, useState, type ReactNode } from 'react'
-import { DateField, RepeatField, TimeField, type Repeat } from '@/components/lifeos'
+import { DateField, RepeatField, TimeField, TitleField, type Repeat } from '@/components/lifeos'
 import { LabelPicker } from '@/components/lifeos/LabelPicker'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -33,23 +33,15 @@ export function TaskTitle({ item }: { item: Item }) {
   const [title, setTitle, flush] = useKeptText(item.id, 'title', item.title)
   const tickDone = useTickDone()
   return (
-    <div className="flex items-center gap-3 pt-1">
+    <div className="flex items-start gap-3 pt-1">
       <Checkbox
         colour="blue"
         aria-label="Done"
-        className="size-5"
+        className="mt-1 size-5"
         checked={item.status === 'done'}
         onCheckedChange={(on) => (on ? tickDone(item) : updateItem(item.id, { status: 'active' }))}
       />
-      <input
-        aria-label="Title"
-        placeholder="Title"
-        autoComplete="off"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        onBlur={flush}
-        className="min-w-0 flex-1 bg-transparent text-day outline-none placeholder:text-muted-foreground"
-      />
+      <TitleField value={title} onValueChange={setTitle} onBlur={flush} className="flex-1 pt-0" />
     </div>
   )
 }

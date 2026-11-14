@@ -28,6 +28,7 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
+import { SyncGrace } from '@/hooks/use-lasting'
 import {
   AddRow,
   AddMealButton,
@@ -316,7 +317,16 @@ function Row({ children }: { children: ReactNode }) {
   return <div className="flex flex-wrap items-center gap-3">{children}</div>
 }
 
+/** Every state at once: a change waiting to send says so without the wait. */
 function DesignPage() {
+  return (
+    <SyncGrace.Provider value={0}>
+      <DesignSystem />
+    </SyncGrace.Provider>
+  )
+}
+
+function DesignSystem() {
   const [dark, setDark] = useState(() => document.documentElement.classList.contains('dark'))
   const [itemOpen, setItemOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)

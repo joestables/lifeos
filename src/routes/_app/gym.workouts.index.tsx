@@ -6,6 +6,7 @@ import {
   DateField,
   EmptyState,
   FilterLayout,
+  FilterDialog,
   FilterPanel,
   FilterSection,
   PageHeader,
@@ -29,7 +30,6 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from '@/components/ui/pagination'
-import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { useWorkoutFilter, useWorkoutRows, workoutMeta, type WorkoutRow } from '@/app/all-workouts'
 import { WorkoutTile } from '@/app/workout-cards'
 import { queue, useGym, useSettings, type GymData } from '@/data'
@@ -369,28 +369,18 @@ function AllWorkouts() {
       <div className="flex flex-col gap-4 px-5 pb-28 sm:px-9 md:pb-12">
         <FilterLayout filters={filters(false)}>{content}</FilterLayout>
       </div>
-      <Sheet open={sheet} onOpenChange={setSheet}>
-        <SheetContent side="right" initialFocus={false} data-colour="coral">
-          <SheetHeader>
-            <SheetTitle>Filters</SheetTitle>
-          </SheetHeader>
-          <div>{filters(true)}</div>
-          <SheetFooter className="grid grid-cols-2">
-            <Button
-              variant="outline"
-              onClick={() => {
-                reset()
-                setPage(1)
-              }}
-            >
-              Reset
-            </Button>
-            <Button onClick={() => setSheet(false)}>
-              {shownRows.length === 1 ? 'Show 1 workout' : `Show ${shownRows.length} workouts`}
-            </Button>
-          </SheetFooter>
-        </SheetContent>
-      </Sheet>
+      <FilterDialog
+        open={sheet}
+        onOpenChange={setSheet}
+        colour="coral"
+        onReset={() => {
+          reset()
+          setPage(1)
+        }}
+        show={shownRows.length === 1 ? 'Show 1 workout' : `Show ${shownRows.length} workouts`}
+      >
+        {filters(true)}
+      </FilterDialog>
     </TypeScope>
   )
 }

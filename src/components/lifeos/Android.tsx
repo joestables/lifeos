@@ -91,7 +91,7 @@ export function TodayWidget({
  * One of the day's Items in the Today widget: a 40px line on the card fill
  * with the hairline edge, its Type's icon in the Type's text colour, its
  * title (weight 600, one line) and its time at the end (muted, tabular).
- * Done: faded and struck through, as on Plan.
+ * Done: struck through, as on Today; gone by: muted.
  */
 function WidgetLine({ colour, icon: Icon, type, title, time, done = false }: WidgetCard) {
   return (
@@ -99,7 +99,6 @@ function WidgetLine({ colour, icon: Icon, type, title, time, done = false }: Wid
       data-colour={colour}
       className={cn(
         'flex h-10 shrink-0 items-center gap-2.5 rounded-control bg-card px-3 shadow-[0_0_0_1px_var(--hairline)]',
-        done && 'opacity-50',
       )}
     >
       <Icon aria-label={type} className="size-4 shrink-0 text-tc-text" />

@@ -1,9 +1,8 @@
 import { addDays } from '@lifeos/recurrence'
 import type { Item } from '@/data'
-import { zonedInstant } from './dates'
 import { itemTitle, typeLook } from './item-types'
 import { cardLine, type AlertTime } from './plan'
-import { DAY_PARTS, todayList, type OnToday } from './today'
+import { todayList, type OnToday } from './today'
 
 /**
  * A card on the Today widget (WID-002, TDY-006, ADR-0064), as the phone
@@ -18,7 +17,7 @@ export interface WidgetCard {
   /** "09:00", "All day", "Until 15:00", "Dinner", "Overdue"; null for an untimed Item. */
   time: string | null
   done: boolean
-  /** When it has gone by, so the widget fades it: an Event's end, a Reminder's last Alert that day, a Meal's part of the day. */
+  /** When it has gone by, so the widget mutes it: an Event's end, a Reminder's last Alert that day; never for a Meal (TDY-003 2). */
   ends: string | null
 }
 
@@ -38,7 +37,6 @@ const base = (item: Item) => ({
 export function widgetCard(on: OnToday, day: string, timezone: string): WidgetCard {
   const { placed } = on
   const { item } = placed
-  const until = DAY_PARTS.find((d) => d.key === on.part)!.until
   return {
     ...base(item),
     // A Reminder at its first time that day.
@@ -47,9 +45,9 @@ export function widgetCard(on: OnToday, day: string, timezone: string): WidgetCa
     ends: placed.alerts
       ? // It fades once its last Alert of the day has gone off (RMD-003 2).
         new Date(placed.alerts.at(-1)!.at).toISOString()
-      : item.type === 'meal' && until !== '' && until !== '24:00'
-        ? // A Meal fades once its part of the day has gone (TDY-003 2).
-          zonedInstant(day, until, timezone)
+      : // A Meal never fades on Today (TDY-003 2).
+        item.type === 'meal'
+        ? null
         : item.ends_at,
   }
 }

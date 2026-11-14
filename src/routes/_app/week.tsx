@@ -224,7 +224,7 @@ function Week() {
         detail={
           [line.detail, households.get(p.item.space_id)].filter(Boolean).join(' · ') || undefined
         }
-        past={isPast(p.item, now, p)}
+        past={isPast(p.item, now, p) || (p.item.type === 'meal' && on < today)}
         done={p.item.status === 'done'}
         wide={wide}
         dragging={drag?.item.id === p.item.id && drag.from === on}

@@ -526,7 +526,8 @@ export function FormNotes({ children }: { children: ReactNode }) {
  * `--radius-row` box. First its expand button (a workout) or drag handle (a
  * template), then its name (weight 600) and a muted line, then its own
  * control (a workout's DoneToggle, or a template's sets stepper) and its
- * "…". A done exercise's name is muted; it still expands. Expanded, what
+ * "…". A done exercise's name is struck through (Joe, 14 November); it
+ * still expands. Expanded, what
  * it holds sits under its name.
  */
 export function ExerciseCard({
@@ -589,7 +590,7 @@ export function ExerciseCard({
           </Button>
         )}
         <span className="flex min-w-0 flex-1 flex-col">
-          <span className={cn('font-semibold', done && 'text-muted-foreground')}>{name}</span>
+          <span className={cn('font-semibold', done && 'line-through')}>{name}</span>
           <span className="text-sm text-muted-foreground tabular-nums">
             {meta.map((m, i) => (
               <span key={i} className="whitespace-nowrap">

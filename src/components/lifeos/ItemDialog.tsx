@@ -87,7 +87,7 @@ export function ItemDialog({
               ) : (
                 <div className="flex items-center gap-3 pt-1">
                   {leading}
-                  <DialogTitle className="text-day">{title}</DialogTitle>
+                  <DialogTitle className="min-w-0 text-day wrap-anywhere">{title}</DialogTitle>
                 </div>
               )}
               {titleField}

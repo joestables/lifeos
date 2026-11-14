@@ -172,8 +172,9 @@ test.describe('The Pantry', () => {
       .toBe(mirin.id)
     await expect(aisle(page, 'Kept as typed')).toHaveCount(0)
     await expect(page.getByText('Nothing pending')).toBeVisible()
-    // Back in the Pantry, under their aisle.
-    await page.getByRole('button', { name: 'Pantry' }).click()
+    // Back in the Pantry, under their aisle: the BackLink names the page
+    // the browser's Back returns to.
+    await page.getByRole('button', { name: 'Meal plan' }).click()
     await expect(names(page, 'Cupboard')).toHaveText(['Honey', 'Mirin', 'Panko breadcrumbs'])
   })
 

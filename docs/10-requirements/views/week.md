@@ -40,7 +40,8 @@ events and tasks ([ADR-0026](../../20-architecture/adr/0026-navigation-drawer.md
   repeating Task or Event is on its own day; ones closed as *skipped* aren't
   shown. (Plan's lists and Today show only a series' next open occurrence,
   [ADR-0022](../../20-architecture/adr/0022-repeating-items.md).)
-- **Done stays on its day**, faded and struck through; an overdue Task stays
+- **Done stays on its day**, struck through (not faded; Joe, 14 November);
+  a Meal on a day gone by is faded; an overdue Task stays
   on the day it was for, and Today carries it.
 - **Add with "+"** on a day, choosing among the Schedulable Types that exist;
   **move by dragging** to another day on a computer (Joe, 14 October).
@@ -98,8 +99,9 @@ Acceptance criteria
 4. Given a Task with no date, or in Someday, then it isn't on Week.
 5. Given a Task repeating every Monday, then each Monday shows its
    occurrence; one closed as *skipped* isn't shown.
-6. Given a done Task, then it stays on its day, faded and struck through;
-   an overdue Task stays on the day it was to be done.
+6. Given a done Task, then it stays on its day, struck through, not faded
+   (Joe, 14 November); an overdue Task stays on the day it was to be done;
+   a Meal on a day before today is faded.
 
 ### PLN-002 — See one day
 

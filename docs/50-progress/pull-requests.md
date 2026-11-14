@@ -2,6 +2,34 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#88](https://github.com/joestables/lifeos/pull/88) — Stage 7b: Joe's eight changes (14 November)
+
+Branch `claude/great-albattani-b7azsb` · 2026-11-14
+
+**What it did**
+- **Filters on a phone are a popup** (FilterDialog): Recipes, All workouts,
+  the exercise library and Progression's muscle groups. The right Sheet sat
+  under Android's status bar; the Sheet is now the drawer only, and a
+  Dialog's height keeps clear of the status and gesture bars.
+- **Done is struck through, never greyed**: ItemRow, PlanCard, MealCard,
+  ExerciseCard and the Today widget (the app 0.1.14). Past Items still fade.
+- **Meals don't fade on Today**; on Week and the Meal plan, a Meal on a day
+  gone by does (TDY-003 2, PLN-001 6); the widget mutes no Meal.
+- **Today has a Fab on a phone**: Plan's "New" menu, a Task, Event or
+  Reminder for today (TDY-004 4).
+- **"Not sent yet" waits 3 seconds** (an ItemRow's meta and the drawer's
+  SyncStatus), so a change sent at once never flashes it (OFF-001 1).
+- **A BackLink is the browser's Back** (`useBack`): it names the page Back
+  returns to and goes there ("Today" for a workout opened from Today); only
+  a page reached from outside LifeOS keeps its own parent.
+- **Long text wraps**: New's SmartLine, and the titles of a Task, an Event
+  and New task, event and reminder (TitleField); long Item titles and
+  bodies in a popup wrap anywhere. The Reminder Joe lost once couldn't be
+  traced (no refused change in the error log).
+- **Edit exercise** in a workout exercise's "…", in the session and the
+  backlog (GYM-010 5).
+- `public/android.json` raised to 0.1.14 for the widget.
+
 ## [#87](https://github.com/joestables/lifeos/pull/87) — Stage 7b: the Android app's old names gone
 
 Branch `claude/relaxed-fermi-nehy7e` · 2026-11-11

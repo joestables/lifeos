@@ -176,8 +176,8 @@ describe('what a card says', () => {
       detail: 'Due today',
     })
   })
-  it('PLN-001 6: done and ended fade; an overdue Task does not', () => {
-    expect(isPast(item('d', { status: 'done' }), now)).toBe(true)
+  it('PLN-001 6: ended fades; done (struck through) and an overdue Task do not', () => {
+    expect(isPast(item('d', { status: 'done' }), now)).toBe(false)
     expect(isPast(item('o', { do_on: '2026-10-12' }), now)).toBe(false)
     expect(isPast(event('e', '2026-10-13T08:00:00Z', '2026-10-13T09:00:00Z'), now)).toBe(true)
   })

@@ -2,6 +2,7 @@ import { PlusIcon } from 'lucide-react'
 import type * as React from 'react'
 import { useContext, type ReactNode } from 'react'
 import { Button } from '@/components/ui/button'
+import { useBack } from '@/hooks/use-back'
 import { cn } from '@/lib/utils'
 import { BackLink } from './BackLink'
 import { CaptureButton } from './CaptureButton'
@@ -23,21 +24,29 @@ export function PageHeader({
   title: ReactNode
   /** The page's main action: its Fab on a phone. */
   action?: { label: string; onClick: () => void }
-  /** A page reached from another (Recently deleted, from Settings): back to it. */
+  /**
+   * A page reached from another (Recently deleted, from Settings): back to
+   * it. Where the browser's Back would go elsewhere, the link goes there
+   * instead, named for that page (useBack).
+   */
   back?: { label: string; onClick: () => void }
   /** A line over the title in the Type's text colour ("Cooking · Air fryer"). */
   eyebrow?: ReactNode
   /** Controls at the title's end (Cooking's servings and Finish). */
   trailing?: ReactNode
 }) {
+  const backTo = useBack(back)
   const capture = useContext(ShellCapture)
   const look = useContext(ShellCaptureLook)
   return (
     <header className="flex items-end gap-3 px-5 pt-3 pb-5 sm:px-9 sm:pt-[30px] sm:pb-[18px]">
       <div className="flex min-w-0 flex-1 flex-col gap-1">
-        {back && <BackLink label={back.label} onClick={back.onClick} />}
+        {backTo && <BackLink label={backTo.label} onClick={backTo.onClick} />}
         {eyebrow && <span className="pt-1 text-sm font-semibold text-tc-text">{eyebrow}</span>}
-        <h1 className="truncate text-[22px] leading-[1.2] font-[750] tracking-[-0.025em] sm:text-h1">
+        <h1
+          data-slot="page-title"
+          className="truncate text-[22px] leading-[1.2] font-[750] tracking-[-0.025em] sm:text-h1"
+        >
           {title}
         </h1>
       </div>

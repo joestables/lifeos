@@ -251,3 +251,20 @@ test('NEW-001 2: "New" over an open Item leaves it open, and Undo takes the new 
     .poll(() => db.items.find((i) => i.title === 'ask about no-claims bonus')?.archived_at)
     .toBeTruthy()
 })
+
+test('NEW-002: a long line wraps rather than running off the side, and saves', async ({ page }) => {
+  const db = await start(page)
+  const capture = await openCapture(page)
+  const words =
+    'Ring the garage about the clutch and ask whether they can look at the brakes too 18:00'
+  await capture.getByRole('textbox').fill(words)
+  await expect(pills(capture)).toHaveCount(1)
+  const line = capture.getByRole('textbox')
+  const [box, dialog] = await Promise.all([line.boundingBox(), capture.boundingBox()])
+  expect(box!.x + box!.width).toBeLessThanOrEqual(dialog!.x + dialog!.width)
+  expect(box!.height).toBeGreaterThan(30)
+  await line.press('Enter')
+  await expect
+    .poll(() => db.items.find((i) => i.type === 'reminder')?.title)
+    .toBe('Ring the garage about the clutch and ask whether they can look at the brakes too')
+})

@@ -73,6 +73,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { toast } from '@/components/ui/sonner'
+import { ExerciseDialog } from '@/app/exercise-dialog'
 import { ExercisePicker } from '@/app/exercise-picker'
 import { Field } from '@/app/task-details'
 import {
@@ -353,6 +354,7 @@ function Session({ workout, gym }: { workout: WorkoutView; gym: GymData }) {
   const [logging, setLogging] = useState<{ entry: EntryView; set?: SetView } | null>(null)
   const [picking, setPicking] = useState<Picking | null>(null)
   const [history, setHistory] = useState<ExerciseView | null>(null)
+  const [editing, setEditing] = useState<ExerciseView | null>(null)
   const toggle = (entry: string, to?: boolean) =>
     setOpen((o) => {
       const next = new Set(o)
@@ -375,11 +377,17 @@ function Session({ workout, gym }: { workout: WorkoutView; gym: GymData }) {
       },
     })
   }
-  const historyItem = (e: EntryView) =>
+  // Its exercise's own: Edit exercise (GYM-002), then Strength history.
+  const exerciseItems = (e: EntryView) =>
     e.exercise && (
-      <DropdownMenuItem onClick={() => setHistory(e.exercise!)}>
-        <HistoryIcon /> Strength history
-      </DropdownMenuItem>
+      <>
+        <DropdownMenuItem onClick={() => setEditing(e.exercise!)}>
+          <PencilIcon /> Edit exercise
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setHistory(e.exercise!)}>
+          <HistoryIcon /> Strength history
+        </DropdownMenuItem>
+      </>
     )
 
   return (
@@ -414,7 +422,7 @@ function Session({ workout, gym }: { workout: WorkoutView; gym: GymData }) {
               }
               menu={
                 <More label={`${e.name} options`}>
-                  {historyItem(e)}
+                  {exerciseItems(e)}
                   {empty && (
                     <DropdownMenuItem onClick={() => beginEntry(workout.item.id, e.id, false)}>
                       <UndoIcon /> Back to the backlog
@@ -471,7 +479,7 @@ function Session({ workout, gym }: { workout: WorkoutView; gym: GymData }) {
                     <PlusIcon /> Add
                   </Button>
                   <More label={`${e.name} options`}>
-                    {historyItem(e)}
+                    {exerciseItems(e)}
                     <DropdownMenuItem onClick={() => setPicking({ kind: 'swap', entry: e })}>
                       <ArrowLeftRightIcon /> Swap…
                     </DropdownMenuItem>
@@ -524,6 +532,7 @@ function Session({ workout, gym }: { workout: WorkoutView; gym: GymData }) {
       {history && (
         <StrengthHistoryDialog gym={gym} exercise={history} onClose={() => setHistory(null)} />
       )}
+      {editing && <ExerciseDialog gym={gym} exercise={editing} onClose={() => setEditing(null)} />}
     </>
   )
 }

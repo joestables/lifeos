@@ -6,7 +6,8 @@ import type { TypeColour } from './colours'
 /**
  * An Item on Plan (components.md): its Type's icon and name in the Type's
  * colour, its title, then its time and a detail (a place, "Due Fri") in
- * muted text. Past Items fade; done ones are struck through; one being
+ * muted text. Past Items fade; done ones are struck through, not faded
+ * (Joe, 14 November); one being
  * dragged lifts. `wide` is the day's list: a little roomier.
  */
 export function PlanCard({
@@ -45,7 +46,7 @@ export function PlanCard({
       className={cn(
         'relative flex min-w-0 flex-col rounded-control bg-card shadow-card transition-[box-shadow,opacity]',
         wide ? 'gap-1 px-3.5 py-3' : 'gap-1.5 px-2.5 py-[9px]',
-        (past || done) && 'opacity-50 shadow-none',
+        past && 'opacity-50 shadow-none',
         dragging && 'z-10 cursor-grabbing opacity-100 shadow-pop',
       )}
     >

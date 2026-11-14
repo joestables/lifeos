@@ -2,6 +2,7 @@ import { useNavigate } from '@tanstack/react-router'
 import { BicepsFlexedIcon, SlidersHorizontalIcon, TrophyIcon } from 'lucide-react'
 import { useState } from 'react'
 import {
+  FilterDialog,
   FilterPanel,
   LinePill,
   PanelHeading,
@@ -37,7 +38,6 @@ import {
   type MuscleListSort,
 } from '@/lib/gym'
 import type { SortDirection } from '@/lib/sort'
-import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { useMuscleListFilter } from './gym-library'
 import { SearchField } from './search-field'
 import { formatKg, MAX_LINES, toggleLine } from '@lifeos/fitness'
@@ -207,7 +207,7 @@ const MUSCLE_GROUP = { categories: 'Category', muscles: 'Muscle group' } as cons
 
 /**
  * Progression → Muscles (GYM-015 1), like the exercise library (Joe, 3
- * November): a search, filters (in a Sheet) and a sort, then each muscle
+ * November): a search, filters (in a FilterDialog on a phone) and a sort, then each muscle
  * group with its category, when it was last trained and, where any, its
  * stalled exercises.
  */
@@ -300,24 +300,15 @@ export function MusclesList({
           })}
         </div>
       )}
-      <Sheet open={sheet} onOpenChange={setSheet}>
-        <SheetContent side="right" initialFocus={false} data-colour="coral">
-          <SheetHeader>
-            <SheetTitle>Filters</SheetTitle>
-          </SheetHeader>
-          <div>
-            <FilterPanel bare groups={groups} onChange={onChange} onReset={reset} />
-          </div>
-          <SheetFooter className="grid grid-cols-2">
-            <Button variant="outline" onClick={reset}>
-              Reset
-            </Button>
-            <Button onClick={() => setSheet(false)}>
-              {shown.length === 1 ? 'Show 1 muscle group' : `Show ${shown.length} muscle groups`}
-            </Button>
-          </SheetFooter>
-        </SheetContent>
-      </Sheet>
+      <FilterDialog
+        open={sheet}
+        onOpenChange={setSheet}
+        colour="coral"
+        onReset={reset}
+        show={shown.length === 1 ? 'Show 1 muscle group' : `Show ${shown.length} muscle groups`}
+      >
+        <FilterPanel bare groups={groups} onChange={onChange} onReset={reset} />
+      </FilterDialog>
     </Card>
   )
 }

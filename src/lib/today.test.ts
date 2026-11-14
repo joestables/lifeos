@@ -84,11 +84,11 @@ describe('Today', () => {
     })
   })
 
-  it('TDY-003: done and past stay, faded; a Meal once its part has gone', () => {
+  it('TDY-003: what has gone by fades; a done Task and a Meal never do', () => {
     const past = list.parts.flatMap((g) =>
       g.items.filter((x) => x.past).map((x) => x.placed.item.id),
     )
-    expect(past).toEqual(['insurance', 'oats', 'standup'])
+    expect(past).toEqual(['standup'])
   })
 
   it('TDY-005: counts everything on it, never a Thought', () => {
