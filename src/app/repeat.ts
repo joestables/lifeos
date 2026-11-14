@@ -1,5 +1,5 @@
 import { afterCompletion, daysBetween, nextOccurrence, todayIn, windowOf } from '@lifeos/recurrence'
-import { useCallback, useMemo } from 'react'
+import { useMemo } from 'react'
 import type { Repeat } from '@/components/lifeos'
 import { toast } from '@/components/ui/sonner'
 import {
@@ -7,6 +7,7 @@ import {
   completeOccurrence,
   newId,
   queue,
+  seriesNow,
   setRepeat,
   updateItem,
   useSeries,
@@ -150,30 +151,27 @@ export function repeatEvent(
 
 /**
  * Ticks a Task done, with Undo (TSK-003). One repeated after completion
- * makes its next occurrence as it goes (TSK-009).
+ * makes its next occurrence as it goes (TSK-009). Its series is read when
+ * it is ticked, so a row with a tick isn't drawn again with every write.
  */
-export function useTickDone() {
-  const series = useSeriesById()
-  return useCallback(
-    (task: Item) => {
-      const s = task.series_id ? series.get(task.series_id) : undefined
-      const was = task.status
-      let next: string | undefined
-      if (s && s.mode === 'after_completion' && stillRepeats(task, s))
-        next = completeOccurrence(task.id, afterCompletion(s.rule, todayIn(s.timezone)))
-      else updateItem(task.id, { status: 'done' })
-      // Undo puts it back as it was (in Someday, say), and takes away the
-      // next occurrence ticking it made.
-      toast(`Done "${itemTitle(task)}"`, {
-        action: {
-          label: 'Undo',
-          onClick: () => {
-            updateItem(task.id, { status: was })
-            if (next) archiveItem(next)
-          },
-        },
-      })
+function tickDone(task: Item) {
+  const s = task.series_id ? seriesNow().find((x) => x.id === task.series_id) : undefined
+  const was = task.status
+  let next: string | undefined
+  if (s && s.mode === 'after_completion' && stillRepeats(task, s))
+    next = completeOccurrence(task.id, afterCompletion(s.rule, todayIn(s.timezone)))
+  else updateItem(task.id, { status: 'done' })
+  // Undo puts it back as it was (in Someday, say), and takes away the
+  // next occurrence ticking it made.
+  toast(`Done "${itemTitle(task)}"`, {
+    action: {
+      label: 'Undo',
+      onClick: () => {
+        updateItem(task.id, { status: was })
+        if (next) archiveItem(next)
+      },
     },
-    [series],
-  )
+  })
 }
+
+export const useTickDone = () => tickDone

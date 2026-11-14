@@ -1,7 +1,7 @@
 import { parseCapture } from '@lifeos/capture'
 import { useNavigate } from '@tanstack/react-router'
 import { toast } from '@/components/ui/sonner'
-import { convertItem, queue, updateItem, useSettings, type Item, type ItemFields } from '@/data'
+import { convertItem, settingsNow, updateItem, type Item, type ItemFields } from '@/data'
 import { zonedInstant } from '@/lib/dates'
 import { eventAsTask, taskAsEvent } from '@/lib/events'
 import { typeLook } from '@/lib/item-types'
@@ -19,10 +19,11 @@ const withArticle = (label: string) => `${/^[aeiou]/i.test(label) ? 'an' : 'a'} 
  * offline as well. Sorted into a Recipe, it offers Open rather than Undo.
  */
 export function useConvert() {
-  const settings = useSettings(queue)
   const navigate = useNavigate()
   const open = useOpenItem()
   return (item: Item, type: string) => {
+    // Read when it is converted: a row that offers it isn't drawn again with every write.
+    const settings = settingsNow()
     // A Thought into a Reminder (RMD-006 1): its Alert at the time its text
     // names, those words out of its title; the server gives it one an hour
     // from now if it names none, or one gone by. Its popup opens.

@@ -10,6 +10,8 @@
     <!-- The app icon (docs/30-design/patterns.md#the-app-icon). -->
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <!-- The first request to Supabase doesn't wait for a connection to be made. -->
+    <link rel="preconnect" href="%VITE_SUPABASE_URL%" crossorigin />
     <script>
       // Follow the system's light or dark mode before the first paint.
       const dark = matchMedia('(prefers-color-scheme: dark)')

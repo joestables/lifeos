@@ -16,6 +16,29 @@ decisions known so far.*
   Items, 1,200 links): a week of Plan 4–6 ms; every live Item 8–9 ms; a
   member reading 300 of my Recipes through the Household 5 ms. Re-run it
   when the rule or the data grows.
+- **A change shows in well under a second on a phone.** Measured on
+  14 November 2026 in Chrome held to a quarter of this machine's speed,
+  against the stand-in with 990 Items (300 Tasks on Plan): ticking a Task
+  on Plan took 2.2–3.7 s to answer and is now about 0.4 s; on Today 1.5 s,
+  now 0.3 s. Opening a page cold fell by about a third (Today 3.1 s to
+  2.1 s, Plan 3.8 s to 2.6 s, Notes 2.1 s to 1.5 s, Week 2.0 s to 1.4 s).
+  What keeps it so:
+  - a list's row is drawn again only when what it shows changes (`TaskRow`),
+    and reads my settings and the series when pressed (`settingsNow`,
+    `seriesNow`), not by listening to every write;
+  - the Items with unsent writes laid over them are worked out once for
+    everything that reads them, and the write queue says nothing when it
+    reads itself and finds the same;
+  - a formatter for a timezone is made once (`zonedParts`, `zonedInstant`,
+    `todayIn`), never per Item.
+- **A first visit fetches what the page needs.** The same day: Today's
+  scripts and styles fell from 500 KB in 67 files to 443 KB in 48
+  (compressed). The shared components are no longer sent whole to every
+  page (the body map, the Gym's charts and a Recipe's editor load with the
+  pages that use them), the Calendar loads once the page is idle, and
+  React, Supabase, TanStack and Base UI are files of their own, cached for
+  a year (`vercel.json`), so a deploy sends a device only the app's own
+  code. The design-system pages are not kept offline.
 - Capture must be faster than Google Tasks or setting a phone alarm
   ([vision](../00-foundation/vision.md)).
 - Shared Shopping lists update live; elsewhere, data refreshes on focus.

@@ -36,12 +36,20 @@ export const weekdayOf = (day: Day): number =>
 export const daysInMonth = (year: number, month: number): number =>
   new Date(Date.UTC(year, month, 0)).getUTCDate()
 
+/** One formatter for each timezone, made once: every page asks what day it is each time it is drawn. */
+const dayIn = new Map<string, Intl.DateTimeFormat>()
+
 /** The day it is now in a timezone ("Europe/London"). */
 export function todayIn(timezone: string, now: Date = new Date()): Day {
-  return new Intl.DateTimeFormat('en-CA', {
-    timeZone: timezone,
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  }).format(now)
+  let format = dayIn.get(timezone)
+  if (!format) {
+    format = new Intl.DateTimeFormat('en-CA', {
+      timeZone: timezone,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    })
+    dayIn.set(timezone, format)
+  }
+  return format.format(now)
 }

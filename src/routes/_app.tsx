@@ -14,7 +14,7 @@ import {
   UtensilsIcon,
   WalletIcon,
 } from 'lucide-react'
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { AppShell, type DrawerPage } from '@/components/lifeos'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { CaptureProvider } from '@/app/capture'
@@ -83,12 +83,11 @@ function SignedIn() {
   const settings = useSettings(queue)
   const alertsOf = useAlertTimes()
   // How much is on Today, done and past too; never Thoughts (TDY-005).
-  const waiting = todayList(
-    items.filter(mine),
-    todayIn(settings.timezone),
-    settings.timezone,
-    alertsOf,
-  ).count
+  const today = todayIn(settings.timezone)
+  const waiting = useMemo(
+    () => todayList(items.filter(mine), today, settings.timezone, alertsOf).count,
+    [items, mine, today, settings.timezone, alertsOf],
+  )
   const online = useOnline()
 
   useEffect(() => {

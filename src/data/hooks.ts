@@ -53,6 +53,34 @@ export function useQueueEntries(queue: WriteQueue): readonly QueueEntry[] {
   return useSyncExternalStore(queue.subscribe, queue.entries, queue.entries)
 }
 
+const NONE: readonly QueueEntry[] = []
+const sameEntry = (a: QueueEntry, b: QueueEntry) =>
+  a.id === b.id && a.state === b.state && a.attempts === b.attempts && a.error === b.error
+
+/**
+ * The waiting writes of one kind, the same list until one of that kind
+ * comes or goes: what reads it isn't drawn again for every other write.
+ */
+function entriesOf(fn: QueueEntry['fn']): (queue: WriteQueue) => readonly QueueEntry[] {
+  const kept = new WeakMap<
+    WriteQueue,
+    { all: readonly QueueEntry[]; mine: readonly QueueEntry[] }
+  >()
+  return (queue) => {
+    const all = queue.entries()
+    const last = kept.get(queue)
+    if (last?.all === all) return last.mine
+    const found = all.filter((e) => e.fn === fn)
+    const was = last?.mine ?? NONE
+    const mine =
+      found.length === was.length && found.every((e, i) => sameEntry(e, was[i]!)) ? was : found
+    kept.set(queue, { all, mine })
+    return mine
+  }
+}
+
+const settingsEntries = entriesOf('update_settings')
+
 /** How many writes are waiting, and how many the server refused (SyncStatus). */
 export function useSyncCounts(queue: WriteQueue): { pending: number; failed: number } {
   const entries = useQueueEntries(queue)
@@ -65,12 +93,29 @@ export function useSyncCounts(queue: WriteQueue): { pending: number; failed: num
   )
 }
 
+/**
+ * The last answer kept, for the same things asked again: a dozen parts of a
+ * page read the Items at once, and each gets the one list worked out once,
+ * so a row whose Item hasn't changed is the same object for all of them.
+ */
+function keepLast<A extends readonly unknown[], R>(work: (...args: A) => R): (...args: A) => R {
+  let last: { args: A; result: R } | undefined
+  return (...args) => {
+    if (!last || args.some((a, i) => a !== last!.args[i])) last = { args, result: work(...args) }
+    return last.result
+  }
+}
+
+const laidOver = keepLast(applyPending)
+const liveOf = keepLast((all: Item[]) => all.filter((i) => i.archived_at === null))
+const NO_ITEMS: Item[] = []
+
 /** Every Item, deleted ones included, with unsent changes laid over them. */
 function useAllItems(queue: WriteQueue) {
   const query = useQuery({ queryKey: itemsKey, queryFn: fetchItems })
   const entries = useQueueEntries(queue)
   const online = useOnline()
-  const all = useMemo(() => applyPending(query.data ?? [], entries), [query.data, entries])
+  const all = laidOver(query.data ?? NO_ITEMS, entries)
   return { all, isLoading: query.isLoading, outOfDate: !online || query.isError }
 }
 
@@ -85,8 +130,7 @@ export function useItems(queue: WriteQueue): {
   outOfDate: boolean
 } {
   const { all, isLoading, outOfDate } = useAllItems(queue)
-  const items = useMemo(() => all.filter((i) => i.archived_at === null), [all])
-  return { items, isLoading, outOfDate }
+  return { items: liveOf(all), isLoading, outOfDate }
 }
 
 /**
@@ -161,7 +205,12 @@ export function useSettings(queue: WriteQueue): Settings {
     queryFn: () => fetchSettings(me),
     enabled: me !== '',
   })
-  const entries = useQueueEntries(queue)
+  // Only unsent changes to my settings: nearly every part of a page reads them.
+  const entries = useSyncExternalStore(
+    queue.subscribe,
+    () => settingsEntries(queue),
+    () => settingsEntries(queue),
+  )
   return useMemo(
     () => applyPendingSettings(query.data ?? DEFAULT_SETTINGS, entries),
     [query.data, entries],

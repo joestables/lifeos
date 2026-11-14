@@ -204,6 +204,27 @@ describe('the write queue', () => {
     expect(most).toBe(1)
     expect(queue.entries()).toHaveLength(0)
   })
+
+  it('says nothing when it reads what is waiting and finds the same, so no page draws again', async () => {
+    const server = fakeServer()
+    server.online = false
+    const queue = new WriteQueue({
+      store: freshStore(),
+      transport: server.transport,
+      schedule: noRetry,
+    })
+    writes(queue).createItem('thought', { title: 'Milk' })
+    await queue.flush()
+    const told = vi.fn()
+    queue.subscribe(told)
+    const before = queue.entries()
+
+    await queue.load()
+    await queue.discard('not-there')
+
+    expect(told).not.toHaveBeenCalled()
+    expect(queue.entries()).toBe(before)
+  })
 })
 
 describe('a write sent twice (OFF-004)', () => {
