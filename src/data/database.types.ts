@@ -1382,6 +1382,40 @@ export type Database = {
         }
       }
       decline_invite: { Args: { p_invite: string }; Returns: undefined }
+      delete_following: {
+        Args: { p_item: string }
+        Returns: {
+          all_day: boolean | null
+          archived_at: string | null
+          body: string | null
+          created_at: string
+          do_at: string | null
+          do_on: string | null
+          due_on: string | null
+          ends_at: string | null
+          id: string
+          occurrence_on: string | null
+          owner_id: string
+          place: string | null
+          position: string | null
+          search: unknown
+          series_id: string | null
+          slot: string | null
+          space_id: string
+          starts_at: string | null
+          status: string
+          title: string
+          touched_at: string | null
+          type: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'items'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       delete_household: { Args: { p_id: string }; Returns: undefined }
       delete_label: { Args: { p_id: string }; Returns: undefined }
       delivery_for_action: {

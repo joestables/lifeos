@@ -98,6 +98,10 @@ export function applyPendingSeries(
     } else if (entry.fn === 'stop_repeat') {
       const was = occurrenceOf((entry.args as { p_item: string }).p_item)
       end(was.series_id, was.occurrence_on)
+    } else if (entry.fn === 'delete_following') {
+      // Ended the day before the occurrence deleted (ITM-002 3).
+      const was = occurrenceOf((entry.args as { p_item: string }).p_item)
+      end(was.series_id, dayBefore(was.occurrence_on))
     }
   }
   return out

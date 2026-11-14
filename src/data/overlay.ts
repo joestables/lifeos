@@ -322,6 +322,23 @@ export function applyPending(items: readonly ItemRow[], entries: readonly QueueE
         if (item?.occurrence_on) takeAway(item.series_id, addDays(item.occurrence_on, 1))
         break
       }
+      case 'delete_following': {
+        // This one and every later one, changed or not (ITM-002 3).
+        const item = byId.get((entry.args as { p_item: string }).p_item)
+        if (!item) break
+        if (!item.series_id || !item.occurrence_on) {
+          mark(item.id, { archived_at: at })
+          break
+        }
+        for (const i of [...byId.values()])
+          if (
+            i.series_id === item.series_id &&
+            i.occurrence_on! >= item.occurrence_on &&
+            i.archived_at === null
+          )
+            mark(i.id, { archived_at: at })
+        break
+      }
       case 'complete_occurrence': {
         const { p_id, p_next, p_next_on } = entry.args as {
           p_id: string

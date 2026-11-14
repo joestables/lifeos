@@ -25,6 +25,7 @@ import { isAndroidApp } from '@/native/platform'
 import { useOpenCapture } from '@/app/open-capture'
 import { useMine } from '@/app/mine'
 import { ItemPopup } from '@/app/items'
+import { DeleteRepeating } from '@/app/delete-repeating-dialog'
 import { useOpenSearch } from '@/app/open-search'
 import { SearchProvider } from '@/app/search'
 import {
@@ -157,6 +158,7 @@ function Shell({
     >
       <Outlet />
       <ItemPopup id={item} isNew={isNew} />
+      <DeleteRepeating />
       <CookTimerAlerts />
       {isAndroidApp() && <TodayWidgetFeed />}
     </AppShell>

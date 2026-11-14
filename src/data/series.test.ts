@@ -125,6 +125,37 @@ describe('a repeat shows at once, before it is sent (OFF-001)', () => {
     expect(after.map((i) => i.archived_at !== null)).toEqual([false, true])
   })
 
+  it('ITM-002 3: delete this and all following takes later ones, changed too, and ends the series', () => {
+    const items = [
+      row('a', { series_id: 'w', occurrence_on: '2026-10-12' }),
+      row('b', { series_id: 'w', occurrence_on: '2026-10-19' }),
+      row('c', { series_id: 'w', occurrence_on: '2026-10-26', touched_at: '2026-10-01T00:00:00Z' }),
+      row('x', { occurrence_on: null }),
+    ]
+    const del = entry('delete_following', { p_item: 'b' })
+    expect(applyPending(items, [del]).map((i) => [i.id, i.archived_at !== null])).toEqual([
+      ['a', false],
+      ['b', true],
+      ['c', true],
+      ['x', false],
+    ])
+    const series = applyPendingSeries(
+      [
+        {
+          id: 'w',
+          mode: 'schedule',
+          rule: 'FREQ=WEEKLY',
+          starts_on: '2026-10-12',
+          timezone: 'Europe/London',
+          ended_on: null,
+        },
+      ],
+      [del],
+      items,
+    )
+    expect(series[0]!.ended_on).toBe('2026-10-18')
+  })
+
   it('TSK-009: ticking one repeated after completion shows the next', () => {
     const kettle = row('k', {
       title: 'Descale',

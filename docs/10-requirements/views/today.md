@@ -148,8 +148,9 @@ Acceptance criteria
    tapping it opens it (ITM-001).
 3. Given a Reminder or a Task, then its "…" menu converts it (RMD-006) or
    deletes it.
-4. Given a phone, then a Fab ("+") opens Plan's "New" menu, Add to Today:
-   a Task, an Event or a Reminder, each for today (Joe, 14 November).
+4. Given a phone, then a Fab ("+") opens Week's "+" for today, Add to
+   Today: every Schedulable Type (Task, Event, Reminder, Meal, Shopping
+   list, Workout), each new one for today (Joe, 14 November).
 
 ### TDY-005 — How much is on Today, in the drawer
 

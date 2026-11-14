@@ -141,7 +141,7 @@ const collections: {
   {
     // Before Items: a series is laid over the Items as they were.
     key: seriesKey,
-    fns: ['set_repeat', 'stop_repeat'],
+    fns: ['set_repeat', 'stop_repeat', 'delete_following'],
     fold: (rows: Series[], e: QueueEntry) =>
       applyPendingSeries(rows, [e], queryClient.getQueryData<ItemRow[]>(itemsKey) ?? []),
   },
@@ -155,6 +155,7 @@ const collections: {
       'convert_item',
       'set_repeat',
       'stop_repeat',
+      'delete_following',
       'complete_occurrence',
       // A calendar turned off takes its Events off Plan (GCL-002 3).
       'set_calendar_level',
@@ -534,6 +535,7 @@ export const {
   setEventCalendar,
   setRepeat,
   stopRepeat,
+  deleteFollowing,
   completeOccurrence,
 } = writes(queue, labelsNow)
 

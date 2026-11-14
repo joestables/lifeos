@@ -22,8 +22,13 @@ which LifeOS replaces in Stage 2, has repeating tasks.
   date and starts a new one. Untouched future occurrences are regenerated;
   touched ones stay, still carrying the series they came from.
 - **Editing one occurrence** changes only that Item and marks it touched.
-- **Deleting a series** archives its untouched future occurrences and keeps
-  everything in the past or touched.
+- **Stopping a series** (Repeat None) archives its untouched future
+  occurrences and keeps everything in the past or touched.
+- **Deleting a series** (Delete, "This and all following"; amended 14
+  November, Joe) ends it the day before the occurrence chosen and archives
+  that one and every later one, touched or not, since Delete means them
+  gone; the past stays. "This one" deletes the occurrence alone
+  ([ITM-002](../../10-requirements/cross-cutting/items.md#itm-002--delete-with-undo) 3).
 - **Two repeat modes:** *on a schedule* (every Monday) and *after completion*
   ("every 3 months after I last did it"), where the next occurrence is
   created when the current one is done.

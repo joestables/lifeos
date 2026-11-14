@@ -11,13 +11,11 @@ import {
   PageHeader,
   SectionLabel,
   TypeTile,
-  type AddChoice,
 } from '@/components/lifeos'
 import { useAlertTimes } from '@/app/alert-times'
-import { NewEventDialog } from '@/app/event-details'
+import { ADD_CHOICES } from '@/app/add-choices'
+import { AddToDayDialog } from '@/app/add-to-day'
 import { useMine } from '@/app/mine'
-import { NewReminderDialog } from '@/app/new-reminder'
-import { NewTaskDialog } from '@/app/new-task'
 import { NotificationsOffer } from '@/app/notifications-offer'
 import { PlacedRow } from '@/app/placed-row'
 import { ReminderRow } from '@/app/reminder-row'
@@ -32,11 +30,6 @@ import { todayList, type OnToday } from '@/lib/today'
 export const Route = createFileRoute('/_app/today')({ component: Today })
 
 const THOUGHT = typeLook('thought')
-/** The phone's "+": a Task, an Event or a Reminder for today, as Plan's (TDY-004 5). */
-const NEW: AddChoice[] = (['task', 'event', 'reminder'] as const).map((key) => {
-  const t = typeLook(key)
-  return { key, label: t.label, colour: t.colour as AddChoice['colour'], icon: t.icon }
-})
 
 function Today() {
   const settings = useSettings(queue)
@@ -113,14 +106,15 @@ function Today() {
       </div>
       <AddToDay
         day="Today"
-        choices={NEW}
+        choices={ADD_CHOICES}
         onChoose={setAdding}
         trigger={<Fab label="Add to Today" />}
         side="top"
       />
-      {adding === 'task' && <NewTaskDialog onClose={() => setAdding(null)} />}
-      {adding === 'event' && <NewEventDialog day={today} onClose={() => setAdding(null)} />}
-      {adding === 'reminder' && <NewReminderDialog day={today} onClose={() => setAdding(null)} />}
+      {/* Week's "+" for today: every Schedulable Type (TDY-004 4). */}
+      {adding && (
+        <AddToDayDialog type={adding} day={today} today={today} onClose={() => setAdding(null)} />
+      )}
     </>
   )
 }

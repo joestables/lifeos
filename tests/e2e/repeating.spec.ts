@@ -241,3 +241,48 @@ test('TSK-011: one occurrence changes alone; a new repeat from it on; stopping k
   await page.keyboard.press('Escape')
   await expect(rowOf(page, 'Recycling and glass')).not.toContainText('Weekly')
 })
+
+test('ITM-002 3: a repeating Item deletes this one, or this and all following, the changed one too', async ({
+  page,
+}) => {
+  const db = await start(page)
+  // This one: only Monday's goes, with Undo.
+  let task = await openTask(page, 'Recycling')
+  await task.getByRole('button', { name: 'More' }).click()
+  await page.getByRole('menuitem', { name: 'Delete' }).click()
+  let ask = page.getByRole('alertdialog', { name: 'Delete a repeating task' })
+  await ask.getByRole('button', { name: 'This task' }).click()
+  await expect(page.getByText('Deleted "Recycling"')).toBeVisible()
+  await expect
+    .poll(
+      () => db.items.filter((i) => i.series_id === 'recycling' && i.archived_at === null).length,
+    )
+    .toBe(3)
+  expect(db.series.find((s) => s.id === 'recycling')?.ended_on).toBeNull()
+
+  // This and all following, from the 19th: the one I changed goes too.
+  await page.getByRole('tab', { name: 'Recurring' }).click()
+  await page.getByRole('tab', { name: 'Tasks' }).click()
+  task = await openTask(page, 'Recycling')
+  await task.getByRole('button', { name: 'More' }).click()
+  await page.getByRole('menuitem', { name: 'Delete' }).click()
+  ask = page.getByRole('alertdialog', { name: 'Delete a repeating task' })
+  await ask.getByRole('button', { name: 'This and all following' }).click()
+  await expect(page.getByText('Deleted "Recycling" and all following')).toBeVisible()
+  await expect
+    .poll(
+      () => db.items.filter((i) => i.series_id === 'recycling' && i.archived_at === null).length,
+    )
+    .toBe(0)
+  expect(db.series.find((s) => s.id === 'recycling')?.ended_on).toBe('2026-10-18')
+  await expect(rowOf(page, 'Recycling')).toHaveCount(0)
+})
+
+test('ITM-002 3: an Item that does not repeat is deleted at once', async ({ page }) => {
+  const db = await start(page)
+  const task = await openTask(page, 'Descale the kettle')
+  await task.getByRole('button', { name: 'More' }).click()
+  await page.getByRole('menuitem', { name: 'Delete' }).click()
+  await expect(page.getByRole('alertdialog')).toHaveCount(0)
+  await expect.poll(() => db.items.find((i) => i.id === id(2))?.archived_at).not.toBeNull()
+})
