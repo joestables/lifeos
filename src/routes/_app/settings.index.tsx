@@ -95,10 +95,8 @@ function Settings() {
     <>
       <PageHeader title="Settings" />
       <div className="flex max-w-3xl flex-col gap-4 px-5 pb-8 sm:px-9">
-        <div className="grid items-start gap-4 md:grid-cols-2">
-          <NotificationsCard />
-          <AlertsCard />
-        </div>
+        <NotificationsCard />
+        <AlertsCard />
         <GoogleCalendarCard />
         <div className="hidden md:block">
           <LabelsCard />

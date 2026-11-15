@@ -130,7 +130,7 @@ export function MealPicker({
           size="sm"
           autoFocus
           aria-label="Meal"
-          placeholder="Takeaway pizza"
+          placeholder="Meal"
           value={typed}
           onChange={(e) => setTyped(e.target.value)}
         />

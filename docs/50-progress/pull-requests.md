@@ -46,7 +46,8 @@ November and Joe's answers to each finding (15 November)
   Slider's thumb, a stepper and the Pantry's Pills, drawn no larger; an
   Item's popup fades at its foot while more lies below.
 - **Empty pages offer their action** on a computer (H3); **Recipe cards**
-  are one height (H5).
+  are one height, and Settings is one column on a computer too:
+  Notifications and Alerts no longer sit side by side (H5).
 - **The type scale** (I1, I2): a `Text` component, and 106 places where a
   screen styled its own words now use it; four weights (550 and 650 went);
   11px named `text-2xs`.
@@ -63,10 +64,9 @@ November and Joe's answers to each finding (15 November)
   it five seconds on if the screen hasn't (ADR-0063, REM-011 2).
 
 **Not changed, at Joe's word:** A2, A5, B3 (but a typed Meal's example is
-"Takeaway pizza"), D4, E5, F3, G4, H4, I3.
+"Meal"), D4, E5, F3, G4, H4, I3.
 
 **Left for later**
-- Settings on a computer (H5): what Joe meant by "don't stack" is asked.
 - E6: the ingredient field's width is what its drag handle and remove
   button leave; unchanged.
 - 39 colour and radius classes still sit on screens; the type ones went.

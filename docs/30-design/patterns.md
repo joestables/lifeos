@@ -289,8 +289,9 @@ and Week.
 
 ## Settings
 
-- One column of Cards, the reading width; first Notifications and Alerts, side
-  by side on a computer.
+- One column of Cards, the reading width, on a computer as on a phone:
+  first Notifications, then Alerts (Joe, 15 November: they sat side by
+  side, at very different heights).
 - **Notifications** (REM-001): a titled Card. "This device" with an
   outline "Turn on", until this device has notifications; where it can't,
   a muted few words instead ("Add LifeOS to your Home Screen first", "Not
@@ -675,7 +676,7 @@ MealCard, MealSlot, AddMealButton, MealWeek, MealDay and PantryRow in
   ghost "Type a meal" (`utensils`) and "Leftovers" (`rotate-ccw`). A Recipe
   with one Variation is planned at once; with more, the list becomes its
   Variations under a ghost back button and the Recipe's name, the default
-  first. **Type a meal** becomes an `sm` Input ("Takeaway pizza") and Add.
+  first. **Type a meal** becomes an `sm` Input ("Meal") and Add.
   **Leftovers** lists the Meals of the seven days before the slot, newest
   first ("Katsu curry · Thu dinner"), leftovers themselves left out. A new
   Meal serves what its Variation does, and goes where Settings → Food says
