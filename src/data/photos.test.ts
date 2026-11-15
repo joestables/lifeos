@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { photoSizes } from '@/lib/photo-resize'
-import { applyPendingPhotos, type Photo } from './photos'
+import { applyPendingPhotos, smallPath, type Photo } from './photos'
 import type { QueueEntry } from './queue/store'
 
 const entry = (fn: string, args: Record<string, unknown>) =>
@@ -22,6 +22,10 @@ describe('ADR-0052: photos', () => {
       { width: 1024, height: 768 },
     ])
     expect(photoSizes(800, 600, 1)).toEqual([{ width: 800, height: 600 }])
+  })
+
+  it('keeps a photo’s small copy beside it, under the same Item', () => {
+    expect(smallPath('r/a.webp')).toBe('r/a.small.webp')
   })
 
   it('RCP-006 3: a new photo shows at once in place of the old; removed, it goes', () => {

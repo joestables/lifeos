@@ -39,6 +39,22 @@ decisions known so far.*
   React, Supabase, TanStack and Base UI are files of their own, cached for
   a year (`vercel.json`), so a deploy sends a device only the app's own
   code. The design-system pages are not kept offline.
+- **The library's photos come quickly, and once.** On 15 November 2026 the
+  library fetched every Recipe's photo whole to show it on a card: Joe's 19
+  photos, 184 KB and about 1,200px each, 3.5 MB; and none was kept for
+  offline, because a picture asked for without CORS can't be, so each came
+  again once the browser's hour was up. Now
+  ([ADR-0052](../20-architecture/adr/0052-food-in-the-database.md)):
+  - a card shows a photo's small copy (640px at most), as do a Meal, a
+    Recipe's page and its Dialogs;
+  - a picture loads as it nears the screen (a library of 124 on a phone
+    fetched 18), and is decoded off the page's thread;
+  - the service worker keeps each picture by its path, so it is fetched
+    once however often its link changes (checked in Chrome: a second link
+    to the same file made no request);
+  - a card is drawn again only when what it shows changes (`LibraryCard`):
+    in Chrome at a quarter speed with 124 Recipes, a letter typed in the
+    search paints in 25–50 ms and a heart in 80 ms.
 - Capture must be faster than Google Tasks or setting a phone alarm
   ([vision](../00-foundation/vision.md)).
 - Shared Shopping lists update live; elsewhere, data refreshes on focus.

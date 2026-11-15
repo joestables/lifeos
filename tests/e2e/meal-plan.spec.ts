@@ -301,15 +301,17 @@ test.describe('The Meal plan', () => {
       { id: 'p2', item_id: NOODLES, kind: 'photo', path: other, width: 400, height: 300 },
     ]
     const db = await standIn(page, { signedIn: true, rows })
-    db.files.set(photo, Buffer.from('stand-in'))
-    db.files.set(other, Buffer.from('stand-in'))
+    // A card shows a photo's small copy (ADR-0052).
+    const small = (path: string) => path.replace('.webp', '.small.webp')
+    for (const path of [photo, other, small(photo), small(other)])
+      db.files.set(path, Buffer.from('stand-in'))
     const signed: string[][] = []
     page.on('request', (r) => {
       if (r.url().includes('/storage/v1/object/sign/photos') && r.method() === 'POST')
         signed.push((r.postDataJSON() as { paths: string[] }).paths)
     })
     await page.goto('/meal-plan')
-    await expect.poll(() => signed.flat()).toContain(photo)
+    await expect.poll(() => signed.flat()).toContain(small(photo))
     const asked = signed.length
     await add(page, '2026-10-14:dinner')
     await page
@@ -322,8 +324,10 @@ test.describe('The Meal plan', () => {
       .click()
     await expect(cards(page, '2026-10-14:dinner')).toHaveCount(1)
     // Only the new Meal's photo is asked for, not Katsu curry's again.
-    await expect.poll(() => signed.slice(asked).flat()).toContain(other)
-    expect(signed.slice(asked).flat()).not.toContain(photo)
+    await expect.poll(() => signed.slice(asked).flat()).toContain(small(other))
+    expect(signed.slice(asked).flat()).not.toContain(small(photo))
+    // Neither is asked for whole: each has its small copy.
+    expect(signed.flat()).not.toContain(photo)
   })
 
   test('MPL-002 1: on a phone, a day’s + opens a Dialog, its slot chosen there', async ({

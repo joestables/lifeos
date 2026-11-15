@@ -40,7 +40,7 @@ export function IdeaDialog({
   const [links, setLinks] = useState(v?.fields.sources.length ? v.fields.sources : [''])
   const [note, setNote] = useState(v?.fields.notes ?? '')
   const [photo, setPhoto] = useState<PhotoChoice>(null)
-  const current = usePhotoUrls([idea.photo?.path]).get(idea.photo?.path ?? '')
+  const current = usePhotoUrls([idea.photo?.path], 'small').get(idea.photo?.path ?? '')
   const taken = name.trim() ? nameTaken(food.recipes, name, idea.item.id) : undefined
   const problem = !name.trim() ? 'An idea needs a name' : taken ? takenMessage(taken) : null
 

@@ -2,6 +2,50 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#92](https://github.com/joestables/lifeos/pull/92) — Performance: the library's photos, small and kept
+
+Branch `claude/stoic-meitner-ec9tgi` · 2026-11-15 · Joe: the Recipes
+thumbnails take a while to load
+
+**What it did**
+- **Found why** (figures in
+  [non-functional](../10-requirements/non-functional.md#performance)): a
+  card showed its Recipe's whole photo, so the library fetched all 19 of
+  Joe's (184 KB and about 1,200px each, 3.5 MB); and the service worker
+  had never kept one for offline, because a picture asked for without CORS
+  can't be kept, so each came again once the browser's hour was up.
+- **A small copy of each photo** (ADR-0052, amended): 640px at most, made
+  on the device with the photo and kept beside it in Storage. A card, a
+  Meal, a Recipe's page and its Dialogs show it; only the library's
+  largest cards show the photo whole. A photo kept before now shows whole
+  until its owner's device has made its small copy, which it does the next
+  time the library shows it. No change to the database.
+- **Pictures are kept, once**: asked for with CORS (`StoredPicture`, and
+  plainly if that is ever refused), so the service worker can keep them;
+  kept by their path, so next week's link to the same file fetches
+  nothing; uploaded to be cached for a year.
+- **Pictures load as they near the screen**, decoded off the page's
+  thread.
+- **A library card is drawn again only when what it shows changes**.
+- **Audited and left alone**: the database (the app's queries take
+  2–14 ms; the advisor has nothing above a note), and the Android app,
+  which shows the site and so gains all of this with no new APK.
+
+**Verified**
+- `npm run check`, `npm run build`, and the browser tests in Docker, with
+  new walks: a photo's small copy is made, kept and shown; an older photo
+  is given one; the Meal plan asks for small copies only.
+- In Chrome with the built service worker and a second origin: a plain
+  picture was not kept, a CORS one was, and a new link to it made no
+  request.
+
+**Left for later**
+- Joe's existing photos get their small copies the first time he opens
+  the library after this is deployed (once, about a second each).
+- Storage holds 26 files for 19 photos: the other seven (0.8 MB) are of
+  Recipes since deleted for good, whose files nothing removes. Harmless;
+  not removed here.
+
 ## [#91](https://github.com/joestables/lifeos/pull/91) — The UX audit's fixes: Capture, one day order, contrast, touch, the Alarm
 
 Branch `claude/wonderful-ritchie-caa68v` · 2026-11-15 · from the

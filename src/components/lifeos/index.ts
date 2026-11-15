@@ -43,6 +43,7 @@ export {
 } from './AlertList'
 export { EventTimesField, type EventTimesValue } from './EventTimesField'
 export { EventFact, EventSource, ItemNote } from './EventFacts'
+export { StoredPicture } from './StoredPicture'
 export { RecipeCard, RecipeGrid, RecipePhoto, StarRating, type CardSize } from './RecipeCard'
 export {
   FilterLayout,

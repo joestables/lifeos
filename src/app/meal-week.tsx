@@ -75,7 +75,10 @@ export function WeekTab({
   const show = kept === ALL || spaces.some((s) => s.id === kept) ? kept : ALL
   const shown = show === ALL ? plan.meals : plan.meals.filter((m) => m.space === show)
   const meals = weekMeals(shown, week)
-  const photos = usePhotoUrls([...meals.values()].flat().map((m) => m.picture))
+  const photos = usePhotoUrls(
+    [...meals.values()].flat().map((m) => m.picture),
+    'small',
+  )
   const [adding, setAdding] = useState<string | null>(null)
   // A phone plans in a Dialog: the day, and the slot tapped.
   const [planning, setPlanning] = useState<{ day: string; slot?: SlotKey } | null>(null)

@@ -208,7 +208,7 @@ function Heading({
   go: RecipeGo
 }) {
   const [naming, setNaming] = useState<'duplicate' | 'mine' | 'new' | null>(null)
-  const photo = usePhotoUrls([recipe.photo?.path]).get(recipe.photo?.path ?? '')
+  const photo = usePhotoUrls([recipe.photo?.path], 'small').get(recipe.photo?.path ?? '')
   const { firstName } = useFoodSpaces(queue)
   const h = recipe.heading
   // A member's Recipe says whose it is, first (patterns.md#recipes).

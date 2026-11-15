@@ -1,7 +1,7 @@
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { CheckIcon, ChefHatIcon } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
-import { TypeScope, TypeTile } from '@/components/lifeos'
+import { StoredPicture, TypeScope, TypeTile } from '@/components/lifeos'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { keepShared, keepWaiting, useFillShared } from '@/app/share-actions'
@@ -87,7 +87,7 @@ function SharePage() {
           null)
         : null
   const recipe = recipeId ? food.byId.get(recipeId) : undefined
-  const photo = usePhotoUrls([recipe?.photo?.path]).get(recipe?.photo?.path ?? '')
+  const photo = usePhotoUrls([recipe?.photo?.path], 'small').get(recipe?.photo?.path ?? '')
   const before = outcome?.kind === 'before'
   const name =
     recipe?.item.title ?? (outcome?.kind === 'saved' ? outcome.name : link ? siteOf(link) : '')
@@ -111,7 +111,11 @@ function SharePage() {
         <h1 className="text-h2">{before ? 'Already saved' : 'Saved as an idea'}</h1>
         <Card className="w-full max-w-xs flex-row items-center gap-3 p-2.5 text-left">
           {photo ? (
-            <img src={photo} alt="" className="size-12 shrink-0 rounded-sm object-cover" />
+            <StoredPicture
+              src={photo}
+              alt=""
+              className="size-12 shrink-0 rounded-sm object-cover"
+            />
           ) : (
             <div className="size-12 shrink-0 rounded-sm bg-muted" />
           )}
