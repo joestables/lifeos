@@ -3,6 +3,7 @@ import type * as React from 'react'
 import { useState, type ReactNode } from 'react'
 import { Checkbox } from '@/components/ui/checkbox'
 import { cn } from '@/lib/utils'
+import { StoredPicture } from './StoredPicture'
 
 /** The three slots, in order (Joe, 18 October). */
 export type Slot = 'Breakfast' | 'Lunch' | 'Dinner'
@@ -108,7 +109,7 @@ export function MealCard({
         </span>
       )}
       {photo && photo !== broken && (
-        <img
+        <StoredPicture
           src={photo}
           alt=""
           draggable={false}

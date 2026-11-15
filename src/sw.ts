@@ -25,14 +25,21 @@ clientsClaim()
 precacheAndRoute(self.__WB_MANIFEST)
 cleanupOutdatedCaches()
 registerRoute(new NavigationRoute(createHandlerBoundToURL('/index.html')))
-// Photos seen before show offline (RCP-016 1): kept by their week-long link.
+// Photos seen before show offline (RCP-016 1), and are fetched once: a
+// photo's file never changes, so it is kept by its path, whichever link
+// (each lasts a week) asked for it. Cleared when someone else signs in.
 registerRoute(
   ({ url }) => url.pathname.includes('/storage/v1/object/sign/photos/'),
   new CacheFirst({
     cacheName: 'photos',
     plugins: [
+      { cacheKeyWillBeUsed: async ({ request }) => request.url.split('?')[0]! },
       new CacheableResponsePlugin({ statuses: [200] }),
-      new ExpirationPlugin({ maxEntries: 500, maxAgeSeconds: 8 * 24 * 3600 }),
+      new ExpirationPlugin({
+        maxEntries: 1000,
+        maxAgeSeconds: 60 * 24 * 3600,
+        purgeOnQuotaError: true,
+      }),
     ],
   }),
 )

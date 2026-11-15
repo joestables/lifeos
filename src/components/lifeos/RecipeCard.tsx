@@ -5,6 +5,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Toggle } from '@/components/ui/toggle'
 import { useLongPress } from '@/hooks/use-long-press'
 import { cn } from '@/lib/utils'
+import { StoredPicture } from './StoredPicture'
 
 /**
  * A Recipe's photo, or, without one, a quiet placeholder: the Type's tint
@@ -28,7 +29,7 @@ export function RecipePhoto({
       )}
     >
       {src ? (
-        <img src={src} alt={alt} className="absolute inset-0 size-full object-cover" />
+        <StoredPicture src={src} alt={alt} className="absolute inset-0 size-full object-cover" />
       ) : (
         <ChefHatIcon aria-hidden className="size-9 opacity-45" strokeWidth={1.5} />
       )}

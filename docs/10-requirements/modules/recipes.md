@@ -273,7 +273,9 @@ Acceptance criteria
 2. Given Edit on my Variation, then I change its name, state, ingredients,
    method, notes, times, servings and sources, and nothing of the heading.
 3. Given a photo from a file, the camera or a link, then it is kept, reduced
-   in size. A photo needs signal: without, I'm told at once it wasn't kept.
+   in size, with a small copy for cards
+   ([ADR-0052](../../20-architecture/adr/0052-food-in-the-database.md)). A
+   photo needs signal: without, I'm told at once it wasn't kept.
 4. Given I leave the page, close a Dialog, lose signal or close the app
    mid-edit, then nothing typed is lost: Edit heading keeps as it goes, and
    a name it can't take stays as it was.

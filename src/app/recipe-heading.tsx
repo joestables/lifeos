@@ -75,7 +75,7 @@ export function HeadingDialog({
   })
   const [tried, setTried] = useState(false)
   const [photo, setPhotoChoice] = useState<PhotoChoice>(null)
-  const current = usePhotoUrls([recipe?.photo?.path]).get(recipe?.photo?.path ?? '')
+  const current = usePhotoUrls([recipe?.photo?.path], 'small').get(recipe?.photo?.path ?? '')
   const taken = name.trim() ? nameTaken(food.recipes, name, recipe?.item.id) : undefined
   const problem = !name.trim() ? 'A recipe needs a name' : taken ? takenMessage(taken) : null
   // An Idea needs neither; anything further, both.

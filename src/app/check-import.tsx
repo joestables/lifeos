@@ -123,7 +123,7 @@ export function CheckImport({ pending, food }: { pending: PendingImport; food: F
   const [steps, setSteps] = useState(() => r.steps.map((text) => ({ key: newId(), text })))
   const [notes, setNotes] = useState(r.notes)
   const [photo, setPhoto] = useState<PhotoChoice>(null)
-  const current = usePhotoUrls([idea?.photo?.path]).get(idea?.photo?.path ?? '')
+  const current = usePhotoUrls([idea?.photo?.path], 'small').get(idea?.photo?.path ?? '')
   const [tried, setTried] = useState(false)
   const [keeping, setKeeping] = useState(false)
   // Kept: leaving no longer asks (a ref, read as the navigation starts).

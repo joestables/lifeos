@@ -11,7 +11,16 @@ import {
   StickyNoteIcon,
   Trash2Icon,
 } from 'lucide-react'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import {
+  memo,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ComponentProps,
+  type RefObject,
+} from 'react'
 import {
   EmptyState,
   FilterLayout,
@@ -55,7 +64,7 @@ import { IdeaDialog } from '@/app/idea-dialog'
 import { archiveRecipes, deleteRecipes } from '@/app/recipe-actions'
 import { HeadingDialog } from '@/app/recipe-heading'
 import { SearchField } from '@/app/search-field'
-import { queue, setMark, useFood, useFoodSpaces, usePhotoUrls } from '@/data'
+import { queue, setMark, useFood, useFoodSpaces, usePhotoUrls, useSmallCopies } from '@/data'
 import type { RecipeView } from '@/data/food-hooks'
 import { capturedWhen } from '@/lib/dates'
 import { sharedLink } from '@/lib/share'
@@ -331,6 +340,41 @@ function useChoosing(onChoosing: (on: boolean) => void) {
   return { choosing, chosen, choose, start, done }
 }
 
+type CardActions = {
+  open: (id: string) => void
+  choose: (id: string, on: boolean) => void
+  start: (id: string) => void
+}
+
+/**
+ * A Recipe's card in the library, drawn again only when what it shows
+ * changes: a letter typed in the search, or one heart pressed, redraws the
+ * cards it changes, not a library of them.
+ */
+const LibraryCard = memo(function LibraryCard({
+  id,
+  mine,
+  actions,
+  ...card
+}: {
+  id: string
+  mine: boolean
+  actions: RefObject<CardActions>
+} & Pick<
+  ComponentProps<typeof RecipeCard>,
+  'name' | 'photo' | 'cuisine' | 'draft' | 'favourite' | 'selecting' | 'selected' | 'unavailable'
+>) {
+  return (
+    <RecipeCard
+      {...card}
+      onOpen={() => actions.current.open(id)}
+      onFavourite={(on) => setMark(id, on)}
+      onSelect={(on) => mine && actions.current.choose(id, on)}
+      onLongPress={card.selecting || !mine ? undefined : () => actions.current.start(id)}
+    />
+  )
+})
+
 function Library({
   food,
   onOpen,
@@ -352,7 +396,12 @@ function Library({
     ? (r: RecipeView) => (r.mine ? 'Me' : (names.get(r.item.owner_id) ?? 'Someone'))
     : undefined
   const shown = libraryRecipes(food.recipes, view, food.pantry, author)
-  const photos = usePhotoUrls(shown.map((r) => r.photo?.path))
+  // A card shows a photo's small copy; the largest cards, the photo whole.
+  const photos = usePhotoUrls(
+    shown.map((r) => r.photo?.path),
+    size === 'L' ? 'whole' : 'small',
+  )
+  useSmallCopies(shown.filter((r) => r.mine).map((r) => r.photo?.path))
   const values = filterValues(all, author)
   if (shared) values['Created by'] = spaces.people.map((p) => p.name)
   const groups: FilterGroup[] = FILTERS.map((name) => {
@@ -404,6 +453,15 @@ function Library({
     </>
   )
   const picked = shown.filter((r) => choosing.chosen.has(r.item.id))
+  // What a card's presses do, as of the latest draw, without drawing the cards again.
+  const actions = useRef<CardActions>({
+    open: onOpen,
+    choose: choosing.choose,
+    start: choosing.start,
+  })
+  useLayoutEffect(() => {
+    actions.current = { open: onOpen, choose: choosing.choose, start: choosing.start }
+  })
   const act = (fn: (rs: RecipeView[]) => void) => () => {
     if (picked.length) fn(picked)
     choosing.done()
@@ -482,23 +540,20 @@ function Library({
           const grid = (
             <RecipeGrid size={size}>
               {g.recipes.map((r) => (
-                <RecipeCard
+                <LibraryCard
                   key={r.item.id}
+                  id={r.item.id}
                   name={r.item.title}
                   photo={r.photo && photos.get(r.photo.path)}
                   cuisine={r.heading.cuisine ?? undefined}
                   draft={r.state === 'active'}
                   favourite={r.favourite}
+                  mine={r.mine}
                   selecting={choosing.choosing}
                   selected={choosing.chosen.has(r.item.id)}
                   // Only my own are chosen: a member's fades, saying whose.
                   unavailable={r.mine ? undefined : `${spaces.firstName(r.item.owner_id)}’s`}
-                  onOpen={() => onOpen(r.item.id)}
-                  onFavourite={(on) => setMark(r.item.id, on)}
-                  onSelect={(on) => r.mine && choosing.choose(r.item.id, on)}
-                  onLongPress={
-                    choosing.choosing || !r.mine ? undefined : () => choosing.start(r.item.id)
-                  }
+                  actions={actions}
                 />
               ))}
             </RecipeGrid>

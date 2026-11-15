@@ -1,7 +1,7 @@
 # ADR-0052: Food in the database
 
 **Status:** Provisionally agreed · 2026-10-18
-**Amended:** 2026-10-23 by Joe's answers for step 9 (a Meal's own lines and link); 2026-10-24 by Joe's answers for Stage 4b (a food shop in its own Space, its Meals' lines unchanged on it).
+**Amended:** 2026-10-23 by Joe's answers for step 9 (a Meal's own lines and link); 2026-10-24 by Joe's answers for Stage 4b (a food shop in its own Space, its Meals' lines unchanged on it); 2026-11-15 by a photo's small copy, when Joe found the library's photos slow to load.
 
 ## Context
 
@@ -66,7 +66,17 @@ how the schema holds it and how the database enforces it
   ([ADR-0030](0030-activity-log-by-triggers.md) allows this).
 - **Slots** are narrowed to breakfast, lunch and dinner.
 - **Photos** go to Supabase Storage through `core.attachments`, made WebP
-  of about 250 KB on the device first.
+  of about 250 KB on the device first. Each has a **small copy** beside it
+  (`{item id}/{id}.small.webp`, no larger than 640px on its longest side),
+  made on the device with it, and that is what a card, a Meal, a Recipe's
+  page and a Dialog show; only the library's largest cards show the photo
+  whole. A photo kept before small copies were shows whole, and its
+  owner's device makes its small copy the next time the library shows it.
+  A photo's file never changes (a new photo is a new file), so the service
+  worker keeps each by its path, whichever week-long link asked for it:
+  fetched once, shown offline (RCP-016 1), and cleared when someone else
+  signs in (ACC-003). A picture is asked for with CORS, since the worker
+  can't keep one that isn't.
 - **The data model's Types table and diagrams are generated** from the
   ontology from now, as [ADR-0036](0036-changing-the-model-over-time.md)
   planned; `npm run check` fails when they are stale.

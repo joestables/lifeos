@@ -698,12 +698,21 @@ test.describe('Recipes', () => {
     expect(file.subarray(8, 12).toString()).toBe('WEBP')
     expect(file.length).toBeLessThanOrEqual(250 * 1024)
     expect(Math.max(Number(photo.width), Number(photo.height))).toBeLessThanOrEqual(1600)
-    await expect(page.getByRole('img', { name: 'Katsu curry' })).toHaveAttribute('src', /token=/)
-    await page.goto('/recipes')
-    await expect(cards(page).filter({ hasText: 'Katsu curry' }).locator('img')).toHaveAttribute(
+    // Its small copy, for cards, is kept beside it (ADR-0052).
+    const smallPath = String(photo.path).replace('.webp', '.small.webp')
+    await expect.poll(() => db.files.has(smallPath)).toBe(true)
+    const small = db.files.get(smallPath)!
+    expect(small.subarray(8, 12).toString()).toBe('WEBP')
+    expect(small.length).toBeLessThan(file.length / 2)
+    // The Recipe's page and its card show the small copy.
+    await expect(page.getByRole('img', { name: 'Katsu curry' })).toHaveAttribute(
       'src',
-      /token=/,
+      /\.small\.webp\?token=/,
     )
+    await page.goto('/recipes')
+    const card = cards(page).filter({ hasText: 'Katsu curry' }).locator('img')
+    await expect(card).toHaveAttribute('src', /\.small\.webp\?token=/)
+    await expect(card).toHaveAttribute('loading', 'lazy')
 
     // Removed, it goes, and so does its file.
     await page.goto(`/recipes/${KATSU}`)
@@ -742,5 +751,43 @@ test.describe('Recipes', () => {
     await expect.poll(() => db.attachments.length).toBe(1)
     const idea = db.items.find((i) => i.title === 'Smash burgers')!
     expect(db.attachments[0]).toMatchObject({ item_id: idea.id, width: 400, height: 300 })
+  })
+})
+
+test.describe('Recipes: a photo kept before small copies were', () => {
+  // The stand-in answers the page's requests, not a service worker's.
+  test.use({ serviceWorkers: 'block' })
+
+  test('ADR-0052: it shows whole, and is given its small copy by my device', async ({ page }) => {
+    const r = rows()
+    const path = `${KATSU}/p1.webp`
+    r.attachments = [{ id: 'p1', item_id: KATSU, kind: 'photo', path, width: 1200, height: 900 }]
+    const db = await standIn(page, { signedIn: true, rows: r })
+    await page.goto('/sign-in')
+    const webp = await page.evaluate(async () => {
+      const c = document.createElement('canvas')
+      c.width = 1200
+      c.height = 900
+      const g = c.getContext('2d')!
+      for (let i = 0; i < 400; i++) {
+        g.fillStyle = `hsl(${i * 7}, 70%, ${30 + (i % 40)}%)`
+        g.fillRect((i * 97) % 1200, (i * 53) % 900, 120, 90)
+      }
+      return c.toDataURL('image/webp', 0.8).split(',')[1]!
+    })
+    db.files.set(path, Buffer.from(webp, 'base64'))
+    const small = path.replace('.webp', '.small.webp')
+
+    await page.goto('/recipes')
+    const card = cards(page).filter({ hasText: 'Katsu curry' }).locator('img')
+    await expect(card).toHaveAttribute('src', /p1\.webp\?token=/)
+    await expect.poll(() => db.files.has(small)).toBe(true)
+    expect(db.files.get(small)!.subarray(8, 12).toString()).toBe('WEBP')
+    expect(db.files.get(small)!.length).toBeLessThan(db.files.get(path)!.length)
+    // From then on its card shows the small copy.
+    await page.reload()
+    await expect(card).toHaveAttribute('src', /p1\.small\.webp\?token=/)
+    await expect(card).toHaveJSProperty('complete', true)
+    expect(await card.evaluate((i: HTMLImageElement) => i.naturalWidth)).toBe(640)
   })
 })

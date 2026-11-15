@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { smallCopy } from '@/lib/photo-resize'
 import type { Database } from './database.types'
 import { newId } from './ids'
 import type { WriteQueue } from './queue/queue'
@@ -17,6 +18,8 @@ export const photosKey = ['core', 'attachments'] as const
 const BUCKET = 'photos'
 /** How long a link to a photo lasts: long, so the device keeps the same one, and its picture, offline. */
 const LINK_SECONDS = 7 * 24 * 3600
+/** A photo's file never changes (a new photo is a new file): kept a year. */
+const KEEP = { contentType: 'image/webp', cacheControl: '31536000' }
 
 export async function fetchPhotos(): Promise<Photo[]> {
   return allRows((from, to) =>
@@ -30,6 +33,9 @@ export async function fetchPhotos(): Promise<Photo[]> {
 }
 
 const pathOf = (item: string, id: string) => `${item}/${id}.webp`
+
+/** Where a photo's small copy is kept: beside it (ADR-0052). */
+export const smallPath = (path: string) => path.replace(/\.webp$/, '.small.webp')
 
 /** Photos with unsent changes laid over (OFF-001). */
 export function applyPendingPhotos(
@@ -81,8 +87,9 @@ export function photoWrites(queue: WriteQueue) {
   return {
     /**
      * An Item's photo, made small on the device first (RCP-006 3): uploaded
-     * once the Item has reached the server, then kept, the old one's file
-     * removed. Needs a connection; the picture shows here at once.
+     * once the Item has reached the server, with its small copy for cards,
+     * then kept, the old one's files removed. Needs a connection; the
+     * picture shows here at once.
      */
     async setPhoto(
       item: string,
@@ -91,13 +98,21 @@ export function photoWrites(queue: WriteQueue) {
     ): Promise<void> {
       const id = newId()
       const path = pathOf(item, id)
-      local.set(path, URL.createObjectURL(photo.blob))
+      const shown = URL.createObjectURL(photo.blob)
+      local.set(path, shown)
+      local.set(smallPath(path), shown)
       await whenSent(queue, item)
-      const { error } = await supabase()
-        .storage.from(BUCKET)
-        .upload(path, await photo.blob.arrayBuffer(), { contentType: 'image/webp' })
+      const bucket = supabase().storage.from(BUCKET)
+      const [{ error }] = await Promise.all([
+        bucket.upload(path, await photo.blob.arrayBuffer(), KEEP),
+        // Without its small copy a photo still shows, whole; it is made later.
+        smallCopy(photo.blob)
+          .then(async (small) => bucket.upload(smallPath(path), await small.arrayBuffer(), KEEP))
+          .catch(() => undefined),
+      ])
       if (error) {
         local.delete(path)
+        local.delete(smallPath(path))
         throw error
       }
       queue.enqueue(
@@ -111,56 +126,137 @@ export function photoWrites(queue: WriteQueue) {
         },
         [item],
       )
-      if (old) void supabase().storage.from(BUCKET).remove([old.path])
+      if (old) void bucket.remove([old.path, smallPath(old.path)])
     },
-    /** An Item without its photo; the file goes too when there is signal. */
+    /** An Item without its photo; the files go too when there is signal. */
     removePhoto(item: string, old: Photo): void {
       queue.enqueue('remove_photo', { p_item: item }, [item])
-      void supabase().storage.from(BUCKET).remove([old.path])
+      void supabase()
+        .storage.from(BUCKET)
+        .remove([old.path, smallPath(old.path)])
     },
   }
 }
 
-/** Each photo's link, kept apart, until a day before it runs out. */
+const DAY = 24 * 3600 * 1000
+/** Each file's link, kept apart, until a day before it runs out. */
 const signed = new Map<string, { url: string; until: number }>()
-const keepSigned = (urls: Record<string, string>, at: number) => {
-  for (const [path, url] of Object.entries(urls))
-    if (!signed.has(path)) signed.set(path, { url, until: at + (LINK_SECONDS - 24 * 3600) * 1000 })
+/** Files Storage says it hasn't: a small copy not made yet. */
+const absent = new Set<string>()
+const linkOf = (path: string) => signed.get(path)?.url ?? local.get(path)
+
+/** Links as Storage gave them: null for a file it hasn't. */
+type Links = Record<string, string | null>
+
+const keepLinks = (links: Links, at: number) => {
+  const now = Date.now()
+  for (const [path, url] of Object.entries(links)) {
+    if (url === null) {
+      if (!linkOf(path)) absent.add(path)
+      continue
+    }
+    absent.delete(path)
+    // The first link is kept while it lasts, so the picture kept under it is used.
+    if ((signed.get(path)?.until ?? 0) <= now)
+      signed.set(path, { url, until: at + LINK_SECONDS * 1000 - DAY })
+  }
+}
+
+/**
+ * Asks Storage for the links these files lack: only those, so a new photo
+ * on the page (a Meal planned) never reloads the others, and the same ones
+ * while the page shows the same photos, so a later answer is heard.
+ */
+function useLinks(paths: readonly string[]): void {
+  const all = paths.join('\n')
+  const lacking = () => ({
+    all,
+    paths: paths.filter((p) => (signed.get(p)?.until ?? 0) <= Date.now() && !absent.has(p)),
+  })
+  const [asked, setAsked] = useState(lacking)
+  if (asked.all !== all) setAsked(lacking())
+  const { data, dataUpdatedAt } = useQuery({
+    queryKey: ['storage', BUCKET, ...asked.paths],
+    queryFn: async (): Promise<Links> => {
+      const { data, error } = await supabase()
+        .storage.from(BUCKET)
+        .createSignedUrls(asked.paths, LINK_SECONDS)
+      if (error) throw error
+      return Object.fromEntries(
+        data
+          .filter((d) => d.path)
+          .map((d) => [d.path!, d.error || !d.signedUrl ? null : d.signedUrl]),
+      )
+    },
+    enabled: asked.paths.length > 0,
+    // A small copy not made yet is asked after again within the hour.
+    staleTime: (query) =>
+      Object.values(query.state.data ?? {}).includes(null) ? DAY / 24 : LINK_SECONDS * 1000 - DAY,
+  })
+  // Fetched now, or kept in the cache from before (offline).
+  if (data) keepLinks(data, dataUpdatedAt)
 }
 
 /**
  * Links to show photos by, from Storage (private), each lasting a week and
  * kept with the rest of the cache, so a photo seen before shows offline
- * (RCP-016 1). A photo chosen here shows from the device until then. Only
- * paths without a link are asked for, so a new photo on the page (a Meal
- * planned) never reloads the others.
+ * (RCP-016 1). A photo chosen here shows from the device until then.
+ * `small` gives each photo's small copy, for a card (ADR-0052); a photo
+ * without one yet shows whole.
  */
-export function usePhotoUrls(paths: readonly (string | undefined)[]): ReadonlyMap<string, string> {
+export function usePhotoUrls(
+  paths: readonly (string | undefined)[],
+  size: 'whole' | 'small' = 'whole',
+): ReadonlyMap<string, string> {
   const wanted = [...new Set(paths.filter((p): p is string => Boolean(p)))].sort()
-  // When the page opened: a link runs out days later, long after.
-  const [now] = useState(() => Date.now())
-  const missing = wanted.filter((p) => (signed.get(p)?.until ?? 0) <= now)
-  for (const p of missing) signed.delete(p)
-  const { data, dataUpdatedAt } = useQuery({
-    queryKey: ['storage', BUCKET, ...missing],
-    queryFn: async () => {
-      const { data, error } = await supabase()
-        .storage.from(BUCKET)
-        .createSignedUrls(missing, LINK_SECONDS)
-      if (error) throw error
-      return Object.fromEntries(
-        data.filter((d) => d.signedUrl && d.path).map((d) => [d.path!, d.signedUrl]),
-      ) as Record<string, string>
-    },
-    enabled: missing.length > 0,
-    staleTime: (LINK_SECONDS - 24 * 3600) * 1000,
-  })
-  // Fetched now, or kept in the cache from before (offline).
-  if (data) keepSigned(data, dataUpdatedAt)
+  const small = size === 'small'
+  useLinks(small ? wanted.map(smallPath) : wanted)
+  useLinks(small ? wanted.filter((p) => absent.has(smallPath(p))) : [])
   const out = new Map<string, string>()
   for (const p of wanted) {
-    const url = signed.get(p)?.url ?? local.get(p)
+    const url = small
+      ? (linkOf(smallPath(p)) ?? (absent.has(smallPath(p)) ? linkOf(p) : undefined))
+      : linkOf(p)
     if (url) out.set(p, url)
   }
   return out
+}
+
+/** Photos this device has tried to make a small copy of, once each. */
+const tried = new Set<string>()
+
+async function makeSmallCopies(paths: readonly string[]): Promise<void> {
+  for (const path of paths) {
+    const url = linkOf(path)
+    if (!url || tried.has(path)) continue
+    tried.add(path)
+    try {
+      const res = await fetch(url)
+      if (!res.ok) continue
+      const small = await smallCopy(await res.blob())
+      const { error } = await supabase()
+        .storage.from(BUCKET)
+        .upload(smallPath(path), await small.arrayBuffer(), KEEP)
+      if (error) continue
+      local.set(smallPath(path), URL.createObjectURL(small))
+      absent.delete(smallPath(path))
+    } catch {
+      // No signal, or a picture this browser can't read: it shows whole.
+    }
+  }
+}
+
+/**
+ * Gives my photos kept before small copies were made (ADR-0052) theirs:
+ * each made on this device, once the page has shown it whole, and kept
+ * beside it. Only its Item's writer may, so only mine are passed.
+ */
+export function useSmallCopies(mine: readonly (string | undefined)[]): void {
+  const todo = mine.filter(
+    (p): p is string => !!p && absent.has(smallPath(p)) && !tried.has(p) && !!linkOf(p),
+  )
+  const all = todo.join('\n')
+  useEffect(() => {
+    if (all && navigator.onLine) void makeSmallCopies(all.split('\n'))
+  }, [all])
 }

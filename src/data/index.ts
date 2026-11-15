@@ -759,7 +759,7 @@ export {
   type MyInvite,
   type SentInvite,
 } from './households'
-export { usePhotoUrls, type Photo } from './photos'
+export { usePhotoUrls, useSmallCopies, type Photo } from './photos'
 export type {
   Activity,
   Cook,

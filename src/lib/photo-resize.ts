@@ -55,6 +55,33 @@ export async function resizePhoto(
   }
 }
 
+/** A small copy's longest side: a card's width on a phone's dense screen (ADR-0052). */
+export const SMALL_LONGEST = 640
+
+/**
+ * A photo's small copy, for a card (ADR-0052): WebP, no larger than 640px
+ * on its longest side, a fifth or less of the photo's weight.
+ */
+export async function smallCopy(photo: Blob): Promise<Blob> {
+  const bitmap = await createImageBitmap(photo)
+  try {
+    const k = Math.min(1, SMALL_LONGEST / Math.max(bitmap.width, bitmap.height))
+    const canvas = document.createElement('canvas')
+    canvas.width = Math.max(1, Math.round(bitmap.width * k))
+    canvas.height = Math.max(1, Math.round(bitmap.height * k))
+    const g = canvas.getContext('2d')!
+    g.imageSmoothingQuality = 'high'
+    g.drawImage(bitmap, 0, 0, canvas.width, canvas.height)
+    const blob = await new Promise<Blob | null>((resolve) =>
+      canvas.toBlob(resolve, 'image/webp', 0.75),
+    )
+    if (!blob || blob.type !== 'image/webp') throw new Error('This browser can’t make WebP')
+    return blob
+  } finally {
+    bitmap.close()
+  }
+}
+
 /** A picture from a link (RCP-006 3), when its site lets it be read. */
 export async function photoFromLink(url: string): Promise<Blob> {
   const res = await fetch(url, { mode: 'cors' })

@@ -1828,8 +1828,10 @@ export async function standIn(
         return route.fulfill({
           json: paths.map((p) => ({
             path: p,
-            signedURL: `/object/sign/photos/${p}?token=stand-in`,
-            error: db.files.has(p) ? null : 'Not found',
+            signedURL: db.files.has(p) ? `/object/sign/photos/${p}?token=stand-in` : null,
+            error: db.files.has(p)
+              ? null
+              : 'Either the object does not exist or you do not have access to it',
           })),
         })
       }
