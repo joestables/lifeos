@@ -265,7 +265,13 @@ function Plan() {
             <PageAction label={current.action} onClick={add} />
           )}
         </TabsRow>
-        {!isLoading && empty && <EmptyState icon={empty.icon} title={empty.title} />}
+        {!isLoading && empty && (
+          <EmptyState
+            icon={empty.icon}
+            title={empty.title}
+            action={tab === 'recurring' ? undefined : { label: current.action, onClick: add }}
+          />
+        )}
         {body}
       </div>
       {tab === 'recurring' && isMobile && newMenu(<Fab label="New" />, 'top')}

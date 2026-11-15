@@ -1,7 +1,7 @@
 import { useNavigate } from '@tanstack/react-router'
 import { ClipboardListIcon, CopyIcon, EllipsisIcon, PencilIcon, Trash2Icon } from 'lucide-react'
 import { useId, useState } from 'react'
-import { PanelFooter, PanelHeading, PanelRow, TypeTile } from '@/components/lifeos'
+import { PanelFooter, PanelHeading, PanelRow, TypeTile, Text } from '@/components/lifeos'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import {
@@ -94,7 +94,9 @@ export function TemplateNameDialog({
               aria-invalid={taken ? true : undefined}
             />
             {taken && (
-              <p className="text-sm text-destructive">You already have {taken.item.title}</p>
+              <Text as="p" size="sm" tone="danger">
+                You already have {taken.item.title}
+              </Text>
             )}
           </Field>
           <DialogFooter>
@@ -201,7 +203,9 @@ export function TemplatesCard({ gym, count }: { gym: GymData; count: number }) {
     <Card className="gap-3">
       <PanelHeading title="Templates" />
       {shown.length === 0 ? (
-        <p className="text-sm text-muted-foreground">No templates yet</p>
+        <Text as="p" size="sm" tone="muted">
+          No templates yet
+        </Text>
       ) : (
         <div className="flex flex-col">
           {shown.map((t) => (

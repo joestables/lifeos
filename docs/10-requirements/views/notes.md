@@ -54,7 +54,7 @@ and on a page of its own on a phone
 was captured and its Labels. Reminder, Task and Note are a tap each (on a
 computer on hover; a swipe makes a Task on a phone); any other Type, and
 Delete, are in its "…" menu. "New thought" is the tab's main action,
-opening "New".
+opening Capture.
 
 ## Requirements
 
@@ -128,7 +128,7 @@ Acceptance criteria
    it: Reminder, Task and Note one tap each, any other Capturable Type from
    its menu (INB-002, RMD-006 1).
 4. Given the Thoughts tab, then the page's main action is New thought,
-   opening "New" (NEW-002).
+   opening Capture (NEW-002).
 
 ## Thoughts
 

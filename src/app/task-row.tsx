@@ -159,7 +159,7 @@ function Row({
           </DropdownMenuItem>
         </MoreMenu>
       }
-      trailing={starred && star}
+      mark={starred && star}
     />
   )
 }

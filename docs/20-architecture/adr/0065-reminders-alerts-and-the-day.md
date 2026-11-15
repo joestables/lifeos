@@ -6,6 +6,10 @@
 `do_on` and its Alerts hang on it (decision 2); its one time field is
 `do_on` (decision 1).
 
+> **Since 15 November** "New" is named **Capture**, its button a pen and
+> the word, and it offers no Labels (Joe; [capture](../../10-requirements/cross-cutting/capture.md#the-capture-popup)).
+> Below, "New" is that.
+
 ## Context
 
 Stage 7b's spec, [Today, Reminders and Plan](../../10-requirements/cross-cutting/today-reminders-plan.md)

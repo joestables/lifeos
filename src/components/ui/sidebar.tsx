@@ -254,7 +254,7 @@ function SidebarMenuButton({
     props: mergeProps<'button'>(
       {
         className: cn(
-          'flex h-[38px] w-full items-center gap-3 rounded-control px-2.5 text-left font-[550] text-sidebar-foreground outline-none select-none in-data-[mobile=true]:h-11 hover:bg-sidebar-accent focus-visible:ring-3 focus-visible:ring-ring-soft aria-disabled:pointer-events-none aria-disabled:opacity-50 aria-[current=page]:bg-sidebar-accent aria-[current=page]:font-[650] aria-[current=page]:text-foreground data-active:bg-sidebar-accent data-active:font-[650] data-active:text-foreground [&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:text-tc-text',
+          'flex h-[38px] w-full items-center gap-3 rounded-control px-2.5 text-left font-semibold text-sidebar-foreground outline-none select-none in-data-[mobile=true]:h-11 hover:bg-sidebar-accent focus-visible:ring-3 focus-visible:ring-ring-soft aria-disabled:pointer-events-none aria-disabled:opacity-50 aria-[current=page]:bg-sidebar-accent aria-[current=page]:font-bold aria-[current=page]:text-foreground data-active:bg-sidebar-accent data-active:font-bold data-active:text-foreground [&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:text-tc-text',
           className,
         ),
       },

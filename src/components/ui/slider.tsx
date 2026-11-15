@@ -32,7 +32,7 @@ function Slider({
               index={thumbs > 1 ? i : undefined}
               aria-label={named(i)}
               data-slot="slider-thumb"
-              className="block size-4 rounded-full bg-switch-thumb shadow-[0_0_0_1.5px_var(--primary),var(--shadow-thumb)] outline-none focus-visible:ring-3 focus-visible:ring-ring-soft"
+              className="relative block size-4 rounded-full bg-switch-thumb touch:after:absolute touch:after:-inset-3.5 shadow-[0_0_0_1.5px_var(--primary),var(--shadow-thumb)] outline-none focus-visible:ring-3 focus-visible:ring-ring-soft"
             />
           ))}
         </SliderPrimitive.Track>

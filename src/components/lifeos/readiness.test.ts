@@ -13,16 +13,16 @@ describe('the readiness scale (GYM-016 1)', () => {
 
   it('mixes red, the scale’s amber and green', () => {
     expect(readinessColour(0)).toBe(
-      'color-mix(in oklch, var(--readiness-mid) 0%, var(--destructive))',
+      'color-mix(in oklch, var(--readiness-mid) 0%, var(--readiness-low))',
     )
     expect(readinessColour(50)).toBe(
-      'color-mix(in oklch, var(--readiness-mid) 66.67%, var(--destructive))',
+      'color-mix(in oklch, var(--readiness-mid) 66.67%, var(--readiness-low))',
     )
     expect(readinessColour(62.5)).toBe(
-      'color-mix(in oklch, var(--readiness-mid) 100%, var(--destructive))',
+      'color-mix(in oklch, var(--readiness-mid) 100%, var(--readiness-low))',
     )
     expect(readinessColour(100)).toBe(
-      'color-mix(in oklch, var(--success) 100%, var(--readiness-mid))',
+      'color-mix(in oklch, var(--readiness-high) 100%, var(--readiness-mid))',
     )
   })
 })

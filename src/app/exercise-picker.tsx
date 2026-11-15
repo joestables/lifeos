@@ -1,6 +1,6 @@
 import { DumbbellIcon } from 'lucide-react'
 import { useState } from 'react'
-import { BackLink, MuscleChoice, PickRow, TypeTile } from '@/components/lifeos'
+import { BackLink, MuscleChoice, PickRow, TypeTile, Text } from '@/components/lifeos'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { CATEGORIES, type ExerciseView, type GymData, type MuscleView } from '@/data'
 import { currentText, withShare } from '@/lib/gym'
@@ -26,7 +26,9 @@ function Section({
   if (!exercises.length) return null
   return (
     <div className="flex flex-col">
-      <span className="px-1.5 pb-1 text-xs font-semibold text-muted-foreground">{title}</span>
+      <Text size="xs" weight="semibold" tone="muted" className="px-1.5 pb-1">
+        {title}
+      </Text>
       {exercises.map((x) => (
         <PickRow
           key={x.item.id}
@@ -87,7 +89,9 @@ export function ExercisePicker({
     body = found.length ? (
       <Section title="Exercises" exercises={found} meta={meta} onPick={pick} />
     ) : (
-      <p className="py-6 text-center text-sm text-muted-foreground">No exercises match</p>
+      <Text as="p" size="sm" tone="muted" className="py-6 text-center">
+        No exercises match
+      </Text>
     )
   } else if (muscle) {
     const share = (x: ExerciseView) =>
@@ -110,9 +114,9 @@ export function ExercisePicker({
           />
         </div>
       ) : (
-        <p className="py-6 text-center text-sm text-muted-foreground">
+        <Text as="p" size="sm" tone="muted" className="py-6 text-center">
           No exercises work {muscle.name}
-        </p>
+        </Text>
       )
   } else {
     body = (
@@ -122,7 +126,9 @@ export function ExercisePicker({
           if (!muscles.length) return null
           return (
             <section key={c.key} className="flex flex-col gap-2">
-              <span className="text-xs font-semibold text-muted-foreground">{c.label}</span>
+              <Text size="xs" weight="semibold" tone="muted">
+                {c.label}
+              </Text>
               <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3">
                 {muscles.map((m) => (
                   <MuscleChoice
@@ -152,7 +158,11 @@ export function ExercisePicker({
             />
           )}
           <DialogTitle>{muscle && !found && !subtitle ? muscle.name : title}</DialogTitle>
-          {subtitle && <span className="text-sm text-muted-foreground">{subtitle}</span>}
+          {subtitle && (
+            <Text size="sm" tone="muted">
+              {subtitle}
+            </Text>
+          )}
         </DialogHeader>
         <SearchField label="Find an exercise" value={search} onChange={setSearch} />
         {body}

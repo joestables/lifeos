@@ -85,10 +85,10 @@ test('TDY-001, TDY-002, TDY-005: overdue, then the day in parts; no Thoughts; co
   await expect(page.getByText('Sunday 11 October')).toBeVisible()
   await expect(page.getByRole('main').getByRole('heading', { level: 2 })).toHaveText([
     'Overdue2',
-    'Anytime',
-    'Morning',
-    'Afternoon',
-    'Evening',
+    'Anytime1',
+    'Morning1',
+    'Afternoon1',
+    'Evening2',
   ])
   await expect(group(page, 'Overdue')).toHaveText([
     /^Renew car insurance.*Due Thu 8 Oct$/,
@@ -99,8 +99,8 @@ test('TDY-001, TDY-002, TDY-005: overdue, then the day in parts; no Thoughts; co
   await expect(group(page, 'Afternoon')).toHaveText([/^Move the car.*15:00·15:40/])
   await expect(group(page, 'Afternoon').getByLabel('Alarm')).toBeVisible()
   await expect(group(page, 'Evening')).toHaveText([/^Thai green curry.*Dinner/, /^Call mum.*18:00/])
-  // What has gone by stays, faded (TDY-003 2).
-  await expect(rowOf(page, 'Stand-up')).toHaveCSS('opacity', '0.5')
+  // What has gone by stays, greyed (TDY-003 2).
+  await expect(rowOf(page, 'Stand-up')).toHaveAttribute('data-past', 'true')
   await expect(page.getByText('Book Japan flights')).toBeHidden()
   await expect(page.getByText('Boiler details')).toBeHidden()
   await expect(page.getByText('Look into a standing desk')).toBeHidden()
@@ -133,8 +133,8 @@ test('TDY-003, TDY-004: a Task ticked stays, struck through; moved to tomorrow i
     'text-decoration-line',
     'line-through',
   )
-  // Struck through, never greyed (Joe, 14 November).
-  await expect(call).toHaveCSS('opacity', '1')
+  // Struck through and greyed (Joe, 15 November).
+  await expect(call).toHaveAttribute('data-done', 'true')
   await call.getByRole('checkbox', { name: 'Done: Call mum' }).click()
   await expect.poll(() => db.items.find((i) => i.id === id(3))?.status).toBe('active')
 
@@ -184,8 +184,8 @@ test('TDY-003 2: a Meal never fades on Today; eaten, it is struck through', asyn
     clock: NOW,
   })
   await page.goto('/today')
-  await expect(rowOf(page, 'Porridge')).toHaveCSS('opacity', '1')
-  await expect(rowOf(page, 'Soup')).toHaveCSS('opacity', '1')
+  await expect(rowOf(page, 'Porridge')).not.toHaveAttribute('data-past')
+  await expect(rowOf(page, 'Soup')).not.toHaveAttribute('data-past')
   await expect(rowOf(page, 'Soup').getByRole('button', { name: /^Soup/ })).toHaveCSS(
     'text-decoration-line',
     'line-through',

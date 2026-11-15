@@ -287,7 +287,7 @@ Acceptance criteria
    days is on the day it starts, saying until when, and one going on since
    an earlier day is under Today.
 2. Given a repeating Event, then only its next occurrence is listed.
-3. Given an Event today that has ended, then it stays, faded, until the
+3. Given an Event today that has ended, then it stays, greyed, until the
    day ends; ones before today aren't listed.
 
 ### PLA-004 — The Reminders tab
@@ -302,7 +302,7 @@ Acceptance criteria
    each with its Alert times that day, its repeat, and in Later its date; a
    repeating one's next only.
 2. Given today's Reminders whose Alerts have all gone off, then they stay,
-   faded, until the day ends.
+   greyed, until the day ends.
 
 ### PLA-005 — The Recurring tab
 

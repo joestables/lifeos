@@ -29,7 +29,7 @@ function AvatarFallback({ className, ...props }: AvatarPrimitive.Fallback.Props)
   return (
     <AvatarPrimitive.Fallback
       data-slot="avatar-fallback"
-      className={cn('grid size-full place-items-center text-[11px] font-bold', className)}
+      className={cn('grid size-full place-items-center text-2xs font-bold', className)}
       {...props}
     />
   )

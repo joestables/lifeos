@@ -8,6 +8,7 @@ import {
   PanelRow,
   SortMenu,
   TypeScope,
+  Text,
 } from '@/components/lifeos'
 import { Card } from '@/components/ui/card'
 import {
@@ -64,9 +65,9 @@ function AllTemplates() {
       />
       <div className="flex max-w-3xl flex-col gap-5 px-5 pb-28 sm:px-9 md:pb-12">
         <div className="flex items-center gap-3">
-          <span className="flex-1 text-sm font-semibold text-muted-foreground tabular-nums">
+          <Text size="sm" weight="semibold" tone="muted" tabular className="flex-1">
             {counted(sorted.length, 'template')}
-          </span>
+          </Text>
           <SortMenu<TemplateSort>
             options={TEMPLATE_SORTS}
             value={sort}
@@ -76,7 +77,7 @@ function AllTemplates() {
           <PageAction label={newTemplate.label} onClick={newTemplate.onClick} />
         </div>
         {!gym.isLoading && sorted.length === 0 ? (
-          <EmptyState icon={ClipboardListIcon} title="No templates yet" />
+          <EmptyState icon={ClipboardListIcon} title="No templates yet" action={newTemplate} />
         ) : (
           <Card className="gap-0 py-3">
             {shown.map((t) => (

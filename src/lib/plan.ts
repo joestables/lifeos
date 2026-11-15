@@ -128,17 +128,40 @@ export function planDays(
   return days
 }
 
+/** The parts of a day (TDY-002), on Today and in a day's order on Week. */
+export type DayPart = 'anytime' | 'morning' | 'afternoon' | 'evening'
+const PART_ORDER: readonly DayPart[] = ['anytime', 'morning', 'afternoon', 'evening']
+
+/** The part of the day a time is in: before 12:00 the morning, before 17:00 the afternoon. */
+export const partOf = (time: string): DayPart =>
+  time === '' ? 'anytime' : time < '12:00' ? 'morning' : time < '17:00' ? 'afternoon' : 'evening'
+
+/** A Meal's slot is in the part of the day it is eaten (TDY-002 2). */
+const SLOT_PART: Record<string, DayPart> = {
+  breakfast: 'morning',
+  lunch: 'afternoon',
+  dinner: 'evening',
+}
+
+/** The part of a day an Item is in there: a Meal's by its slot, the rest by their time. */
+export const partOn = (p: Placed, day: string): DayPart =>
+  p.item.slot ? (SLOT_PART[p.item.slot] ?? 'anytime') : partOf(p.first < day ? '' : p.time)
+
 /**
- * How a day orders its Items (PLN-001 2): all-day and untimed first, then by
- * time; an Event running on from an earlier day counts as all day there.
+ * How a day orders its Items, on Week as on Today (PLN-001 2, Joe, 15
+ * November): all-day and untimed first, then the morning, the afternoon and
+ * the evening, a Meal first in its part (breakfast in the morning, dinner in
+ * the evening), the rest by time; an Event running on from an earlier day
+ * counts as all day there.
  */
 export const dayOrder =
   (day: string) =>
   (a: Placed, b: Placed): number => {
-    const at = (p: Placed) => (p.first < day ? '' : p.time)
+    const at = (p: Placed) => (p.item.slot || p.first < day ? '' : p.time)
     return (
+      PART_ORDER.indexOf(partOn(a, day)) - PART_ORDER.indexOf(partOn(b, day)) ||
       at(a).localeCompare(at(b)) ||
-      // Meals in slot order, among the untimed (PLN-008 1).
+      // Meals in slot order (PLN-008 1).
       slotRank(a.item) - slotRank(b.item) ||
       (a.item.position ?? '').localeCompare(b.item.position ?? '') ||
       a.item.created_at.localeCompare(b.item.created_at) ||

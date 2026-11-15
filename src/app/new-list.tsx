@@ -1,6 +1,6 @@
 import { useNavigate } from '@tanstack/react-router'
 import { useMemo, useState } from 'react'
-import { DateField } from '@/components/lifeos'
+import { DateField, Text } from '@/components/lifeos'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import {
@@ -130,7 +130,9 @@ export function NewListDialog({
               <div className="flex flex-col gap-3">
                 {days.map((d) => (
                   <div key={d} className="flex flex-col gap-0.5">
-                    <span className="text-xs font-bold text-muted-foreground">{dateName(d)}</span>
+                    <Text size="xs" weight="bold" tone="muted">
+                      {dateName(d)}
+                    </Text>
                     {offered
                       .filter((m) => m.item.do_on === d)
                       .map((m) => {
@@ -158,14 +160,14 @@ export function NewListDialog({
                                 setChosen(next)
                               }}
                             />
-                            <span className="min-w-0 flex-1 truncate text-sm font-semibold">
+                            <Text size="sm" weight="semibold" className="min-w-0 flex-1 truncate">
                               {m.item.title}
-                            </span>
-                            <span className="shrink-0 text-xs text-muted-foreground">
+                            </Text>
+                            <Text size="xs" tone="muted" className="shrink-0">
                               {[SLOTS[m.item.slot as keyof typeof SLOTS], note]
                                 .filter(Boolean)
                                 .join(' · ')}
-                            </span>
+                            </Text>
                           </label>
                         )
                       })}

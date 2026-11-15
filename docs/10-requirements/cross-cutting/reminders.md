@@ -175,7 +175,7 @@ Acceptance criteria
 2. Given Settings, then I can turn off the Task default (a dated Task
    reminds me on its do-on date) and, from Stage 3, the Event default (30
    minutes before). The Thought default went in Stage 7b: a line with a time
-   in "New" is a Reminder (ALR-001 2).
+   in Capture is a Reminder (ALR-001 2).
 
 ### REM-008 — A morning digest
 
@@ -240,6 +240,9 @@ Acceptance criteria
    Item. As the clock's alarms do, one left ringing falls quiet after ten
    minutes and stays as an ordinary notification (Joe, 6 November); one more than ten
    minutes late (the phone was off) arrives as an ordinary notification.
+   It rings whether or not Android lets its screen open: where the screen
+   can't, the Alarm rings from its notification, with the same buttons
+   (Joe, 15 November).
 3. Given an Alarm on a device that isn't the Android app, then it arrives
    there as an ordinary notification.
 4. Given the phone is on silent or Do Not Disturb, then an Alarm still

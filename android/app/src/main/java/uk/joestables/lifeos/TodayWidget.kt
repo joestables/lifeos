@@ -1,5 +1,6 @@
 package uk.joestables.lifeos
 
+import android.os.Build
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -96,7 +97,15 @@ private fun Content(
     now: Long,
 ) {
     Column(
-        modifier = GlanceModifier.fillMaxSize().cornerRadius(24.dp)
+        // The launcher's own corners where it has them (Android 12), else 24dp.
+        modifier = GlanceModifier.fillMaxSize()
+            .then(
+                if (Build.VERSION.SDK_INT >= 31) {
+                    GlanceModifier.cornerRadius(android.R.dimen.system_app_widget_background_radius)
+                } else {
+                    GlanceModifier.cornerRadius(24.dp)
+                },
+            )
             .background(colour(R.color.lifeos_background)).padding(14.dp),
     ) {
         if (!signedIn) {
@@ -108,22 +117,27 @@ private fun Content(
             Box(modifier = GlanceModifier.defaultWeight().clickable(open(context, "/today"))) {
                 Words(context, R.layout.widget_date, SimpleDateFormat("EEE d MMM", Locale.UK).format(Date(now)))
             }
+            // A 48 × 40dp place to press round the 32dp "+", which is drawn as
+            // before (Joe, 15 November): Week, its "+" pressed for today (WID-002 8).
             Box(
-                modifier = GlanceModifier.size(32.dp).cornerRadius(10.dp)
-                    .background(colour(R.color.lifeos_secondary))
-                    // Week, its "+" pressed for today (WID-002 8).
-                    .clickable(open(context, "/week?add=1")),
-                contentAlignment = Alignment.Center,
+                modifier = GlanceModifier.width(48.dp).height(40.dp).clickable(open(context, "/week?add=1")),
+                contentAlignment = Alignment.CenterEnd,
             ) {
-                Image(
-                    ImageProvider(R.drawable.ic_plus),
-                    contentDescription = "Add to today",
-                    modifier = GlanceModifier.size(16.dp),
-                    colorFilter = ColorFilter.tint(colour(R.color.lifeos_foreground)),
-                )
+                Box(
+                    modifier = GlanceModifier.size(32.dp).cornerRadius(10.dp)
+                        .background(colour(R.color.lifeos_secondary)),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Image(
+                        ImageProvider(R.drawable.ic_plus),
+                        contentDescription = "Add to today",
+                        modifier = GlanceModifier.size(16.dp),
+                        colorFilter = ColorFilter.tint(colour(R.color.lifeos_foreground)),
+                    )
+                }
             }
         }
-        Spacer(GlanceModifier.height(10.dp))
+        Spacer(GlanceModifier.height(2.dp))
         val list = (0 until (cards?.length() ?: 0)).mapNotNull { cards?.optJSONObject(it) }
         if (list.isEmpty()) {
             Box(modifier = GlanceModifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -183,16 +197,17 @@ private fun Line(context: Context, card: JSONObject, now: Long) {
         ) {
             Image(
                 ImageProvider(typeIcon(card.optString("type"))),
-                contentDescription = card.optString("type"),
+                contentDescription = typeName(card.optString("type")),
                 modifier = GlanceModifier.size(16.dp),
-                colorFilter = ColorFilter.tint(colour(if (past) R.color.lifeos_muted_foreground else typeText(card.optString("colour")))),
+                colorFilter = ColorFilter.tint(colour(if (past || done) R.color.lifeos_muted_foreground else typeText(card.optString("colour")))),
             )
             Spacer(GlanceModifier.width(10.dp))
             Box(modifier = GlanceModifier.defaultWeight()) {
                 WidgetText.Picture(
                     titleText,
                     card.optString("title"),
-                    if (past) R.color.lifeos_muted_foreground else R.color.lifeos_foreground,
+                    // Done or gone by: greyed, as on Today (Joe, 15 November).
+                    if (past || done) R.color.lifeos_muted_foreground else R.color.lifeos_foreground,
                 )
             }
             if (timeText != null) {
@@ -250,10 +265,26 @@ fun typeIcon(type: String): Int = when (type) {
     "note" -> R.drawable.ic_type_note
     "task" -> R.drawable.ic_type_task
     "event" -> R.drawable.ic_type_event
+    "reminder" -> R.drawable.ic_type_reminder
     "recipe", "variation" -> R.drawable.ic_type_recipe
     "meal" -> R.drawable.ic_type_meal
     "shopping_list" -> R.drawable.ic_type_shopping_list
     "exercise", "workout" -> R.drawable.ic_type_exercise
     "workout_template" -> R.drawable.ic_type_workout_template
     else -> R.drawable.ic_stat_lifeos
+}
+
+/** The Type's name, read out by TalkBack in the icon's place. */
+private fun typeName(type: String): String = when (type) {
+    "thought" -> "Thought"
+    "note" -> "Note"
+    "task" -> "Task"
+    "event" -> "Event"
+    "reminder" -> "Reminder"
+    "recipe", "variation" -> "Recipe"
+    "meal" -> "Meal"
+    "shopping_list" -> "Shopping list"
+    "exercise", "workout" -> "Workout"
+    "workout_template" -> "Workout template"
+    else -> "Item"
 }

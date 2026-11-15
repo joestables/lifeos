@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils'
 import { Link } from '@tanstack/react-router'
-import { SearchIcon, type LucideIcon } from 'lucide-react'
+import { SearchIcon, SettingsIcon, type LucideIcon } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
@@ -27,7 +27,7 @@ import type { TypeColour } from './colours'
 import { BrandMark } from './BrandMark'
 import { CaptureButton, type CaptureLook } from './CaptureButton'
 import { PullToRefresh } from './PullToRefresh'
-import { ShellCapture, ShellCaptureLook } from './shell-context'
+import { ShellCapture, ShellCaptureLook, ShellPages } from './shell-context'
 import { SyncStatus } from './SyncStatus'
 
 export interface DrawerPage {
@@ -59,6 +59,8 @@ interface ShellProps {
   onRefresh?: () => void
   children: ReactNode
 }
+
+const SETTINGS = { to: '/settings', label: 'Settings' }
 
 const initials = (name: string) =>
   name
@@ -171,9 +173,10 @@ function Drawer({
             <AvatarFallback>{initials(me.name)}</AvatarFallback>
           </Avatar>
           <div className="min-w-0 flex-1">
-            <div className="truncate text-sm font-[650] text-foreground">{me.name}</div>
+            <div className="truncate text-sm font-semibold text-foreground">{me.name}</div>
             <div className="text-xs text-muted-foreground">{me.space}</div>
           </div>
+          <SettingsIcon aria-hidden className="mr-1 size-4 shrink-0 text-muted-foreground" />
         </Link>
       </SidebarFooter>
     </>
@@ -188,7 +191,7 @@ function Drawer({
 export function AppShell({
   children,
   onCapture,
-  captureLook = 'bell',
+  captureLook = 'pen',
   onSearch,
   onRefresh = () => window.location.reload(),
   notice,
@@ -211,20 +214,22 @@ export function AppShell({
             />
           )}
         </div>
-        <ShellCaptureLook.Provider value={captureLook}>
-          <ShellCapture.Provider value={onCapture}>
-            <PullToRefresh onRefresh={onRefresh}>
-              <ScrollArea
-                className="flex-1"
-                viewportClassName="pb-[env(safe-area-inset-bottom)]"
-                restorationId="page"
-              >
-                {notice && <div className="px-5 pt-3 sm:px-9 sm:pt-6">{notice}</div>}
-                {children}
-              </ScrollArea>
-            </PullToRefresh>
-          </ShellCapture.Provider>
-        </ShellCaptureLook.Provider>
+        <ShellPages.Provider value={[...drawer.pages, SETTINGS]}>
+          <ShellCaptureLook.Provider value={captureLook}>
+            <ShellCapture.Provider value={onCapture}>
+              <PullToRefresh onRefresh={onRefresh}>
+                <ScrollArea
+                  className="flex-1"
+                  viewportClassName="pb-[env(safe-area-inset-bottom)]"
+                  restorationId="page"
+                >
+                  {notice && <div className="px-5 pt-3 sm:px-9 sm:pt-6">{notice}</div>}
+                  {children}
+                </ScrollArea>
+              </PullToRefresh>
+            </ShellCapture.Provider>
+          </ShellCaptureLook.Provider>
+        </ShellPages.Provider>
       </SidebarInset>
     </SidebarProvider>
   )

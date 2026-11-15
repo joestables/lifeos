@@ -59,6 +59,7 @@ import {
   replaceLines,
   useBackgroundImport,
 } from './variation-ai'
+import { Label } from '@/components/ui/label'
 import { LinksField } from './links-field'
 import { titlesOf } from './recipe-helpers'
 import { Field } from './task-details'
@@ -502,9 +503,9 @@ function NotesAndSources({
   })
   return (
     <RecipePanel title="Notes and sources">
+      <Label>Notes</Label>
       <ReferenceField
         label="Notes"
-        placeholder="Notes"
         value={notes}
         onChange={setNotes}
         onCommit={keepNotes}
@@ -512,6 +513,7 @@ function NotesAndSources({
         recipes={food.recipes}
         except={recipe.item.id}
       />
+      <Label>Sources</Label>
       <LinksField label="Source" links={sources} onChange={setSources} onLeave={keepSources} />
     </RecipePanel>
   )

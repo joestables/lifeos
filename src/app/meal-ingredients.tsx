@@ -1,7 +1,7 @@
 import type { ImportedLine } from '@lifeos/food'
 import { ExternalLinkIcon, LoaderCircleIcon, PlusIcon, SparklesIcon } from 'lucide-react'
 import { useId, useState } from 'react'
-import { SectionLabel } from '@/components/lifeos'
+import { SectionLabel, Text } from '@/components/lifeos'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -201,7 +201,11 @@ export function MealIngredients({
               Get ingredients
             </Button>
           </div>
-          {problem && <p className="text-sm text-destructive">{problem}</p>}
+          {problem && (
+            <Text as="p" size="sm" tone="danger">
+              {problem}
+            </Text>
+          )}
         </div>
       )}
       <div className="flex flex-col gap-2">

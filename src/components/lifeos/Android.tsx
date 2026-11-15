@@ -102,7 +102,12 @@ function WidgetLine({ colour, icon: Icon, type, title, time, done = false }: Wid
       )}
     >
       <Icon aria-label={type} className="size-4 shrink-0 text-tc-text" />
-      <span className={cn('min-w-0 flex-1 truncate text-sm font-semibold', done && 'line-through')}>
+      <span
+        className={cn(
+          'min-w-0 flex-1 truncate text-sm font-semibold',
+          done && 'text-muted-foreground line-through',
+        )}
+      >
         {title}
       </span>
       {time && <span className="shrink-0 text-xs text-muted-foreground tabular-nums">{time}</span>}

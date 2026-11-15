@@ -15,6 +15,7 @@ import {
   TypeBadge,
   TypeTile,
   type FilterGroup,
+  Text,
 } from '@/components/lifeos'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -128,9 +129,9 @@ export function ExerciseList({
         />
       </div>
       {shown.length === 0 ? (
-        <p className="py-6 text-center text-sm text-muted-foreground">
+        <Text as="p" size="sm" tone="muted" className="py-6 text-center">
           {gym.exercises.some((x) => !x.archived) ? 'No exercises match' : 'No exercises yet'}
-        </p>
+        </Text>
       ) : (
         <div className="flex flex-col">
           {shown.map((x) => (
@@ -241,16 +242,18 @@ export function ExerciseDetail({
       <Card className="gap-4">
         <div className="flex items-start gap-2">
           <div className="flex min-w-0 flex-1 flex-col gap-2">
-            <h2 className="flex items-center gap-2 text-h2">
+            <Text as="h2" size="h2" className="flex items-center gap-2">
               {exercise.item.title}
               {stalled && <Badge variant="warning">Stalled</Badge>}
-            </h2>
+            </Text>
             <ExerciseBadges exercise={exercise} />
           </div>
           <ExerciseMenu exercise={exercise} onEdit={onEdit} onArchived={onArchived} />
         </div>
         {exercise.notes && (
-          <p className="text-sm whitespace-pre-line text-muted-foreground">{exercise.notes}</p>
+          <Text as="p" size="sm" tone="muted" className="whitespace-pre-line">
+            {exercise.notes}
+          </Text>
         )}
       </Card>
       <ExerciseProgress gym={gym} exercise={exercise} period={period} now={now} />

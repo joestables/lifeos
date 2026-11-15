@@ -73,7 +73,7 @@ export function AddAlertMenu({
 }
 
 /**
- * "New" (NEW-002): capture's Dialog near the top, titled "New", what Save
+ * Capture (NEW-002): its Dialog near the top, titled "Capture", what Save
  * makes at its top right (SavesAs), the line and what goes under it, then
  * Cancel and Save. Enter in the line saves.
  */
@@ -84,7 +84,7 @@ export function NewDialog({
   children,
   onSave,
   saveDisabled = false,
-  title = 'New',
+  title = 'Capture',
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -181,7 +181,7 @@ export function SmartLine({
   onRemovePill,
   placeholder,
   inputRef,
-  label = 'New',
+  label = 'Capture',
 }: {
   value: string
   onValueChange?: (value: string) => void
@@ -273,8 +273,8 @@ export function SmartLine({
 }
 
 /**
- * At the top right of "New": what Save will make — a Reminder (a time is
- * in the line) or a Thought — as the Type's tile, named for a screen reader.
+ * At the top right of Capture: what Save will make — a Reminder (a time is
+ * in the line) or a Thought — as the Type's tile with its name beside it.
  */
 export function SavesAs({
   colour,
@@ -286,7 +286,13 @@ export function SavesAs({
   label: string
 }) {
   return (
-    <span role="img" aria-label={`Saves as a ${label}`} title={label} className="flex">
+    <span
+      data-colour={colour}
+      role="img"
+      aria-label={`Saves as a ${label}`}
+      className="flex items-center gap-2 text-sm font-semibold text-tc-text"
+    >
+      {label}
       <TypeTile colour={colour} icon={icon} />
     </span>
   )

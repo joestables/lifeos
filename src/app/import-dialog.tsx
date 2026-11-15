@@ -1,4 +1,5 @@
 import type { ImportAnswer, ImportedRecipe } from '@lifeos/food'
+import { Text } from '@/components/lifeos'
 import { CircleCheckIcon, CircleIcon, LoaderCircleIcon } from 'lucide-react'
 import { useEffect, useId, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
@@ -139,9 +140,9 @@ export function ImportDialog({
               />
             </Field>
             {into?.replacing && (
-              <p className="text-sm text-muted-foreground">
+              <Text as="p" size="sm" tone="muted">
                 This replaces the ingredients and method
-              </p>
+              </Text>
             )}
             <DialogFooter>
               <Button type="button" variant="outline" onClick={onClose}>
@@ -156,7 +157,7 @@ export function ImportDialog({
         {step.at === 'saved' && (
           <>
             <p>
-              Already saved in <span className="font-semibold">{step.recipe.item.title}</span>
+              Already saved in <Text weight="semibold">{step.recipe.item.title}</Text>
             </p>
             <DialogFooter>
               <Button variant="outline" onClick={() => onOpen?.(step.recipe)}>

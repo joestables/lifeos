@@ -15,7 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { LINE_UNITS } from '@/components/lifeos'
+import { LINE_UNITS, Text } from '@/components/lifeos'
 import type { PantryEntry } from '@/data'
 import { AISLES, type Aisle } from '@/lib/pantry'
 import { Field } from './task-details'
@@ -82,7 +82,11 @@ export function AddToPantryDialog({
               aria-invalid={taken || undefined}
               onChange={(e) => setName(e.target.value)}
             />
-            {taken && <p className="text-sm text-destructive">Already in the Pantry</p>}
+            {taken && (
+              <Text as="p" size="sm" tone="danger">
+                Already in the Pantry
+              </Text>
+            )}
           </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label="Aisle" htmlFor={`${ids}-aisle`}>

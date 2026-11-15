@@ -2,7 +2,7 @@ import { ArrowLeftIcon, ChefHatIcon, PlusIcon, RotateCcwIcon, UtensilsIcon } fro
 import { useState } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
-import { LabelChips, PickRow, TypeTile } from '@/components/lifeos'
+import { LabelChips, PickRow, TypeTile, Text } from '@/components/lifeos'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import type { RecipeView } from '@/data/food-hooks'
@@ -90,7 +90,9 @@ export function MealPicker({
           >
             <ArrowLeftIcon />
           </Button>
-          <span className="truncate text-sm font-semibold">{r.item.title}</span>
+          <Text size="sm" weight="semibold" className="truncate">
+            {r.item.title}
+          </Text>
         </div>
         <div className="flex flex-col">
           {vs.map((v) => (
@@ -128,7 +130,7 @@ export function MealPicker({
           size="sm"
           autoFocus
           aria-label="Meal"
-          placeholder="Out: Dishoom"
+          placeholder="Takeaway pizza"
           value={typed}
           onChange={(e) => setTyped(e.target.value)}
         />
@@ -152,7 +154,9 @@ export function MealPicker({
           >
             <ArrowLeftIcon />
           </Button>
-          <span className="text-sm font-semibold">Leftovers of</span>
+          <Text size="sm" weight="semibold">
+            Leftovers of
+          </Text>
         </div>
         {choices.length ? (
           <div className="flex flex-col">
@@ -170,7 +174,9 @@ export function MealPicker({
             ))}
           </div>
         ) : (
-          <p className="px-1.5 text-sm text-muted-foreground">No meals in the week before</p>
+          <Text as="p" size="sm" tone="muted" className="px-1.5">
+            No meals in the week before
+          </Text>
         )}
       </div>
     )
@@ -226,14 +232,16 @@ export function MealPicker({
           )
         : quick.length > 0 && (
             <>
-              <div className="px-1 text-xs font-semibold text-muted-foreground">
+              <Text as="div" size="xs" weight="semibold" tone="muted" className="px-1">
                 {recent.length ? 'Recently viewed' : 'Planned lately'}
-              </div>
+              </Text>
               <div className="flex flex-col">{quick.map(row)}</div>
             </>
           )}
       {looking && !shown.length && (
-        <p className="px-1.5 text-sm text-muted-foreground">No recipes match</p>
+        <Text as="p" size="sm" tone="muted" className="px-1.5">
+          No recipes match
+        </Text>
       )}
       <div className="flex gap-1 border-t border-border pt-2">
         <Button

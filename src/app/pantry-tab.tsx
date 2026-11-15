@@ -343,7 +343,7 @@ export function PantryTab({
       {open?.kind === 'merge' && (
         <MergeDialog entry={open.entry} pantry={food.pantry} me={food.me} onClose={close} />
       )}
-      <div className="flex max-w-3xl flex-col gap-4">
+      <div className="flex max-w-reading flex-col gap-4">
         <div className="flex flex-wrap items-center gap-2">
           {spaces.spaces.length > 1 && space && (
             <SpaceSelect
@@ -451,7 +451,7 @@ export function PendingTab() {
     toast(typed.length === 1 ? `Added "${typed[0]!.name}"` : `Added ${typed.length} to the Pantry`)
   }
   return (
-    <div className="flex max-w-3xl flex-col gap-4">
+    <div className="flex max-w-reading flex-col gap-4">
       {adding && (
         <AddToPantryDialog
           name={adding.name}

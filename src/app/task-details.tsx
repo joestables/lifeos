@@ -187,14 +187,15 @@ export function TaskFields({
 
   return (
     <div className="flex flex-col gap-4">
-      <Textarea
-        aria-label="Notes"
-        placeholder="Notes"
-        value={notes}
-        onChange={(e) => onNotesChange(e.target.value)}
-        onBlur={onNotesBlur}
-        className="min-h-16"
-      />
+      <Field label="Notes" htmlFor={`${ids}-notes`}>
+        <Textarea
+          id={`${ids}-notes`}
+          value={notes}
+          onChange={(e) => onNotesChange(e.target.value)}
+          onBlur={onNotesBlur}
+          className="min-h-16"
+        />
+      </Field>
       <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
         <Field label="Do on" htmlFor={`${ids}-do`}>
           <DateField

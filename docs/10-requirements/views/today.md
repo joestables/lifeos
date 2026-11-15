@@ -124,12 +124,12 @@ Today, **so that** the page is a record of my day.
 Priority: Must · Status: verified (`today.spec.ts`, `src/lib/today.test.ts`)
 
 Acceptance criteria
-1. Given a Task ticked done today, then it stays in its place, struck
-   through, until the day ends; unticking it brings it back.
+1. Given a Task ticked done today, then it stays in its place, greyed and
+   struck through (Joe, 15 November), until the day ends; unticking it brings it back.
 2. Given an Event that has ended, or a Reminder whose Alerts that day have
-   all gone off, then it stays, faded. A Meal never fades on Today; eaten,
-   it is struck through, as any done Item is, never faded (Joe, 14
-   November).
+   all gone off, then it stays, greyed: it has no Done to strike it
+   through. A Meal is never greyed for the time of day on Today; eaten, it
+   is greyed and struck through, as any done Item is (Joe, 15 November).
 3. Given the day ends, then everything of the day leaves, but for overdue
    Tasks, which move to Overdue, and Tasks not done, which stay.
 

@@ -9,7 +9,7 @@
 AppShell
 ├── Drawer (Sidebar)          brand · Search · pages · Later · sync status · you
 └── Page
-    ├── PageHeader            title · capture's "New" (right, on a computer)
+    ├── PageHeader            title · Capture (right, on a computer)
     └── Content               36px sides, 20px between sections, in a ScrollArea
         ├── Tabs (optional) · main action (just after them; a Fab on a phone)
         └── Sections          SectionLabel + rows, cards or a grid
@@ -19,27 +19,33 @@ AppShell
   action ("New task", "New note"), always in the same place and style — a
   PageAction just after the page's Tabs on a computer, 16px from them (a
   little more than they are from each other), and a Fab on a phone.
-- Capture is "New" (a speech bubble with a plus) at the top right of every
-  page: in the PageHeader on a computer, the top bar on a phone.
+- Capture (a pen on a square, and the word) is at the top right of every
+  page: in the PageHeader on a computer, the top bar on a phone. No page's
+  own button shares its word: Recipes' says "New recipe" (Joe, 15
+  November).
 - Items open in a Dialog or on their own page ([below](#opening-an-item));
   focused tasks (capture, confirming) in a Dialog.
 - No browser scrollbars: whatever scrolls is a ScrollArea.
 - Content never fills edge to edge without the 36px page padding.
 - **One reading width for rows** (Joe, 24 October): a page or tab whose
   content is a column of rows or Cards — Today, Plan, Notes' Thoughts, Ideas, Settings,
-  the Pantry, Week's day, Shopping's Food and Other, a list — is at most
-  `max-w-3xl` (768px) wide, left-aligned. Grids and weeks (the library,
+  the Pantry, Week's day, Shopping's Food and Other, a list — is 696px wide
+  at most, the same on every one of them (Joe, 15 November; `max-w-reading`,
+  or `max-w-3xl` on the box that also carries the page's 36px padding),
+  left-aligned. Grids and weeks (the library,
   Notes, the Meal plan's week, Week's week) and a food shop's aisles take
   the page's width.
 
 ## The drawer
 
 - Order and pages are fixed by [ADR-0026](../20-architecture/adr/0026-navigation-drawer.md).
+  A page not built yet sits under "Later" and isn't a link: Cardio, Goals,
+  Wardrobe and Finance, until their stages (Joe, 15 November).
 - shadcn's standard Sidebar: full height, attached to the left edge, a
   hairline between it and the page.
 - Each page's icon is in its Type colour; Today's and Week's are grey.
 - The current page is filled `--sidebar-accent`, with text in `--foreground`
-  at weight 650, on every page.
+  at weight 700, on every page; the others are 600.
 - Counts are 12px, muted, tabular, on the right. "Later" pages sit at 50%
   opacity.
 - Each page's icon: Today `sun`, Week `calendar-days`, Plan
@@ -49,10 +55,11 @@ AppShell
 - The header holds the brand (the app icon at 24px, then "LifeOS" at 16px
   weight 750) and, on its right, Search: a muted ghost `search` button, with
   "Search /" in a Tooltip on a computer, 44px in a phone's drawer. Capture
-  isn't in the drawer: it is "New" at the top right of the page. The foot
+  isn't in the drawer: it is Capture at the top right of the page. The foot
   holds your row (Avatar, name, Space), with SyncStatus over it only while
   changes wait to send or weren't saved. Your row opens Settings, where
-  Sign out is.
+  Sign out is, and ends with a muted `settings` gear that says so (Joe, 15
+  November).
 
 ## The app icon
 
@@ -62,7 +69,9 @@ Agreed with Joe on 11 October 2026 (option C on the
 centre and to each other, on the dark `--background`.
 
 - The same icon in light and dark: the dark theme's colours, as hex, since
-  icons can't read the theme.
+  icons can't read the theme. Its coral and yellow nodes are as agreed on
+  11 October: the 3° and 2° those two colours moved on 15 November are too
+  small to see at an icon's size, and the icons weren't drawn again.
 - `public/icon.svg` is full bleed (the Apple touch icon and Android's
   maskable icon, cropped by the system; everything sits inside the central
   80%); `public/favicon.svg` has 112/512 rounded corners (the browser tab,
@@ -163,29 +172,29 @@ used the same way on every screen.
 - **Delete** closes the Item and says so in a toast with Undo ("Deleted
   "Renew insurance""); the Item waits in Recently deleted.
 
-## "New"
+## Capture
 
-[NEW-001–006](../10-requirements/cross-cutting/capture.md#new) and
+[NEW-001–006](../10-requirements/cross-cutting/capture.md#the-capture-popup) and
 [CAP-001–003](../10-requirements/cross-cutting/capture.md#requirements);
 NewDialog, SmartLine, SavesAs, QuickChip, ChipRow and AddAlertMenu in
 [components](components.md). Agreed with Joe on 9 November on the
 [Stage 7b design canvas](https://claude.ai/artifact/EqX4D326Apjs5aGVF2W4Gs)
 (private to Joe), option 5, refined.
 
-- Opens over the page from "New" at the top right (the bell-plus
-  CaptureButton), Notes' New thought, or N on a computer (not while typing
+- Opens over the page from Capture at the top right (the CaptureButton), Notes' New thought, or N on a computer (not while typing
   in a field or with a menu open; over an open Item it is fine), the line
   ready to type, "Remind me to…" in it; Enter saves. Saving or closing
   changes nothing on the page but the new Item.
 - One line and no switch: SavesAs at the top right says what Save makes,
-  the Reminder's blue bell while the line has an Alert, else the Thought's
-  yellow lightbulb. The button says only "Save", off while there is
+  in a word and its tile: "Reminder" and its blue bell while the line has
+  an Alert, else "Thought" and its yellow lightbulb. The button says only "Save", off while there is
   nothing to save.
 - A time typed shows as a pill at once; its words leave the line for it
   when a word that isn't part of a time follows, or on Save. The title is
   saved without them, its first letter a capital.
 - Under the line, a ChipRow: In 1 hour, the likeliest next time, More.
-  Then, for a Thought, my Labels as LabelChips, none chosen each time.
+  No Labels: a Thought is given its own on Notes' Thoughts (Joe, 15
+  November).
 - A toast says what was made, with Undo: "Thought saved", "Reminder saved ·
   Tue 10 Nov, 20:00".
 
@@ -220,12 +229,12 @@ NoteEditor and LabelPicker in [components](components.md).
   PageAction ("New note", "New thought") on a computer; 12px under them,
   LabelChips: every Label I have, A–Z; choosing one or more narrows either
   tab to what has any of them, until they are unchosen.
-- **Thoughts** (Stage 7b, NTE-005): a column of ItemRows, `max-w-3xl`,
+- **Thoughts** (Stage 7b, NTE-005): a column of ItemRows, the reading width,
   newest first: the yellow Checkbox, the title, "08:12 · Family"; on hover
   outline `sm` Reminder, Task and Note, each with its Type's icon in its
   colour; the "…" menu has Convert to (Reminder, Task, Event, Note, then
   the rest) and Delete. A swipe right makes a Task on a phone. "New
-  thought" opens "New". None: "No thoughts to sort".
+  thought" opens Capture. None: "No thoughts to sort".
 - "Pinned", then "Others", each NoteCards in a masonry, as Keep has them:
   columns of cards fitting together with no gaps however tall each is, the
   most recently changed first (left to right, then down); without pinned
@@ -280,7 +289,7 @@ and Week.
 
 ## Settings
 
-- One column of Cards, `max-w-3xl`; first Notifications and Alerts, side
+- One column of Cards, the reading width; first Notifications and Alerts, side
   by side on a computer.
 - **Notifications** (REM-001): a titled Card. "This device" with an
   outline "Turn on", until this device has notifications; where it can't,
@@ -323,7 +332,9 @@ and Week.
   list"; a rename onto another name asks first (AlertDialog, "Merge
   "Korean" into "Japanese"?", how many Recipes move). Deleting one in use
   says so and how many use it, with only OK.
-- A Card of CardRows leads on: Recently deleted (with its count), then Sign
+- A Card of CardRows leads on: **Appearance** (`sun-moon`), a ToggleGroup
+  of System, Light and Dark, kept on this device and drawn before the first
+  paint (Joe, 15 November); Recently deleted (with its count); then Sign
   out, which acts at once and so has no chevron.
 - **Google Calendar** ([GCL-001–006](../10-requirements/cross-cutting/integrations.md#google-calendar)):
   a titled Card with a "…" menu (Sync now; Disconnect, in red). Not
@@ -360,8 +371,13 @@ and Week.
   (`alarm-clock` for an Alarm), then its repeat with `repeat`; an Event's
   or a Meal's says its time and one detail as its Week card does
   ("09:30–09:45 · Zoom", "Dinner"), else its Type.
-- A done Item: title struck through, never muted or faded (Joe, 14 November).
-- A starred Task shows a filled star at the end of its row.
+- A done Item: title greyed and struck through. What has gone by and has
+  no Done (an Event ended, a Reminder after its Alerts): greyed. The same
+  on Today, Week, Plan and the Android widget, and never by opacity (Joe,
+  15 November).
+- A starred Task shows a filled star before its "…", which is always the
+  last thing in a row.
+- A title is one line, cut with an ellipsis; on a Week card, three lines.
 - Row actions (Task, Note, Tomorrow, then the "…" menu) appear on hover and
   focus; on a phone only the "…" menu shows, always, holding the same
   actions. Tapping a row anywhere else opens its Item.
@@ -383,16 +399,19 @@ DayColumn, PlanWeek, PlanDay, PlanToolbar, WeekStrip and AddToDay in
   FilterChips of the Types there are, which act as the key and the filter.
 - **A week** (a computer's default): a PlanWeek, Monday first. Today's
   number sits in an ink pill and its column is filled a little more. Each
-  day lists all-day and untimed Items first, then the rest by time, each a
+  day is in Today's order (Joe, 15 November): all-day and untimed Items
+  first, then the morning, the afternoon and the evening, a Meal first in
+  its part (dinner in the evening), the rest by time, each a
   PlanCard in its Type's colour saying its own time ("All day", "18:00").
-  An all-day Item over several days is a card on each of them; past and done
-  Items fade.
+  An all-day Item over several days is a card on each of them; done Items
+  are greyed and struck through, past ones greyed; a Task past its due
+  date says so in red, as on Today.
 - **A Reminder** (Stage 7b, [RMD-003](../10-requirements/cross-cutting/today-reminders-plan.md#rmd-003--a-reminder-on-today-and-week))
   is a card on each day it has an Alert, saying that day's times ("09:00,
   12:00"), an Alarm's with a 12px `alarm-clock` before it; once they have
-  all gone off, it fades.
+  all gone off, it is greyed.
 - **A day** (chosen on a computer; always on a phone): the WeekStrip, then a
-  PlanDay, up to `max-w-3xl`. Times are inside the cards; nothing sits to
+  PlanDay, up to the reading width. Times are inside the cards; nothing sits to
   their left.
 - **Adding:** each day's "+" on hover (AddToDay), "Add" in the toolbar (for
   today, or the day shown), the Fab on a phone; each opens a new Item of the
@@ -417,17 +436,19 @@ Joe), `/design-stage-7b`.
   title as its eyebrow ("Monday 9 November").
 - Under it, the broken-Integration and notifications Alerts, then the
   groups as SectionLabels: Overdue (red, with its count), then Anytime,
-  Morning, Afternoon and Evening, with no counts; each a column of
-  ItemRows, `max-w-3xl`. No Label pills. On a phone a Fab opens Week's
+  Morning, Afternoon and Evening, each with its count as Plan's have (Joe,
+  15 November); each a column of
+  ItemRows, the reading width. No Label pills. On a phone a Fab opens Week's
   "+" for today, "Add to Today", with every Schedulable Type (Joe, 14
   November).
 - Tasks are TaskRows, Reminders and everything else rows with their
-  TypeTile ([Lists of Items](#lists-of-items)); done ones struck through,
-  past ones faded (ItemRow `past`).
+  TypeTile ([Lists of Items](#lists-of-items)); done ones greyed and struck
+  through, past ones greyed (ItemRow `past`).
 - At the foot, while Thoughts wait, a muted CardRow linking to Notes'
   Thoughts: a small yellow TypeTile (`lightbulb`) and "5 thoughts to sort".
-- Nothing today: an EmptyState with `sun`, "Nothing today", the Thoughts
-  line under it.
+- Nothing today: an EmptyState with `sun`, "Nothing today", on a computer
+  an outline "Add to Today" opening Week's "+" for today, the Thoughts line
+  under it.
 
 ## Plan
 
@@ -441,7 +462,7 @@ on the Stage 7b design canvas.
   the same as its Fab.
 - Each tab is a column of groups (SectionLabels with counts: Overdue,
   Today, Tomorrow, a weekday, Later, No date, Someday on Tasks; Tasks,
-  Events and Reminders on Recurring), `max-w-3xl`. No Label pills.
+  Events and Reminders on Recurring), the reading width. No Label pills.
 - In Later, a row's meta starts with its date ("Fri 20 Nov"); on Recurring,
   with its repeat in full and "Next Wed 11 Nov".
 
@@ -479,7 +500,7 @@ StepEditor. Agreed with Joe on 18 October on the
   are outline buttons sharing a bar fixed to the foot of the screen, and
   the Fab is put away. Each card or row shows its Checkbox; Undo follows
   in a toast.
-- **Ideas** are ItemRows, up to `max-w-3xl`, under the search and a
+- **Ideas** are ItemRows, up to the reading width, under the search and a
   SortMenu (Recently added, A–Z): the Recipe's TypeTile, the name, then source ·
   when saved · the start of the note, muted; a "…" menu (Make it a draft,
   Delete; Import from its link with Import). **An Idea opens in a Dialog**
@@ -654,7 +675,7 @@ MealCard, MealSlot, AddMealButton, MealWeek, MealDay and PantryRow in
   ghost "Type a meal" (`utensils`) and "Leftovers" (`rotate-ccw`). A Recipe
   with one Variation is planned at once; with more, the list becomes its
   Variations under a ghost back button and the Recipe's name, the default
-  first. **Type a meal** becomes an `sm` Input ("Out: Dishoom") and Add.
+  first. **Type a meal** becomes an `sm` Input ("Takeaway pizza") and Add.
   **Leftovers** lists the Meals of the seven days before the slot, newest
   first ("Katsu curry · Thu dinner"), leftovers themselves left out. A new
   Meal serves what its Variation does, and goes where Settings → Food says
@@ -817,11 +838,13 @@ Agreed with Joe on 1 November 2026, on the
   set, Log set under them and How it went under its figures, with Done in
   place of its "…".
 - **A workout in progress is designed for a phone**, one column on a
-  computer too: the title with End workout (primary) and "…"; the state
-  pill and facts under it; the Session's ExerciseCards, expand button
+  computer too: the title with "…"; the state pill and facts under it,
+  joined by "·" as everywhere; the Session's ExerciseCards, expand button
   first, "2 of 3 sets" under the name; expanded, FormNotes and the
-  CurrentLine, the SetTable with a pencil on each row, and the dashed
-  LogSetButton; then the Backlog, a Card of PanelRows with Add and "…".
+  CurrentLine, the SetTable with a pencil on each row, and Log set, the
+  session's main action, as a `primary` LogSetButton; then the Backlog, a
+  Card of PanelRows with Add and "…"; and last, at the page's foot, an
+  `outline` End workout, the page's width on a phone (Joe, 15 November).
 - **Popups:** a set is logged or edited in one Dialog — "Weight (kg)" and
   "Reps" side by side as `lg` ValueSteppers; RIR as a ToggleGroup 0 to 5;
   in its footer, at the left, an `outline` Quick (a quick set) and, when
@@ -930,16 +953,24 @@ pin (Note), heart (Recipe). A Task that repeats shows `repeat` in its meta.
 ## Phone
 
 - **The top bar stays at the top of every page**, an Item's own page
-  included: the menu button on the left, the brand, and capture's "New" on
+  included: the menu button on the left, the brand, and Capture on
   the right
   ([CAP-002](../10-requirements/cross-cutting/capture.md#cap-002--capture-from-any-page-without-losing-my-place)).
   It keeps clear of the notch.
 - The drawer becomes a left Sheet, 288px, attached to the left edge and the
   full height of the screen, opened from the menu button; choosing a page
   closes it.
+- **One breakpoint, 768px** (Joe, 15 November): below it the phone's
+  layout and everything that goes with it (the Fab, the "…" always
+  showing, no hover actions); `sm:` and `md:` are that one width.
+- **Hit areas are 44px by touch** (`touch:`, a coarse pointer) where a
+  control is drawn smaller: a Checkbox, a Switch, a Slider's thumb, a
+  stepper's buttons, the Pantry's Pills. What is drawn stays as it is, so
+  nothing looks out of proportion.
+- An Item's popup fades at its foot while more lies below it.
 - Page padding 20px; page title 22px; Tabs and LabelChips scroll sideways under it.
 - **The main action floats** bottom right as a Fab: a "+" only, no words.
-  Today has none: the top bar's "New" is its main action.
+  Today's opens Week's "+" for today.
 - **Pull to refresh:** the page scrolls in its own box, which the browser's
   pull to refresh can't reach, so pulling down from the top of any page
   shows a round indicator that turns as it follows the finger; let go past
@@ -994,3 +1025,9 @@ what follows is what only it has.
 
 Every screen is checked in dark first, then light. Nothing is designed for
 one mode only: every colour comes from a token with both values.
+
+LifeOS follows the device's mode unless Settings' Appearance says Light or
+Dark, which is kept on that device (`src/lib/theme.ts`, read by
+`index.html` before the first paint; Joe, 15 November). Every text colour
+reaches 4.5:1 on the page, a card and its own tint in both modes, and a
+control's edge 3:1.

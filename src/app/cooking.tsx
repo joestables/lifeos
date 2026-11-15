@@ -10,6 +10,7 @@ import {
   ServingsStepper,
   StarRating,
   TimerChip,
+  Text,
 } from '@/components/lifeos'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -86,7 +87,10 @@ export function CookDialog({
             </div>
           )}
           <StarRating value={verdict} onChange={setVerdict} />
-          <Textarea placeholder="Notes" value={notes} onChange={(e) => setNotes(e.target.value)} />
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="cooked-notes">Notes</Label>
+            <Textarea id="cooked-notes" value={notes} onChange={(e) => setNotes(e.target.value)} />
+          </div>
         </div>
         <DialogFooter>
           {past || cook ? (
@@ -188,7 +192,9 @@ export function Cooking({
             {groups.length ? (
               <IngredientList cooking groups={groups} />
             ) : (
-              <p className="text-sm text-muted-foreground">No ingredients</p>
+              <Text as="p" size="sm" tone="muted">
+                No ingredients
+              </Text>
             )}
           </RecipePanel>
           <RecipePanel

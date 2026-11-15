@@ -35,14 +35,17 @@ events and tasks ([ADR-0026](../../20-architecture/adr/0026-navigation-drawer.md
   opens on the week and can switch to a day; a phone shows one day. The week
   starts on Monday.
 - **A day is a column of cards**, not an hour grid: all-day and untimed
-  Items first, then the rest by time (Joe, 14 October; [patterns](../../30-design/patterns.md#week)).
+  Items first, then the morning, the afternoon and the evening as Today has
+  them, a Meal first in its part (dinner in the evening), the rest by time
+  (Joe, 14 October; one order with Today, 15 November; [patterns](../../30-design/patterns.md#week)).
 - **Every occurrence shows.** Week is a calendar, so each occurrence of a
   repeating Task or Event is on its own day; ones closed as *skipped* aren't
   shown. (Plan's lists and Today show only a series' next open occurrence,
   [ADR-0022](../../20-architecture/adr/0022-repeating-items.md).)
-- **Done stays on its day**, struck through (not faded; Joe, 14 November);
-  a Meal on a day gone by is faded; an overdue Task stays
-  on the day it was for, and Today carries it.
+- **Done stays on its day**, greyed and struck through; what has gone by
+  and has no Done (an Event ended, a Reminder after its Alerts, a Meal on a
+  day gone by) is greyed (Joe, 15 November); an overdue Task stays on the
+  day it was for, its due date in red, and Today carries it.
 - **Add with "+"** on a day, choosing among the Schedulable Types that exist;
   **move by dragging** to another day on a computer (Joe, 14 October).
 - **Week is neutral**: it mixes Types, so each Item shows its own Type's
@@ -93,15 +96,16 @@ Acceptance criteria
 2. Given a Task to do on Tuesday at 18:00, a Task due on Wednesday with no
    do-on date, an all-day Event on Thursday and an Event on Friday at 19:30,
    then each is on its day; on each day, all-day and untimed Items come
-   first, then the rest by time.
+   first, then the morning, the afternoon and the evening, a Meal first in
+   its part and the rest by time, as on Today (TDY-002; Joe, 15 November).
 3. Given an Event from Saturday to Monday, then it shows on each of those
    days.
 4. Given a Task with no date, or in Someday, then it isn't on Week.
 5. Given a Task repeating every Monday, then each Monday shows its
    occurrence; one closed as *skipped* isn't shown.
-6. Given a done Task, then it stays on its day, struck through, not faded
-   (Joe, 14 November); an overdue Task stays on the day it was to be done;
-   a Meal on a day before today is faded.
+6. Given a done Task, then it stays on its day, greyed and struck through
+   (Joe, 15 November); an overdue Task stays on the day it was to be done,
+   its due date in red; a Meal on a day before today is greyed.
 
 ### PLN-002 — See one day
 
@@ -241,8 +245,8 @@ Acceptance criteria
 1. Given Week, then Reminders are a Type pill to show or hide (PLN-004),
    and a choice under a day's "+" (PLN-006, RMD-001 4).
 2. Given a Reminder's card, then it shows its Type, title and that day's
-   Alert times ("15:00, 15:40", an Alarm's with an alarm clock), and fades
-   once they have all gone off (RMD-003).
+   Alert times ("15:00, 15:40", an Alarm's with an alarm clock), and is
+   greyed once they have all gone off (RMD-003).
 
 Non-goals (Stage 3): an hour grid; a month view; dragging on a phone (a
 phone moves an Item by changing its date); dragging to a time within a day;

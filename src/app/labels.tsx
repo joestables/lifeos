@@ -1,6 +1,6 @@
 import { EllipsisIcon, PlusIcon } from 'lucide-react'
 import { useState } from 'react'
-import { CardRow } from '@/components/lifeos'
+import { CardRow, Text } from '@/components/lifeos'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -97,13 +97,19 @@ export function LabelsCard({
     <Card className="gap-1.5">
       {titled && (
         <div className="mb-2 flex h-8 items-center gap-3">
-          <h2 className="flex-1 text-h2">Labels</h2>
+          <Text as="h2" size="h2" className="flex-1">
+            Labels
+          </Text>
           <Button variant="outline" size="sm" onClick={() => setEditing({ kind: 'new' })}>
             <PlusIcon /> New label
           </Button>
         </div>
       )}
-      {labels.length === 0 && <p className="text-sm text-muted-foreground">No labels yet</p>}
+      {labels.length === 0 && (
+        <Text as="p" size="sm" tone="muted">
+          No labels yet
+        </Text>
+      )}
       {labels.map((label) => (
         <CardRow key={label.id} label={label.name} value={label.count}>
           <DropdownMenu>

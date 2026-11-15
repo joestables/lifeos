@@ -210,7 +210,7 @@ describe('PLN-008: Meals on Plan', () => {
   const meal = (id: string, slot: string, created = '2026-10-01T09:00:00Z') =>
     item(id, { type: 'meal', do_on: '2026-10-15', slot, created_at: created })
 
-  it('shows Breakfast, Lunch and Dinner in that order among the untimed', () => {
+  it('shows Breakfast, Lunch and Dinner in that order, after the untimed', () => {
     const days = planDays(
       [
         meal('dinner', 'dinner', '2026-10-01T08:00:00Z'),
@@ -233,6 +233,30 @@ describe('PLN-008: Meals on Plan', () => {
   it('says its slot where a time would be', () => {
     const p = placeOf(meal('m', 'dinner'), TZ)!
     expect(cardLine(p, '2026-10-15', TZ)).toEqual({ time: 'Dinner' })
+  })
+
+  it('PLN-001 2: a Meal sits in its part of the day, first there, as on Today (Joe, 15 November)', () => {
+    const days = planDays(
+      [
+        meal('dinner', 'dinner'),
+        item('evening', { do_on: '2026-10-15', do_at: '18:00:00' }),
+        item('morning', { do_on: '2026-10-15', do_at: '08:00:00' }),
+        item('untimed', { do_on: '2026-10-15' }),
+        meal('lunch', 'lunch'),
+        item('afternoon', { do_on: '2026-10-15', do_at: '13:00:00' }),
+      ],
+      '2026-10-15',
+      '2026-10-15',
+      TZ,
+    )
+    expect(days.get('2026-10-15')!.map((p) => p.item.id)).toEqual([
+      'untimed',
+      'morning',
+      'lunch',
+      'afternoon',
+      'dinner',
+      'evening',
+    ])
   })
 
   it('PLN-008 5: moved to another day, it keeps its slot', () => {

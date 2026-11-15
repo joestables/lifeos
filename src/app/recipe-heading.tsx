@@ -1,6 +1,6 @@
 import { ChevronDownIcon } from 'lucide-react'
 import { useId, useRef, useState } from 'react'
-import { LabelPicker } from '@/components/lifeos'
+import { LabelPicker, Text } from '@/components/lifeos'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -196,14 +196,20 @@ export function HeadingDialog({
               aria-invalid={(tried && problem !== null) || undefined}
               onChange={(e) => setName(e.target.value)}
             />
-            {tried && problem && <p className="text-sm text-destructive">{problem}</p>}
+            {tried && problem && (
+              <Text as="p" size="sm" tone="danger">
+                {problem}
+              </Text>
+            )}
           </Field>
           <div className="grid grid-cols-2 gap-3">
             {single('category', 'Category', 'Categories')}
             {single('cuisine', 'Cuisine', 'Cuisines')}
           </div>
           {tried && factsProblem && (
-            <p className="-mt-2 text-sm text-destructive">{factsProblem}</p>
+            <Text as="p" size="sm" tone="danger" className="-mt-2">
+              {factsProblem}
+            </Text>
           )}
           {LISTS.map(({ kind, field, label }) => {
             const chosen = heading[field]

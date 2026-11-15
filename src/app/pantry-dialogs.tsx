@@ -1,7 +1,7 @@
 import { useNavigate } from '@tanstack/react-router'
 import { ChefHatIcon } from 'lucide-react'
 import { useId, useState } from 'react'
-import { ItemRow, TypeTile } from '@/components/lifeos'
+import { ItemRow, TypeTile, Text } from '@/components/lifeos'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -51,7 +51,9 @@ export function RecipesUsingDialog({
             ))}
           </div>
         ) : (
-          <p className="text-sm text-muted-foreground">No recipes use it</p>
+          <Text as="p" size="sm" tone="muted">
+            No recipes use it
+          </Text>
         )}
       </DialogContent>
     </Dialog>

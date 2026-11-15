@@ -9,7 +9,7 @@ import {
   WrenchIcon,
 } from 'lucide-react'
 import { useId, useState } from 'react'
-import { CardRow, StepperField, ValueStepper } from '@/components/lifeos'
+import { CardRow, StepperField, ValueStepper, Text } from '@/components/lifeos'
 import { Button } from '@/components/ui/button'
 import { Card, CardTitle } from '@/components/ui/card'
 import {
@@ -154,7 +154,11 @@ export function EquipmentDialog({
               onChange={(e) => setName(e.target.value)}
               aria-invalid={taken ? true : undefined}
             />
-            {taken && <p className="text-sm text-destructive">You already have {taken.name}</p>}
+            {taken && (
+              <Text as="p" size="sm" tone="danger">
+                You already have {taken.name}
+              </Text>
+            )}
           </Field>
           <Field label="Increment (kg)" htmlFor={`${ids}-increment`}>
             <Input
@@ -166,9 +170,9 @@ export function EquipmentDialog({
             />
           </Field>
           {equipment && inUse > 0 && (
-            <p className="text-sm text-muted-foreground">
+            <Text as="p" size="sm" tone="muted">
               Used by {inUse === 1 ? '1 exercise' : `${inUse} exercises`}
-            </p>
+            </Text>
           )}
           <DialogFooter>
             {equipment && (
@@ -274,9 +278,9 @@ export function MuscleGroupDialog({
                   aria-invalid={taken ? true : undefined}
                 />
                 {taken && (
-                  <p className="text-sm text-destructive">
+                  <Text as="p" size="sm" tone="danger">
                     There's already a muscle group called {taken.name}
-                  </p>
+                  </Text>
                 )}
               </Field>
               <Field label="Category" htmlFor={`${ids}-category`}>
@@ -333,7 +337,9 @@ export function MuscleGroupDialog({
             />
           </StepperField>
           {muscle && own && inUse && (
-            <p className="text-sm text-muted-foreground">Used by an exercise</p>
+            <Text as="p" size="sm" tone="muted">
+              Used by an exercise
+            </Text>
           )}
           <DialogFooter>
             {muscle && own && (

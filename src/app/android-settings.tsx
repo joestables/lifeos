@@ -1,4 +1,4 @@
-import { CardRow } from '@/components/lifeos'
+import { CardRow, Text } from '@/components/lifeos'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { useAppVersion } from '@/native/platform'
@@ -12,7 +12,9 @@ export function AndroidAppCard() {
   if (!app) return null
   return (
     <Card className="gap-1.5">
-      <h2 className="mb-2 flex h-8 items-center text-h2">Android app</h2>
+      <Text as="h2" size="h2" className="mb-2 flex h-8 items-center">
+        Android app
+      </Text>
       <CardRow label="Version" value={app.version} />
       {app.ready && (
         <CardRow label="Update ready" value={app.ready}>

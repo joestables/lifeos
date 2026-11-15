@@ -28,7 +28,7 @@ export function Pill({
       pressed={pressed}
       onPressedChange={onPressedChange}
       className={cn(
-        'inline-flex h-7 shrink-0 items-center gap-1 rounded-full px-2.5 text-xs font-semibold whitespace-nowrap text-muted-foreground shadow-[inset_0_0_0_1px_var(--border)] transition-colors outline-none not-data-pressed:hover:bg-accent not-data-pressed:hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring-soft data-pressed:bg-selected data-pressed:text-selected-foreground data-pressed:shadow-none [&_svg]:size-3',
+        'relative inline-flex h-7 shrink-0 items-center gap-1 rounded-full px-2.5 text-xs touch:after:absolute touch:after:inset-x-0 touch:after:-inset-y-2 font-semibold whitespace-nowrap text-muted-foreground shadow-[inset_0_0_0_1px_var(--border)] transition-colors outline-none not-data-pressed:hover:bg-accent not-data-pressed:hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring-soft data-pressed:bg-selected data-pressed:text-selected-foreground data-pressed:shadow-none [&_svg]:size-3',
         warning &&
           'data-pressed:bg-[color-mix(in_oklch,var(--warning)_16%,transparent)] data-pressed:text-warning',
         className,
@@ -123,7 +123,8 @@ function KeepToggle({
  * Whether an entry is one of a Space's staples (`package`) or Essentials
  * (`star`), one at most, each a Toggle tinted when on, the star filled
  * (Joe, 25 October);
- * once it is, its "Out of stock" or "Required" Pill first, amber when on.
+ * once it is, its Pill first: "Mark out of stock" or "Mark required" until
+ * pressed, then "Out of stock" or "Required" in amber with a tick.
  */
 export function KeepToggles({
   name,
@@ -149,7 +150,8 @@ export function KeepToggles({
           onPressedChange={onNeeded}
           warning
         >
-          {flag}
+          {/* Off, it names what pressing does; on, what is so (Joe, 15 November). */}
+          {needed ? flag : `Mark ${flag.toLowerCase()}`}
         </Pill>
       )}
       <span className={cn('flex items-center gap-0.5', kept && 'ml-1.5')}>

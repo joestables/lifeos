@@ -25,13 +25,13 @@ test('ACC-001: signed in, I land in the app with the navigation drawer', async (
     'Plan',
     'Notes',
     'Gym',
-    'Cardio',
     'Recipes',
     'Meal plan',
     'Shopping',
-    'Goals',
-    'Wardrobe',
   ])
+  // Not built yet: under Later, not links (Joe, 15 November).
+  for (const later of ['Cardio', 'Goals', 'Wardrobe', 'Finance'])
+    await expect(pages.getByText(later, { exact: true })).toBeVisible()
   await expect(page.getByText(ANN.name).filter({ visible: true })).toBeVisible()
   await pages.getByRole('link', { name: 'Plan', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'Plan', level: 1 })).toBeVisible()

@@ -79,7 +79,7 @@ export function SwipeAction({
       <div
         aria-hidden
         className={cn(
-          'absolute inset-0 flex items-center gap-2 bg-tc px-[18px] font-[650] text-tc-foreground [&_svg]:size-4.5',
+          'absolute inset-0 flex items-center gap-2 bg-tc px-[18px] font-semibold text-tc-foreground [&_svg]:size-4.5',
           dx === 0 && 'invisible',
         )}
       >

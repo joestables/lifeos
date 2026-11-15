@@ -1,8 +1,11 @@
 package uk.joestables.lifeos
 
 import android.content.Intent
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.RippleDrawable
 import android.os.Build
 import android.os.Bundle
 import android.text.TextUtils
@@ -16,6 +19,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.AppCompatButton
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.ColorUtils
@@ -57,8 +61,9 @@ class AlarmActivity : AppCompatActivity() {
         toRing = false
         val firing = intent.getStringExtra("firing") ?: return
         val key = intent.getStringExtra("key") ?: return
-        // One already rung, or too late to ring, is a notification instead.
-        if (!ReminderSync.fire(this, firing, key)) finish()
+        // Too late to ring, it is a notification instead; one the alarm's
+        // broadcast already rang (ReminderSync.set) keeps its screen.
+        if (!ReminderSync.fire(this, firing, key) && !AlarmService.ringing) finish()
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -168,22 +173,27 @@ class AlarmActivity : AppCompatActivity() {
             gap(24f),
         )
 
-        // At the foot: Stop, Snooze 1 hour, Done for a Completable Item.
+        // At the foot: Stop, the largest; Snooze 1 hour; and, set apart so a
+        // sleepy thumb doesn't finish the Item, Done for a Completable one
+        // (Joe, 15 November).
         val foot = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
         column.addView(foot, LinearLayout.LayoutParams(-1, -2))
-        foot.addView(button("Stop", tc, tcForeground, null) { AlarmService.press(this, AlarmService.STOP) }, buttonParams(0f))
         foot.addView(
-            button("Snooze 1 hour", colour(R.color.lifeos_secondary), colour(R.color.lifeos_foreground), null) {
+            button("Stop", tc, tcForeground, null, 64f, 16f) { AlarmService.press(this, AlarmService.STOP) },
+            buttonParams(0f),
+        )
+        foot.addView(
+            button("Snooze 1 hour", colour(R.color.lifeos_secondary), colour(R.color.lifeos_foreground), null, 56f, 14f) {
                 AlarmService.press(this, AlarmService.SNOOZE)
             },
             buttonParams(10f),
         )
         if (AlarmService.completable(payload)) {
             foot.addView(
-                button("Done", colour(R.color.lifeos_card), colour(R.color.lifeos_foreground), colour(R.color.lifeos_hairline)) {
+                button("Done", colour(R.color.lifeos_card), colour(R.color.lifeos_foreground), colour(R.color.lifeos_hairline), 56f, 14f) {
                     AlarmService.press(this, AlarmService.DONE)
                 },
-                buttonParams(10f),
+                buttonParams(24f),
             )
         }
 
@@ -217,24 +227,38 @@ class AlarmActivity : AppCompatActivity() {
         gravity = Gravity.CENTER_HORIZONTAL
     }
 
-    private fun buttonParams(top: Float) = LinearLayout.LayoutParams(-1, px(40f)).apply { topMargin = px(top) }
+    private fun buttonParams(top: Float) = LinearLayout.LayoutParams(-1, -2).apply { topMargin = px(top) }
 
-    private fun button(label: String, fill: Int, ink: Int, stroke: Int?, onPress: () -> Unit) = TextView(this).apply {
-        text = label
-        setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f)
-        setTextColor(ink)
-        typeface = font(R.font.plus_jakarta_sans_semibold)
-        gravity = Gravity.CENTER
-        isClickable = true
-        isFocusable = true
-        background = GradientDrawable().apply {
-            cornerRadius = dp(12f)
-            setColor(fill)
-            if (stroke != null) setStroke(px(1f), stroke)
+    /**
+     * A real button, so TalkBack says so and a press shows: at least `height`
+     * dp tall (56 or more, for a hand half awake), growing with the phone's
+     * font size, with a ripple over its fill.
+     */
+    private fun button(label: String, fill: Int, ink: Int, stroke: Int?, height: Float, sp: Float, onPress: () -> Unit) =
+        AppCompatButton(this).apply {
+            text = label
+            isAllCaps = false
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, sp)
+            setTextColor(ink)
+            typeface = font(R.font.plus_jakarta_sans_semibold)
+            gravity = Gravity.CENTER
+            minHeight = px(height)
+            minimumHeight = px(height)
+            setPadding(px(16f), px(8f), px(16f), px(8f))
+            stateListAnimator = null
+            val shape = GradientDrawable().apply {
+                cornerRadius = dp(14f)
+                setColor(fill)
+                if (stroke != null) setStroke(px(1f), stroke)
+            }
+            val mask = GradientDrawable().apply {
+                cornerRadius = dp(14f)
+                setColor(Color.WHITE)
+            }
+            background = RippleDrawable(ColorStateList.valueOf(ColorUtils.setAlphaComponent(ink, 46)), shape, mask)
+            setOnClickListener {
+                onPress()
+                finish()
+            }
         }
-        setOnClickListener {
-            onPress()
-            finish()
-        }
-    }
 }

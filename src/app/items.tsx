@@ -1,5 +1,5 @@
 import { EllipsisIcon, ExternalLinkIcon, PinIcon, StarIcon, Trash2Icon } from 'lucide-react'
-import { ItemDialog } from '@/components/lifeos'
+import { ItemDialog, Text } from '@/components/lifeos'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -181,13 +181,17 @@ export function ItemPopup({ id, isNew = false }: { id: string | undefined; isNew
       }
       titleField={
         seen ? (
-          <div className="pt-1 text-day wrap-anywhere">{itemTitle(item)}</div>
+          <Text as="div" size="day" className="pt-1 wrap-anywhere">
+            {itemTitle(item)}
+          </Text>
         ) : item.type === 'note' ? (
           <NoteBody key={item.id} item={item} draft={draft} />
         ) : item.type === 'task' ? (
           <TaskTitle key={item.id} item={item} />
         ) : item.type === 'event' && google?.readOnly ? (
-          <div className="pt-1 text-day wrap-anywhere">{itemTitle(item)}</div>
+          <Text as="div" size="day" className="pt-1 wrap-anywhere">
+            {itemTitle(item)}
+          </Text>
         ) : (
           (item.type === 'event' || item.type === 'reminder') && (
             <EventTitle key={item.id} item={item} />

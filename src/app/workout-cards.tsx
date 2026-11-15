@@ -6,6 +6,7 @@ import {
   PanelRow,
   TypeTile,
   WorkoutStatePill,
+  Text,
 } from '@/components/lifeos'
 import { Card } from '@/components/ui/card'
 import type { GymData, TemplateView } from '@/data'
@@ -46,13 +47,15 @@ export function TodayCard({
   return (
     <Card className="gap-3">
       <PanelHeading title="Today">
-        <span className="text-sm text-muted-foreground">{shortDate(fromIsoDay(today))}</span>
+        <Text size="sm" tone="muted">
+          {shortDate(fromIsoDay(today))}
+        </Text>
       </PanelHeading>
       {shown.length === 0 && suggestion ? (
         <div className="flex flex-col">
-          <span className="pb-1 text-sm text-muted-foreground">
+          <Text size="sm" tone="muted" className="pb-1">
             Nothing planned. Most suitable:
-          </span>
+          </Text>
           <PanelRow
             leading={<TemplateTile />}
             title={suggestion.template.item.title}
@@ -61,7 +64,9 @@ export function TodayCard({
           />
         </div>
       ) : shown.length === 0 ? (
-        <p className="text-sm text-muted-foreground">Nothing planned</p>
+        <Text as="p" size="sm" tone="muted">
+          Nothing planned
+        </Text>
       ) : (
         <div className="flex flex-col">
           {shown.map((w) => (
@@ -102,7 +107,9 @@ export function RecentCard({ gym, today, phone }: { gym: GymData; today: string;
     <Card className="gap-3">
       <PanelHeading title="Recent workouts" />
       {recent.length === 0 ? (
-        <p className="text-sm text-muted-foreground">No workouts yet</p>
+        <Text as="p" size="sm" tone="muted">
+          No workouts yet
+        </Text>
       ) : (
         <div className="flex flex-col">
           {recent.map((w) => (

@@ -9,6 +9,11 @@ own specs say; each points here. When a part is built, its requirements
 move into those specs ([where each goes](#where-each-part-goes)) and they
 describe it as it is. How it is built: [ADR-0065](../../20-architecture/adr/0065-reminders-alerts-and-the-day.md) (Provisionally agreed).*
 
+> **Since 15 November** "New" is named **Capture**, its button a pen and
+> the word, and it offers no Labels (Joe; [capture](capture.md#the-capture-popup)).
+> Below, "New" is that; and done Items are greyed as well as struck
+> through, past ones greyed.
+
 ## Why
 
 A few days of daily use showed Joe using Thoughts as simple reminders —
@@ -73,7 +78,7 @@ or idea, and this page shrinks to a pointer:
 |---|---|
 | Today (TDY) | [today](../views/today.md), which replaced Inbox: TDY-001–005 moved there (step 6) |
 | The Reminder Type (RMD) and Alerts (ALR) | [reminders](reminders.md) and [items](items.md); the glossary and [data model](../../20-architecture/data-model.md). ALR-001 moved to reminders (step 8); RMD with step 10 |
-| "New" (NEW) | [capture](capture.md#new): moved there (step 7) |
+| "New" (NEW) | [capture](capture.md#the-capture-popup): moved there (step 7) |
 | Week (WEK) | [week](../views/week.md), renamed from Plan: moved there (step 6) |
 | Plan (PLA) | [plan](../views/plan.md), from Tasks: PLA-001–006 moved there (steps 5, 6) |
 | Notes' Thoughts (NTE-005) | [notes](../views/notes.md): moved there (step 6) |
@@ -133,7 +138,7 @@ Acceptance criteria
    Week on both days, and on Today on each of them; each time it says that
    day's Alert times ("15:00, 15:40"), an Alarm's with an alarm clock.
 2. Given every Alert of the day has gone off, then it stays on that day,
-   faded, as a record; at the end of the day it leaves Today.
+   greyed, as a record; at the end of the day it leaves Today.
 3. Given I drag a Reminder to another day on Week, then that day's Alerts
    move by the days moved, keeping their times.
 
@@ -208,14 +213,14 @@ Acceptance criteria
 1. Given the widget, then it shows Today's Items in Today's order —
    overdue Tasks first ("Overdue" for their time), then the day — each its
    Type's icon, title and time, Reminders with their first time that day;
-   done struck through and past muted (WID-002 1, amended; Joe, 14
-   November).
+   done greyed and struck through, past greyed (WID-002 1, amended; Joe,
+   15 November).
 2. Given I tap the date, then Today opens; "+" opens Week with its "+"
    pressed for today, as now (WID-002 8).
 
 ### "New"
 
-NEW-001–006 are built and have moved to [capture](capture.md#new) (step 7).
+NEW-001–006 are built and have moved to [capture](capture.md#the-capture-popup) (step 7).
 
 ### Week
 

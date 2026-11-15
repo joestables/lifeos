@@ -170,14 +170,15 @@ function EventFields({
           </Field>
         )}
       </div>
-      <Textarea
-        aria-label="Notes"
-        placeholder="Notes"
-        value={notes}
-        onChange={(e) => onNotes(e.target.value)}
-        onBlur={onNotesBlur}
-        className="min-h-16"
-      />
+      <Field label="Notes" htmlFor={`${ids}-notes`}>
+        <Textarea
+          id={`${ids}-notes`}
+          value={notes}
+          onChange={(e) => onNotes(e.target.value)}
+          onBlur={onNotesBlur}
+          className="min-h-16"
+        />
+      </Field>
       {tasks}
       {space}
     </div>

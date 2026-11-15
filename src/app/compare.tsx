@@ -1,6 +1,6 @@
 import { GitCompareArrowsIcon } from 'lucide-react'
 import { useState } from 'react'
-import { RecipePanel } from '@/components/lifeos'
+import { RecipePanel, Text } from '@/components/lifeos'
 import { Badge } from '@/components/ui/badge'
 import {
   Select,
@@ -24,7 +24,9 @@ function Row({ amount, text, differs }: { amount?: string; text: string; differs
     >
       <span className="min-w-0 flex-1">{text}</span>
       {amount !== undefined && (
-        <span className="shrink-0 text-right font-semibold tabular-nums">{amount}</span>
+        <Text weight="semibold" tabular className="shrink-0 text-right">
+          {amount}
+        </Text>
       )}
       {differs && <Badge variant="outline">Differs</Badge>}
     </div>

@@ -1,29 +1,31 @@
-import { BellPlusIcon, MessageCirclePlusIcon, type LucideIcon } from 'lucide-react'
+import { BellPlusIcon, MessageCirclePlusIcon, SquarePenIcon, type LucideIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Kbd } from '@/components/ui/kbd'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
 
 /**
- * How "New" looks: `bell`, from Stage 7b (Joe's choice, 9 November): the
- * quiet button with a bell and a plus; `ghost`, the speech bubble it had
- * before, kept to draw earlier designs.
+ * How Capture's button looks: `pen`, a pen on a square and "Capture" (Joe's
+ * choice, 15 November: it makes a Thought as often as a Reminder, so no
+ * bell); `bell` and `ghost`, the looks it had before, kept to draw earlier
+ * designs.
  */
-export type CaptureLook = 'ghost' | 'bell'
+export type CaptureLook = 'ghost' | 'bell' | 'pen'
 
 const ICONS: Record<CaptureLook, LucideIcon> = {
   ghost: MessageCirclePlusIcon,
   bell: BellPlusIcon,
+  pen: SquarePenIcon,
 }
 
 /**
- * "New"'s button (components.md, NEW-001): a bell with a plus and "New",
- * ghost, at the top right of every page — in a computer's PageHeader, with
- * N in its Tooltip, and in a phone's top bar.
+ * Capture's button (components.md, NEW-001): a pen and "Capture", ghost, at
+ * the top right of every page — in a computer's PageHeader, with N in its
+ * Tooltip, and in a phone's top bar.
  */
 export function CaptureButton({
   onClick,
-  look = 'bell',
+  look = 'pen',
   className,
 }: {
   onClick: () => void
@@ -48,10 +50,10 @@ export function CaptureButton({
     <Tooltip>
       <TooltipTrigger render={button}>
         <Icon aria-hidden />
-        New
+        Capture
       </TooltipTrigger>
       <TooltipContent>
-        {look === 'ghost' ? 'Capture' : 'New'} <Kbd>N</Kbd>
+        Capture <Kbd>N</Kbd>
       </TooltipContent>
     </Tooltip>
   )

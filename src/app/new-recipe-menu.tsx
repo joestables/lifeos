@@ -1,6 +1,6 @@
 import { ChefHatIcon, PlusIcon, SparklesIcon, StickyNoteIcon } from 'lucide-react'
 import { useState } from 'react'
-import { Fab } from '@/components/lifeos'
+import { Fab, Text } from '@/components/lifeos'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -35,11 +35,13 @@ export function NewRecipeMenu({
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger
-        render={fab ? <Fab label="New" /> : <Button size="sm" className="hidden md:inline-flex" />}
+        render={
+          fab ? <Fab label="New recipe" /> : <Button size="sm" className="hidden md:inline-flex" />
+        }
       >
         {fab ? undefined : (
           <>
-            <PlusIcon /> New
+            <PlusIcon /> New recipe
           </>
         )}
       </DropdownMenuTrigger>
@@ -54,7 +56,11 @@ export function NewRecipeMenu({
           <SparklesIcon />
           <span className="flex flex-col">
             Import
-            {why && <span className="text-xs text-muted-foreground">{why}</span>}
+            {why && (
+              <Text size="xs" tone="muted">
+                {why}
+              </Text>
+            )}
           </span>
         </DropdownMenuItem>
       </DropdownMenuContent>

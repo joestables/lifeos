@@ -113,7 +113,7 @@ function Lists({ kind, label }: { kind: 'food' | 'list'; label: string }) {
 /** Shopping → Food (SHP-001): the food shops; staples and Essentials are the Pantry's (SHP-005). */
 export function FoodTab() {
   return (
-    <div className="flex max-w-3xl flex-col gap-6">
+    <div className="flex max-w-reading flex-col gap-6">
       <Lists kind="food" label="Shops" />
     </div>
   )
@@ -122,7 +122,7 @@ export function FoodTab() {
 /** Shopping → Other (SHP-001): shopping that isn't food, clothes or DIY. */
 export function OtherTab() {
   return (
-    <div className="flex max-w-3xl flex-col gap-6">
+    <div className="flex max-w-reading flex-col gap-6">
       <Lists kind="list" label="Lists" />
     </div>
   )

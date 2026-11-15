@@ -9,6 +9,7 @@ import {
   ReadinessRing,
   SortMenu,
   StatTile,
+  Text,
 } from '@/components/lifeos'
 import { Card } from '@/components/ui/card'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -139,17 +140,19 @@ function MuscleDialog({
       <DialogContent data-colour="coral" className="sm:max-w-sm">
         <DialogHeader>
           <DialogTitle>{m.muscle.name}</DialogTitle>
-          <span className="text-sm text-muted-foreground">
+          <Text size="sm" tone="muted">
             {category} · {RECOVERS[m.muscle.recoveryType]}
-          </span>
+          </Text>
         </DialogHeader>
         <div className="flex items-center gap-4">
           <ReadinessRing percent={readiness} size={64} />
           <div className="flex flex-col">
-            <span className="text-h2 tabular-nums">{readiness} % ready</span>
-            <span className="text-sm text-muted-foreground">
+            <Text size="h2" tabular>
+              {readiness} % ready
+            </Text>
+            <Text size="sm" tone="muted">
               {until === null ? 'Fully recovered' : `Fully recovered ${recoveredText(until)}`}
-            </span>
+            </Text>
           </div>
         </div>
         <div className="grid grid-cols-3 gap-2">

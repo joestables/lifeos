@@ -36,12 +36,12 @@ export function WeekStrip({
           onClick={() => onChoose(day.key)}
           className="flex h-[68px] flex-col items-center justify-center gap-1 rounded-row outline-none hover:bg-accent focus-visible:ring-3 focus-visible:ring-ring-soft aria-selected:bg-accent"
         >
-          <span className="text-[11px] font-bold tracking-[0.06em] text-muted-foreground uppercase">
+          <span className="text-2xs font-bold tracking-[0.06em] text-muted-foreground uppercase">
             {day.name}
           </span>
           <span
             className={cn(
-              'grid h-6 min-w-6 place-items-center rounded-md px-1 text-[15px] font-[650] tabular-nums',
+              'grid h-6 min-w-6 place-items-center rounded-md px-1 text-[15px] font-semibold tabular-nums',
               day.today && 'bg-ink text-ink-foreground',
             )}
           >

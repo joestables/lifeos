@@ -31,7 +31,7 @@ Colours are OKLCH. "fg" is short for foreground.
 | `--border` | `oklch(0.9 0.0025 260)` | `oklch(1 0 0 / 6.5%)` | Rare dividers; off-state chips |
 | `--hairline` † | `oklch(0.235 0.0025 260 / 6.5%)` | `oklch(0.945 0.0025 260 / 6.5%)` | The 1px edge on cards, rows, outline buttons; the line between the drawer and the page |
 | `--input` | `oklch(0.928 0.0025 260)` | `oklch(0.255 0.0025 260)` | Filled input background |
-| `--input-strong` † | `oklch(0.79 0.0025 260)` | `oklch(1 0 0 / 20%)` | Unchecked checkbox edge, switch off |
+| `--input-strong` † | `oklch(0.6 0.0025 260)` | `oklch(1 0 0 / 20%)` | Unchecked checkbox edge, switch off: 3:1 against a card in both themes (Joe, 15 November) |
 | `--ring` | = `--primary` | = `--primary` | Focus |
 | `--ring-soft` † | `--ring` at 18% | `--ring` at 20% | The 3px focus halo |
 | `--sidebar` | = `--card` | = `--card` | The drawer |
@@ -39,7 +39,7 @@ Colours are OKLCH. "fg" is short for foreground.
 | `--sidebar-accent` | = `--accent` | = `--accent` | Current page in the drawer |
 | `--sidebar-accent-foreground` | = `--foreground` | = `--foreground` | |
 | `--overlay` † | `oklch(0.2 0.0025 260 / 30%)` | `oklch(0.06 0.0025 260 / 62%)` | Behind dialogs and sheets |
-| `--switch-thumb` † | `oklch(1 0 0)` | `oklch(0.98 0 0)` | The Switch's and Slider's thumb |
+| `--switch-thumb` † | `oklch(1 0 0)` | `oklch(0.98 0 0)` | The Slider's thumb, and the Switch's while off; on, the Switch's thumb is `--primary-foreground` |
 | `--scroll-thumb` † | `oklch(0.235 0.0025 260 / 18%)` | `oklch(0.945 0.0025 260 / 16%)` | The ScrollArea's thumb |
 
 ## Colour: meaning
@@ -48,11 +48,13 @@ Never replaced by a Type colour.
 
 | Token | Light | Dark | Used for |
 |---|---|---|---|
-| `--destructive` | `oklch(0.57 0.19 27)` | same | Delete, overdue, errors |
-| `--destructive-foreground` | `oklch(0.99 0 0)` | same | |
-| `--success` † | `oklch(0.6 0.12 155)` | same | Saved, synced |
-| `--warning` † | `oklch(0.6 0.14 65)` | `oklch(0.8 0.14 70)` | Needs seeing to, not wrong: out of stock (Joe, 21 October) |
-| `--readiness-mid` | `oklch(0.82 0.17 80)` | = `--warning` | The amber of the readiness scale, between `--destructive` and `--success`. Light mode's `--warning` is dark for text's sake, and mixed towards green it reads olive; this one is as bright as dark mode's (Joe, 3 November) |
+| `--destructive` | `oklch(0.53 0.19 27)` | `oklch(0.7 0.17 27)` | Delete, overdue, errors: as text it reaches 4.5:1 on the page, a card and its own tint in each theme (Joe, 15 November) |
+| `--destructive-foreground` | `oklch(0.99 0 0)` | `oklch(0.2 0.0025 260)` | |
+| `--success` † | `oklch(0.5 0.12 155)` | `oklch(0.76 0.12 155)` | Saved, synced, Complete; as text, as `--destructive` |
+| `--warning` † | `oklch(0.52 0.13 65)` | `oklch(0.8 0.14 70)` | Needs seeing to, not wrong: out of stock (Joe, 21 October) |
+| `--readiness-low` † | `oklch(0.57 0.19 27)` | same | The red end of the readiness scale: the red Joe chose it on (3 November), kept when `--destructive` changed for text's sake |
+| `--readiness-high` † | `oklch(0.6 0.12 155)` | same | Its green end, likewise |
+| `--readiness-mid` | `oklch(0.82 0.17 80)` | = `--warning` | The amber of the readiness scale, between `--readiness-low` and `--readiness-high`. Light mode's `--warning` is dark for text's sake, and mixed towards green it reads olive; this one is as bright as dark mode's (Joe, 3 November) |
 
 ## Colour: the body map
 
@@ -75,25 +77,26 @@ neutral. Today, Week, Search and Settings are neutral.
 | Token | Light | Dark | Types · pages |
 |---|---|---|---|
 | `--t-blue` † | `oklch(0.55 0.14 255)` | `oklch(0.72 0.12 250)` | Task, Event · Tasks |
-| `--t-yellow` † | `oklch(0.8 0.15 88)` | `oklch(0.86 0.13 90)` | Thought, Note, Shopping list · Notes, Shopping |
-| `--t-coral` † | `oklch(0.66 0.15 35)` | `oklch(0.74 0.12 35)` | Exercise, Workout template, Workout, Cardio activity · Gym, Cardio |
+| `--t-yellow` † | `oklch(0.8 0.15 90)` | `oklch(0.86 0.13 92)` | Thought, Note, Shopping list · Notes, Shopping |
+| `--t-coral` † | `oklch(0.66 0.15 30)` | `oklch(0.74 0.12 32)` | Exercise, Workout template, Workout, Cardio activity · Gym, Cardio |
 | `--t-green` † | `oklch(0.6 0.14 150)` | `oklch(0.76 0.12 150)` | Recipe, Variation, Meal, the Pantry · Recipes, Meal plan |
 | `--t-orange` † | `oklch(0.7 0.15 60)` | `oklch(0.8 0.12 62)` | Garment, Outfit, Outfit worn · Wardrobe |
 | `--t-purple` † | `oklch(0.55 0.15 298)` | `oklch(0.74 0.12 300)` | Goal · Goals |
 
 Each colour also has a **text** value — the colour as text or an icon on the
-page, darker in light mode where the colour itself wouldn't reach 4.5:1 — and
+page, darker in light mode so it reaches 4.5:1 on the page, a card and its
+own tint, where a selected tab and a badge put it (Joe, 15 November) — and
 a **foreground**, for text on the colour (a primary button, a ticked
 checkbox): white or near-black, whichever reads.
 
 | Token | Light | Dark |
 |---|---|---|
-| `--t-blue-text` † | `oklch(0.52 0.14 255)` | `oklch(0.72 0.12 250)` |
-| `--t-yellow-text` † | `oklch(0.5 0.11 75)` | `oklch(0.86 0.13 90)` |
-| `--t-coral-text` † | `oklch(0.55 0.15 35)` | `oklch(0.74 0.12 35)` |
-| `--t-green-text` † | `oklch(0.5 0.12 150)` | `oklch(0.76 0.12 150)` |
-| `--t-orange-text` † | `oklch(0.52 0.12 60)` | `oklch(0.8 0.12 62)` |
-| `--t-purple-text` † | `oklch(0.55 0.15 298)` | `oklch(0.74 0.12 300)` |
+| `--t-blue-text` † | `oklch(0.48 0.14 255)` | `oklch(0.72 0.12 250)` |
+| `--t-yellow-text` † | `oklch(0.48 0.11 77)` | `oklch(0.86 0.13 92)` |
+| `--t-coral-text` † | `oklch(0.5 0.15 30)` | `oklch(0.74 0.12 32)` |
+| `--t-green-text` † | `oklch(0.46 0.12 150)` | `oklch(0.76 0.12 150)` |
+| `--t-orange-text` † | `oklch(0.5 0.12 60)` | `oklch(0.8 0.12 62)` |
+| `--t-purple-text` † | `oklch(0.5 0.15 298)` | `oklch(0.74 0.12 300)` |
 | `--t-blue-foreground` † | `oklch(0.99 0 0)` | `oklch(0.2 0.0025 260)` |
 | `--t-yellow-foreground` † | `oklch(0.2 0.0025 260)` | same |
 | `--t-coral-foreground` † | `oklch(0.2 0.0025 260)` | same |
@@ -135,7 +138,8 @@ foreground values worked out the same way, then added here.
 
 ## Type
 
-One family: **Plus Jakarta Sans** (400–800), with **Geist Mono** only for
+One family: **Plus Jakarta Sans**, in four weights — 400, 600, 700 and 750
+(Joe, 15 November: 550 and 650 went) — with **Geist Mono** (500) only for
 keyboard shortcuts and code. Numbers that line up use tabular figures.
 
 | Token | Size / line height | Weight | Tracking | Used for |
@@ -148,6 +152,7 @@ keyboard shortcuts and code. Numbers that line up use tabular figures.
 | `text-base` | 14px / 1.45 | 400; 600 for titles | 0 | Body, row titles, buttons |
 | `text-sm` | 13px | 400–700 | 0 | Meta, small buttons, section labels (700) |
 | `text-xs` | 12px | 400–700 | 0 | Badges, counts, help text, captions |
+| `text-2xs` | 11px | 600–700 | 0 | The smallest: uppercase day and slot names, an Avatar's initials, a chart's ticks, a small ring's number |
 | `text-kbd` | 10.5px Geist Mono | 500 | 0 | Keyboard shortcuts |
 
 ## Spacing
@@ -158,8 +163,10 @@ Tailwind's 4px-based scale, using only these steps: **2, 4, 6, 8, 10, 12, 14,
 | Where | Value |
 |---|---|
 | Page padding (sides) | 36px desktop, 20px phone |
+| Reading width (`max-w-reading`) | 696px: a column of rows or Cards, on every page that has one (Joe, 15 November) |
+| Breakpoint | 768px, the only one between a phone's layout and a computer's: Tailwind's `sm` is set to it, so `sm:` and `md:` are the same width |
 | Page header | 30px top, 18px bottom; 12px top, 20px bottom on a phone |
-| Top bar (phone) | 64px high, below the notch; the menu button 48px square with a 22px icon, 8px from the edge (its icon lines up with the page padding), 8px before the brand; capture's "New" 44px high, 8px from the right edge |
+| Top bar (phone) | 64px high, below the notch; the menu button 48px square with a 22px icon, 8px from the edge (its icon lines up with the page padding), 8px before the brand; Capture 44px high, 8px from the right edge |
 | Gap between sections | 20px |
 | Gap between list rows | 6px |
 | Card padding | 20px |
@@ -208,8 +215,8 @@ No borders on surfaces: edges come from `--shadow-card`'s hairline.
 | Menu item | 36px | |
 | List row | min 56px | |
 | Tile | 32px (icon 16px); small 24px (icon 14px); large 48px (icon 22px, `--radius-row`), for an empty page | |
-| Checkbox | 18px | |
-| Switch | 38 × 22px | |
+| Checkbox | 18px; its hit area 34px, 44px by touch | |
+| Switch | 38 × 22px; by touch its hit area is 44px high | |
 | Badge | 22px high | |
 | Avatar | 30px | |
 | Drawer | 256px wide, full height; a 288px Sheet on a phone | |

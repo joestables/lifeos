@@ -3,7 +3,6 @@ import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } fro
 import {
   AddAlertMenu,
   ChipRow,
-  LabelChips,
   NewDialog,
   QuickChip,
   SavesAs,
@@ -11,7 +10,7 @@ import {
   type AlertChoice,
 } from '@/components/lifeos'
 import { toast } from '@/components/ui/sonner'
-import { addAlert, addLabel, archiveItem, createItem, queue, useLabels, useSettings } from '@/data'
+import { addAlert, archiveItem, createItem, queue, useSettings } from '@/data'
 import { reminderAlertFields } from '@/lib/alerts'
 import { typeLook } from '@/lib/item-types'
 import {
@@ -38,18 +37,14 @@ interface Pill extends NewAlert {
 type Editing = { pill: string } | { typed: LineAlert } | { pick: true }
 
 /**
- * "New" over any page (NEW-001–006): N on a computer, "New" at the top
- * right, Notes' New thought. One line: a time in it makes a Reminder, none a
- * Thought; its Alerts are pills; quick times add more. Saving leaves the page
- * as it was, says what was made, and offers Undo.
+ * Capture over any page (NEW-001–006): N on a computer, "Capture" at the
+ * top right, Notes' New thought. One line: a time in it makes a Reminder,
+ * none a Thought; its Alerts are pills; quick times add more. No Labels: a
+ * Thought is given its own where it is sorted (Joe, 15 November). Saving
+ * leaves the page as it was, says what was made, and offers Undo.
  */
 export function CaptureProvider({ children }: { children: ReactNode }) {
   const settings = useSettings(queue)
-  const { labels } = useLabels(queue)
-  const allLabels = useMemo(
-    () => labels.map(({ id, name }) => ({ id, name })).sort((a, b) => a.name.localeCompare(b.name)),
-    [labels],
-  )
   const [open, setOpen] = useState(false)
   // Read by the N key without re-adding its listener.
   const isOpen = useRef(false)
@@ -61,7 +56,6 @@ export function CaptureProvider({ children }: { children: ReactNode }) {
   const [pills, setPills] = useState<Pill[]>([])
   // Words whose pill I removed: kept as words (NEW-004 3).
   const [literal, setLiteral] = useState<string[]>([])
-  const [chosenLabels, setChosenLabels] = useState<string[]>([])
   const [editing, setEditing] = useState<Editing | null>(null)
   const [now, setNow] = useState(() => new Date())
   const reading = useMemo(
@@ -75,7 +69,6 @@ export function CaptureProvider({ children }: { children: ReactNode }) {
     setText('')
     setPills([])
     setLiteral([])
-    setChosenLabels([])
     setEditing(null)
     setNow(new Date())
     setOpen(true)
@@ -130,8 +123,6 @@ export function CaptureProvider({ children }: { children: ReactNode }) {
     setOpen(false)
     if (!isReminder) {
       const id = createItem('thought', { title })
-      // A Label deleted while "New" was open isn't given (CAP-009).
-      for (const l of chosenLabels) if (allLabels.some((a) => a.id === l)) addLabel(id, l)
       toast('Thought saved', { action: { label: 'Undo', onClick: () => archiveItem(id) } })
       return
     }
@@ -230,15 +221,6 @@ export function CaptureProvider({ children }: { children: ReactNode }) {
             onPick={() => setEditing({ pick: true })}
           />
         </ChipRow>
-        {/* Labels are a Thought's; a Reminder has none (NEW-006 1). */}
-        {!isReminder && allLabels.length > 0 && (
-          <LabelChips
-            aria-label="Labels"
-            labels={allLabels}
-            chosen={new Set(chosenLabels)}
-            onChange={(ids) => setChosenLabels([...ids])}
-          />
-        )}
       </NewDialog>
       {editingValue && (
         <ReminderAlertDialog

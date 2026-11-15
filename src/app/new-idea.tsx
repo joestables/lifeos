@@ -1,4 +1,5 @@
 import { useEffect, useId, useState } from 'react'
+import { Text } from '@/components/lifeos'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -99,7 +100,11 @@ export function NewIdeaDialog({
               aria-invalid={(tried && problem !== null) || undefined}
               onChange={(e) => setName(e.target.value)}
             />
-            {tried && problem && <p className="text-sm text-destructive">{problem}</p>}
+            {tried && problem && (
+              <Text as="p" size="sm" tone="danger">
+                {problem}
+              </Text>
+            )}
           </Field>
           <Field label="Links">
             <LinksField links={links} onChange={setLinks} />

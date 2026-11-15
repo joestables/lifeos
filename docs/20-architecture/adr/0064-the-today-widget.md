@@ -20,7 +20,7 @@ can't run LifeOS's React code, and it updates while the app is closed.
   ([ADR-0061](0061-the-android-app.md)): a resizable widget showing the
   date, "+", and a scrolling list of cards (icon, title, time or "All
   day"; done ones struck through, ended ones muted — amended 14 November,
-  Joe: done is struck through, never faded) or "Nothing planned".
+  Joe: done is struck through, never faded; greyed too since 15 November) or "Nothing planned".
 - **What it shows is kept on the phone**, as today's and tomorrow's cards,
   so it shows without signal and turns to the new day at midnight with
   nothing to fetch.

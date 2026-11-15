@@ -3,7 +3,7 @@
 // screen's TypeTile and the Today widget's lines (components.md), and the
 // widget's "+". Run after an icon changes:
 //   node scripts/android-type-icons.mjs
-import { writeFileSync } from 'node:fs'
+import { readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -14,12 +14,26 @@ const ICONS = {
   note: 'file-text',
   task: 'square-check-big',
   event: 'calendar',
+  reminder: 'bell-ring',
   recipe: 'chef-hat',
   meal: 'utensils',
   shopping_list: 'shopping-cart',
   exercise: 'dumbbell',
   workout_template: 'clipboard-list',
 }
+/** Types drawn with another's icon (TodayWidget.kt's typeIcon). */
+const SHARED = { variation: 'recipe', workout: 'exercise' }
+// Every Type with an icon in the app has one here: a Reminder had none, and
+// its Alarm showed the app's mark (Joe, 15 November).
+const inApp = [
+  ...readFileSync(join(root, 'src/components/lifeos/colours.ts'), 'utf8')
+    .split('export const TYPE_ICONS')[1]
+    .split('}')[0]
+    .matchAll(/^\s+(\w+):/gm),
+].map((m) => m[1])
+const missing = inApp.filter((t) => !(t in ICONS) && !(t in SHARED))
+if (missing.length) throw new Error(`No Android icon for: ${missing.join(', ')}`)
+
 /** Other icons Android draws itself: the Today widget's "+", and its × closing the Add list (components.md#todaywidget). */
 const OTHER = { plus: 'plus', x: 'x' }
 

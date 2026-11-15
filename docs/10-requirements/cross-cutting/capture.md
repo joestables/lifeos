@@ -1,6 +1,6 @@
 # Capture
 
-*Stage 2: capture in the app; from Stage 7b, "New", one smart line for
+*Stage 2: capture in the app; from Stage 7b, Capture, one smart line for
 Thoughts and Reminders. Capture from outside the app comes after every
 other stage (Stage 10). The decisions come first; the requirements, drafted
 at the start of Stage 2 and in [Today, Reminders and
@@ -8,7 +8,7 @@ Plan](today-reminders-plan.md), are at the end.*
 
 ## Decisions
 
-- **"New"** opens over whatever you are doing, from any page: one line, with
+- **Capture** opens over whatever you are doing, from any page: one line, with
   no switch between Types. A time in it makes a **Reminder**, its words an
   Alert pill and out of the title; none makes a **Thought**, which waits on
   Notes' Thoughts tab. A deterministic parser reads the times, with no
@@ -33,13 +33,13 @@ Plan](today-reminders-plan.md), are at the end.*
   last, after every other stage
   ([ADR-0028](../../20-architecture/adr/0028-capture-from-outside-the-app.md),
   Provisionally agreed).
-- **"New" makes Thoughts and Reminders only** (Joe, 9 November): Tasks and
+- **Capture makes Thoughts and Reminders only** (Joe, 9 November): Tasks and
   Events are made on Plan and Week, by converting, or by sorting a Thought
   ([events](events.md#decisions)).
 
 ## Where capture comes from
 
-- **In the app:** "New" at the top right of every page (on a phone, in the
+- **In the app:** Capture at the top right of every page (on a phone, in the
   top bar), N on a computer, and Notes' New thought.
 - **From outside the app (Stage 10)** — see [deferred](#deferred-to-stage-10):
   - **The capture address**, which anything that can make a web request can
@@ -76,7 +76,7 @@ Acceptance criteria
 2. Given I have no signal, when I save, then the Item appears immediately and
    is sent when the connection returns.
 
-(Its switch to Task, and the offer of one for a dated line, went with "New"
+(Its switch to Task, and the offer of one for a dated line, went with Capture
 in Stage 7b: a time in the line makes a Reminder, NEW-002.)
 
 ### CAP-002 — Capture from any page without losing my place
@@ -103,7 +103,7 @@ open a date picker for the common cases.
 Priority: Must · Status: verified
 
 A Thought sorted into a Task or an Event, and adding a Task, understand
-dates the same way, with no signal. "New" reads its line by NEW-003.
+dates the same way, with no signal. Capture reads its line by NEW-003.
 
 Acceptance criteria
 1. Given "renew insurance fri", then do-on is the coming Friday (today, if it
@@ -129,35 +129,31 @@ Priority: Should · Status: superseded (Stage 7b: a line with a time is a Remind
 
 Acceptance criteria
 1. ~~Given I save "dentist tue 3pm?" as a Thought, then it has an Alert for
-   Tuesday at 15:00.~~ "New" makes it a Reminder for Tuesday at 15:00.
+   Tuesday at 15:00.~~ Capture makes it a Reminder for Tuesday at 15:00.
 
 ### CAP-009 — Label what I capture
 
-**As** Joe, **I want** to give a Thought its Labels as I capture it, **so
-that** it is filed from the start.
-Priority: Should · Status: verified
+*Withdrawn by Joe, 15 November: Capture offers no Labels. A Thought is
+given its Labels where it is sorted, on Notes' Thoughts
+([ITM-005](items.md#itm-005--labels-on-thoughts-and-notes)).*
 
-Acceptance criteria
-1. Given my Labels shown as pills in capture, when I choose Home and save,
-   then the Thought has the Label Home; a Reminder has none (NEW-006 1).
-2. Given I open capture again, then no Label is chosen.
-
-## "New"
+## The Capture popup
 
 *Stage 7b, agreed by Joe on 9 November in [Today, Reminders and
 Plan](today-reminders-plan.md); built in its step 7.*
 
-### NEW-001 — The "New" button
+### NEW-001 — The Capture button
 
-**As** Joe, **I want** "New" where it always is, **so that** making a
+**As** Joe, **I want** Capture where it always is, **so that** making a
 Reminder is one tap from anywhere.
 Priority: Must · Status: verified (`capture.spec.ts`)
 
 Acceptance criteria
-1. Given any page, then "New" is at the top right on a computer and in the
-   top bar on a phone: the quiet button it is now, with a bell and a plus
-   in place of the speech bubble; on a computer, N opens it too.
-2. Given I press it, then "New" opens over the page, the line ready to type
+1. Given any page, then Capture is at the top right on a computer and in the
+   top bar on a phone: a quiet button with a pen on a square and the word
+   "Capture" (Joe, 15 November: it said "New", with a bell and a plus); on
+   a computer, N opens it too. No page's own button says the same word.
+2. Given I press it, then Capture opens over the page, the line ready to type
    in, as capture does now (CAP-002).
 
 ### NEW-002 — One smart line
@@ -167,15 +163,15 @@ quick and there's nothing to choose first.
 Priority: Must · Status: verified (`capture.spec.ts`)
 
 Acceptance criteria
-1. Given "New", then it is one line ("Remind me to…"), quick times under it
+1. Given Capture, then it is one line ("Remind me to…"), quick times under it
    (NEW-005), and Cancel and Save; there is no Thought / Reminder switch.
 2. Given the line has a time (one typed, NEW-003, or one added, NEW-005),
-   then Save makes a Reminder; with none, a Thought. A tile at the top right
-   says which as I type: the Reminder's blue bell or the Thought's yellow
-   lightbulb. The button says only "Save".
+   then Save makes a Reminder; with none, a Thought. Its name and tile at the top
+   right say which as I type: "Reminder" and its blue bell, or "Thought"
+   and its yellow lightbulb. The button says only "Save".
 3. Given the line is empty, then Save is off; Enter saves.
 4. Given I save, then it is made in my Personal Space, offline too (CAP-001
-   4), and "New" closes.
+   4), and Capture closes.
 
 ### NEW-003 — Times are understood, and kept out of the title
 
@@ -227,7 +223,7 @@ phone I needn't type a time at all.
 Priority: Must · Status: verified (`capture.spec.ts`, `src/lib/new-line.test.ts`)
 
 Acceptance criteria
-1. Given "New", then under the line are three pills: **In 1 hour**; the
+1. Given Capture, then under the line are three pills: **In 1 hour**; the
    likeliest next time — **This evening** (18:00) before 17:00, **Tomorrow
    morning** (my default time tomorrow) from 17:00; and **More**.
 2. Given I tap one, then its Alert is added as a pill (NEW-004); the pill
@@ -238,16 +234,15 @@ Acceptance criteria
    "Pick a date and time", which opens the Alert dialog.
 4. Given a phone, then the pills scroll sideways rather than wrapping.
 
-### NEW-006 — A Thought from "New"
+### NEW-006 — A Thought from Capture
 
 **As** Joe, **I want** to jot a Thought as before, **so that** an idea
 with no time is still captured in seconds.
 Priority: Must · Status: verified (`capture.spec.ts`, `today.spec.ts`)
 
 Acceptance criteria
-1. Given the line has no time, then my Labels show under the quick times,
-   to give the Thought (CAP-009); with a time, they hide (a Reminder has
-   none).
+1. Given the line has no time, then Save makes a Thought; Capture offers
+   no Labels for it (Joe, 15 November).
 2. Given I save a Thought, then it waits in Notes' Thoughts tab (NTE-005),
    counted on Today's Thoughts line (TDY-001 3).
 

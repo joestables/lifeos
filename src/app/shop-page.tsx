@@ -11,6 +11,7 @@ import {
   ShoppingLine,
   TypeScope,
   TypeTile,
+  Text,
 } from '@/components/lifeos'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -195,7 +196,9 @@ function AddMealDialog({ list, onClose }: { list: ShoppingList; onClose: () => v
           <DialogTitle>Add a meal</DialogTitle>
         </DialogHeader>
         {free.length === 0 && (
-          <p className="text-sm text-muted-foreground">Every planned meal is on a shop</p>
+          <Text as="p" size="sm" tone="muted">
+            Every planned meal is on a shop
+          </Text>
         )}
         <div className="flex flex-col gap-0.5">
           {free.map((m) => (
@@ -213,10 +216,12 @@ function AddMealDialog({ list, onClose }: { list: ShoppingList; onClose: () => v
                   setPicked(next)
                 }}
               />
-              <span className="min-w-0 flex-1 truncate text-sm font-semibold">{m.item.title}</span>
-              <span className="shrink-0 text-xs text-muted-foreground">
+              <Text size="sm" weight="semibold" className="min-w-0 flex-1 truncate">
+                {m.item.title}
+              </Text>
+              <Text size="xs" tone="muted" className="shrink-0">
                 {[dateName(m.item.do_on!), SLOTS[m.item.slot ?? '']].filter(Boolean).join(' · ')}
-              </span>
+              </Text>
             </label>
           ))}
         </div>
@@ -343,7 +348,9 @@ function FoodShop({ list, onDone }: { list: ShoppingList; onDone: () => void }) 
   const addStaples = (
     <PantryAisle label="Add staples">
       {choices.staples.length === 0 && (
-        <p className="px-3 pb-2.5 text-sm text-muted-foreground">None for these meals</p>
+        <Text as="p" size="sm" tone="muted" className="px-3 pb-2.5">
+          None for these meals
+        </Text>
       )}
       {choices.staples.map((c) => (
         <OfferRow
@@ -359,7 +366,9 @@ function FoodShop({ list, onDone }: { list: ShoppingList; onDone: () => void }) 
   const addEssentials = (
     <PantryAisle label="Add essentials">
       {choices.essentials.length === 0 && (
-        <p className="px-3 pb-2.5 text-sm text-muted-foreground">No essentials yet</p>
+        <Text as="p" size="sm" tone="muted" className="px-3 pb-2.5">
+          No essentials yet
+        </Text>
       )}
       {choices.essentials.map((c) => (
         <OfferRow
@@ -437,8 +446,10 @@ function FoodShop({ list, onDone }: { list: ShoppingList; onDone: () => void }) 
                   <div className="flex items-center gap-3 px-3 pt-2 pb-1.5">
                     <TypeTile colour="green" icon={UtensilsIcon} size="sm" />
                     <div className="flex min-w-0 flex-1 flex-col">
-                      <span className="truncate font-semibold">{m.title}</span>
-                      <span className="truncate text-xs text-muted-foreground">
+                      <Text weight="semibold" className="truncate">
+                        {m.title}
+                      </Text>
+                      <Text size="xs" tone="muted" className="truncate">
                         {[
                           m.do_on ? dateName(m.do_on) : null,
                           SLOTS[m.slot ?? ''],
@@ -447,7 +458,7 @@ function FoodShop({ list, onDone }: { list: ShoppingList; onDone: () => void }) 
                         ]
                           .filter(Boolean)
                           .join(' · ')}
-                      </span>
+                      </Text>
                     </div>
                     <MoreMenu>
                       <DropdownMenuItem
@@ -488,7 +499,9 @@ function FoodShop({ list, onDone }: { list: ShoppingList; onDone: () => void }) 
             {picker}
             <PantryAisle label="Added">
               {own.length === 0 && (
-                <p className="px-3 pb-2.5 text-sm text-muted-foreground">Nothing added</p>
+                <Text as="p" size="sm" tone="muted" className="px-3 pb-2.5">
+                  Nothing added
+                </Text>
               )}
               {own.map((l) => {
                 const name = (l.pantry_id && pantryName(l.pantry_id)) || l.text || ''
@@ -552,7 +565,7 @@ function ListLines({ list, onDone }: { list: ShoppingList; onDone: () => void })
   }
   const shown = groups.filter((g, i) => g.heading || g.lines.length || groups.length === 1 || i > 0)
   return (
-    <div className="flex max-w-3xl flex-col gap-4">
+    <div className="flex max-w-reading flex-col gap-4">
       {shown.map((g) => {
         const i = groups.indexOf(g)
         const label = g.heading?.heading ?? 'Items'
@@ -637,7 +650,9 @@ export function ShopPage({ list }: { list: ShoppingList }) {
       />
       <div className="flex flex-col gap-4 px-5 pb-16 sm:px-9 sm:pb-12">
         {meta.length > 0 && (
-          <p className="-mt-3 text-sm text-muted-foreground tabular-nums">{meta.join(' · ')}</p>
+          <Text as="p" size="sm" tone="muted" tabular className="-mt-3">
+            {meta.join(' · ')}
+          </Text>
         )}
         {list.kind === 'food' ? (
           <FoodShop list={list} onDone={back} />

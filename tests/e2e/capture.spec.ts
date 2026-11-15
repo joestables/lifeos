@@ -30,8 +30,8 @@ async function start(page: Page, path = '/today') {
 
 /** "New" at the top right: the page header's on a computer, the top bar's on a phone. */
 async function openCapture(page: Page) {
-  await page.getByRole('button', { name: 'New', exact: true }).first().click()
-  const capture = page.getByRole('dialog', { name: 'New', exact: true })
+  await page.getByRole('button', { name: 'Capture', exact: true }).first().click()
+  const capture = page.getByRole('dialog', { name: 'Capture', exact: true })
   await expect(capture.getByRole('textbox')).toBeFocused()
   return capture
 }
@@ -63,7 +63,7 @@ test('NEW-001: N opens "New" on a computer, but not while typing', async ({ page
   test.skip(isMobile, 'a key on a computer')
   await start(page)
   await page.keyboard.press('n')
-  const capture = page.getByRole('dialog', { name: 'New', exact: true })
+  const capture = page.getByRole('dialog', { name: 'Capture', exact: true })
   await expect(capture.getByRole('textbox')).toBeFocused()
   await capture.getByRole('textbox').press('n')
   await expect(capture.getByRole('textbox')).toHaveValue('n')
@@ -183,27 +183,21 @@ test('NEW-005: quick times add pills; tapped again, nothing new; More has the re
     .toEqual(['2026-10-11', 3])
 })
 
-test('NEW-006: my Labels show for a Thought, and hide for a Reminder', async ({ page }) => {
+test('NEW-006: capture offers no Labels; a Thought is given its own where it is sorted', async ({
+  page,
+}) => {
   const db = await start(page)
-  let capture = await openCapture(page)
-  const labels = capture.getByRole('group', { name: 'Labels' }).getByRole('button')
-  await expect(labels).toHaveText(['Car', 'Home'])
+  const capture = await openCapture(page)
+  await expect(capture.getByRole('group', { name: 'Labels' })).toHaveCount(0)
   await capture.getByRole('textbox').fill('paint the shed')
-  await labels.filter({ hasText: 'Home' }).click()
   await capture.getByRole('button', { name: 'Save' }).click()
   await expect(page.getByText('Thought saved')).toBeVisible()
   await expect
     .poll(() => {
       const t = db.items.find((i) => i.title === 'paint the shed')
-      return t && db.item_labels.filter((r) => r.item_id === t.id).map((r) => r.label_id)
+      return t && db.item_labels.filter((r) => r.item_id === t.id).length
     })
-    .toEqual(['l-home'])
-
-  // Opened again, nothing is chosen; with a time, no Labels.
-  capture = await openCapture(page)
-  await expect(labels.filter({ hasText: 'Home' })).toHaveAttribute('aria-pressed', 'false')
-  await capture.getByRole('textbox').fill('wash the car tomorrow')
-  await expect(capture.getByRole('group', { name: 'Labels' })).toHaveCount(0)
+    .toBe(0)
 })
 
 test('CAP-001: with no signal, what I capture waits to be sorted at once and is sent when the connection returns', async ({
@@ -240,7 +234,7 @@ test('NEW-001 2: "New" over an open Item leaves it open, and Undo takes the new 
   const url = page.url()
   if (isMobile) await openCapture(page)
   else await page.keyboard.press('n')
-  const capture = page.getByRole('dialog', { name: 'New', exact: true })
+  const capture = page.getByRole('dialog', { name: 'Capture', exact: true })
   await capture.getByRole('textbox').fill('ask about no-claims bonus')
   await capture.getByRole('button', { name: 'Save' }).click()
   await expect(capture).toBeHidden()

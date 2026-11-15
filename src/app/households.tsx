@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import { CheckIcon, HouseIcon, MailIcon, PlusIcon, XIcon } from 'lucide-react'
 import { useState } from 'react'
-import { CardRow } from '@/components/lifeos'
+import { CardRow, Text } from '@/components/lifeos'
 import { Button } from '@/components/ui/button'
 import { Card, CardTitle } from '@/components/ui/card'
 import { useIsMobile } from '@/hooks/use-mobile'
@@ -167,7 +167,9 @@ export function HouseholdsCard() {
         </Button>
       </div>
       {households.length === 0 && invites.length === 0 && (
-        <p className="px-3 py-2 text-sm text-muted-foreground">Not in a household yet</p>
+        <Text as="p" size="sm" tone="muted" className="px-3 py-2">
+          Not in a household yet
+        </Text>
       )}
       {invites.map((i) => (
         <CardRow

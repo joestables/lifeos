@@ -1,6 +1,6 @@
 import { EllipsisIcon } from 'lucide-react'
 import { useEffect, useState, type ReactNode } from 'react'
-import { CardRow, TimeField } from '@/components/lifeos'
+import { CardRow, TimeField, Text } from '@/components/lifeos'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import {
@@ -18,7 +18,9 @@ import { pushSupport, turnOnNotifications, useThisDevice } from './notifications
 function Titled({ title, children }: { title: string; children: ReactNode }) {
   return (
     <Card className="gap-1.5">
-      <h2 className="mb-2 flex h-8 items-center text-h2">{title}</h2>
+      <Text as="h2" size="h2" className="mb-2 flex h-8 items-center">
+        {title}
+      </Text>
       {children}
     </Card>
   )
@@ -58,7 +60,9 @@ export function NotificationsCard() {
       {!thisOne && (
         <CardRow label="This device">
           {why ? (
-            <span className="text-sm text-muted-foreground">{why}</span>
+            <Text size="sm" tone="muted">
+              {why}
+            </Text>
           ) : (
             <Button variant="outline" size="sm" onClick={() => void turnOn()}>
               Turn on
