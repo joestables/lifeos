@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { DumbbellIcon } from 'lucide-react'
 import { useMemo, useState } from 'react'
-import { EmptyState, PageHeader, TypeScope } from '@/components/lifeos'
+import { EmptyState, PageHeader, TypeScope, Text } from '@/components/lifeos'
 import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
 import { ExerciseDialog } from '@/app/exercise-dialog'
@@ -58,9 +58,9 @@ function ExercisePage() {
             </div>
             {exercise.notes && (
               <Card>
-                <p className="text-sm whitespace-pre-line text-muted-foreground">
+                <Text as="p" size="sm" tone="muted" className="whitespace-pre-line">
                   {exercise.notes}
-                </p>
+                </Text>
               </Card>
             )}
             <ExerciseProgress gym={gym} exercise={exercise} period={period} now={now} />

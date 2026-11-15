@@ -211,8 +211,14 @@ function Week() {
         type={look.label}
         title={itemTitle(p.item)}
         time={p.alerts ? alertTimesOf(p.alerts) : line.time}
-        detail={
-          [line.detail, households.get(p.item.space_id)].filter(Boolean).join(' · ') || undefined
+        detail={line.detail}
+        household={households.get(p.item.space_id)}
+        late={
+          !!line.detail &&
+          !p.item.starts_at &&
+          p.item.status !== 'done' &&
+          !!p.item.due_on &&
+          p.item.due_on < today
         }
         past={isPast(p.item, now, p) || (p.item.type === 'meal' && on < today)}
         done={p.item.status === 'done'}
@@ -341,7 +347,7 @@ function Week() {
         {layout === 'week' ? (
           <PlanWeek days={weekDays} />
         ) : (
-          <div className="flex max-w-3xl flex-col gap-4">
+          <div className="flex max-w-reading flex-col gap-4">
             <WeekStrip days={strip} chosen={day} onChoose={goTo} />
             <PlanDay>{(days.get(day) ?? []).map((p) => card(p, day, true))}</PlanDay>
           </div>

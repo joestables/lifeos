@@ -12,6 +12,7 @@ import {
   StepEditor,
   SubheadingEditor,
   VariationFieldsCard,
+  Text,
 } from '@/components/lifeos'
 import {
   AlertDialog,
@@ -357,14 +358,20 @@ export function CheckImport({ pending, food }: { pending: PendingImport; food: F
               aria-invalid={(tried && problem !== null) || undefined}
               onChange={(e) => setName(e.target.value)}
             />
-            {tried && problem && <p className="text-sm text-destructive">{problem}</p>}
+            {tried && problem && (
+              <Text as="p" size="sm" tone="danger">
+                {problem}
+              </Text>
+            )}
           </Field>
           <div className="grid grid-cols-2 gap-3">
             {single('category', 'Category', 'Categories')}
             {single('cuisine', 'Cuisine', 'Cuisines')}
           </div>
           {tried && factsProblem && (
-            <p className="-mt-2 text-sm text-destructive">{factsProblem}</p>
+            <Text as="p" size="sm" tone="danger" className="-mt-2">
+              {factsProblem}
+            </Text>
           )}
           {many('protein', 'protein', 'Protein', 'Protein')}
           {many('carbs', 'carb', 'Carbs', 'Carb')}
@@ -495,7 +502,9 @@ export function CheckImport({ pending, food }: { pending: PendingImport; food: F
       </RecipeColumns>
       <RecipePanel title="Notes">
         <Textarea aria-label="Notes" value={notes} onChange={(e) => setNotes(e.target.value)} />
-        <p className="text-sm text-muted-foreground">From {pending.link}</p>
+        <Text as="p" size="sm" tone="muted">
+          From {pending.link}
+        </Text>
       </RecipePanel>
       {actions('flex justify-end gap-2 sm:hidden')}
       <AlertDialog

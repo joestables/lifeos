@@ -1,13 +1,32 @@
 import { PlusIcon } from 'lucide-react'
 import type * as React from 'react'
-import { useContext, type ReactNode } from 'react'
+import { useRouterState } from '@tanstack/react-router'
+import { useContext, useEffect, type ReactNode } from 'react'
 import { Button } from '@/components/ui/button'
 import { useBack } from '@/hooks/use-back'
 import { cn } from '@/lib/utils'
 import { BackLink } from './BackLink'
 import { CaptureButton } from './CaptureButton'
 import { Fab } from './Fab'
-import { ShellCapture, ShellCaptureLook } from './shell-context'
+import { ShellCapture, ShellCaptureLook, ShellPages } from './shell-context'
+
+/**
+ * The browser's title for a page (Joe, 15 November): "LifeOS - Recipes -
+ * Katsu curry", the drawer's page it is under, then its own title where
+ * that says more.
+ */
+function usePageTitle(title: ReactNode) {
+  const pages = useContext(ShellPages)
+  const path = useRouterState({ select: (s) => s.location.pathname })
+  const section = pages.find((p) => path === p.to || path.startsWith(`${p.to}/`))?.label
+  const own = typeof title === 'string' ? title.trim() : ''
+  const name = ['LifeOS', section, own && own !== section ? own : undefined]
+    .filter(Boolean)
+    .join(' - ')
+  useEffect(() => {
+    document.title = name
+  }, [name])
+}
 
 /**
  * One per page: the title and, on a computer, capture's "New" on the right.
@@ -35,6 +54,7 @@ export function PageHeader({
   /** Controls at the title's end (Cooking's servings and Finish). */
   trailing?: ReactNode
 }) {
+  usePageTitle(title)
   const backTo = useBack(back)
   const capture = useContext(ShellCapture)
   const look = useContext(ShellCaptureLook)

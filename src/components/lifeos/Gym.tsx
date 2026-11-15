@@ -166,7 +166,7 @@ export function StatTile({
         {label}
       </span>
       <span className="truncate text-h2 tabular-nums">{value}</span>
-      {sub && <span className="truncate text-xs text-muted-foreground tabular-nums">{sub}</span>}
+      {sub && <span className="text-xs text-muted-foreground tabular-nums">{sub}</span>}
     </Tag>
   )
 }
@@ -249,6 +249,8 @@ export function ValueStepper({
 }) {
   const [draft, setDraft] = useState<string | null>(null)
   const button = cn(
+    // By touch its hit area reaches 44px; what is drawn stays.
+    'relative touch:after:absolute touch:after:-inset-y-2 touch:after:inset-x-0',
     size === 'sm' && 'size-7 [&_svg]:size-3.5',
     size === 'lg' && 'size-10 shrink-0 rounded-[10px] [&_svg]:size-5',
   )
@@ -488,7 +490,22 @@ export function SetTable({
  * The next set to log (GYM-010 1): a 44px dashed box, muted "+ Log set 3
  * of 3"; `--accent` on hover.
  */
-export function LogSetButton({ label, onClick }: { label: string; onClick?: () => void }) {
+export function LogSetButton({
+  label,
+  onClick,
+  primary = false,
+}: {
+  label: string
+  onClick?: () => void
+  /** A workout in progress: the session's main action, filled (Joe, 15 November). */
+  primary?: boolean
+}) {
+  if (primary)
+    return (
+      <Button className="h-11 w-full justify-start px-3" onClick={onClick}>
+        <PlusIcon /> {label}
+      </Button>
+    )
   return (
     <button
       type="button"
@@ -526,7 +543,7 @@ export function FormNotes({ children }: { children: ReactNode }) {
  * `--radius-row` box. First its expand button (a workout) or drag handle (a
  * template), then its name (weight 600) and a muted line, then its own
  * control (a workout's DoneToggle, or a template's sets stepper) and its
- * "…". A done exercise's name is struck through (Joe, 14 November); it
+ * "…". A done exercise's name is greyed and struck through (Joe, 15 November); it
  * still expands. Expanded, what
  * it holds sits under its name.
  */
@@ -590,7 +607,9 @@ export function ExerciseCard({
           </Button>
         )}
         <span className="flex min-w-0 flex-1 flex-col">
-          <span className={cn('font-semibold', done && 'line-through')}>{name}</span>
+          <span className={cn('font-semibold', done && 'text-muted-foreground line-through')}>
+            {name}
+          </span>
           <span className="text-sm text-muted-foreground tabular-nums">
             {meta.map((m, i) => (
               <span key={i} className="whitespace-nowrap">
@@ -788,7 +807,7 @@ export function ReadinessRing({ percent, size = 40 }: { percent: number; size?: 
         />
       </svg>
       <span
-        className={cn('absolute font-bold tabular-nums', size >= 56 ? 'text-base' : 'text-[11px]')}
+        className={cn('absolute font-bold tabular-nums', size >= 56 ? 'text-base' : 'text-2xs')}
       >
         {percent}
       </span>
@@ -1164,7 +1183,7 @@ export function ProgressChart({
               x={left - 8}
               y={y(t) + 4}
               textAnchor="end"
-              className="fill-muted-foreground text-[11px] tabular-nums"
+              className="fill-muted-foreground text-2xs tabular-nums"
             >
               {fmt(t)}
             </text>
@@ -1215,7 +1234,7 @@ export function ProgressChart({
             x={x(p.at)}
             y={y(p.value) - (p.mark ? 10 : 8)}
             textAnchor="middle"
-            className="fill-muted-foreground text-[11px] font-semibold tabular-nums"
+            className="fill-muted-foreground text-2xs font-semibold tabular-nums"
           >
             {p.above}
           </text>
@@ -1227,7 +1246,7 @@ export function ProgressChart({
               x={mid(b)}
               y={h - 6}
               textAnchor="middle"
-              className="fill-muted-foreground text-[11px]"
+              className="fill-muted-foreground text-2xs"
             >
               {b.label}
             </text>
@@ -1291,7 +1310,7 @@ export function ProgressChart({
             x={left - 8}
             y={by(target) + 4}
             textAnchor="end"
-            className="fill-muted-foreground text-[11px] tabular-nums"
+            className="fill-muted-foreground text-2xs tabular-nums"
           >
             {target}
           </text>

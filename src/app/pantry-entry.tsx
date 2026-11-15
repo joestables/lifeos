@@ -1,5 +1,5 @@
 import { useId, useState } from 'react'
-import { LINE_UNITS } from '@/components/lifeos'
+import { LINE_UNITS, Text } from '@/components/lifeos'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -102,7 +102,11 @@ export function PantryEntryDialog({
               aria-invalid={(tried && problem !== null) || undefined}
               onChange={(e) => setName(e.target.value)}
             />
-            {(tried || taken) && problem && <p className="text-sm text-destructive">{problem}</p>}
+            {(tried || taken) && problem && (
+              <Text as="p" size="sm" tone="danger">
+                {problem}
+              </Text>
+            )}
           </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label="Aisle" htmlFor={`${ids}-aisle`}>

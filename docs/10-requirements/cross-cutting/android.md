@@ -140,8 +140,8 @@ Acceptance criteria
    (TDY-006 1, from Stage 7b): overdue Tasks first, "Overdue" for their
    time, then the day from Anytime to Evening; each card its Type's icon
    and colour, title, and time (or "All day"; a Reminder its first time
-   that day); done ones struck through (Joe, 14 November), and gone ones
-   muted (an Event ended); every Type Today shows.
+   that day); done ones greyed and struck through, and gone ones greyed (an
+   Event ended), as on Today (Joe, 15 November); every Type Today shows.
 2. Given more cards than fit, then the list scrolls inside the widget.
 3. Given nothing today, then it says "Nothing planned".
 4. Given I tap a card, then the app opens on that Item (ITM-001); given I
@@ -188,7 +188,7 @@ Acceptance criteria
 1. Given the widget on my home screen, then it is a single bar reading
    "Capture a thought", with LifeOS's icon.
 2. Given I tap it, then capture opens straight away with the keyboard up,
-   as "New" in the app: one line, a Thought, or a Reminder with a time in
+   as Capture in the app: one line, a Thought, or a Reminder with a time in
    it (NEW-002), Labels for a Thought (NEW-006).
 3. Given I save, then the Thought (or Reminder) is kept, offline too, "Thought
    saved" shows, and I'm back on the home screen. Closing without saving

@@ -120,3 +120,4 @@ export {
 } from './Gym'
 export { readinessColour } from './readiness'
 export { AlarmScreen, MonochromeIcon, NoConnection, TodayWidget, type WidgetCard } from './Android'
+export { Text } from './Text'

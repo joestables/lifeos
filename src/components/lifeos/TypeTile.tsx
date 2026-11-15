@@ -16,6 +16,7 @@ export function TypeTile({
 }) {
   return (
     <span
+      data-slot="type-tile"
       data-colour={colour}
       aria-hidden
       className={cn(

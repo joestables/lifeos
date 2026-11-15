@@ -13,9 +13,20 @@
     <!-- The first request to Supabase doesn't wait for a connection to be made. -->
     <link rel="preconnect" href="%VITE_SUPABASE_URL%" crossorigin />
     <script>
-      // Follow the system's light or dark mode before the first paint.
+      // Light or dark before the first paint: what Settings' Appearance
+      // chose on this device (src/lib/theme.ts), else the system's.
       const dark = matchMedia('(prefers-color-scheme: dark)')
-      const apply = () => document.documentElement.classList.toggle('dark', dark.matches)
+      const apply = () => {
+        let kept = null
+        try {
+          kept = localStorage.getItem('lifeos.theme')
+        } catch {}
+        const on = kept === 'dark' || (kept !== 'light' && dark.matches)
+        document.documentElement.classList.toggle('dark', on)
+        if (kept === 'dark' || kept === 'light')
+          for (const meta of document.querySelectorAll('meta[name="theme-color"]'))
+            meta.content = on ? '#101012' : '#f3f4f5'
+      }
       apply()
       dark.addEventListener('change', apply)
     </script>

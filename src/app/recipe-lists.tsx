@@ -1,6 +1,6 @@
 import { EllipsisIcon, PlusIcon } from 'lucide-react'
 import { useState } from 'react'
-import { CardRow } from '@/components/lifeos'
+import { CardRow, Text } from '@/components/lifeos'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -90,7 +90,11 @@ function NameDialog({
             aria-invalid={taken || undefined}
             onChange={(e) => setName(e.target.value)}
           />
-          {taken && <p className="text-sm text-destructive">Already on the list</p>}
+          {taken && (
+            <Text as="p" size="sm" tone="danger">
+              Already on the list
+            </Text>
+          )}
         </form>
         <DialogFooter>
           <DialogClose render={<Button variant="outline" />}>Cancel</DialogClose>
@@ -147,7 +151,9 @@ export function ValueListCard({
   return (
     <Card className="gap-1.5">
       <div className="mb-2 flex h-8 items-center gap-3">
-        <h2 className="flex-1 text-h2">{title}</h2>
+        <Text as="h2" size="h2" className="flex-1">
+          {title}
+        </Text>
         <Button
           variant="outline"
           size="sm"
@@ -158,7 +164,9 @@ export function ValueListCard({
         </Button>
       </div>
       {!food.isLoading && values.length === 0 && (
-        <p className="text-sm text-muted-foreground">None yet</p>
+        <Text as="p" size="sm" tone="muted">
+          None yet
+        </Text>
       )}
       {values.map((v) => (
         <CardRow key={v.id} label={v.name} value={recipes(uses(v))}>

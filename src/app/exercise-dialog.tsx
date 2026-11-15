@@ -1,7 +1,7 @@
 import { useNavigate } from '@tanstack/react-router'
 import { PlusIcon, Trash2Icon, WrenchIcon } from 'lucide-react'
 import { useId, useState } from 'react'
-import { EmptyState, ValueStepper } from '@/components/lifeos'
+import { EmptyState, ValueStepper, Text } from '@/components/lifeos'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -200,10 +200,10 @@ export function ExerciseDialog({
               aria-invalid={taken ? true : undefined}
             />
             {taken && (
-              <p className="text-sm text-destructive">
+              <Text as="p" size="sm" tone="danger">
                 You already have {taken.item.title}
                 {taken.archived ? ', archived' : ''}
-              </p>
+              </Text>
             )}
           </Field>
           <div className="grid grid-cols-2 gap-3">
@@ -244,7 +244,9 @@ export function ExerciseDialog({
                 const m = gym.muscleById.get(s.id)
                 return (
                   <div key={s.id} className="flex h-10 items-center gap-2">
-                    <span className="min-w-0 flex-1 truncate text-sm font-semibold">{m?.name}</span>
+                    <Text size="sm" weight="semibold" className="min-w-0 flex-1 truncate">
+                      {m?.name}
+                    </Text>
                     <ValueStepper
                       size="sm"
                       label={`${m?.name ?? 'Muscle'} contribution`}

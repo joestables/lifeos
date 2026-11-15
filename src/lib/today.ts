@@ -1,11 +1,19 @@
 import type { Item } from '@/data'
 import { isoDayOf } from './dates'
-import { dayOrder, isPast, planDays, type AlertTime, type Placed } from './plan'
+import {
+  dayOrder,
+  isPast,
+  partOf,
+  partOn,
+  planDays,
+  type AlertTime,
+  type DayPart,
+  type Placed,
+} from './plan'
 import { currentOccurrences } from './series'
 import { byTime } from './tasks'
 
-/** The parts of a day on Today (TDY-002). */
-export type DayPart = 'anytime' | 'morning' | 'afternoon' | 'evening'
+export { partOf, type DayPart }
 
 export const DAY_PARTS: readonly { key: DayPart; label: string; until: string }[] = [
   { key: 'anytime', label: 'Anytime', until: '' },
@@ -13,13 +21,6 @@ export const DAY_PARTS: readonly { key: DayPart; label: string; until: string }[
   { key: 'afternoon', label: 'Afternoon', until: '17:00' },
   { key: 'evening', label: 'Evening', until: '24:00' },
 ]
-
-/** A Meal's slot is in the part of the day it is eaten (TDY-002 2). */
-const SLOT_PART: Record<string, DayPart> = {
-  breakfast: 'morning',
-  lunch: 'afternoon',
-  dinner: 'evening',
-}
 
 /** An Item on Today: where Week has it today, its part of the day, and whether it has gone by. */
 export interface OnToday {
@@ -36,10 +37,6 @@ export interface TodayList {
   /** Everything on the page, done and past too: the drawer's count (TDY-005). */
   count: number
 }
-
-/** The part of the day a time is in: before 12:00 the morning, before 17:00 the afternoon. */
-export const partOf = (time: string): DayPart =>
-  time === '' ? 'anytime' : time < '12:00' ? 'morning' : time < '17:00' ? 'afternoon' : 'evening'
 
 /**
  * Today (views/today.md): my overdue Tasks, then everything Week has today,
@@ -79,10 +76,8 @@ export function todayList(
 
   const parts = DAY_PARTS.map((d) => ({ key: d.key, label: d.label, items: [] as OnToday[] }))
   for (const p of placed) {
-    const part = p.item.slot
-      ? (SLOT_PART[p.item.slot] ?? 'anytime')
-      : partOf(p.first < today ? '' : p.time)
-    // A Meal never fades on Today: eaten, it is struck through (Joe, 14 November).
+    const part = partOn(p, today)
+    // A Meal is never past on Today: eaten, it is greyed and struck through (Joe, 15 November).
     parts
       .find((g) => g.key === part)!
       .items.push({ placed: p, part, past: p.item.type !== 'meal' && isPast(p.item, now, p) })

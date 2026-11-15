@@ -21,6 +21,7 @@ import java.util.TimeZone
 object ReminderSync {
     private const val LATE_MS = 12 * 60 * 60 * 1000L
     private const val ALARM_LATE_MS = 10 * 60 * 1000L
+    private const val ALARM_BACKSTOP_MS = 5_000L
 
     /** Fetches the week's Reminders; throws when there's no signal, so the work is tried again. */
     fun fetch(context: Context) {
@@ -101,15 +102,22 @@ object ReminderSync {
      * Sets one firing. An Alarm is set as the clock's are: shown in the
      * status bar and on the lock screen as the next alarm, never held back,
      * and opening the Alarm screen itself when it comes due, over whatever
-     * is on screen, as the clock's alarm screen does (REM-011 2).
+     * is on screen, as the clock's alarm screen does (REM-011 2). Android may
+     * refuse to open a screen from the background, and nothing rang then
+     * (Joe, 15 November): so five seconds on, the alarm's own broadcast rings
+     * it through AlarmService if the screen hasn't.
      */
     private fun set(context: Context, alarms: AlarmManager, at: Long, code: Int, firing: String, key: String) {
         val alarm = runCatching { JSONObject(firing).optJSONObject("payload")?.optBoolean("alarm") }
             .getOrNull() == true
         val exact = Build.VERSION.SDK_INT < 31 || alarms.canScheduleExactAlarms()
         when {
-            alarm && exact ->
+            alarm && exact -> {
                 alarms.setAlarmClock(AlarmManager.AlarmClockInfo(at, openApp(context)), screen(context, code, firing, key))
+                alarms.setExactAndAllowWhileIdle(
+                    AlarmManager.RTC_WAKEUP, at + ALARM_BACKSTOP_MS, pending(context, code, firing, key),
+                )
+            }
             !exact -> alarms.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, at, pending(context, code, firing, key))
             else -> alarms.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, at, pending(context, code, firing, key))
         }

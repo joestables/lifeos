@@ -171,6 +171,13 @@ the phone asleep; one set on the phone can.
   is on screen, as the clock's alarm screen does; it rings from there.
   Opened only by the notification's full-screen intent, as first built,
   Android showed it as a notification while the phone was in use (Joe, 0.1.4).
+  Opened only by the alarm, nothing rang when Android wouldn't open a
+  screen from the background: an Alarm made at 07:33 for 07:35 was fetched
+  by the phone at 07:34 and stayed silent, shown as a late notification at
+  07:50 when the app next looked (Joe, 15 November, 0.1.14). So both: the
+  alarm opens the screen, and five seconds on its own broadcast rings it
+  through `AlarmService` (whose notification's full-screen intent opens the
+  screen) unless it has rung already. Either way it rings.
   When it rings,
   `AlarmService`, a foreground service of the `systemExempted` type that
   apps holding `USE_EXACT_ALARM` may run for alarms, plays the phone's

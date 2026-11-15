@@ -17,6 +17,7 @@ import {
   TypeScope,
   WorkoutStatePill,
   type FilterGroup,
+  Text,
 } from '@/components/lifeos'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -299,9 +300,9 @@ function AllWorkouts() {
         <StatTile label="Weekly sessions" value={averages.weekly} />
       </div>
       <div className="flex items-center gap-2">
-        <span className="flex-1 text-sm font-semibold text-muted-foreground tabular-nums">
+        <Text size="sm" weight="semibold" tone="muted" tabular className="flex-1">
           {counted(shownRows.length, 'workout')}
-        </span>
+        </Text>
         <Button variant="outline" size="sm" className="lg:hidden" onClick={() => setSheet(true)}>
           <SlidersHorizontalIcon /> Filters
           {chosen > 0 && <Badge variant="secondary">{chosen}</Badge>}

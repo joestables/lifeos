@@ -1,6 +1,6 @@
 import { CalendarX2Icon, EllipsisIcon, MailIcon } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
-import { CardRow } from '@/components/lifeos'
+import { CardRow, Text } from '@/components/lifeos'
 import { Alert, AlertAction, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -73,7 +73,9 @@ function LevelSelect({ link, links }: { link: CalendarLink; links: CalendarLink[
 function CardTitleRow({ title, children }: { title: string; children?: ReactNode }) {
   return (
     <div className="flex h-8 items-center gap-3 pb-2">
-      <h2 className="flex-1 text-h2">{title}</h2>
+      <Text as="h2" size="h2" className="flex-1">
+        {title}
+      </Text>
       {children}
     </div>
   )

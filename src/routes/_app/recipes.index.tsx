@@ -632,7 +632,7 @@ function Ideas({
   }
 
   return (
-    <div className="flex max-w-3xl flex-col gap-4">
+    <div className="flex max-w-reading flex-col gap-4">
       {choosing.choosing ? (
         // Ideas are deleted, never archived (Joe, 20 October).
         <SelectionBar

@@ -15,6 +15,7 @@ import {
   type ChartLine,
   type FilterGroup,
   type LineDash,
+  Text,
 } from '@/components/lifeos'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -113,7 +114,9 @@ export function ExerciseProgress({
     <>
       <Card className="gap-4">
         <PanelHeading title="Best set">
-          <span className="text-sm text-muted-foreground">kg · {p.span.name}</span>
+          <Text size="sm" tone="muted">
+            kg · {p.span.name}
+          </Text>
         </PanelHeading>
         {any ? (
           <ProgressChart
@@ -125,7 +128,9 @@ export function ExerciseProgress({
             barsLabel={`${p.muscle ?? 'No muscle'} stimulus`}
           />
         ) : (
-          <p className="py-6 text-center text-sm text-muted-foreground">No sets in this period</p>
+          <Text as="p" size="sm" tone="muted" className="py-6 text-center">
+            No sets in this period
+          </Text>
         )}
       </Card>
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
@@ -159,7 +164,9 @@ export function ExerciseProgress({
       <Card className="gap-2">
         <PanelHeading title="Best sets" />
         {p.lastTen.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No sets yet</p>
+          <Text as="p" size="sm" tone="muted">
+            No sets yet
+          </Text>
         ) : (
           <Table>
             <TableHeader>
@@ -179,7 +186,7 @@ export function ExerciseProgress({
                   onClick={() => open(b.workoutId)}
                 >
                   <TableCell>
-                    <span className="font-semibold">{shortDate(new Date(b.endedAt))}</span>
+                    <Text weight="semibold">{shortDate(new Date(b.endedAt))}</Text>
                     <span className="text-muted-foreground"> · {b.set.workout.item.title}</span>
                   </TableCell>
                   <TableCell className="text-right tabular-nums">
@@ -278,7 +285,9 @@ export function MusclesList({
         />
       </div>
       {shown.length === 0 ? (
-        <p className="py-6 text-center text-sm text-muted-foreground">No muscle groups match</p>
+        <Text as="p" size="sm" tone="muted" className="py-6 text-center">
+          No muscle groups match
+        </Text>
       ) : (
         <div className="flex flex-col">
           {shown.map(({ muscle: m, lastTrained: at }) => {
@@ -366,7 +375,9 @@ export function MuscleProgress({
     const count = kind.filter((l) => on.includes(l.exerciseId)).length
     return (
       <div className="flex flex-col gap-2">
-        <span className="text-xs font-semibold text-muted-foreground">{title}</span>
+        <Text size="xs" weight="semibold" tone="muted">
+          {title}
+        </Text>
         <div className="flex flex-wrap gap-1.5">
           {kind.map((l) => {
             const isOn = on.includes(l.exerciseId)
@@ -401,13 +412,15 @@ export function MuscleProgress({
       <Card className="gap-5">
         {heading && (
           <PanelHeading title={muscle.name}>
-            <span className="text-sm text-muted-foreground">
+            <Text size="sm" tone="muted">
               Change in strength · {p.span.name.toLowerCase()}
-            </span>
+            </Text>
           </PanelHeading>
         )}
         {p.lines.length === 0 ? (
-          <p className="py-6 text-center text-sm text-muted-foreground">No exercises train it</p>
+          <Text as="p" size="sm" tone="muted" className="py-6 text-center">
+            No exercises train it
+          </Text>
         ) : (
           <>
             <div className="flex flex-col gap-4">
@@ -425,9 +438,9 @@ export function MuscleProgress({
                 barsLabel={`${muscle.name} stimulus`}
               />
             ) : (
-              <p className="py-6 text-center text-sm text-muted-foreground">
+              <Text as="p" size="sm" tone="muted" className="py-6 text-center">
                 No sets in this period
-              </p>
+              </Text>
             )}
           </>
         )}

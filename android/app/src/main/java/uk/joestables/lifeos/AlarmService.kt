@@ -47,6 +47,7 @@ class AlarmService : Service() {
                 // A second Alarm while one rings: the first stays as a notification.
                 firing?.let { if (it != next) leaveAsNotification(it) }
                 firing = next
+                ringing = true
                 start(next)
             }
             STOP, SNOOZE, DONE -> {
@@ -166,6 +167,7 @@ class AlarmService : Service() {
         player = null
         vibrator?.cancel()
         firing = null
+        ringing = false
         screen?.get()?.finish()
         ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
         stopSelf()
@@ -175,6 +177,7 @@ class AlarmService : Service() {
         handler.removeCallbacks(quiet)
         player?.release()
         vibrator?.cancel()
+        ringing = false
         super.onDestroy()
     }
 
@@ -185,6 +188,10 @@ class AlarmService : Service() {
         const val DONE = "uk.joestables.lifeos.alarm.DONE"
         private const val NOTIFICATION_ID = 0x4C41
         private const val QUIET_AFTER_MS = 10 * 60 * 1000L
+
+        /** Whether an Alarm rings now: its screen, opened late, stays. */
+        @Volatile
+        var ringing = false
 
         /** The Alarm screen showing, closed when the Alarm stops from its notification. */
         var screen: WeakReference<AlarmActivity>? = null

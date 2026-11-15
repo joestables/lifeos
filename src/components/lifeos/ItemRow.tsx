@@ -6,7 +6,8 @@ import { useLasting } from '@/hooks/use-lasting'
 /**
  * Any list of Items: tile or checkbox, title and meta, then actions that
  * appear on hover and focus and the "…" menu (only the menu on a phone,
- * always showing). With onOpen, tapping the row opens the Item.
+ * always showing), which is always last. With onOpen, tapping the row opens
+ * the Item. Done: greyed and struck through; past: greyed (Joe, 15 November).
  */
 export function ItemRow({
   leading,
@@ -14,6 +15,7 @@ export function ItemRow({
   meta = [],
   actions,
   menu,
+  mark,
   trailing,
   onOpen,
   done = false,
@@ -29,12 +31,14 @@ export function ItemRow({
   actions?: ReactNode
   /** The "…" menu: with the actions on a computer, always on a phone. */
   menu?: ReactNode
+  /** A mark that always shows, before the actions and the menu (a starred Task's star). */
+  mark?: ReactNode
   /** A control that always shows, at the end (Restore). */
   trailing?: ReactNode
   /** Opens the Item: the whole row, but for its controls. */
   onOpen?: () => void
   done?: boolean
-  /** Its time has gone (an Alert whose alerts have all gone off): faded, as on Plan. */
+  /** Its time has gone (a Reminder whose Alerts have all gone off, an Event ended): greyed, as on Week. */
   past?: boolean
   /** Whether the Item's latest change has reached the server (patterns.md#states); pending is said after 3s. */
   sync?: 'pending' | 'failed'
@@ -58,22 +62,31 @@ export function ItemRow({
   return (
     <div
       data-slot="item-row"
+      data-done={done || undefined}
+      data-past={past || undefined}
       className={cn(
         'group/row relative flex min-h-14 items-center gap-3 rounded-row bg-card px-3.5 py-2.5 shadow-card',
-        past && 'opacity-50 shadow-none',
+        past &&
+          'bg-[color-mix(in_oklch,var(--card)_50%,transparent)] shadow-none [&_[data-slot=type-tile]]:grayscale',
         className,
       )}
     >
       <div className="relative z-10 flex">{leading}</div>
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-        <div className={cn('truncate font-semibold', done && 'line-through')}>
+        <div
+          className={cn(
+            'truncate font-semibold',
+            (done || past) && 'text-muted-foreground',
+            done && 'line-through',
+          )}
+        >
           {onOpen ? (
             <button
               type="button"
               onClick={onOpen}
-              // A line-through doesn't reach into a button, so a done title draws its own.
+              // A line-through and an ellipsis don't reach into a button, so the title draws its own.
               className={cn(
-                'rounded-[2px] text-left outline-none after:absolute after:inset-0 after:rounded-row focus-visible:after:ring-3 focus-visible:after:ring-ring-soft',
+                'block max-w-full truncate rounded-[2px] text-left outline-none after:absolute after:inset-0 after:rounded-row focus-visible:after:ring-3 focus-visible:after:ring-ring-soft',
                 done && 'line-through',
               )}
             >
@@ -94,9 +107,10 @@ export function ItemRow({
           </div>
         )}
       </div>
+      {mark && <div className="relative z-10 flex">{mark}</div>}
       {(actions || menu) && (
-        <div className="relative z-10 flex items-center gap-1 opacity-100 transition-opacity sm:opacity-0 sm:group-focus-within/row:opacity-100 sm:group-hover/row:opacity-100 sm:has-[[data-popup-open]]:opacity-100">
-          {actions && <div className="hidden items-center gap-1 sm:flex">{actions}</div>}
+        <div className="relative z-10 flex items-center gap-1 opacity-100 transition-opacity md:opacity-0 md:group-focus-within/row:opacity-100 md:group-hover/row:opacity-100 md:has-[[data-popup-open]]:opacity-100">
+          {actions && <div className="hidden items-center gap-1 md:flex">{actions}</div>}
           {menu}
         </div>
       )}

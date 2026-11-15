@@ -111,11 +111,11 @@ export function RecipeCard({
           aria-disabled={selecting && unavailable ? true : undefined}
           tabIndex={selecting && unavailable ? -1 : undefined}
           onClick={selecting ? () => onSelect?.(!selected) : onOpen}
-          className="truncate text-left font-[650] outline-none group-data-[size=S]/grid:text-sm after:absolute after:inset-0 after:rounded-lg focus-visible:after:ring-3 focus-visible:after:ring-ring-soft"
+          className="truncate text-left font-semibold outline-none group-data-[size=S]/grid:text-sm after:absolute after:inset-0 after:rounded-lg focus-visible:after:ring-3 focus-visible:after:ring-ring-soft"
         >
           {name}
         </button>
-        <div className="flex min-w-0 items-center gap-1.5 text-sm text-muted-foreground group-data-[size=S]/grid:text-xs">
+        <div className="flex min-h-5.5 min-w-0 items-center gap-1.5 text-sm text-muted-foreground group-data-[size=S]/grid:text-xs">
           <span className="truncate">
             {[cuisine, selecting && unavailable ? unavailable : by].filter(Boolean).join(' · ')}
           </span>

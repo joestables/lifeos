@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { todayIn } from '@lifeos/recurrence'
-import { SunIcon } from 'lucide-react'
+import { PlusIcon, SunIcon } from 'lucide-react'
 import { useState } from 'react'
 import { CalendarBrokenAlert } from '@/app/google-calendar'
 import {
@@ -12,6 +12,7 @@ import {
   SectionLabel,
   TypeTile,
 } from '@/components/lifeos'
+import { Button } from '@/components/ui/button'
 import { useAlertTimes } from '@/app/alert-times'
 import { ADD_CHOICES } from '@/app/add-choices'
 import { AddToDayDialog } from '@/app/add-to-day'
@@ -79,7 +80,20 @@ function Today() {
       <div className="flex max-w-3xl flex-col gap-5 px-5 pb-28 sm:px-9 sm:pb-8">
         <CalendarBrokenAlert />
         <NotificationsOffer />
-        {!isLoading && list.count === 0 && <EmptyState icon={SunIcon} title="Nothing today" />}
+        {!isLoading && list.count === 0 && (
+          <EmptyState icon={SunIcon} title="Nothing today">
+            <AddToDay
+              day="Today"
+              choices={ADD_CHOICES}
+              onChoose={setAdding}
+              trigger={
+                <Button variant="outline" size="sm">
+                  <PlusIcon /> Add to Today
+                </Button>
+              }
+            />
+          </EmptyState>
+        )}
         {list.overdue.length > 0 && (
           <section>
             <SectionLabel danger count={list.overdue.length}>
@@ -90,7 +104,7 @@ function Today() {
         )}
         {list.parts.map((g) => (
           <section key={g.key}>
-            <SectionLabel>{g.label}</SectionLabel>
+            <SectionLabel count={g.items.length}>{g.label}</SectionLabel>
             <div className="flex flex-col gap-1.5">{g.items.map(row)}</div>
           </section>
         ))}

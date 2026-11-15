@@ -1,4 +1,5 @@
 import { ChefHatIcon, Trash2Icon } from 'lucide-react'
+import { Text } from '@/components/lifeos'
 import { useId, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -98,13 +99,17 @@ export function IdeaDialog({
               aria-invalid={problem !== null || undefined}
               onChange={(e) => setName(e.target.value)}
             />
-            {problem && <p className="text-sm text-destructive">{problem}</p>}
+            {problem && (
+              <Text as="p" size="sm" tone="danger">
+                {problem}
+              </Text>
+            )}
           </Field>
           <Field label="Links">
             {mine ? (
               <LinksField links={links} onChange={setLinks} />
             ) : (
-              <div className="flex flex-col gap-1 text-sm">
+              <Text as="div" size="sm" className="flex flex-col gap-1">
                 {v?.fields.sources.map((s) => (
                   <a
                     key={s}
@@ -116,7 +121,7 @@ export function IdeaDialog({
                     {s}
                   </a>
                 ))}
-              </div>
+              </Text>
             )}
           </Field>
           <Field label="Note" htmlFor={`${ids}-note`}>

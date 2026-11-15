@@ -37,6 +37,7 @@ import {
   TypeScope,
   TypeTile,
   WorkoutStatePill,
+  Text,
 } from '@/components/lifeos'
 import {
   AlertDialog,
@@ -131,15 +132,21 @@ const clock = (iso: string) => time.format(new Date(iso))
 /** A workout's line of facts under its title: its state pill, then muted facts. */
 function Facts({ pill, items }: { pill: ReactNode; items: string[] }) {
   return (
-    <div className="-mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-sm text-muted-foreground tabular-nums">
+    <Text
+      as="div"
+      size="sm"
+      tone="muted"
+      tabular
+      className="-mt-2 flex flex-wrap items-center gap-x-2 gap-y-1.5"
+    >
       {pill}
       {items.map((t) => (
-        <span key={t} className="flex items-center gap-3">
-          <span aria-hidden className="size-1 rounded-full bg-muted-foreground/50" />
+        <span key={t} className="flex items-center gap-2">
+          <span aria-hidden>·</span>
           {t}
         </span>
       ))}
-    </div>
+    </Text>
   )
 }
 
@@ -230,18 +237,15 @@ function WorkoutPage() {
     )
   else if (workout.stage === 'in_progress')
     trailing = (
-      <div className="flex items-center gap-1">
-        <Button onClick={() => setEnding(true)}>End workout</Button>
-        <More label="Workout">
-          <DropdownMenuItem onClick={() => setRenaming(true)}>
-            <PencilIcon /> Rename
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem variant="destructive" onClick={() => remove(true)}>
-            <Trash2Icon /> Discard workout
-          </DropdownMenuItem>
-        </More>
-      </div>
+      <More label="Workout">
+        <DropdownMenuItem onClick={() => setRenaming(true)}>
+          <PencilIcon /> Rename
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem variant="destructive" onClick={() => remove(true)}>
+          <Trash2Icon /> Discard workout
+        </DropdownMenuItem>
+      </More>
     )
   else if (editing) trailing = <Button onClick={() => setEditing(false)}>Done</Button>
   else
@@ -288,6 +292,16 @@ function WorkoutPage() {
         <Facts pill={<WorkoutStatePill state={state} />} items={facts.filter(Boolean)} />
         {workout.stage === 'planned' && <Planned workout={workout} gym={gym} />}
         {workout.stage === 'in_progress' && <Session workout={workout} gym={gym} />}
+        {/* At the page's foot, quietly: logging a set is the session's main action (Joe, 15 November). */}
+        {workout.stage === 'in_progress' && (
+          <Button
+            variant="outline"
+            className="w-full md:w-auto md:self-start"
+            onClick={() => setEnding(true)}
+          >
+            End workout
+          </Button>
+        )}
         {workout.stage === 'complete' && (
           <Review workout={workout} gym={gym} editing={editing} onRate={() => setEnding(true)} />
         )}
@@ -328,7 +342,9 @@ function Planned({ workout, gym }: { workout: WorkoutView; gym: GymData }) {
     <Card className="gap-1 py-3">
       <PanelHeading title={template ? template.item.title : 'Empty'} />
       {lines.length === 0 ? (
-        <p className="text-sm text-muted-foreground">Add exercises once started</p>
+        <Text as="p" size="sm" tone="muted">
+          Add exercises once started
+        </Text>
       ) : (
         lines.map((l) => (
           <PanelRow
@@ -395,7 +411,9 @@ function Session({ workout, gym }: { workout: WorkoutView; gym: GymData }) {
       <section className="flex flex-col gap-2">
         <SectionLabel count={workout.session.length}>Session</SectionLabel>
         {workout.session.length === 0 && (
-          <p className="text-sm text-muted-foreground">Add an exercise from the backlog</p>
+          <Text as="p" size="sm" tone="muted">
+            Add an exercise from the backlog
+          </Text>
         )}
         {workout.session.map((e) => {
           const done = e.doneAt !== null
@@ -451,7 +469,9 @@ function Session({ workout, gym }: { workout: WorkoutView; gym: GymData }) {
                 />
               )}
               {/* Done, its sets are as they are until Done is undone (GYM-011 3). */}
-              {!done && <LogSetButton label="Log set" onClick={() => setLogging({ entry: e })} />}
+              {!done && (
+                <LogSetButton primary label="Log set" onClick={() => setLogging({ entry: e })} />
+              )}
             </ExerciseCard>
           )
         })}
@@ -597,7 +617,9 @@ function Review({
           />
         </div>
         {workout.notes && (
-          <p className="text-sm whitespace-pre-line text-muted-foreground">{workout.notes}</p>
+          <Text as="p" size="sm" tone="muted" className="whitespace-pre-line">
+            {workout.notes}
+          </Text>
         )}
         {editing && (
           <Button variant="outline" size="sm" className="self-start" onClick={onRate}>
@@ -614,7 +636,9 @@ function Review({
         const beat = best && target !== null && best.strength! > target
         return (
           <Card key={e.id} className="gap-4">
-            <h2 className="text-h2">{e.name}</h2>
+            <Text as="h2" size="h2">
+              {e.name}
+            </Text>
             {x && (
               <div className="grid grid-cols-2 gap-2">
                 <StatTile inset label="Current" value={currentText(x.weightGrams, x.reps)} />
@@ -641,7 +665,9 @@ function Review({
                 onEdit={(i) => setLogging({ entry: e, set: e.sets[i] })}
               />
             ) : (
-              <p className="text-sm text-muted-foreground">No sets logged</p>
+              <Text as="p" size="sm" tone="muted">
+                No sets logged
+              </Text>
             )}
             {editing && <LogSetButton label="Log set" onClick={() => setLogging({ entry: e })} />}
             {x && best && (
@@ -669,7 +695,11 @@ function Review({
   const stimulusCard = (
     <Card className="gap-2">
       <PanelHeading title="Stimulus sets" />
-      {muscles.length === 0 && <p className="text-sm text-muted-foreground">No sets logged</p>}
+      {muscles.length === 0 && (
+        <Text as="p" size="sm" tone="muted">
+          No sets logged
+        </Text>
+      )}
       {muscles.map((m) => (
         <StimulusRow
           key={m.id}

@@ -80,7 +80,7 @@ export function ItemDialog({
               <XIcon />
             </DialogClose>
           </div>
-          <ScrollArea className="min-h-0 flex-1">
+          <ScrollArea fade className="min-h-0 flex-1">
             <div className="flex flex-col gap-4 px-5 pt-2.5 pb-5">
               {titleField ? (
                 <DialogTitle className="sr-only">{title}</DialogTitle>

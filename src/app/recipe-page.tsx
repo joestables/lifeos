@@ -19,6 +19,7 @@ import {
   RecipePhoto,
   RecipeText,
   StarRating,
+  Text,
 } from '@/components/lifeos'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -107,8 +108,10 @@ function VariationSwitcher({
       ? `${v.item.title} (${firstName(v.item.owner_id)}'s)`
       : v.item.title
   return (
-    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
-      <span className="font-semibold text-muted-foreground">Variation</span>
+    <Text as="div" size="sm" className="flex flex-wrap items-center gap-x-2 gap-y-1">
+      <Text weight="semibold" tone="muted">
+        Variation
+      </Text>
       {live.length > 1 ? (
         <Select
           value={variation.item.id}
@@ -131,10 +134,15 @@ function VariationSwitcher({
           </SelectContent>
         </Select>
       ) : (
-        <span className="px-2 font-semibold">{variation.item.title}</span>
+        <Text weight="semibold" className="px-2">
+          {variation.item.title}
+        </Text>
       )}
-      <Badge variant="outline">{STATE_NAMES[variation.item.status]}</Badge>
-    </div>
+      {/* Complete is green wherever it is said, a workout's too (components.md#badge). */}
+      <Badge variant={variation.item.status === 'done' ? 'success' : 'outline'}>
+        {STATE_NAMES[variation.item.status]}
+      </Badge>
+    </Text>
   )
 }
 
@@ -264,7 +272,12 @@ function Heading({
               </Button>
             )}
             {(times || variation.fields.servings || source) && (
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground [&_svg]:size-4">
+              <Text
+                as="div"
+                size="sm"
+                tone="muted"
+                className="flex flex-wrap items-center gap-x-4 gap-y-1 [&_svg]:size-4"
+              >
                 {times && (
                   <span className="inline-flex items-center gap-1.5">
                     <ClockIcon /> {times}
@@ -285,12 +298,12 @@ function Heading({
                     <LinkIcon /> <span className="truncate">{sourceHost(source)}</span>
                   </a>
                 )}
-              </div>
+              </Text>
             )}
             {recipe.cooks.length > 0 && (
-              <div className="text-sm text-muted-foreground">
+              <Text as="div" size="sm" tone="muted">
                 {cookedLine(recipe.cooks, (iso) => capturedWhen(iso))}
-              </div>
+              </Text>
             )}
           </>
         }
@@ -601,7 +614,9 @@ function RecipeLog({ recipe, food }: { recipe: RecipeView; food: FoodData }) {
       }
     >
       {log.length === 0 ? (
-        <p className="text-sm text-muted-foreground">Nothing yet</p>
+        <Text as="p" size="sm" tone="muted">
+          Nothing yet
+        </Text>
       ) : (
         lines(log.slice(0, 3))
       )}
@@ -683,14 +698,18 @@ export function RecipeRead({
           {groups.length ? (
             <IngredientList groups={groups} />
           ) : (
-            <p className="text-sm text-muted-foreground">No ingredients yet</p>
+            <Text as="p" size="sm" tone="muted">
+              No ingredients yet
+            </Text>
           )}
         </RecipePanel>
         <RecipePanel title="Method">
           {steps.length ? (
             <MethodSteps steps={steps} onRecipe={openRecipe} />
           ) : (
-            <p className="text-sm text-muted-foreground">No method yet</p>
+            <Text as="p" size="sm" tone="muted">
+              No method yet
+            </Text>
           )}
         </RecipePanel>
         <div className="flex flex-col gap-4">

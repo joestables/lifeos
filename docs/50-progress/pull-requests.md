@@ -2,6 +2,76 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#91](https://github.com/joestables/lifeos/pull/91) — The UX audit's fixes: Capture, one day order, contrast, touch, the Alarm
+
+Branch `claude/wonderful-ritchie-caa68v` · 2026-11-15 · from the
+[UX audit](https://claude.ai/artifact/SHBFaY6kLih3oLDvs2kBdN) of 14
+November and Joe's answers to each finding (15 November)
+
+**What it did**
+- **Capture** (B1, B2): "New" at the top right is "Capture", a pen on a
+  square and the word (Joe's choice of six,
+  [options](https://claude.ai/artifact/CaW2wz7FwuVnfUeG44QBde)); its popup
+  says what Save makes in a word beside the tile, and offers no Labels
+  (CAP-009 withdrawn). Recipes' button is "New recipe".
+- **The drawer** (A1, A3): Cardio, Goals and Wardrobe sit under "Later"
+  until they are built; your row ends in a gear. **Settings** has
+  Appearance: System, Light or Dark, kept on the device.
+- **Each page names itself in the browser** (A4): "LifeOS - Recipes -
+  Katsu curry".
+- **Done and past, one look everywhere** (C1): done is greyed and struck
+  through, past greyed, never by opacity: Today, Week (where a done title
+  wasn't struck at all), Plan, the Meal plan, a workout's exercises and
+  the Android widget.
+- **One order for a day** (H1): Week orders a day as Today does, dinner in
+  the evening; a Task past its due date is red on Week; Today's parts have
+  counts.
+- **Titles** (C2, H2): a row's is cut with an ellipsis; a Week card's takes
+  three lines.
+- **One reading width, 696px, and one breakpoint, 768px** (C3, C4).
+- **Contrast** (D1, D2): `--destructive`, `--success` and `--warning` and
+  the Types' text values reach 4.5:1 as text in both themes (the readiness
+  scale keeps its colours as `--readiness-low` and `--readiness-high`); a
+  Switch's thumb is `--primary-foreground` when on; `--input-strong` is 3:1
+  in light mode; inputs have the hairline edge.
+- **The warm Type colours** (D3): coral 5° and yellow 2° apart from where
+  they were, so coral, orange and yellow are 30° apart.
+- **Wording** (E1, E3, E4): the Pantry's pills say "Mark out of stock" and
+  "Mark required" until pressed; Complete is green on a Recipe as on a
+  workout; "·" joins a workout's facts; a starred Task's star sits before
+  its "…"; Notes and Sources fields have labels, and a Textarea no grip.
+- **A workout in progress** (E2): Log set is the main action; End workout
+  is an outline button at the page's foot.
+- **Touch** (F1, F2, I4): 44px hit areas for a Checkbox, a Switch, a
+  Slider's thumb, a stepper and the Pantry's Pills, drawn no larger; an
+  Item's popup fades at its foot while more lies below.
+- **Empty pages offer their action** on a computer (H3); **Recipe cards**
+  are one height, and Settings is one column on a computer too:
+  Notifications and Alerts no longer sit side by side (H5).
+- **The type scale** (I1, I2): a `Text` component, and 106 places where a
+  screen styled its own words now use it; four weights (550 and 650 went);
+  11px named `text-2xs`.
+- **The Android app, 0.1.15** (G1–G3): the Alarm screen's buttons are real
+  buttons, 64 and 56dp, Done set apart; a Reminder has its bell on the
+  Alarm screen and the widget (it showed the app's mark), and the icon
+  script fails if a Type has none; the widget's "+" has a 48dp place to
+  press, its icons are named, and its corners are the launcher's.
+- **An Alarm that didn't ring** (Joe, 15 November): made at 07:33 for
+  07:35, the phone fetched it at 07:34:01 (the server's logs), and nothing
+  rang; it showed as a notification at 07:50, when the app next looked and
+  found it more than ten minutes late. Ringing depended on Android opening
+  the Alarm screen from the background. Now the alarm's own broadcast rings
+  it five seconds on if the screen hasn't (ADR-0063, REM-011 2).
+
+**Not changed, at Joe's word:** A2, A5, B3 (but a typed Meal's example is
+"Meal"), D4, E5, F3, G4, H4, I3.
+
+**Left for later**
+- E6: the ingredient field's width is what its drag handle and remove
+  button leave; unchanged.
+- 39 colour and radius classes still sit on screens; the type ones went.
+- The Alarm's fix is unproven until 0.1.15 is on Joe's phone.
+
 ## [#90](https://github.com/joestables/lifeos/pull/90) — Stage 7b: deleting a repeating Item, Today's "+" as Week's, an Alarm's time aligned
 
 Branch `claude/great-albattani-b7azsb` · 2026-11-14

@@ -13,7 +13,7 @@ export type Slot = 'Breakfast' | 'Lunch' | 'Dinner'
  * Variation when its Recipe has more than one, and a lock when it's
  * Personal while the plan shows Household meals too: only the exception is
  * marked, so a week of shared dinners isn't a row of icons. A typed Meal or leftovers sit lighter, with no card shadow.
- * Eaten, it fades and is struck through; being dragged, it lifts. Its
+ * Eaten, it is greyed and struck through; being dragged, it lifts. Its
  * picture, when it has one (its Recipe's photo, or a typed Meal's from its
  * link), heads it (Joe, 23 October). While choosing Meals for a food shop
  * (SHP-002 1), a checkbox sits at its top right, the whole card chooses it,
@@ -54,9 +54,9 @@ export function MealCard({
   /** Its Household's name, among the Meals of several (HSH-003 1). */
   household?: string
   dragging?: boolean
-  /** Eaten: struck through, not faded (Joe, 14 November). */
+  /** Eaten: greyed and struck through (Joe, 15 November). */
   eaten?: boolean
-  /** On a day gone by: faded. */
+  /** On a day gone by: greyed. */
   past?: boolean
   /** Choosing Meals for a food shop: Select on the week (SHP-002 1). */
   selecting?: boolean
@@ -94,9 +94,10 @@ export function MealCard({
         kind === 'recipe'
           ? 'bg-card shadow-card'
           : 'bg-[color-mix(in_oklch,var(--card)_50%,transparent)] shadow-[inset_0_0_0_1px_var(--border)]',
-        past && 'opacity-50 shadow-none',
+        past &&
+          'bg-[color-mix(in_oklch,var(--card)_50%,transparent)] shadow-none [&_img]:grayscale',
         unavailable && 'pointer-events-none opacity-45 shadow-none [&_img]:grayscale',
-        dragging && 'z-10 cursor-grabbing opacity-100 shadow-pop',
+        dragging && 'z-10 cursor-grabbing shadow-pop',
         'data-selected:ring-2 data-selected:ring-ring',
         selecting && 'pr-10',
       )}
@@ -130,8 +131,9 @@ export function MealCard({
           className={cn(
             cn(
               row ? 'line-clamp-1' : 'line-clamp-2',
-              'text-left text-sm leading-[1.3] font-[650] break-words outline-none after:absolute after:inset-0 after:rounded-control focus-visible:after:ring-3 focus-visible:after:ring-ring-soft',
+              'text-left text-sm leading-[1.3] font-semibold break-words outline-none after:absolute after:inset-0 after:rounded-control focus-visible:after:ring-3 focus-visible:after:ring-ring-soft',
             ),
+            (eaten || past) && 'text-muted-foreground',
             eaten && 'line-through',
           )}
         >
@@ -180,7 +182,7 @@ export function MealSlot({
   return (
     <div data-drop={drop} className="group/slot flex min-w-0 flex-col gap-1">
       {label && (
-        <div className="px-1 text-[11px] font-bold tracking-[0.06em] text-muted-foreground uppercase">
+        <div className="px-1 text-2xs font-bold tracking-[0.06em] text-muted-foreground uppercase">
           {slot}
         </div>
       )}
@@ -312,7 +314,7 @@ export function MealWeek({
           <div
             role="rowheader"
             className={cn(
-              'pt-4 text-[11px] font-bold tracking-[0.06em] text-muted-foreground uppercase',
+              'pt-4 text-2xs font-bold tracking-[0.06em] text-muted-foreground uppercase',
               row === 0 && 'mt-2.5 pt-5',
             )}
           >

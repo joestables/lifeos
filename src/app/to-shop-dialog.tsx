@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Text } from '@/components/lifeos'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -49,7 +50,9 @@ export function ToShopDialog({
         <DialogHeader>
           <DialogTitle>Shopping list</DialogTitle>
         </DialogHeader>
-        <p className="text-sm text-muted-foreground">{names.join(' · ')}</p>
+        <Text as="p" size="sm" tone="muted">
+          {names.join(' · ')}
+        </Text>
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="to-shop">Add to</Label>
           <Select value={onto} items={items} onValueChange={(v) => v && setOnto(String(v))}>

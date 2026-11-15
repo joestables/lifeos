@@ -44,7 +44,7 @@ function TabsTrigger({ className, ...props }: TabsPrimitive.Tab.Props) {
 
 /** The optional count in a tab. */
 function TabsCount({ className, ...props }: React.ComponentProps<'span'>) {
-  return <span className={cn('text-xs tabular-nums opacity-70', className)} {...props} />
+  return <span className={cn('text-xs tabular-nums', className)} {...props} />
 }
 
 function TabsContent({ className, ...props }: TabsPrimitive.Panel.Props) {

@@ -76,7 +76,7 @@ async function start(page: Page, ai: NonNullable<Parameters<typeof standIn>[1]>[
 /** New → Import: the PageAction on a computer, the Fab on a phone. */
 async function newMenu(page: Page) {
   await page
-    .getByRole('button', { name: 'New', exact: true })
+    .getByRole('button', { name: 'New recipe', exact: true })
     .and(page.locator('[aria-haspopup="menu"]'))
     .filter({ visible: true })
     .click()

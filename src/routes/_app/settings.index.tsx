@@ -1,5 +1,13 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
-import { ArchiveIcon, ListIcon, LogOutIcon, TagIcon, Trash2Icon, UtensilsIcon } from 'lucide-react'
+import {
+  ArchiveIcon,
+  ListIcon,
+  LogOutIcon,
+  SunMoonIcon,
+  TagIcon,
+  Trash2Icon,
+  UtensilsIcon,
+} from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { CardRow, PageHeader } from '@/components/lifeos'
 import {
@@ -13,6 +21,8 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import { Card, CardTitle } from '@/components/ui/card'
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import { getTheme, setTheme, type Theme } from '@/lib/theme'
 import { AndroidAppCard } from '@/app/android-settings'
 import { GoogleCalendarCard } from '@/app/google-calendar'
 import { GymCard } from '@/app/gym-settings'
@@ -85,10 +95,8 @@ function Settings() {
     <>
       <PageHeader title="Settings" />
       <div className="flex max-w-3xl flex-col gap-4 px-5 pb-8 sm:px-9">
-        <div className="grid items-start gap-4 md:grid-cols-2">
-          <NotificationsCard />
-          <AlertsCard />
-        </div>
+        <NotificationsCard />
+        <AlertsCard />
         <GoogleCalendarCard />
         <div className="hidden md:block">
           <LabelsCard />
@@ -104,6 +112,7 @@ function Settings() {
             value={labels.length}
             render={<Link to="/settings/labels" />}
           />
+          <AppearanceRow />
           <CardRow
             icon={<Trash2Icon />}
             label="Recently deleted"
@@ -179,5 +188,35 @@ function FoodCard() {
         render={<Link to="/settings/archived-recipes" />}
       />
     </Card>
+  )
+}
+
+const THEMES: [Theme, string][] = [
+  ['system', 'System'],
+  ['light', 'Light'],
+  ['dark', 'Dark'],
+]
+
+/** Light, dark or the system's, on this device (Joe, 15 November). */
+function AppearanceRow() {
+  const [theme, setChosen] = useState(getTheme)
+  return (
+    <CardRow className="px-3" icon={<SunMoonIcon />} label="Appearance">
+      <ToggleGroup
+        aria-label="Appearance"
+        value={[theme]}
+        onValueChange={([next]: string[]) => {
+          if (!next) return
+          setTheme(next as Theme)
+          setChosen(next as Theme)
+        }}
+      >
+        {THEMES.map(([value, label]) => (
+          <ToggleGroupItem key={value} value={value}>
+            {label}
+          </ToggleGroupItem>
+        ))}
+      </ToggleGroup>
+    </CardRow>
   )
 }

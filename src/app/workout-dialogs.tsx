@@ -1,7 +1,14 @@
 import { formatKg, motivationOf, stepWeight, type Motivation } from '@lifeos/fitness'
 import { Trash2Icon } from 'lucide-react'
 import { useId, useState } from 'react'
-import { MotivationChoice, SetLine, StarRating, StatTile, ValueStepper } from '@/components/lifeos'
+import {
+  MotivationChoice,
+  SetLine,
+  StarRating,
+  StatTile,
+  ValueStepper,
+  Text,
+} from '@/components/lifeos'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -148,11 +155,11 @@ export function LogSetDialog({
       <DialogContent data-colour="coral" className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>{set ? `Set ${n}` : entry.name}</DialogTitle>
-          <span className="text-sm text-muted-foreground tabular-nums">
+          <Text size="sm" tone="muted" tabular>
             {set
               ? entry.name
               : `Set ${n} · Current ${currentText(entry.current.weightGrams, entry.current.reps)}`}
-          </span>
+          </Text>
         </DialogHeader>
         <div className="flex flex-col gap-4">
           <WeightReps
@@ -241,7 +248,6 @@ export function EndWorkoutDialog({
           <Field label="Notes" htmlFor={`${ids}-notes`}>
             <Textarea
               id={`${ids}-notes`}
-              placeholder="Notes"
               value={notes}
               maxLength={5000}
               onChange={(e) => setNotes(e.target.value)}
@@ -298,7 +304,9 @@ export function UpdateCurrentDialog({
       <DialogContent data-colour="coral" className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Update current</DialogTitle>
-          <span className="text-sm text-muted-foreground">{exercise.item.title}</span>
+          <Text size="sm" tone="muted">
+            {exercise.item.title}
+          </Text>
         </DialogHeader>
         <div className="grid grid-cols-2 gap-2">
           <StatTile
@@ -373,21 +381,31 @@ export function StrengthHistoryDialog({
       <DialogContent list data-colour="coral" className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>{exercise.item.title}</DialogTitle>
-          <span className="text-sm text-muted-foreground">Strength history · last 10 sets</span>
+          <Text size="sm" tone="muted">
+            Strength history · last 10 sets
+          </Text>
         </DialogHeader>
         {groups.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No sets yet</p>
+          <Text as="p" size="sm" tone="muted">
+            No sets yet
+          </Text>
         ) : (
           <div className="flex flex-col gap-4">
             {groups.map(({ workout, sets }) => (
               <section key={workout.item.id} className="flex flex-col">
-                <div className="flex items-center justify-between px-1 pb-1 text-xs font-semibold text-muted-foreground">
+                <Text
+                  as="div"
+                  size="xs"
+                  weight="semibold"
+                  tone="muted"
+                  className="flex items-center justify-between px-1 pb-1"
+                >
                   <span>
                     {workout.item.do_on ? shortDate(new Date(`${workout.item.do_on}T12:00`)) : ''} ·{' '}
                     {workout.item.title}
                   </span>
                   <span>Strength</span>
-                </div>
+                </Text>
                 {sets.map((s, i) => (
                   // No strength figure: a bare number says little (Joe, 3 November).
                   <SetLine

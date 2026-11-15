@@ -26,12 +26,12 @@ async function start(page: import('@playwright/test').Page, path = '/today') {
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
 }
 
-test('capture is "New" at the top right, and the drawer says nothing while all is saved', async ({
+test('capture is "Capture" at the top right, and the drawer says nothing while all is saved', async ({
   page,
   isMobile,
 }) => {
   await start(page)
-  await expect(page.getByRole('button', { name: 'New', exact: true })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Capture', exact: true })).toBeVisible()
   if (isMobile) await page.getByRole('button', { name: 'Menu' }).click()
   const drawer = page.getByRole('navigation', { name: 'Pages' }).locator('..').locator('..')
   await expect(drawer.getByRole('button', { name: /Capture/ })).toHaveCount(0)

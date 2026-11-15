@@ -18,6 +18,7 @@ import {
   StimulusRow,
   TypeScope,
   ValueStepper,
+  Text,
 } from '@/components/lifeos'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -162,9 +163,15 @@ function TemplatePage() {
   const coverageCard = (
     <Card className="gap-1">
       <PanelHeading title="Coverage">
-        <span className="text-sm text-muted-foreground">at RIR {gym.settings.preferredRir}</span>
+        <Text size="sm" tone="muted">
+          at RIR {gym.settings.preferredRir}
+        </Text>
       </PanelHeading>
-      {covered.size === 0 && <p className="text-sm text-muted-foreground">No exercises yet</p>}
+      {covered.size === 0 && (
+        <Text as="p" size="sm" tone="muted">
+          No exercises yet
+        </Text>
+      )}
       {CATEGORIES.map((c) => {
         const muscles = gym.muscles.filter(
           (m) => m.category === c.key && (covered.get(m.id) ?? 0) > 0,
@@ -172,7 +179,9 @@ function TemplatePage() {
         if (!muscles.length) return null
         return (
           <div key={c.key} className="flex flex-col">
-            <span className="pt-2 text-xs font-semibold text-muted-foreground">{c.label}</span>
+            <Text size="xs" weight="semibold" tone="muted" className="pt-2">
+              {c.label}
+            </Text>
             {muscles.map((m) => (
               <StimulusRow
                 key={m.id}
@@ -206,9 +215,9 @@ function TemplatePage() {
         }
       />
       <div className="flex flex-col gap-5 px-5 pb-12 sm:px-9">
-        <p className="-mt-2 text-sm text-muted-foreground tabular-nums">
+        <Text as="p" size="sm" tone="muted" tabular className="-mt-2">
           {templateMeta(template).join(' · ')}
-        </p>
+        </Text>
         <SideColumns>
           {exercises}
           {coverageCard}

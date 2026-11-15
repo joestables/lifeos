@@ -125,7 +125,7 @@ function Notes() {
         {tab === 'notes' ? (
           <>
             {!isLoading && notes.length === 0 && (
-              <EmptyState icon={StickyNoteIcon} title="No notes yet" />
+              <EmptyState icon={StickyNoteIcon} title="No notes yet" action={action} />
             )}
             {notes.length > 0 && shown.length === 0 && (
               <EmptyState icon={TagIcon} title={filter.nothing('notes')} />
@@ -149,12 +149,12 @@ function Notes() {
         ) : (
           <>
             {!isLoading && thoughts.length === 0 && (
-              <EmptyState icon={LightbulbIcon} title="No thoughts to sort" />
+              <EmptyState icon={LightbulbIcon} title="No thoughts to sort" action={action} />
             )}
             {thoughts.length > 0 && shownThoughts.length === 0 && (
               <EmptyState icon={TagIcon} title={filter.nothing('thoughts')} />
             )}
-            <div className="flex max-w-3xl flex-col gap-1.5">
+            <div className="flex max-w-reading flex-col gap-1.5">
               {shownThoughts.map((t) => (
                 <ThoughtRow
                   key={t.id}

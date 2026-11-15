@@ -26,7 +26,7 @@ const cardNames = (page: Page) => cards(page).locator('button:not([aria-label])'
 /** New → one of its choices (Joe, 23 October): the PageAction on a computer, the Fab on a phone. */
 async function fromNew(page: Page, choice: 'New recipe' | 'New idea') {
   await page
-    .getByRole('button', { name: 'New', exact: true })
+    .getByRole('button', { name: 'New recipe', exact: true })
     .and(page.locator('[aria-haspopup="menu"]'))
     .filter({ visible: true })
     .click()
@@ -454,7 +454,7 @@ test.describe('Recipes', () => {
     await page.getByRole('button', { name: 'Finish' }).click()
     const dialog = page.getByRole('dialog', { name: 'How did it go?' })
     await dialog.getByRole('radio', { name: '4 out of 5' }).click()
-    await dialog.getByPlaceholder('Notes').fill('More honey next time')
+    await dialog.getByLabel('Notes').fill('More honey next time')
     await dialog.getByRole('button', { name: 'Save' }).click()
     await expect(page.getByRole('heading', { name: 'Katsu curry', level: 1 })).toBeVisible()
     await expect
@@ -659,7 +659,7 @@ test.describe('Recipes', () => {
     await page.getByRole('menuitem', { name: 'Change how it went' }).click()
     const edit = page.getByRole('dialog', { name: 'How did it go?' })
     await edit.getByRole('radio', { name: '5 out of 5' }).click()
-    await edit.getByPlaceholder('Notes').fill('Perfect')
+    await edit.getByLabel('Notes').fill('Perfect')
     await edit.getByRole('button', { name: 'Save' }).click()
     await expect.poll(() => db.cooks[0]).toMatchObject({ verdict: 5, notes: 'Perfect' })
     await expect(page.getByText('Perfect')).toBeVisible()
