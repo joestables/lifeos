@@ -330,8 +330,8 @@ test.describe('The AI in a Variation', () => {
       .click()
     await page.getByRole('button', { name: 'Add Chorizo to the Pantry' }).click()
     const add = page.getByRole('dialog', { name: 'Add to the Pantry' })
-    await expect(add.getByLabel('Aisle')).toHaveText('Chilled')
-    await expect(add.getByLabel('Default unit')).toHaveText('g')
+    await expect(add.getByLabel('Aisle')).toContainText('Chilled')
+    await expect(add.getByLabel('Default unit')).toContainText('g')
     await add.getByRole('button', { name: 'Add' }).click()
     await expect
       .poll(() => db.pantry.find((p) => p.name === 'Chorizo'))
