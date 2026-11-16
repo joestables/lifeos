@@ -11,6 +11,7 @@ import {
   type LineFields,
 } from '@/data'
 import type { VariationView } from '@/data/food-hooks'
+import { rememberHints } from '@/lib/pantry-hints'
 import { AI_REFUSALS } from './ai-words'
 
 /** A line's fields, to make again. */
@@ -28,9 +29,11 @@ const fieldsOf = (l: VariationView['lines'][number]): LineFields => ({
 /**
  * The lines the AI read, as a Variation's lines: a subheading wherever the
  * source's group changes; a line matching no Pantry entry kept as typed
- * (RCP-014 11), to add to the Pantry as any typed line is.
+ * (RCP-014 11), to add to the Pantry as any typed line is, with the AI's
+ * aisle and unit to start (Joe, 16 November).
  */
 export function linesFrom(lines: readonly ImportedLine[]): LineFields[] {
+  rememberHints(lines)
   const out: LineFields[] = []
   let group: string | null = null
   for (const l of lines) {

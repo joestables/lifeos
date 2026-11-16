@@ -336,8 +336,10 @@ Priority: Must · Status: built
 
 Acceptance criteria
 1. Given a recipe or Meal line naming something new, when I choose Add to
-   the Pantry, then I choose its aisle (Cupboard to start) and default unit
-   (the line's to start), and the line links to it ([RCP-007](recipes.md#rcp-007--ingredient-lines)).
+   the Pantry, then I choose its aisle (Cupboard to start, or the AI's for
+   a line it read) and default unit (the line's to start, else the AI's),
+   and the line links to it, taking that default unit when it has no unit
+   yet ([RCP-007](recipes.md#rcp-007--ingredient-lines); Joe, 16 November).
    A line kept as typed offers the same from its mark (Joe, 23 October).
 2. Given lines kept as typed in my Recipes, then the Pantry's Pending, a
    page of its own with their count on its button (Joe, 25 October), lists

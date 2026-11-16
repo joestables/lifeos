@@ -607,10 +607,11 @@ StepEditor. Agreed with Joe on 18 October on the
   Either ends in a toast with Undo. Add "…" to the Pantry
   opens a small Dialog, "Add to the Pantry", the Dialog itself focused so a
   phone's keyboard stays down (Joe, 24 October): Name, then Aisle (a Select,
-  Cupboard to start) beside Default unit (a Select, the line's unit to
-  start), Cancel and Add (PAN-004 1); a line kept as typed opens it from
-  its mark. A Pantry entry chosen for a line with no unit gives it the
-  entry's default unit. **Edit heading** is a Dialog: the photo
+  Cupboard to start, or the AI's for a line it read) beside Default unit
+  (a Select, the line's unit to start, else the AI's), Cancel and Add
+  (PAN-004 1); a line kept as typed opens it from its mark. A Pantry entry
+  chosen or added for a line with no unit gives it the entry's default
+  unit. **Edit heading** is a Dialog: the photo
   (112px wide; Change photo, or "Add a photo" with `plus` when there is
   none, a DropdownMenu of "From a file or the camera" (`image`) and "From a
   link" (`link`, which opens an Input with an outline Use under the photo);

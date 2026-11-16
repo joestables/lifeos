@@ -2,6 +2,38 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#94](https://github.com/joestables/lifeos/pull/94) — Recipes: Fill from method adds up, the AI's aisle, Recently edited
+
+Branch `claude/epic-thompson-yin7em` · 2026-11-16 · Joe's four changes to
+Recipes
+
+**What it did**
+- **A line takes the unit of the entry added from it** (RCP-007 2,
+  PAN-004 1): Add to the Pantry, with a default unit chosen, on a line
+  with no unit yet gives the line that unit, as choosing an entry already
+  did.
+- **The AI's aisle to start** (RCP-007 2): a line Fill from method, an
+  import into a Draft or a Meal's Get ingredients kept as typed opens Add
+  to the Pantry with the aisle and default unit the AI suggested, not
+  Cupboard. The suggestions are remembered on the device by name
+  (`pantry-hints.ts`), the newest 300.
+- **Fill from method adds up an ingredient named again** (RCP-007 5):
+  Joe's chicken and chorizo paella came back with 1 tsp olive oil, the
+  first mention only. The rules now say to total every mention, with
+  worked examples (prompt version 2026-11-16.1), and the `ai` function
+  merges any repeats the model still sends (`mergeRepeats`: one kind of
+  unit adds up, 1 tsp + 2 tbsp = 7 tsp; a part of the dish made separately,
+  "For the sauce", keeps its own line); unit tests. `ai` redeployed.
+- **Recently edited** (RCP-001 6): a new sort in the library, by the
+  newest change to a Recipe's name or heading or any of its Variations.
+  Migration `recipe_recently_edited`: adding, changing or removing a line
+  or step moves its Variation's `updated_at` (unlogged), which the app now
+  reads with the heading's; `recently_edited_test` (5).
+
+**Verified**
+- `npm run check`, `npm run build`, `npm run db:test`, and the browser
+  tests in Docker, with a new walk for a filled line added to the Pantry.
+
 ## [#93](https://github.com/joestables/lifeos/pull/93) — A production bug hunt (15 November)
 
 Branch `claude/blissful-clarke-h4tf5a` · 2026-11-15 · Joe: fix what is

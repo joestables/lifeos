@@ -6,6 +6,7 @@ import {
   filterValues,
   groupRecipes,
   ideaRecipes,
+  lastEdited,
   libraryRecipes,
   lineAmount,
   nameTaken,
@@ -28,12 +29,20 @@ function recipe(
 ): RecipeView {
   n += 1
   const at = `2026-10-${String(n).padStart(2, '0')}T12:00:00Z`
-  const item = { id: `r${n}`, title, type: 'recipe', status: state, created_at: at, owner_id: 'me' }
+  const item = {
+    id: `r${n}`,
+    title,
+    type: 'recipe',
+    status: state,
+    created_at: at,
+    updated_at: at,
+    owner_id: 'me',
+  }
   const lines = (extra.lines ?? []).map(
     (l, i) => ({ id: `l${n}${i}`, variation_id: `v${n}`, ...l }) as Line,
   )
   const variation = {
-    item: { id: `v${n}`, status: state },
+    item: { id: `v${n}`, status: state, updated_at: at },
     fields: { notes: extra.notes ?? null, sources: [] },
     lines,
     steps: [],
@@ -150,6 +159,16 @@ describe('RCP-001: the library', () => {
         .map((r) => r.item.title)
         .reverse(),
     )
+    // Recently edited: any Variation's newest change counts (Joe, 16 November).
+    const edited = (r: RecipeView, at: string): RecipeView => ({
+      ...r,
+      variations: r.variations.map((v) => ({ ...v, fields: { ...v.fields, updated_at: at } })),
+    })
+    const touched = [katsu, edited(noodles, '2026-11-01T09:00:00Z'), shakshuka]
+    expect(lastEdited(touched[1]!)).toBe('2026-11-01T09:00:00Z')
+    expect(
+      libraryRecipes(touched, { ...DEFAULT_VIEW, sort: 'edited' }, pantry).map((r) => r.item.title),
+    ).toEqual(['Gochujang noodles', 'Shakshuka', 'Katsu curry'])
     expect(groupRecipes(byName, 'category').map((g) => [g.label, g.recipes.length])).toEqual([
       ['Breakfast', 1],
       ['Dinner', 2],

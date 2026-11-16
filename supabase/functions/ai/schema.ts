@@ -13,7 +13,7 @@ import {
   type ImportedLine,
   type ImportedRecipe,
 } from '../../../packages/food/src/imported.ts'
-import { isUnit, type Unit } from '../../../packages/food/src/units.ts'
+import { FACTORS, isUnit, type Unit } from '../../../packages/food/src/units.ts'
 
 const UNIT_ENUM = ['g', 'kg', 'ml', 'l', 'tsp', 'tbsp', 'cup', null]
 const nullable = (type: string) => ({ type: [type, 'null'] })
@@ -256,6 +256,74 @@ export function parseLines(text: string, pantry: readonly PantryEntry[]): Import
     .map((i) => parseLine(i, pantry, byName))
     .filter((l): l is ImportedLine => l !== null)
 }
+
+/**
+ * Fill from method's lines with an ingredient named more than once made one
+ * (Joe, 16 November): in the same group, the same Pantry entry or name, its
+ * amounts added up; in another group (a part made separately), its own line.
+ * Units of one kind add up (1 tsp + 2 tbsp = 7 tsp); a weight and a count
+ * stay two lines. An unmeasured mention on a measured one makes it "~".
+ * The model is told to add them up itself; this is what it misses.
+ */
+export function mergeRepeats(lines: readonly ImportedLine[]): ImportedLine[] {
+  const out: ImportedLine[] = []
+  for (const line of lines) {
+    const same = out.findIndex(
+      (o) =>
+        (o.group === null ? '' : key(o.group)) === (line.group === null ? '' : key(line.group)) &&
+        (o.pantryId !== null || line.pantryId !== null
+          ? o.pantryId === line.pantryId
+          : key(o.name) === key(line.name)) &&
+        added(o, line) !== undefined,
+    )
+    if (same < 0) out.push(line)
+    else out[same] = added(out[same]!, line)!
+  }
+  return out
+}
+
+/** Two mentions' amounts as one line, or undefined when they can't be added. */
+function added(a: ImportedLine, b: ImportedLine): ImportedLine | undefined {
+  if (a.qty === null || b.qty === null) {
+    const measured = a.qty === null ? b : a
+    return { ...a, ...amountOf(measured), approx: measured.qty !== null || a.approx || b.approx }
+  }
+  if (a.unit === b.unit)
+    return {
+      ...a,
+      qty: a.qty + b.qty,
+      qtyMax:
+        a.qtyMax === null && b.qtyMax === null ? null : (a.qtyMax ?? a.qty) + (b.qtyMax ?? b.qty),
+      approx: a.approx || b.approx,
+    }
+  if (a.unit === null || b.unit === null) return undefined
+  const fa = FACTORS[a.unit]
+  const fb = FACTORS[b.unit]
+  if (fa.kind !== fb.kind) return undefined
+  const low = a.qty * fa.base + b.qty * fb.base
+  const high =
+    a.qtyMax === null && b.qtyMax === null
+      ? null
+      : (a.qtyMax ?? a.qty) * fa.base + (b.qtyMax ?? b.qty) * fb.base
+  // The larger unit when the total reads well in it (2.5 tbsp, 1.5 kg), else the smaller.
+  const [big, small] = fa.base >= fb.base ? [a.unit, b.unit] : [b.unit, a.unit]
+  const quarter = (n: number) => Math.abs(n * 4 - Math.round(n * 4)) < 1e-9
+  const unit =
+    quarter(low / FACTORS[big].base) && (high === null || quarter(high / FACTORS[big].base))
+      ? big
+      : small
+  const per = FACTORS[unit].base
+  const round = (n: number) => Math.round((n / per) * 1000) / 1000
+  return {
+    ...a,
+    qty: round(low),
+    qtyMax: high === null ? null : round(high),
+    approx: a.approx || b.approx,
+    unit,
+  }
+}
+
+const amountOf = (l: ImportedLine) => ({ qty: l.qty, qtyMax: l.qtyMax, unit: l.unit })
 
 /**
  * The cuisine kept (Joe, 26 October): where the dish comes from, as my list

@@ -20,6 +20,7 @@ import {
 import {
   LINES_SCHEMA,
   MEAL_SCHEMA,
+  mergeRepeats,
   parseLines,
   parseMealLines,
   parseRecipes,
@@ -500,7 +501,7 @@ export async function fillLines(deps: ImportDeps, steps: unknown): Promise<FillA
       LINES_SCHEMA,
     ),
   )
-  return { ok: true, lines: parseLines(text, pantry), left }
+  return { ok: true, lines: mergeRepeats(parseLines(text, pantry)), left }
 }
 
 /**
