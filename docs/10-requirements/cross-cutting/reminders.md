@@ -186,9 +186,12 @@ Priority: Should · Status: verified
 Acceptance criteria
 1. Given the digest is on (it is by default, at 07:00), then each morning
    one notification says "2 overdue · 3 today" (no Thoughts, ALR-001 4), and tapping it
-   opens Today. A Household's shared Tasks count for every member, as they
+   opens Today. "Overdue" is my overdue Tasks; "today" is everything else
+   on Today that isn't done, of every Type (Tasks, Events, Reminders,
+   Meals, Workouts), as the Today widget lists it (TDY-006; Joe, 16
+   November). A Household's shared Tasks count for every member, as they
    are on every member's Today (HSH-005 3).
-2. Given nothing needs me, then no digest is sent.
+2. Given nothing is on Today, then no digest is sent.
 3. Given Settings, then I can change its time or turn it off.
 
 ### REM-009 — Overdue nudges

@@ -105,7 +105,7 @@ import {
   type SetView,
   type WorkoutView,
 } from '@/data'
-import { dateName, shortDate, fromIsoDay } from '@/lib/dates'
+import { dateName, shortDate, fromIsoDay, isoDayOf } from '@/lib/dates'
 import {
   counted,
   currentText,
@@ -651,7 +651,7 @@ function Review({
                   }
                   sub={
                     x.pr
-                      ? `${x.pr.set.rir} RIR · ${dateName(new Date(x.pr.at).toISOString().slice(0, 10))}`
+                      ? `${x.pr.set.rir} RIR · ${dateName(isoDayOf(new Date(x.pr.at)))}`
                       : undefined
                   }
                 />

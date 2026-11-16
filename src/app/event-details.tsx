@@ -188,7 +188,8 @@ function EventFields({
 const LEVEL_NAME = { off: 'Off', incoming: 'Incoming', two_way: 'Two-way' } as const
 
 /**
- * An Event from an incoming-only Google calendar (GCL-004): its date and
+ * An Event from an incoming-only Google calendar, or a Google birthday
+ * (GCL-004): its date and
  * time, place and notes are Google's, shown as lines, with "Open in Google
  * Calendar"; its Alerts and Tasks are LifeOS's own.
  */
