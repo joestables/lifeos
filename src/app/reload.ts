@@ -1,3 +1,15 @@
+let reloading = false
+/**
+ * Whether a reload for new code is under way. Until it lands, the page
+ * being opened has no code to show: that isn't a crash.
+ */
+export const reloadingForNewCode = () => reloading
+const listeners = new Set<() => void>()
+export const subscribeReloading = (l: () => void) => {
+  listeners.add(l)
+  return () => listeners.delete(l)
+}
+
 /**
  * Reloads once for new code, at `href` when given: the page being opened
  * when its code was found gone, not the one being left. A second failure
@@ -11,6 +23,8 @@ export function reloadForNewCode(href?: string): boolean {
   } catch {
     return false
   }
+  reloading = true
+  for (const l of listeners) l()
   if (href && href !== window.location.pathname + window.location.search + window.location.hash)
     window.location.assign(href)
   else window.location.reload()

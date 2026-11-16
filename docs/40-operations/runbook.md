@@ -27,7 +27,9 @@ Done 9 October 2026.
   - Edge Functions, `pg_cron` jobs and Integration syncs report failures to
     the same table;
   - not reported: the browser's "ResizeObserver loop" notice (harmless),
-    and a page's code gone with a new deploy, which reloads instead;
+    and a page's code gone with a new deploy, which reloads instead (nor
+    the router's own error for the page opened while that reload is on its
+    way, which has no code to show);
   - a write sent twice (a reload while the first was on its way) whose own
     id is then taken was already applied, so it isn't refused.
 - It is queryable by Claude through the Supabase MCP, so "what broke this

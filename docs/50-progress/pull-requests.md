@@ -2,6 +2,47 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#93](https://github.com/joestables/lifeos/pull/93) — A production bug hunt (15 November)
+
+Branch `claude/blissful-clarke-h4tf5a` · 2026-11-15 · Joe: fix what is
+plainly a bug, ask about the rest
+
+**What it did**
+- **Production, checked** (15 November): the database's and Edge
+  Functions' logs, the five scheduled jobs (none has ever failed), the
+  nightly health checks (all clean), `ops.events`, Vercel's runtime errors
+  (none), the migrations (the project's match the repository's), and Joe's
+  data against its rules (every series made as far as it should be and
+  nothing live past a series' end; no Alert without its time; no delivery
+  failed).
+- **A false crash after a deploy, fixed**: a page whose code had gone with
+  a new deploy reloaded, as meant, but on its way there the page being
+  opened had no code, which the router reports as an error of its own
+  ("Cannot read properties of undefined (reading 'component')"); so
+  "Something went wrong" flashed and a crash was recorded (three in
+  `ops.events`: 2 November twice, 7 November). While that reload is on its
+  way nothing is shown or recorded (`RouteError`, `reload.ts`; patterns
+  and the runbook say so; a unit test).
+- **A workout's PR said the wrong day** for one ended between midnight and
+  01:00 in summer time: its date was read in UTC, not on the device's
+  clock, as Progression reads it.
+- **One stuck send to Google, closed by hand**: Joe's change to a Google
+  birthday Event (All day off, then on again half a second later, 10
+  November) had been refused by Google every six hours since (400: a
+  birthday event takes few changes). The Event was as Google has it, so
+  there was nothing to send; its outbox row is marked sent with a note.
+
+**Asked of Joe, not changed**
+- What a change to a Google birthday Event should do, since Google refuses
+  it and it is retried for ever (found in #86).
+- Whether the morning digest's "today" should count everything on Today,
+  as the drawer does, not Tasks alone: with Reminders and Events on the
+  day but no Task, no digest has come since 11 November.
+
+**Verified**
+- `npm run check`, `npm run build`, and the browser tests in Docker (546
+  passed).
+
 ## [#92](https://github.com/joestables/lifeos/pull/92) — Performance: the library's photos, small and kept
 
 Branch `claude/stoic-meitner-ec9tgi` · 2026-11-15 · Joe: the Recipes
