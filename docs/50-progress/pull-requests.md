@@ -23,12 +23,13 @@ Recipes
   worked examples (prompt version 2026-11-16.1), and the `ai` function
   merges any repeats the model still sends (`mergeRepeats`: one kind of
   unit adds up, 1 tsp + 2 tbsp = 7 tsp; a part of the dish made separately,
-  "For the sauce", keeps its own line); unit tests. `ai` redeployed.
+  "For the sauce", keeps its own line); unit tests. `ai` deployed (version 9).
 - **Recently edited** (RCP-001 6): a new sort in the library, by the
   newest change to a Recipe's name or heading or any of its Variations.
   Migration `recipe_recently_edited`: adding, changing or removing a line
   or step moves its Variation's `updated_at` (unlogged), which the app now
-  reads with the heading's; `recently_edited_test` (5).
+  reads with the heading's; applied, advisors clean of anything new;
+  `recently_edited_test` (5).
 
 **Verified**
 - `npm run check`, `npm run build`, `npm run db:test`, and the browser
