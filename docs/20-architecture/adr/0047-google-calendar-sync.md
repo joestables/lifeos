@@ -62,7 +62,8 @@ stale one returns 410, meaning sync again from scratch.
 - **Google's fields are Google's on an incoming calendar.** `core.update_item`
   refuses a change to an imported Event's title, times, place, notes,
   repeat or archive state unless its calendar is two-way, and to a
-  Google birthday's (`eventType` *birthday* in its raw payload) on any
+  Google birthday's (`eventType` *birthday* in its raw payload, which the
+  app reads as `event_type`) on any
   calendar, since Google refuses changes to one (GCL-004 3); Labels,
   Reminders and links aren't Google's and stay allowed. The app hides
   those controls, but the database is the check (GCL-004).

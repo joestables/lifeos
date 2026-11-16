@@ -359,6 +359,7 @@ export type Database = {
           connection_id: string
           created_at: string
           etag: string | null
+          event_type: string | null
           external_id: string
           external_updated: string | null
           item_id: string
@@ -373,6 +374,7 @@ export type Database = {
           connection_id: string
           created_at?: string
           etag?: string | null
+          event_type?: never
           external_id: string
           external_updated?: string | null
           item_id: string
@@ -386,6 +388,7 @@ export type Database = {
           connection_id?: string
           created_at?: string
           etag?: string | null
+          event_type?: never
           external_id?: string
           external_updated?: string | null
           item_id?: string
