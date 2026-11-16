@@ -63,9 +63,7 @@ export async function fetchCalendar(): Promise<Calendar> {
     allRows((from, to) =>
       db
         .from('external_refs')
-        .select(
-          'item_id, calendar_link_id, external_id, made_in_lifeos, event_type:raw->>eventType',
-        )
+        .select('item_id, calendar_link_id, external_id, made_in_lifeos, event_type')
         .order('item_id')
         .range(from, to),
     ),

@@ -2,6 +2,34 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#95](https://github.com/joestables/lifeos/pull/95) — Google Calendar "Couldn't load": the Event type readable
+
+Branch `claude/determined-cerf-6vya7t` · 2026-11-16 · Joe's screenshot of
+Settings
+
+**What it did**
+- **Settings' Google Calendar said "Couldn't load"** on Joe's phone after
+  [#93](https://github.com/joestables/lifeos/pull/93): to show a Google
+  birthday read only (GCL-004 3), the app's read of which Events are
+  Google's asked for `raw->>eventType`, and the app may read only some
+  columns of `core.external_refs`, never `raw`. Every read was refused
+  (403); what needs my calendars (Settings, which Events are Google's) had
+  none. Sync, on the server, was unaffected.
+- Migration `google_event_type_readable`: `event_type`, a column generated
+  from the raw payload, which the app may read; the raw payload (attendees,
+  descriptions) stays the server's. Applied, advisors checked.
+- **Why it got through:** the database test of #93 checked the server's
+  rules, not the app's read as me, and the browser tests' stand-in database
+  has no column permissions. Now `calendar_reads_test` runs the app's three
+  calendar reads as me, column for column, and the unit test
+  `calendar-reads.test.ts` fails `npm run check` when the app's column
+  lists and that test differ. Only these three tables are readable by
+  column, so they are the only reads this can happen to.
+
+**Verified**
+- `calendar_reads_test` failing without the migration and passing with it;
+  `npm run check`, `npm run build`, `npm run db:test`.
+
 ## [#94](https://github.com/joestables/lifeos/pull/94) — Recipes: Fill from method adds up, the AI's aisle, Recently edited
 
 Branch `claude/epic-thompson-yin7em` · 2026-11-16 · Joe's four changes to
