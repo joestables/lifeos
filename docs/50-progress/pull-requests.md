@@ -32,16 +32,23 @@ plainly a bug, ask about the rest
   birthday event takes few changes). The Event was as Google has it, so
   there was nothing to send; its outbox row is marked sent with a note.
 
-**Asked of Joe, not changed**
-- What a change to a Google birthday Event should do, since Google refuses
-  it and it is retried for ever (found in #86).
-- Whether the morning digest's "today" should count everything on Today,
-  as the drawer does, not Tasks alone: with Reminders and Events on the
-  day but no Task, no digest has come since 11 November.
+**Asked of Joe, and built as he chose** (16 November)
+- **A Google birthday is Google's** (GCL-004 3): read only on any
+  calendar, a two-way one too, since Google refuses changes to one and a
+  change was retried for ever (found in #86). The database refuses the
+  change (`check_external`); the app shows it as an incoming Event, with
+  "Open in Google Calendar", and it can't be dragged. Its Alerts and Tasks
+  stay mine.
+- **The morning digest counts everything on Today** (REM-008 1): its
+  "today" was Tasks alone, so with only Reminders, Events or Meals on the
+  day none came (none since 11 November). It counts Today's cards not yet
+  done, as the widget lists them (`day_counts` over `today_cards`).
+- Migration `google_birthdays_and_digest`, applied; advisors clean of
+  anything new; `google_birthdays_and_digest_test` (9).
 
 **Verified**
-- `npm run check`, `npm run build`, and the browser tests in Docker (546
-  passed).
+- `npm run check`, `npm run build`, `npm run db:test`, and the browser
+  tests in Docker, with a new walk for a birthday.
 
 ## [#92](https://github.com/joestables/lifeos/pull/92) — Performance: the library's photos, small and kept
 

@@ -196,8 +196,8 @@ Acceptance criteria
    and keeps its length.
 3. Given an occurrence of a repeating Item, then only that occurrence moves
    ([TSK-011](plan.md#tsk-011--change-or-stop-a-repeat)).
-4. Given an Event from a Google calendar that is incoming only, then it
-   can't be dragged ([GCL-004](../cross-cutting/integrations.md#gcl-004--incoming-events-are-googles)).
+4. Given an Event from a Google calendar that is incoming only, or a
+   Google birthday, then it can't be dragged ([GCL-004](../cross-cutting/integrations.md#gcl-004--incoming-events-are-googles)).
 
 ### PLN-008 — Meals and shopping lists on Week
 

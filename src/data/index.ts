@@ -718,7 +718,7 @@ export {
   useSettings,
   useSyncCounts,
 } from './hooks'
-export { googleEventUrl } from './calendar'
+export { googleEventUrl, isGoogleBirthday } from './calendar'
 export {
   fillFromMethod,
   importRecipe,

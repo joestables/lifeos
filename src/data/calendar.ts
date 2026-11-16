@@ -30,7 +30,13 @@ export interface ExternalRef {
   external_id: string
   /** Sent from LifeOS, not brought in: it stays mine (GCL-001 3). */
   made_in_lifeos: boolean
+  /** What Google calls it ("default", "birthday"…), if it says. */
+  event_type?: string | null
 }
+
+/** A Google birthday is Google's on any calendar: Google refuses changes to one (GCL-004 3). */
+export const isGoogleBirthday = (ref: Pick<ExternalRef, 'made_in_lifeos' | 'event_type'>) =>
+  !ref.made_in_lifeos && ref.event_type === 'birthday'
 
 export interface Calendar {
   /** None until I first connect; one disconnected stays, emptied. */
@@ -57,7 +63,9 @@ export async function fetchCalendar(): Promise<Calendar> {
     allRows((from, to) =>
       db
         .from('external_refs')
-        .select('item_id, calendar_link_id, external_id, made_in_lifeos')
+        .select(
+          'item_id, calendar_link_id, external_id, made_in_lifeos, event_type:raw->>eventType',
+        )
         .order('item_id')
         .range(from, to),
     ),

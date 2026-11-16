@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { toast } from '@/components/ui/sonner'
-import { calendarAction, queue, useCalendar, type Item } from '@/data'
+import { calendarAction, isGoogleBirthday, queue, useCalendar, type Item } from '@/data'
 import { isAndroidApp } from '@/native/platform'
 
 /** Whether my connection is there and reading (not disconnected). */
@@ -43,22 +43,29 @@ export function useGoogleSource(item: Pick<Item, 'id' | 'type'>) {
   return {
     ref,
     link,
-    /** Google's, from a calendar that isn't two-way: it can't be changed, moved or deleted here (GCL-004). */
-    readOnly: !ref.made_in_lifeos && link?.level !== 'two_way',
+    /**
+     * Google's, from a calendar that isn't two-way, or a Google birthday on
+     * any: it can't be changed, moved or deleted here (GCL-004).
+     */
+    readOnly: (!ref.made_in_lifeos && link?.level !== 'two_way') || isGoogleBirthday(ref),
   }
 }
 
 /**
  * Whether an Item on Plan is Google's and so can't be dragged (PLN-007 4):
- * an Event from a calendar that isn't two-way, or any Event while that
- * isn't known yet.
+ * an Event from a calendar that isn't two-way, a Google birthday, or any
+ * Event while that isn't known yet.
  */
 export function useGoogleLocked(): (item: Pick<Item, 'id' | 'type'>) => boolean {
   const { refs, links, isLoading } = useCalendar(queue)
   const twoWay = new Set(links.filter((l) => l.level === 'two_way').map((l) => l.id))
   const locked = new Set(
     refs
-      .filter((r) => !r.made_in_lifeos && (!r.calendar_link_id || !twoWay.has(r.calendar_link_id)))
+      .filter(
+        (r) =>
+          (!r.made_in_lifeos && (!r.calendar_link_id || !twoWay.has(r.calendar_link_id))) ||
+          isGoogleBirthday(r),
+      )
       .map((r) => r.item_id),
   )
   return (item) => item.type === 'event' && (isLoading || locked.has(item.id))

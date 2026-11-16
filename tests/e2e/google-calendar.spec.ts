@@ -122,6 +122,27 @@ test('GCL-004: an Event from an incoming calendar is Google’s; its Alerts are 
   expect(db.item_labels).toEqual([])
 })
 
+test('GCL-004 3: a Google birthday is Google’s on a two-way calendar too', async ({ page }) => {
+  const rows = connected()
+  rows.calendar_links![0]!.level = 'two_way'
+  const db = await start(page, rows, `/week?item=${DENTIST}`)
+  // Any other Event from a two-way calendar is mine to change.
+  let popup = page.getByRole('dialog', { name: 'Dentist' })
+  await expect(popup.getByRole('textbox', { name: 'Title' })).toBeVisible()
+
+  rows.external_refs![0]!.event_type = 'birthday'
+  await start(page, rows, `/week?item=${DENTIST}`)
+  popup = page.getByRole('dialog', { name: 'Dentist' })
+  await expect(popup).toContainText('Google Calendar · Ann · Two-way')
+  await expect(popup.getByRole('textbox', { name: 'Title' })).toHaveCount(0)
+  await expect(popup.getByRole('switch')).toHaveCount(0)
+  await popup.getByRole('button', { name: 'More' }).first().click()
+  await expect(page.getByRole('menu').getByRole('menuitem')).toHaveText(['Open in Google Calendar'])
+  await page.keyboard.press('Escape')
+  await expect(popup.getByText('Alerts', { exact: true })).toBeVisible()
+  expect(db.items.find((i) => i.id === DENTIST)?.title).toBe('Dentist')
+})
+
 test('PLN-007 4: an Event from an incoming calendar can’t be dragged', async ({
   page,
   isMobile,

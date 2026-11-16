@@ -137,6 +137,10 @@ Acceptance criteria
    deleted or dragged, and it offers "Open in Google Calendar".
 2. Given that Event, then I can still give it Alerts and Tasks *for* it,
    which stay in LifeOS (no Labels: an Event has none, PLA-007).
+3. Given a birthday from Google (one Google makes from a contact, or its
+   own birthday kind of event), then it is Google's in the same way
+   whatever its calendar's level, a two-way one too: Google refuses changes
+   to its birthdays, so none is made here to be sent (Joe, 16 November).
 
 #### GCL-005 — Two-way: my Events go to Google
 

@@ -67,7 +67,8 @@ are reshaped around the day.
   passed. No Alert can be set in the past (Joe, 9 November).
 - **The Today widget is Today**: what the page shows, in its order
   ([the Android app](android.md)).
-- **The morning digest counts no Thoughts**: "2 overdue · 5 today".
+- **The morning digest counts no Thoughts**: "2 overdue · 5 today", "today"
+  being everything on Today not yet done, of every Type (REM-008 1).
 
 ## Where each part goes
 
