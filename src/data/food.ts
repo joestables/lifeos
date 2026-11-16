@@ -6,10 +6,18 @@ import { allRows } from './paging'
 
 type Food = Database['food']['Tables']
 
-/** A Recipe's heading beyond its name (food.recipe; ADR-0052). */
-export type RecipeHeading = Omit<Food['recipe']['Row'], 'updated_at'>
-/** A Variation's fields beyond its name and state (food.variation). */
-export type VariationFields = Omit<Food['variation']['Row'], 'updated_at'>
+/**
+ * A Recipe's heading beyond its name (food.recipe; ADR-0052); when it was
+ * last changed, as the server last sent it, for Recently edited (RCP-001 6).
+ */
+export type RecipeHeading = Omit<Food['recipe']['Row'], 'updated_at'> & { updated_at?: string }
+/**
+ * A Variation's fields beyond its name and state (food.variation); when it,
+ * or one of its lines or steps, was last changed (RCP-001 6).
+ */
+export type VariationFields = Omit<Food['variation']['Row'], 'updated_at'> & {
+  updated_at?: string
+}
 /** An ingredient line, or a subheading when it has a heading (RCP-007). */
 export type Line = Omit<Food['variation_lines']['Row'], 'created_at' | 'updated_at'>
 /** A method step (RCP-008). */
@@ -133,7 +141,7 @@ export async function fetchRecipes(): Promise<RecipeHeading[]> {
   return allRows((from, to) =>
     food()
       .from('recipe')
-      .select('item_id, category, cuisine, tags, protein, carbs, default_variation')
+      .select('item_id, category, cuisine, tags, protein, carbs, default_variation, updated_at')
       .order('item_id')
       .range(from, to),
   )
@@ -143,7 +151,7 @@ export async function fetchVariations(): Promise<VariationFields[]> {
   return allRows((from, to) =>
     food()
       .from('variation')
-      .select('item_id, servings, prep_min, cook_min, sources, notes, archived_from')
+      .select('item_id, servings, prep_min, cook_min, sources, notes, archived_from, updated_at')
       .order('item_id')
       .range(from, to),
   )

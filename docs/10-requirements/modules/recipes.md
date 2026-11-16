@@ -177,8 +177,11 @@ Acceptance criteria
    says how many of its choices are on.
 5. Given I'm in a Household, then a Created by filter lists me and every
    member of all my Households; outside a Household it isn't shown.
-6. Given I sort (recently added, recently cooked, A–Z) or group (by
-   category, cuisine or state), then the grid follows, and my choice is kept.
+6. Given I sort (recently added, recently edited, recently cooked, A–Z)
+   or group (by category, cuisine or state), then the grid follows, and my
+   choice is kept. Recently edited counts the newest change to the Recipe's
+   name or heading, or to any of its Variations: name, state, fields, lines
+   or steps, one removed too (Joe, 16 November).
    Choosing the sort in use again reverses it, its arrow showing which way
    (Joe, 25 October).
 7. *(Suggested)* Given S, M or L on a computer, then the cards take that
@@ -299,7 +302,11 @@ Acceptance criteria
 2. Given a name not in the Pantry, then I choose Add to the Pantry, which
    asks its name, aisle (Cupboard to start; Joe, 20 October) and default
    unit (the line's to start), or Keep as typed; a line kept as typed
-   offers Add to the Pantry again from its mark (Joe, 23 October).
+   offers Add to the Pantry again from its mark (Joe, 23 October). A line
+   the AI read (Fill from method, an import) starts with the aisle and
+   default unit the AI suggested, as this device remembers them. Added
+   while the line has no unit, the line takes the default unit chosen
+   (Joe, 16 November).
 3. Given "1-2 tsp", "~5 g" or a name alone, then each is kept as typed.
 4. Given lines, then I reorder them by dragging (on a phone too; Joe, 20
    October) and delete them, and may add subheadings ("For the sauce") that
@@ -311,7 +318,10 @@ Acceptance criteria
    lines are replaced by those the method names, with their amounts and
    units, matched to the Pantry, for me to change; the method is not
    changed. When there were lines already, I'm asked first, and Undo puts
-   them back (Joe, 23 October).
+   them back (Joe, 23 October). An ingredient the method names more than
+   once is one line, its amounts added up (1 tsp then 2 tbsp olive oil is
+   7 tsp); only one used in parts of the dish made separately ("For the
+   sauce") is a line in each (Joe, 16 November).
 
 ### RCP-008 — Method, notes and references
 

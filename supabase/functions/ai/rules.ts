@@ -10,7 +10,7 @@
  * goes with every use to ops.events, so a bad import can be traced to the
  * words that made it.
  */
-export const PROMPT_VERSION = '2026-10-26.1'
+export const PROMPT_VERSION = '2026-11-16.1'
 
 export const SYSTEM_INSTRUCTION = `
 You are an experienced chef turning a recipe into structured data for one
@@ -503,10 +503,23 @@ You are given only a recipe's method, its steps in order. List the
 ingredients it uses, as ingredient lines following every rule below. The
 method itself is not yours to change and is not returned.
 
-- **Every ingredient the method names, once.** Where it is used in parts
-  ("half the butter", "the rest of the stock") and the method gives the
-  amounts, add them up; where it gives one amount, use it; where it gives
-  none, leave the amount out.
+- **Every ingredient the method names, once, with its total.** Read every
+  step to the end before answering: an ingredient is often named again
+  later ("another 2 tbsp olive oil", "a little more stock", "the rest of
+  the butter"). **Its amount is the sum of every amount the method gives
+  for it**, never just the first. Where the method gives one amount, use
+  it; where it gives none, leave the amount out.
+
+      Step 1: "Heat 1 tsp olive oil and brown the chorizo."
+      Step 4: "Add 2 tbsp olive oil and fry the onion."
+      -> ONE line: Olive Oil, amount "7", unit "tsp"  (1 tsp + 2 tbsp)
+
+      Step 2: "Add 300 ml stock."   Step 5: "Add 200 ml more stock."
+      -> ONE line: Stock, amount "500", unit "ml"
+
+- **The one exception is a part of the dish made separately**: the same
+  ingredient used in two such parts (oil in the marinade and oil in the
+  sauce) is one line in each part's \`group\`, each with its own amount.
 - **Never invent.** No ingredient the method does not name, no amount it
   does not give. Equipment is not an ingredient, and nor is tap water.
 - **Keep the method's order**: each ingredient where it is first used.

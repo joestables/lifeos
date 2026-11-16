@@ -28,6 +28,7 @@ import {
   type PantryEntry,
 } from '@/data'
 import type { PlannedMeal } from '@/lib/meals'
+import { rememberHints } from '@/lib/pantry-hints'
 import { resizePhoto } from '@/lib/photo-resize'
 import { AI_REFUSALS } from './ai-words'
 import { keepPhoto } from './keep-photo'
@@ -35,6 +36,7 @@ import { IngredientRow } from './ingredient-row'
 
 /** The lines the AI read, as a Meal's: no subheadings; unmatched kept as typed. */
 function mealLinesFrom(lines: readonly ImportedLine[]): MealLineFields[] {
+  rememberHints(lines)
   const positions = positionsFor(lines.length)
   return lines.map((l, i) => ({
     position: positions[i]!,

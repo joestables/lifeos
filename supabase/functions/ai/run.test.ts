@@ -18,7 +18,8 @@ import {
   type ImportDeps,
 } from './run.ts'
 import { importInput, pantryList } from './rules.ts'
-import { cuisineOf, parseRecipes, RESPONSE_SCHEMA } from './schema.ts'
+import type { ImportedLine } from '../../../packages/food/src/imported.ts'
+import { cuisineOf, mergeRepeats, parseRecipes, RESPONSE_SCHEMA } from './schema.ts'
 
 const PANTRY = [
   { id: 'p-salt', name: 'Salt' },
@@ -503,5 +504,62 @@ describe('RCP-003 1: a shared link’s name', () => {
       name: 'Pancakes',
       photo: 'data:image/png;base64,iVBORw==',
     })
+  })
+})
+
+describe('Fill from method adds up an ingredient named again (Joe, 16 November)', () => {
+  const line = (over: Partial<ImportedLine>): ImportedLine => ({
+    group: null,
+    name: 'Olive Oil',
+    pantryId: 'p-oil',
+    aisle: null,
+    defaultUnit: null,
+    qty: null,
+    qtyMax: null,
+    approx: false,
+    unit: null,
+    ...over,
+  })
+
+  it('adds up the same unit, and units of one kind', () => {
+    expect(
+      mergeRepeats([
+        line({ qty: 1, unit: 'tsp' }),
+        line({ name: 'Onion', pantryId: 'p-onion', qty: 1 }),
+        line({ qty: 2, unit: 'tbsp' }),
+      ]).map((l) => [l.name, l.qty, l.unit]),
+    ).toEqual([
+      ['Olive Oil', 7, 'tsp'],
+      ['Onion', 1, null],
+    ])
+    expect(
+      mergeRepeats([line({ qty: 1, unit: 'tbsp' }), line({ qty: 1.5, unit: 'tbsp' })])[0],
+    ).toMatchObject({ qty: 2.5, unit: 'tbsp' })
+    expect(
+      mergeRepeats([
+        line({ pantryId: null, name: 'Rice', qty: 500, unit: 'g' }),
+        line({ pantryId: null, name: 'rice', qty: 1, unit: 'kg' }),
+      ])[0],
+    ).toMatchObject({ qty: 1.5, unit: 'kg' })
+    expect(
+      mergeRepeats([line({ qty: 1, qtyMax: 2, unit: 'tsp' }), line({ qty: 1, unit: 'tsp' })])[0],
+    ).toMatchObject({ qty: 2, qtyMax: 3 })
+  })
+
+  it('keeps a part made separately, and amounts that cannot be added, apart', () => {
+    expect(
+      mergeRepeats([
+        line({ group: 'For the marinade', qty: 1, unit: 'tbsp' }),
+        line({ group: 'For the sauce', qty: 2, unit: 'tbsp' }),
+      ]),
+    ).toHaveLength(2)
+    expect(mergeRepeats([line({ qty: 2 }), line({ qty: 200, unit: 'g' })])).toHaveLength(2)
+  })
+
+  it('an unmeasured mention makes a measured one approximate', () => {
+    expect(mergeRepeats([line({}), line({ qty: 1, unit: 'tsp' })])).toEqual([
+      line({ qty: 1, unit: 'tsp', approx: true }),
+    ])
+    expect(mergeRepeats([line({}), line({})])).toEqual([line({})])
   })
 })

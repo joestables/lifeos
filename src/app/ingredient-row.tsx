@@ -8,6 +8,7 @@ import { useOnLeave } from '@/hooks/use-on-leave'
 import type { useReorder } from '@/hooks/use-reorder'
 import { amountText, readAmount } from '@/lib/recipe-parts'
 import { AISLES, pantryMatches, type Aisle } from '@/lib/pantry'
+import { hintFor } from '@/lib/pantry-hints'
 import { lineName } from '@/lib/recipes'
 import { AddToPantryDialog } from './add-to-pantry'
 
@@ -158,18 +159,28 @@ export function IngredientRow({
     else if (l) keepAmount()
   })
 
+  // What the AI suggested for a name it read and couldn't match (Joe, 16 November).
+  const hint = adding ? hintFor(adding.name) : undefined
+
   return (
     <>
       {adding && (
         <AddToPantryDialog
           name={adding.name}
-          // The line's unit, the entry's default to start (PAN-004 1).
-          unit={adding.extra.unit ?? (unit || null)}
+          // The line's unit, the entry's default to start (PAN-004 1); else the AI's.
+          unit={adding.extra.unit ?? (unit || hint?.defaultUnit || null)}
+          aisle={hint?.aisle ?? undefined}
           pantry={pantry}
           onAdd={(n, aisle: Aisle, defaultUnit) => {
             setName(n)
             const id = addPantry({ name: n, aisle, default_unit: defaultUnit })
-            keep({ ...adding.extra, pantry_id: id, text: null })
+            const fields: LineFields = { ...adding.extra, pantry_id: id, text: null }
+            // A line with no unit yet takes the new entry's default (Joe, 16 November).
+            if (!fields.unit && !unit && !readAmount(amount)?.unit && defaultUnit) {
+              fields.unit = defaultUnit as Unit
+              setUnit(defaultUnit as LineUnit)
+            }
+            keep(fields)
             addingRef.current = false
             setAdding(null)
           }}

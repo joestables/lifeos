@@ -5,7 +5,7 @@ import { directed, type SortDirection } from './sort'
 
 /** All · Draft · Complete (RCP-001 2). */
 export type StateFilter = 'draft' | 'complete' | 'all'
-export type Sort = 'added' | 'cooked' | 'name'
+export type Sort = 'added' | 'edited' | 'cooked' | 'name'
 export type Grouping = 'none' | 'category' | 'cuisine' | 'state'
 
 /** The filters that narrow by a Recipe's heading, each any of its values. */
@@ -41,6 +41,7 @@ export const DEFAULT_VIEW: LibraryView = {
 
 export const SORTS: { value: Sort; label: string; initial: SortDirection }[] = [
   { value: 'added', label: 'Recently added', initial: 'desc' },
+  { value: 'edited', label: 'Recently edited', initial: 'desc' },
   { value: 'cooked', label: 'Recently cooked', initial: 'desc' },
   { value: 'name', label: 'A–Z', initial: 'asc' },
 ]
@@ -146,6 +147,23 @@ export function matches(
 
 const lastCooked = (r: RecipeView) => r.cooks[0]?.cooked_at ?? ''
 
+/**
+ * When a Recipe was last edited (RCP-001 6; Joe, 16 November): its name or
+ * heading, or any of its Variations' name, state, fields, lines or steps.
+ */
+export function lastEdited(r: RecipeView): string {
+  let last = r.item.updated_at
+  const later = (t: string | undefined) => {
+    if (t && t > last) last = t
+  }
+  later(r.heading.updated_at)
+  for (const v of r.variations) {
+    later(v.item.updated_at)
+    later(v.fields.updated_at)
+  }
+  return last
+}
+
 /** The library as chosen: state, filters, search, then sorted (RCP-001 2–6). */
 export function libraryRecipes(
   recipes: readonly RecipeView[],
@@ -177,6 +195,10 @@ export function libraryRecipes(
           if (view.sort === 'name') return a.item.title.localeCompare(b.item.title)
           if (view.sort === 'cooked') {
             const d = lastCooked(b).localeCompare(lastCooked(a))
+            if (d) return d
+          }
+          if (view.sort === 'edited') {
+            const d = lastEdited(b).localeCompare(lastEdited(a))
             if (d) return d
           }
           return b.item.created_at.localeCompare(a.item.created_at)

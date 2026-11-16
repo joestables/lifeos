@@ -308,6 +308,41 @@ test.describe('The AI in a Variation', () => {
       .toBe(4)
   })
 
+  test("RCP-007 2: a filled line added to the Pantry starts with the AI's aisle and unit", async ({
+    page,
+  }) => {
+    const db = await standIn(page, {
+      signedIn: true,
+      rows: rows(),
+      ai: {
+        fill: {
+          ok: true,
+          left: 28,
+          lines: [line({ name: 'Chorizo', aisle: 'chilled', defaultUnit: 'g' })],
+        },
+      },
+    })
+    await page.goto(`/recipes/${KATSU}?edit=variation`)
+    await page.getByRole('button', { name: 'Fill from method' }).click()
+    await page
+      .getByRole('alertdialog', { name: 'Replace the ingredients?' })
+      .getByRole('button', { name: 'Replace' })
+      .click()
+    await page.getByRole('button', { name: 'Add Chorizo to the Pantry' }).click()
+    const add = page.getByRole('dialog', { name: 'Add to the Pantry' })
+    await expect(add.getByLabel('Aisle')).toContainText('Chilled')
+    await expect(add.getByLabel('Default unit')).toContainText('g')
+    await add.getByRole('button', { name: 'Add' }).click()
+    await expect
+      .poll(() => db.pantry.find((p) => p.name === 'Chorizo'))
+      .toMatchObject({ aisle: 'chilled', default_unit: 'g' })
+    const chorizo = db.pantry.find((p) => p.name === 'Chorizo')!
+    // The line had no unit: it takes the new entry's default (Joe, 16 November).
+    await expect
+      .poll(() => db.variation_lines.find((l) => l.pantry_id === chorizo.id))
+      .toMatchObject({ text: null, unit: 'g' })
+  })
+
   test('RCP-007 5: with no method, there is nothing to fill from', async ({ page }) => {
     await standIn(page, { signedIn: true, rows: rows() })
     await page.goto(`/recipes/${NOODLES}?edit=variation`)
