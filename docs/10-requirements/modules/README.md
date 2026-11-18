@@ -8,7 +8,7 @@ One file per Module, or per page where a Module has several, written at the star
 | `food` | Recipe, Variation, Meal; the Pantry ([recipes](recipes.md), [meals](meals.md)) | 4 |
 | `fitness` | Exercise, Workout template, Workout ([gym](gym.md)) (5); Cardio activity (8) | 5, 8 |
 | `goals` | Goal | 5 |
-| `wardrobe` | Garment, Outfit, Outfit worn ([wardrobe](wardrobe.md), a draft) | 6 |
+| `wardrobe` | Garment, Outfit, Outfit worn ([wardrobe](wardrobe.md)) | 6 |
 | `health` | — (daily metrics, a time series) | Later |
 | `finance` | Account | 9 |
 

@@ -121,6 +121,10 @@ used the same way on every screen.
   4.5:1 on the page; text on a filled Type colour uses its foreground.
 - **A state is never colour alone:** Overdue is red and says "Due…"; a
   Recipe's green is never read as "done".
+- **The one exception: a garment's colour Swatch** shows the garment's own
+  colour, data rather than meaning, always with its colour's name, and
+  colours nothing else ([ADR-0067](../20-architecture/adr/0067-garment-colours.md);
+  its component is specified in Stage 6's design step).
 
 ## Opening an Item
 

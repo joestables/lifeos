@@ -248,7 +248,24 @@ Acceptance criteria
    Alert times ("15:00, 15:40", an Alarm's with an alarm clock), and is
    greyed once they have all gone off (RMD-003).
 
+### WEK-003 — Outfits on Week
+
+**As** Joe, **I want** a day's outfits on Week as one card, **so that**
+clothes don't fill the day.
+Priority: Must · Status: agreed (Stage 6; [WRD-026](../modules/wardrobe.md#wrd-026--outfits-on-today-and-week))
+
+Acceptance criteria
+1. Given a day with Outfits worn, then they show as one orange card among
+   the day's untimed Items, as WRD-026 says, opening the day's outfits,
+   single garments and weather.
+2. Given the Type pills, then Outfit is among them.
+3. Given a day's "+", when I choose Outfit, then a picker adds an outfit or
+   a single garment to that day (WRD-022 1), as PLN-006 offers each Type
+   (suggested).
+4. Given a computer, when I drag the card to another day, then every
+   outfit and garment on it moves there, with Undo (suggested).
+
 Non-goals (Stage 3): an hour grid; a month view; dragging on a phone (a
 phone moves an Item by changing its date); dragging to a time within a day;
-Workouts and Outfits (with their stages); readiness
+Workouts (with their stages); readiness
 suggestions and "plan my week" (later); Week in the morning digest.

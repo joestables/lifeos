@@ -1,15 +1,13 @@
 # Wardrobe
 
-*Stage 6, the `wardrobe` Module's Wardrobe page. **A draft for Joe to
-refine**, written from Joe's notes (18 November) and his answers the same
-day, with Claude's own suggestions marked **(suggested)**. Second draft,
-18 November: Joe's comments on the first and his answers to its open
-points written in; he agreed the suggestions. Everything is *proposed*
-until Joe agrees the spec. Where it departs from what the data model
-and ADRs say about Wardrobe today, it says so
-([below](#changes-to-agreed-documents)); step 2 of the
-[Stage 6 plan](../../50-progress/plans/stage-6.md) brings them into line
-once Joe agrees.*
+*Stage 6, the `wardrobe` Module's Wardrobe page. Written from Joe's notes
+(18 November), his answers and his comments the same day, with Claude's
+suggestions marked **(suggested)**, which Joe agreed. **Agreed by Joe on 18
+November.** How it is held and worked out:
+[ADR-0066](../../20-architecture/adr/0066-wardrobe-in-the-database.md)
+(the database), [ADR-0067](../../20-architecture/adr/0067-garment-colours.md)
+(colours) and [ADR-0068](../../20-architecture/adr/0068-weather.md) (the
+weather) ([Stage 6 plan](../../50-progress/plans/stage-6.md)).*
 
 **In one line:** every garment I own, the outfits I make from them, and
 what I'll wear on each day, with the weather beside it.
@@ -253,7 +251,7 @@ A garment and an outfit each open in a popup, read-only first.
 
 ## Requirements
 
-*Stage 6. Statuses: proposed → agreed → built → verified. All proposed.*
+*Stage 6. Statuses: proposed → agreed → built → verified. All agreed (Joe, 18 November).*
 
 ### Garments
 
@@ -261,7 +259,7 @@ A garment and an outfit each open in a popup, read-only first.
 
 **As** Joe, **I want** my clothes as photo cards, **so that** I can see
 what I own at a glance.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given the Wardrobe tab, then every Owned garment shows as a card: its
@@ -278,7 +276,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to filter by anything a garment has, **so that** I
 find, say, every slim black pair of trousers.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given the filters, then I filter by Category, Brand, Size, Colour, Fit,
@@ -299,7 +297,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to sort and group my clothes, **so that** the grid
 follows how I think about them.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given Sort, then I sort by category, brand, size (each in my order, or
@@ -314,7 +312,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to search my clothes, **so that** typing "navy
 slim" finds them.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given I type in the search, then garments match on category, brand,
@@ -327,7 +325,7 @@ Acceptance criteria
 
 **As** Joe, **I want** adding a garment on my phone to be a photo and a
 few taps, **so that** I can photograph my whole wardrobe in one go.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given New garment on a phone, then the camera opens at once; given a
@@ -353,7 +351,7 @@ Acceptance criteria
 
 **As** Joe, **I want** the app to suggest my colour for the garment in the
 photo, **so that** colours are quick and consistent.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given a photo, then the garment's dominant colour is estimated on the
@@ -375,7 +373,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to pick a new colour from the photo and have it
 named for me, **so that** a colour I haven't got yet is one step.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given New colour, then the photo fills the sheet with a loupe that
@@ -393,7 +391,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to make a brand, fit or tag while adding a garment,
 **so that** I never leave the sheet for Settings.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given Brand, then before I type it shows the brands I've used most
@@ -412,7 +410,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to go straight on to the next garment, **so that**
 adding many back to back is seamless.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given Save, then the new garment opens in its popup, read-only, with
@@ -425,7 +423,7 @@ Acceptance criteria
 
 **As** Joe, **I want** a garment to open read-only, **so that** I can look
 without changing anything, and edit only when I mean to.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given a card pressed, then the garment opens in a popup, read-only
@@ -442,7 +440,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to heart garments, **so that** I can find the ones I
 love.
-Priority: Should · Status: proposed
+Priority: Should · Status: agreed
 
 Acceptance criteria
 1. Given a card or a garment's popup, when I press the heart, then it is a
@@ -452,7 +450,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to select several garments and tag or remove them
 together, **so that** I can tag all my gym clothes "Gym" in one go.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given Select (or a long press on a phone), then I pick several garments,
@@ -469,7 +467,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to retire clothes I no longer have, **so that** the
 wardrobe shows what I own and my past outfits still make sense.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given Retire, then the garment leaves the Wardrobe tab, filters and
@@ -486,7 +484,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to build outfits by tapping garments on the
 Wardrobe tab, **so that** making outfits is quick.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given Build outfit, then the Wardrobe tab enters the builder: each card
@@ -514,7 +512,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to make an outfit from the Outfits tab, **so that**
 I needn't go back to the Wardrobe tab.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given New outfit, then a popup opens with my garments as small cards,
@@ -527,7 +525,7 @@ Acceptance criteria
 
 **As** Joe, **I want** my outfits as cards, by collection, **so that** I
 can see what I can wear.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given the Outfits tab, then the collection chosen in the Collection
@@ -545,7 +543,7 @@ Acceptance criteria
 
 **As** Joe, **I want** an outfit to open read-only, **so that** I see it
 whole and change it only when I mean to.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given a card pressed, then the outfit opens in a popup, read-only: its
@@ -563,7 +561,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to group outfits into collections, **so that** a
 trip's outfits are together.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given any outfit, then it is in My Outfits, which can't be renamed,
@@ -578,7 +576,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to select several outfits, **so that** I can file,
 plan or tidy them together.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given Select (or a long press on a phone) on the Outfits tab, then I
@@ -597,7 +595,7 @@ Acceptance criteria
 
 **As** Joe, **I want** a week of what I'll wear beside the weather, **so
 that** I plan clothes around it.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given the Week tab on a computer, then Monday to Sunday show as columns,
@@ -614,7 +612,7 @@ Acceptance criteria
 
 **As** Joe, **I want** outfits I've picked waiting beside the week, **so
 that** I drag each onto its day.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given outfits sent with Add to Planned Outfits, then they wait in the
@@ -636,7 +634,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to change a day's clothes easily, **so that** the
 plan follows what the week brings.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given a day's "+", then I add an outfit or a single garment from a
@@ -654,7 +652,7 @@ Acceptance criteria
 
 **As** Joe, **I want** a day's single garments to become an outfit, **so
 that** a combination I tried is kept.
-Priority: Should · Status: proposed
+Priority: Should · Status: agreed
 
 Acceptance criteria
 1. Given a day with two or more single garments, then Create outfit makes
@@ -668,7 +666,7 @@ Acceptance criteria
 **As** Joe, **I want** what I planned to count as worn once the day has
 gone, **so that** I see what I wear and what I don't, without ticking
 anything.
-Priority: Should · Status: proposed
+Priority: Should · Status: agreed
 
 Acceptance criteria
 1. Given a planned day has passed, then every outfit and garment on it
@@ -682,7 +680,7 @@ Acceptance criteria
 
 **As** Joe, **I want** each day's forecast on the Week tab, **so that** I
 plan for rain and cold.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given a location in Settings → Wardrobe, then each day from today to the
@@ -703,7 +701,7 @@ Acceptance criteria
 
 **As** Joe, **I want** one card for the day's clothes on Today and Week,
 **so that** they don't fill the day.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given a day with outfits or garments planned, then Today and Week show
@@ -720,7 +718,7 @@ Acceptance criteria
 
 **As** Joe, **I want** my wardrobe there without signal and in Search,
 **so that** I can plan anywhere.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given no signal, then every tab opens with the photos I've seen before,
@@ -733,7 +731,7 @@ Acceptance criteria
 
 **As** Joe, **I want** my lists in Settings, **so that** the Wardrobe
 follows how I organise my clothes.
-Priority: Must · Status: proposed
+Priority: Must · Status: agreed
 
 Acceptance criteria
 1. Given Settings → Wardrobe, then Categories, Sizes, Brands, Fits, Tags,
@@ -760,37 +758,20 @@ Non-goals: see [Not wanted](#not-wanted).
 
 ## Changes to agreed documents
 
-Once Joe agrees this spec, step 2 of the plan brings these into line, in
-an ADR and the documents it touches:
-
-- **Garment's states** lose "idea / Wishlist" (a wishlist will be part of
-  Shopping, later): Owned and Retired only; and
-  a Garment is no longer **Capturable**, as a Thought can't carry its four
-  required fields ([data model](../../20-architecture/data-model.md#types)).
-- **`garment(...)` loses `url` and `price`** and gains its title being
-  worked out, its tags, and its colour as a reference to my colours
-  (each a name and a swatch); `outfit` gains an optional name and its
-  collections; **Collections** are reference data, with My Outfits fixed
-  ([ADR-0014](../../20-architecture/adr/0014-reference-data-and-labels.md)'s
-  open Wardrobe point: v1's collections become collections of outfits,
-  not Labels on garments).
-- **Outfit worn**: several on one day; one can hold single garments with
-  no Outfit (no *wears* link); its worn state worked out once its day has
-  passed rather than ticked; Today and Week show a day's as one card
-  (ADR-0013, ADR-0029, [today](../views/today.md), [week](../views/week.md)).
-- **Weather** becomes a Stage 6 Integration
-  ([integrations](../cross-cutting/integrations.md),
-  [roadmap](../../roadmap.md#later-opportunities)).
-- **A garment's colour swatch shows its own colour**, a colour that isn't a
-  token. ADR-0043 and the [design system](../../30-design/README.md) need
-  an exception for it: a swatch shows data, not meaning (suggested).
-- **The *worn to* link** (Outfit worn → Event) goes, and **v1's URL
-  import** leaves ADR-0002's list of what to port: Joe doesn't want them.
-- **Outfit suggestions from the weather** leave the roadmap's
-  [later opportunities](../../roadmap.md#later-opportunities): Joe doesn't
-  want them.
-- **The drawer**: Wardrobe leaves "Later"
-  ([ADR-0026](../../20-architecture/adr/0026-navigation-drawer.md)).
+Made in step 2 (18 November), with ADR-0066–0068: Garment's states (no
+Wishlist: a wishlist of clothes will be Shopping's) and not Capturable;
+no `url` or `price`; the lists, tags and collections as Wardrobe's own
+reference data (settling ADR-0014's Wardrobe point); Outfit worn several a
+day, holding single garments, worn worked out, drawn as one card a day on
+Today and Week (ADR-0029, [today](../views/today.md),
+[week](../views/week.md#wek-003--outfits-on-week)); *worn to* removed;
+v1's URL import no longer to port (ADR-0002); Weather a Stage 6
+Integration ([integrations](../cross-cutting/integrations.md)); the colour
+Swatch the one exception to colour by Type (ADR-0043,
+[patterns](../../30-design/patterns.md#colour-by-type)). Wardrobe leaves
+the drawer's "Later"
+([ADR-0026](../../20-architecture/adr/0026-navigation-drawer.md)) when its
+page is built.
 
 ## Open points for Joe
 

@@ -2,7 +2,7 @@
 
 **Status:** Provisionally agreed · 2026-10-09
 
-**Amended:** 2026-10-09 by [ADR-0037](0037-thoughts.md) (Thoughts).
+**Amended:** 2026-10-09 by [ADR-0037](0037-thoughts.md) (Thoughts); 2026-11-18 by [ADR-0066](0066-wardrobe-in-the-database.md) (a Garment isn't Capturable).
 
 ## Context
 
@@ -14,7 +14,7 @@ it really is — is an everyday action.
 **Change in place, governed by rules in the ontology.**
 
 - **Thought → any Capturable Type** (Note, Task, Event, Shopping list, Recipe,
-  Goal, Garment): always, in place — this is how the Inbox is sorted. The
+  Goal): always, in place — this is how the Inbox is sorted. The
   Item keeps its id, links, Reminders and history.
 - **Note → any other Capturable Type:** in place too (a Note that turns out
   to be a Shopping list).

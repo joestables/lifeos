@@ -2,7 +2,7 @@
 
 LifeOS v2 is being built, stage by stage. Stage 0 settled the architecture
 (Provisionally agreed); Stage 1 built the foundation; Stage 2 replaced
-Google Tasks; Stage 3 built Plan, Events and Google Calendar; Stage 4 built Recipes and the Meal plan; Stage 4b (Shopping) has started, and Stage 5 (Gym) has its spec, design, schema, calculations (`packages/fitness`), settings, exercise library, templates, workouts, recovery and progression, and Joe has called it complete; Stage 7 (the Android app and widgets) has started ahead of Stage 6, with its plan written and its specs first; and Stage 7b (Today, Reminders and Plan) has started, its design, specs and decisions (ADR-0065) agreed by Joe, and its building begun; and Stage 6 (Wardrobe) has started, its plan written and its spec drafted for Joe. The current stage's plan is in
+Google Tasks; Stage 3 built Plan, Events and Google Calendar; Stage 4 built Recipes and the Meal plan; Stage 4b (Shopping) has started, and Stage 5 (Gym) has its spec, design, schema, calculations (`packages/fitness`), settings, exercise library, templates, workouts, recovery and progression, and Joe has called it complete; Stage 7 (the Android app and widgets) has started ahead of Stage 6, with its plan written and its specs first; and Stage 7b (Today, Reminders and Plan) has started, its design, specs and decisions (ADR-0065) agreed by Joe, and its building begun; and Stage 6 (Wardrobe) has started, its plan written, its spec agreed and its decisions (ADR-0066–0068) written for Joe. The current stage's plan is in
 [docs/50-progress/plans/](docs/50-progress/plans/);
 a stage without one starts by writing it, shaped like the last, with the
 stage's specs as its first step for Joe to agree
@@ -79,7 +79,8 @@ screen follows it exactly ([ADR-0038](docs/20-architecture/adr/0038-one-design-s
 - **Colour means Type**, and nothing else: related Types share a colour, a
   page takes its Types' colour, and Today and Week are neutral; red and
   green keep their usual meaning, and amber is a warning, never by colour
-  alone
+  alone; a garment's colour Swatch is the one exception
+  ([ADR-0067](docs/20-architecture/adr/0067-garment-colours.md))
   ([ADR-0043](docs/20-architecture/adr/0043-colour-by-type.md),
   [patterns](docs/30-design/patterns.md#colour-by-type)).
 - **Check dark mode first**, then light, at desktop and phone width, and

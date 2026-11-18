@@ -2,7 +2,7 @@
 
 **Status:** Provisionally agreed · 2026-10-09
 
-**Amended:** 2026-10-10 by Joe, writing the Stage 2 specs (a Note has no *idea* status). 2026-10-13 by Joe, using Stage 2 (a Thought can be ticked off, and takes Labels). 2026-11-09 by [ADR-0065](0065-reminders-alerts-and-the-day.md) (Thoughts are sorted on Notes' Thoughts tab, not Inbox; Stage 7b, as it is built).
+**Amended:** 2026-10-10 by Joe, writing the Stage 2 specs (a Note has no *idea* status). 2026-10-13 by Joe, using Stage 2 (a Thought can be ticked off, and takes Labels). 2026-11-09 by [ADR-0065](0065-reminders-alerts-and-the-day.md) (Thoughts are sorted on Notes' Thoughts tab, not Inbox; Stage 7b, as it is built); 2026-11-18 by [ADR-0066](0066-wardrobe-in-the-database.md) (a Garment isn't Capturable).
 
 ## Context
 
@@ -16,8 +16,8 @@ later.
 - **Thought is a new core Type**: a raw, unsorted capture. **Capture makes a
   Thought by default**; the one-tap switch to Task stays.
 - **Thoughts live in Inbox until sorted.** Sorting a Thought converts it in
-  place into any Capturable Type — a Note, Task, Shopping list, Event, Recipe,
-  Goal or Garment — or deletes it (archived, with undo). It keeps its id,
+  place into any Capturable Type — a Note, Task, Shopping list, Event, Recipe
+  or Goal — or deletes it (archived, with undo). It keeps its id,
   links, Reminders, Labels and history.
 - **A Thought can be ticked off** when it no longer matters: Thought is
   Completable, so it is *done* and leaves Inbox, with undo, and is still

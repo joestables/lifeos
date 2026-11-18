@@ -2,6 +2,8 @@
 
 **Status:** Provisionally agreed · 2026-10-09
 
+**Amended:** 2026-11-18 by [ADR-0067](0067-garment-colours.md) (Wardrobe's colour algorithm written afresh; its URL import not wanted).
+
 ## Context
 
 v1 is a Shell with four Apps (Strength, Planner, Wardrobe, Recipes) in
@@ -20,7 +22,9 @@ current code would survive an in-place evolution.
   - the notification / Web Push path and service worker;
   - the cache and optimistic-write pattern, or TanStack Query equivalents;
   - Strength's arithmetic: Epley e1RM, progression, readiness;
-  - Wardrobe's colour algorithm and URL import;
+  - ~~Wardrobe's colour algorithm and URL import~~: the colour algorithm
+    is written afresh ([ADR-0067](0067-garment-colours.md)) and URL import
+    isn't wanted (Joe, 18 November);
   - Recipes' import and AI pieces, where still wanted.
 - **A new repository** containing only `docs/` until the architecture is
   signed off. The v1 repository stays as reference.

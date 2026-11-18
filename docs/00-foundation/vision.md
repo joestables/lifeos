@@ -44,7 +44,7 @@ thing and relationship are allowed (the **ontology**).
 - **Items** are the nodes — a task, an event, a recipe, a workout, a meal, an
   outfit, a thought, a note.
 - **Links** are the named edges — *meal uses recipe*, *session follows
-  template*, *outfit worn to event*.
+  template*, *outfit includes garment*.
 - **Types, Traits and link types** are the ontology
   ([data model](../20-architecture/data-model.md)).
 
@@ -92,7 +92,7 @@ ontology, so an AI can be handed the whole picture:
 What the architecture does to make this possible, at no extra cost now:
 
 - **One graph, not silos** — any question can span every Module.
-- **Typed, named relationships** — links like *uses*, *follows* and *worn to*
+- **Typed, named relationships** — links like *uses*, *follows* and *includes*
   carry meaning an AI can read; the ontology is the explanation it is given.
 - **The activity log** — what happened, when, as a timeline an AI can reason
   over.

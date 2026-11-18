@@ -52,7 +52,7 @@ empty:
 | Group | What is in it | Order |
 |---|---|---|
 | **Overdue** | My open Tasks due before today | Oldest due date first |
-| **Anytime** | What has no time: an untimed Task (one left from an earlier day too), a Workout, a Shopping list, an all-day Event or one going on from an earlier day | As Week's day orders them |
+| **Anytime** | What has no time: an untimed Task (one left from an earlier day too), a Workout, a Shopping list, the day's outfits as one card ([WRD-026](../modules/wardrobe.md#wrd-026--outfits-on-today-and-week)), an all-day Event or one going on from an earlier day | As Week's day orders them |
 | **Morning** | 00:00–12:00: Breakfast, then by time | By time |
 | **Afternoon** | 12:00–17:00: Lunch, then by time | By time |
 | **Evening** | 17:00–24:00: Dinner, then by time | By time |

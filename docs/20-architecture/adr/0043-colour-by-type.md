@@ -2,6 +2,8 @@
 
 **Status:** Provisionally agreed · 2026-10-10
 
+**Amended:** 2026-11-18 by [ADR-0067](0067-garment-colours.md) (a garment's colour Swatch, the one exception).
+
 ## Context
 
 [ADR-0041](0041-visual-direction.md) made colour mean Module and kept the
@@ -33,6 +35,9 @@ colours of its own.
   isn't wrong, as a staple out of stock; Joe, 21 October). A state is **never
   shown by colour alone**: it also has a word or an icon, so it can't be
   mistaken for Gym's coral, Recipes' green or Notes' yellow.
+- **One exception, a garment's colour Swatch** ([ADR-0067](0067-garment-colours.md)):
+  it shows the garment's own colour, which is data, not meaning, always
+  with its colour's name, and colours nothing else.
 - **No Module name at the top of a page**: the page's title and colour say
   where you are.
 - Everything else in [ADR-0041](0041-visual-direction.md) stands.

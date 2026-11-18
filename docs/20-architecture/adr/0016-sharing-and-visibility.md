@@ -2,7 +2,7 @@
 
 **Status:** Provisionally agreed · 2026-10-09
 
-**Amended:** 2026-10-18 by [ADR-0051](0051-who-sees-food.md) (a Recipe is seen by its author's Household without being shared; the Pantry is everyone's); 2026-11-04 by Joe's answers on sharing Tasks and Events (leaving removes links across the Household; Items seen through a link aren't in my Inbox or Tasks).
+**Amended:** 2026-10-18 by [ADR-0051](0051-who-sees-food.md) (a Recipe is seen by its author's Household without being shared; the Pantry is everyone's); 2026-11-04 by Joe's answers on sharing Tasks and Events (leaving removes links across the Household; Items seen through a link aren't in my Inbox or Tasks); 2026-11-18 by [ADR-0066](0066-wardrobe-in-the-database.md) (boundary 1's example no longer an outfit: *worn to* is gone and Wardrobe is Personal).
 
 ## Context
 
@@ -16,8 +16,8 @@ and add events, while most of his life stays personal.
 - **Visibility follows links:** if a Personal Item is linked to a shared
   Item, members of that Space can see the Personal Item, within four
   boundaries:
-  1. **One hop only** — an Event's linked Outfit worn is visible; the Outfit
-     and garments behind it are not.
+  1. **One hop only** — a Personal Task *for* a shared Event is visible;
+     what that Task links to is not.
   2. **Read-only** — visibility through a link never grants editing.
   3. **Shown in the interface** — linking a Personal Item to a shared one
      marks it "Visible to Household"; removing the link removes the

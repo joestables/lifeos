@@ -20,7 +20,7 @@ A broken Integration shows on Today and in the nightly health check.
 | **Oura** | 8 | Reported: personal access tokens were retired at the end of 2025, so OAuth only; new apps are limited to 10 users; Gen3+ rings need an active Oura Membership. No native app needed. Re-check before Stage 8. Sleep and readiness stay out of the Items table ([ADR-0015](../../20-architecture/adr/0015-health-data-as-a-time-series.md)). |
 | **Health Connect** | 8 | Native Android only (e.g. `@capgo/capacitor-health`), so it needs the Android app (Stage 7); built with Cardio, where it is first used (Joe, 5 November). |
 | **Finance** | 9 | Nationwide and Barclaycard via Open Banking aggregators (check current personal-use availability); Vanguard and Moneybox have no Open Banking or public API — manual balances or CSV import. |
-| **Weather** | Later | An opportunity: feeds outfit suggestions and run planning ([roadmap](../../roadmap.md#later-opportunities)). |
+| **Weather** | 6 | Open-Meteo, from the device: no key, no account, nothing stored but the place; not the pattern above ([ADR-0068](../../20-architecture/adr/0068-weather.md)). Each day's forecast on Wardrobe's Week tab ([WRD-025](../modules/wardrobe.md#wrd-025--the-weather)); run planning from it later. |
 
 Setup steps: [integration setup](../../40-operations/integration-setup.md).
 
