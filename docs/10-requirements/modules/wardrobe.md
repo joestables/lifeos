@@ -2,8 +2,10 @@
 
 *Stage 6, the `wardrobe` Module's Wardrobe page. **A draft for Joe to
 refine**, written from Joe's notes (18 November) and his answers the same
-day, with Claude's own suggestions marked **(suggested)**. Everything is
-*proposed* until Joe agrees it. Where it departs from what the data model
+day, with Claude's own suggestions marked **(suggested)**. Second draft,
+18 November: Joe's comments on the first and his answers to its open
+points written in; he agreed the suggestions. Everything is *proposed*
+until Joe agrees the spec. Where it departs from what the data model
 and ADRs say about Wardrobe today, it says so
 ([below](#changes-to-agreed-documents)); step 2 of the
 [Stage 6 plan](../../50-progress/plans/stage-6.md) brings them into line
@@ -55,10 +57,11 @@ what I'll wear on each day, with the weather beside it.
 - **The lists are Wardrobe's own**, not Labels, as a Recipe's tags are
   Food's ([ADR-0014](../../20-architecture/adr/0014-reference-data-and-labels.md)):
   "Gym" as a Wardrobe tag never appears among my Notes' Labels.
-- **A first wardrobe starts with lists to edit** (suggested): categories
-  (T-shirts, Shirts, Jumpers, Hoodies, Jackets, Coats, Trousers, Jeans,
-  Shorts, Shoes, Trainers) and sizes (XS–XXL), so the first garment can be
-  added straight away. I rename, reorder or delete them.
+- **Every list starts empty** (Joe, 18 November): nothing is predefined.
+  Before the first garment, I add categories and sizes in Settings.
+- **One list of sizes for every category** (Joe, 18 November), not sizes
+  tied to categories; the add sheet puts the sizes already used for the
+  chosen category first.
 
 ### Adding a garment, without friction
 
@@ -73,7 +76,8 @@ November). Claude's suggestion for keeping it quick:
    all four are set, and until then says what's missing ("Size needed").
 3. **The colour is already chosen.** By the time the sheet shows, the
    photo has been read and the closest of my colours is selected, with
-   the next closest beside it ([below](#colour-from-the-photo)).
+   the next closest beside it, or, when none is close, a new colour ready
+   to make ([below](#colour-from-the-photo)).
 4. **The likely sizes come first.** After a Category is chosen, the sizes
    I've used for it lead the Size pills; the rest are behind More sizes.
 5. **Brands are a search**, narrowing as I type, the brands I've used most
@@ -101,13 +105,18 @@ November). Claude's suggestion for keeping it quick:
   it lies on. The largest remaining cluster is the garment's colour. This
   is the job v1's colour algorithm did
   ([ADR-0002](../../20-architecture/adr/0002-start-afresh-port-selectively.md));
-  v1 isn't reachable from these sessions, so it is written afresh, unless
-  Joe can share it.
+  it is written afresh (Joe, 18 November).
+- **No background removal** (Joe, 18 November): a plain floor or bed
+  behind the garment is enough for the estimate.
 - **My own colours are offered, never a new hex.** The estimate is compared
   with each of my colours by how far apart they look (ΔE in OKLab); the
   closest is selected, and up to three within a set distance are offered
   beside it, closest first, with all my colours a tap away. Suggestions
   are only suggestions (Joe, 18 November).
+- **Obviously new, a new colour is suggested** (Joe, 18 November): when
+  none of mine is close, the estimate itself is offered first as a new
+  colour, already named (below), to make with one tap, or to change in the
+  picker first. It is still only a suggestion.
 - **A new colour is picked from the photo** (Joe, 18 November): New colour
   shows the photo with a loupe I drag over the garment; where I let go
   sets the colour. Then I name it.
@@ -153,7 +162,7 @@ November). Claude's suggestion for keeping it quick:
     to the whole builder. The grid stays in reach above it.
   - What's in the builder is kept if I leave the page (suggested).
 
-### The Plan tab
+### The Week tab
 
 - **The week**, Monday first, laid out as the Meal plan's: columns on a
   computer, days stacked on a phone, ‹ Today › and a date
@@ -163,9 +172,13 @@ November). Claude's suggestion for keeping it quick:
   just for that day. An outfit on a day shows each of its garments as its
   own card, the cards joined into one group so they read as one outfit;
   single garments stand on their own.
-- **The To plan pane.** Outfits chosen on the Outfits tab with **Add to
-  Plan** wait in a pane on the right of the Plan tab, styled as the Outfit
-  builder is (Joe, 18 November), and are dragged onto days. A placed outfit
+- **The tab is called Week** (Joe, 18 November), as the Meal plan's is:
+  Plan is a page of its own (Tasks, Events and Reminders).
+- **The Planned Outfits pane** (Joe, 18 November). Outfits chosen on the
+  Outfits tab with **Add to Planned Outfitsned Outfits** wait in a pane on the right,
+  styled as the Outfit builder is, and are dragged onto days on the Week
+  tab. The pane is the same, and shows the same outfits, on both the
+  Outfits and Week tabs (Joe, 18 November). A placed outfit
   leaves the pane (suggested); it can be placed again from the Outfits tab.
   The pane also has a **Garments** search (suggested), so single garments
   are dragged onto days the same way. On a phone, the pane is the same
@@ -184,7 +197,7 @@ November). Claude's suggestion for keeping it quick:
 
 ### Weather
 
-- **Each day on the Plan tab shows its forecast** (Joe, 18 November): an
+- **Each day on the Week tab shows its forecast** (Joe, 18 November): an
   icon, the day's high and low in °C, and the chance of rain when it's
   worth saying.
 - **One place, set in Settings → Wardrobe** (Joe, 18 November), found by
@@ -193,26 +206,28 @@ November). Claude's suggestion for keeping it quick:
   16 days ahead. Days past the forecast, and days gone, show no weather.
   Without signal, the last forecast fetched shows, saying when it's from.
 - Weather was a [later opportunity](../../roadmap.md#later-opportunities);
-  this makes it an Integration in Stage 6, for the Plan tab only. Outfit
-  suggestions from the weather stay later.
+  this makes it an Integration in Stage 6, for the Week tab only. Outfit
+  suggestions from it aren't wanted (Joe, 18 November).
 
 ### Today and Week
 
 - **One card a day**, never one per garment (Joe, 18 November): an orange
   card with the day's garments' photos small, saying "Navy work outfit",
   "2 outfits" or "4 garments". Pressed, a popup shows the day's outfits
-  and single garments as the Plan tab does, with the weather, and Open in
+  and single garments as the Week tab does, with the weather, and Open in
   Wardrobe.
 
-### Not in Stage 6
+### Not wanted
 
-The Wishlist (the data model's "idea" state for a garment), price and a
-shop link; importing a garment from a shop's page (v1 had it,
+Joe doesn't want these, now or later (18 November): price and a shop link
+on a garment; importing a garment from a shop's page (v1 had it,
 [ADR-0002](../../20-architecture/adr/0002-start-afresh-port-selectively.md));
 removing the photo's background; outfit suggestions from the weather or
 from what I haven't worn; *worn to* an Event; packing lists; laundry;
-sharing garments or outfits in a Household (all Personal). Each can come
-later (suggested).
+sharing garments or outfits in a Household (all Personal).
+
+**A wishlist of clothes** isn't Wardrobe's: it will be part of Shopping,
+built later (Joe, 18 November).
 
 ## What the page shows
 
@@ -227,9 +242,12 @@ later (suggested).
   garment** and **Build outfit**. A card: photo, brand, category and size,
   the colour's swatch, the heart.
 - **Outfits**: a Collection menu (My Outfits first), the collection's
-  outfits as cards in a grid, New outfit, search, sort and Select.
-- **Plan**: the week with each day's weather, outfits and garments, and
-  the To plan pane.
+  outfits as cards in a grid, New outfit, search, sort and Select, and
+  the Planned Outfits pane.
+- **Week**: the week with each day's weather, outfits and garments.
+
+The Planned Outfits pane is on both the Outfits and Week tabs, the same on
+each.
 
 A garment and an outfit each open in a popup, read-only first.
 
@@ -252,8 +270,9 @@ Acceptance criteria
 2. Given S, M or L on a computer, then the cards take that size, and my
    choice is kept; a phone shows two across (suggested, as RCP-001 7).
 3. Given no garments yet, then the tab says so with New garment; given no
-   categories or sizes (all deleted), then New garment says to add them in
-   Settings → Wardrobe, with a link.
+   categories or sizes yet, then New garment says to add them in
+   Settings → Wardrobe, with a link; every list starts empty (Joe, 18
+   November).
 
 ### WRD-002 — Filter
 
@@ -343,8 +362,10 @@ Acceptance criteria
 2. Given the estimate, then the closest of my colours is selected, and up
    to three others close to it are offered beside it, closest first; All
    colours shows every one of mine (Joe, 18 November).
-3. Given none of my colours is close, then none is selected and New colour
-   is offered first.
+3. Given none of my colours is close, then a new colour of the estimate is
+   offered first and selected, with a suggested name (WRD-007 2); I keep
+   it, change its colour or name, or choose one of mine instead (Joe, 18
+   November).
 4. Given no photo, then no colour is suggested, and I choose from mine or
    make one by its swatch alone (a colour picker without the photo).
 5. Given unit tests, then photos of known garments on known backgrounds
@@ -438,8 +459,9 @@ Acceptance criteria
    with Select all for what's showing, as on Recipes
    ([RCP-004](recipes.md#rcp-004--many-at-once)).
 2. Given Add tag, then I choose one or more tags (or make one), and each is
-   added to every garment selected (Joe, 18 November); given Remove tag
-   (suggested), then the tags chosen come off them.
+   added to every garment selected; given Remove tag, then I choose from
+   the tags the selected garments have, and those come off every one of
+   them (Joe, 18 November).
 3. Given Retire or Delete, then every garment selected is retired or
    deleted (Joe, 18 November), with Undo.
 
@@ -532,7 +554,7 @@ Acceptance criteria
 2. Given Edit, then I add and remove garments (with the picker of WRD-015),
    rename it and change its collections. Days already gone keep what they
    had (ADR-0013).
-3. Given Add to Plan, then it goes to the To plan pane (WRD-021).
+3. Given Add to Planned Outfits, then it goes to the Planned Outfits pane (WRD-021).
 4. Given "…" in My Outfits, then Delete, with Undo; its garments stay
    (Joe, 18 November). Given "…" in my own collection, then Remove from
    this collection, and no Delete (Joe, 18 November).
@@ -562,14 +584,14 @@ Acceptance criteria
 1. Given Select (or a long press on a phone) on the Outfits tab, then I
    pick several outfits.
 2. Given My Outfits, then Delete (their garments stay; with Undo), Add to
-   collection, and Add to Plan (Joe, 18 November; Add to collection
+   collection, and Add to Planned Outfits (Joe, 18 November; Add to collection
    suggested).
 3. Given one of my collections, then Remove from collection, Add to
-   collection and Add to Plan; no Delete (Joe, 18 November).
-4. Given Add to Plan, then they go to the To plan pane on the Plan tab,
+   collection and Add to Planned Outfits; no Delete (Joe, 18 November).
+4. Given Add to Planned Outfits, then they go to the Planned Outfits pane on the Week tab,
    saying so with Open plan (Joe, 18 November).
 
-### Plan
+### Week
 
 ### WRD-020 — The week
 
@@ -578,7 +600,7 @@ that** I plan clothes around it.
 Priority: Must · Status: proposed
 
 Acceptance criteria
-1. Given the Plan tab on a computer, then Monday to Sunday show as columns,
+1. Given the Week tab on a computer, then Monday to Sunday show as columns,
    as the Meal plan's week (MPL-001); given a phone, then the days are
    stacked, today's first in view.
 2. Given ‹, ›, Today or a date, then that week shows.
@@ -588,23 +610,26 @@ Acceptance criteria
 4. Given a day gone, then it is quieter, its garments counted as worn
    (WRD-024).
 
-### WRD-021 — The To plan pane
+### WRD-021 — The Planned Outfits pane
 
 **As** Joe, **I want** outfits I've picked waiting beside the week, **so
 that** I drag each onto its day.
 Priority: Must · Status: proposed
 
 Acceptance criteria
-1. Given outfits sent with Add to Plan, then they wait in the To plan pane
-   on the right of the Plan tab, styled as the Outfit builder is (Joe, 18
-   November), newest last, each removable, with Clear; the pane is kept
-   until I clear it (suggested).
-2. Given a computer, when I drag an outfit onto a day, then it is planned
+1. Given outfits sent with Add to Planned Outfits, then they wait in the
+   Planned Outfits pane (Joe, 18 November), styled as the Outfit builder
+   is, newest last, each removable, with Clear; the pane is kept until I
+   clear it (suggested).
+2. Given the Outfits tab or the Week tab, then the pane is on the right on
+   a computer, and the tray on a phone, the same on both tabs (Joe, 18
+   November).
+3. Given a computer, when I drag an outfit onto a day on the Week tab, then it is planned
    for that day and leaves the pane, with Undo (leaving suggested).
-3. Given the pane's Garments search, then I find a garment and drag it onto
+4. Given the pane's Garments search, then I find a garment and drag it onto
    a day the same way, as a single garment (suggested).
-4. Given a phone, then the pane is a tray as the builder's; I choose an
-   outfit or garment, then press a day (each day showing "Place here"),
+5. Given a phone, on the Week tab, I choose an outfit or garment in the
+   tray, then press a day (each day showing "Place here"),
    and it is planned there (suggested).
 
 ### WRD-022 — A day's outfits and garments
@@ -655,7 +680,7 @@ Acceptance criteria
 
 ### WRD-025 — The weather
 
-**As** Joe, **I want** each day's forecast on the Plan tab, **so that** I
+**As** Joe, **I want** each day's forecast on the Week tab, **so that** I
 plan for rain and cold.
 Priority: Must · Status: proposed
 
@@ -667,7 +692,7 @@ Acceptance criteria
 2. Given a day gone, or past the forecast, then no weather shows.
 3. Given no signal, then the last forecast fetched shows, saying when it's
    from; one older than a day isn't shown (suggested).
-4. Given no location set, then the Plan tab says so once, with Set
+4. Given no location set, then the Week tab says so once, with Set
    location.
 5. Given the weather service fails, then the week shows as usual, without
    weather, and nothing else is affected.
@@ -687,7 +712,7 @@ Acceptance criteria
    or "3 garments".
 2. Given the card pressed, then a popup shows the day's weather, outfits
    (each its garments joined) and single garments, and Open in Wardrobe,
-   which opens the Plan tab on that week.
+   which opens the Week tab on that week.
 3. Given Week's filter by Type, then Outfits is one of its choices
    ([week](../views/week.md)).
 
@@ -731,14 +756,15 @@ Acceptance criteria
    (WRD-025).
 7. Given Retired garments, then they open (WRD-013 3).
 
-Non-goals (Stage 6): see [Not in Stage 6](#not-in-stage-6).
+Non-goals: see [Not wanted](#not-wanted).
 
 ## Changes to agreed documents
 
 Once Joe agrees this spec, step 2 of the plan brings these into line, in
 an ADR and the documents it touches:
 
-- **Garment's states** lose "idea / Wishlist": Owned and Retired only; and
+- **Garment's states** lose "idea / Wishlist" (a wishlist will be part of
+  Shopping, later): Owned and Retired only; and
   a Garment is no longer **Capturable**, as a Thought can't carry its four
   required fields ([data model](../../20-architecture/data-model.md#types)).
 - **`garment(...)` loses `url` and `price`** and gains its title being
@@ -758,29 +784,20 @@ an ADR and the documents it touches:
 - **A garment's colour swatch shows its own colour**, a colour that isn't a
   token. ADR-0043 and the [design system](../../30-design/README.md) need
   an exception for it: a swatch shows data, not meaning (suggested).
+- **The *worn to* link** (Outfit worn → Event) goes, and **v1's URL
+  import** leaves ADR-0002's list of what to port: Joe doesn't want them.
+- **Outfit suggestions from the weather** leave the roadmap's
+  [later opportunities](../../roadmap.md#later-opportunities): Joe doesn't
+  want them.
 - **The drawer**: Wardrobe leaves "Later"
   ([ADR-0026](../../20-architecture/adr/0026-navigation-drawer.md)).
 
 ## Open points for Joe
 
-1. **The Plan tab's name.** "Plan" is now also a page of its own (Tasks,
-   Events and Reminders, since Stage 7b), and Meal plan calls its own
-   week "Week". Keep "Plan", or call the tab "Week" (Claude's lean)?
-2. **The suggestions marked (suggested)**, especially: no garment name,
-   the photo optional, Category and Size carried over by Add another, the
-   likely sizes first, a placed outfit leaving the To plan pane, and
-   placing on a phone by choosing and pressing a day rather than dragging.
-3. **Sizes for every category, or per category?** Claude suggests one
-   ordered list, with the sizes already used for a category shown first.
-   The other way is each size tied to the categories it's for (shoe sizes
-   only for Shoes and Trainers), which keeps the pills shorter but adds a
-   step in Settings.
-4. **Background removal.** Cards look best, and the colour is estimated
-   best, with the garment cut out. Doing that on the device means a model
-   of tens of megabytes downloaded once and licence checks; through the AI
-   service means signal and a cost per photo. Claude suggests leaving it
-   out of Stage 6: a plain floor or bed behind the garment is enough for
-   the estimate.
-5. **v1's colour algorithm.** If Joe can share it, it's ported
-   ([ADR-0002](../../20-architecture/adr/0002-start-afresh-port-selectively.md));
-   if not, it's written afresh as WRD-006 says.
+All settled (Joe, 18 November):
+
+1. ~~The tab's name~~: **Week**.
+2. ~~Claude's suggestions~~: agreed.
+3. ~~Sizes~~: one list for every category.
+4. ~~Background removal~~: none.
+5. ~~v1's colour algorithm~~: written afresh.

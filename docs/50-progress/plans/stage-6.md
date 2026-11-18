@@ -4,15 +4,17 @@
 in LifeOS, makes outfits from them and plans what he'll wear around the
 weather. **Wardrobe** has three tabs: **Wardrobe**, the garments as photo
 cards, presented as Recipes are, with the Outfit builder; **Outfits**, by
-collection; and **Plan**, the week with each day's forecast and the To
-plan pane. Adding a garment on a phone is a photo and a few taps, its
+collection; and **Week**, the week with each day's forecast; the Planned
+Outfits pane is on both Outfits and Week. Adding a garment on a phone is a photo and a few taps, its
 colour suggested from the photo. A day's clothes are one card on Today and
 Week.
 
 **State:** started 18 November 2026, at Joe's asking, while Stage 7b's
 step 11 (Joe using it) is in hand ([its plan](stage-7b.md)). Step 1's
 first draft is written from Joe's notes and his four answers of the same
-day; it waits on Joe.
+day; the second, the same day, with his comments and his answers to its
+open points ([below](#joes-comments-on-the-first-draft-18-november)),
+waits on Joe's agreement.
 
 ## Steps
 
@@ -23,15 +25,15 @@ verifies, against a stand-in for Supabase.
 
 | # | Step | State | Produces |
 |---|---|---|---|
-| 1 | **Joe** — specs: garments and their lists, adding a garment on a phone, colour from the photo, filters, sort, group and search, Select, retiring; outfits, the Outfit builder and collections; the Plan tab, the To plan pane, worn worked out, the weather; Today and Week; Settings → Wardrobe | First draft 18 November, from Joe's notes and his answers (several outfits a day; Retire or Delete; worn worked out; one colour), Claude's suggestions marked, five open points | [wardrobe](../../10-requirements/modules/wardrobe.md) (WRD-*) |
+| 1 | **Joe** — specs: garments and their lists, adding a garment on a phone, colour from the photo, filters, sort, group and search, Select, retiring; outfits, the Outfit builder and collections; the Week tab, the Planned Outfits pane, worn worked out, the weather; Today and Week; Settings → Wardrobe | First draft 18 November, from Joe's notes and his answers (several outfits a day; Retire or Delete; worn worked out; one colour), Claude's suggestions marked, five open points; second draft the same day with Joe's comments, the suggestions and open points settled | [wardrobe](../../10-requirements/modules/wardrobe.md) (WRD-*) |
 | 2 | Decisions: how the wardrobe is held in the database (Garment and Outfit as Personal Items, the lists as reference data, colours as named swatches, collections, Outfit worn several a day and holding single garments, worn worked out, the snapshot); the weather Integration (Open-Meteo, fetched on the device or by an Edge Function, cached); the camera on the Android app; the colour swatch's exception to ADR-0043; and every [change the spec lists](../../10-requirements/modules/wardrobe.md#changes-to-agreed-documents) | — | ADR(s); data model, ADR-0013, ADR-0014, ADR-0026, ADR-0029, ADR-0043, integrations, Today and Week brought into line |
-| 3 | **Joe** — design, with Claude design: the Wardrobe tab and its filters; the add sheet on a phone, the colour suggestions and the loupe; a garment's popup; the Outfit builder's pane and the phone's tray; outfit cards; the Plan tab, a day's joined garments, the weather at a day's head and the To plan pane; the day's card on Today and Week; Settings → Wardrobe. Into the design spec first (the swatch, the builder, the tray, the joined group and the weather are new), then the shared components | — | Design spec, components, screenshot tests |
+| 3 | **Joe** — design, with Claude design: the Wardrobe tab and its filters; the add sheet on a phone, the colour suggestions and the loupe; a garment's popup; the Outfit builder's pane and the phone's tray; outfit cards; the Week tab, a day's joined garments, the weather at a day's head and the Planned Outfits pane; the day's card on Today and Week; Settings → Wardrobe. Into the design spec first (the swatch, the builder, the tray, the joined group and the weather are new), then the shared components | — | Design spec, components, screenshot tests |
 | 4 | Schema: the `wardrobe` Module in the ontology; detail tables, reference data and their write functions; the activity log; the generated data model; database tests | — | Migration, tests, advisors |
-| 5 | `packages/wardrobe`: the dominant colour (OKLab clusters, the background from the edges, the centre weighted), the distance between colours and the suggestions, the colour names; unit tests over a set of test photos | — | Package, tests |
-| 6 | Settings → Wardrobe: the lists, dragged into order; colours; collections; the weather location; Retired garments; the starter lists | — | Screens, walks |
+| 5 | `packages/wardrobe`: the dominant colour (OKLab clusters, the background from the edges, the centre weighted), the distance between colours and the suggestions, the colour names, and a new colour suggested when none of mine is close; unit tests over a set of test photos | — | Package, tests |
+| 6 | Settings → Wardrobe: the lists, dragged into order; colours; collections; the weather location; Retired garments (every list starts empty) | — | Screens, walks |
 | 7 | Garments: the Wardrobe tab (cards, filters, sort, group, search), adding (the camera, the sheet, colours, brands, fits and tags inline, Add another, offline), a garment's popup, Select, Retire | — | Screens, walks |
-| 8 | Outfits: the Outfit builder (pane and tray), the Outfits tab, New outfit, an outfit's popup, collections, Select | — | Screens, walks |
-| 9 | Plan: the week, the To plan pane, dragging and placing, a day's outfits and garments, Create outfit, worn worked out; the weather | — | Screens, walks |
+| 8 | Outfits: the Outfit builder (pane and tray), the Outfits tab, New outfit, an outfit's popup, collections, Select, the Planned Outfits pane | — | Screens, walks |
+| 9 | Week: the week, dragging from the Planned Outfits pane and placing, a day's outfits and garments, Create outfit, worn worked out; the weather | — | Screens, walks |
 | 10 | Everywhere: the day's card on Today and Week; Search; offline | — | Screens, walks |
 | 11 | **Joe** — photographs his wardrobe and plans a week; what he trips over is fixed | — | Fixes |
 
@@ -77,3 +79,18 @@ outfit's garments.
 3. **Worn is worked out**: a planned day counts as worn once it has passed,
    unless removed, giving last worn and times worn.
 4. **One colour per garment, required.**
+
+## Joe's comments on the first draft (18 November)
+
+- **Every list starts empty**: no categories, sizes or anything else
+  predefined.
+- **A new colour is suggested** when none of mine is close: the estimate,
+  named, to keep or change.
+- **The Planned Outfits pane** (was "To plan") shows on both the Outfits
+  and Week tabs, identical.
+- **No wishlist** in Wardrobe: it will be part of Shopping, later.
+- **What the draft left out of Stage 6** isn't wanted at all.
+- **Select adds and removes tags.**
+- Open points: the tab is **Week**; Claude's suggestions agreed; **one
+  list of sizes** for every category; **no background removal**; the
+  colour algorithm **written afresh**.

@@ -77,14 +77,16 @@ Each is a later stage's decision; listed so nothing closes the door on them.
 - **Readiness-aware gym planning** — the Gym's recovery engine plus Oura's
   readiness: "you're recovered for push, not legs", offered as a suggestion
   on Week and Today.
-- **Weather** — an Integration that feeds outfit suggestions ("12°C, dry")
-  and run planning.
+- **Weather** — an Integration for run planning. A day's forecast comes
+  to Wardrobe's Week tab in Stage 6; outfit suggestions from it aren't
+  wanted (Joe, 18 November).
 - **Nutrition** — the Pantry can carry nutrition data later
   (e.g. Open Food Facts), so meals have macros and a goal like "140 g protein
   a day" becomes measurable.
 - **Online shopping** — Shopping's Online tab (Joe, 24 October): items I
   want to buy online, watched for price drops, with a notification when one
-  falls ([Stage 4b plan](50-progress/plans/stage-4b.md#joes-answers-24-october)).
+  falls; and a wishlist of clothes, not in Wardrobe (Joe, 18 November)
+  ([Stage 4b plan](50-progress/plans/stage-4b.md#joes-answers-24-october)).
 - **Plan my week** — v1's "help me decide what to eat", widened: an AI that
   plans dinners around gym days, Saturday's shop, events out and recipes not
   cooked lately, within food preferences.
