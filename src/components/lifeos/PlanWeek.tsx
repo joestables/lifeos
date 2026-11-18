@@ -11,6 +11,8 @@ export interface PlanWeekDay {
   children?: ReactNode
   /** The day's "+" (AddToDay), shown on hover and focus. */
   add?: ReactNode
+  /** A line under the day's name: Wardrobe's forecast (WRD-025). */
+  subhead?: ReactNode
   /** Something is being dragged over it. */
   dropping?: boolean
   /** Where a dragged card can be let go: the column's drag handlers (PLN-007). */
@@ -41,6 +43,7 @@ export function DayColumn({
   today = false,
   children,
   add,
+  subhead,
   dropping = false,
   drop,
   tall = false,
@@ -72,6 +75,7 @@ export function DayColumn({
           </span>
         )}
       </div>
+      {subhead !== undefined && <div className="-mt-1 flex h-9 items-start px-1">{subhead}</div>}
       <div
         {...drop}
         className={cn(

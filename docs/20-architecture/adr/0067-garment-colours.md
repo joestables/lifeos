@@ -1,6 +1,6 @@
 # ADR-0067: Garment colours
 
-**Status:** Proposed · 2026-11-18
+**Status:** Provisionally agreed · 2026-11-18 (Joe)
 
 ## Context
 

@@ -18,7 +18,7 @@ has started ahead of Stage 6: its [plan](50-progress/plans/stage-7.md) is
 written, and its specs come first. **Stage 6**, Wardrobe, has started: its
 [plan](50-progress/plans/stage-6.md) is written, and its
 [spec](10-requirements/modules/wardrobe.md) agreed (18 November), and its
-decisions, ADR-0066–0068, written for Joe.
+decisions, ADR-0066–0068, agreed; its design is in hand.
 
 ## Index
 
@@ -189,9 +189,9 @@ Consequences**, to a page.
 | [0063](20-architecture/adr/0063-notifications-on-the-android-app.md) | Notifications, on time, and Alarms on the Android app | Provisionally agreed |
 | [0064](20-architecture/adr/0064-the-today-widget.md) | The Today widget | Provisionally agreed |
 | [0065](20-architecture/adr/0065-reminders-alerts-and-the-day.md) | The Reminder Type, Alerts, and the pages around the day | Provisionally agreed |
-| [0066](20-architecture/adr/0066-wardrobe-in-the-database.md) | Wardrobe in the database | Proposed |
-| [0067](20-architecture/adr/0067-garment-colours.md) | Garment colours | Proposed |
-| [0068](20-architecture/adr/0068-weather.md) | Weather | Proposed |
+| [0066](20-architecture/adr/0066-wardrobe-in-the-database.md) | Wardrobe in the database | Provisionally agreed |
+| [0067](20-architecture/adr/0067-garment-colours.md) | Garment colours | Provisionally agreed |
+| [0068](20-architecture/adr/0068-weather.md) | Weather | Provisionally agreed |
 
 ## Sources
 

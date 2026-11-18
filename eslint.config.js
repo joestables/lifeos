@@ -40,8 +40,10 @@ export default tseslint.config(
     rules: { 'react-refresh/only-export-components': 'off' },
   },
   {
-    // Colours live only in src/styles/theme.css.
+    // Colours live only in src/styles/theme.css; Stage 6's stand-in photos
+    // are pictures of garments, whose colours are data (ADR-0067).
     files: ['src/**/*.{ts,tsx}'],
+    ignores: ['src/routes/-design-stage-6/art.ts'],
     rules: {
       'no-restricted-syntax': [
         'error',
@@ -67,6 +69,9 @@ export default tseslint.config(
       'src/routes/design-stage-3.tsx',
       // Stage 4's screens drawn for the design step (plan step 3), until they are built.
       'src/routes/design-stage-4.tsx',
+      // Stage 6's screens drawn for the design step (plan step 3), until they are built.
+      'src/routes/design-stage-6.tsx',
+      'src/routes/-design-stage-6/art.ts',
       'src/**/*.test.{ts,tsx}',
     ],
     rules: {

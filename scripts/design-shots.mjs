@@ -1,13 +1,15 @@
-// Screenshots of a stage's design page (/design-stage-3, /design-stage-4, /design-stage-4b, /design-stage-5, /design-stage-7, /design-stage-7b), dark and
+// Screenshots of a stage's design page (/design-stage-3, /design-stage-4, /design-stage-4b, /design-stage-5, /design-stage-6, /design-stage-7, /design-stage-7b), dark and
 // light, for the design canvas (each stage's plan, step 3). Usage, with the dev
 // server running:
 //   node scripts/design-shots.mjs http://localhost:5173 <out dir> week day m:m-day …
 // "m:" takes a screen at phone width; DESIGN_PAGE=design-stage-4 picks the page
-// (design-stage-3 by default).
+// (design-stage-3 by default); CHROMIUM=/opt/pw-browsers/chromium uses that browser
+// (a cloud session, where Playwright's own may not be installed).
 import { chromium } from '@playwright/test'
 const [base, out, ...screens] = process.argv.slice(2)
 const designPage = process.env.DESIGN_PAGE ?? 'design-stage-3'
 const browser = await chromium.launch({
+  ...(process.env.CHROMIUM ? { executablePath: process.env.CHROMIUM } : {}),
   args: ['--lang=en-GB'],
   env: { ...process.env, LANG: 'en_GB.UTF-8', LANGUAGE: 'en_GB' },
 })

@@ -16,6 +16,7 @@ import { Route as DesignStage3RouteImport } from './routes/design-stage-3'
 import { Route as DesignStage4RouteImport } from './routes/design-stage-4'
 import { Route as DesignStage4bRouteImport } from './routes/design-stage-4b'
 import { Route as DesignStage5RouteImport } from './routes/design-stage-5'
+import { Route as DesignStage6RouteImport } from './routes/design-stage-6'
 import { Route as DesignStage7RouteImport } from './routes/design-stage-7'
 import { Route as DesignStage7bRouteImport } from './routes/design-stage-7b'
 import { Route as PrivacyRouteImport } from './routes/privacy'
@@ -87,6 +88,11 @@ const DesignStage4bRoute = DesignStage4bRouteImport.update({
 const DesignStage5Route = DesignStage5RouteImport.update({
   id: '/design-stage-5',
   path: '/design-stage-5',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DesignStage6Route = DesignStage6RouteImport.update({
+  id: '/design-stage-6',
+  path: '/design-stage-6',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DesignStage7Route = DesignStage7RouteImport.update({
@@ -289,6 +295,7 @@ export interface FileRoutesByFullPath {
   '/design-stage-4': typeof DesignStage4Route
   '/design-stage-4b': typeof DesignStage4bRoute
   '/design-stage-5': typeof DesignStage5Route
+  '/design-stage-6': typeof DesignStage6Route
   '/design-stage-7': typeof DesignStage7Route
   '/design-stage-7b': typeof DesignStage7bRoute
   '/privacy': typeof PrivacyRoute
@@ -335,6 +342,7 @@ export interface FileRoutesByTo {
   '/design-stage-4': typeof DesignStage4Route
   '/design-stage-4b': typeof DesignStage4bRoute
   '/design-stage-5': typeof DesignStage5Route
+  '/design-stage-6': typeof DesignStage6Route
   '/design-stage-7': typeof DesignStage7Route
   '/design-stage-7b': typeof DesignStage7bRoute
   '/privacy': typeof PrivacyRoute
@@ -383,6 +391,7 @@ export interface FileRoutesById {
   '/design-stage-4': typeof DesignStage4Route
   '/design-stage-4b': typeof DesignStage4bRoute
   '/design-stage-5': typeof DesignStage5Route
+  '/design-stage-6': typeof DesignStage6Route
   '/design-stage-7': typeof DesignStage7Route
   '/design-stage-7b': typeof DesignStage7bRoute
   '/privacy': typeof PrivacyRoute
@@ -431,6 +440,7 @@ export interface FileRouteTypes {
     | '/design-stage-4'
     | '/design-stage-4b'
     | '/design-stage-5'
+    | '/design-stage-6'
     | '/design-stage-7'
     | '/design-stage-7b'
     | '/privacy'
@@ -477,6 +487,7 @@ export interface FileRouteTypes {
     | '/design-stage-4'
     | '/design-stage-4b'
     | '/design-stage-5'
+    | '/design-stage-6'
     | '/design-stage-7'
     | '/design-stage-7b'
     | '/privacy'
@@ -524,6 +535,7 @@ export interface FileRouteTypes {
     | '/design-stage-4'
     | '/design-stage-4b'
     | '/design-stage-5'
+    | '/design-stage-6'
     | '/design-stage-7'
     | '/design-stage-7b'
     | '/privacy'
@@ -572,6 +584,7 @@ export interface RootRouteChildren {
   DesignStage4Route: typeof DesignStage4Route
   DesignStage4bRoute: typeof DesignStage4bRoute
   DesignStage5Route: typeof DesignStage5Route
+  DesignStage6Route: typeof DesignStage6Route
   DesignStage7Route: typeof DesignStage7Route
   DesignStage7bRoute: typeof DesignStage7bRoute
   PrivacyRoute: typeof PrivacyRoute
@@ -628,6 +641,13 @@ declare module '@tanstack/react-router' {
       path: '/design-stage-5'
       fullPath: '/design-stage-5'
       preLoaderRoute: typeof DesignStage5RouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/design-stage-6': {
+      id: '/design-stage-6'
+      path: '/design-stage-6'
+      fullPath: '/design-stage-6'
+      preLoaderRoute: typeof DesignStage6RouteImport
       parentRoute: typeof rootRouteImport
     }
     '/design-stage-7': {
@@ -981,6 +1001,7 @@ const rootRouteChildren: RootRouteChildren = {
   DesignStage4Route: DesignStage4Route,
   DesignStage4bRoute: DesignStage4bRoute,
   DesignStage5Route: DesignStage5Route,
+  DesignStage6Route: DesignStage6Route,
   DesignStage7Route: DesignStage7Route,
   DesignStage7bRoute: DesignStage7bRoute,
   PrivacyRoute: PrivacyRoute,

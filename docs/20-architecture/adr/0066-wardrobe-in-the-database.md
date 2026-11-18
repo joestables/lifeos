@@ -1,6 +1,6 @@
 # ADR-0066: Wardrobe in the database
 
-**Status:** Proposed · 2026-11-18
+**Status:** Provisionally agreed · 2026-11-18 (Joe)
 
 ## Context
 
