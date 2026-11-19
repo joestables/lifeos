@@ -2,6 +2,32 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#98](https://github.com/joestables/lifeos/pull/98) — Stage 6: Settings → Wardrobe
+
+Branch `claude/vigilant-thompson-k8bkzm` · 2026-11-19 · Stage 6, step 6
+
+**What it did**
+- **The Wardrobe's data layer** (`src/data/wardrobe.ts`, `wardrobe-writes.ts`,
+  `wardrobe-hooks.ts`, `weather.ts`): my lists, garments' own fields, tags,
+  collections and the weather's place, read whole and written through the
+  queue, unsent writes laid over them; `wardrobe.*` among the queue's
+  functions; Retired laid over a garment's Item at once.
+- **Settings → Wardrobe** ([WRD-028](../10-requirements/modules/wardrobe.md#wrd-028--settings-for-the-wardrobe)):
+  a Wardrobe Card in Settings; Lists and weather, a Card per list, each
+  entry saying how many use it, Categories, Sizes and Collections dragged
+  by their handles (ListEntryRow's handle), Rename, Merge into… and Delete
+  (with Undo, refused while in use, a Collection always); a colour's swatch
+  from the device's colour picker, its name suggested; the weather's place
+  found through Open-Meteo's geocoding. **Retired garments**: Bring back
+  and Delete (WRD-013 3).
+- `merge_entry` made idempotent (`stage6_wardrobe_merge_again`).
+
+**Verified**
+- `npm run check`, `npm run build`, `npm run db:test` (56 wardrobe tests);
+  13 walks in `wardrobe-settings.spec.ts` on a computer and a phone, against
+  stand-ins for the wardrobe schema and Open-Meteo; dark and light
+  screenshots, computer and phone.
+
 ## [#97](https://github.com/joestables/lifeos/pull/97) — Stage 6: the garment colour from a photo (`packages/wardrobe`)
 
 Branch `claude/vigilant-thompson-k8bkzm` · 2026-11-19 · Stage 6, step 5

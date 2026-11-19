@@ -151,3 +151,8 @@ to*, a Garment not Capturable.
   it replaces (decision 10), so Undo is restoring them.
 - 54 database tests in `wardrobe_test`; `wardrobe` in the generated types
   and the local Data API.
+
+Plan step 6 (19 November): `merge_entry` sent again does nothing once its
+first entry has gone into the second (migration
+`stage6_wardrobe_merge_again`), as every write must be idempotent
+(ADR-0042); merging into an entry that isn't mine is still refused.

@@ -46,6 +46,8 @@ import { Route as AppSettingsLabelsRouteImport } from './routes/_app/settings.la
 import { Route as AppSettingsMuscleGroupsRouteImport } from './routes/_app/settings.muscle-groups'
 import { Route as AppSettingsRecipeListsRouteImport } from './routes/_app/settings.recipe-lists'
 import { Route as AppSettingsRecoveryRouteImport } from './routes/_app/settings.recovery'
+import { Route as AppSettingsRetiredGarmentsRouteImport } from './routes/_app/settings.retired-garments'
+import { Route as AppSettingsWardrobeRouteImport } from './routes/_app/settings.wardrobe'
 import { Route as AppShoppingIndexRouteImport } from './routes/_app/shopping.index'
 import { Route as AppShoppingIdRouteImport } from './routes/_app/shopping.$id'
 import { Route as AppGymExercisesIdRouteImport } from './routes/_app/gym.exercises.$id'
@@ -242,6 +244,17 @@ const AppSettingsRecoveryRoute = AppSettingsRecoveryRouteImport.update({
   path: '/settings/recovery',
   getParentRoute: () => AppRoute,
 } as any)
+const AppSettingsRetiredGarmentsRoute =
+  AppSettingsRetiredGarmentsRouteImport.update({
+    id: '/settings/retired-garments',
+    path: '/settings/retired-garments',
+    getParentRoute: () => AppRoute,
+  } as any)
+const AppSettingsWardrobeRoute = AppSettingsWardrobeRouteImport.update({
+  id: '/settings/wardrobe',
+  path: '/settings/wardrobe',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppShoppingIndexRoute = AppShoppingIndexRouteImport.update({
   id: '/shopping/',
   path: '/shopping/',
@@ -322,6 +335,8 @@ export interface FileRoutesByFullPath {
   '/settings/muscle-groups': typeof AppSettingsMuscleGroupsRoute
   '/settings/recipe-lists': typeof AppSettingsRecipeListsRoute
   '/settings/recovery': typeof AppSettingsRecoveryRoute
+  '/settings/retired-garments': typeof AppSettingsRetiredGarmentsRoute
+  '/settings/wardrobe': typeof AppSettingsWardrobeRoute
   '/shopping/$id': typeof AppShoppingIdRoute
   '/gym/': typeof AppGymIndexRoute
   '/recipes/': typeof AppRecipesIndexRoute
@@ -369,6 +384,8 @@ export interface FileRoutesByTo {
   '/settings/muscle-groups': typeof AppSettingsMuscleGroupsRoute
   '/settings/recipe-lists': typeof AppSettingsRecipeListsRoute
   '/settings/recovery': typeof AppSettingsRecoveryRoute
+  '/settings/retired-garments': typeof AppSettingsRetiredGarmentsRoute
+  '/settings/wardrobe': typeof AppSettingsWardrobeRoute
   '/shopping/$id': typeof AppShoppingIdRoute
   '/gym': typeof AppGymIndexRoute
   '/recipes': typeof AppRecipesIndexRoute
@@ -418,6 +435,8 @@ export interface FileRoutesById {
   '/_app/settings/muscle-groups': typeof AppSettingsMuscleGroupsRoute
   '/_app/settings/recipe-lists': typeof AppSettingsRecipeListsRoute
   '/_app/settings/recovery': typeof AppSettingsRecoveryRoute
+  '/_app/settings/retired-garments': typeof AppSettingsRetiredGarmentsRoute
+  '/_app/settings/wardrobe': typeof AppSettingsWardrobeRoute
   '/_app/shopping/$id': typeof AppShoppingIdRoute
   '/_app/gym/': typeof AppGymIndexRoute
   '/_app/recipes/': typeof AppRecipesIndexRoute
@@ -467,6 +486,8 @@ export interface FileRouteTypes {
     | '/settings/muscle-groups'
     | '/settings/recipe-lists'
     | '/settings/recovery'
+    | '/settings/retired-garments'
+    | '/settings/wardrobe'
     | '/shopping/$id'
     | '/gym/'
     | '/recipes/'
@@ -514,6 +535,8 @@ export interface FileRouteTypes {
     | '/settings/muscle-groups'
     | '/settings/recipe-lists'
     | '/settings/recovery'
+    | '/settings/retired-garments'
+    | '/settings/wardrobe'
     | '/shopping/$id'
     | '/gym'
     | '/recipes'
@@ -562,6 +585,8 @@ export interface FileRouteTypes {
     | '/_app/settings/muscle-groups'
     | '/_app/settings/recipe-lists'
     | '/_app/settings/recovery'
+    | '/_app/settings/retired-garments'
+    | '/_app/settings/wardrobe'
     | '/_app/shopping/$id'
     | '/_app/gym/'
     | '/_app/recipes/'
@@ -853,6 +878,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppSettingsRecoveryRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/settings/retired-garments': {
+      id: '/_app/settings/retired-garments'
+      path: '/settings/retired-garments'
+      fullPath: '/settings/retired-garments'
+      preLoaderRoute: typeof AppSettingsRetiredGarmentsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/settings/wardrobe': {
+      id: '/_app/settings/wardrobe'
+      path: '/settings/wardrobe'
+      fullPath: '/settings/wardrobe'
+      preLoaderRoute: typeof AppSettingsWardrobeRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/shopping/': {
       id: '/_app/shopping/'
       path: '/shopping'
@@ -941,6 +980,8 @@ interface AppRouteChildren {
   AppSettingsMuscleGroupsRoute: typeof AppSettingsMuscleGroupsRoute
   AppSettingsRecipeListsRoute: typeof AppSettingsRecipeListsRoute
   AppSettingsRecoveryRoute: typeof AppSettingsRecoveryRoute
+  AppSettingsRetiredGarmentsRoute: typeof AppSettingsRetiredGarmentsRoute
+  AppSettingsWardrobeRoute: typeof AppSettingsWardrobeRoute
   AppShoppingIdRoute: typeof AppShoppingIdRoute
   AppGymIndexRoute: typeof AppGymIndexRoute
   AppRecipesIndexRoute: typeof AppRecipesIndexRoute
@@ -977,6 +1018,8 @@ const AppRouteChildren: AppRouteChildren = {
   AppSettingsMuscleGroupsRoute: AppSettingsMuscleGroupsRoute,
   AppSettingsRecipeListsRoute: AppSettingsRecipeListsRoute,
   AppSettingsRecoveryRoute: AppSettingsRecoveryRoute,
+  AppSettingsRetiredGarmentsRoute: AppSettingsRetiredGarmentsRoute,
+  AppSettingsWardrobeRoute: AppSettingsWardrobeRoute,
   AppShoppingIdRoute: AppShoppingIdRoute,
   AppGymIndexRoute: AppGymIndexRoute,
   AppRecipesIndexRoute: AppRecipesIndexRoute,

@@ -250,6 +250,12 @@ export function applyPending(items: readonly ItemRow[], entries: readonly QueueE
         mark(a.p_id, { status: a.p_archived === false ? 'active' : 'cancelled' })
         break
       }
+      // Retired is its status (WRD-013), not Recently deleted.
+      case 'wardrobe.retire_garment': {
+        const a = entry.args as { p_id: string; p_retired?: boolean }
+        mark(a.p_id, { status: a.p_retired === false ? 'active' : 'cancelled' })
+        break
+      }
       case 'update_item': {
         const { p_id, p_patch } = entry.args as { p_id: string; p_patch: ItemFields }
         touch(p_id, p_patch)

@@ -46,3 +46,10 @@ nothing to sign in to, nothing that becomes Items, nothing to keep.
 - Outfit suggestions from the weather aren't wanted (Joe, 18 November); run
   planning from it is still a later opportunity
   ([roadmap](../../roadmap.md#later-opportunities)).
+
+## As built (19 November, plan step 6)
+
+The place is found by name in Settings → Wardrobe, from Open-Meteo's
+geocoding (`src/data/weather.ts`), eight at most, and stored as its name
+and region ("Manchester, England, United Kingdom") with its coordinates
+to five places. The forecast is step 9's.

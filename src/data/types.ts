@@ -36,6 +36,7 @@ type CoreFunctions = Database['core']['Functions']
 type FoodFunctions = Database['food']['Functions']
 type ShoppingFunctions = Database['shopping']['Functions']
 type FitnessFunctions = Database['fitness']['Functions']
+type WardrobeFunctions = Database['wardrobe']['Functions']
 
 /**
  * The database functions the write queue replays (ADR-0042): the core's by
@@ -46,6 +47,7 @@ export type WriteFn =
   | `food.${keyof FoodFunctions & string}`
   | `shopping.${keyof ShoppingFunctions & string}`
   | `fitness.${keyof FitnessFunctions & string}`
+  | `wardrobe.${keyof WardrobeFunctions & string}`
 
 export type WriteArgs<F extends WriteFn = WriteFn> =
   F extends `food.${infer N extends keyof FoodFunctions}`
@@ -54,6 +56,8 @@ export type WriteArgs<F extends WriteFn = WriteFn> =
       ? ShoppingFunctions[N]['Args']
       : F extends `fitness.${infer N extends keyof FitnessFunctions}`
         ? FitnessFunctions[N]['Args']
-        : F extends keyof CoreFunctions
-          ? CoreFunctions[F]['Args']
-          : never
+        : F extends `wardrobe.${infer N extends keyof WardrobeFunctions}`
+          ? WardrobeFunctions[N]['Args']
+          : F extends keyof CoreFunctions
+            ? CoreFunctions[F]['Args']
+            : never

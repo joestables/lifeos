@@ -947,10 +947,35 @@ November, on the [Wardrobe design canvas](https://claude.ai/artifact/6b8SnjL1sUC
   ItemDialog, "Outfit · Wed 18 November": the DayWeather, each outfit's
   GarmentLines under its name, the single garments under "Also", and
   "Open in Wardrobe".
-- **Settings → Wardrobe:** a Card per list (Categories, Sizes,
-  Collections; Colours, Fits, Brands, Tags) of ListEntryRows with "+ …"
-  at the Card's heading; then Weather (the place, with Change) and Retired
-  garments.
+- **Settings → Wardrobe:** Settings has a titled Wardrobe Card of
+  CardRows, "Lists and weather" (`list`) and "Retired garments" (with its
+  count). Lists and weather, with a back link to Settings, in Wardrobe's
+  orange, two columns on a computer: a Card per list (Categories, Sizes,
+  Collections; Colours, Fits, Brands, Tags), its `text-h2` title, its
+  count as an outline Badge and a ghost `sm` "+ Category" at its heading,
+  then its ListEntryRows ("None yet" muted when empty; My Outfits first,
+  fixed, with neither handle nor menu); then Weather (the place on a muted
+  row with `map-pin`, its region under it, and an outline Change, or "No
+  place yet" and Choose) and Retired garments. An entry's "…": Rename (Edit
+  for a colour), Merge into… (not on a Collection) and Delete (red). New and
+  Rename are a small Dialog with Name ("Already on the list" under it); a
+  colour's also has Swatch, a 40px Swatch with its hex muted, opening the
+  device's colour picker, the name suggested from it until one is typed.
+  Merge into… is the Pantry's Dialog ('Merge "Gap Inc"', a Select, "1
+  garment moves" muted). Delete of an entry nothing uses acts at once with
+  Undo in a toast; one in use asks nothing but says so (AlertDialog, '"M" is
+  in use', "2 garments use it. Merge it into another size.", OK only); a
+  Collection with outfits asks first ("Its 4 outfits stay in My Outfits").
+  Categories, Sizes and Collections reorder by their handles
+  ([Dragging](#dragging)), or Alt+↑ and Alt+↓ on a focused handle.
+  **Weather place** is a Dialog: Place, a search field, then each place
+  found as a row (`map-pin`, its name, its region muted), chosen with a
+  tap; "Searching…", "No place called "Atlantis"" or "Couldn't search.
+  Check your signal" muted in their place.
+- **Retired garments**, with a back link to Settings: a GarmentLine per
+  garment, the most recently retired first, with an outline `sm` Bring back
+  and a ghost `trash-2` Delete, each saying so in a toast with Undo; none,
+  an EmptyState ("Nothing retired").
 
 ## Dragging
 

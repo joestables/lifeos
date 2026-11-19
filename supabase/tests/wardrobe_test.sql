@@ -5,7 +5,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = extensions, public;
-select plan(54);
+select plan(56);
 
 -- Ann and Ben share a Household.
 insert into auth.users (id, email) values
@@ -384,6 +384,15 @@ select is(
     (select title from core.items where id = '00000000-0000-7000-8000-000000000103')]),
   array['1', 'Camel Uniqlo Shoes'],
   'WRD-028 3: merging a brand moves its garments, retitled, and removes it'
+);
+select lives_ok(
+  $$select wardrobe.merge_entry('brand', '00000000-0000-7000-8000-0000000000b2', '00000000-0000-7000-8000-0000000000b1')$$,
+  'ADR-0042: a merge sent again is applied once'
+);
+select throws_ok(
+  $$select wardrobe.merge_entry('colour', '00000000-0000-7000-8000-0000000000f1', '00000000-0000-7000-8000-00000000bc01')$$,
+  'P0002', null,
+  'WRD-028 3: nothing is merged into another''s entry'
 );
 select wardrobe.set_weather_place('Manchester', 53.48095, -2.23743);
 select is(

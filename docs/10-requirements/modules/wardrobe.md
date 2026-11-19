@@ -469,7 +469,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to retire clothes I no longer have, **so that** the
 wardrobe shows what I own and my past outfits still make sense.
-Priority: Must · Status: agreed
+Priority: Must · Status: agreed; 3 verified (`wardrobe-settings.spec.ts`)
 
 Acceptance criteria
 1. Given Retire, then the garment leaves the Wardrobe tab, filters and
@@ -733,7 +733,7 @@ Acceptance criteria
 
 **As** Joe, **I want** my lists in Settings, **so that** the Wardrobe
 follows how I organise my clothes.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified (`wardrobe-settings.spec.ts`)
 
 Acceptance criteria
 1. Given Settings → Wardrobe, then Categories, Sizes, Brands, Fits, Tags,

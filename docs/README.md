@@ -18,8 +18,8 @@ has started ahead of Stage 6: its [plan](50-progress/plans/stage-7.md) is
 written, and its specs come first. **Stage 6**, Wardrobe, has started: its
 [plan](50-progress/plans/stage-6.md) is written, its
 [spec](10-requirements/modules/wardrobe.md), decisions (ADR-0066–0068)
-and design agreed, its schema in the database and its colour
-calculations in `packages/wardrobe`.
+and design agreed, its schema in the database, its colour
+calculations in `packages/wardrobe` and Settings → Wardrobe built.
 
 ## Index
 
