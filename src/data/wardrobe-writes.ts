@@ -2,6 +2,27 @@ import { newId } from './ids'
 import type { WriteQueue } from './queue/queue'
 import type { WardrobeList } from './wardrobe'
 
+/** What a new garment is made of (WRD-005 3): entries by id. */
+export interface GarmentFields {
+  category: string
+  size: string
+  brand: string
+  colour: string
+  fit?: string | null
+  tags?: string[]
+  ownName?: string | null
+}
+
+/** What a garment's fields change by (WRD-010 2), as `wardrobe.update_garment` takes them. */
+export type GarmentPatch = {
+  category_id?: string
+  size_id?: string
+  brand_id?: string
+  colour_id?: string
+  fit_id?: string | null
+  own_name?: string | null
+}
+
 /**
  * The Wardrobe's writes (ADR-0042, ADR-0066): each queues one function of
  * the `wardrobe` schema and returns at once; ids are made here, so a write
@@ -53,6 +74,45 @@ export function wardrobeWrites(queue: WriteQueue) {
         'wardrobe.set_weather_place',
         { p_name: name.trim(), p_latitude: latitude, p_longitude: longitude },
         [],
+      )
+    },
+    /**
+     * A new garment (WRD-005): its four required entries, an optional fit,
+     * tags and own name. Its title is worked out by the server.
+     */
+    createGarment(fields: GarmentFields, id: string = newId()): string {
+      queue.enqueue(
+        'wardrobe.create_garment',
+        {
+          p_id: id,
+          p_category: fields.category,
+          p_size: fields.size,
+          p_brand: fields.brand,
+          p_colour: fields.colour,
+          ...(fields.fit && { p_fit: fields.fit }),
+          p_tags: fields.tags ?? [],
+          ...(fields.ownName?.trim() && { p_own_name: fields.ownName.trim() }),
+        },
+        [id],
+      )
+      return id
+    },
+    /** Its fields changed (WRD-010 2): only those given; a fit or own name cleared with null. */
+    updateGarment(id: string, patch: GarmentPatch): void {
+      queue.enqueue('wardrobe.update_garment', { p_id: id, p_patch: { ...patch } }, [id])
+    },
+    /** Tags added to several garments at once (WRD-012 2). */
+    addGarmentTags(garments: string[], tags: string[]): void {
+      if (!garments.length || !tags.length) return
+      queue.enqueue('wardrobe.add_garment_tags', { p_garments: garments, p_tags: tags }, garments)
+    },
+    /** Tags taken off several garments at once (WRD-012 2). */
+    removeGarmentTags(garments: string[], tags: string[]): void {
+      if (!garments.length || !tags.length) return
+      queue.enqueue(
+        'wardrobe.remove_garment_tags',
+        { p_garments: garments, p_tags: tags },
+        garments,
       )
     },
     /** Retired, or brought back (WRD-013). */

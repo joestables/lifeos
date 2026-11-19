@@ -32,6 +32,7 @@ import {
 import type { ReactNode } from 'react'
 import {
   AddChip,
+  StoredPicture,
   AppShell,
   CameraView,
   ChoiceChips,
@@ -863,7 +864,15 @@ function PhoneAdd({ state, brandTyping }: { state: AddState; brandTyping?: boole
 }
 
 function CameraScreen() {
-  return <CameraView view={cameraPhoto('tshirt', COLOURS.navy.hex)} last={G['tee-white']!.photo} />
+  return (
+    <CameraView last={G['tee-white']!.photo}>
+      <StoredPicture
+        src={cameraPhoto('tshirt', COLOURS.navy.hex)}
+        alt=""
+        className="absolute inset-0 size-full object-cover"
+      />
+    </CameraView>
+  )
 }
 
 function LoupeScreen() {

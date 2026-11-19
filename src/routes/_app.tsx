@@ -52,10 +52,10 @@ const PAGES: DrawerPage[] = [
   { to: '/recipes', label: 'Recipes', colour: 'green', icon: ChefHatIcon },
   { to: '/meal-plan', label: 'Meal plan', colour: 'green', icon: UtensilsIcon },
   { to: '/shopping', label: 'Shopping', colour: 'yellow', icon: ShoppingCartIcon },
+  { to: '/wardrobe', label: 'Wardrobe', colour: 'orange', icon: ShirtIcon },
   // Not built yet: under "Later" until their stages (Joe, 15 November).
   { to: '/cardio', label: 'Cardio', colour: 'coral', icon: FootprintsIcon, later: true },
   { to: '/goals', label: 'Goals', colour: 'purple', icon: TargetIcon, later: true },
-  { to: '/wardrobe', label: 'Wardrobe', colour: 'orange', icon: ShirtIcon, later: true },
   { to: '/finance', label: 'Finance', colour: 'none', icon: WalletIcon, later: true },
 ]
 

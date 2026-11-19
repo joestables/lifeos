@@ -1392,6 +1392,18 @@ export async function standIn(
     list === 'tag'
       ? db.wardrobe.garment_tags!.some((t) => t.tag_id === id)
       : list in GARMENT_FIELD && db.wardrobe.garment!.some((g) => g[GARMENT_FIELD[list]!] === id)
+  /** A garment's title, as the database works it out (ADR-0066 3). */
+  const retitle = (id: string) => {
+    const g = db.wardrobe.garment!.find((x) => x.item_id === id)
+    const i = item(id)
+    if (!g || !i) return
+    const name = (t: string, k: unknown) => db.wardrobe[t]!.find((r) => r.id === k)?.name
+    i.title =
+      (g.own_name as string | null) ??
+      [name('colours', g.colour_id), name('brands', g.brand_id), name('categories', g.category_id)]
+        .filter(Boolean)
+        .join(' ')
+  }
   const wardrobeWrite: Record<string, (a: Record<string, unknown>) => unknown> = {
     save_entry: (a) => {
       const table = db.wardrobe[LIST_TABLE[String(a.p_list)]!]!
@@ -1451,6 +1463,49 @@ export async function standIn(
       db.wardrobe.settings = [
         { place_name: a.p_name, latitude: a.p_latitude, longitude: a.p_longitude },
       ]
+    },
+    create_garment: (a) => {
+      if (item(a.p_id)) return
+      db.items.push(
+        itemRow({
+          id: String(a.p_id),
+          type: 'garment',
+          title: '',
+          created_at: now(),
+          updated_at: now(),
+        }),
+      )
+      db.wardrobe.garment!.push({
+        item_id: a.p_id,
+        category_id: a.p_category,
+        size_id: a.p_size,
+        brand_id: a.p_brand,
+        colour_id: a.p_colour,
+        fit_id: a.p_fit ?? null,
+        own_name: trimmedOrNull(a.p_own_name),
+      })
+      for (const t of (a.p_tags as string[] | undefined) ?? [])
+        db.wardrobe.garment_tags!.push({ garment_id: a.p_id, tag_id: t })
+      retitle(String(a.p_id))
+    },
+    update_garment: (a) => {
+      const g = db.wardrobe.garment!.find((x) => x.item_id === a.p_id)
+      if (!g) return
+      Object.assign(g, a.p_patch as Record<string, unknown>)
+      retitle(String(a.p_id))
+    },
+    add_garment_tags: (a) => {
+      for (const g of a.p_garments as string[])
+        for (const t of a.p_tags as string[])
+          if (!db.wardrobe.garment_tags!.some((x) => x.garment_id === g && x.tag_id === t))
+            db.wardrobe.garment_tags!.push({ garment_id: g, tag_id: t })
+    },
+    remove_garment_tags: (a) => {
+      const gs = a.p_garments as string[]
+      const ts = a.p_tags as string[]
+      db.wardrobe.garment_tags = db.wardrobe.garment_tags!.filter(
+        (x) => !(gs.includes(String(x.garment_id)) && ts.includes(String(x.tag_id))),
+      )
     },
     retire_garment: (a) => {
       const i = item(a.p_id)

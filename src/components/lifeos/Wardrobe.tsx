@@ -1,7 +1,9 @@
 import { Toggle as TogglePrimitive } from '@base-ui/react/toggle'
 import { ToggleGroup as ToggleGroupPrimitive } from '@base-ui/react/toggle-group'
 import {
+  CameraIcon,
   CheckIcon,
+  CloudAlertIcon,
   ChevronUpIcon,
   CloudDrizzleIcon,
   CloudFogIcon,
@@ -21,11 +23,18 @@ import {
   ZapIcon,
   type LucideIcon,
 } from 'lucide-react'
-import type { KeyboardEvent, ReactNode } from 'react'
+import {
+  useRef,
+  type KeyboardEvent,
+  type PointerEvent as ReactPointerEvent,
+  type ReactNode,
+} from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { Toggle } from '@/components/ui/toggle'
+import { useLasting } from '@/hooks/use-lasting'
 import { useLongPress } from '@/hooks/use-long-press'
 import type { Reorder } from '@/hooks/use-reorder'
 import { cn } from '@/lib/utils'
@@ -121,6 +130,8 @@ export interface GarmentFace {
   tags?: string[]
   favourite?: boolean
   retired?: boolean
+  /** Not on the server yet, its photo included (WRD-005 6), or refused. */
+  sync?: 'pending' | 'failed'
 }
 
 /** What pressing a card does: open it, choose it (Select), or add it to the Outfit builder. */
@@ -223,8 +234,26 @@ export function GarmentCard({
             {g.colour.name} · {g.category}
           </span>
         </span>
+        <GarmentSync sync={g.sync} />
       </div>
     </div>
+  )
+}
+
+/** Said under the card once a garment has waited a while to send, or wasn't saved (patterns.md#states). */
+function GarmentSync({ sync }: { sync?: 'pending' | 'failed' }) {
+  const waiting = useLasting(sync === 'pending')
+  if (sync === 'failed')
+    return (
+      <span className="flex items-center gap-1 text-xs text-destructive">
+        <CloudAlertIcon className="size-3.5" /> Not saved
+      </span>
+    )
+  if (!waiting) return null
+  return (
+    <span className="flex items-center gap-1 text-xs text-muted-foreground">
+      <CloudIcon className="size-3.5" /> Not sent yet
+    </span>
   )
 }
 
@@ -1011,25 +1040,50 @@ export function OutfitPlanCard({
 /**
  * The camera (WRD-005 1): always dark, the view filling the screen, a
  * square frame to put the garment in (its corners marked), Close and the
- * flash at the top, then the last photo, the shutter (72px) and Skip at
- * the foot.
+ * flash (where the camera has one) at the top, then the last photo, the
+ * shutter (76px) and Skip at the foot. `children` is the live view.
  */
-export function CameraView({ view, last }: { view: string; last?: string }) {
+export function CameraView({
+  children,
+  last,
+  onClose,
+  onShoot,
+  onSkip,
+  flash,
+  busy = false,
+}: {
+  children: ReactNode
+  last?: string
+  onClose?: () => void
+  onShoot?: () => void
+  onSkip?: () => void
+  flash?: { on: boolean; onToggle: () => void }
+  busy?: boolean
+}) {
   return (
-    <div className="dark fixed inset-0 z-50 flex flex-col bg-background text-foreground">
-      <div className="flex h-16 shrink-0 items-center justify-between px-3">
-        <Button variant="ghost" size="icon" aria-label="Close">
+    <div
+      role="dialog"
+      aria-modal
+      aria-label="Camera"
+      className="dark fixed inset-0 z-50 flex flex-col bg-background text-foreground"
+    >
+      <div className="flex h-16 shrink-0 items-center justify-between px-3 pt-[env(safe-area-inset-top)]">
+        <Button variant="ghost" size="icon" aria-label="Close" onClick={onClose}>
           <XIcon />
         </Button>
         <span className="text-sm font-semibold">New garment</span>
-        <Button variant="ghost" size="icon" aria-label="Flash">
-          <ZapIcon />
-        </Button>
+        {flash ? (
+          <Toggle aria-label="Flash" pressed={flash.on} onPressedChange={flash.onToggle}>
+            <ZapIcon />
+          </Toggle>
+        ) : (
+          <span className="size-10" />
+        )}
       </div>
       <div className="relative min-h-0 flex-1 overflow-hidden">
-        <StoredPicture src={view} alt="" className="absolute inset-0 size-full object-cover" />
-        <div aria-hidden className="absolute inset-0 grid place-items-center">
-          <div className="relative aspect-square w-[86%] rounded-lg outline-[100vmax] outline-solid outline-[color-mix(in_oklch,var(--background)_62%,transparent)]">
+        {children}
+        <div aria-hidden className="absolute inset-0 grid place-items-center [container-type:size]">
+          <div className="relative aspect-square w-[min(86cqw,86cqh)] rounded-lg outline-[100vmax] outline-solid outline-[color-mix(in_oklch,var(--background)_62%,transparent)]">
             {(
               [
                 '-top-1 -left-1 border-t-4 border-l-4 rounded-tl-xl',
@@ -1054,12 +1108,124 @@ export function CameraView({ view, last }: { view: string; last?: string }) {
         <button
           type="button"
           aria-label="Take photo"
-          className="grid size-[76px] place-items-center rounded-full border-4 border-foreground outline-none focus-visible:ring-3 focus-visible:ring-ring-soft"
+          disabled={busy}
+          onClick={onShoot}
+          className="grid size-[76px] place-items-center rounded-full border-4 border-foreground outline-none focus-visible:ring-3 focus-visible:ring-ring-soft disabled:opacity-50"
         >
           <span className="size-[60px] rounded-full bg-foreground" />
         </button>
-        <Button variant="ghost" size="sm" className="w-12 px-0">
+        <Button variant="ghost" size="sm" className="w-12 px-0" onClick={onSkip}>
           Skip
+        </Button>
+      </div>
+    </div>
+  )
+}
+
+/**
+ * The photo's square (WRD-005 2): always dark, as the camera; the picture
+ * under a square window, the rest dimmed, dragged to move and pinched, or
+ * scrolled, to zoom; Retake and Use photo at the foot. `crop` is the
+ * square's centre (0–1 of the picture) and zoom (1 the largest square).
+ */
+export function PhotoCrop({
+  src,
+  width,
+  height,
+  crop,
+  onCrop,
+  onRetake,
+  onUse,
+  busy = false,
+}: {
+  src: string
+  width: number
+  height: number
+  crop: { x: number; y: number; zoom: number }
+  onCrop: (crop: { x: number; y: number; zoom: number }) => void
+  onRetake: () => void
+  onUse: () => void
+  busy?: boolean
+}) {
+  const pointers = useRef(new Map<number, { x: number; y: number }>())
+  const stage = useRef<HTMLDivElement>(null)
+  const short = Math.min(width, height)
+  // The picture drawn so the square window shows the crop's square.
+  const scale = crop.zoom / short
+  const drawnW = width * scale * 100
+  const drawnH = height * scale * 100
+  const left = 50 - crop.x * drawnW
+  const top = 50 - crop.y * drawnH
+  const move = (dx: number, dy: number, zoom = crop.zoom) => {
+    const box = stage.current?.getBoundingClientRect()
+    if (!box) return
+    // A pixel on screen is this much of the picture's width and height.
+    const kx = short / crop.zoom / box.width / width
+    const ky = short / crop.zoom / box.height / height
+    onCrop({ x: crop.x - dx * kx, y: crop.y - dy * ky, zoom })
+  }
+  return (
+    <div
+      role="dialog"
+      aria-modal
+      aria-label="Crop the photo"
+      className="dark fixed inset-0 z-50 flex flex-col bg-background text-foreground"
+    >
+      <div className="flex h-16 shrink-0 items-center justify-center px-3 pt-[env(safe-area-inset-top)]">
+        <span className="text-sm font-semibold">Move and zoom</span>
+      </div>
+      <div className="grid min-h-0 flex-1 place-items-center overflow-hidden">
+        <div
+          ref={stage}
+          data-slot="photo-crop"
+          className="relative aspect-square w-[min(86vw,70vh)] touch-none overflow-visible rounded-lg outline-[100vmax] outline-solid outline-[color-mix(in_oklch,var(--background)_62%,transparent)] select-none"
+          onPointerDown={(e) => {
+            e.currentTarget.setPointerCapture(e.pointerId)
+            pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
+          }}
+          onPointerMove={(e) => {
+            const was = pointers.current.get(e.pointerId)
+            if (!was) return
+            const now = { x: e.clientX, y: e.clientY }
+            if (pointers.current.size === 2) {
+              const [a, b] = [...pointers.current.values()]
+              const other = a === was ? b! : a!
+              const before = Math.hypot(was.x - other.x, was.y - other.y)
+              const after = Math.hypot(now.x - other.x, now.y - other.y)
+              if (before > 0) onCrop({ ...crop, zoom: crop.zoom * (after / before) })
+            } else move(now.x - was.x, now.y - was.y)
+            pointers.current.set(e.pointerId, now)
+          }}
+          onPointerUp={(e) => pointers.current.delete(e.pointerId)}
+          onPointerCancel={(e) => pointers.current.delete(e.pointerId)}
+          onWheel={(e) => onCrop({ ...crop, zoom: crop.zoom * (e.deltaY < 0 ? 1.08 : 1 / 1.08) })}
+        >
+          <img
+            src={src}
+            alt=""
+            draggable={false}
+            className="pointer-events-none absolute max-w-none -z-10"
+            // The picture under the window: computed from the crop.
+            style={{ left: `${left}%`, top: `${top}%`, width: `${drawnW}%`, height: `${drawnH}%` }}
+          />
+          {(
+            [
+              '-top-1 -left-1 border-t-4 border-l-4 rounded-tl-xl',
+              '-top-1 -right-1 border-t-4 border-r-4 rounded-tr-xl',
+              '-bottom-1 -left-1 border-b-4 border-l-4 rounded-bl-xl',
+              '-bottom-1 -right-1 border-b-4 border-r-4 rounded-br-xl',
+            ] as const
+          ).map((c) => (
+            <span key={c} aria-hidden className={cn('absolute size-9 border-foreground', c)} />
+          ))}
+        </div>
+      </div>
+      <div className="flex h-28 shrink-0 items-center justify-between gap-3 px-6 pb-[env(safe-area-inset-bottom)]">
+        <Button variant="ghost" onClick={onRetake}>
+          <CameraIcon /> Retake
+        </Button>
+        <Button onClick={onUse} disabled={busy}>
+          Use photo
         </Button>
       </div>
     </div>
@@ -1080,13 +1246,32 @@ export function ColourLoupe({
   photo,
   at,
   hex,
+  onPoint,
 }: {
   photo: string
   at: { x: number; y: number }
   hex: string
+  /** Where the finger or pointer is over the photo, in % of it, as it moves. */
+  onPoint?: (at: { x: number; y: number }) => void
 }) {
+  const point = (e: ReactPointerEvent<HTMLDivElement>) => {
+    const box = e.currentTarget.getBoundingClientRect()
+    const clamp = (v: number) => Math.min(100, Math.max(0, v))
+    onPoint?.({
+      x: clamp(((e.clientX - box.left) / box.width) * 100),
+      y: clamp(((e.clientY - box.top) / box.height) * 100),
+    })
+  }
   return (
-    <div className="relative aspect-square w-full touch-none overflow-hidden rounded-lg select-none">
+    <div
+      data-slot="colour-loupe"
+      className="relative aspect-square w-full cursor-crosshair touch-none overflow-hidden rounded-lg select-none"
+      onPointerDown={(e) => {
+        e.currentTarget.setPointerCapture(e.pointerId)
+        point(e)
+      }}
+      onPointerMove={(e) => e.buttons && point(e)}
+    >
       <StoredPicture src={photo} alt="" className="absolute inset-0 size-full object-cover" />
       <div
         aria-hidden
@@ -1178,6 +1363,103 @@ export function ListEntryRow({
       <span className="min-w-0 flex-1 truncate text-sm font-semibold">{name}</span>
       <span className="shrink-0 text-xs text-muted-foreground tabular-nums">{uses}</span>
       <span className={cn('flex min-w-8 shrink-0 justify-end', fixed && 'invisible')}>{menu}</span>
+    </div>
+  )
+}
+
+/* ---------- The garment's sheet ---------- */
+
+/**
+ * New garment, or a garment edited (WRD-005 3, WRD-010 2): one sheet, no
+ * steps. On a phone the photo at 96px with the title it will have
+ * (`text-day`), a note under it ("Category and size from the last one")
+ * and Retake, then the fields; on a computer the photo stands in a muted
+ * column on the left with its buttons, the title over the fields. The
+ * footer, over a hairline, says what's needed until Save turns on.
+ */
+export function GarmentSheet({
+  open,
+  onOpenChange,
+  title,
+  label,
+  photo,
+  note,
+  retake,
+  photoButtons,
+  footer,
+  children,
+}: {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  /** The title it will have: "Navy Uniqlo T-shirt". */
+  title: string
+  /** What the sheet is, for screen readers: "New garment", "Edit garment". */
+  label: string
+  photo?: string
+  note?: string
+  /** A phone's "Retake". */
+  retake?: ReactNode
+  /** A computer's Camera and Choose file. */
+  photoButtons?: ReactNode
+  footer: ReactNode
+  children: ReactNode
+}) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange} disablePointerDismissal>
+      <DialogContent
+        data-colour="orange"
+        data-slot="garment-sheet"
+        aria-label={label}
+        className="gap-0 overflow-hidden p-0 md:max-w-[860px]"
+      >
+        <DialogTitle className="sr-only">{label}</DialogTitle>
+        <div className="grid min-h-0 flex-1 md:grid-cols-[300px_minmax(0,1fr)]">
+          <div className="hidden flex-col gap-3 bg-muted/50 p-6 md:flex">
+            <GarmentPhoto src={photo} className="rounded-lg shadow-card" />
+            {photoButtons && <div className="grid grid-cols-2 gap-2">{photoButtons}</div>}
+          </div>
+          <div className="flex max-h-[calc(100svh-180px)] min-h-0 flex-col gap-5 overflow-y-auto overscroll-contain p-5 md:max-h-[640px] md:p-6">
+            <div className="flex items-center gap-4 md:hidden">
+              <GarmentPhoto src={photo} className="size-24 shrink-0 rounded-lg shadow-card" />
+              <div className="flex min-w-0 flex-col gap-1.5">
+                <span className="text-day leading-tight">{title}</span>
+                {note && (
+                  <span className="text-xs font-semibold text-muted-foreground">{note}</span>
+                )}
+                {retake}
+              </div>
+            </div>
+            <div className="hidden flex-col gap-1 md:flex">
+              <span className="text-h2">{title}</span>
+              {note && <span className="text-xs font-semibold text-muted-foreground">{note}</span>}
+            </div>
+            {children}
+          </div>
+        </div>
+        <div className="flex items-center justify-end gap-2 border-t border-hairline px-5 py-4 md:px-6">
+          {footer}
+        </div>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+/** A fact of a garment in its popup (WRD-010 1): its label, muted, and its value. */
+export function GarmentFact({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div className="flex min-h-9 items-center gap-3 text-sm">
+      <span className="w-24 shrink-0 text-muted-foreground">{label}</span>
+      <span className="flex min-w-0 flex-wrap items-center gap-1.5 font-semibold">{children}</span>
+    </div>
+  )
+}
+
+/** A muted tile in a garment's popup: "Added", "2 Oct" (WRD-010 1). */
+export function GarmentStat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex flex-col gap-0.5 rounded-row bg-muted/60 px-3 py-2.5">
+      <span className="text-xs text-muted-foreground">{label}</span>
+      <span className="font-bold tabular-nums">{value}</span>
     </div>
   )
 }

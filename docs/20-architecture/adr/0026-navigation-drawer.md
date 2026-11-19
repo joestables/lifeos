@@ -30,13 +30,13 @@ A collapsible drawer (no bottom bar) with these pages, in this order:
 | **Meal plan** | Where meals are planned, and the Pantry of ingredients and household items. |
 | **Shopping** | Food shops (made by hand, or from the meal plan with more added), other shopping lists, and later Online. |
 | **Goals** | Goals, measured from the rest of the app. *Under "Later" until its stage.* |
-| **Wardrobe** | Garments and outfits. *Under "Later" until its stage.* |
+| **Wardrobe** | Garments and outfits. In the drawer since Stage 6 built its page (19 November). |
 | **Finance** | *Later.* |
 
 - A page joins the drawer when its stage builds it (Meal plan and Shopping
-  with Stage 4); until then it sits under "Later", named but not a link:
-  Cardio, Goals, Wardrobe and Finance (Joe, 15 November: they opened blank
-  pages).
+  with Stage 4, Wardrobe with Stage 6); until then it sits under "Later",
+  named but not a link: Cardio, Goals and Finance (Joe, 15 November: they
+  opened blank pages).
 - **No Trash page and no Timeline** in the drawer, for now. Deleted Items are
   recovered from Settings ([ADR-0032](0032-delete-means-archive.md)).
 - **Search** is reached from the drawer header and **Settings** from your

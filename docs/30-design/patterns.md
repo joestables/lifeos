@@ -39,8 +39,9 @@ AppShell
 ## The drawer
 
 - Order and pages are fixed by [ADR-0026](../20-architecture/adr/0026-navigation-drawer.md).
-  A page not built yet sits under "Later" and isn't a link: Cardio, Goals,
-  Wardrobe and Finance, until their stages (Joe, 15 November).
+  A page not built yet sits under "Later" and isn't a link: Cardio, Goals
+  and Finance, until their stages (Joe, 15 November); Wardrobe left it with
+  Stage 6.
 - shadcn's standard Sidebar: full height, attached to the left edge, a
   hairline between it and the page.
 - Each page's icon is in its Type colour; Today's and Week's are grey.
@@ -895,7 +896,8 @@ November, on the [Wardrobe design canvas](https://claude.ai/artifact/6b8SnjL1sUC
 
 - Orange (TypeScope). Tabs: **Wardrobe**, **Outfits** and **Week**; the
   PageAction "New garment" on Wardrobe, "New outfit" on Outfits, none on
-  Week.
+  Week. Until Outfits is built (plan step 8) the page is the Wardrobe tab
+  alone, its PageAction where the Tabs will be.
 - **The Wardrobe tab** is laid out as the Recipes library: the FilterPanel
   on the left (Category open; Brand, Colour, Size, Fit and Tags collapsed;
   Favourites), then search, Sort, Group, S / M / L, an outline `sm` "Build
@@ -909,8 +911,9 @@ November, on the [Wardrobe design canvas](https://claude.ai/artifact/6b8SnjL1sUC
   ChoiceChips (My Outfits always on), an optional Name, "Clear after
   saving" as a Switch, and a full-width primary "Save outfit". On a phone
   the same is a Tray ("Save" at its end), opening to a TrayPanel.
-- **Adding a garment** opens the CameraView on a phone (a file or the
-  camera on a computer), then an ItemDialog, "New garment": the photo at
+- **Adding a garment** opens the CameraView on a phone (on a computer the
+  GarmentSheet first, its Camera and Choose file in the photo's column),
+  then the PhotoCrop, then the GarmentSheet, "New garment": the photo at
   96px with the title it will have (`text-day`) and a `link` "Retake";
   then SheetFields, wrapping ChoiceChips: Colour (my closest colours from
   the photo, the first chosen, or "New: Teal" chosen with its name in an
@@ -920,15 +923,27 @@ November, on the [Wardrobe design canvas](https://claude.ai/artifact/6b8SnjL1sUC
   "Add "…""), Fit and Tags, each optional with "+ Fit", "+ Tag". The footer
   says what's needed ("Needs a size and brand") until Save turns on. On a
   computer the photo stands in a muted column on the left of a Dialog.
-  Saved, the garment's popup opens with "Add another" (`camera`).
+  "+ Fit" and "+ Tag" turn into a small Input with an outline `check`; an
+  "Own name" `link` opens an optional field under Tags. Closing it with
+  anything chosen asks first ("Discard this garment?", Discard in red,
+  Keep editing). Saved, the garment's popup opens with "Add another"
+  (`camera`). With no categories or sizes yet, New garment is a toast,
+  "Add categories and sizes first", with Settings; the empty tab says so
+  with an outline "Add categories and sizes" on a computer.
 - **New colour** is a Dialog: the ColourLoupe over the photo, a 40px
   Swatch beside the name's Input, and, for a near twin, a muted row "Close
-  to Navy" with an outline "Use Navy".
+  to Navy" with an outline "Use Navy"; a name I have shows "You have
+  Navy" the same way, and the primary waits. Without a photo the Swatch
+  opens the device's colour picker instead of the loupe.
 - **A garment** opens in an ItemDialog: its photo (208px beside the facts
   on a computer, full width on a phone), its facts as label and value
-  rows, three muted tiles (Worn, Last worn, Added), and "In outfits", a
-  row of small OutfitPictures; the heart, Edit and "…" (Retire, Delete) in
-  its header.
+  rows (GarmentFacts), three muted tiles (Worn, Last worn, Added:
+  GarmentStats), and "In outfits", a row of small OutfitPictures; the
+  heart, Edit and "…" (Retire, Delete) in its header. Until outfits and
+  days are built (plan steps 8–9) it has Added alone. Select's Add tag and
+  Remove tag are a Dialog ("Add tags to 3 garments") of the tags as
+  ChoiceChips ("+ Tag" on Add), then Cancel and "Add Gym" (or "Add 2
+  tags").
 - **The Outfits tab:** a Collection Select, search, Sort and Select over a
   RecipeGrid of OutfitCards, with the Planned Outfits WardrobePane on the
   right (on a phone, a Tray). Select's actions: Add to Planned outfits,

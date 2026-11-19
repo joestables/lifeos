@@ -12,3 +12,4 @@ export {
   type Rgb,
 } from './oklab.ts'
 export { CLOSE, nearTwin, OFFERED, suggestColours, TWIN, type MyColour } from './suggest.ts'
+export { compareColours } from './order.ts'

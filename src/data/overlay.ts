@@ -250,6 +250,18 @@ export function applyPending(items: readonly ItemRow[], entries: readonly QueueE
         mark(a.p_id, { status: a.p_archived === false ? 'active' : 'cancelled' })
         break
       }
+      // A garment is an Item, always mine; its title is worked out by the server (ADR-0066 3).
+      case 'wardrobe.create_garment': {
+        const a = entry.args as { p_id: string }
+        if (!byId.has(a.p_id)) {
+          byId.set(a.p_id, { ...blankItem(a.p_id, 'garment', at), sync })
+          order.push(a.p_id)
+        } else mark(a.p_id, {})
+        break
+      }
+      case 'wardrobe.update_garment':
+        mark((entry.args as { p_id: string }).p_id, {})
+        break
       // Retired is its status (WRD-013), not Recently deleted.
       case 'wardrobe.retire_garment': {
         const a = entry.args as { p_id: string; p_retired?: boolean }

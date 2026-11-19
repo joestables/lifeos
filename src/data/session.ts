@@ -1,4 +1,5 @@
 import { forgetPhotos, forgetStorage } from './device-owner'
+import { forgetHeldPhotos } from './photos'
 import { devicesKey, type Device } from './devices'
 import { persister, queryClient } from './queryClient'
 import type { WriteQueue } from './queue/queue'
@@ -54,13 +55,15 @@ async function forgetThisDevice(): Promise<void> {
 
 /**
  * Everything the device keeps for whoever used it: the write queue, the
- * cached Items, the photos kept for offline, and what pages remembered.
+ * cached Items, the photos kept for offline and those held for signal, and
+ * what pages remembered.
  */
 export async function clearDevice(queue: WriteQueue): Promise<void> {
   await queue.clear()
   queryClient.clear()
   await persister.removeClient()
   await forgetPhotos()
+  await forgetHeldPhotos()
   forgetStorage()
 }
 

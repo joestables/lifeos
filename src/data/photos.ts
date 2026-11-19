@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
-import { useEffect, useState } from 'react'
+import { clear, createStore, del, set, values } from 'idb-keyval'
+import { useEffect, useState, useSyncExternalStore } from 'react'
 import { smallCopy } from '@/lib/photo-resize'
 import type { Database } from './database.types'
 import { newId } from './ids'
@@ -83,8 +84,159 @@ function whenSent(queue: WriteQueue, item: string): Promise<void> {
   })
 }
 
+// ---------------------------------------------------------------------------
+// A photo held on the device until it can be sent (ADR-0066 13; WRD-005 6):
+// a garment added without signal keeps its photo, in IndexedDB beside the
+// write queue, uploaded once the garment has reached the server.
+
+interface Held {
+  item: string
+  id: string
+  path: string
+  blob: Blob
+  width: number
+  height: number
+  /** The photo it replaces, whose files go once it is sent. */
+  old?: string
+}
+
+let heldStore: ReturnType<typeof createStore> | undefined
+const heldDb = () => (heldStore ??= createStore('lifeos-held-photos', 'photos'))
+let heldNow: readonly Held[] = []
+const heldListeners = new Set<() => void>()
+const setHeld = (next: readonly Held[]) => {
+  heldNow = next
+  for (const l of heldListeners) l()
+}
+
+/** Photos held on this device, as Photos, until they're sent. */
+export function useHeldPhotos(): readonly Photo[] {
+  const held = useSyncExternalStore(
+    (l) => {
+      heldListeners.add(l)
+      return () => heldListeners.delete(l)
+    },
+    () => heldNow,
+    () => heldNow,
+  )
+  const [photos, setPhotos] = useState<{ from: readonly Held[]; out: Photo[] }>({
+    from: [],
+    out: [],
+  })
+  if (photos.from !== held)
+    setPhotos({
+      from: held,
+      out: held.map((h) => ({
+        id: h.id,
+        item_id: h.item,
+        path: h.path,
+        width: h.width,
+        height: h.height,
+      })),
+    })
+  return photos.out
+}
+
+/** Forgets the photos held on this device: signing out, or someone else signing in (ACC-003). */
+export async function forgetHeldPhotos(): Promise<void> {
+  setHeld([])
+  try {
+    await clear(heldDb())
+  } catch {
+    // Nothing kept.
+  }
+}
+
+let sending = false
+let again = false
+
+/** Sends each held photo whose Item has reached the server; the rest wait. */
+async function sendHeld(queue: WriteQueue): Promise<void> {
+  if (sending) return void (again = true)
+  sending = true
+  try {
+    for (const h of heldNow) {
+      if (typeof navigator !== 'undefined' && !navigator.onLine) break
+      if (queue.entries().some((e) => e.itemIds.includes(h.item))) continue
+      const bucket = supabase().storage.from(BUCKET)
+      const [{ error }] = await Promise.all([
+        bucket.upload(h.path, await h.blob.arrayBuffer(), KEEP),
+        smallCopy(h.blob)
+          .then(async (small) => bucket.upload(smallPath(h.path), await small.arrayBuffer(), KEEP))
+          .catch(() => undefined),
+      ])
+      // Sent before and kept since: the file is there.
+      if (error && !/exists|duplicate/i.test(error.message)) continue
+      queue.enqueue(
+        'set_photo',
+        { p_id: h.id, p_item: h.item, p_width: h.width, p_height: h.height, p_bytes: h.blob.size },
+        [h.item],
+      )
+      if (h.old) void bucket.remove([h.old, smallPath(h.old)])
+      await del(h.id, heldDb()).catch(() => undefined)
+      setHeld(heldNow.filter((x) => x.id !== h.id))
+    }
+  } catch {
+    // No signal, or Storage refused: tried again later.
+  } finally {
+    sending = false
+    if (again) {
+      again = false
+      void sendHeld(queue)
+    }
+  }
+}
+
+/**
+ * Loads the photos held on this device, shows them, and sends each once
+ * there is signal and its Item has reached the server: now, when the
+ * device comes online, and whenever the queue changes.
+ */
+let started = false
+
+export async function startHeldPhotos(queue: WriteQueue): Promise<void> {
+  if (started) return
+  started = true
+  try {
+    const kept = (await values<Held>(heldDb())).sort((a, b) => a.id.localeCompare(b.id))
+    for (const h of kept) {
+      const shown = URL.createObjectURL(h.blob)
+      local.set(h.path, shown)
+      local.set(smallPath(h.path), shown)
+    }
+    setHeld([...kept, ...heldNow.filter((h) => !kept.some((k) => k.id === h.id))])
+  } catch {
+    // This browser keeps nothing: photos held now are sent while the page is open.
+  }
+  window.addEventListener('online', () => void sendHeld(queue))
+  queue.subscribe(() => void sendHeld(queue))
+  void sendHeld(queue)
+}
+
 export function photoWrites(queue: WriteQueue) {
   return {
+    /**
+     * A garment's photo (ADR-0066 13): shown at once, held on this device,
+     * and sent with its small copy once there is signal and the garment
+     * has reached the server, then the old one's files removed.
+     */
+    holdPhoto(
+      item: string,
+      photo: { blob: Blob; width: number; height: number },
+      old?: Photo,
+    ): void {
+      const id = newId()
+      const path = pathOf(item, id)
+      const shown = URL.createObjectURL(photo.blob)
+      local.set(path, shown)
+      local.set(smallPath(path), shown)
+      const h: Held = { item, id, path, ...photo, ...(old && { old: old.path }) }
+      for (const x of heldNow) if (x.item === item) void del(x.id, heldDb()).catch(() => undefined)
+      setHeld([...heldNow.filter((x) => x.item !== item), h])
+      void set(id, h, heldDb())
+        .catch(() => undefined)
+        .then(() => sendHeld(queue))
+    },
     /**
      * An Item's photo, made small on the device first (RCP-006 3): uploaded
      * once the Item has reached the server, with its small copy for cards,

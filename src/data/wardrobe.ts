@@ -204,15 +204,47 @@ const GARMENT_FIELD: Partial<Record<WardrobeList, keyof GarmentRow>> = {
   fit: 'fit_id',
 }
 
-/** A merge moves garments to the entry kept (WRD-028 4–5). */
+/**
+ * Garments' own fields: made (WRD-005), changed (WRD-010 2), and moved to
+ * the entry kept by a merge (WRD-028 4–5).
+ */
 export function applyPendingGarments(rows: readonly GarmentRow[], entries: readonly QueueEntry[]) {
   let out = rows as GarmentRow[]
   for (const e of entries) {
-    if (e.fn !== 'wardrobe.merge_entry') continue
     const a = args(e)
-    const field = GARMENT_FIELD[a.p_list as WardrobeList]
-    if (!field) continue
-    out = out.map((g) => (g[field] === a.p_from ? { ...g, [field]: String(a.p_into) } : g))
+    if (e.fn === 'wardrobe.create_garment') {
+      if (out.some((g) => g.item_id === a.p_id)) continue
+      out = [
+        ...out,
+        {
+          item_id: String(a.p_id),
+          category_id: String(a.p_category),
+          size_id: String(a.p_size),
+          brand_id: String(a.p_brand),
+          colour_id: String(a.p_colour),
+          fit_id: typeof a.p_fit === 'string' ? a.p_fit : null,
+          own_name: typeof a.p_own_name === 'string' ? a.p_own_name.trim() || null : null,
+        },
+      ]
+    } else if (e.fn === 'wardrobe.update_garment') {
+      const patch = (a.p_patch ?? {}) as Partial<GarmentRow>
+      out = out.map((g) =>
+        g.item_id === a.p_id
+          ? {
+              ...g,
+              ...Object.fromEntries(
+                Object.entries(patch).filter(
+                  ([k, v]) => v !== null || k === 'fit_id' || k === 'own_name',
+                ),
+              ),
+            }
+          : g,
+      )
+    } else if (e.fn === 'wardrobe.merge_entry') {
+      const field = GARMENT_FIELD[a.p_list as WardrobeList]
+      if (!field) continue
+      out = out.map((g) => (g[field] === a.p_from ? { ...g, [field]: String(a.p_into) } : g))
+    }
   }
   return out
 }
@@ -222,14 +254,26 @@ export function applyPendingGarmentTags(
   entries: readonly QueueEntry[],
 ) {
   let out = rows as GarmentTag[]
+  const add = (garments: unknown, tags: unknown) => {
+    for (const g of (garments as string[] | undefined) ?? [])
+      for (const t of (tags as string[] | undefined) ?? [])
+        if (!out.some((o) => o.garment_id === g && o.tag_id === t))
+          out = [...out, { garment_id: g, tag_id: t }]
+  }
   for (const e of entries) {
     const a = args(e)
-    if (e.fn === 'wardrobe.merge_entry' && a.p_list === 'tag') {
+    if (e.fn === 'wardrobe.create_garment') add([a.p_id], a.p_tags)
+    else if (e.fn === 'wardrobe.add_garment_tags') add(a.p_garments, a.p_tags)
+    else if (e.fn === 'wardrobe.remove_garment_tags') {
+      const gs = (a.p_garments as string[]) ?? []
+      const ts = (a.p_tags as string[]) ?? []
+      out = out.filter((o) => !(gs.includes(o.garment_id) && ts.includes(o.tag_id)))
+    } else if (e.fn === 'wardrobe.merge_entry' && a.p_list === 'tag') {
       const moved = out.filter((t) => t.tag_id === a.p_from)
       out = out.filter((t) => t.tag_id !== a.p_from)
       for (const t of moved)
         if (!out.some((o) => o.garment_id === t.garment_id && o.tag_id === a.p_into))
-          out.push({ garment_id: t.garment_id, tag_id: String(a.p_into) })
+          out = [...out, { garment_id: t.garment_id, tag_id: String(a.p_into) }]
     }
   }
   return out
