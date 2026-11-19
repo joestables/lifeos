@@ -616,7 +616,7 @@ function WardrobeTab({
         >
           <FilterPanel
             bare
-            groups={FILTERS({ Category: ['T-shirts', 'Hoodies'], Tags: ['Gym'] })}
+            groups={FILTERS({ Category: ['T-shirt', 'Hoodie'], Tags: ['Gym'] })}
             onChange={nothing}
             onReset={nothing}
           />
@@ -719,12 +719,12 @@ function AddFields({ state, brandTyping = false }: { state: AddState; brandTypin
             single
             aria-label="Category"
             choices={CATEGORIES.map((c) => ({ id: c, name: c }))}
-            chosen={new Set(['T-shirts'])}
+            chosen={new Set(['T-shirt'])}
             onChange={nothing}
           />
         </SheetField>
       )}
-      <SheetField label="Size" needed={!filled} aside="Used with T-shirts">
+      <SheetField label="Size" needed={!filled} aside="Used with T-shirt">
         <ChoiceChips
           single
           aria-label="Size"
@@ -1299,7 +1299,7 @@ function NewOutfitDialog() {
         compact
         aria-label="Category"
         choices={CATEGORIES.slice(0, 8).map((c) => ({ id: c, name: c }))}
-        chosen={new Set(['Jumpers', 'Trousers'])}
+        chosen={new Set(['Jumper', 'Trousers'])}
         onChange={nothing}
       />
       <RecipeGrid size="S">

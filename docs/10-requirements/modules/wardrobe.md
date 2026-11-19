@@ -44,6 +44,8 @@ what I'll wear on each day, with the weather beside it.
 - **Categories and Sizes are made only in Settings**, each an ordered
   list I drag into order (XS, S, M, L, XL), and that order is used
   wherever they're listed, sorted or grouped (Joe, 18 November).
+  Categories are named in the singular ("T-shirt", "Jeans"), as a
+  garment's title uses the name as written (Joe, 19 November).
 - **Brands, Fits and Tags** are kept in Settings too, and also made as I
   add a garment (Joe, 18 November). Fit and Tags work the same way, a
   list of pills; Fit is one per garment ("Slim"), Tags any number ("Gym",

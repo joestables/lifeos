@@ -2,6 +2,27 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#97](https://github.com/joestables/lifeos/pull/97) — Stage 6: the garment colour from a photo (`packages/wardrobe`)
+
+Branch `claude/vigilant-thompson-k8bkzm` · 2026-11-19 · Stage 6, step 5
+
+**What it did**
+- **`packages/wardrobe`** ([ADR-0067, as built](../20-architecture/adr/0067-garment-colours.md#as-built-19-november-plan-step-5)):
+  OKLab conversions; `estimateColour`, the garment's dominant colour in a
+  photo, its background spread in from the edges across soft light and
+  shadow; `suggestColours` (my colours within 0.06, closest first, four at
+  most, else a new colour) and `nearTwin` (within 0.035); `nameColour`
+  (45 everyday names).
+- **34 unit tests** over generated photos: a garment on a bed, a floor or
+  a dark sheet, with folds, a shadow, noise, stripes, a glare, dim light
+  or filling the frame; the thresholds set against what they measured.
+- Joe's answers: categories are named in the singular (the spec, ADR-0066
+  as built, the design page's lists); `wardrobe` exposed in the Data API.
+
+**Verified**
+- `npm run check`, `npm run build`; the design page's fourteen garment
+  pictures read in a browser canvas, all fourteen as their colour.
+
 ## [#96](https://github.com/joestables/lifeos/pull/96) — Stage 6, Wardrobe: spec, decisions, design and schema
 
 Branch `claude/vigilant-thompson-k8bkzm` · 2026-11-18 to 19 · Joe's notes
