@@ -156,3 +156,14 @@ Plan step 6 (19 November): `merge_entry` sent again does nothing once its
 first entry has gone into the second (migration
 `stage6_wardrobe_merge_again`), as every write must be idempotent
 (ADR-0042); merging into an entry that isn't mine is still refused.
+
+Plan step 7 (19 November): **a garment's photo held for signal**
+(decision 13) is kept in IndexedDB (`lifeos-held-photos`), shown from the
+device at once and on the next launch, and sent when the device is
+online and nothing for its garment waits in the queue: both files
+uploaded, then `set_photo` queued, then the replaced photo's files
+removed. It is cleared with the rest of the device's data on signing out
+or when someone else signs in (ACC-003). **The camera** is the page's own
+(`getUserMedia`, the back camera, its torch as the flash where it has
+one); in the Android app the WebView asks for it, so the app declares
+`CAMERA` (not required: a device without one chooses a photo instead).

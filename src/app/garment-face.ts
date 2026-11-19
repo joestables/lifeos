@@ -13,5 +13,7 @@ export function garmentFace(g: GarmentView, photo?: string): GarmentFace {
     ...(g.fit && { fit: g.fit.name }),
     tags: g.tags.map((t) => t.name),
     retired: g.retired,
+    favourite: g.favourite,
+    ...(g.sync && { sync: g.sync }),
   }
 }

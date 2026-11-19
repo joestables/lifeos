@@ -187,3 +187,53 @@ describe('a garment retired (WRD-013)', () => {
     ).toBe('active')
   })
 })
+
+describe('a garment, unsent (WRD-005 6, WRD-010 2, WRD-012 2)', () => {
+  const made = entry('wardrobe.create_garment', {
+    p_id: 'g9',
+    p_category: 'c1',
+    p_size: 's1',
+    p_brand: 'b1',
+    p_colour: 'k1',
+    p_tags: ['t1'],
+  })
+  it('shows a new garment at once, with its tags', () => {
+    expect(applyPendingGarments([], [made])).toEqual([
+      {
+        item_id: 'g9',
+        category_id: 'c1',
+        size_id: 's1',
+        brand_id: 'b1',
+        colour_id: 'k1',
+        fit_id: null,
+        own_name: null,
+      },
+    ])
+    expect(applyPendingGarmentTags([], [made])).toEqual([{ garment_id: 'g9', tag_id: 't1' }])
+    expect(applyPending([], [made])[0]).toMatchObject({
+      id: 'g9',
+      type: 'garment',
+      sync: 'pending',
+    })
+  })
+
+  it('changes only the fields given, a fit cleared with null', () => {
+    const [g] = applyPendingGarments(
+      [garment('g1', 'b1')].map((x) => ({ ...x, fit_id: 'f1' })),
+      [entry('wardrobe.update_garment', { p_id: 'g1', p_patch: { size_id: 's2', fit_id: null } })],
+    )
+    expect(g).toMatchObject({ size_id: 's2', fit_id: null, brand_id: 'b1' })
+  })
+
+  it('adds and takes off tags across several garments', () => {
+    const rows = [{ garment_id: 'g1', tag_id: 't1' }]
+    const added = applyPendingGarmentTags(rows, [
+      entry('wardrobe.add_garment_tags', { p_garments: ['g1', 'g2'], p_tags: ['t1', 't2'] }),
+    ])
+    expect(added).toHaveLength(4)
+    const removed = applyPendingGarmentTags(added, [
+      entry('wardrobe.remove_garment_tags', { p_garments: ['g1', 'g2'], p_tags: ['t1'] }),
+    ])
+    expect(removed.map((t) => `${t.garment_id}:${t.tag_id}`)).toEqual(['g1:t2', 'g2:t2'])
+  })
+})

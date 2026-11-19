@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   CLOSE,
+  compareColours,
   deltaE,
   estimateColour,
   hexToLab,
@@ -173,5 +174,19 @@ describe('a new colour named (WRD-007 2; ADR-0067 4)', () => {
     ['#d4473a', 'Red'],
   ])('names %s %s', (hex, name) => {
     expect(nameColour(hex)).toBe(name)
+  })
+})
+
+describe('my colours in order (WRD-002 3)', () => {
+  it('lists the neutrals light to dark, then the rest by hue', () => {
+    const names = Object.fromEntries(MINE.map((c) => [c.hex, c.id]))
+    const order = MINE.map((c) => c.hex)
+      .sort(compareColours)
+      .map((h) => names[h])
+    expect(order.slice(0, 5)).toEqual(['white', 'cream', 'grey', 'charcoal', 'black'])
+    expect(order[5]).toBe('burgundy')
+    expect(order.indexOf('camel')).toBeLessThan(order.indexOf('olive'))
+    expect(order.indexOf('olive')).toBeLessThan(order.indexOf('sky'))
+    expect(order.indexOf('sky')).toBeLessThan(order.indexOf('navy'))
   })
 })

@@ -1,6 +1,7 @@
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
 import { useEffect, type ReactNode } from 'react'
 import { queue } from './index'
+import { startHeldPhotos } from './photos'
 import { persistOptions, queryClient } from './queryClient'
 
 /** Wraps the app: the query cache kept on the device, and the write queue running. */
@@ -9,7 +10,11 @@ export function DataProvider({ children }: { children: ReactNode }) {
     // Back online or opened again: what is waiting goes now, not when its backoff ends.
     const flush = () => void queue.retryNow()
     const onVisible = () => document.visibilityState === 'visible' && flush()
-    void queue.load().then(flush)
+    // Photos held for signal start once the queue knows what is still to send.
+    void queue.load().then(() => {
+      flush()
+      void startHeldPhotos(queue)
+    })
     window.addEventListener('online', flush)
     document.addEventListener('visibilitychange', onVisible)
     return () => {

@@ -191,6 +191,8 @@ const collections: {
       'fitness.start_workout',
       'fitness.end_workout',
       'wardrobe.retire_garment',
+      'wardrobe.create_garment',
+      'wardrobe.update_garment',
       // A garment's title is worked out from its entries' names (ADR-0066 4).
       'wardrobe.save_entry',
       'wardrobe.merge_entry',
@@ -468,12 +470,17 @@ const collections: {
   },
   {
     key: garmentsKey,
-    fns: ['wardrobe.merge_entry'],
+    fns: ['wardrobe.create_garment', 'wardrobe.update_garment', 'wardrobe.merge_entry'],
     fold: (rows: GarmentRow[], e: QueueEntry) => applyPendingGarments(rows, [e]),
   },
   {
     key: garmentTagsKey,
-    fns: ['wardrobe.merge_entry'],
+    fns: [
+      'wardrobe.create_garment',
+      'wardrobe.add_garment_tags',
+      'wardrobe.remove_garment_tags',
+      'wardrobe.merge_entry',
+    ],
     fold: (rows: GarmentTag[], e: QueueEntry) => applyPendingGarmentTags(rows, [e]),
   },
   {
@@ -682,7 +689,7 @@ export const {
   tick,
 } = shoppingWrites(queue)
 
-export const { setPhoto, removePhoto } = photoWrites(queue)
+export const { setPhoto, removePhoto, holdPhoto } = photoWrites(queue)
 
 export const {
   saveEquipment,
@@ -706,6 +713,10 @@ export const {
   mergeEntry,
   setWeatherPlace,
   retireGarment,
+  createGarment,
+  updateGarment,
+  addGarmentTags,
+  removeGarmentTags,
 } = wardrobeWrites(queue)
 
 export const {
@@ -857,6 +868,7 @@ export {
   WARDROBE_LISTS,
   type WardrobeEntry,
   type WardrobeList,
+  type WardrobeLists,
   type WeatherPlace,
 } from './wardrobe'
 export {
@@ -867,6 +879,7 @@ export {
   type MuscleView,
 } from './fitness'
 export type { ExercisePatch, NewExercise, SetFields } from './fitness-writes'
+export type { GarmentFields, GarmentPatch } from './wardrobe-writes'
 export type { Calendar, CalendarLink, Connection, ExternalRef } from './calendar'
 export { newId } from './ids'
 export { searchItemIds, searchKey } from './search'

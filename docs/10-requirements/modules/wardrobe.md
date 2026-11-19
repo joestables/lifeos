@@ -261,7 +261,7 @@ A garment and an outfit each open in a popup, read-only first.
 
 **As** Joe, **I want** my clothes as photo cards, **so that** I can see
 what I own at a glance.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified (`wardrobe.spec.ts`)
 
 Acceptance criteria
 1. Given the Wardrobe tab, then every Owned garment shows as a card: its
@@ -278,7 +278,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to filter by anything a garment has, **so that** I
 find, say, every slim black pair of trousers.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified (`wardrobe.spec.ts`)
 
 Acceptance criteria
 1. Given the filters, then I filter by Category, Brand, Size, Colour, Fit,
@@ -299,7 +299,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to sort and group my clothes, **so that** the grid
 follows how I think about them.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified (`wardrobe.spec.ts`); last worn and times worn come with the Week (plan step 9)
 
 Acceptance criteria
 1. Given Sort, then I sort by category, brand, size (each in my order, or
@@ -314,7 +314,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to search my clothes, **so that** typing "navy
 slim" finds them.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified (`wardrobe.spec.ts`)
 
 Acceptance criteria
 1. Given I type in the search, then garments match on category, brand,
@@ -327,7 +327,7 @@ Acceptance criteria
 
 **As** Joe, **I want** adding a garment on my phone to be a photo and a
 few taps, **so that** I can photograph my whole wardrobe in one go.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified (`wardrobe.spec.ts`)
 
 Acceptance criteria
 1. Given New garment on a phone, then the camera opens at once; given a
@@ -353,7 +353,7 @@ Acceptance criteria
 
 **As** Joe, **I want** the app to suggest my colour for the garment in the
 photo, **so that** colours are quick and consistent.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified (`wardrobe.spec.ts`); 5 by the unit tests
 
 Acceptance criteria
 1. Given a photo, then the garment's dominant colour is estimated on the
@@ -375,7 +375,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to pick a new colour from the photo and have it
 named for me, **so that** a colour I haven't got yet is one step.
-Priority: Must · Status: agreed
+Priority: Must · Status: built; 2 verified (`wardrobe.spec.ts`)
 
 Acceptance criteria
 1. Given New colour, then the photo fills the sheet with a loupe that
@@ -393,7 +393,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to make a brand, fit or tag while adding a garment,
 **so that** I never leave the sheet for Settings.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified (`wardrobe.spec.ts`)
 
 Acceptance criteria
 1. Given Brand, then before I type it shows the brands I've used most
@@ -412,7 +412,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to go straight on to the next garment, **so that**
 adding many back to back is seamless.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified (`wardrobe.spec.ts`)
 
 Acceptance criteria
 1. Given Save, then the new garment opens in its popup, read-only, with
@@ -425,7 +425,7 @@ Acceptance criteria
 
 **As** Joe, **I want** a garment to open read-only, **so that** I can look
 without changing anything, and edit only when I mean to.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified (`wardrobe.spec.ts`); last worn, times worn and its outfits come with plan steps 8–9
 
 Acceptance criteria
 1. Given a card pressed, then the garment opens in a popup, read-only
@@ -442,7 +442,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to heart garments, **so that** I can find the ones I
 love.
-Priority: Should · Status: agreed
+Priority: Should · Status: verified (`wardrobe.spec.ts`)
 
 Acceptance criteria
 1. Given a card or a garment's popup, when I press the heart, then it is a
@@ -452,7 +452,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to select several garments and tag or remove them
 together, **so that** I can tag all my gym clothes "Gym" in one go.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified (`wardrobe.spec.ts`)
 
 Acceptance criteria
 1. Given Select (or a long press on a phone), then I pick several garments,
@@ -469,7 +469,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to retire clothes I no longer have, **so that** the
 wardrobe shows what I own and my past outfits still make sense.
-Priority: Must · Status: agreed; 3 verified (`wardrobe-settings.spec.ts`)
+Priority: Must · Status: agreed; 1 and 3 verified (`wardrobe.spec.ts`, `wardrobe-settings.spec.ts`)
 
 Acceptance criteria
 1. Given Retire, then the garment leaves the Wardrobe tab, filters and
@@ -770,10 +770,10 @@ Today and Week (ADR-0029, [today](../views/today.md),
 v1's URL import no longer to port (ADR-0002); Weather a Stage 6
 Integration ([integrations](../cross-cutting/integrations.md)); the colour
 Swatch the one exception to colour by Type (ADR-0043,
-[patterns](../../30-design/patterns.md#colour-by-type)). Wardrobe leaves
+[patterns](../../30-design/patterns.md#colour-by-type)). Wardrobe left
 the drawer's "Later"
 ([ADR-0026](../../20-architecture/adr/0026-navigation-drawer.md)) when its
-page is built.
+page was built (plan step 7, 19 November).
 
 ## Open points for Joe
 

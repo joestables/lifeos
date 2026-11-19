@@ -2,6 +2,34 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#99](https://github.com/joestables/lifeos/pull/99) — Stage 6: garments
+
+Branch `claude/vigilant-thompson-k8bkzm` · 2026-11-19 · Stage 6, step 7
+
+**What it did**
+- **The Wardrobe tab** ([WRD-001–004](../10-requirements/modules/wardrobe.md#wrd-001--browse-my-wardrobe),
+  WRD-011, WRD-012): garments as photo cards, filtered, searched, sorted
+  and grouped, kept on the device; Select with Select all, Add tag, Remove
+  tag, Retire and Delete. Wardrobe leaves the drawer's Later.
+- **Adding a garment** (WRD-005–009): the live camera, the photo's square,
+  its colour read on the device and my closest colours offered (or a new
+  one, named), the GarmentSheet with brands searched and made and fits and
+  tags inline, the New colour dialog with the loupe, Add another. Without
+  signal the garment is kept and its photo held in IndexedDB until it can
+  be sent (ADR-0066 13), and cleared with the device (ACC-003).
+- **A garment's popup** (WRD-010, WRD-013 1): its facts and when added;
+  Edit, the heart, Retire, Delete with Undo.
+- **New in the design system:** GarmentSheet, GarmentFact, GarmentStat,
+  PhotoCrop; CameraView live; the loupe following the finger; a garment
+  card's "Not sent yet"; SelectionBar's Select all.
+- **The Android app** declares `CAMERA` for the page's camera (0.1.16).
+
+**Verified**
+- `npm run check`, `npm run build`; 10 walks in `wardrobe.spec.ts` on a
+  computer and a phone (the camera a canvas, its colours read for real),
+  the browser tests, dark and light screenshots; the Android workflow on
+  the pull request.
+
 ## [#98](https://github.com/joestables/lifeos/pull/98) — Stage 6: Settings → Wardrobe
 
 Branch `claude/vigilant-thompson-k8bkzm` · 2026-11-19 · Stage 6, step 6
