@@ -19,12 +19,12 @@ const CATEGORY_NAME: Record<Category, string> = {
 
 /** Joe's categories, in his order (Settings → Wardrobe). */
 export const CATEGORIES = [
-  'T-shirts',
-  'Shirts',
-  'Jumpers',
-  'Hoodies',
-  'Jackets',
-  'Coats',
+  'T-shirt',
+  'Shirt',
+  'Jumper',
+  'Hoodie',
+  'Jacket',
+  'Coat',
   'Trousers',
   'Jeans',
   'Shorts',

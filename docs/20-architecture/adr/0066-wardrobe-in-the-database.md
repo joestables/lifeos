@@ -141,7 +141,8 @@ to*, a Garment not Capturable.
   no delete, and adding it again brings it back (decision 11).
 - **The title uses the category's name as written** (decision 3): a
   category called "T-shirt" gives "Navy Uniqlo T-shirt", one called
-  "T-shirts", "Navy Uniqlo T-shirts".
+  "T-shirts", "Navy Uniqlo T-shirts". Categories are named in the singular
+  (Joe, 19 November), so titles read as the spec's do.
 - **"Same garments" compares the garments still there** (decision 6): a
   deleted garment doesn't count.
 - **A garment taken off one day's outfit** is that day's row removed; the
