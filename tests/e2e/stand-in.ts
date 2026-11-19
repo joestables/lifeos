@@ -375,6 +375,7 @@ export async function standIn(
         'garment_tags',
         'outfit_collections',
         'settings',
+        'planned_outfits',
       ].map((t) => [t, (rows.wardrobe?.[t] ?? []).map((r) => ({ ...r }))]),
     ) as Record<string, Record<string, unknown>[]>,
     /** Storage's `photos` bucket: each file's bytes by its path. */
@@ -1507,6 +1508,90 @@ export async function standIn(
         (x) => !(gs.includes(String(x.garment_id)) && ts.includes(String(x.tag_id))),
       )
     },
+    create_outfit: (a) => {
+      if (item(a.p_id)) return
+      const key = (ids: unknown[]) => [...new Set(ids.map(String))].sort().join()
+      const want = key(a.p_garments as string[])
+      const live = (id: unknown) => !item(id)?.archived_at
+      for (const o of db.items.filter((i) => i.type === 'outfit' && !i.archived_at)) {
+        const has = db.links
+          .filter((l) => l.from_item === o.id && l.link_type === 'includes' && live(l.to_item))
+          .map((l) => l.to_item)
+        if (key(has) === want) return 'same'
+      }
+      db.items.push(
+        itemRow({
+          id: String(a.p_id),
+          type: 'outfit',
+          title: String(a.p_name ?? '').trim(),
+          created_at: now(),
+          updated_at: now(),
+        }),
+      )
+      for (const g of new Set(a.p_garments as string[]))
+        db.links.push({ from_item: String(a.p_id), to_item: g, link_type: 'includes' })
+      for (const c of (a.p_collections as string[] | undefined) ?? [])
+        db.wardrobe.outfit_collections!.push({ outfit_id: a.p_id, collection_id: c })
+    },
+    rename_outfit: (a) => {
+      const i = item(a.p_id)
+      if (i) i.title = String(a.p_name ?? '').trim()
+    },
+    add_outfit_garment: (a) => {
+      if (
+        !db.links.some(
+          (l) =>
+            l.from_item === a.p_outfit && l.to_item === a.p_garment && l.link_type === 'includes',
+        )
+      )
+        db.links.push({
+          from_item: String(a.p_outfit),
+          to_item: String(a.p_garment),
+          link_type: 'includes',
+        })
+    },
+    remove_outfit_garment: (a) => {
+      db.links = db.links.filter(
+        (l) =>
+          !(l.from_item === a.p_outfit && l.to_item === a.p_garment && l.link_type === 'includes'),
+      )
+    },
+    add_to_collections: (a) => {
+      for (const o of a.p_outfits as string[])
+        for (const c of a.p_collections as string[])
+          if (
+            !db.wardrobe.outfit_collections!.some((x) => x.outfit_id === o && x.collection_id === c)
+          )
+            db.wardrobe.outfit_collections!.push({ outfit_id: o, collection_id: c })
+    },
+    remove_from_collection: (a) => {
+      const os = a.p_outfits as string[]
+      db.wardrobe.outfit_collections = db.wardrobe.outfit_collections!.filter(
+        (x) => !(x.collection_id === a.p_collection && os.includes(String(x.outfit_id))),
+      )
+    },
+    // The pane as the server reads it, without those taken out.
+    add_planned: (a) => {
+      const os = a.p_outfits as string[]
+      db.wardrobe.planned_outfits = db.wardrobe.planned_outfits!.filter(
+        (p) => !os.includes(String(p.outfit_id)),
+      )
+      os.forEach((o, n) =>
+        db.wardrobe.planned_outfits!.push({
+          outfit_id: o,
+          position: `${now()}${String(n).padStart(4, '0')}`,
+        }),
+      )
+    },
+    remove_planned: (a) => {
+      const os = a.p_outfits as string[]
+      db.wardrobe.planned_outfits = db.wardrobe.planned_outfits!.filter(
+        (p) => !os.includes(String(p.outfit_id)),
+      )
+    },
+    clear_planned: () => {
+      db.wardrobe.planned_outfits = []
+    },
     retire_garment: (a) => {
       const i = item(a.p_id)
       if (!i) return
@@ -2042,6 +2127,16 @@ export async function standIn(
                 : write
       )[rpc[1]!]?.(route.request().postDataJSON() ?? {})
       refreshShops()
+      if (result === 'same')
+        return route.fulfill({
+          status: 409,
+          json: {
+            code: '23505',
+            message: 'Those garments are already an outfit',
+            details: null,
+            hint: null,
+          },
+        })
       if (result === 'taken')
         return route.fulfill({
           status: 409,

@@ -7,6 +7,7 @@ import {
   TagIcon,
   TagsIcon,
   Trash2Icon,
+  XIcon,
 } from 'lucide-react'
 import { memo, useLayoutEffect, useRef, useState, type RefObject } from 'react'
 import {
@@ -22,6 +23,7 @@ import {
   SortMenu,
   type CardSize,
   type FilterGroup,
+  type GarmentCardMode,
   type GarmentFace,
 } from '@/components/lifeos'
 import { Badge } from '@/components/ui/badge'
@@ -61,14 +63,18 @@ import {
   type GarmentGrouping,
   type GarmentSort,
 } from '@/lib/wardrobe'
+import { cn } from '@/lib/utils'
 import { deleteGarments, retireGarments } from './garment-actions'
 import { garmentFace } from './garment-face'
 import { SearchField } from './search-field'
 import { useWardrobeView } from './wardrobe-view'
 import { NewEntryChip } from './wardrobe-parts'
+import { useOutfitBuilder } from './outfit-builder'
+import { BuilderPane } from './outfit-builder-pane'
 
 type CardActions = {
   open: (id: string) => void
+  build: (id: string, on: boolean) => void
   choose: (id: string, on: boolean) => void
   start: (id: string) => void
 }
@@ -76,24 +82,26 @@ type CardActions = {
 /** A garment's card, drawn again only when what it shows changes. */
 const WardrobeCard = memo(function WardrobeCard({
   face,
-  selecting,
+  mode,
   selected,
   actions,
 }: {
   face: GarmentFace
-  selecting: boolean
+  mode: GarmentCardMode
   selected: boolean
   actions: RefObject<CardActions>
 }) {
   return (
     <GarmentCard
       garment={face}
-      mode={selecting ? 'select' : 'browse'}
+      mode={mode}
       chosen={selected}
       onOpen={() => actions.current.open(face.id)}
       onFavourite={(on) => setMark(face.id, on)}
-      onChoose={(on) => actions.current.choose(face.id, on)}
-      onLongPress={selecting ? undefined : () => actions.current.start(face.id)}
+      onChoose={(on) =>
+        mode === 'build' ? actions.current.build(face.id, on) : actions.current.choose(face.id, on)
+      }
+      onLongPress={mode === 'browse' ? () => actions.current.start(face.id) : undefined}
     />
   )
 })
@@ -175,14 +183,24 @@ export function WardrobeTab({
   onOpen,
   onNew,
   onChoosing,
+  onOpenOutfit,
 }: {
   wardrobe: WardrobeData
   onOpen: (id: string) => void
   onNew: () => void
-  /** Choosing several: the page puts its Fab away. */
+  /** Choosing several or building an outfit: the page puts its Fab away. */
   onChoosing: (on: boolean) => void
+  onOpenOutfit: (id: string) => void
 }) {
-  const { view, size, change, setSearch } = useWardrobeView()
+  const { view, size: keptSize, change, setSearch } = useWardrobeView()
+  const builder = useOutfitBuilder()
+  const [building, setBuildingHere] = useState(false)
+  const setBuilding = (on: boolean) => {
+    setBuildingHere(on)
+    onChoosing(on)
+  }
+  // Building an outfit, the cards go small to leave room for the pane (patterns.md#wardrobe).
+  const size: CardSize = building ? 'S' : keptSize
   const [sheet, setSheet] = useState(false)
   const [choosing, setChoosingHere] = useState(false)
   const [chosen, setChosen] = useState<ReadonlySet<string>>(new Set())
@@ -206,16 +224,20 @@ export function WardrobeTab({
       else next.delete(id)
       return next
     })
-  const actions = useRef<CardActions>({ open: onOpen, choose, start })
+  const actions = useRef<CardActions>({ open: onOpen, choose, start, build: builder.toggle })
   useLayoutEffect(() => {
-    actions.current = { open: onOpen, choose, start }
+    actions.current = { open: onOpen, choose, start, build: builder.toggle }
   })
 
   const { lists, garments } = wardrobe
   const owned = garments.filter((g) => !g.retired)
   const shown = shownGarments(garments, view, lists)
+  const inBuilder = new Set(builder.builder.garments)
   const photos = usePhotoUrls(
-    shown.map((g) => g.photo?.path),
+    [
+      ...shown.map((g) => g.photo?.path),
+      ...garments.filter((g) => inBuilder.has(g.item.id)).map((g) => g.photo?.path),
+    ],
     size === 'L' ? 'whole' : 'small',
   )
   const choices = filterChoices(garments, lists)
@@ -254,6 +276,19 @@ export function WardrobeTab({
     if (picked.length) fn(picked)
     done()
   }
+  const buildButton = (phone: boolean) => (
+    <Button
+      variant={building ? 'secondary' : 'outline'}
+      size={phone ? 'icon-sm' : 'sm'}
+      aria-pressed={building}
+      aria-label={phone ? (building ? 'Done building' : 'Build outfit') : undefined}
+      className={phone ? 'shrink-0 md:hidden' : 'max-md:hidden'}
+      onClick={() => setBuilding(!building)}
+    >
+      {building ? <XIcon /> : <ShirtIcon />}
+      {!phone && (building ? 'Done' : 'Build outfit')}
+    </Button>
+  )
   const sortAndGroup = (fill: boolean) => (
     <>
       <SortMenu<GarmentSort>
@@ -263,77 +298,78 @@ export function WardrobeTab({
         direction={view.sortDir}
         onChange={(sort, sortDir) => change({ sort, sortDir })}
       />
-      <Select
-        value={view.group}
-        items={GARMENT_GROUPINGS}
-        onValueChange={(v) => v !== null && change({ group: v as GarmentGrouping })}
-      >
-        <SelectTrigger
-          size="sm"
-          aria-label="Group"
-          className={fill ? 'min-w-0 flex-1 lg:w-auto lg:flex-none' : 'w-auto'}
+      {!building && (
+        <Select
+          value={view.group}
+          items={GARMENT_GROUPINGS}
+          onValueChange={(v) => v !== null && change({ group: v as GarmentGrouping })}
         >
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {GARMENT_GROUPINGS.map((o) => (
-            <SelectItem key={o.value} value={o.value}>
-              {o.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+          <SelectTrigger
+            size="sm"
+            aria-label="Group"
+            className={fill ? 'min-w-0 flex-1 lg:w-auto lg:flex-none' : 'w-auto'}
+          >
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {GARMENT_GROUPINGS.map((o) => (
+              <SelectItem key={o.value} value={o.value}>
+                {o.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )}
     </>
   )
   const noLists = lists.category.length === 0 || lists.size.length === 0
 
-  return (
-    <>
-      <FilterLayout
-        filters={
-          <FilterPanel
-            groups={groups}
-            active={chosenCount > 0}
-            onChange={onChange}
-            onReset={reset}
-          />
-        }
-      >
-        {choosing ? (
-          <SelectionBar
-            count={picked.length}
-            onDone={done}
-            onSelectAll={() => setChosen(new Set(shown.map((g) => g.item.id)))}
-            actions={[
-              { label: 'Add tag', icon: TagIcon, onClick: () => setTagging('add') },
-              { label: 'Remove tag', icon: TagsIcon, onClick: () => setTagging('remove') },
-              { label: 'Retire', icon: ArchiveIcon, onClick: act(retireGarments) },
-              {
-                label: 'Delete',
-                icon: Trash2Icon,
-                onClick: act((gs) => deleteGarments(gs)),
-                destructive: true,
-              },
-            ]}
-          />
-        ) : (
-          <div className="flex flex-col gap-2 lg:flex-row lg:flex-wrap lg:items-center">
-            <div className="flex items-center gap-2 lg:contents">
-              <SearchField label="Search clothes" value={view.search} onChange={setSearch} />
-              <Button
-                variant="outline"
-                size="sm"
-                className="relative lg:hidden"
-                onClick={() => setSheet(true)}
-              >
-                <SlidersHorizontalIcon /> Filters
-                {chosenCount > 0 && (
-                  <Badge className="absolute -top-2 -right-2">{chosenCount}</Badge>
-                )}
-              </Button>
-            </div>
-            <div className="flex items-center gap-2 lg:contents">
-              {sortAndGroup(true)}
+  const layout = (
+    <FilterLayout
+      filters={
+        <FilterPanel groups={groups} active={chosenCount > 0} onChange={onChange} onReset={reset} />
+      }
+    >
+      {choosing ? (
+        <SelectionBar
+          count={picked.length}
+          onDone={done}
+          onSelectAll={() => setChosen(new Set(shown.map((g) => g.item.id)))}
+          actions={[
+            { label: 'Add tag', icon: TagIcon, onClick: () => setTagging('add') },
+            { label: 'Remove tag', icon: TagsIcon, onClick: () => setTagging('remove') },
+            { label: 'Retire', icon: ArchiveIcon, onClick: act(retireGarments) },
+            {
+              label: 'Delete',
+              icon: Trash2Icon,
+              onClick: act((gs) => deleteGarments(gs)),
+              destructive: true,
+            },
+          ]}
+        />
+      ) : (
+        // Building, the pane takes the room: the search keeps a row of its own.
+        <div
+          className={cn(
+            'flex flex-col gap-2',
+            !building && 'lg:flex-row lg:flex-wrap lg:items-center',
+          )}
+        >
+          <div className={cn('flex items-center gap-2', !building && 'lg:contents')}>
+            <SearchField label="Search clothes" value={view.search} onChange={setSearch} />
+            <Button
+              variant="outline"
+              size="sm"
+              className="relative lg:hidden"
+              onClick={() => setSheet(true)}
+            >
+              <SlidersHorizontalIcon /> Filters
+              {chosenCount > 0 && <Badge className="absolute -top-2 -right-2">{chosenCount}</Badge>}
+            </Button>
+          </div>
+          <div className={cn('flex items-center gap-2', !building && 'lg:contents')}>
+            {sortAndGroup(true)}
+            {!building && (
               <ToggleGroup
                 aria-label="Card size"
                 className="max-md:hidden"
@@ -344,52 +380,77 @@ export function WardrobeTab({
                 <ToggleGroupItem value="M">M</ToggleGroupItem>
                 <ToggleGroupItem value="L">L</ToggleGroupItem>
               </ToggleGroup>
+            )}
+            {buildButton(false)}
+            {buildButton(true)}
+            {!building && (
               <Button variant="ghost" size="sm" className="max-md:hidden" onClick={() => start()}>
                 <ListChecksIcon /> Select
               </Button>
-            </div>
-          </div>
-        )}
-        {!wardrobe.isLoading && owned.length === 0 && (
-          <EmptyState
-            icon={ShirtIcon}
-            title="No garments yet"
-            {...(!noLists && { action: { label: 'New garment', onClick: onNew } })}
-          >
-            {noLists && (
-              <Button variant="outline" size="sm" render={<Link to="/settings/wardrobe" />}>
-                Add categories and sizes
-              </Button>
             )}
-          </EmptyState>
-        )}
-        {owned.length > 0 && shown.length === 0 && (
-          <EmptyState icon={SlidersHorizontalIcon} title="No garments match" />
-        )}
-        {groupGarments(shown, view.group, lists).map((g) => {
-          const grid = (
-            <RecipeGrid size={size}>
-              {g.garments.map((x) => (
-                <WardrobeCard
-                  key={x.item.id}
-                  face={garmentFace(x, x.photo && photos.get(x.photo.path))}
-                  selecting={choosing}
-                  selected={chosen.has(x.item.id)}
-                  actions={actions}
-                />
-              ))}
-            </RecipeGrid>
-          )
-          return g.label ? (
-            <section key={g.key}>
-              <SectionLabel count={g.garments.length}>{g.label}</SectionLabel>
-              {grid}
-            </section>
-          ) : (
-            <div key={g.key}>{grid}</div>
-          )
-        })}
-      </FilterLayout>
+          </div>
+        </div>
+      )}
+      {!wardrobe.isLoading && owned.length === 0 && (
+        <EmptyState
+          icon={ShirtIcon}
+          title="No garments yet"
+          {...(!noLists && { action: { label: 'New garment', onClick: onNew } })}
+        >
+          {noLists && (
+            <Button variant="outline" size="sm" render={<Link to="/settings/wardrobe" />}>
+              Add categories and sizes
+            </Button>
+          )}
+        </EmptyState>
+      )}
+      {owned.length > 0 && shown.length === 0 && (
+        <EmptyState icon={SlidersHorizontalIcon} title="No garments match" />
+      )}
+      {groupGarments(shown, view.group, lists).map((g) => {
+        const grid = (
+          <RecipeGrid size={size}>
+            {g.garments.map((x) => (
+              <WardrobeCard
+                key={x.item.id}
+                face={garmentFace(x, x.photo && photos.get(x.photo.path))}
+                mode={building ? 'build' : choosing ? 'select' : 'browse'}
+                selected={building ? inBuilder.has(x.item.id) : chosen.has(x.item.id)}
+                actions={actions}
+              />
+            ))}
+          </RecipeGrid>
+        )
+        return g.label ? (
+          <section key={g.key}>
+            <SectionLabel count={g.garments.length}>{g.label}</SectionLabel>
+            {grid}
+          </section>
+        ) : (
+          <div key={g.key}>{grid}</div>
+        )
+      })}
+    </FilterLayout>
+  )
+
+  return (
+    <>
+      {building ? (
+        <div className="flex items-start gap-6">
+          <div className="min-w-0 flex-1">{layout}</div>
+          <BuilderPane
+            wardrobe={wardrobe}
+            builder={builder.builder}
+            photos={photos}
+            onChange={builder.change}
+            onTakeOut={(id) => builder.toggle(id, false)}
+            onClear={builder.clear}
+            onOpenOutfit={onOpenOutfit}
+          />
+        </div>
+      ) : (
+        layout
+      )}
       <FilterDialog
         open={sheet}
         onOpenChange={setSheet}

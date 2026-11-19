@@ -259,6 +259,24 @@ export function applyPending(items: readonly ItemRow[], entries: readonly QueueE
         } else mark(a.p_id, {})
         break
       }
+      // An outfit is an Item, always mine; its title is its name, or none (ADR-0066 6).
+      case 'wardrobe.create_outfit': {
+        const a = entry.args as { p_id: string; p_name?: string | null }
+        if (!byId.has(a.p_id)) {
+          byId.set(a.p_id, {
+            ...blankItem(a.p_id, 'outfit', at),
+            title: (a.p_name ?? '').trim(),
+            sync,
+          })
+          order.push(a.p_id)
+        } else mark(a.p_id, {})
+        break
+      }
+      case 'wardrobe.rename_outfit': {
+        const a = entry.args as { p_id: string; p_name: string }
+        mark(a.p_id, { title: (a.p_name ?? '').trim() })
+        break
+      }
       case 'wardrobe.update_garment':
         mark((entry.args as { p_id: string }).p_id, {})
         break

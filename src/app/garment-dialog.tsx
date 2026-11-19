@@ -1,10 +1,19 @@
 import { ArchiveIcon, CameraIcon, HeartIcon, PencilIcon, ShirtIcon, Trash2Icon } from 'lucide-react'
-import { GarmentFact, GarmentPhoto, GarmentStat, ItemDialog, Swatch } from '@/components/lifeos'
+import {
+  GarmentFact,
+  GarmentPhoto,
+  GarmentStat,
+  ItemDialog,
+  OutfitPicture,
+  SectionLabel,
+  Swatch,
+} from '@/components/lifeos'
+import { outfitName } from './outfit-actions'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { DropdownMenuItem } from '@/components/ui/dropdown-menu'
 import { Toggle } from '@/components/ui/toggle'
-import { setMark, type GarmentView } from '@/data'
+import { setMark, usePhotoUrls, type GarmentView, type OutfitView } from '@/data'
 import { deleteGarments, retireGarments } from './garment-actions'
 import { MoreMenu } from './more-menu'
 
@@ -31,6 +40,7 @@ export function GarmentDialog({
   photo,
   added = false,
   outfits,
+  onOpenOutfit,
   onEdit,
   onAddAnother,
   onClose,
@@ -38,13 +48,18 @@ export function GarmentDialog({
   garment: GarmentView
   photo?: string
   added?: boolean
-  /** How many of my outfits it is in, said on Delete (WRD-010 3). */
-  outfits: number
+  /** My outfits it is in: shown, and counted on Delete (WRD-010 1, 3). */
+  outfits: OutfitView[]
+  onOpenOutfit: (id: string) => void
   onEdit: () => void
   onAddAnother: () => void
   onClose: () => void
 }) {
   const g = garment
+  const photos = usePhotoUrls(
+    outfits.flatMap((o) => o.garments.map((x) => x.photo?.path)),
+    'small',
+  )
   return (
     <ItemDialog
       open
@@ -79,7 +94,7 @@ export function GarmentDialog({
             <DropdownMenuItem
               variant="destructive"
               onClick={() => {
-                deleteGarments([g], outfits)
+                deleteGarments([g], outfits.length)
                 onClose()
               }}
             >
@@ -130,6 +145,27 @@ export function GarmentDialog({
         <div className="grid grid-cols-3 gap-2">
           <GarmentStat label="Added" value={addedOn(g.item.created_at)} />
         </div>
+      )}
+      {!added && outfits.length > 0 && (
+        <section className="flex flex-col gap-2.5">
+          <SectionLabel count={outfits.length}>In outfits</SectionLabel>
+          <div className="grid grid-cols-3 gap-2.5">
+            {outfits.map((o) => (
+              <button
+                key={o.item.id}
+                type="button"
+                className="flex min-w-0 flex-col gap-1.5 text-left"
+                onClick={() => onOpenOutfit(o.item.id)}
+              >
+                <OutfitPicture
+                  photos={o.garments.map((x) => (x.photo ? photos.get(x.photo.path) : undefined))}
+                  className="rounded-row shadow-card"
+                />
+                <span className="truncate text-xs font-semibold">{outfitName(o)}</span>
+              </button>
+            ))}
+          </div>
+        </section>
       )}
     </ItemDialog>
   )

@@ -175,7 +175,7 @@ November). Claude's suggestion for keeping it quick:
 - **The tab is called Week** (Joe, 18 November), as the Meal plan's is:
   Plan is a page of its own (Tasks, Events and Reminders).
 - **The Planned Outfits pane** (Joe, 18 November). Outfits chosen on the
-  Outfits tab with **Add to Planned Outfitsned Outfits** wait in a pane on the right,
+  Outfits tab with **Add to Planned Outfits** wait in a pane on the right,
   styled as the Outfit builder is, and are dragged onto days on the Week
   tab. The pane is the same, and shows the same outfits, on both the
   Outfits and Week tabs (Joe, 18 November). A placed outfit
@@ -486,7 +486,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to build outfits by tapping garments on the
 Wardrobe tab, **so that** making outfits is quick.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified (`wardrobe-outfits.spec.ts`)
 
 Acceptance criteria
 1. Given Build outfit, then the Wardrobe tab enters the builder: each card
@@ -502,7 +502,8 @@ Acceptance criteria
    mine added); an optional name; Save outfit; Clear; and Clear after
    saving, a switch kept for next time (Joe, 18 November).
 4. Given Save outfit with one or more garments, then the outfit is made in
-   My Outfits and the collections chosen, saying so with Open and Undo;
+   My Outfits and the collections chosen, saying so with Open (a toast has
+   one action; a mistake is deleted from its popup, with Undo);
    with Clear after saving on, the builder empties, and off, it keeps the
    garments to vary them for the next outfit.
 5. Given the same garments as an existing outfit, then Save says so, with
@@ -514,7 +515,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to make an outfit from the Outfits tab, **so that**
 I needn't go back to the Wardrobe tab.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified (`wardrobe-outfits.spec.ts`)
 
 Acceptance criteria
 1. Given New outfit, then a popup opens with my garments as small cards,
@@ -527,7 +528,7 @@ Acceptance criteria
 
 **As** Joe, **I want** my outfits as cards, by collection, **so that** I
 can see what I can wear.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified (`wardrobe-outfits.spec.ts`); last worn and times worn come with the Week (plan step 9)
 
 Acceptance criteria
 1. Given the Outfits tab, then the collection chosen in the Collection
@@ -545,7 +546,7 @@ Acceptance criteria
 
 **As** Joe, **I want** an outfit to open read-only, **so that** I see it
 whole and change it only when I mean to.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified (`wardrobe-outfits.spec.ts`); last worn and times worn come with plan step 9
 
 Acceptance criteria
 1. Given a card pressed, then the outfit opens in a popup, read-only: its
@@ -563,7 +564,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to group outfits into collections, **so that** a
 trip's outfits are together.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified (`wardrobe-outfits.spec.ts`); 3 by the database tests
 
 Acceptance criteria
 1. Given any outfit, then it is in My Outfits, which can't be renamed,
@@ -578,7 +579,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to select several outfits, **so that** I can file,
 plan or tidy them together.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified (`wardrobe-outfits.spec.ts`)
 
 Acceptance criteria
 1. Given Select (or a long press on a phone) on the Outfits tab, then I
@@ -588,8 +589,9 @@ Acceptance criteria
    suggested).
 3. Given one of my collections, then Remove from collection, Add to
    collection and Add to Planned Outfits; no Delete (Joe, 18 November).
-4. Given Add to Planned Outfits, then they go to the Planned Outfits pane on the Week tab,
-   saying so with Open plan (Joe, 18 November).
+4. Given Add to Planned Outfits, then they go to the Planned Outfits pane,
+   beside them on the Outfits tab and on the Week tab, saying so with Undo
+   (Joe, 18 November; Undo in Open plan's place, as the pane is in view).
 
 ### Week
 
@@ -614,7 +616,7 @@ Acceptance criteria
 
 **As** Joe, **I want** outfits I've picked waiting beside the week, **so
 that** I drag each onto its day.
-Priority: Must · Status: agreed
+Priority: Must · Status: agreed; 1–2 verified (`wardrobe-outfits.spec.ts`), the rest with the Week (plan step 9)
 
 Acceptance criteria
 1. Given outfits sent with Add to Planned Outfits, then they wait in the

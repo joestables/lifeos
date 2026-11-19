@@ -134,6 +134,9 @@ import {
   applyPendingLists as applyPendingWardrobeLists,
   applyPendingOutfitCollections,
   applyPendingWeatherPlace,
+  applyPendingPlanned,
+  plannedKey,
+  type Planned,
   garmentsKey,
   garmentTagsKey,
   outfitCollectionsKey,
@@ -193,6 +196,8 @@ const collections: {
       'wardrobe.retire_garment',
       'wardrobe.create_garment',
       'wardrobe.update_garment',
+      'wardrobe.create_outfit',
+      'wardrobe.rename_outfit',
       // A garment's title is worked out from its entries' names (ADR-0066 4).
       'wardrobe.save_entry',
       'wardrobe.merge_entry',
@@ -380,6 +385,9 @@ const collections: {
       'food.plan_meal',
       'food.set_meal_variation',
       'fitness.plan_workout',
+      'wardrobe.create_outfit',
+      'wardrobe.add_outfit_garment',
+      'wardrobe.remove_outfit_garment',
     ],
     fold: (rows: Link[], e: QueueEntry) => applyPendingLinks(rows, [e]),
   },
@@ -485,8 +493,20 @@ const collections: {
   },
   {
     key: outfitCollectionsKey,
-    fns: ['wardrobe.remove_entry', 'wardrobe.merge_entry'],
+    fns: [
+      'wardrobe.remove_entry',
+      'wardrobe.merge_entry',
+      'wardrobe.create_outfit',
+      'wardrobe.add_to_collections',
+      'wardrobe.remove_from_collection',
+    ],
     fold: (rows: OutfitCollection[], e: QueueEntry) => applyPendingOutfitCollections(rows, [e]),
+  },
+  {
+    key: plannedKey,
+    // The server orders the pane by its clock: fetched again after.
+    fns: ['wardrobe.add_planned', 'wardrobe.remove_planned', 'wardrobe.clear_planned'],
+    fold: (rows: Planned[], e: QueueEntry) => applyPendingPlanned(rows, [e]),
   },
   {
     key: wardrobeSettingsKey,
@@ -717,6 +737,15 @@ export const {
   updateGarment,
   addGarmentTags,
   removeGarmentTags,
+  createOutfit,
+  renameOutfit,
+  addOutfitGarment,
+  removeOutfitGarment,
+  addToCollections,
+  removeFromCollection,
+  addPlanned,
+  removePlanned,
+  clearPlanned,
 } = wardrobeWrites(queue)
 
 export const {
@@ -862,7 +891,13 @@ export {
   type EntryView,
   type SetView,
 } from './fitness-hooks'
-export { useWardrobe, type EntryUses, type GarmentView, type WardrobeData } from './wardrobe-hooks'
+export {
+  useWardrobe,
+  type EntryUses,
+  type GarmentView,
+  type OutfitView,
+  type WardrobeData,
+} from './wardrobe-hooks'
 export {
   ORDERED_LISTS,
   WARDROBE_LISTS,

@@ -896,8 +896,8 @@ November, on the [Wardrobe design canvas](https://claude.ai/artifact/6b8SnjL1sUC
 
 - Orange (TypeScope). Tabs: **Wardrobe**, **Outfits** and **Week**; the
   PageAction "New garment" on Wardrobe, "New outfit" on Outfits, none on
-  Week. Until Outfits is built (plan step 8) the page is the Wardrobe tab
-  alone, its PageAction where the Tabs will be.
+  Week. Until the Week is built (plan step 9) the Tabs are Wardrobe and
+  Outfits. On a phone the Fab rises above a Tray.
 - **The Wardrobe tab** is laid out as the Recipes library: the FilterPanel
   on the left (Category open; Brand, Colour, Size, Fit and Tags collapsed;
   Favourites), then search, Sort, Group, S / M / L, an outline `sm` "Build
@@ -910,7 +910,10 @@ November, on the [Wardrobe design canvas](https://claude.ai/artifact/6b8SnjL1sUC
   (3:2), its GarmentLines with a RemoveButton each, Collections as compact
   ChoiceChips (My Outfits always on), an optional Name, "Clear after
   saving" as a Switch, and a full-width primary "Save outfit". On a phone
-  the same is a Tray ("Save" at its end), opening to a TrayPanel.
+  the same is a Tray ("Save" at its end), opening to a TrayPanel. While
+  building, the search has a row to itself over Sort and Done. Saved, a
+  toast "Outfit saved" with Open; the same garments as an outfit I have,
+  "Already an outfit: Work" with Open, and nothing made.
 - **Adding a garment** opens the CameraView on a phone (on a computer the
   GarmentSheet first, its Camera and Choose file in the photo's column),
   then the PhotoCrop, then the GarmentSheet, "New garment": the photo at
@@ -948,7 +951,18 @@ November, on the [Wardrobe design canvas](https://claude.ai/artifact/6b8SnjL1sUC
   RecipeGrid of OutfitCards, with the Planned Outfits WardrobePane on the
   right (on a phone, a Tray). Select's actions: Add to Planned outfits,
   Add to collection, and Delete in My Outfits or Remove from collection in
-  my own.
+  my own; Select all after the count. Add to collection is a Dialog ("Add
+  2 outfits to a collection") of my collections as ChoiceChips, then Cancel
+  and Add. The pane: "Planned outfits", its count, a ghost Clear (with
+  Undo), then a PlannedOutfitLine each, its name opening the outfit;
+  empty, "Nothing to plan" muted. An outfit's popup: its collections as
+  `secondary` Badges, its OutfitPicture (224px beside its GarmentLines on a
+  computer), and an outline "Add to Planned outfits" (`calendar-plus`),
+  disabled as "In Planned outfits" once it's there; Edit and "…" (Delete,
+  or "Remove from Lisbon" in my own collection) in its header. New outfit
+  and Edit outfit are a wide ItemDialog: search, the Category pills, my
+  garments as small GarmentCards to add, then Collections and Name; its
+  footer says how many garments, then Cancel and Save outfit.
 - **The Week tab:** the PlanToolbar, seven DayColumns, each with its
   DayWeather under the day's name (two lines; an empty line on a day gone),
   its DayOutfits (`column`) and single garments' tiles, and an outline

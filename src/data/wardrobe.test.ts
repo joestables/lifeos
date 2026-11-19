@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { applyPendingLinks } from './links'
 import { applyPending } from './overlay'
 import type { QueueEntry } from './queue/store'
 import type { ItemRow, WriteFn } from './types'
@@ -7,6 +8,7 @@ import {
   applyPendingGarmentTags,
   applyPendingLists,
   applyPendingOutfitCollections,
+  applyPendingPlanned,
   applyPendingWeatherPlace,
   type GarmentRow,
   type WardrobeLists,
@@ -235,5 +237,59 @@ describe('a garment, unsent (WRD-005 6, WRD-010 2, WRD-012 2)', () => {
       entry('wardrobe.remove_garment_tags', { p_garments: ['g1', 'g2'], p_tags: ['t1'] }),
     ])
     expect(removed.map((t) => `${t.garment_id}:${t.tag_id}`)).toEqual(['g1:t2', 'g2:t2'])
+  })
+})
+
+describe('outfits, unsent (WRD-014, WRD-017–WRD-019, WRD-021)', () => {
+  it('shows a new outfit at once, its garments and collections', () => {
+    const made = entry('wardrobe.create_outfit', {
+      p_id: 'o9',
+      p_garments: ['g1', 'g2', 'g1'],
+      p_name: ' Weekend ',
+      p_collections: ['k1'],
+    })
+    expect(applyPending([], [made])[0]).toMatchObject({
+      id: 'o9',
+      type: 'outfit',
+      title: 'Weekend',
+    })
+    expect(applyPendingLinks([], [made]).map((l) => l.to_item)).toEqual(['g1', 'g2'])
+    expect(applyPendingOutfitCollections([], [made])).toEqual([
+      { outfit_id: 'o9', collection_id: 'k1' },
+    ])
+  })
+
+  it('takes a garment out of an outfit, and adds one', () => {
+    const rows = [{ from_item: 'o1', to_item: 'g1', link_type: 'includes' }]
+    const out = applyPendingLinks(rows, [
+      entry('wardrobe.add_outfit_garment', { p_outfit: 'o1', p_garment: 'g2' }),
+      entry('wardrobe.remove_outfit_garment', { p_outfit: 'o1', p_garment: 'g1' }),
+    ])
+    expect(out).toEqual([{ from_item: 'o1', to_item: 'g2', link_type: 'includes' }])
+  })
+
+  it('files outfits into collections and out of one', () => {
+    const out = applyPendingOutfitCollections(
+      [{ outfit_id: 'o1', collection_id: 'k1' }],
+      [
+        entry('wardrobe.add_to_collections', { p_outfits: ['o1', 'o2'], p_collections: ['k2'] }),
+        entry('wardrobe.remove_from_collection', { p_outfits: ['o1'], p_collection: 'k1' }),
+      ],
+    )
+    expect(out.map((c) => `${c.outfit_id}:${c.collection_id}`).sort()).toEqual(['o1:k2', 'o2:k2'])
+  })
+
+  it('keeps the Planned outfits pane newest last, removed and cleared', () => {
+    const rows = [{ outfit_id: 'o1', position: '20261119000000000000' }]
+    const added = applyPendingPlanned(rows, [
+      entry('wardrobe.add_planned', { p_outfits: ['o2', 'o1'] }),
+    ])
+    expect(added.map((p) => p.outfit_id)).toEqual(['o2', 'o1'])
+    expect(
+      applyPendingPlanned(added, [entry('wardrobe.remove_planned', { p_outfits: ['o2'] })]).map(
+        (p) => p.outfit_id,
+      ),
+    ).toEqual(['o1'])
+    expect(applyPendingPlanned(added, [entry('wardrobe.clear_planned', {})])).toEqual([])
   })
 })

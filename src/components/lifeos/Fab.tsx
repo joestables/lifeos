@@ -17,7 +17,7 @@ export function Fab({
       data-slot="fab"
       aria-label={label}
       className={cn(
-        'fixed right-5 bottom-[calc(28px+env(safe-area-inset-bottom))] z-20 grid size-14 place-items-center rounded-lg bg-primary text-primary-foreground shadow-pop transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring-soft md:hidden [&_svg]:size-5.5',
+        'fixed right-5 bottom-[calc(28px+env(safe-area-inset-bottom))] z-20 [body:has([data-slot=tray])_&]:bottom-[calc(92px+env(safe-area-inset-bottom))] grid size-14 place-items-center rounded-lg bg-primary text-primary-foreground shadow-pop transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring-soft md:hidden [&_svg]:size-5.5',
         className,
       )}
       {...props}
