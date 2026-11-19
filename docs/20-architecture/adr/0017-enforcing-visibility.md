@@ -2,7 +2,7 @@
 
 **Status:** Provisionally agreed · 2026-10-09
 
-**Amended:** 2026-10-09 by [ADR-0039](0039-accounts-contacts-households.md) (joining); 2026-10-09 by the Stage 1 core schema (`can_read` moved to `core_private`); 2026-10-10 by the `can_read` benchmark (policies use the rule as sets); 2026-10-18 by [ADR-0051](0051-who-sees-food.md) (the rule gains Recipes seen through their author's Household).
+**Amended:** 2026-10-09 by [ADR-0039](0039-accounts-contacts-households.md) (joining); 2026-10-09 by the Stage 1 core schema (`can_read` moved to `core_private`); 2026-10-10 by the `can_read` benchmark (policies use the rule as sets); 2026-10-18 by [ADR-0051](0051-who-sees-food.md) (the rule gains Recipes seen through their author's Household); 2026-11-18 by [ADR-0066](0066-wardrobe-in-the-database.md) (the snapshot's example: *worn to* is gone).
 
 ## Context
 
@@ -31,8 +31,8 @@ and for AI.
     exposes it.
   - A child row is readable when its Item is. A pointer from it to an Item
     the reader can't read shows as "private", with no title.
-  - Snapshots copy values, not other Items: through one hop the Household
-    sees "Olive knit · 3 garments", not the garments.
+  - Snapshots copy values, not other Items: an Outfit worn's snapshot
+    holds garment ids, never the garments themselves.
 - **Joining** a Household is set by
   [ADR-0039](0039-accounts-contacts-households.md): the owner's invitation
   by email, accepted.

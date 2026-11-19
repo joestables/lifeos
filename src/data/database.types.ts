@@ -3771,6 +3771,551 @@ export type Database = {
       [_ in never]: never
     }
   }
+  wardrobe: {
+    Tables: {
+      brands: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          person_id: string
+          updated_at: string
+        }
+        ComputedFields: never
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          person_id?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          person_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      categories: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          person_id: string
+          position: string
+          updated_at: string
+        }
+        ComputedFields: never
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          person_id?: string
+          position: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          person_id?: string
+          position?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      collections: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          person_id: string
+          position: string
+          updated_at: string
+        }
+        ComputedFields: never
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          person_id?: string
+          position: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          person_id?: string
+          position?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      colours: {
+        Row: {
+          created_at: string
+          hex: string
+          id: string
+          name: string
+          person_id: string
+          updated_at: string
+        }
+        ComputedFields: never
+        Insert: {
+          created_at?: string
+          hex: string
+          id?: string
+          name: string
+          person_id?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          hex?: string
+          id?: string
+          name?: string
+          person_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      fits: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          person_id: string
+          updated_at: string
+        }
+        ComputedFields: never
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          person_id?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          person_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      garment: {
+        Row: {
+          brand_id: string
+          category_id: string
+          colour_id: string
+          fit_id: string | null
+          item_id: string
+          own_name: string | null
+          size_id: string
+          updated_at: string
+        }
+        ComputedFields: never
+        Insert: {
+          brand_id: string
+          category_id: string
+          colour_id: string
+          fit_id?: string | null
+          item_id: string
+          own_name?: string | null
+          size_id: string
+          updated_at?: string
+        }
+        Update: {
+          brand_id?: string
+          category_id?: string
+          colour_id?: string
+          fit_id?: string | null
+          item_id?: string
+          own_name?: string | null
+          size_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'garment_brand_id_fkey'
+            columns: ['brand_id']
+            isOneToOne: false
+            referencedRelation: 'brands'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'garment_category_id_fkey'
+            columns: ['category_id']
+            isOneToOne: false
+            referencedRelation: 'categories'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'garment_colour_id_fkey'
+            columns: ['colour_id']
+            isOneToOne: false
+            referencedRelation: 'colours'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'garment_fit_id_fkey'
+            columns: ['fit_id']
+            isOneToOne: false
+            referencedRelation: 'fits'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'garment_size_id_fkey'
+            columns: ['size_id']
+            isOneToOne: false
+            referencedRelation: 'sizes'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      garment_tags: {
+        Row: {
+          created_at: string
+          garment_id: string
+          tag_id: string
+        }
+        ComputedFields: never
+        Insert: {
+          created_at?: string
+          garment_id: string
+          tag_id: string
+        }
+        Update: {
+          created_at?: string
+          garment_id?: string
+          tag_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'garment_tags_tag_id_fkey'
+            columns: ['tag_id']
+            isOneToOne: false
+            referencedRelation: 'tags'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      outfit_collections: {
+        Row: {
+          collection_id: string
+          created_at: string
+          outfit_id: string
+        }
+        ComputedFields: never
+        Insert: {
+          collection_id: string
+          created_at?: string
+          outfit_id: string
+        }
+        Update: {
+          collection_id?: string
+          created_at?: string
+          outfit_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'outfit_collections_collection_id_fkey'
+            columns: ['collection_id']
+            isOneToOne: false
+            referencedRelation: 'collections'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      planned_outfits: {
+        Row: {
+          outfit_id: string
+          person_id: string
+          position: string
+          removed_at: string | null
+          updated_at: string
+        }
+        ComputedFields: never
+        Insert: {
+          outfit_id: string
+          person_id?: string
+          position: string
+          removed_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          outfit_id?: string
+          person_id?: string
+          position?: string
+          removed_at?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      settings: {
+        Row: {
+          latitude: number | null
+          longitude: number | null
+          person_id: string
+          place_name: string | null
+          updated_at: string
+        }
+        ComputedFields: never
+        Insert: {
+          latitude?: number | null
+          longitude?: number | null
+          person_id?: string
+          place_name?: string | null
+          updated_at?: string
+        }
+        Update: {
+          latitude?: number | null
+          longitude?: number | null
+          person_id?: string
+          place_name?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      sizes: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          person_id: string
+          position: string
+          updated_at: string
+        }
+        ComputedFields: never
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          person_id?: string
+          position: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          person_id?: string
+          position?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      tags: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          person_id: string
+          updated_at: string
+        }
+        ComputedFields: never
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          person_id?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          person_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      worn_garments: {
+        Row: {
+          created_at: string
+          garment_id: string
+          worn_id: string
+        }
+        ComputedFields: never
+        Insert: {
+          created_at?: string
+          garment_id: string
+          worn_id: string
+        }
+        Update: {
+          created_at?: string
+          garment_id?: string
+          worn_id?: string
+        }
+        Relationships: []
+      }
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      add_garment_tags: { Args: { p_garments: string[]; p_tags: string[] }; Returns: undefined }
+      add_outfit_garment: { Args: { p_garment: string; p_outfit: string }; Returns: undefined }
+      add_planned: { Args: { p_outfits: string[] }; Returns: undefined }
+      add_to_collections: {
+        Args: { p_collections: string[]; p_outfits: string[] }
+        Returns: undefined
+      }
+      clear_planned: { Args: Record<PropertyKey, never>; Returns: undefined }
+      create_garment: {
+        Args: {
+          p_brand: string
+          p_category: string
+          p_colour: string
+          p_fit?: string
+          p_id: string
+          p_own_name?: string
+          p_size: string
+          p_tags?: string[]
+        }
+        Returns: Database['core']['Tables']['items']['Row']
+        SetofOptions: {
+          from: '*'
+          to: 'items'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      create_outfit: {
+        Args: { p_collections?: string[]; p_garments: string[]; p_id: string; p_name?: string }
+        Returns: Database['core']['Tables']['items']['Row']
+        SetofOptions: {
+          from: '*'
+          to: 'items'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      create_outfit_from_day: {
+        Args: { p_name?: string; p_outfit: string; p_singles: string[]; p_worn: string }
+        Returns: Database['core']['Tables']['items']['Row']
+        SetofOptions: {
+          from: '*'
+          to: 'items'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      merge_entry: { Args: { p_from: string; p_into: string; p_list: string }; Returns: undefined }
+      move_worn: {
+        Args: { p_day: string; p_id: string }
+        Returns: Database['core']['Tables']['items']['Row']
+        SetofOptions: {
+          from: '*'
+          to: 'items'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      plan_garment: {
+        Args: { p_day: string; p_garment: string; p_id: string }
+        Returns: Database['core']['Tables']['items']['Row']
+        SetofOptions: {
+          from: '*'
+          to: 'items'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      plan_outfit: {
+        Args: { p_day: string; p_id: string; p_outfit: string }
+        Returns: Database['core']['Tables']['items']['Row']
+        SetofOptions: {
+          from: '*'
+          to: 'items'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      remove_day_garment: { Args: { p_garment: string; p_worn: string }; Returns: undefined }
+      remove_entry: { Args: { p_id: string; p_list: string }; Returns: undefined }
+      remove_from_collection: {
+        Args: { p_collection: string; p_outfits: string[] }
+        Returns: undefined
+      }
+      remove_garment_tags: { Args: { p_garments: string[]; p_tags: string[] }; Returns: undefined }
+      remove_outfit_garment: { Args: { p_garment: string; p_outfit: string }; Returns: undefined }
+      remove_planned: { Args: { p_outfits: string[] }; Returns: undefined }
+      rename_outfit: {
+        Args: { p_id: string; p_name: string }
+        Returns: Database['core']['Tables']['items']['Row']
+        SetofOptions: {
+          from: '*'
+          to: 'items'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      retire_garment: {
+        Args: { p_id: string; p_retired?: boolean }
+        Returns: Database['core']['Tables']['items']['Row']
+        SetofOptions: {
+          from: '*'
+          to: 'items'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      save_entry: {
+        Args: { p_hex?: string; p_id: string; p_list: string; p_name: string; p_position?: string }
+        Returns: Json
+      }
+      set_entry_position: {
+        Args: { p_id: string; p_list: string; p_position: string }
+        Returns: undefined
+      }
+      set_weather_place: {
+        Args: { p_latitude: number; p_longitude: number; p_name: string }
+        Returns: {
+          latitude: number | null
+          longitude: number | null
+          person_id: string
+          place_name: string | null
+          updated_at: string
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'settings'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      update_garment: {
+        Args: { p_id: string; p_patch: Json }
+        Returns: {
+          brand_id: string
+          category_id: string
+          colour_id: string
+          fit_id: string | null
+          item_id: string
+          own_name: string | null
+          size_id: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'garment'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
 }
 
 type DatabaseWithoutInternals = Omit<Database, '__InternalSupabase'>
@@ -3885,6 +4430,9 @@ export const Constants = {
     Enums: {},
   },
   shopping: {
+    Enums: {},
+  },
+  wardrobe: {
     Enums: {},
   },
 } as const

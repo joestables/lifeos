@@ -14,7 +14,7 @@ starts by writing the specs it needs, and no earlier.*
 | 4 | **Starts with its specs:** Recipes, the Meal plan and the Pantry, Shopping. Then: the **Recipes** page (the recipe library and saved ideas, Variations, cook log, ideas shared from other apps on Android) and the **Meal plan** page (planning Meals, and the Pantry of ingredients and household items); Households (invited by email; owner and members; several per person), with sharing on; the shared AI service (importing a recipe, filling ingredients from a method, a Meal's ingredients from a link) and food preferences | Shared with girlfriend |
 | 4b | **Shopping:** Food and Lists tabs (Online later). Food shops linked to Meals and following their ingredients, with more added from the Pantry or typed, each Household's Essentials and out of stock offered; other shopping lists; live updates. One Shopping list Type replaces List and Shop ([ADR-0050](20-architecture/adr/0050-shopping-list.md)). Saving a recipe idea shared from another app, left from Stage 4 | Shopping together |
 | 5 | Gym (with its recovery engine and snapshots), then Goals and the measures registry | The joined-up payoff |
-| 6 | Wardrobe and outfits | |
+| 6 | **Started 18 November, at Joe's asking ([plan](50-progress/plans/stage-6.md)).** Wardrobe and outfits: garments as photo cards, colours suggested from the photo, outfits and collections, and a week of outfits beside the weather | |
 | 7 | **Started before Stage 6 (Joe, 5 November).** The Android app (Capacitor, loading the live site): notifications by FCM, Alerts on time and Alarms, sharing in, and a home-screen widget, Today's Plan. The web version unchanged | Phone alarms can go |
 | 7b | **Started 9 November, at Joe's asking ([plan](50-progress/plans/stage-7b.md)).** A Reminder Type (a title, Alerts and a Repeat); Today (was Inbox), Week (was Plan), Plan (was Tasks: Tasks, Events, Reminders, Recurring), Notes with a Thoughts tab; Capture for Thoughts and Reminders; an Item's Reminders renamed Alerts; Labels and sub-tasks gone from Tasks and Events | Reminders without the friction |
 | 8 | Cardio with Oura and Health Connect (moved from Stage 7, Joe, 5 November) | |
@@ -40,7 +40,7 @@ specs, drafted with Stage 4's, come first. **Stage 5 (Gym) has
 started** alongside it: [its plan](50-progress/plans/stage-5.md) is
 written, its spec (29 October) and design (1 November) agreed by Joe, and
 its schema in the database, its calculations in `packages/fitness`, and
-its settings, exercise library, templates, workouts, recovery and progression built (1 November); Joe called the Gym complete on 5 November, with Goals and the measures registry still to come. **Stage 7 (the Android app and widgets) has started**, ahead of Stage 6 at Joe's asking (5 November): [its plan](50-progress/plans/stage-7.md) is written, Joe answered its questions (5 November), and he agreed its spec, [the Android app](10-requirements/cross-cutting/android.md), the same day; its decisions (ADR-0061–0064) and its design too; its toolchain is built. **Stage 7b (Today, Reminders and Plan) has started** (9 November): [its plan](50-progress/plans/stage-7b.md) is written with Joe's answers, its design agreed (9 November) and its [spec](10-requirements/cross-cutting/today-reminders-plan.md) agreed (9 November), and its decisions, [ADR-0065](20-architecture/adr/0065-reminders-alerts-and-the-day.md), agreed the same day; its building has begun. Lists and Shops moved from Stage 3 to Stage 4b, after Recipes (Joe,
+its settings, exercise library, templates, workouts, recovery and progression built (1 November); Joe called the Gym complete on 5 November, with Goals and the measures registry still to come. **Stage 7 (the Android app and widgets) has started**, ahead of Stage 6 at Joe's asking (5 November): [its plan](50-progress/plans/stage-7.md) is written, Joe answered its questions (5 November), and he agreed its spec, [the Android app](10-requirements/cross-cutting/android.md), the same day; its decisions (ADR-0061–0064) and its design too; its toolchain is built. **Stage 7b (Today, Reminders and Plan) has started** (9 November): [its plan](50-progress/plans/stage-7b.md) is written with Joe's answers, its design agreed (9 November) and its [spec](10-requirements/cross-cutting/today-reminders-plan.md) agreed (9 November), and its decisions, [ADR-0065](20-architecture/adr/0065-reminders-alerts-and-the-day.md), agreed the same day; its building has begun. **Stage 6 (Wardrobe) has started** (18 November): [its plan](50-progress/plans/stage-6.md) is written, its [spec](10-requirements/modules/wardrobe.md) agreed by Joe (18 November), and its decisions, ADR-0066–0068, agreed the same day, and its design (19 November). Lists and Shops moved from Stage 3 to Stage 4b, after Recipes (Joe,
 14 October); on 17 October Joe set out Recipes, Meal plan and Shopping as
 three pages, with one Shopping list Type taking the place of List and Shop
 ([ADR-0050](20-architecture/adr/0050-shopping-list.md)), and moved Cardio
@@ -77,14 +77,16 @@ Each is a later stage's decision; listed so nothing closes the door on them.
 - **Readiness-aware gym planning** — the Gym's recovery engine plus Oura's
   readiness: "you're recovered for push, not legs", offered as a suggestion
   on Week and Today.
-- **Weather** — an Integration that feeds outfit suggestions ("12°C, dry")
-  and run planning.
+- **Weather** — an Integration for run planning. A day's forecast comes
+  to Wardrobe's Week tab in Stage 6; outfit suggestions from it aren't
+  wanted (Joe, 18 November).
 - **Nutrition** — the Pantry can carry nutrition data later
   (e.g. Open Food Facts), so meals have macros and a goal like "140 g protein
   a day" becomes measurable.
 - **Online shopping** — Shopping's Online tab (Joe, 24 October): items I
   want to buy online, watched for price drops, with a notification when one
-  falls ([Stage 4b plan](50-progress/plans/stage-4b.md#joes-answers-24-october)).
+  falls; and a wishlist of clothes, not in Wardrobe (Joe, 18 November)
+  ([Stage 4b plan](50-progress/plans/stage-4b.md#joes-answers-24-october)).
 - **Plan my week** — v1's "help me decide what to eat", widened: an AI that
   plans dinners around gym days, Saturday's shop, events out and recipes not
   cooked lately, within food preferences.

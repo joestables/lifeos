@@ -2,7 +2,7 @@
 
 **Status:** Provisionally agreed · 2026-10-09
 
-**Amended:** 2026-10-10 by Joe, writing the Stage 2 specs (Labels only on the Types that declare them; on Notes they filter, not head). 2026-10-13 by Joe, using Stage 2 (Thoughts take Labels; Labels filter Tasks and Inbox rather than group Tasks). 2026-10-14 by Joe, writing the Stage 3 specs (Events take Labels). 2026-11-09 by [ADR-0065](0065-reminders-alerts-and-the-day.md) (Labels only on Notes and Thoughts; Tasks and Events lose theirs; built in Stage 7b's step 9).
+**Amended:** 2026-10-10 by Joe, writing the Stage 2 specs (Labels only on the Types that declare them; on Notes they filter, not head). 2026-10-13 by Joe, using Stage 2 (Thoughts take Labels; Labels filter Tasks and Inbox rather than group Tasks). 2026-10-14 by Joe, writing the Stage 3 specs (Events take Labels). 2026-11-09 by [ADR-0065](0065-reminders-alerts-and-the-day.md) (Labels only on Notes and Thoughts; Tasks and Events lose theirs; built in Stage 7b's step 9); 2026-11-18 by [ADR-0066](0066-wardrobe-in-the-database.md) (Wardrobe's lists, tags and collections its own reference data).
 
 ## Context
 
@@ -15,7 +15,7 @@ Areas such as Health, Home, Money).
 - **Reference data**: lookup tables in the Module's schema, edited in
   Settings, not linked or searched as Items — muscle groups, equipment and
   recovery settings (Fitness); cuisines, categories, tags, protein, carbs and units
-  (Food) — a Recipe's tags are these, not Labels; category, brand, colour, size and fit (Wardrobe).
+  (Food) — a Recipe's tags are these, not Labels; category, size, brand, fit, tag, colour and collection (Wardrobe).
 - **Labels** replace tags, per Space, on the Types that declare them — not
   every Type ([data model](../data-model.md#types)). One set serves them
   all:
@@ -30,8 +30,9 @@ Areas such as Health, Home, Money).
     Google Calendar, whose Labels stay in LifeOS.
   - **One way to filter**: each page shows my Labels as pills; choosing one
     or more shows what has any of them.
-  - **Wardrobe** — whether v1's collections become labels on garments is
-    decided in Stage 6.
+  - **Wardrobe** — v1's collections become collections of outfits,
+    Wardrobe's own reference data, and a garment's tags are Wardrobe's
+    own, not Labels ([ADR-0066](0066-wardrobe-in-the-database.md)).
 - **Areas** are replaced by Labels, which can serve as areas if wanted.
 - **No Project Type for now**; Labels first.
 

@@ -254,6 +254,61 @@ export const TYPES = [
     alerts: false,
     stage: 5,
   },
+  {
+    // A garment I own (ADR-0066): its category, size, brand, colour, fit
+    // and tags in wardrobe.garment; its title worked out from them. Not
+    // Capturable: a Thought can't carry its four required fields.
+    key: 'garment',
+    module: 'wardrobe',
+    label: 'Garment',
+    about: 'its title worked out: colour, brand, category, or its own name',
+    traits: [],
+    statuses: ['active', 'cancelled'],
+    statusLabels: { active: 'Owned', cancelled: 'Retired' },
+    defaultSpace: 'personal',
+    timeFields: [],
+    colour: 'orange',
+    labels: false,
+    mark: 'favourited',
+    place: false,
+    alerts: false,
+    stage: 6,
+  },
+  {
+    // A set of garments (ADR-0066), linked by *includes*; in My Outfits
+    // always, and in any of my collections.
+    key: 'outfit',
+    module: 'wardrobe',
+    label: 'Outfit',
+    about: 'a name optional',
+    traits: [],
+    statuses: ['active'],
+    defaultSpace: 'personal',
+    timeFields: [],
+    colour: 'orange',
+    labels: false,
+    place: false,
+    alerts: false,
+    stage: 6,
+  },
+  {
+    // A day's planned outfit, or a single garment (ADR-0066): several a
+    // day; worn once its day has passed, worked out, never ticked.
+    key: 'outfit_worn',
+    module: 'wardrobe',
+    label: 'Outfit worn',
+    about: "a day's planned outfit or single garment; several a day",
+    statusNote: 'worn once its day has passed, worked out',
+    traits: ['schedulable'],
+    statuses: ['active'],
+    defaultSpace: 'personal',
+    timeFields: ['do_on'],
+    colour: 'orange',
+    labels: false,
+    place: false,
+    alerts: false,
+    stage: 6,
+  },
 ] as const satisfies readonly TypeDefinition[]
 
 export type TypeKey = (typeof TYPES)[number]['key']

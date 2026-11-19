@@ -26,6 +26,7 @@ Losing it means installing the app afresh.
 | Supabase → Project Settings → Data API → Exposed schemas | Add `food` (Stage 4), for the same reason (`food_private` stays hidden); needed before the Recipes page reads its data (plan step 5) | Done (Joe), 19 October |
 | Supabase → Project Settings → Data API → Exposed schemas | Add `shopping` (Stage 4b), for the same reason (`shopping_private` stays hidden); needed before the Shopping page reads its data (plan step 5) | Done (Joe), 24 October |
 | Supabase → Project Settings → Data API → Exposed schemas | Add `fitness` (Stage 5), for the same reason (`fitness_private` stays hidden); needed before the Gym reads its data (plan step 6) | Done (Joe), 1 November |
+| Supabase → Project Settings → Data API → Exposed schemas | Add `wardrobe` (Stage 6), for the same reason (`wardrobe_private` stays hidden); needed before the Wardrobe reads its data (plan step 6) | **Joe** |
 
 The local and CI databases expose it through `supabase/config.toml`.
 
