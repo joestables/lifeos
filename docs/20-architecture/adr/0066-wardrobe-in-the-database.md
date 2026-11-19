@@ -2,6 +2,8 @@
 
 **Status:** Provisionally agreed · 2026-11-18 (Joe)
 
+**As built:** 2026-11-19, plan step 4 ([below](#as-built-19-november-plan-step-4)).
+
 ## Context
 
 The [Wardrobe spec](../../10-requirements/modules/wardrobe.md) (WRD-001–028,
@@ -121,3 +123,30 @@ to*, a Garment not Capturable.
   Outfits worn, an outfit's change reaching days to come and not days gone,
   Create outfit from a day, placing from the pane, and a deleted garment
   restored into its outfits.
+
+## As built (19 November, plan step 4)
+
+- **Migrations:** `stage6_wardrobe_schema` (schemas `wardrobe` and
+  `wardrobe_private`; the seven lists, settings, the detail table, four
+  kinds of child rows; row-level security), `stage6_wardrobe_rules`
+  (Personal only; a garment made with its detail, checked when the
+  transaction ends; a garment described from its owner's lists; child
+  rows' Types and owners; the title worked out and kept; an outfit's added
+  garment and new name reaching days to come; the activity log),
+  `stage6_wardrobe_writes` (18 functions, each idempotent on its id) and
+  `stage6_wardrobe_removing` (the six that need a delete, and the trigger
+  taking a garment taken out of an outfit off the days to come).
+- **The Planned Outfits pane marks** an outfit taken out of it
+  (`removed_at`) rather than deleting the row, so placing an outfit needs
+  no delete, and adding it again brings it back (decision 11).
+- **The title uses the category's name as written** (decision 3): a
+  category called "T-shirt" gives "Navy Uniqlo T-shirt", one called
+  "T-shirts", "Navy Uniqlo T-shirts".
+- **"Same garments" compares the garments still there** (decision 6): a
+  deleted garment doesn't count.
+- **A garment taken off one day's outfit** is that day's row removed; the
+  last one taken off takes the day's entry to Recently deleted.
+- **Creating an outfit from a day** archives the single garments' entries
+  it replaces (decision 10), so Undo is restoring them.
+- 54 database tests in `wardrobe_test`; `wardrobe` in the generated types
+  and the local Data API.

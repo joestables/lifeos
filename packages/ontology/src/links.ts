@@ -52,6 +52,22 @@ export const LINK_TYPES = [
     symmetric: false,
   },
   {
+    key: 'wears',
+    label: 'wears',
+    inverseLabel: 'worn on',
+    from: ['outfit_worn'],
+    to: ['outfit'],
+    symmetric: false,
+  },
+  {
+    key: 'includes',
+    label: 'includes',
+    inverseLabel: 'in outfit',
+    from: ['outfit'],
+    to: ['garment'],
+    symmetric: false,
+  },
+  {
     key: 'became',
     label: 'became',
     inverseLabel: 'came from',

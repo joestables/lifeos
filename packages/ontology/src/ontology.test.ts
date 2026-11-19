@@ -96,7 +96,28 @@ describe('ontology', () => {
       ['exercise', 5],
       ['workout_template', 5],
       ['workout', 5],
+      ['garment', 6],
+      ['outfit', 6],
+      ['outfit_worn', 6],
     ])
+  })
+
+  it('keeps the Wardrobe Personal; a Garment not Capturable; Outfits worn on a day, several a day (ADR-0066)', () => {
+    for (const key of ['garment', 'outfit', 'outfit_worn'])
+      expect(typeByKey(key)!).toMatchObject({ defaultSpace: 'personal', colour: 'orange' })
+    expect(typeByKey('garment')!.traits).toEqual([])
+    expect(typeByKey('garment')!.mark).toBe('favourited')
+    expect(typeByKey('garment')!.statuses).toEqual(['active', 'cancelled'])
+    expect(typeByKey('outfit_worn')!.traits).toEqual(['schedulable'])
+    expect(typeByKey('outfit_worn')!.timeFields).toEqual(['do_on'])
+    expect(LINK_TYPES.find((l) => l.key === 'wears')).toMatchObject({
+      from: ['outfit_worn'],
+      to: ['outfit'],
+    })
+    expect(LINK_TYPES.find((l) => l.key === 'includes')).toMatchObject({
+      from: ['outfit'],
+      to: ['garment'],
+    })
   })
 
   it('keeps the Gym Personal, a Workout planned for a day and following its template (ADR-0058)', () => {

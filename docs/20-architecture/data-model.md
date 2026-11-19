@@ -204,6 +204,9 @@ these, so the database enforces them.
 | fitness | **Exercise** | — | — | — | — | Personal | active · cancelled "Archived" — archived when I no longer do it | coral | — | — | 5 |
 | fitness | **Workout template** | — | — | — | — | Personal | active | coral | — | — | 5 |
 | fitness | **Workout** | ✓ do-on | ✓ "complete" | — | — | Personal | active "Planned" · done "Complete" — "In progress" is its stage; "Skipped" when planned and its day has passed, worked out | coral | — | — | 5 |
+| wardrobe | **Garment** (its title worked out: colour, brand, category, or its own name) | — | — | — | — | Personal | active "Owned" · cancelled "Retired" | orange | — | favourited | 6 |
+| wardrobe | **Outfit** (a name optional) | — | — | — | — | Personal | active | orange | — | — | 6 |
+| wardrobe | **Outfit worn** (a day's planned outfit or single garment; several a day) | ✓ do-on | — | — | — | Personal | active — worn once its day has passed, worked out | orange | — | — | 6 |
 
 <!-- /generated: types -->
 
@@ -213,9 +216,6 @@ these, so the database enforces them.
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | fitness | **Cardio activity** | ✓ start | ✓ | — | — | Personal | active "Planned" · done · cancelled "Skipped" | coral | — | — | 8 (manual entry earlier if wanted) |
 | goals | **Goal** | — (deadline in `goal`; not on Plan) | ✓ | ✓ | ✓ | Personal | idea · active · done "Achieved" · cancelled "Abandoned" | purple | — | — | 5 |
-| wardrobe | **Garment** (its title worked out: colour, brand, category, or its own name) | — | — | — | — | Personal | active "Owned" · cancelled "Retired" | orange | — | favourited | 6 |
-| wardrobe | **Outfit** (a name optional) | — | — | — | — | Personal | active | orange | — | — | 6 |
-| wardrobe | **Outfit worn** (a day's planned outfit or single garment; several a day) | ✓ do-on | — | — | — | Personal | active — worn once its day has passed, worked out | orange | — | — | 6 |
 | finance | **Account** | — | — | ✓ | — | Personal | active · cancelled "Closed" | Stage 9 | — | — | 9 |
 
 Shopping list: [ADR-0050](adr/0050-shopping-list.md) (Provisionally agreed), superseding ADR-0010's List and Shop.
@@ -248,7 +248,7 @@ more than Labels).
 | food | `recipe(category, cuisine, tags, protein, carbs, default_variation)` (its name is the Item's title; its photo is in `core.attachments`), `variation(servings, prep_min, cook_min, sources, notes, archived_from)` (its name and state are the Item's title and status; `archived_from` keeps its state while its Recipe is archived; its `updated_at` moves when one of its lines or steps is added, changed or removed, for Recently edited, RCP-001 6), `meal(servings, leftovers_of?, source?)` (a typed Meal is one with no *uses* link, named by its title; `source` its recipe link, MPL-006) | `variation_lines(position, heading?, pantry_id?, text?, qty?, qty_max?, approx, unit?)` (a row with a heading is a subheading and nothing else), `meal_lines(position, pantry_id?, text?, qty?, qty_max?, approx, unit?)` (a Meal's own lines, no subheadings, never on leftovers; MPL-006), `variation_steps(position, text)` (an "@" reference to a Recipe kept in the text, and in a Variation's notes, as `@[Name](recipe id)`: shown under the Recipe's name now, plain once it is gone; RCP-008), `cooks(person, cooked_at, verdict?, notes?, servings?, meal_id?, snapshot)`; each person's `values` (kind: category · cuisine · tag · protein · carb; renamed with `food.rename_value`, which renames them on their Recipes, unlogged, and merged with `food.move_value_uses` then `food.remove_value`; a Recipe restored from Recently deleted puts its names back on its author's lists; RCP-018 1); each person's `recent_views(recipe_id, viewed_at)`, the Recipes they opened, the latest view kept (MPL-002 1; read and written only by them, through `food.view_recipe`); `change_notes(activity_id, item_id, note, person_id)`, the words of whoever made a change on what it changed, by the activity entry it starts with (RCP-013; written only through `food.note_change`, by its maker); not Items: the Pantry `pantry(name, kind: ingredient · household, aisle?, default_unit?, added_by)` — one name once, ignoring case; an ingredient has an aisle (fruit_veg · bakery · protein · chilled · cupboard · frozen), a household item none — and each Space's `space_entries(pantry_id, kind: staple · essential, needed)` (needed is out of stock for a staple, Required for an Essential; Stage 4b) ([ADR-0052](adr/0052-food-in-the-database.md)) |
 | fitness | `exercise(equipment_id, current_weight, current_reps, notes?)`, `workout(stage: planned · in_progress · complete, started_at?, ended_at?, how_it_went? (1–5), motivation? (1–3), notes?, discarded)` (one in progress per person, by its `owner_id`; one in progress deleted is ended, `discarded`, and comes back in progress when restored, if no other is), `cardio_activity(kind, distance_m, duration_s, avg_hr)` (Stage 8) | `exercise_muscles(exercise_id, muscle_id, contribution)` (one primary at 1.0, secondary 0.1–0.9), `template_exercises(template_id, exercise_id, position, sets)`, `workout_entries(workout_id, exercise_id, place: backlog · session, planned_sets, begun_at?, done_at?, snapshot)`, `workout_sets(entry_id, position, weight?, reps?, rir?, logged_at)` (all three or none: a quick set); weights `numeric(7,3)` kg; reference data, each person's: `equipment(name, increment)`, `muscle_groups(person?, name, category: push · pull · core · legs, body_part?, default_recovery, position)` (twenty built in with no person, shared and read-only), `muscle_settings(person, muscle_id, recovery_type, frequency_target, stimulus_target)`, `settings(person, preferred_rir, workouts_to_stall, points_per_fatigue_set, t_fast_h, t_normal_h, t_slow_h)`; readiness, stimulus sets and progression worked out by `packages/fitness` (on the device, and on the server when needed), never stored ([ADR-0058](adr/0058-fitness-in-the-database.md), [ADR-0059](adr/0059-recovery-on-the-device.md)) |
 | goals | `goal(kind, measure_key, params, target, unit, period, start_on, deadline)` | — |
-| wardrobe | `garment(category_id, size_id, brand_id, colour_id, fit_id?, own_name?)` (its photo in `core.attachments`) | `garment_tags(garment_id, tag_id)`, `outfit_collections(outfit_id, collection_id)` (My Outfits not stored: every outfit is in it), `worn_garments(worn_id, garment_id)` (the snapshot), `planned_outfits(person, outfit_id, position)` (the Planned Outfits pane); reference data, each person's, none to begin with: `categories`, `sizes` and `collections` (each with a position), `brands`, `fits`, `tags`, `colours(name, hex)`; `settings(person, place_name, latitude, longitude)` (the weather's place); last worn and times worn worked out on the device, never stored ([ADR-0066](adr/0066-wardrobe-in-the-database.md), [ADR-0067](adr/0067-garment-colours.md), [ADR-0068](adr/0068-weather.md)) |
+| wardrobe | `garment(category_id, size_id, brand_id, colour_id, fit_id?, own_name?)` (its photo in `core.attachments`) | `garment_tags(garment_id, tag_id)`, `outfit_collections(outfit_id, collection_id)` (My Outfits not stored: every outfit is in it), `worn_garments(worn_id, garment_id)` (the snapshot), `planned_outfits(person, outfit_id, position, removed_at?)` (the Planned Outfits pane; one taken out is marked, not deleted, and comes back when added again); reference data, each person's, none to begin with, each name unique in its list ignoring case and spaces: `categories`, `sizes` and `collections` (each with a position, in my order), `brands`, `fits`, `tags`, `colours(name, hex)`, written by `wardrobe.save_entry`, moved by `set_entry_position`, merged by `merge_entry` and removed, while unused, by `remove_entry`; `settings(person, place_name, latitude, longitude)` (the weather's place); last worn and times worn worked out on the device, never stored ([ADR-0066](adr/0066-wardrobe-in-the-database.md), [ADR-0067](adr/0067-garment-colours.md), [ADR-0068](adr/0068-weather.md)) |
 | health (later) | — | `daily_metrics(person, date, sleep_score, readiness, steps, weight …)` |
 | finance (later) | `account(provider, kind, currency)` | `balances(date, amount)`, `transactions` |
 
@@ -361,6 +361,11 @@ flowchart LR
     Workout_template[Workout template]
     Workout[Workout]
   end
+  subgraph WARDROBE[Wardrobe]
+    Garment[Garment]
+    Outfit[Outfit]
+    Outfit_worn[Outfit worn]
+  end
 
   Thought == converts in place ==> Event
   Thought == converts in place ==> Note
@@ -381,6 +386,8 @@ flowchart LR
   Meal -- uses --> Variation
   Variation -- variation of --> Recipe
   Workout -- follows --> Workout_template
+  Outfit_worn -- wears --> Outfit
+  Outfit -- includes --> Garment
 ```
 
 <!-- /generated: metamodel -->

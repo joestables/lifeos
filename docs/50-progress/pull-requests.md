@@ -2,6 +2,45 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#96](https://github.com/joestables/lifeos/pull/96) — Stage 6, Wardrobe: spec, decisions, design and schema
+
+Branch `claude/vigilant-thompson-k8bkzm` · 2026-11-18 to 19 · Joe's notes
+on the Wardrobe, his answers, and his choices on the design
+
+**What it did**
+- **Step 1, the spec** ([wardrobe](../10-requirements/modules/wardrobe.md),
+  WRD-001–028), from Joe's notes and two rounds of his answers: garments
+  with four required fields, lists made in Settings and inline, colour
+  suggested from the photo, outfits and collections, the Outfit builder,
+  Planned outfits, the Week tab with the weather, one card a day on Today
+  and Week. Agreed 18 November. The [Stage 6 plan](plans/stage-6.md).
+- **Step 2, the decisions:** ADR-0066 (Wardrobe in the database),
+  ADR-0067 (garment colours; the Swatch the one exception to colour by
+  Type) and ADR-0068 (weather from Open-Meteo), agreed 18 November; the
+  data model, ADR-0002, 0014, 0016, 0017, 0018, 0029, 0037, 0043, vision,
+  integrations, patterns, Today and Week (WEK-003) brought into line.
+- **Step 3, the design** on `/design-stage-6` and the
+  [Wardrobe design canvas](https://claude.ai/artifact/6b8SnjL1sUCVGXZ7qA312H),
+  drawn from the real components with stand-in garment photos; Joe chose
+  four options on 19 November (mosaic, rail on a computer, the builder
+  pictured, wrapping pills). The new components in `Wardrobe.tsx`, the
+  design spec and `/design`; Week's day takes a forecast line.
+- **Step 4, the schema:** the `wardrobe` Module, Garment, Outfit and Outfit
+  worn, *wears* and *includes* in the ontology; migrations
+  `stage6_wardrobe_schema`, `_rules`, `_writes` and `_removing`
+  ([ADR-0066, as built](../20-architecture/adr/0066-wardrobe-in-the-database.md#as-built-19-november-plan-step-4));
+  `wardrobe` in the generated types and the local Data API.
+
+**Verified**
+- `npm run check`, `npm run build`, `npm run db:test` (54 new tests in
+  `wardrobe_test`), the browser and screenshot tests (550 passed; the
+  design page's pictures refreshed).
+
+**Left for later**
+- Joe exposes `wardrobe` in the Data API (integration setup) before step 6.
+- Steps 5–11: `packages/wardrobe`, Settings, garments, outfits, the Week
+  tab, everywhere, Joe's use.
+
 ## [#95](https://github.com/joestables/lifeos/pull/95) — Google Calendar "Couldn't load": the Event type readable
 
 Branch `claude/determined-cerf-6vya7t` · 2026-11-16 · Joe's screenshot of
