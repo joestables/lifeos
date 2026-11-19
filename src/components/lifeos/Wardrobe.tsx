@@ -307,13 +307,10 @@ export function ChoiceChips({
   onChange,
   single = false,
   compact = false,
-  oneLine = false,
   add,
   'aria-label': ariaLabel,
   className,
 }: {
-  /** On one line, scrolling sideways with no scrollbar, rather than wrapping. */
-  oneLine?: boolean
   /** 32px, as a filter's LabelChips are (the FilterPanel's Colour). */
   compact?: boolean
   choices: readonly Choice[]
@@ -333,8 +330,7 @@ export function ChoiceChips({
       onValueChange={(value: string[]) => onChange(value)}
       data-slot="choice-chips"
       className={cn(
-        'flex min-w-0 items-center',
-        oneLine ? '-mx-5 flex-nowrap overflow-x-auto px-5 [scrollbar-width:none]' : 'flex-wrap',
+        'flex min-w-0 flex-wrap items-center',
         compact ? 'gap-1.5' : 'gap-2',
         className,
       )}
@@ -431,29 +427,19 @@ export function SheetField({
 
 /* ---------- Outfits ---------- */
 
-/** How an outfit's garments are pictured together. */
-export type OutfitLook = 'mosaic' | 'flatlay'
-
 /**
- * An outfit's garments' photos together, square (WRD-016 2): `mosaic`, the
- * photos as tiles (one whole; two side by side; three as one large and two
- * small; four in a grid; more, the fourth saying "+2"), or `flatlay`, one
- * picture of them laid out together.
+ * An outfit's garments' photos together, square, as a mosaic (WRD-016 2;
+ * Joe, 19 November): one whole; two side by side; three as one large and
+ * two small; four in a grid; more, the fourth saying "+2".
  */
 export function OutfitPicture({
   photos,
-  look = 'mosaic',
-  flatlay,
   className,
 }: {
   /** In my categories' order. */
   photos: (string | undefined)[]
-  look?: OutfitLook
-  /** The flat lay, when `look` is `flatlay`. */
-  flatlay?: string
   className?: string
 }) {
-  if (look === 'flatlay') return <GarmentPhoto src={flatlay} className={className} />
   const shown = photos.slice(0, 4)
   const extra = photos.length - shown.length
   return (
@@ -496,8 +482,6 @@ export function OutfitPicture({
  */
 export function OutfitCard({
   photos,
-  look = 'mosaic',
-  flatlay,
   name,
   meta,
   selecting = false,
@@ -506,8 +490,6 @@ export function OutfitCard({
   onSelect,
 }: {
   photos: (string | undefined)[]
-  look?: OutfitLook
-  flatlay?: string
   name?: string
   /** "4 garments · Worn 3×". */
   meta: string
@@ -522,7 +504,7 @@ export function OutfitCard({
       data-selected={selected || undefined}
       className="group/card relative flex min-w-0 flex-col overflow-hidden rounded-lg bg-card shadow-card data-selected:ring-2 data-selected:ring-ring"
     >
-      <OutfitPicture photos={photos} look={look} flatlay={flatlay} />
+      <OutfitPicture photos={photos} />
       {selecting && (
         <span
           className={cn(
@@ -844,77 +826,52 @@ export function DayWeather({
 /* ---------- A day's clothes on the Week tab ---------- */
 
 /**
- * A garment on a day (WRD-020 3), its own card: `tile`, its photo square,
- * named for screen readers and in a tooltip; or `line`, its photo small
- * beside its category. Standing alone (a single garment), it has the
- * card's shadow.
+ * A garment on a day (WRD-020 3), its own card: its photo square, named
+ * for screen readers and in a tooltip. Standing alone (a single garment),
+ * it has the card's shadow.
  */
 export function DayGarment({
   garment,
-  as = 'tile',
   alone = false,
 }: {
   garment: GarmentFace
-  as?: 'tile' | 'line'
   /** A single garment, not in an outfit. */
   alone?: boolean
 }) {
   const g = garment
   const name = `${g.colour.name} ${g.brand} ${g.category}`
-  if (as === 'tile')
-    return (
-      <div
-        data-slot="day-garment"
-        role="img"
-        aria-label={name}
-        title={name}
-        className={cn('overflow-hidden rounded-sm bg-card', alone && 'shadow-card')}
-      >
-        <GarmentPhoto src={g.photo} />
-      </div>
-    )
   return (
     <div
       data-slot="day-garment"
-      className={cn(
-        'relative flex min-w-0 items-center gap-2 rounded-sm bg-card p-1 pr-1.5',
-        alone && 'shadow-card',
-      )}
+      role="img"
+      aria-label={name}
+      title={name}
+      className={cn('overflow-hidden rounded-sm bg-card', alone && 'shadow-card')}
     >
-      <GarmentPhoto src={g.photo} className="size-8 shrink-0 rounded-xs" />
-      <span className="flex min-w-0 flex-col">
-        <span className="truncate text-xs font-semibold">{g.category}</span>
-        <span className="flex min-w-0 items-center gap-1 text-2xs font-semibold text-muted-foreground">
-          <Swatch hex={g.colour.hex} size="xs" className="size-2" />
-          <span className="truncate">{g.brand}</span>
-        </span>
-      </span>
+      <GarmentPhoto src={g.photo} />
     </div>
   )
 }
 
-/** How a day's outfit joins its garments. */
-export type OutfitJoin = 'rail' | 'frame'
-
 /**
- * An outfit on a day (WRD-020 3): its garments, each its own card, joined
- * so they read as one. `frame`: the Type's tint around them, its name (or
- * "Outfit") over them in the Type's text colour, the garments as square
- * tiles two across. `rail`: the garments as lines stacked in one shadowed
- * card, a 2px line in the Type's colour down their left through a dot at
- * each.
+ * An outfit on a day (WRD-020 3; Joe, 19 November): its garments, each its
+ * own card, joined so they read as one, under its name (or "Outfit") in
+ * the Type's text colour. `column`, a computer's narrow day: the garments
+ * as square tiles stacked in one shadowed card, a 2px line in the Type's
+ * colour down their left through a dot at each. `row`, a phone's day: the
+ * Type's tint round them, the tiles in a row at 56px.
  */
 export function DayOutfit({
   name,
   garments,
-  join = 'frame',
+  layout = 'column',
   past = false,
   dragging = false,
   picked = false,
 }: {
   name?: string
   garments: GarmentFace[]
-  join?: OutfitJoin
+  layout?: 'column' | 'row'
   past?: boolean
   dragging?: boolean
   picked?: boolean
@@ -925,30 +882,22 @@ export function DayOutfit({
       <span className="truncate">{name ?? 'Outfit'}</span>
     </span>
   )
-  if (join === 'rail')
+  if (layout === 'row')
     return (
       <div
         data-slot="day-outfit"
         data-picked={picked || undefined}
         className={cn(
-          'flex min-w-0 flex-col gap-1.5 rounded-control bg-card p-1.5 shadow-card data-picked:ring-2 data-picked:ring-ring',
+          'flex min-w-0 flex-col gap-2 rounded-row bg-[color-mix(in_oklch,var(--tc)_var(--tile-mix),transparent)] p-2 data-picked:ring-2 data-picked:ring-ring',
           past && 'opacity-60',
           dragging && 'z-10 shadow-pop',
         )}
       >
         <div className="px-0.5">{label}</div>
-        <div className="relative flex flex-col gap-1.5 pl-3.5">
-          <span
-            aria-hidden
-            className="absolute top-3 bottom-3 left-[5px] w-0.5 rounded-full bg-tc"
-          />
+        <div className="flex gap-1.5">
           {garments.map((g) => (
-            <div key={g.id} className="relative">
-              <span
-                aria-hidden
-                className="absolute top-1/2 -left-[13px] z-10 size-2.5 -translate-y-1/2 rounded-full bg-tc ring-2 ring-card"
-              />
-              <DayGarment garment={g} />
+            <div key={g.id} className="size-14 shrink-0">
+              <DayGarment garment={g} alone />
             </div>
           ))}
         </div>
@@ -959,15 +908,22 @@ export function DayOutfit({
       data-slot="day-outfit"
       data-picked={picked || undefined}
       className={cn(
-        'flex min-w-0 flex-col gap-1.5 rounded-control bg-[color-mix(in_oklch,var(--tc)_var(--tile-mix),transparent)] p-1.5 data-picked:ring-2 data-picked:ring-ring',
+        'flex min-w-0 flex-col gap-1.5 rounded-control bg-card p-1.5 shadow-card data-picked:ring-2 data-picked:ring-ring',
         past && 'opacity-60',
         dragging && 'z-10 shadow-pop',
       )}
     >
       <div className="px-0.5">{label}</div>
-      <div className="grid grid-cols-2 gap-1">
+      <div className="relative flex flex-col gap-1.5 pl-3.5">
+        <span aria-hidden className="absolute top-3 bottom-3 left-[5px] w-0.5 rounded-full bg-tc" />
         {garments.map((g) => (
-          <DayGarment key={g.id} garment={g} />
+          <div key={g.id} className="relative">
+            <span
+              aria-hidden
+              className="absolute top-1/2 -left-[13px] z-10 size-2.5 -translate-y-1/2 rounded-full bg-tc ring-2 ring-card"
+            />
+            <DayGarment garment={g} />
+          </div>
         ))}
       </div>
     </div>

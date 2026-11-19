@@ -886,6 +886,72 @@ Agreed with Joe on 1 November 2026, on the
   `--readiness-mid` to `--success`, 50 % a third of the way along, always
   with the number.
 
+## Wardrobe
+
+[WRD-001–028](../10-requirements/modules/wardrobe.md#requirements); Swatch,
+GarmentCard, ChoiceChips, OutfitCard, WardrobePane, Tray, DayWeather,
+DayOutfit and the rest in [components](components.md). Agreed by Joe on 19
+November, on the [Wardrobe design canvas](https://claude.ai/artifact/6b8SnjL1sUCVGXZ7qA312H).
+
+- Orange (TypeScope). Tabs: **Wardrobe**, **Outfits** and **Week**; the
+  PageAction "New garment" on Wardrobe, "New outfit" on Outfits, none on
+  Week.
+- **The Wardrobe tab** is laid out as the Recipes library: the FilterPanel
+  on the left (Category open; Brand, Colour, Size, Fit and Tags collapsed;
+  Favourites), then search, Sort, Group, S / M / L, an outline `sm` "Build
+  outfit" (`shirt`) and Select, over a RecipeGrid of GarmentCards. On a
+  phone, search and Filters on one row; Sort, Group and an icon-only Build
+  outfit on the next.
+- **Building an outfit:** "Build outfit" becomes a `secondary` "Done" (`x`),
+  Group and S / M / L leave the toolbar, the cards go to S, and the Outfit
+  builder's WardrobePane stands on the right: the outfit's OutfitPicture
+  (3:2), its GarmentLines with a RemoveButton each, Collections as compact
+  ChoiceChips (My Outfits always on), an optional Name, "Clear after
+  saving" as a Switch, and a full-width primary "Save outfit". On a phone
+  the same is a Tray ("Save" at its end), opening to a TrayPanel.
+- **Adding a garment** opens the CameraView on a phone (a file or the
+  camera on a computer), then an ItemDialog, "New garment": the photo at
+  96px with the title it will have (`text-day`) and a `link` "Retake";
+  then SheetFields, wrapping ChoiceChips: Colour (my closest colours from
+  the photo, the first chosen, or "New: Teal" chosen with its name in an
+  Input and "Pick" beside it; "All colours" and "New colour" as AddChips),
+  Category, Size (the sizes used with the category; "More sizes"), Brand
+  (recent brands, "Search brands" opening an Input with Suggestions and
+  "Add "…""), Fit and Tags, each optional with "+ Fit", "+ Tag". The footer
+  says what's needed ("Needs a size and brand") until Save turns on. On a
+  computer the photo stands in a muted column on the left of a Dialog.
+  Saved, the garment's popup opens with "Add another" (`camera`).
+- **New colour** is a Dialog: the ColourLoupe over the photo, a 40px
+  Swatch beside the name's Input, and, for a near twin, a muted row "Close
+  to Navy" with an outline "Use Navy".
+- **A garment** opens in an ItemDialog: its photo (208px beside the facts
+  on a computer, full width on a phone), its facts as label and value
+  rows, three muted tiles (Worn, Last worn, Added), and "In outfits", a
+  row of small OutfitPictures; the heart, Edit and "…" (Retire, Delete) in
+  its header.
+- **The Outfits tab:** a Collection Select, search, Sort and Select over a
+  RecipeGrid of OutfitCards, with the Planned Outfits WardrobePane on the
+  right (on a phone, a Tray). Select's actions: Add to Planned outfits,
+  Add to collection, and Delete in My Outfits or Remove from collection in
+  my own.
+- **The Week tab:** the PlanToolbar, seven DayColumns, each with its
+  DayWeather under the day's name (two lines; an empty line on a day gone),
+  its DayOutfits (`column`) and single garments' tiles, and an outline
+  "Create outfit" under two or more single garments; the Planned Outfits
+  pane on the right. On a phone the days are stacked, the forecast at the
+  end of each day's name, DayOutfits as `row`; an outfit is placed by
+  choosing it in the opened tray, then pressing a day's dashed "Place
+  here" (the tray saying "Choose a day", with Cancel).
+- **Today and Week** show the day's clothes as one OutfitPlanCard (Week)
+  or an ItemRow with the photos at its end (Today); either opens an
+  ItemDialog, "Outfit · Wed 18 November": the DayWeather, each outfit's
+  GarmentLines under its name, the single garments under "Also", and
+  "Open in Wardrobe".
+- **Settings → Wardrobe:** a Card per list (Categories, Sizes,
+  Collections; Colours, Fits, Brands, Tags) of ListEntryRows with "+ …"
+  at the Card's heading; then Weather (the place, with Change) and Retired
+  garments.
+
 ## Dragging
 
 Two kinds, the same everywhere (Joe, 2 November):

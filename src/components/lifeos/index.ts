@@ -148,7 +148,5 @@ export {
   type Forecast,
   type GarmentCardMode,
   type GarmentFace,
-  type OutfitJoin,
-  type OutfitLook,
   type Sky,
 } from './Wardrobe'

@@ -295,54 +295,6 @@ ${garmentGroup(category, hex, id)}
 }
 
 /**
- * An outfit laid out together on one backdrop: tops on the left, bottoms
- * on the right, shoes at the foot — a flat lay.
- */
-export function outfitPhoto(pieces: { category: Category; hex: string }[], backdrop = 0): string {
-  const id = `o${next++}`
-  const bd = BACKDROPS[backdrop % BACKDROPS.length]!
-  const top = pieces.filter((p) =>
-    ['tshirt', 'shirt', 'jumper', 'hoodie', 'jacket', 'coat'].includes(p.category),
-  )
-  const bottom = pieces.filter((p) => ['trousers', 'jeans', 'shorts'].includes(p.category))
-  const feet = pieces.filter((p) => ['trainers', 'shoes'].includes(p.category))
-  const groups: string[] = []
-  // Tops on the left (an outer layer behind, up and to the left of what is
-  // under it), bottoms on the right, shoes across the foot.
-  const at = (cx: number, cy: number, k: number) =>
-    `translate(${cx} ${cy}) scale(${k}) translate(-200 -200)`
-  top.forEach((p, i) => {
-    const n = top.length - 1
-    groups.push(
-      garmentGroup(
-        p.category,
-        p.hex,
-        `${id}${i}`,
-        at(112 + (i - n / 2) * 34, 118 + (i - n / 2) * 18, 0.58),
-      ),
-    )
-  })
-  bottom.forEach((p, i) =>
-    groups.push(garmentGroup(p.category, p.hex, `${id}b${i}`, at(298 + i * 10, 140, 0.62))),
-  )
-  feet.forEach((p, i) =>
-    groups.push(garmentGroup(p.category, p.hex, `${id}f${i}`, at(176 + i * 20, 300, 0.5))),
-  )
-  const all = [
-    ...top.map((_, i) => `${id}${i}`),
-    ...bottom.map((_, i) => `${id}b${i}`),
-    ...feet.map((_, i) => `${id}f${i}`),
-  ]
-  return toUrl(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="800" height="800">
-${defs(id, bd)}
-${all.map((g) => defs(g, bd).replace(/<radialGradient[\s\S]*?<\/radialGradient>/, '')).join('\n')}
-<rect width="400" height="400" fill="url(#bg${id})"/>
-<rect width="400" height="400" filter="url(#grain${id})" fill="#ffffff"/>
-${groups.join('\n')}
-</svg>`)
-}
-
-/**
  * A camera's view: the garment on a bed, larger, with the frame's edges
  * cropping it as a phone's would (the add flow's camera and crop).
  */

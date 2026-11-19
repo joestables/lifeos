@@ -30,6 +30,17 @@ import {
 import { useState, type ReactNode } from 'react'
 import { SyncGrace } from '@/hooks/use-lasting'
 import {
+  AddChip,
+  ChoiceChips,
+  DayOutfit,
+  DayWeather,
+  GarmentCard,
+  GarmentLine,
+  OutfitCard,
+  OutfitPlanCard,
+  PlannedOutfitLine,
+  RemoveButton,
+  Swatch,
   AddRow,
   AddMealButton,
   AddToDay,
@@ -198,6 +209,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Toggle } from '@/components/ui/toggle'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { G } from './-design-stage-6/data'
 
 /**
  * The design-system page: every component from the real code, in both
@@ -303,6 +315,9 @@ const DEMO_LABELS = [
   { id: 'travel', name: 'Travel' },
   { id: 'work', name: 'Work' },
 ]
+
+/** Wardrobe's made-up garments, with their stand-in photos (Stage 6's design page). */
+const WARDROBE = [G['shirt-sky']!, G['chinos-navy']!, G['shoes-camel']!]
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
@@ -1214,6 +1229,65 @@ function DesignSystem() {
                 <LinePill label="Push-up" sub="(0.6)" on={false} tone="grey" />
               </div>
               <StimulusRow muscle="Chest" sets={2.6} target={4} />
+            </div>
+          </TypeScope>
+        </Section>
+
+        <Section title="Wardrobe">
+          <TypeScope
+            colour="orange"
+            className="grid max-w-4xl gap-4 sm:grid-cols-[minmax(0,1fr)_280px]"
+          >
+            <div className="flex min-w-0 flex-col gap-4">
+              <RecipeGrid size="S">
+                <GarmentCard garment={WARDROBE[0]!} />
+                <GarmentCard garment={WARDROBE[1]!} mode="build" chosen />
+                <GarmentCard garment={WARDROBE[2]!} mode="select" />
+              </RecipeGrid>
+              <ChoiceChips
+                single
+                aria-label="Colour"
+                choices={WARDROBE.map((g) => ({
+                  id: g.id,
+                  name: g.colour.name,
+                  hex: g.colour.hex,
+                }))}
+                chosen={new Set([WARDROBE[1]!.id])}
+                onChange={() => {}}
+                add={<AddChip>New colour</AddChip>}
+              />
+              <ChoiceChips
+                aria-label="Tags"
+                choices={['Gym', 'Work', 'Smart'].map((t) => ({ id: t, name: t }))}
+                chosen={new Set(['Work'])}
+                onChange={() => {}}
+                add={<AddChip>Tag</AddChip>}
+              />
+              <div className="flex flex-wrap items-center gap-4">
+                <DayWeather forecast={{ sky: 'rain', high: 11, low: 6, rain: 80 }} />
+                <DayWeather forecast={{ sky: 'sun-cloud', high: 14, low: 4, rain: 0 }} />
+                {WARDROBE.map((g) => (
+                  <Swatch key={g.id} hex={g.colour.hex} size="md" />
+                ))}
+              </div>
+              <DayOutfit name="Navy work" garments={WARDROBE} layout="row" />
+            </div>
+            <div className="flex min-w-0 flex-col gap-3">
+              <OutfitCard
+                photos={WARDROBE.map((g) => g.photo)}
+                name="Navy work"
+                meta="3 garments · Worn 6×"
+              />
+              <div className="w-32">
+                <DayOutfit name="Navy work" garments={WARDROBE} />
+              </div>
+              <OutfitPlanCard title="Navy work" photos={WARDROBE.map((g) => g.photo)} />
+              <PlannedOutfitLine
+                photos={WARDROBE.map((g) => g.photo)}
+                name="Navy work"
+                meta="3 garments"
+              />
+              <GarmentLine garment={WARDROBE[0]!} end={<RemoveButton label="Take out" />} />
             </div>
           </TypeScope>
         </Section>

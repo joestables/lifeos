@@ -18,7 +18,7 @@ has started ahead of Stage 6: its [plan](50-progress/plans/stage-7.md) is
 written, and its specs come first. **Stage 6**, Wardrobe, has started: its
 [plan](50-progress/plans/stage-6.md) is written, and its
 [spec](10-requirements/modules/wardrobe.md) agreed (18 November), and its
-decisions, ADR-0066–0068, agreed; its design is in hand.
+decisions, ADR-0066–0068, agreed, and its design (19 November).
 
 ## Index
 

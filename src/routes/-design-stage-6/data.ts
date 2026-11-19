@@ -1,5 +1,5 @@
 import type { Forecast, GarmentFace } from '@/components/lifeos'
-import { COLOURS, NEW_TEAL, garmentPhoto, outfitPhoto, type Category, type ColourKey } from './art'
+import { COLOURS, NEW_TEAL, garmentPhoto, type Category, type ColourKey } from './art'
 
 /** Made-up wardrobe for Stage 6's design page. "Today" is Wednesday 18 November. */
 
@@ -130,7 +130,6 @@ export interface DesignOutfit {
   worn: number
   collections: string[]
   photos: (string | undefined)[]
-  flatlay: string
 }
 
 const outfit = (
@@ -148,10 +147,6 @@ const outfit = (
     worn,
     collections,
     photos: garments.map((g) => g.photo),
-    flatlay: outfitPhoto(
-      garments.map((g) => ({ category: g.kind, hex: g.colour.hex })),
-      id.length,
-    ),
   }
 }
 

@@ -75,8 +75,6 @@ import {
   type DrawerPage,
   type FilterGroup,
   type GarmentCardMode,
-  type OutfitJoin,
-  type OutfitLook,
 } from '@/components/lifeos'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -465,16 +463,14 @@ function grouped(garments: DesignGarment[]) {
   })).filter((g) => g.garments.length > 0)
 }
 
-function BuilderContents({ look, phone = false }: { look: OutfitLook | 'list'; phone?: boolean }) {
+function BuilderContents({ phone = false }: { phone?: boolean }) {
   const garments = IN_BUILDER.map((id) => G[id]!)
   return (
     <>
-      {look !== 'list' && (
-        <OutfitPicture
-          photos={garments.map((g) => g.photo)}
-          className={phone ? 'aspect-[2/1] rounded-lg' : 'aspect-[3/2] rounded-lg'}
-        />
-      )}
+      <OutfitPicture
+        photos={garments.map((g) => g.photo)}
+        className={phone ? 'aspect-[2/1] rounded-lg' : 'aspect-[3/2] rounded-lg'}
+      />
       <div className="flex flex-col gap-0.5">
         {garments.map((g) => (
           <GarmentLine
@@ -509,7 +505,7 @@ function BuilderContents({ look, phone = false }: { look: OutfitLook | 'list'; p
   )
 }
 
-function BuilderPane({ look }: { look: OutfitLook | 'list' }) {
+function BuilderPane() {
   return (
     <WardrobePane
       title="Outfit builder"
@@ -525,7 +521,7 @@ function BuilderPane({ look }: { look: OutfitLook | 'list' }) {
         </Button>
       }
     >
-      <BuilderContents look={look} />
+      <BuilderContents />
     </WardrobePane>
   )
 }
@@ -535,7 +531,6 @@ function WardrobeTab({
   mode = 'browse',
   size = 'M',
   group,
-  builder = 'mosaic',
   trayOpen = false,
   filtersOpen = false,
   tagging = false,
@@ -546,7 +541,6 @@ function WardrobeTab({
   mode?: GarmentCardMode
   size?: CardSize
   group?: 'category'
-  builder?: OutfitLook | 'list'
   trayOpen?: boolean
   filtersOpen?: boolean
   tagging?: boolean
@@ -581,7 +575,7 @@ function WardrobeTab({
       {mode === 'build' && !phone ? (
         <div className="flex items-start gap-6">
           <div className="min-w-0 flex-1">{content}</div>
-          <BuilderPane look={builder} />
+          <BuilderPane />
         </div>
       ) : (
         content
@@ -609,7 +603,7 @@ function WardrobeTab({
             </Button>
           }
         >
-          <BuilderContents look={builder} phone />
+          <BuilderContents phone />
         </TrayPanel>
       )}
       {filtersOpen && (
@@ -661,7 +655,7 @@ function TagDialog() {
 
 type AddState = 'suggested' | 'new' | 'filled'
 
-function ColourField({ state, oneLine = false }: { state: AddState; oneLine?: boolean }) {
+function ColourField({ state }: { state: AddState }) {
   if (state === 'new')
     return (
       <SheetField label="Colour" aside="None of yours is close">
@@ -695,7 +689,6 @@ function ColourField({ state, oneLine = false }: { state: AddState; oneLine?: bo
     <SheetField label="Colour" aside="From the photo">
       <ChoiceChips
         single
-        oneLine={oneLine}
         aria-label="Colour"
         choices={[
           { id: 'Navy', name: 'Navy', hex: COLOURS.navy.hex },
@@ -715,25 +708,15 @@ function ColourField({ state, oneLine = false }: { state: AddState; oneLine?: bo
   )
 }
 
-function AddFields({
-  state,
-  brandTyping = false,
-  oneLine = false,
-}: {
-  state: AddState
-  brandTyping?: boolean
-  /** Option B: each field's pills on one line, scrolling sideways. */
-  oneLine?: boolean
-}) {
+function AddFields({ state, brandTyping = false }: { state: AddState; brandTyping?: boolean }) {
   const filled = state === 'filled'
   return (
     <>
-      {!brandTyping && <ColourField state={state} oneLine={oneLine} />}
+      {!brandTyping && <ColourField state={state} />}
       {!brandTyping && (
         <SheetField label="Category">
           <ChoiceChips
             single
-            oneLine={oneLine}
             aria-label="Category"
             choices={CATEGORIES.map((c) => ({ id: c, name: c }))}
             chosen={new Set(['T-shirts'])}
@@ -779,7 +762,6 @@ function AddFields({
             <ChoiceChips
               single
               aria-label="Recent brands"
-              oneLine={oneLine}
               choices={['Uniqlo', 'Arket', 'COS', 'Nike', "Levi's"].map((b) => ({
                 id: b,
                 name: b,
@@ -797,7 +779,6 @@ function AddFields({
             <ChoiceChips
               single
               aria-label="Fit"
-              oneLine={oneLine}
               choices={FITS.map((f) => ({ id: f, name: f }))}
               chosen={new Set(filled ? ['Regular'] : [])}
               onChange={nothing}
@@ -807,7 +788,6 @@ function AddFields({
           <SheetField label="Tags" aside="Optional">
             <ChoiceChips
               aria-label="Tags"
-              oneLine={oneLine}
               choices={TAGS.map((t) => ({ id: t, name: t }))}
               chosen={new Set(filled ? ['Lounge'] : [])}
               onChange={nothing}
@@ -845,15 +825,7 @@ function AddHeading({ state, carried = false }: { state: AddState; carried?: boo
   )
 }
 
-function AddSheet({
-  state,
-  brandTyping = false,
-  oneLine = false,
-}: {
-  state: AddState
-  brandTyping?: boolean
-  oneLine?: boolean
-}) {
+function AddSheet({ state, brandTyping = false }: { state: AddState; brandTyping?: boolean }) {
   const ready = state === 'filled'
   return (
     <ItemDialog
@@ -877,23 +849,15 @@ function AddSheet({
       }
     >
       <AddHeading state={state} />
-      <AddFields state={state} brandTyping={brandTyping} oneLine={oneLine} />
+      <AddFields state={state} brandTyping={brandTyping} />
     </ItemDialog>
   )
 }
 
-function PhoneAdd({
-  state,
-  brandTyping,
-  oneLine,
-}: {
-  state: AddState
-  brandTyping?: boolean
-  oneLine?: boolean
-}) {
+function PhoneAdd({ state, brandTyping }: { state: AddState; brandTyping?: boolean }) {
   return (
     <WardrobeTab phone>
-      <AddSheet state={state} brandTyping={brandTyping} oneLine={oneLine} />
+      <AddSheet state={state} brandTyping={brandTyping} />
     </WardrobeTab>
   )
 }
@@ -1164,13 +1128,11 @@ const OUTFIT_SORTS = [
 
 function OutfitsTab({
   phone = false,
-  look = 'mosaic',
   collection = 'My Outfits',
   selecting = false,
   dialog,
 }: {
   phone?: boolean
-  look?: OutfitLook
   collection?: string
   selecting?: boolean
   dialog?: ReactNode
@@ -1224,8 +1186,6 @@ function OutfitsTab({
         <OutfitCard
           key={o.id}
           photos={o.photos}
-          flatlay={o.flatlay}
-          look={look}
           name={o.name}
           meta={outfitMeta(o)}
           selecting={selecting}
@@ -1366,20 +1326,14 @@ function NewOutfitDialog() {
 
 /* ---------- The Week tab ---------- */
 
-function WeekDayContents({ day, join }: { day: (typeof WEEK)[number]; join: OutfitJoin }) {
+function WeekDayContents({ day }: { day: (typeof WEEK)[number] }) {
   return (
     <>
       {day.outfits.map(({ outfit }) => (
-        <DayOutfit
-          key={outfit.id}
-          name={outfit.name}
-          garments={outfit.garments}
-          join={join}
-          past={day.past}
-        />
+        <DayOutfit key={outfit.id} name={outfit.name} garments={outfit.garments} past={day.past} />
       ))}
       {day.single.length > 0 && (
-        <div className={join === 'frame' ? 'grid grid-cols-2 gap-1' : 'flex flex-col gap-1.5 px-3'}>
+        <div className="flex flex-col gap-1.5 px-3">
           {day.single.map((g) => (
             <DayGarment key={g.id} garment={g} alone />
           ))}
@@ -1396,12 +1350,10 @@ function WeekDayContents({ day, join }: { day: (typeof WEEK)[number]; join: Outf
 
 function WeekTab({
   phone = false,
-  join = 'frame',
   placing = false,
   trayOpen = false,
 }: {
   phone?: boolean
-  join?: OutfitJoin
   placing?: boolean
   trayOpen?: boolean
 }) {
@@ -1443,7 +1395,12 @@ function WeekTab({
               </div>
               <div className="flex flex-col gap-2 rounded-lg bg-muted/40 p-2">
                 {d.outfits.map(({ outfit }) => (
-                  <PhoneDayOutfit key={outfit.id} outfit={outfit} />
+                  <DayOutfit
+                    key={outfit.id}
+                    name={outfit.name}
+                    garments={outfit.garments}
+                    layout="row"
+                  />
                 ))}
                 {d.single.length > 0 && (
                   <div className="flex items-center gap-2">
@@ -1550,30 +1507,13 @@ function WeekTab({
               subhead={forecast ? <DayWeather forecast={forecast} stacked /> : null}
               dropping={key === 'sun'}
             >
-              <WeekDayContents day={{ key, forecast, ...d }} join={join} />
+              <WeekDayContents day={{ key, forecast, ...d }} />
             </DayColumn>
           ))}
         </div>
         <PlannedPane />
       </div>
     </WardrobePage>
-  )
-}
-
-/** An outfit on a phone's day: the frame, its garments' photos in a row. */
-function PhoneDayOutfit({ outfit }: { outfit: DesignOutfit }) {
-  return (
-    <div className="flex flex-col gap-2 rounded-row bg-[color-mix(in_oklch,var(--tc)_var(--tile-mix),transparent)] p-2">
-      <span className="flex items-center gap-1.5 px-0.5 text-xs font-bold text-tc-text">
-        <ShirtIcon className="size-3.5" />
-        {outfit.name ?? 'Outfit'}
-      </span>
-      <div className="flex gap-1.5">
-        {outfit.garments.map((g) => (
-          <GarmentPhoto key={g.id} src={g.photo} className="size-14 rounded-sm shadow-card" />
-        ))}
-      </div>
-    </div>
   )
 }
 
@@ -1865,8 +1805,7 @@ const SCREENS: Record<string, () => ReactNode> = {
   'wardrobe-grouped': () => <WardrobeTab group="category" />,
   'wardrobe-select': () => <WardrobeTab mode="select" />,
   'wardrobe-tag': () => <WardrobeTab mode="select" tagging />,
-  'builder-list': () => <WardrobeTab mode="build" builder="list" />,
-  'builder-look': () => <WardrobeTab mode="build" builder="mosaic" />,
+  builder: () => <WardrobeTab mode="build" />,
   add: () => <DesktopAdd />,
   garment: () => (
     <WardrobeTab>
@@ -1874,12 +1813,10 @@ const SCREENS: Record<string, () => ReactNode> = {
     </WardrobeTab>
   ),
   outfits: () => <OutfitsTab />,
-  'outfits-flatlay': () => <OutfitsTab look="flatlay" />,
   'outfits-select': () => <OutfitsTab selecting collection="Lisbon" />,
   outfit: () => <OutfitsTab dialog={<OutfitDialog />} />,
   'outfit-new': () => <OutfitsTab dialog={<NewOutfitDialog />} />,
-  'week-frame': () => <WeekTab join="frame" />,
-  'week-rail': () => <WeekTab join="rail" />,
+  week: () => <WeekTab />,
   today: () => <TodayScreen />,
   'core-week': () => <CoreWeekScreen />,
   day: () => <CoreWeekScreen />,
@@ -1898,7 +1835,6 @@ const SCREENS: Record<string, () => ReactNode> = {
   'm-camera': () => <CameraScreen />,
   'm-add': () => <PhoneAdd state="suggested" />,
   'm-add-new': () => <PhoneAdd state="new" />,
-  'm-add-oneline': () => <PhoneAdd state="suggested" oneLine />,
   'm-add-brand': () => <PhoneAdd state="suggested" brandTyping />,
   'm-add-filled': () => <PhoneAdd state="filled" />,
   'm-loupe': () => <LoupeScreen />,
