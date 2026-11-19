@@ -29,7 +29,9 @@ on the Wardrobe, his answers, and his choices on the design
   worn, *wears* and *includes* in the ontology; migrations
   `stage6_wardrobe_schema`, `_rules`, `_writes` and `_removing`
   ([ADR-0066, as built](../20-architecture/adr/0066-wardrobe-in-the-database.md#as-built-19-november-plan-step-4));
-  `wardrobe` in the generated types and the local Data API.
+  `wardrobe` in the generated types and the local Data API. Applied to the
+  project, the removals too, through the Supabase tool; every function
+  checked identical to its file; advisors raise nothing new.
 
 **Verified**
 - `npm run check`, `npm run build`, `npm run db:test` (54 new tests in
