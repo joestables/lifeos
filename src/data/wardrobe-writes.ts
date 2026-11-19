@@ -115,6 +115,69 @@ export function wardrobeWrites(queue: WriteQueue) {
         garments,
       )
     },
+    /**
+     * A new outfit (WRD-014 4): its garments, an optional name and my
+     * collections (My Outfits isn't stored). The same garments as another
+     * outfit are refused by the server: check `sameOutfit` first.
+     */
+    createOutfit(
+      garments: string[],
+      { name, collections = [] }: { name?: string; collections?: string[] } = {},
+      id: string = newId(),
+    ): string {
+      queue.enqueue(
+        'wardrobe.create_outfit',
+        {
+          p_id: id,
+          p_garments: [...new Set(garments)],
+          ...(name?.trim() && { p_name: name.trim() }),
+          p_collections: collections,
+        },
+        [id],
+      )
+      return id
+    },
+    renameOutfit(id: string, name: string): void {
+      queue.enqueue('wardrobe.rename_outfit', { p_id: id, p_name: name.trim() }, [id])
+    },
+    /** A garment in or out of an outfit (WRD-017 2): one stays at least. */
+    addOutfitGarment(outfit: string, garment: string): void {
+      queue.enqueue('wardrobe.add_outfit_garment', { p_outfit: outfit, p_garment: garment }, [
+        outfit,
+      ])
+    },
+    removeOutfitGarment(outfit: string, garment: string): void {
+      queue.enqueue('wardrobe.remove_outfit_garment', { p_outfit: outfit, p_garment: garment }, [
+        outfit,
+      ])
+    },
+    /** Outfits into my collections, several at once (WRD-018 2, WRD-019 2). */
+    addToCollections(outfits: string[], collections: string[]): void {
+      if (!outfits.length || !collections.length) return
+      queue.enqueue(
+        'wardrobe.add_to_collections',
+        { p_outfits: outfits, p_collections: collections },
+        outfits,
+      )
+    },
+    /** Out of one of my collections; never out of My Outfits (WRD-019 3). */
+    removeFromCollection(outfits: string[], collection: string): void {
+      queue.enqueue(
+        'wardrobe.remove_from_collection',
+        { p_outfits: outfits, p_collection: collection },
+        outfits,
+      )
+    },
+    /** Into the Planned Outfits pane, newest last (WRD-021 1). */
+    addPlanned(outfits: string[]): void {
+      if (outfits.length) queue.enqueue('wardrobe.add_planned', { p_outfits: outfits }, outfits)
+    },
+    removePlanned(outfits: string[]): void {
+      if (outfits.length) queue.enqueue('wardrobe.remove_planned', { p_outfits: outfits }, outfits)
+    },
+    clearPlanned(): void {
+      queue.enqueue('wardrobe.clear_planned', {}, [])
+    },
     /** Retired, or brought back (WRD-013). */
     retireGarment(id: string, retired = true): void {
       queue.enqueue('wardrobe.retire_garment', { p_id: id, p_retired: retired }, [id])

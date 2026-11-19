@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
-import { useAllItems, useMarks, useQueueEntries } from './hooks'
+import { useAllItems, useLinks, useMarks, useQueueEntries } from './hooks'
 import { applyPendingPhotos, fetchPhotos, photosKey, useHeldPhotos, type Photo } from './photos'
 import type { WriteQueue } from './queue/queue'
 import type { Item } from './types'
@@ -15,6 +15,9 @@ import {
   fetchOutfitCollections,
   fetchWardrobeLists,
   fetchWeatherPlace,
+  fetchPlanned,
+  plannedKey,
+  applyPendingPlanned,
   garmentsKey,
   garmentTagsKey,
   outfitCollectionsKey,
@@ -46,6 +49,17 @@ export interface GarmentView {
   title: string
 }
 
+/** An outfit as the app shows it: its garments in my categories' order, Retired ones too (WRD-013 2). */
+export interface OutfitView {
+  item: Item
+  /** Its own name, or "" (it needs none; WRD-014 3). */
+  name: string
+  garments: GarmentView[]
+  /** My own collections it is in (My Outfits isn't stored). */
+  collections: string[]
+  planned: boolean
+}
+
 /** How many use an entry: what shows (garments not deleted, or outfits) and all. */
 export interface EntryUses {
   shown: number
@@ -57,8 +71,12 @@ export interface WardrobeData {
   lists: WardrobeLists
   /** My garments, Owned and Retired, not deleted. */
   garments: GarmentView[]
-  /** My outfits, not deleted: My Outfits (ADR-0066 6). */
-  outfits: Item[]
+  /** My outfits, not deleted: My Outfits (ADR-0066 6), newest first. */
+  outfits: OutfitView[]
+  /** The Planned Outfits pane, in its order (WRD-021 1). */
+  planned: OutfitView[]
+  /** Another outfit of mine that is exactly these garments (WRD-014 5), if any. */
+  sameOutfit: (garments: readonly string[], except?: string) => OutfitView | undefined
   place: WeatherPlace | null
   uses: (list: WardrobeList, id: string) => EntryUses
   isLoading: boolean
@@ -92,6 +110,8 @@ export function useWardrobe(queue: WriteQueue): WardrobeData {
   const photos = useQuery({ queryKey: photosKey, queryFn: fetchPhotos })
   const held = useHeldPhotos()
   const marks = useMarks(queue)
+  const links = useLinks(queue)
+  const plannedRows = useQuery({ queryKey: plannedKey, queryFn: fetchPlanned })
 
   return useMemo(() => {
     const mine = entries.filter((e) => e.fn.startsWith('wardrobe.'))
@@ -151,8 +171,46 @@ export function useWardrobe(queue: WriteQueue): WardrobeData {
       })
     }
     garments.sort((a, b) => a.title.localeCompare(b.title))
-    const outfits = all.filter((i) => i.type === 'outfit' && i.archived_at === null)
-    const liveOutfits = new Set(outfits.map((o) => o.id))
+    const garmentOf = new Map(garments.map((g) => [g.item.id, g]))
+    const catAt = new Map(listed.category.map((c, i) => [c.id, i]))
+    const inOutfit = new Map<string, GarmentView[]>()
+    for (const l of links) {
+      if (l.link_type !== 'includes') continue
+      const g = garmentOf.get(l.to_item)
+      if (!g) continue
+      const list = inOutfit.get(l.from_item) ?? []
+      if (!list.includes(g)) list.push(g)
+      inOutfit.set(l.from_item, list)
+    }
+    const pane = applyPendingPlanned(plannedRows.data ?? [], mine)
+    const inPane = new Set(pane.map((p) => p.outfit_id))
+    const outfits: OutfitView[] = all
+      .filter((i) => i.type === 'outfit' && i.archived_at === null)
+      .map((item) => ({
+        item,
+        name: item.title,
+        garments: (inOutfit.get(item.id) ?? []).sort(
+          (a, b) =>
+            (catAt.get(a.row.category_id) ?? Infinity) -
+              (catAt.get(b.row.category_id) ?? Infinity) || a.title.localeCompare(b.title),
+        ),
+        collections: collected.filter((c) => c.outfit_id === item.id).map((c) => c.collection_id),
+        planned: inPane.has(item.id),
+      }))
+      .sort((a, b) => b.item.created_at.localeCompare(a.item.created_at))
+    const outfitOf = new Map(outfits.map((o) => [o.item.id, o]))
+    const planned = pane.flatMap((p) => {
+      const o = outfitOf.get(p.outfit_id)
+      return o ? [o] : []
+    })
+    const key = (ids: readonly string[]) => [...new Set(ids)].sort().join()
+    const sameOutfit = (ids: readonly string[], except?: string) => {
+      const k = key(ids)
+      return outfits.find(
+        (o) => o.item.id !== except && key(o.garments.map((g) => g.item.id)) === k,
+      )
+    }
+    const liveOutfits = new Set(outfits.map((o) => o.item.id))
 
     const FIELD = {
       category: 'category_id',
@@ -177,6 +235,8 @@ export function useWardrobe(queue: WriteQueue): WardrobeData {
       lists: listed,
       garments,
       outfits,
+      planned,
+      sameOutfit,
       place: applyPendingWeatherPlace(settings.data ?? null, mine),
       uses,
       isLoading: itemsLoading || lists.isLoading || rows.isLoading,
@@ -195,5 +255,7 @@ export function useWardrobe(queue: WriteQueue): WardrobeData {
     photos.data,
     held,
     marks,
+    links,
+    plannedRows.data,
   ])
 }

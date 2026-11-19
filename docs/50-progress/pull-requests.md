@@ -2,6 +2,28 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#100](https://github.com/joestables/lifeos/pull/100) — Stage 6: outfits
+
+Branch `claude/vigilant-thompson-k8bkzm` · 2026-11-19 · Stage 6, step 8
+
+**What it did**
+- **Outfits in the data layer**: their garments (*includes*), collections
+  and the Planned Outfits pane, with unsent writes laid over them, and the
+  same outfit found before it is sent.
+- **The Outfit builder** ([WRD-014](../10-requirements/modules/wardrobe.md#wrd-014--the-outfit-builder)):
+  Build outfit on the Wardrobe tab, a pane on a computer and a tray on a
+  phone, kept on the device, Clear after saving.
+- **The Outfits tab** (WRD-015–WRD-019): by collection, searched, sorted;
+  New outfit and Edit outfit; an outfit's popup; Select with Add to Planned
+  outfits, Add to collection, and Delete or Remove from collection.
+- **The Planned outfits pane** (WRD-021 1–2) on a computer and a tray on a
+  phone; a garment's popup lists the outfits it is in (WRD-010 1).
+- One action per toast (WRD-014 4, WRD-019 4 updated); the Fab above a Tray.
+
+**Verified**
+- `npm run check`, `npm run build`; 6 walks in `wardrobe-outfits.spec.ts`
+  on a computer and a phone, the browser tests; dark and light screenshots.
+
 ## [#99](https://github.com/joestables/lifeos/pull/99) — Stage 6: garments
 
 Branch `claude/vigilant-thompson-k8bkzm` · 2026-11-19 · Stage 6, step 7

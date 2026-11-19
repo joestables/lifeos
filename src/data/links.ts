@@ -59,6 +59,26 @@ export function applyPendingLinks(rows: readonly Link[], entries: readonly Queue
       if (variation) out.push({ from_item: meal, to_item: variation, link_type: 'uses' })
       continue
     }
+    // An outfit includes its garments (ADR-0066 6).
+    if (entry.fn === 'wardrobe.create_outfit') {
+      const a = entry.args as { p_id: string; p_garments: string[] }
+      if (out.some((l) => l.from_item === a.p_id && l.link_type === 'includes')) continue
+      for (const g of new Set(a.p_garments))
+        out.push({ from_item: a.p_id, to_item: g, link_type: 'includes' })
+      continue
+    }
+    if (
+      entry.fn === 'wardrobe.add_outfit_garment' ||
+      entry.fn === 'wardrobe.remove_outfit_garment'
+    ) {
+      const a = entry.args as { p_outfit: string; p_garment: string }
+      const same = (l: Link) =>
+        l.from_item === a.p_outfit && l.to_item === a.p_garment && l.link_type === 'includes'
+      out = out.filter((l) => !same(l))
+      if (entry.fn === 'wardrobe.add_outfit_garment')
+        out.push({ from_item: a.p_outfit, to_item: a.p_garment, link_type: 'includes' })
+      continue
+    }
     if (entry.fn !== 'link_items' && entry.fn !== 'unlink_items') continue
     const a = entry.args as { p_from: string; p_to: string; p_link_type: string }
     const same = (l: Link) =>

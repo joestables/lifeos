@@ -64,6 +64,13 @@ export const garmentsKey = ['wardrobe', 'garment'] as const
 export const garmentTagsKey = ['wardrobe', 'garment_tags'] as const
 export const outfitCollectionsKey = ['wardrobe', 'outfit_collections'] as const
 export const wardrobeSettingsKey = ['wardrobe', 'settings'] as const
+export const plannedKey = ['wardrobe', 'planned_outfits'] as const
+
+/** An outfit waiting in the Planned Outfits pane (WRD-021), in the pane's order. */
+export interface Planned {
+  outfit_id: string
+  position: string
+}
 
 const wardrobe = () => supabase().schema('wardrobe')
 
@@ -140,6 +147,19 @@ export async function fetchOutfitCollections(): Promise<OutfitCollection[]> {
       .select('outfit_id, collection_id')
       .order('outfit_id')
       .order('collection_id')
+      .range(from, to),
+  )
+}
+
+/** The Planned Outfits pane, newest last; one taken out is marked, and left out here. */
+export async function fetchPlanned(): Promise<Planned[]> {
+  return allRows((from, to) =>
+    wardrobe()
+      .from('planned_outfits')
+      .select('outfit_id, position')
+      .is('removed_at', null)
+      .order('position')
+      .order('outfit_id')
       .range(from, to),
   )
 }
@@ -284,8 +304,27 @@ export function applyPendingOutfitCollections(
   entries: readonly QueueEntry[],
 ) {
   let out = rows as OutfitCollection[]
+  const add = (outfits: unknown, collections: unknown) => {
+    for (const o of (outfits as string[] | undefined) ?? [])
+      for (const c of (collections as string[] | undefined) ?? [])
+        if (!out.some((x) => x.outfit_id === o && x.collection_id === c))
+          out = [...out, { outfit_id: o, collection_id: c }]
+  }
   for (const e of entries) {
     const a = args(e)
+    if (e.fn === 'wardrobe.create_outfit') {
+      add([a.p_id], a.p_collections)
+      continue
+    }
+    if (e.fn === 'wardrobe.add_to_collections') {
+      add(a.p_outfits, a.p_collections)
+      continue
+    }
+    if (e.fn === 'wardrobe.remove_from_collection') {
+      const os = (a.p_outfits as string[]) ?? []
+      out = out.filter((x) => !(x.collection_id === a.p_collection && os.includes(x.outfit_id)))
+      continue
+    }
     if (a.p_list !== 'collection') continue
     if (e.fn === 'wardrobe.remove_entry') {
       out = out.filter((c) => c.collection_id !== a.p_id)
@@ -318,4 +357,25 @@ export function applyPendingWeatherPlace(
         : null
   }
   return out
+}
+
+/** The pane with unsent adds, removes and clears laid over (WRD-021 1): an outfit added again goes last. */
+export function applyPendingPlanned(rows: readonly Planned[], entries: readonly QueueEntry[]) {
+  let out = rows as Planned[]
+  for (const e of entries) {
+    const a = args(e)
+    if (e.fn === 'wardrobe.add_planned') {
+      const os = (a.p_outfits as string[]) ?? []
+      // After anything the server ordered: its positions are its clock's, so this sorts last.
+      const at = `~${String(e.createdAt).padStart(15, '0')}${e.id}`
+      out = [
+        ...out.filter((p) => !os.includes(p.outfit_id)),
+        ...os.map((o, i) => ({ outfit_id: o, position: `${at}${String(i).padStart(4, '0')}` })),
+      ]
+    } else if (e.fn === 'wardrobe.remove_planned') {
+      const os = (a.p_outfits as string[]) ?? []
+      out = out.filter((p) => !os.includes(p.outfit_id))
+    } else if (e.fn === 'wardrobe.clear_planned') out = []
+  }
+  return out === rows ? out : [...out].sort((x, y) => (x.position < y.position ? -1 : 1))
 }

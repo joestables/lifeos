@@ -6,17 +6,29 @@ import { GarmentDialog } from '@/app/garment-dialog'
 import { GarmentPhotoStep, type TakenPhoto } from '@/app/garment-camera'
 import { GarmentSheetDialog } from '@/app/garment-sheet'
 import { WardrobeTab } from '@/app/wardrobe-tab'
-import { queue, useLinks, usePhotoUrls, useWardrobe } from '@/data'
+import { queue, usePhotoUrls, useWardrobe } from '@/data'
+import { OutfitDialog, OutfitEditor } from '@/app/outfit-dialogs'
+import { OutfitsTab } from '@/app/outfits-tab'
+import { useOutfitsView } from '@/app/outfits-view'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useIsMobile } from '@/hooks/use-mobile'
 
+type Tab = 'wardrobe' | 'outfits'
+
 /**
- * Wardrobe (WRD-001–WRD-013): my garments as photo cards, added with the
- * camera and a sheet, each opening read-only. Outfits and Week come with
- * plan steps 8 and 9.
+ * Wardrobe (WRD-001–WRD-019): my garments as photo cards, added with the
+ * camera and a sheet, each opening read-only, and built into outfits; my
+ * outfits by collection, with the Planned outfits pane. The Week tab comes
+ * with plan step 9.
  */
 export const Route = createFileRoute('/_app/wardrobe')({
-  validateSearch: (s: Record<string, unknown>): { garment?: string } =>
-    typeof s.garment === 'string' ? { garment: s.garment } : {},
+  validateSearch: (
+    s: Record<string, unknown>,
+  ): { tab?: 'outfits'; garment?: string; outfit?: string } => ({
+    ...(s.tab === 'outfits' ? { tab: 'outfits' as const } : {}),
+    ...(typeof s.garment === 'string' ? { garment: s.garment } : {}),
+    ...(typeof s.outfit === 'string' ? { outfit: s.outfit } : {}),
+  }),
   component: Wardrobe,
 })
 
@@ -37,8 +49,22 @@ function Wardrobe() {
   const router = useRouter()
   const location = useLocation()
   const wardrobe = useWardrobe(queue)
-  const links = useLinks(queue)
   const phone = useIsMobile()
+  const tab: Tab = search.tab ?? 'wardrobe'
+  const outfitsView = useOutfitsView()
+  const [outfitEditor, setOutfitEditor] = useState<{ editing?: string } | null>(null)
+  const viewing = wardrobe.lists.collection.find((c) => c.id === outfitsView.kept.collection)
+  const openOutfit = search.outfit
+    ? wardrobe.outfits.find((o) => o.item.id === search.outfit)
+    : undefined
+  const showOutfit = (id: string) =>
+    void navigate({
+      to: '.',
+      search: { tab: 'outfits', outfit: id },
+      state: { itemOpened: true },
+    })
+  const toTab = (next: Tab) =>
+    void navigate({ to: '.', search: next === 'outfits' ? { tab: 'outfits' } : {}, replace: true })
   const [choosing, setChoosing] = useState(false)
   const [adding, setAdding] = useState<Adding | null>(null)
   const [added, setAdded] = useState<string | null>(null)
@@ -48,20 +74,22 @@ function Wardrobe() {
     ? wardrobe.garments.find((g) => g.item.id === search.garment)
     : undefined
   const show = (id: string) =>
-    void navigate({ to: '.', search: { garment: id }, state: { itemOpened: true } })
+    void navigate({
+      to: '.',
+      search: { ...(search.tab && { tab: search.tab }), garment: id },
+      state: { itemOpened: true },
+    })
   const hide = () => {
     setAdded(null)
     if (location.state.itemOpened) router.history.back()
-    else void navigate({ to: '.', search: {}, replace: true })
+    else void navigate({ to: '.', search: search.tab ? { tab: search.tab } : {}, replace: true })
   }
   const editing = adding?.editing
     ? wardrobe.garments.find((g) => g.item.id === adding.editing)
     : undefined
   const photos = usePhotoUrls([open?.photo?.path, editing?.photo?.path])
   const outfitsOf = (id: string) =>
-    new Set(
-      links.filter((l) => l.link_type === 'includes' && l.to_item === id).map((l) => l.from_item),
-    ).size
+    wardrobe.outfits.filter((o) => o.garments.some((g) => g.item.id === id))
 
   const newGarment = (carried?: Adding['carried']) => {
     // Nothing to choose from yet: they are made in Settings (WRD-001 3).
@@ -72,23 +100,76 @@ function Wardrobe() {
     setAdding({ camera: phone, photo: null, fromSheet: false, ...(carried && { carried }) })
   }
 
+  const action =
+    tab === 'outfits'
+      ? { label: 'New outfit', onClick: () => setOutfitEditor({}) }
+      : { label: 'New garment', onClick: () => newGarment() }
+
   return (
     <TypeScope colour="orange">
-      <PageHeader
-        title="Wardrobe"
-        action={choosing ? undefined : { label: 'New garment', onClick: () => newGarment() }}
-      />
+      <PageHeader title="Wardrobe" action={choosing ? undefined : action} />
       <div className="flex flex-col gap-5 px-5 pb-28 sm:px-9 sm:pb-8">
-        <TabsRow className="max-md:hidden">
-          <PageAction label="New garment" onClick={() => newGarment()} />
+        <TabsRow>
+          <Tabs value={tab} onValueChange={(v: Tab) => toTab(v)}>
+            <TabsList aria-label="View">
+              <TabsTrigger value="wardrobe">Wardrobe</TabsTrigger>
+              <TabsTrigger value="outfits">Outfits</TabsTrigger>
+            </TabsList>
+          </Tabs>
+          <PageAction label={action.label} onClick={action.onClick} />
         </TabsRow>
-        <WardrobeTab
-          wardrobe={wardrobe}
-          onOpen={show}
-          onNew={() => newGarment()}
-          onChoosing={setChoosing}
-        />
+        {tab === 'outfits' ? (
+          <OutfitsTab
+            wardrobe={wardrobe}
+            view={outfitsView}
+            onOpen={showOutfit}
+            onNew={() => setOutfitEditor({})}
+            onChoosing={setChoosing}
+          />
+        ) : (
+          <WardrobeTab
+            wardrobe={wardrobe}
+            onOpen={show}
+            onNew={() => newGarment()}
+            onChoosing={setChoosing}
+            onOpenOutfit={showOutfit}
+          />
+        )}
       </div>
+      {openOutfit && !outfitEditor && (
+        <OutfitDialog
+          key={openOutfit.item.id}
+          outfit={openOutfit}
+          wardrobe={wardrobe}
+          collection={viewing}
+          onClose={hide}
+          onEdit={() => setOutfitEditor({ editing: openOutfit.item.id })}
+          onOpenGarment={(id) =>
+            void navigate({ to: '.', search: { tab: 'outfits', garment: id }, replace: true })
+          }
+        />
+      )}
+      {outfitEditor && (
+        <OutfitEditor
+          wardrobe={wardrobe}
+          outfit={
+            outfitEditor.editing
+              ? wardrobe.outfits.find((o) => o.item.id === outfitEditor.editing)
+              : undefined
+          }
+          collection={viewing?.id}
+          onClose={() => setOutfitEditor(null)}
+          onOpenOutfit={(id) => {
+            setOutfitEditor(null)
+            showOutfit(id)
+          }}
+          onSaved={(id) => {
+            const wasNew = !outfitEditor.editing
+            setOutfitEditor(null)
+            if (wasNew) showOutfit(id)
+          }}
+        />
+      )}
       {open && !adding && (
         <GarmentDialog
           key={open.item.id}
@@ -96,6 +177,7 @@ function Wardrobe() {
           photo={open.photo && photos.get(open.photo.path)}
           added={added === open.item.id}
           outfits={outfitsOf(open.item.id)}
+          onOpenOutfit={showOutfit}
           onClose={hide}
           onEdit={() =>
             setAdding({ editing: open.item.id, camera: false, photo: null, fromSheet: false })

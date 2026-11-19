@@ -465,10 +465,13 @@ export function SheetField({
  */
 export function OutfitPicture({
   photos,
+  shape = 'square',
   className,
 }: {
   /** In my categories' order. */
   photos: (string | undefined)[]
+  /** Square on a card; 3:2 in the Outfit builder's pane, 2:1 in its tray. */
+  shape?: 'square' | 'pane' | 'tray'
   className?: string
 }) {
   const shown = photos.slice(0, 4)
@@ -477,7 +480,10 @@ export function OutfitPicture({
     <div
       data-slot="outfit-picture"
       className={cn(
-        'grid aspect-square gap-0.5 overflow-hidden bg-card',
+        'grid gap-0.5 overflow-hidden bg-card',
+        shape === 'square' && 'aspect-square',
+        shape === 'pane' && 'aspect-[3/2]',
+        shape === 'tray' && 'aspect-[2/1]',
         shown.length === 1 && 'grid-cols-1',
         shown.length === 2 && 'grid-cols-2',
         shown.length >= 3 && 'grid-cols-2 grid-rows-2',
@@ -637,6 +643,7 @@ export function PlannedOutfitLine({
   picked = false,
   dragging = false,
   onRemove,
+  onOpen,
 }: {
   photos: (string | undefined)[]
   name?: string
@@ -644,6 +651,8 @@ export function PlannedOutfitLine({
   picked?: boolean
   dragging?: boolean
   onRemove?: () => void
+  /** Its popup, from its name. */
+  onOpen?: () => void
 }) {
   return (
     <div
@@ -656,13 +665,22 @@ export function PlannedOutfitLine({
     >
       <GripVerticalIcon aria-hidden className="size-4 shrink-0 cursor-grab text-muted-foreground" />
       <OutfitPicture photos={photos} className="size-14 shrink-0 rounded-md" />
-      <span className="flex min-w-0 flex-1 flex-col">
+      <button
+        type="button"
+        onClick={onOpen}
+        className="flex min-w-0 flex-1 flex-col text-left outline-none after:absolute after:inset-0 after:rounded-row focus-visible:after:ring-3 focus-visible:after:ring-ring-soft"
+      >
         <span className={cn('truncate text-sm font-semibold', !name && 'text-muted-foreground')}>
           {name ?? 'Untitled outfit'}
         </span>
         <span className="truncate text-xs text-muted-foreground">{meta}</span>
+      </button>
+      <span className="relative z-10">
+        <RemoveButton
+          label={`Remove ${name ?? 'Untitled outfit'} from Planned outfits`}
+          onClick={onRemove}
+        />
       </span>
-      <RemoveButton label="Remove from Planned outfits" onClick={onRemove} />
     </div>
   )
 }
@@ -750,25 +768,33 @@ export function TrayPanel({
   aside,
   footer,
   children,
+  onClose,
 }: {
   title: string
   count?: number
   aside?: ReactNode
   footer?: ReactNode
   children: ReactNode
+  /** Back to the tray: the overlay, the grabber, or Escape. */
+  onClose?: () => void
 }) {
   return (
     <>
-      <div aria-hidden className="fixed inset-0 z-30 bg-overlay md:hidden" />
+      <div aria-hidden className="fixed inset-0 z-30 bg-overlay md:hidden" onClick={onClose} />
       <section
         role="dialog"
         aria-label={title}
+        onKeyDown={(e) => e.key === 'Escape' && onClose?.()}
         className="fixed inset-x-0 bottom-0 z-40 flex max-h-[85svh] flex-col rounded-t-xl bg-card pb-[env(safe-area-inset-bottom)] shadow-dialog md:hidden"
       >
-        <span
-          aria-hidden
-          className="mx-auto mt-2.5 h-1 w-10 shrink-0 rounded-full bg-input-strong"
-        />
+        <button
+          type="button"
+          aria-label={`Close ${title}`}
+          onClick={onClose}
+          className="mx-auto grid h-6 w-16 shrink-0 place-items-center outline-none focus-visible:ring-3 focus-visible:ring-ring-soft"
+        >
+          <span aria-hidden className="h-1 w-10 rounded-full bg-input-strong" />
+        </button>
         <div className="flex h-14 shrink-0 items-center gap-2 pr-3 pl-5">
           <h2 className="text-h2">{title}</h2>
           {count !== undefined && <Badge variant="outline">{count}</Badge>}
