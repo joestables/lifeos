@@ -111,7 +111,7 @@ const liveOf = keepLast((all: Item[]) => all.filter((i) => i.archived_at === nul
 const NO_ITEMS: Item[] = []
 
 /** Every Item, deleted ones included, with unsent changes laid over them. */
-function useAllItems(queue: WriteQueue) {
+export function useAllItems(queue: WriteQueue) {
   const query = useQuery({ queryKey: itemsKey, queryFn: fetchItems })
   const entries = useQueueEntries(queue)
   const online = useOnline()

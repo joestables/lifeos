@@ -71,6 +71,15 @@ export interface Rows {
     position: string
     sets: number
   }[]
+  /**
+   * The wardrobe schema (ADR-0066), by table: my lists (categories, sizes,
+   * brands, fits, tags, colours, collections), garments' own fields
+   * (garment), garment_tags, outfit_collections, and the weather's place
+   * (settings).
+   */
+  wardrobe?: Record<string, Record<string, unknown>[]>
+  /** Open-Meteo's geocoding (ADR-0068): the places found for a name, by the name typed. */
+  places?: Record<string, Record<string, unknown>[]>
   /** Households (HSH-001–004): their Spaces, members (with names), and invitations. */
   spaces?: { id: string; name: string; created_by: string }[]
   space_members?: {
@@ -352,6 +361,22 @@ export async function standIn(
       logged_at: '2026-10-01T09:00:00Z',
       ...r,
     })),
+    /** The wardrobe schema's tables (ADR-0066), apart from the core's. */
+    wardrobe: Object.fromEntries(
+      [
+        'categories',
+        'sizes',
+        'brands',
+        'fits',
+        'tags',
+        'colours',
+        'collections',
+        'garment',
+        'garment_tags',
+        'outfit_collections',
+        'settings',
+      ].map((t) => [t, (rows.wardrobe?.[t] ?? []).map((r) => ({ ...r }))]),
+    ) as Record<string, Record<string, unknown>[]>,
     /** Storage's `photos` bucket: each file's bytes by its path. */
     files: new Map<string, Buffer>(),
     /** The calendar chosen for each new Event (set_event_calendar). */
@@ -1345,6 +1370,95 @@ export async function standIn(
       i.updated_at = now()
     },
   }
+  // The Wardrobe, as the wardrobe schema's functions do it (ADR-0066).
+  const LIST_TABLE: Record<string, string> = {
+    category: 'categories',
+    size: 'sizes',
+    brand: 'brands',
+    fit: 'fits',
+    tag: 'tags',
+    colour: 'colours',
+    collection: 'collections',
+  }
+  const GARMENT_FIELD: Record<string, string> = {
+    category: 'category_id',
+    size: 'size_id',
+    brand: 'brand_id',
+    colour: 'colour_id',
+    fit: 'fit_id',
+  }
+  const nameKey = (v: unknown) => String(v).trim().toLowerCase().replace(/\s+/g, ' ')
+  const inUse = (list: string, id: unknown) =>
+    list === 'tag'
+      ? db.wardrobe.garment_tags!.some((t) => t.tag_id === id)
+      : list in GARMENT_FIELD && db.wardrobe.garment!.some((g) => g[GARMENT_FIELD[list]!] === id)
+  const wardrobeWrite: Record<string, (a: Record<string, unknown>) => unknown> = {
+    save_entry: (a) => {
+      const table = db.wardrobe[LIST_TABLE[String(a.p_list)]!]!
+      if (table.some((r) => r.id !== a.p_id && nameKey(r.name) === nameKey(a.p_name)))
+        return 'taken'
+      const row = table.find((r) => r.id === a.p_id)
+      const ordered = ['category', 'size', 'collection'].includes(String(a.p_list))
+      if (row) {
+        row.name = String(a.p_name).trim()
+        if (a.p_hex) row.hex = String(a.p_hex).toLowerCase()
+        if (ordered && a.p_position) row.position = a.p_position
+      } else {
+        const last = table
+          .map((r) => String(r.position))
+          .sort()
+          .at(-1)
+        table.push({
+          id: a.p_id,
+          name: String(a.p_name).trim(),
+          ...(a.p_list === 'colour' && { hex: String(a.p_hex).toLowerCase() }),
+          ...(ordered && { position: a.p_position ?? `${last ?? ''}V` }),
+        })
+      }
+    },
+    set_entry_position: (a) => {
+      const row = db.wardrobe[LIST_TABLE[String(a.p_list)]!]!.find((r) => r.id === a.p_id)
+      if (row) row.position = a.p_position
+    },
+    remove_entry: (a) => {
+      const list = String(a.p_list)
+      if (inUse(list, a.p_id)) return 'in use'
+      const t = LIST_TABLE[list]!
+      db.wardrobe[t] = db.wardrobe[t]!.filter((r) => r.id !== a.p_id)
+      if (list === 'collection')
+        db.wardrobe.outfit_collections = db.wardrobe.outfit_collections!.filter(
+          (c) => c.collection_id !== a.p_id,
+        )
+    },
+    merge_entry: (a) => {
+      const list = String(a.p_list)
+      const field = GARMENT_FIELD[list]
+      if (field)
+        for (const g of db.wardrobe.garment!) if (g[field] === a.p_from) g[field] = a.p_into
+      const moveLinks = (table: string, owner: string, entry: string) => {
+        const rows = db.wardrobe[table]!
+        for (const r of rows.filter((x) => x[entry] === a.p_from))
+          if (!rows.some((x) => x[owner] === r[owner] && x[entry] === a.p_into))
+            rows.push({ [owner]: r[owner], [entry]: a.p_into })
+        db.wardrobe[table] = db.wardrobe[table]!.filter((x) => x[entry] !== a.p_from)
+      }
+      if (list === 'tag') moveLinks('garment_tags', 'garment_id', 'tag_id')
+      if (list === 'collection') moveLinks('outfit_collections', 'outfit_id', 'collection_id')
+      const t = LIST_TABLE[list]!
+      db.wardrobe[t] = db.wardrobe[t]!.filter((r) => r.id !== a.p_from)
+    },
+    set_weather_place: (a) => {
+      db.wardrobe.settings = [
+        { place_name: a.p_name, latitude: a.p_latitude, longitude: a.p_longitude },
+      ]
+    },
+    retire_garment: (a) => {
+      const i = item(a.p_id)
+      if (!i) return
+      i.status = a.p_retired === false ? 'active' : 'cancelled'
+      i.updated_at = now()
+    },
+  }
   const write: Record<string, (a: Record<string, unknown>) => unknown> = {
     // The sender's public key (a made-up one: nothing is really sent).
     vapid_public_key: () =>
@@ -1791,6 +1905,12 @@ export async function standIn(
   // The shops' Meals' lines, as the database would have them already.
   refreshShops()
   const live = await realtime(page)
+  // Open-Meteo's geocoding (ADR-0068): never the real service.
+  await page.route('https://geocoding-api.open-meteo.com/**', (route) => {
+    const name = new URL(route.request().url()).searchParams.get('name') ?? ''
+    const found = Object.entries(rows.places ?? {}).find(([k]) => nameKey(k) === nameKey(name))
+    return route.fulfill({ json: found ? { results: found[1] } : {} })
+  })
   await page.route(`${STAND_IN_URL}/**`, async (route) => {
     const url = new URL(route.request().url())
     if (url.pathname.includes('/auth/v1/logout')) return route.fulfill({ status: 204 })
@@ -1862,9 +1982,16 @@ export async function standIn(
             ? shoppingWrite
             : profile === 'fitness'
               ? fitnessWrite
-              : write
+              : profile === 'wardrobe'
+                ? wardrobeWrite
+                : write
       )[rpc[1]!]?.(route.request().postDataJSON() ?? {})
       refreshShops()
+      if (result === 'taken')
+        return route.fulfill({
+          status: 409,
+          json: { code: '23505', message: 'already a name', details: null, hint: null },
+        })
       if (result === 'in use')
         return route.fulfill({
           status: 409,
@@ -1875,6 +2002,9 @@ export async function standIn(
       })
     }
     const table = url.pathname.match(/\/rest\/v1\/(\w+)$/)?.[1]
+    // The wardrobe's tables come with its profile (supabase.schema('wardrobe')).
+    if (table && route.request().headers()['accept-profile'] === 'wardrobe')
+      return route.fulfill({ json: db.wardrobe[table] ?? [] })
     if (table === 'spaces' && url.searchParams.get('select')?.includes('space_members'))
       return route.fulfill({ json: households() })
     if (table) {

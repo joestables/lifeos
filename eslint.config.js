@@ -41,9 +41,9 @@ export default tseslint.config(
   },
   {
     // Colours live only in src/styles/theme.css; Stage 6's stand-in photos
-    // are pictures of garments, whose colours are data (ADR-0067).
+    // and the wardrobe's tests hold garments' colours, which are data (ADR-0067).
     files: ['src/**/*.{ts,tsx}'],
-    ignores: ['src/routes/-design-stage-6/art.ts'],
+    ignores: ['src/routes/-design-stage-6/art.ts', 'src/data/wardrobe.test.ts'],
     rules: {
       'no-restricted-syntax': [
         'error',

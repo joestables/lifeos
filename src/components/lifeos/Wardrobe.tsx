@@ -21,13 +21,15 @@ import {
   ZapIcon,
   type LucideIcon,
 } from 'lucide-react'
-import type { ReactNode } from 'react'
+import type { KeyboardEvent, ReactNode } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Toggle } from '@/components/ui/toggle'
 import { useLongPress } from '@/hooks/use-long-press'
+import type { Reorder } from '@/hooks/use-reorder'
 import { cn } from '@/lib/utils'
+import { REORDER_ROW } from './reorder'
 import { StoredPicture } from './StoredPicture'
 
 /* ---------- The colour Swatch (ADR-0067) ---------- */
@@ -1118,8 +1120,9 @@ export function ColourLoupe({
 
 /**
  * An entry of a Wardrobe list in Settings (WRD-028): a handle where the
- * list is ordered, its Swatch for a colour, its name, how many use it,
- * muted and tabular, and its "…".
+ * list is ordered, dragged to reorder it (patterns.md#dragging; Alt+↑ and
+ * Alt+↓ on the focused handle), its Swatch for a colour, its name, how many
+ * use it, muted and tabular, and its "…".
  */
 export function ListEntryRow({
   name,
@@ -1128,6 +1131,8 @@ export function ListEntryRow({
   hex,
   fixed = false,
   menu,
+  reorder,
+  onHandleKeyDown,
 }: {
   name: string
   /** "12 garments". */
@@ -1137,22 +1142,42 @@ export function ListEntryRow({
   /** My Outfits: no handle, no menu. */
   fixed?: boolean
   menu?: ReactNode
+  reorder?: Reorder
+  onHandleKeyDown?: (e: KeyboardEvent) => void
 }) {
   return (
-    <div className="flex min-h-12 min-w-0 items-center gap-2.5 rounded-row px-2 hover:bg-accent">
-      {ordered && (
-        <GripVerticalIcon
-          aria-hidden
-          className={cn(
-            'size-4 shrink-0 text-muted-foreground',
-            fixed ? 'invisible' : 'cursor-grab',
-          )}
-        />
+    <div
+      data-reorder-id={reorder?.id}
+      data-reorder={reorder?.state}
+      className={cn(
+        'flex min-h-12 min-w-0 items-center gap-2.5 rounded-row px-2 hover:bg-accent',
+        reorder && cn(REORDER_ROW, '[--reorder-gap:0px] select-none [-webkit-touch-callout:none]'),
       )}
+    >
+      {ordered &&
+        (reorder && !fixed ? (
+          <span
+            {...reorder.handle}
+            role="button"
+            tabIndex={0}
+            aria-label={`Drag ${name} to reorder`}
+            onKeyDown={onHandleKeyDown}
+            className="-mx-1.5 grid size-8 shrink-0 cursor-grab touch-none place-items-center rounded-control text-muted-foreground outline-none select-none [-webkit-touch-callout:none] hover:bg-accent focus-visible:ring-3 focus-visible:ring-ring-soft"
+          >
+            <GripVerticalIcon className="size-4" />
+          </span>
+        ) : (
+          // My Outfits keeps the handle's room, so its name lines up.
+          <span aria-hidden className="-mx-1.5 grid size-8 shrink-0 place-items-center">
+            <GripVerticalIcon
+              className={cn('size-4 text-muted-foreground', fixed ? 'invisible' : 'cursor-grab')}
+            />
+          </span>
+        ))}
       {hex && <Swatch hex={hex} size="md" />}
       <span className="min-w-0 flex-1 truncate text-sm font-semibold">{name}</span>
       <span className="shrink-0 text-xs text-muted-foreground tabular-nums">{uses}</span>
-      <span className={cn('shrink-0', fixed && 'invisible')}>{menu}</span>
+      <span className={cn('flex min-w-8 shrink-0 justify-end', fixed && 'invisible')}>{menu}</span>
     </div>
   )
 }

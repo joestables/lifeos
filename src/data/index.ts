@@ -128,6 +128,24 @@ import { reportEvent } from './report'
 import { rpcTransport } from './supabase'
 import type { ItemRow, WriteFn } from './types'
 import { writes } from './writes'
+import {
+  applyPendingGarments,
+  applyPendingGarmentTags,
+  applyPendingLists as applyPendingWardrobeLists,
+  applyPendingOutfitCollections,
+  applyPendingWeatherPlace,
+  garmentsKey,
+  garmentTagsKey,
+  outfitCollectionsKey,
+  wardrobeListsKey,
+  wardrobeSettingsKey,
+  type GarmentRow,
+  type GarmentTag,
+  type OutfitCollection,
+  type WardrobeLists,
+  type WeatherPlace,
+} from './wardrobe'
+import { wardrobeWrites } from './wardrobe-writes'
 
 /**
  * Each cached collection, the writes that change it, and how a sent write is
@@ -172,6 +190,10 @@ const collections: {
       'fitness.update_workout',
       'fitness.start_workout',
       'fitness.end_workout',
+      'wardrobe.retire_garment',
+      // A garment's title is worked out from its entries' names (ADR-0066 4).
+      'wardrobe.save_entry',
+      'wardrobe.merge_entry',
     ],
     fold: (rows: ItemRow[], e: QueueEntry) => foldSent(rows, e),
   },
@@ -435,6 +457,36 @@ const collections: {
     fold: (rows: SetRow[], e: QueueEntry) => applyPendingSets(rows, [e]),
   },
   {
+    key: wardrobeListsKey,
+    fns: [
+      'wardrobe.save_entry',
+      'wardrobe.set_entry_position',
+      'wardrobe.remove_entry',
+      'wardrobe.merge_entry',
+    ],
+    fold: (lists: WardrobeLists, e: QueueEntry) => applyPendingWardrobeLists(lists, [e]),
+  },
+  {
+    key: garmentsKey,
+    fns: ['wardrobe.merge_entry'],
+    fold: (rows: GarmentRow[], e: QueueEntry) => applyPendingGarments(rows, [e]),
+  },
+  {
+    key: garmentTagsKey,
+    fns: ['wardrobe.merge_entry'],
+    fold: (rows: GarmentTag[], e: QueueEntry) => applyPendingGarmentTags(rows, [e]),
+  },
+  {
+    key: outfitCollectionsKey,
+    fns: ['wardrobe.remove_entry', 'wardrobe.merge_entry'],
+    fold: (rows: OutfitCollection[], e: QueueEntry) => applyPendingOutfitCollections(rows, [e]),
+  },
+  {
+    key: wardrobeSettingsKey,
+    fns: ['wardrobe.set_weather_place'],
+    fold: (place: WeatherPlace | null, e: QueueEntry) => applyPendingWeatherPlace(place, [e]),
+  },
+  {
     key: settingsKey,
     fns: ['update_settings'],
     fold: (settings: Settings, e: QueueEntry) => applyPendingSettings(settings, [e]),
@@ -648,6 +700,15 @@ export const {
 } = fitnessWrites(queue)
 
 export const {
+  saveEntry,
+  setEntryPosition,
+  removeEntry: removeWardrobeEntry,
+  mergeEntry,
+  setWeatherPlace,
+  retireGarment,
+} = wardrobeWrites(queue)
+
+export const {
   createTemplate,
   addTemplateExercise,
   updateTemplateExercise,
@@ -790,6 +851,14 @@ export {
   type EntryView,
   type SetView,
 } from './fitness-hooks'
+export { useWardrobe, type EntryUses, type GarmentView, type WardrobeData } from './wardrobe-hooks'
+export {
+  ORDERED_LISTS,
+  WARDROBE_LISTS,
+  type WardrobeEntry,
+  type WardrobeList,
+  type WeatherPlace,
+} from './wardrobe'
 export {
   CATEGORIES,
   type GymSettings,
@@ -827,3 +896,4 @@ export async function calendarAction(
   }
   return answer
 }
+export { searchPlaces, placeLabel, splitPlace, type PlaceFound } from './weather'
