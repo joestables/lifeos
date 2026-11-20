@@ -7,7 +7,6 @@ import {
   createOutfit,
   removeFromCollection,
   removeOutfitGarment,
-  removePlanned,
   renameOutfit,
   restoreItem,
   type GarmentView,
@@ -103,13 +102,9 @@ export function takeOutOfCollection(
   })
 }
 
-/** Into the Planned Outfits pane (WRD-017 3, WRD-019 4), with Undo. */
+/** Into the Planned Outfits pane (WRD-017 3, WRD-019 4), quietly: it shows there. */
 export function planOutfits(os: readonly OutfitView[]) {
-  const ids = os.map((o) => o.item.id)
-  addPlanned(ids)
-  toast(`Added ${what(os)} to Planned outfits`, {
-    action: { label: 'Undo', onClick: () => removePlanned(ids) },
-  })
+  addPlanned(os.map((o) => o.item.id))
 }
 
 /** The builder's garments in my categories' order (WRD-014 3). */

@@ -1,3 +1,4 @@
+import { cn } from '@/lib/utils'
 import { SearchIcon } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 
@@ -6,13 +7,15 @@ export function SearchField({
   value,
   onChange,
   label,
+  className,
 }: {
   value: string
   onChange: (value: string) => void
   label: string
+  className?: string
 }) {
   return (
-    <div className="relative min-w-0 flex-1">
+    <div className={cn('relative min-w-0 flex-1', className)}>
       <SearchIcon className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
       <Input
         size="sm"

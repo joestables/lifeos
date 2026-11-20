@@ -189,8 +189,8 @@ describe('the add sheet (WRD-005, WRD-008)', () => {
   })
 
   it('says what is missing until the four are set (WRD-005 5)', () => {
-    expect(stillNeeded({ colour: 'k', category: 'c' })).toBe('Needs a size and brand')
-    expect(stillNeeded({})).toBe('Needs a colour, category, size and brand')
+    expect(stillNeeded({ colour: 'k', category: 'c' })).toBe('Add a size and brand')
+    expect(stillNeeded({})).toBe('Add a colour, category, size and brand')
     expect(stillNeeded({ colour: 'k', category: 'c', size: 's', brand: 'b' })).toBeUndefined()
   })
 })

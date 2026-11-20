@@ -253,7 +253,7 @@ export function matchBrands(brands: readonly WardrobeEntry[], typed: string): Wa
     )
 }
 
-/** What a new garment still needs before Save (WRD-005 5): "Needs a size and brand". */
+/** What a new garment still needs before Save (WRD-005 5): "Add a size and brand". */
 export function stillNeeded(fields: {
   category?: string
   size?: string
@@ -272,7 +272,7 @@ export function stillNeeded(fields: {
     .map(([n]) => n)
   if (!missing.length) return undefined
   const last = missing.pop()!
-  return `Needs a ${missing.length ? `${missing.join(', ')} and ${last}` : last}`
+  return `Add a ${missing.length ? `${missing.join(', ')} and ${last}` : last}`
 }
 
 /**

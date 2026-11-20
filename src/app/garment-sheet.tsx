@@ -86,13 +86,11 @@ function BrandField({
   brands,
   recent,
   chosen,
-  needed,
   onChoose,
 }: {
   brands: readonly WardrobeEntry[]
   recent: readonly WardrobeEntry[]
   chosen?: string
-  needed: boolean
   onChoose: (id: string | undefined) => void
 }) {
   const [typed, setTyped] = useState<string | null>(null)
@@ -105,7 +103,7 @@ function BrandField({
     setTyped(null)
   }
   return (
-    <SheetField label="Brand" needed={needed}>
+    <SheetField label="Brand">
       {typed === null ? (
         <ChoiceChips
           single
@@ -399,7 +397,6 @@ export function GarmentSheetDialog({
       >
         <SheetField
           label="Colour"
-          needed={!draft.colour}
           aside={
             photo ? (suggested.fresh ? 'None of yours is close' : 'From the photo') : undefined
           }
@@ -448,7 +445,7 @@ export function GarmentSheetDialog({
             </div>
           )}
         </SheetField>
-        <SheetField label="Category" needed={!draft.category}>
+        <SheetField label="Category">
           {lists.category.length ? (
             <ChoiceChips
               single
@@ -470,7 +467,6 @@ export function GarmentSheetDialog({
         </SheetField>
         <SheetField
           label="Size"
-          needed={!draft.size}
           aside={sizes.rest.length && categoryName ? `Used with ${categoryName}` : undefined}
         >
           {lists.size.length ? (
@@ -503,7 +499,6 @@ export function GarmentSheetDialog({
           brands={lists.brand}
           recent={recentBrands(garments, lists.brand)}
           chosen={draft.brand}
-          needed={!draft.brand}
           onChoose={(brand) => change({ brand })}
         />
         <SheetField label="Fit" aside="Optional">

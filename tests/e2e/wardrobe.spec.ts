@@ -224,7 +224,7 @@ test.describe('Wardrobe', () => {
     // The navy in the photo is my Navy, chosen.
     const colour = sheet.getByRole('group', { name: 'Colour' })
     await expect(colour.getByRole('button', { name: /Navy/, pressed: true })).toBeVisible()
-    await expect(sheet).toContainText('Needs a category, size and brand')
+    await expect(sheet).toContainText('Add a category, size and brand')
     await expect(sheet.getByRole('button', { name: 'Save' })).toBeDisabled()
     await sheet
       .getByRole('group', { name: 'Category' })

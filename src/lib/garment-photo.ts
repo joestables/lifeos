@@ -1,8 +1,12 @@
 import { estimateColour, rgbToHex, type Estimate } from '@lifeos/wardrobe'
-import { resizePhoto } from './photo-resize'
+import { PHOTO_BYTES } from './photo-resize'
 
-/** A garment's photo kept square, no larger than this a side (ADR-0052's size). */
-const SIDE = 1600
+/**
+ * A garment's photo kept square, no larger than this a side: under
+ * ADR-0052's 1600, as a square at 1200 already fills a computer's popup
+ * and keeps to its weight in one try.
+ */
+const SIDE = 1200
 /** The estimate reads the photo at about this size (ADR-0067 2). */
 const READ = 120
 
@@ -41,9 +45,14 @@ const canvasOf = (side: number) => {
   return c
 }
 
+const webp = (canvas: HTMLCanvasElement, quality: number) =>
+  new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/webp', quality))
+
 /**
- * The square kept (WRD-005 2), made small as a Recipe's photo is
- * (ADR-0052): WebP of about 250 KB, with its pixels read for the colour.
+ * The square kept (WRD-005 2), as small as a Recipe's photo (ADR-0052):
+ * drawn once at its size and made WebP once (again a little lower only if
+ * it is still heavy), its pixels read for the colour from the same canvas.
+ * Each file made on a phone costs seconds, so no other is.
  */
 export async function keepSquare(
   picture: ImageBitmap,
@@ -52,14 +61,14 @@ export async function keepSquare(
   const { left, top, side } = cropSquare(picture.width, picture.height, crop)
   const out = Math.round(Math.min(SIDE, side))
   const canvas = canvasOf(out)
-  canvas.getContext('2d')!.drawImage(picture, left, top, side, side, 0, 0, out, out)
-  const png = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/png'))
-  if (!png) throw new Error('This picture can’t be read')
-  const [kept, estimate] = await Promise.all([
-    resizePhoto(png),
-    Promise.resolve(readColour(canvas)),
-  ])
-  return { ...kept, estimate }
+  const g = canvas.getContext('2d')!
+  g.imageSmoothingQuality = 'high'
+  g.drawImage(picture, left, top, side, side, 0, 0, out, out)
+  const estimate = readColour(canvas)
+  let blob = await webp(canvas, 0.8)
+  if (blob && blob.size > PHOTO_BYTES) blob = (await webp(canvas, 0.65)) ?? blob
+  if (!blob || blob.type !== 'image/webp') throw new Error('This browser can’t make WebP')
+  return { blob, width: out, height: out, estimate }
 }
 
 /** The garment's colour in a square photo (WRD-006 1; ADR-0067). */
