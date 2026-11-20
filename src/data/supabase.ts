@@ -2,7 +2,7 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import { isAndroidApp } from '@/native/platform'
 import type { Database } from './database.types'
 import { deviceOwner } from './device-owner'
-import { alreadyApplied, isTransient, WriteError } from './queue/errors'
+import { alreadyApplied, isTransient, refusedOnPurpose, WriteError } from './queue/errors'
 import type { Transport } from './queue/queue'
 
 export type LifeosClient = SupabaseClient<Database, 'core'>
@@ -55,6 +55,9 @@ export const rpcTransport: Transport = async (fn, args) => {
   }
   if (result.error && alreadyApplied(result.error)) return
   if (result.error) {
-    throw new WriteError(result.error.message, !isTransient(result.status))
+    throw new WriteError(
+      result.error.message,
+      refusedOnPurpose(result.error) || !isTransient(result.status),
+    )
   }
 }

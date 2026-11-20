@@ -25,6 +25,16 @@ export function isTransient(status: number): boolean {
 }
 
 /**
+ * A refusal the database's own functions raise on purpose (PL/pgSQL's
+ * P0 class: "Nothing planned to move", "No garment to update"): PostgREST
+ * answers it 500, as if the server had failed, but sending it again would
+ * be refused again, holding up everything behind it (Joe, 20 November).
+ */
+export function refusedOnPurpose(error: { code?: string }): boolean {
+  return /^P0/.test(error.code ?? '')
+}
+
+/**
  * A write refused because its own id is taken: an earlier send of it was
  * applied (a reload sent it again while the first was still on its way).
  * Every write's ids are made on the device, so nothing else takes them.

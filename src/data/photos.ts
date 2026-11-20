@@ -157,7 +157,14 @@ async function sendHeld(queue: WriteQueue): Promise<void> {
   try {
     for (const h of heldNow) {
       if (typeof navigator !== 'undefined' && !navigator.onLine) break
-      if (queue.entries().some((e) => e.itemIds.includes(h.item))) continue
+      const mine = queue.entries().filter((e) => e.itemIds.includes(h.item))
+      // Its garment refused (OFF-004): the photo has nothing to belong to.
+      if (mine.some((e) => e.state === 'failed' && /create_/.test(e.fn))) {
+        void del(h.id, heldDb()).catch(() => undefined)
+        setHeld(heldNow.filter((x) => x.id !== h.id))
+        continue
+      }
+      if (mine.length) continue
       const bucket = supabase().storage.from(BUCKET)
       const [{ error }] = await Promise.all([
         bucket.upload(h.path, await h.blob.arrayBuffer(), KEEP),
@@ -222,20 +229,44 @@ export function photoWrites(queue: WriteQueue) {
      */
     holdPhoto(
       item: string,
-      photo: { blob: Blob; width: number; height: number },
+      photo: {
+        /** The photo, or the photo still being made (the sheet saved before it was ready). */
+        blob: Blob | Promise<Blob>
+        width: number
+        height: number
+        /** Shown until it is ready: the preview the sheet showed. */
+        url?: string
+      },
       old?: Photo,
     ): void {
       const id = newId()
       const path = pathOf(item, id)
-      const shown = URL.createObjectURL(photo.blob)
-      local.set(path, shown)
-      local.set(smallPath(path), shown)
-      const h: Held = { item, id, path, ...photo, ...(old && { old: old.path }) }
-      for (const x of heldNow) if (x.item === item) void del(x.id, heldDb()).catch(() => undefined)
-      setHeld([...heldNow.filter((x) => x.item !== item), h])
-      void set(id, h, heldDb())
-        .catch(() => undefined)
-        .then(() => sendHeld(queue))
+      const hold = (blob: Blob) => {
+        const shown = URL.createObjectURL(blob)
+        local.set(path, shown)
+        local.set(smallPath(path), shown)
+        const h: Held = {
+          item,
+          id,
+          path,
+          blob,
+          width: photo.width,
+          height: photo.height,
+          ...(old && { old: old.path }),
+        }
+        for (const x of heldNow)
+          if (x.item === item) void del(x.id, heldDb()).catch(() => undefined)
+        setHeld([...heldNow.filter((x) => x.item !== item), h])
+        void set(id, h, heldDb())
+          .catch(() => undefined)
+          .then(() => sendHeld(queue))
+      }
+      if (photo.blob instanceof Blob) return hold(photo.blob)
+      if (photo.url) {
+        local.set(path, photo.url)
+        local.set(smallPath(path), photo.url)
+      }
+      void photo.blob.then(hold, () => undefined)
     },
     /**
      * An Item's photo, made small on the device first (RCP-006 3): uploaded

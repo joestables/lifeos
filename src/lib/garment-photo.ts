@@ -48,16 +48,26 @@ const canvasOf = (side: number) => {
 const webp = (canvas: HTMLCanvasElement, quality: number) =>
   new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/webp', quality))
 
+/** A preview's side: the sheet's photo and the loupe's, while the kept photo is made. */
+const PREVIEW = 640
+
 /**
  * The square kept (WRD-005 2), as small as a Recipe's photo (ADR-0052):
- * drawn once at its size and made WebP once (again a little lower only if
- * it is still heavy), its pixels read for the colour from the same canvas.
- * Each file made on a phone costs seconds, so no other is.
+ * its colour read and a small preview made at once, so the sheet opens
+ * straight away; the photo itself drawn at 1200px and made WebP once (again
+ * a little lower only if it is still heavy) while the sheet is filled in.
+ * Each file made on a phone costs time (Joe, 20 November).
  */
 export async function keepSquare(
   picture: ImageBitmap,
   crop: Crop,
-): Promise<{ blob: Blob; width: number; height: number; estimate: Estimate }> {
+): Promise<{
+  photo: Promise<Blob>
+  preview: Blob
+  width: number
+  height: number
+  estimate: Estimate
+}> {
   const { left, top, side } = cropSquare(picture.width, picture.height, crop)
   const out = Math.round(Math.min(SIDE, side))
   const canvas = canvasOf(out)
@@ -65,10 +75,21 @@ export async function keepSquare(
   g.imageSmoothingQuality = 'high'
   g.drawImage(picture, left, top, side, side, 0, 0, out, out)
   const estimate = readColour(canvas)
-  let blob = await webp(canvas, 0.8)
-  if (blob && blob.size > PHOTO_BYTES) blob = (await webp(canvas, 0.65)) ?? blob
-  if (!blob || blob.type !== 'image/webp') throw new Error('This browser can’t make WebP')
-  return { blob, width: out, height: out, estimate }
+  const small = canvasOf(Math.min(PREVIEW, out))
+  small.getContext('2d')!.drawImage(canvas, 0, 0, small.width, small.height)
+  const preview = await new Promise<Blob | null>((resolve) =>
+    small.toBlob(resolve, 'image/jpeg', 0.85),
+  )
+  if (!preview) throw new Error('This picture can’t be read')
+  const photo = (async () => {
+    let blob = await webp(canvas, 0.8)
+    if (blob && blob.size > PHOTO_BYTES) blob = (await webp(canvas, 0.65)) ?? blob
+    if (!blob || blob.type !== 'image/webp') throw new Error('This browser can’t make WebP')
+    return blob
+  })()
+  // Not waited for here: a failure is the sheet's, at Save.
+  photo.catch(() => undefined)
+  return { photo, preview, width: out, height: out, estimate }
 }
 
 /** The garment's colour in a square photo (WRD-006 1; ADR-0067). */
