@@ -2,6 +2,40 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#106](https://github.com/joestables/lifeos/pull/106) — Lists on Notes; the Meal plan and Shopping as Recipes' tabs
+
+Branch `claude/serene-wozniak-kdt98z` · 2026-11-20 · Stage 4b, step 12
+
+**What it did**
+- **The drawer** is Today, Week, Plan, Notes, Gym, Recipes and Wardrobe:
+  no Meal plan, Shopping or "Later" (Cardio, Goals, Finance), at Joe's
+  asking ([ADR-0069](../20-architecture/adr/0069-lists-and-recipes-tabs.md)).
+- **Recipes** has five tabs: Recipes, Ideas, Week, Pantry and Shop. Week
+  and Pantry are the Meal plan's as they were; Shop is Shopping's Food,
+  green, open shops only. `/meal-plan` and `/shopping` redirect.
+- **List**, a new core Type: a name and lines under subheadings, no date,
+  Shareable, pinned and labelled as a Note; Notes' **Lists** tab and a
+  List's page; ticking the last line asks to complete it; live for a
+  Household; found by a line in Search (NTE-006–008).
+- **Conversions:** a Thought becomes a List; nothing becomes a Shopping
+  list any more (SHP-003 5, ITM-006 5 removed), and a Note doesn't become
+  a List.
+- **Migrations** `ontology`, `lists_schema` (`core.list_lines`),
+  `lists_removing` and `lists_move` (Shopping's two Other lists made
+  Lists, their lines and ticks kept).
+- **New in the design system:** NoteCard's `checklist`; ShoppingLine's
+  `colour`.
+
+**Verified**
+- `npm run check`, `npm run build`, `npm run db:test` (new `lists_test`;
+  the move tried on sample data), the browser tests (new `lists.spec.ts`;
+  the design page's screenshots refreshed); dark and light screenshots at
+  both widths.
+
+**Left for later**
+- The contract migration: `shopping.shopping_list.kind` and
+  `shopping.update_list` dropped once no app sends them.
+
 ## [#105](https://github.com/joestables/lifeos/pull/105) — Stage 6: the Week tab reworked, the crop 1:1, the weather at a glance
 
 Branch `claude/vigilant-thompson-k8bkzm` · 2026-11-20 · Stage 6, step 11
