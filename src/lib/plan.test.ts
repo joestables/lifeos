@@ -95,6 +95,29 @@ describe('Plan places each Item on its days', () => {
     expect(ids('2026-10-16')).toEqual(['fri-0900', 'fri-1930'])
   })
 
+  it("WRD-026 1: a day's clothes are one card, every Outfit worn on it together", () => {
+    const worn = (id: string, do_on: string) => item(id, { type: 'outfit_worn', do_on })
+    const days = planDays(
+      [
+        worn('mon-a', '2026-10-12'),
+        item('mon-task', { do_on: '2026-10-12' }),
+        worn('mon-b', '2026-10-12'),
+        worn('wed', '2026-10-14'),
+        worn('gone', '2026-10-14'),
+      ].map((i) => (i.id === 'gone' ? { ...i, archived_at: '2026-10-13T09:00:00Z' } : i)),
+      WEEK[0]!,
+      WEEK[6]!,
+      TZ,
+    )
+    const mon = days.get('2026-10-12')!
+    expect(mon.map((p) => p.item.id)).toEqual(['mon-a', 'mon-task'])
+    expect(mon[0]!.group!.map((i) => i.id)).toEqual(['mon-a', 'mon-b'])
+    expect(days.get('2026-10-14')!.map((p) => p.group?.map((i) => i.id))).toEqual([['wed']])
+    // Hidden with Week's filter (WRD-026 3).
+    const hidden = planDays([worn('x', '2026-10-12')], WEEK[0]!, WEEK[6]!, TZ, ['outfit_worn'])
+    expect(hidden.get('2026-10-12')).toEqual([])
+  })
+
   it('PLN-001 3: an Event from Saturday to Monday is on each of those days', () => {
     const days = planDays(
       [allDay('away', '2026-10-17', '2026-10-20')],

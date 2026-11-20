@@ -19,7 +19,7 @@ written, and its specs come first. **Stage 6**, Wardrobe, has started: its
 [plan](50-progress/plans/stage-6.md) is written, its
 [spec](10-requirements/modules/wardrobe.md), decisions (ADR-0066–0068)
 and design agreed, its schema in the database, its colour
-calculations in `packages/wardrobe`, Settings → Wardrobe, its garments, outfits and Week built.
+calculations in `packages/wardrobe`, Settings → Wardrobe, its garments, outfits and Week built, and it shows on Today, Week and Search.
 
 ## Index
 

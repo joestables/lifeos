@@ -34,9 +34,17 @@ const base = (item: Item) => ({
 })
 
 /** An Item on Today as a card on the widget (TDY-006 1). */
-export function widgetCard(on: OnToday, day: string, timezone: string): WidgetCard {
+export function widgetCard(
+  on: OnToday,
+  day: string,
+  timezone: string,
+  clothesOf: (day: string) => string = () => 'Outfit',
+): WidgetCard {
   const { placed } = on
   const { item } = placed
+  // The day's clothes, one card as on Today (WRD-026 1).
+  if (placed.group)
+    return { ...base(item), title: clothesOf(day), time: null, done: false, ends: null }
   return {
     ...base(item),
     // A Reminder at its first time that day.
@@ -64,6 +72,8 @@ export function widgetDays(
   timezone: string,
   alertsOf: (item: Item) => AlertTime[] = () => [],
   now: Date = new Date(),
+  /** What a day's clothes are called (WRD-026 1), from the wardrobe. */
+  clothesOf?: (day: string) => string,
 ): WidgetDay[] {
   return [today, addDays(today, 1)].map((day) => {
     const list = todayList(items, day, timezone, alertsOf, now)
@@ -76,7 +86,7 @@ export function widgetDays(
           done: false,
           ends: null,
         })),
-        ...list.parts.flatMap((p) => p.items.map((on) => widgetCard(on, day, timezone))),
+        ...list.parts.flatMap((p) => p.items.map((on) => widgetCard(on, day, timezone, clothesOf))),
       ],
     }
   })

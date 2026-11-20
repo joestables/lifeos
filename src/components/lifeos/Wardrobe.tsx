@@ -112,7 +112,11 @@ export function GarmentPhoto({
           )}
         />
       ) : (
-        <ShirtIcon aria-hidden className="size-9 opacity-45" strokeWidth={1.5} />
+        <ShirtIcon
+          aria-hidden
+          className="size-9 max-h-3/5 max-w-3/5 opacity-45"
+          strokeWidth={1.5}
+        />
       )}
     </div>
   )
@@ -988,6 +992,49 @@ export function DayOutfit({
 }
 
 /**
+ * A day's clothes' photos small in a row (WRD-026 1): up to four, the last
+ * "+2" when there are more; at the end of Today's row and in OutfitPlanCard.
+ */
+export function OutfitPhotos({
+  photos,
+  wide = false,
+  past = false,
+}: {
+  photos: (string | undefined)[]
+  wide?: boolean
+  past?: boolean
+}) {
+  const max = wide ? 6 : 4
+  const shown = photos.length > max ? photos.slice(0, max - 1) : photos
+  const extra = photos.length - shown.length
+  return (
+    <div
+      data-slot="outfit-photos"
+      data-colour="orange"
+      className="pointer-events-none flex shrink-0 gap-1"
+    >
+      {shown.map((p, i) => (
+        <GarmentPhoto
+          key={i}
+          src={p}
+          className={cn('shrink-0 rounded-sm', wide ? 'size-9' : 'size-7', past && 'opacity-60')}
+        />
+      ))}
+      {extra > 0 && (
+        <span
+          className={cn(
+            'grid shrink-0 place-items-center rounded-sm bg-muted text-2xs font-bold text-muted-foreground tabular-nums',
+            wide ? 'size-9' : 'size-7',
+          )}
+        >
+          +{extra}
+        </span>
+      )}
+    </div>
+  )
+}
+
+/**
  * A day's clothes on Today and Week (WRD-026): one card, shaped as a
  * PlanCard, "Outfit" in the Type's colour, what it is ("Navy work outfit",
  * "2 outfits", "3 garments"), and its garments' photos small in a row.
@@ -997,25 +1044,26 @@ export function OutfitPlanCard({
   photos,
   past = false,
   wide = false,
+  dragging = false,
   onOpen,
 }: {
   title: string
   photos: (string | undefined)[]
   past?: boolean
   wide?: boolean
+  /** Being dragged to another day (WRD-026 4). */
+  dragging?: boolean
   onOpen?: () => void
 }) {
-  const max = wide ? 6 : 4
-  const shown = photos.length > max ? photos.slice(0, max - 1) : photos
-  const extra = photos.length - shown.length
   return (
     <div
       data-slot="plan-card"
       data-colour="orange"
       className={cn(
-        'relative flex min-w-0 flex-col rounded-control bg-card shadow-card',
+        'relative flex min-w-0 flex-col rounded-control bg-card shadow-card transition-[box-shadow,opacity]',
         wide ? 'gap-1.5 px-3.5 py-3' : 'gap-1.5 px-2.5 py-[9px]',
         past && 'bg-[color-mix(in_oklch,var(--card)_50%,transparent)] shadow-none',
+        dragging && 'z-10 cursor-grabbing shadow-pop',
       )}
     >
       <div
@@ -1038,25 +1086,7 @@ export function OutfitPlanCard({
       >
         {title}
       </button>
-      <div className="flex gap-1">
-        {shown.map((p, i) => (
-          <GarmentPhoto
-            key={i}
-            src={p}
-            className={cn('shrink-0 rounded-sm', wide ? 'size-9' : 'size-7', past && 'opacity-60')}
-          />
-        ))}
-        {extra > 0 && (
-          <span
-            className={cn(
-              'grid shrink-0 place-items-center rounded-sm bg-muted text-2xs font-bold text-muted-foreground tabular-nums',
-              wide ? 'size-9' : 'size-7',
-            )}
-          >
-            +{extra}
-          </span>
-        )}
-      </div>
+      <OutfitPhotos photos={photos} wide={wide} past={past} />
     </div>
   )
 }

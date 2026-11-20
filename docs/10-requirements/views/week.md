@@ -252,7 +252,7 @@ Acceptance criteria
 
 **As** Joe, **I want** a day's outfits on Week as one card, **so that**
 clothes don't fill the day.
-Priority: Must · Status: agreed (Stage 6; [WRD-026](../modules/wardrobe.md#wrd-026--outfits-on-today-and-week))
+Priority: Must · Status: verified (`wardrobe-everywhere.spec.ts`; Stage 6; [WRD-026](../modules/wardrobe.md#wrd-026--outfits-on-today-and-week))
 
 Acceptance criteria
 1. Given a day with Outfits worn, then they show as one orange card among

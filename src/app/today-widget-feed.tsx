@@ -1,8 +1,9 @@
 import { todayIn } from '@lifeos/recurrence'
 import { useEffect, useMemo } from 'react'
-import { queue, useItems, useSettings } from '@/data'
+import { queue, useItems, useSettings, useWardrobe } from '@/data'
 import { widgetDays } from '@/lib/today-widget'
 import { useAlertTimes } from './alert-times'
+import { clothesTitle } from './day-actions'
 
 /**
  * In the Android app, hands the Today widget today's and tomorrow's cards,
@@ -15,10 +16,17 @@ export function TodayWidgetFeed() {
   const { items, isLoading } = useItems(queue)
   const today = todayIn(settings.timezone)
   const alertsOf = useAlertTimes()
+  const { days: clothes } = useWardrobe(queue)
   const days = useMemo(
     () =>
-      isLoading ? null : JSON.stringify(widgetDays(items, today, settings.timezone, alertsOf)),
-    [isLoading, items, today, settings.timezone, alertsOf],
+      isLoading
+        ? null
+        : JSON.stringify(
+            widgetDays(items, today, settings.timezone, alertsOf, new Date(), (d) =>
+              clothes.has(d) ? clothesTitle(clothes.get(d)!) : 'Outfit',
+            ),
+          ),
+    [isLoading, items, today, settings.timezone, alertsOf, clothes],
   )
   useEffect(() => {
     if (!days) return

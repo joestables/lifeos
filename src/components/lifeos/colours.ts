@@ -6,6 +6,7 @@ import {
   DumbbellIcon,
   FileTextIcon,
   LightbulbIcon,
+  ShirtIcon,
   ShoppingCartIcon,
   SquareCheckBigIcon,
   UtensilsIcon,
@@ -33,4 +34,7 @@ export const TYPE_ICONS: Record<string, LucideIcon> = {
   exercise: DumbbellIcon,
   workout_template: ClipboardListIcon,
   workout: DumbbellIcon,
+  garment: ShirtIcon,
+  outfit: ShirtIcon,
+  outfit_worn: ShirtIcon,
 }

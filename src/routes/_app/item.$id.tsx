@@ -40,6 +40,17 @@ function ItemRoute() {
   useEffect(() => {
     if (item?.type === 'shopping_list')
       void navigate({ to: '/shopping/$id', params: { id: item.id }, replace: true })
+    // Wardrobe's own open on its tabs (WRD-027 2); a day's clothes, as the widget's card, on its week.
+    else if (item?.type === 'garment')
+      void navigate({ to: '/wardrobe', search: { garment: item.id }, replace: true })
+    else if (item?.type === 'outfit')
+      void navigate({ to: '/wardrobe', search: { tab: 'outfits', outfit: item.id }, replace: true })
+    else if (item?.type === 'outfit_worn')
+      void navigate({
+        to: '/wardrobe',
+        search: { tab: 'week', day: item.do_on ?? undefined },
+        replace: true,
+      })
     else if (recipe)
       void navigate({
         to: '/recipes/$id',

@@ -21,8 +21,15 @@ declare module '@tanstack/react-router' {
 export function useOpenItem() {
   const navigate = useNavigate()
   const isMobile = useIsMobile()
-  return (item: Pick<Item, 'id' | 'type'>) => {
-    if (item.type === 'recipe') {
+  return (item: Pick<Item, 'id' | 'type'> & Partial<Pick<Item, 'do_on'>>) => {
+    // Wardrobe's own open on its tabs (WRD-027 2): a day's clothes on its week.
+    if (item.type === 'garment') {
+      void navigate({ to: '/wardrobe', search: { garment: item.id } })
+    } else if (item.type === 'outfit') {
+      void navigate({ to: '/wardrobe', search: { tab: 'outfits', outfit: item.id } })
+    } else if (item.type === 'outfit_worn') {
+      void navigate({ to: '/wardrobe', search: { tab: 'week', day: item.do_on ?? undefined } })
+    } else if (item.type === 'recipe') {
       void navigate({ to: '/recipes/$id', params: { id: item.id } })
     } else if (item.type === 'workout') {
       void navigate({ to: '/gym/workouts/$id', params: { id: item.id } })

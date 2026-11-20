@@ -2,6 +2,28 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#102](https://github.com/joestables/lifeos/pull/102) — Stage 6: the wardrobe everywhere
+
+Branch `claude/vigilant-thompson-k8bkzm` · 2026-11-20 · Stage 6, step 10
+
+**What it did**
+- **The day's clothes as one card** ([WRD-026](../10-requirements/modules/wardrobe.md#wrd-026--outfits-on-today-and-week),
+  WEK-003): on Week and Today, named for the outfit, "2 outfits" or
+  "3 garments", with the garments' photos; opening the day's weather,
+  outfits and garments, and Open in Wardrobe. Outfit is a Type to show
+  and to add from a day's "+"; dragging the card moves the whole day.
+- **The Today widget** shows the same card, from the phone and from
+  `core_private.today_cards` (migration `stage6_widget_clothes`).
+- **Search** ([WRD-027](../10-requirements/modules/wardrobe.md#wrd-027--wardrobe-offline-and-in-search)):
+  garments and outfits found and opened in Wardrobe, as an Item's link
+  opens them.
+- **New in the design system:** OutfitPhotos; OutfitPlanCard's `dragging`.
+
+**Verified**
+- `npm run check`, `npm run build`, `npm run db:test`; 6 walks in
+  `wardrobe-everywhere.spec.ts`, the browser tests; dark and light
+  screenshots.
+
 ## [#101](https://github.com/joestables/lifeos/pull/101) — Stage 6: the Week
 
 Branch `claude/vigilant-thompson-k8bkzm` · 2026-11-20 · Stage 6, step 9

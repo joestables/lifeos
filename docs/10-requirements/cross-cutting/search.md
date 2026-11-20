@@ -67,5 +67,9 @@ Acceptance criteria
 4. Given Pantry entries, then they aren't in Search; the Pantry has its own
    search ([PAN-001](../modules/meals.md#pan-001--the-pantry)).
 
+Garments and outfits are found too, and open in Wardrobe
+([WRD-027](../modules/wardrobe.md#wrd-027--wardrobe-offline-and-in-search) 2);
+a day's Outfits worn aren't results of their own.
+
 Non-goals (Stage 2): "find things like this" (pgvector, later); Recent
 Items; searching inside attachments; filters by Type or date.

@@ -140,6 +140,7 @@ export {
   ListEntryRow,
   OutfitCard,
   OutfitPicture,
+  OutfitPhotos,
   OutfitPlanCard,
   PhotoCrop,
   PlaceHere,
