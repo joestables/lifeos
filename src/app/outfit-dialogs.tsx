@@ -1,4 +1,11 @@
-import { CalendarPlusIcon, PencilIcon, ShirtIcon, Trash2Icon, XIcon } from 'lucide-react'
+import {
+  CalendarIcon,
+  CalendarPlusIcon,
+  PencilIcon,
+  ShirtIcon,
+  Trash2Icon,
+  XIcon,
+} from 'lucide-react'
 import { useId, useState } from 'react'
 import {
   ChoiceChips,
@@ -7,6 +14,8 @@ import {
   ItemDialog,
   OutfitPicture,
   RecipeGrid,
+  RemoveButton,
+  SectionLabel,
   Text,
 } from '@/components/lifeos'
 import { Badge } from '@/components/ui/badge'
@@ -14,7 +23,16 @@ import { Button } from '@/components/ui/button'
 import { DropdownMenuItem } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { usePhotoUrls, type OutfitView, type WardrobeData, type WardrobeEntry } from '@/data'
+import {
+  removeDayGarment,
+  usePhotoUrls,
+  type DayEntry,
+  type OutfitView,
+  type WardrobeData,
+  type WardrobeEntry,
+} from '@/data'
+import { dayLabel, removeEntry, wornSays } from './day-actions'
+import { MoveDialog } from './move-dialog'
 import { matchesSearch } from '@/lib/wardrobe'
 import { garmentFace } from './garment-face'
 import { MoreMenu } from './more-menu'
@@ -43,6 +61,7 @@ export function OutfitDialog({
   onOpenGarment,
   onEdit,
   onClose,
+  entry,
 }: {
   outfit: OutfitView
   wardrobe: WardrobeData
@@ -51,9 +70,12 @@ export function OutfitDialog({
   onOpenGarment: (id: string) => void
   onEdit: () => void
   onClose: () => void
+  /** Opened from a day (WRD-022 2–5): that day's garments, moved or taken off it. */
+  entry?: DayEntry
 }) {
+  const [moving, setMoving] = useState(false)
   const photos = usePhotoUrls(
-    outfit.garments.map((g) => g.photo?.path),
+    [...outfit.garments, ...(entry?.garments ?? [])].map((g) => g.photo?.path),
     'small',
   )
   const photoOf = (path?: string) => (path ? photos.get(path) : undefined)
@@ -72,7 +94,22 @@ export function OutfitDialog({
             <PencilIcon />
           </Button>
           <MoreMenu>
-            {collection ? (
+            {entry && (
+              <>
+                <DropdownMenuItem onClick={() => setMoving(true)}>
+                  <CalendarIcon /> Move to another day
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => {
+                    removeEntry(entry)
+                    onClose()
+                  }}
+                >
+                  <XIcon /> Remove from {dayLabel(entry.day)}
+                </DropdownMenuItem>
+              </>
+            )}
+            {entry ? null : collection ? (
               <DropdownMenuItem
                 onClick={() => {
                   takeOutOfCollection([outfit], collection)
@@ -103,7 +140,28 @@ export function OutfitDialog({
             {c.name}
           </Badge>
         ))}
+        <Text as="span" size="sm" tone="muted" className="ml-1 tabular-nums">
+          {wornSays(outfit.worn)}
+        </Text>
       </div>
+      {entry && (
+        <section className="flex flex-col gap-1.5">
+          <SectionLabel count={entry.garments.length}>{dayLabel(entry.day)}</SectionLabel>
+          {entry.garments.map((g) => (
+            <GarmentLine
+              key={g.item.id}
+              garment={garmentFace(g, photoOf(g.photo?.path))}
+              muted={g.retired}
+              end={
+                <RemoveButton
+                  label={`Take ${g.title} off ${dayLabel(entry.day)}`}
+                  onClick={() => removeDayGarment(entry.item.id, g.item.id)}
+                />
+              }
+            />
+          ))}
+        </section>
+      )}
       <div className="flex flex-col gap-5 sm:flex-row">
         <OutfitPicture
           photos={outfit.garments.map((g) => photoOf(g.photo?.path))}
@@ -128,6 +186,15 @@ export function OutfitDialog({
       >
         <CalendarPlusIcon /> {outfit.planned ? 'In Planned outfits' : 'Add to Planned outfits'}
       </Button>
+      {moving && entry && (
+        <MoveDialog
+          entry={entry}
+          onClose={() => {
+            setMoving(false)
+            onClose()
+          }}
+        />
+      )}
     </ItemDialog>
   )
 }

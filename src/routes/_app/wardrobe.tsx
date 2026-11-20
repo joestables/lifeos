@@ -6,28 +6,39 @@ import { GarmentDialog } from '@/app/garment-dialog'
 import { GarmentPhotoStep, type TakenPhoto } from '@/app/garment-camera'
 import { GarmentSheetDialog } from '@/app/garment-sheet'
 import { WardrobeTab } from '@/app/wardrobe-tab'
-import { queue, usePhotoUrls, useWardrobe } from '@/data'
+import { queue, usePhotoUrls, useWardrobe, type DayEntry } from '@/data'
+import { WardrobeWeek } from '@/app/wardrobe-week'
 import { OutfitDialog, OutfitEditor } from '@/app/outfit-dialogs'
 import { OutfitsTab } from '@/app/outfits-tab'
 import { useOutfitsView } from '@/app/outfits-view'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useIsMobile } from '@/hooks/use-mobile'
 
-type Tab = 'wardrobe' | 'outfits'
+type Tab = 'wardrobe' | 'outfits' | 'week'
+
+interface Search {
+  tab?: 'outfits' | 'week'
+  /** The Week's day, when not this week. */
+  day?: string
+  garment?: string
+  outfit?: string
+  /** The day's entry a garment or outfit was opened from. */
+  on?: string
+}
 
 /**
- * Wardrobe (WRD-001–WRD-019): my garments as photo cards, added with the
+ * Wardrobe (WRD-001–WRD-025): my garments as photo cards, added with the
  * camera and a sheet, each opening read-only, and built into outfits; my
- * outfits by collection, with the Planned outfits pane. The Week tab comes
- * with plan step 9.
+ * outfits by collection, with the Planned outfits pane; and the Week, each
+ * day's outfits and garments beside its forecast.
  */
 export const Route = createFileRoute('/_app/wardrobe')({
-  validateSearch: (
-    s: Record<string, unknown>,
-  ): { tab?: 'outfits'; garment?: string; outfit?: string } => ({
-    ...(s.tab === 'outfits' ? { tab: 'outfits' as const } : {}),
+  validateSearch: (s: Record<string, unknown>): Search => ({
+    ...(s.tab === 'outfits' || s.tab === 'week' ? { tab: s.tab } : {}),
+    ...(typeof s.day === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s.day) ? { day: s.day } : {}),
     ...(typeof s.garment === 'string' ? { garment: s.garment } : {}),
     ...(typeof s.outfit === 'string' ? { outfit: s.outfit } : {}),
+    ...(typeof s.on === 'string' ? { on: s.on } : {}),
   }),
   component: Wardrobe,
 })
@@ -57,14 +68,26 @@ function Wardrobe() {
   const openOutfit = search.outfit
     ? wardrobe.outfits.find((o) => o.item.id === search.outfit)
     : undefined
-  const showOutfit = (id: string) =>
+  // The tab and the Week's day stay as popups open and close.
+  const base: Search = {
+    ...(search.tab && { tab: search.tab }),
+    ...(search.day && { day: search.day }),
+  }
+  const entryOf = (id?: string) =>
+    id ? [...wardrobe.days.values()].flat().find((e) => e.item.id === id) : undefined
+  const showOutfit = (id: string, entry?: DayEntry) =>
     void navigate({
       to: '.',
-      search: { tab: 'outfits', outfit: id },
+      search: {
+        ...base,
+        ...(!search.tab && { tab: 'outfits' as const }),
+        outfit: id,
+        ...(entry && { on: entry.item.id }),
+      },
       state: { itemOpened: true },
     })
   const toTab = (next: Tab) =>
-    void navigate({ to: '.', search: next === 'outfits' ? { tab: 'outfits' } : {}, replace: true })
+    void navigate({ to: '.', search: next === 'wardrobe' ? {} : { tab: next }, replace: true })
   const [choosing, setChoosing] = useState(false)
   const [adding, setAdding] = useState<Adding | null>(null)
   const [added, setAdded] = useState<string | null>(null)
@@ -73,16 +96,16 @@ function Wardrobe() {
   const open = search.garment
     ? wardrobe.garments.find((g) => g.item.id === search.garment)
     : undefined
-  const show = (id: string) =>
+  const show = (id: string, entry?: DayEntry) =>
     void navigate({
       to: '.',
-      search: { ...(search.tab && { tab: search.tab }), garment: id },
+      search: { ...base, garment: id, ...(entry && { on: entry.item.id }) },
       state: { itemOpened: true },
     })
   const hide = () => {
     setAdded(null)
     if (location.state.itemOpened) router.history.back()
-    else void navigate({ to: '.', search: search.tab ? { tab: search.tab } : {}, replace: true })
+    else void navigate({ to: '.', search: base, replace: true })
   }
   const editing = adding?.editing
     ? wardrobe.garments.find((g) => g.item.id === adding.editing)
@@ -103,22 +126,39 @@ function Wardrobe() {
   const action =
     tab === 'outfits'
       ? { label: 'New outfit', onClick: () => setOutfitEditor({}) }
-      : { label: 'New garment', onClick: () => newGarment() }
+      : tab === 'week'
+        ? undefined
+        : { label: 'New garment', onClick: () => newGarment() }
 
   return (
     <TypeScope colour="orange">
-      <PageHeader title="Wardrobe" action={choosing ? undefined : action} />
+      <PageHeader title="Wardrobe" action={choosing || !action ? undefined : action} />
       <div className="flex flex-col gap-5 px-5 pb-28 sm:px-9 sm:pb-8">
         <TabsRow>
           <Tabs value={tab} onValueChange={(v: Tab) => toTab(v)}>
             <TabsList aria-label="View">
               <TabsTrigger value="wardrobe">Wardrobe</TabsTrigger>
               <TabsTrigger value="outfits">Outfits</TabsTrigger>
+              <TabsTrigger value="week">Week</TabsTrigger>
             </TabsList>
           </Tabs>
-          <PageAction label={action.label} onClick={action.onClick} />
+          {action && <PageAction label={action.label} onClick={action.onClick} />}
         </TabsRow>
-        {tab === 'outfits' ? (
+        {tab === 'week' ? (
+          <WardrobeWeek
+            wardrobe={wardrobe}
+            day={search.day ?? wardrobe.today}
+            onDay={(day) =>
+              void navigate({
+                to: '.',
+                search: { tab: 'week', ...(day !== wardrobe.today && { day }) },
+                replace: true,
+              })
+            }
+            onOpenOutfit={showOutfit}
+            onOpenGarment={show}
+          />
+        ) : tab === 'outfits' ? (
           <OutfitsTab
             wardrobe={wardrobe}
             view={outfitsView}
@@ -143,9 +183,10 @@ function Wardrobe() {
           wardrobe={wardrobe}
           collection={viewing}
           onClose={hide}
+          entry={entryOf(search.on)}
           onEdit={() => setOutfitEditor({ editing: openOutfit.item.id })}
           onOpenGarment={(id) =>
-            void navigate({ to: '.', search: { tab: 'outfits', garment: id }, replace: true })
+            void navigate({ to: '.', search: { ...base, garment: id }, replace: true })
           }
         />
       )}
@@ -177,7 +218,8 @@ function Wardrobe() {
           photo={open.photo && photos.get(open.photo.path)}
           added={added === open.item.id}
           outfits={outfitsOf(open.item.id)}
-          onOpenOutfit={showOutfit}
+          onOpenOutfit={(id) => showOutfit(id)}
+          entry={entryOf(search.on)}
           onClose={hide}
           onEdit={() =>
             setAdding({ editing: open.item.id, camera: false, photo: null, fromSheet: false })

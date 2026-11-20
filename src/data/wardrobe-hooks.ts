@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
-import { useAllItems, useLinks, useMarks, useQueueEntries } from './hooks'
+import { todayIn } from '@lifeos/recurrence'
+import { useAllItems, useLinks, useMarks, useQueueEntries, useSettings } from './hooks'
 import { applyPendingPhotos, fetchPhotos, photosKey, useHeldPhotos, type Photo } from './photos'
 import type { WriteQueue } from './queue/queue'
 import type { Item } from './types'
@@ -16,6 +17,9 @@ import {
   fetchWardrobeLists,
   fetchWeatherPlace,
   fetchPlanned,
+  fetchWornGarments,
+  wornGarmentsKey,
+  applyPendingWornGarments,
   plannedKey,
   applyPendingPlanned,
   garmentsKey,
@@ -42,6 +46,8 @@ export interface GarmentView {
   tags: WardrobeEntry[]
   photo: Photo | undefined
   retired: boolean
+  /** Worn worked out from days gone (WRD-024). */
+  worn: Worn
   favourite: boolean
   /** Not on the server yet, its photo included, or refused (WRD-005 6). */
   sync?: 'pending' | 'failed'
@@ -58,6 +64,24 @@ export interface OutfitView {
   /** My own collections it is in (My Outfits isn't stored). */
   collections: string[]
   planned: boolean
+  worn: Worn
+}
+
+/** How often and when last a garment or outfit was worn (WRD-024 2): days gone that had it. */
+export interface Worn {
+  times: number
+  /** The last day, or none yet. */
+  last: string | null
+}
+
+/** A day's outfit or single garment (WRD-020 3): the garments the day has, its own (ADR-0013). */
+export interface DayEntry {
+  item: Item
+  day: string
+  /** The outfit it wears; none for a single garment. */
+  outfit?: OutfitView
+  garments: GarmentView[]
+  past: boolean
 }
 
 /** How many use an entry: what shows (garments not deleted, or outfits) and all. */
@@ -80,6 +104,9 @@ export interface WardrobeData {
   place: WeatherPlace | null
   uses: (list: WardrobeList, id: string) => EntryUses
   isLoading: boolean
+  /** Days' outfits and single garments, by day, outfits first (WRD-020 3). */
+  days: ReadonlyMap<string, DayEntry[]>
+  today: string
 }
 
 const EMPTY: WardrobeLists = {
@@ -112,6 +139,8 @@ export function useWardrobe(queue: WriteQueue): WardrobeData {
   const marks = useMarks(queue)
   const links = useLinks(queue)
   const plannedRows = useQuery({ queryKey: plannedKey, queryFn: fetchPlanned })
+  const wornRows = useQuery({ queryKey: wornGarmentsKey, queryFn: fetchWornGarments })
+  const today = todayIn(useSettings(queue).timezone)
 
   return useMemo(() => {
     const mine = entries.filter((e) => e.fn.startsWith('wardrobe.'))
@@ -157,6 +186,7 @@ export function useWardrobe(queue: WriteQueue): WardrobeData {
         photo: photoOf.get(row.item_id),
         retired: item.status === 'cancelled',
         favourite: marks.has(row.item_id),
+        worn: { times: 0, last: null },
         sync: item.sync ?? (heldFor.has(row.item_id) ? 'pending' : undefined),
         title:
           item.title ||
@@ -196,6 +226,7 @@ export function useWardrobe(queue: WriteQueue): WardrobeData {
         ),
         collections: collected.filter((c) => c.outfit_id === item.id).map((c) => c.collection_id),
         planned: inPane.has(item.id),
+        worn: { times: 0, last: null },
       }))
       .sort((a, b) => b.item.created_at.localeCompare(a.item.created_at))
     const outfitOf = new Map(outfits.map((o) => [o.item.id, o]))
@@ -231,12 +262,73 @@ export function useWardrobe(queue: WriteQueue): WardrobeData {
       return { shown: users.filter((g) => !deleted.has(g)).length, all: users.length }
     }
 
+    // Days (WRD-020–WRD-024): each Outfit worn, its garments its own.
+    const includes = (outfit: string) =>
+      links
+        .filter((l) => l.from_item === outfit && l.link_type === 'includes')
+        .map((l) => l.to_item)
+    const worn = applyPendingWornGarments(wornRows.data ?? [], mine, includes)
+    const wears = new Map(
+      links.filter((l) => l.link_type === 'wears').map((l) => [l.from_item, l.to_item]),
+    )
+    const days = new Map<string, DayEntry[]>()
+    const stat = new Map<string, Worn>()
+    const count = (id: string, day: string) => {
+      const s = stat.get(id) ?? { times: 0, last: null }
+      s.times += 1
+      if (!s.last || day > s.last) s.last = day
+      stat.set(id, s)
+    }
+    for (const item of all) {
+      if (item.type !== 'outfit_worn' || item.archived_at !== null || !item.do_on) continue
+      const ids = worn.filter((w) => w.worn_id === item.id).map((w) => w.garment_id)
+      const dayGarments = ids.flatMap((g) => {
+        const view = garmentOf.get(g)
+        return view ? [view] : []
+      })
+      // Its last garment taken off, the entry goes too (WRD-022 4).
+      if (!dayGarments.length) continue
+      dayGarments.sort(
+        (a, b) =>
+          (catAt.get(a.row.category_id) ?? Infinity) - (catAt.get(b.row.category_id) ?? Infinity) ||
+          a.title.localeCompare(b.title),
+      )
+      const outfitId = wears.get(item.id)
+      const past = item.do_on < today
+      const entry: DayEntry = {
+        item,
+        day: item.do_on,
+        ...(outfitId && outfitOf.get(outfitId) && { outfit: outfitOf.get(outfitId) }),
+        garments: dayGarments,
+        past,
+      }
+      const list = days.get(item.do_on) ?? []
+      list.push(entry)
+      days.set(item.do_on, list)
+      // Worn once its day has gone (WRD-024 1).
+      if (past) {
+        for (const g of dayGarments) count(g.item.id, item.do_on)
+        if (outfitId) count(outfitId, item.do_on)
+      }
+    }
+    for (const list of days.values())
+      list.sort(
+        (a, b) =>
+          Number(!a.outfit) - Number(!b.outfit) ||
+          a.item.created_at.localeCompare(b.item.created_at),
+      )
+    const none: Worn = { times: 0, last: null }
+    for (const g of garments) g.worn = stat.get(g.item.id) ?? none
+    for (const o of outfits) o.worn = stat.get(o.item.id) ?? none
+
     return {
       lists: listed,
       garments,
       outfits,
       planned,
       sameOutfit,
+      days,
+      today,
       place: applyPendingWeatherPlace(settings.data ?? null, mine),
       uses,
       isLoading: itemsLoading || lists.isLoading || rows.isLoading,
@@ -257,5 +349,7 @@ export function useWardrobe(queue: WriteQueue): WardrobeData {
     marks,
     links,
     plannedRows.data,
+    wornRows.data,
+    today,
   ])
 }

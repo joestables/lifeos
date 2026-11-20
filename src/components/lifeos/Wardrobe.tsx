@@ -1489,3 +1489,59 @@ export function GarmentStat({ label, value }: { label: string; value: string }) 
     </div>
   )
 }
+
+/* ---------- Placing on a day (a phone) ---------- */
+
+/**
+ * Where an outfit or garment chosen in the tray goes (WRD-021 5): a 44px
+ * dashed button the width of the day, in the Type's text colour.
+ */
+export function PlaceHere({ day, onClick }: { day: string; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      aria-label={`Place on ${day}`}
+      onClick={onClick}
+      className="flex h-11 items-center justify-center gap-1.5 rounded-row border-[1.5px] border-dashed border-ring text-sm font-semibold text-tc-text outline-none focus-visible:ring-3 focus-visible:ring-ring-soft"
+    >
+      <PlusIcon aria-hidden className="size-4" /> Place here
+    </button>
+  )
+}
+
+/**
+ * The tray while placing (WRD-021 5): what was chosen, small, "Choose a
+ * day" and what it is, and Cancel.
+ */
+export function PlacingBar({
+  photos,
+  what,
+  onCancel,
+}: {
+  photos: (string | undefined)[]
+  /** "Weekend · 4 garments". */
+  what: string
+  onCancel: () => void
+}) {
+  return (
+    <div
+      role="status"
+      data-slot="placing-bar"
+      className="fixed inset-x-3 bottom-[calc(12px+env(safe-area-inset-bottom))] z-20 flex h-16 items-center gap-3 rounded-lg bg-popover px-2.5 shadow-dialog md:hidden"
+    >
+      <OutfitPicture photos={photos} className="size-11 shrink-0 rounded-md" />
+      <span className="flex min-w-0 flex-1 flex-col">
+        <span className="truncate text-sm font-semibold">Choose a day</span>
+        <span className="truncate text-xs text-muted-foreground">{what}</span>
+      </span>
+      <Button variant="ghost" size="sm" onClick={onCancel}>
+        Cancel
+      </Button>
+    </div>
+  )
+}
+
+/** A day's single garments in a row of 56px tiles (a phone's day, WRD-020 3). */
+export function DayGarmentRow({ children }: { children: ReactNode }) {
+  return <div className="flex min-w-0 flex-wrap items-center gap-2 [&>*]:size-14">{children}</div>
+}

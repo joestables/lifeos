@@ -6,10 +6,11 @@ import {
   Trash2Icon,
   XIcon,
 } from 'lucide-react'
-import { useState } from 'react'
+import { useState, type HTMLAttributes } from 'react'
 import {
   ChoiceChips,
   EmptyState,
+  GarmentLine,
   OutfitCard,
   PlannedOutfitLine,
   RecipeGrid,
@@ -44,15 +45,24 @@ import {
   removeFromCollection,
   removePlanned,
   usePhotoUrls,
+  type GarmentView,
   type OutfitView,
   type WardrobeData,
 } from '@/data'
 import { useLongPress } from '@/hooks/use-long-press'
 import { directed } from '@/lib/sort'
-import { matchesSearch } from '@/lib/wardrobe'
+import { matchesSearch, wornSorts } from '@/lib/wardrobe'
 import { deleteOutfits, garmentCount, planOutfits, takeOutOfCollection } from './outfit-actions'
 import { SearchField } from './search-field'
+import { garmentFace } from './garment-face'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { MY_OUTFITS, type OutfitSort, OUTFIT_SORTS, type useOutfitsView } from './outfits-view'
+
+const byAdded = (a: OutfitView, b: OutfitView) => b.item.created_at.localeCompare(a.item.created_at)
+const outfitSorts: Record<OutfitSort, (a: OutfitView, b: OutfitView) => number> = {
+  added: byAdded,
+  ...wornSorts(byAdded),
+}
 
 /** An outfit matches when each word is in its name or matches one of its garments (WRD-016 3). */
 function outfitMatches(o: OutfitView, search: string) {
@@ -156,21 +166,49 @@ function CollectDialog({
  * The Planned outfits pane (WRD-021 1–2): the outfits waiting to go onto
  * days, newest last, each removable, with Clear; on a phone a tray.
  */
+/** What's chosen in the pane to go on a day: an outfit, or a single garment. */
+export interface Pick {
+  kind: 'outfit' | 'garment'
+  id: string
+}
+
 export function PlannedPane({
   wardrobe,
   onOpen,
+  week,
 }: {
   wardrobe: WardrobeData
   onOpen: (id: string) => void
+  /**
+   * On the Week tab (WRD-021 3–5): the Garments search too; on a computer
+   * each line dragged onto a day, on a phone chosen and then a day.
+   */
+  week?: {
+    drag: (key: string) => HTMLAttributes<HTMLDivElement>
+    picked?: Pick
+    onPick: (pick: Pick) => void
+  }
 }) {
   const [open, setOpen] = useState(false)
+  const [showing, setShowing] = useState<'outfits' | 'garments'>('outfits')
+  const [search, setSearch] = useState('')
   const planned = wardrobe.planned
+  const found = week
+    ? wardrobe.garments.filter((g) => !g.retired && matchesSearch(g, search)).slice(0, 40)
+    : []
   const photos = usePhotoUrls(
-    planned.flatMap((o) => o.garments.map((g) => g.photo?.path)),
+    [
+      ...planned.flatMap((o) => o.garments.map((g) => g.photo?.path)),
+      ...found.map((g) => g.photo?.path),
+    ],
     'small',
   )
-  const photosOf = (o: OutfitView) =>
-    o.garments.map((g) => (g.photo ? photos.get(g.photo.path) : undefined))
+  const photoOf = (g: GarmentView) => (g.photo ? photos.get(g.photo.path) : undefined)
+  const photosOf = (o: OutfitView) => o.garments.map(photoOf)
+  const pick = (p: Pick) => {
+    week?.onPick(p)
+    setOpen(false)
+  }
   const clear = (
     <Button
       variant="ghost"
@@ -187,7 +225,8 @@ export function PlannedPane({
       Clear
     </Button>
   )
-  const lines = (
+  // On a phone's Week, a line is chosen to place; anywhere else, opened.
+  const lines = (phone: boolean) => (
     <div className="flex flex-col gap-1.5">
       {!planned.length && (
         <Text as="p" size="sm" tone="muted">
@@ -195,17 +234,54 @@ export function PlannedPane({
         </Text>
       )}
       {planned.map((o) => (
-        <PlannedOutfitLine
-          key={o.item.id}
-          photos={photosOf(o)}
-          name={o.name.trim() || undefined}
-          meta={garmentCount(o.garments.length)}
-          onRemove={() => removePlanned([o.item.id])}
-          onOpen={() => onOpen(o.item.id)}
-        />
+        <div key={o.item.id} {...(!phone && week?.drag(`outfit:${o.item.id}`))}>
+          <PlannedOutfitLine
+            photos={photosOf(o)}
+            name={o.name.trim() || undefined}
+            meta={
+              phone && week
+                ? `${garmentCount(o.garments.length)} · Tap, then a day`
+                : garmentCount(o.garments.length)
+            }
+            picked={week?.picked?.kind === 'outfit' && week.picked.id === o.item.id}
+            onRemove={() => removePlanned([o.item.id])}
+            onOpen={() =>
+              phone && week ? pick({ kind: 'outfit', id: o.item.id }) : onOpen(o.item.id)
+            }
+          />
+        </div>
       ))}
     </div>
   )
+  const garmentsList = (phone: boolean) => (
+    <div className="flex flex-col gap-2">
+      <SearchField label="Search clothes" value={search} onChange={setSearch} />
+      <div className="flex flex-col gap-0.5">
+        {found.map((g) => (
+          <div key={g.item.id} {...(!phone && week?.drag(`garment:${g.item.id}`))}>
+            <GarmentLine
+              garment={garmentFace(g, photoOf(g))}
+              {...(phone && { onOpen: () => pick({ kind: 'garment', id: g.item.id }) })}
+            />
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+  const body = (phone: boolean) =>
+    week ? (
+      <>
+        <Tabs value={showing} onValueChange={(v: 'outfits' | 'garments') => setShowing(v)}>
+          <TabsList aria-label="Show">
+            <TabsTrigger value="outfits">Outfits</TabsTrigger>
+            <TabsTrigger value="garments">Garments</TabsTrigger>
+          </TabsList>
+        </Tabs>
+        {showing === 'outfits' ? lines(phone) : garmentsList(phone)}
+      </>
+    ) : (
+      lines(phone)
+    )
   return (
     <>
       <WardrobePane
@@ -214,7 +290,7 @@ export function PlannedPane({
         aside={clear}
         className="max-md:hidden"
       >
-        {lines}
+        {body(false)}
       </WardrobePane>
       {open ? (
         <TrayPanel
@@ -223,16 +299,18 @@ export function PlannedPane({
           aside={clear}
           onClose={() => setOpen(false)}
         >
-          {lines}
+          {body(true)}
         </TrayPanel>
       ) : (
-        <Tray
-          title="Planned outfits"
-          photos={planned.map((o) => photosOf(o)[0])}
-          count={planned.length}
-          unit="outfit"
-          onOpen={() => setOpen(true)}
-        />
+        !week?.picked && (
+          <Tray
+            title="Planned outfits"
+            photos={planned.map((o) => photosOf(o)[0])}
+            count={planned.length}
+            unit="outfit"
+            onOpen={() => setOpen(true)}
+          />
+        )
       )}
     </>
   )
@@ -278,9 +356,7 @@ export function OutfitsTab({
     : wardrobe.outfits
   const shown = inCollection
     .filter((o) => outfitMatches(o, search))
-    .sort(
-      directed((a, b) => b.item.created_at.localeCompare(a.item.created_at), 'desc', kept.sortDir),
-    )
+    .sort(directed(outfitSorts[kept.sort], 'desc', kept.sortDir))
   const photos = usePhotoUrls(
     shown.flatMap((o) => o.garments.map((g) => g.photo?.path)),
     'small',

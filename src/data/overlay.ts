@@ -277,6 +277,56 @@ export function applyPending(items: readonly ItemRow[], entries: readonly QueueE
         mark(a.p_id, { title: (a.p_name ?? '').trim() })
         break
       }
+      // A day's outfit or single garment (ADR-0066 7), named as the server names it.
+      case 'wardrobe.plan_outfit':
+      case 'wardrobe.plan_garment': {
+        const a = entry.args as {
+          p_id: string
+          p_day: string
+          p_outfit?: string
+          p_garment?: string
+        }
+        if (!byId.has(a.p_id)) {
+          const from = byId.get(a.p_outfit ?? a.p_garment ?? '')
+          byId.set(a.p_id, {
+            ...blankItem(a.p_id, 'outfit_worn', at),
+            title: from?.title?.trim() || (a.p_outfit ? 'Outfit' : ''),
+            do_on: a.p_day,
+            sync,
+          })
+          order.push(a.p_id)
+        } else mark(a.p_id, {})
+        break
+      }
+      case 'wardrobe.move_worn': {
+        const a = entry.args as { p_id: string; p_day: string }
+        mark(a.p_id, { do_on: a.p_day })
+        break
+      }
+      case 'wardrobe.create_outfit_from_day': {
+        const a = entry.args as {
+          p_outfit: string
+          p_worn: string
+          p_singles: string[]
+          p_name?: string | null
+        }
+        if (byId.has(a.p_worn)) {
+          mark(a.p_worn, {})
+          break
+        }
+        const day = a.p_singles.map((s) => byId.get(s)?.do_on).find(Boolean) ?? null
+        const name = (a.p_name ?? '').trim()
+        byId.set(a.p_outfit, { ...blankItem(a.p_outfit, 'outfit', at), title: name, sync })
+        byId.set(a.p_worn, {
+          ...blankItem(a.p_worn, 'outfit_worn', at),
+          title: name || 'Outfit',
+          do_on: day,
+          sync,
+        })
+        order.push(a.p_outfit, a.p_worn)
+        for (const s of a.p_singles) mark(s, { archived_at: at })
+        break
+      }
       case 'wardrobe.update_garment':
         mark((entry.args as { p_id: string }).p_id, {})
         break

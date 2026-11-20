@@ -57,7 +57,7 @@ export function DayColumn({
       aria-label={`${name} ${number}`}
       className="group/day flex min-w-0 flex-col gap-2"
     >
-      <div className="flex h-8 items-center gap-1.5 px-1">
+      <div className="relative flex h-8 min-w-0 items-center gap-1.5 px-1">
         <span className="text-xs font-bold tracking-[0.06em] text-muted-foreground uppercase">
           {name}
         </span>
@@ -70,7 +70,8 @@ export function DayColumn({
           {number}
         </span>
         {add && (
-          <span className="ml-auto opacity-0 transition-opacity group-hover/day:opacity-100 focus-within:opacity-100 has-[[data-popup-open]]:opacity-100">
+          // Over the header's end, on the page's background, so a narrow day keeps its name.
+          <span className="absolute top-0 right-0 rounded-control bg-background opacity-0 transition-opacity group-hover/day:opacity-100 focus-within:opacity-100 has-[[data-popup-open]]:opacity-100">
             {add}
           </span>
         )}

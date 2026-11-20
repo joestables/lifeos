@@ -2,6 +2,28 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#101](https://github.com/joestables/lifeos/pull/101) — Stage 6: the Week
+
+Branch `claude/vigilant-thompson-k8bkzm` · 2026-11-20 · Stage 6, step 9
+
+**What it did**
+- **Days in the data layer**: each day's outfits and single garments,
+  their garments the day's own, with unsent writes laid over them; worn
+  worked out from days gone ([WRD-024](../10-requirements/modules/wardrobe.md#wrd-024--worn-worked-out)),
+  shown on the popups and as sorts.
+- **The Week tab** (WRD-020–WRD-023): the week with each day's forecast;
+  dragging from the Planned outfits pane (and its Garments search) and
+  between days, Place here on a phone; a day's "+"; Move to another day,
+  Remove, and a garment taken off one day; Create outfit.
+- **The weather** (WRD-025): Open-Meteo's forecast, kept on the device,
+  quiet when it fails; "No weather yet" with Set location.
+- **New in the design system:** PlaceHere, PlacingBar, DayGarmentRow; a
+  DayColumn's "+" over the end of its header.
+
+**Verified**
+- `npm run check`, `npm run build`; 8 walks in `wardrobe-week.spec.ts` on a
+  computer and a phone, the browser tests; dark and light screenshots.
+
 ## [#100](https://github.com/joestables/lifeos/pull/100) — Stage 6: outfits
 
 Branch `claude/vigilant-thompson-k8bkzm` · 2026-11-19 · Stage 6, step 8

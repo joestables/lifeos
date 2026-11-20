@@ -965,12 +965,27 @@ November, on the [Wardrobe design canvas](https://claude.ai/artifact/6b8SnjL1sUC
   footer says how many garments, then Cancel and Save outfit.
 - **The Week tab:** the PlanToolbar, seven DayColumns, each with its
   DayWeather under the day's name (two lines; an empty line on a day gone),
-  its DayOutfits (`column`) and single garments' tiles, and an outline
-  "Create outfit" under two or more single garments; the Planned Outfits
-  pane on the right. On a phone the days are stacked, the forecast at the
-  end of each day's name, DayOutfits as `row`; an outfit is placed by
-  choosing it in the opened tray, then pressing a day's dashed "Place
-  here" (the tray saying "Choose a day", with Cancel).
+  its DayOutfits (`column`) and single garments' tiles, and, under two or
+  more single garments, an outline `icon-sm` `shirt` "Create outfit" (named
+  in its tooltip; the column is narrow); the Planned Outfits pane on the
+  right, its Outfits and Garments as Tabs (Garments a search of GarmentLines),
+  each line dragged onto a day ([Dragging](#dragging)). On a phone the days
+  are stacked as the Meal plan's (MealDay), the DayWeather and "+" at the
+  end of each day's line, DayOutfits as `row` and single garments in a
+  DayGarmentRow, "Create outfit" a ghost `sm` after them; an outfit or
+  garment is placed by choosing it in the opened tray, then pressing a
+  day's PlaceHere (the PlacingBar saying "Choose a day", with Cancel). A
+  day's "+" opens "Add to Wed 18 Nov", a Dialog of Outfits and Garments
+  (Tabs), searched, chosen with a tap. A day's outfit opens its popup with
+  that day's garments under the day's SectionLabel, each with a RemoveButton,
+  and "Move to another day" (a Calendar Dialog, "Move to") and "Remove from
+  Wed 18 Nov" in its "…"; a single garment opens its popup with the same
+  two. Placing, moving and removing each say so in a toast with Undo. With
+  no place set, an Alert above the week, "No weather yet", with an outline
+  "Set location"; a forecast over an hour old and offline says "Forecast
+  from 14:05" muted. A garment's popup's tiles are Worn ("3×"), Last worn
+  ("Mon 16 Nov", or "Never") and Added; an outfit's says "Worn 3× · last
+  Mon 16 Nov" (or "Not worn yet") after its Badges.
 - **Today and Week** show the day's clothes as one OutfitPlanCard (Week)
   or an ItemRow with the photos at its end (Today); either opens an
   ItemDialog, "Outfit · Wed 18 November": the DayWeather, each outfit's

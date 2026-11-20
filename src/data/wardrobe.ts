@@ -65,6 +65,10 @@ export const garmentTagsKey = ['wardrobe', 'garment_tags'] as const
 export const outfitCollectionsKey = ['wardrobe', 'outfit_collections'] as const
 export const wardrobeSettingsKey = ['wardrobe', 'settings'] as const
 export const plannedKey = ['wardrobe', 'planned_outfits'] as const
+export const wornGarmentsKey = ['wardrobe', 'worn_garments'] as const
+
+/** A garment on a day (ADR-0066 7): the day's own snapshot, by Outfit worn. */
+export type WornGarment = Pick<Wardrobe['worn_garments']['Row'], 'worn_id' | 'garment_id'>
 
 /** An outfit waiting in the Planned Outfits pane (WRD-021), in the pane's order. */
 export interface Planned {
@@ -160,6 +164,17 @@ export async function fetchPlanned(): Promise<Planned[]> {
       .is('removed_at', null)
       .order('position')
       .order('outfit_id')
+      .range(from, to),
+  )
+}
+
+export async function fetchWornGarments(): Promise<WornGarment[]> {
+  return allRows((from, to) =>
+    wardrobe()
+      .from('worn_garments')
+      .select('worn_id, garment_id')
+      .order('worn_id')
+      .order('garment_id')
       .range(from, to),
   )
 }
@@ -376,6 +391,44 @@ export function applyPendingPlanned(rows: readonly Planned[], entries: readonly 
       const os = (a.p_outfits as string[]) ?? []
       out = out.filter((p) => !os.includes(p.outfit_id))
     } else if (e.fn === 'wardrobe.clear_planned') out = []
+    // Placed on a day, it leaves the pane (WRD-021 3).
+    else if (e.fn === 'wardrobe.plan_outfit') out = out.filter((p) => p.outfit_id !== a.p_outfit)
   }
   return out === rows ? out : [...out].sort((x, y) => (x.position < y.position ? -1 : 1))
+}
+
+/**
+ * Days' garments with unsent writes laid over (WRD-021–WRD-023): an outfit
+ * placed takes its garments as they are now (`garmentsOf`); a garment
+ * taken off a day leaves that day only; an outfit made from a day's single
+ * garments wears all of them.
+ */
+export function applyPendingWornGarments(
+  rows: readonly WornGarment[],
+  entries: readonly QueueEntry[],
+  garmentsOf: (outfit: string) => readonly string[],
+): WornGarment[] {
+  let out = rows as WornGarment[]
+  const add = (worn: string, garments: readonly string[]) => {
+    for (const g of garments)
+      if (!out.some((r) => r.worn_id === worn && r.garment_id === g))
+        out = [...out, { worn_id: worn, garment_id: g }]
+  }
+  for (const e of entries) {
+    const a = args(e)
+    if (e.fn === 'wardrobe.plan_outfit') {
+      if (!out.some((r) => r.worn_id === a.p_id))
+        add(String(a.p_id), garmentsOf(String(a.p_outfit)))
+    } else if (e.fn === 'wardrobe.plan_garment') add(String(a.p_id), [String(a.p_garment)])
+    else if (e.fn === 'wardrobe.remove_day_garment')
+      out = out.filter((r) => !(r.worn_id === a.p_worn && r.garment_id === a.p_garment))
+    else if (e.fn === 'wardrobe.create_outfit_from_day') {
+      const singles = (a.p_singles as string[]) ?? []
+      add(
+        String(a.p_worn),
+        out.filter((r) => singles.includes(r.worn_id)).map((r) => r.garment_id),
+      )
+    }
+  }
+  return out
 }

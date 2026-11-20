@@ -178,6 +178,42 @@ export function wardrobeWrites(queue: WriteQueue) {
     clearPlanned(): void {
       queue.enqueue('wardrobe.clear_planned', {}, [])
     },
+    /** An outfit on a day, out of the Planned Outfits pane (WRD-021 3); it keeps the garments it has now. */
+    planOutfit(outfit: string, day: string, id: string = newId()): string {
+      queue.enqueue('wardrobe.plan_outfit', { p_id: id, p_outfit: outfit, p_day: day }, [id])
+      return id
+    },
+    /** A single garment on a day (WRD-021 4, WRD-022 1). */
+    planGarment(garment: string, day: string, id: string = newId()): string {
+      queue.enqueue('wardrobe.plan_garment', { p_id: id, p_garment: garment, p_day: day }, [id])
+      return id
+    },
+    /** To another day (WRD-022 2). Taken off a day is `archiveItem`. */
+    moveWorn(id: string, day: string): void {
+      queue.enqueue('wardrobe.move_worn', { p_id: id, p_day: day }, [id])
+    },
+    /** One garment off one day's outfit, that day only (WRD-022 4). */
+    removeDayGarment(worn: string, garment: string): void {
+      queue.enqueue('wardrobe.remove_day_garment', { p_worn: worn, p_garment: garment }, [worn])
+    },
+    /** A day's single garments made an outfit, worn there in their place (WRD-023). */
+    createOutfitFromDay(
+      singles: string[],
+      name?: string,
+      ids: { outfit: string; worn: string } = { outfit: newId(), worn: newId() },
+    ): { outfit: string; worn: string } {
+      queue.enqueue(
+        'wardrobe.create_outfit_from_day',
+        {
+          p_outfit: ids.outfit,
+          p_worn: ids.worn,
+          p_singles: singles,
+          ...(name?.trim() && { p_name: name.trim() }),
+        },
+        [ids.outfit, ids.worn, ...singles],
+      )
+      return ids
+    },
     /** Retired, or brought back (WRD-013). */
     retireGarment(id: string, retired = true): void {
       queue.enqueue('wardrobe.retire_garment', { p_id: id, p_retired: retired }, [id])

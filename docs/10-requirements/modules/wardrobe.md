@@ -299,7 +299,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to sort and group my clothes, **so that** the grid
 follows how I think about them.
-Priority: Must · Status: verified (`wardrobe.spec.ts`); last worn and times worn come with the Week (plan step 9)
+Priority: Must · Status: verified (`wardrobe.spec.ts`, `wardrobe-week.spec.ts`)
 
 Acceptance criteria
 1. Given Sort, then I sort by category, brand, size (each in my order, or
@@ -425,7 +425,7 @@ Acceptance criteria
 
 **As** Joe, **I want** a garment to open read-only, **so that** I can look
 without changing anything, and edit only when I mean to.
-Priority: Must · Status: verified (`wardrobe.spec.ts`); last worn, times worn and its outfits come with plan steps 8–9
+Priority: Must · Status: verified (`wardrobe.spec.ts`, `wardrobe-outfits.spec.ts`, `wardrobe-week.spec.ts`)
 
 Acceptance criteria
 1. Given a card pressed, then the garment opens in a popup, read-only
@@ -528,7 +528,7 @@ Acceptance criteria
 
 **As** Joe, **I want** my outfits as cards, by collection, **so that** I
 can see what I can wear.
-Priority: Must · Status: verified (`wardrobe-outfits.spec.ts`); last worn and times worn come with the Week (plan step 9)
+Priority: Must · Status: verified (`wardrobe-outfits.spec.ts`); sort by worn built
 
 Acceptance criteria
 1. Given the Outfits tab, then the collection chosen in the Collection
@@ -546,7 +546,7 @@ Acceptance criteria
 
 **As** Joe, **I want** an outfit to open read-only, **so that** I see it
 whole and change it only when I mean to.
-Priority: Must · Status: verified (`wardrobe-outfits.spec.ts`); last worn and times worn come with plan step 9
+Priority: Must · Status: verified (`wardrobe-outfits.spec.ts`, `wardrobe-week.spec.ts`)
 
 Acceptance criteria
 1. Given a card pressed, then the outfit opens in a popup, read-only: its
@@ -599,7 +599,7 @@ Acceptance criteria
 
 **As** Joe, **I want** a week of what I'll wear beside the weather, **so
 that** I plan clothes around it.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified (`wardrobe-week.spec.ts`)
 
 Acceptance criteria
 1. Given the Week tab on a computer, then Monday to Sunday show as columns,
@@ -616,7 +616,7 @@ Acceptance criteria
 
 **As** Joe, **I want** outfits I've picked waiting beside the week, **so
 that** I drag each onto its day.
-Priority: Must · Status: agreed; 1–2 verified (`wardrobe-outfits.spec.ts`), the rest with the Week (plan step 9)
+Priority: Must · Status: verified (`wardrobe-outfits.spec.ts`, `wardrobe-week.spec.ts`)
 
 Acceptance criteria
 1. Given outfits sent with Add to Planned Outfits, then they wait in the
@@ -638,7 +638,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to change a day's clothes easily, **so that** the
 plan follows what the week brings.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified (`wardrobe-week.spec.ts`)
 
 Acceptance criteria
 1. Given a day's "+", then I add an outfit or a single garment from a
@@ -656,7 +656,7 @@ Acceptance criteria
 
 **As** Joe, **I want** a day's single garments to become an outfit, **so
 that** a combination I tried is kept.
-Priority: Should · Status: agreed
+Priority: Should · Status: agreed; 1 verified (`wardrobe-week.spec.ts`); 2 (choosing which) not yet built
 
 Acceptance criteria
 1. Given a day with two or more single garments, then Create outfit makes
@@ -670,7 +670,7 @@ Acceptance criteria
 **As** Joe, **I want** what I planned to count as worn once the day has
 gone, **so that** I see what I wear and what I don't, without ticking
 anything.
-Priority: Should · Status: agreed
+Priority: Should · Status: verified (`wardrobe-week.spec.ts`)
 
 Acceptance criteria
 1. Given a planned day has passed, then every outfit and garment on it
@@ -684,7 +684,7 @@ Acceptance criteria
 
 **As** Joe, **I want** each day's forecast on the Week tab, **so that** I
 plan for rain and cold.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified (`wardrobe-week.spec.ts`); 3 built (the forecast kept with the device's cache)
 
 Acceptance criteria
 1. Given a location in Settings → Wardrobe, then each day from today to the

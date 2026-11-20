@@ -75,6 +75,7 @@ function garment(
     photo: undefined,
     retired: more.retired ?? false,
     favourite: more.favourite ?? false,
+    worn: { times: 0, last: null },
     title: id,
   }
 }

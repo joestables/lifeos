@@ -136,6 +136,9 @@ import {
   applyPendingWeatherPlace,
   applyPendingPlanned,
   plannedKey,
+  wornGarmentsKey,
+  applyPendingWornGarments,
+  type WornGarment,
   type Planned,
   garmentsKey,
   garmentTagsKey,
@@ -198,6 +201,12 @@ const collections: {
       'wardrobe.update_garment',
       'wardrobe.create_outfit',
       'wardrobe.rename_outfit',
+      'wardrobe.plan_outfit',
+      'wardrobe.plan_garment',
+      'wardrobe.move_worn',
+      // The last garment off a day takes the day's entry with it: refetched.
+      'wardrobe.remove_day_garment',
+      'wardrobe.create_outfit_from_day',
       // A garment's title is worked out from its entries' names (ADR-0066 4).
       'wardrobe.save_entry',
       'wardrobe.merge_entry',
@@ -388,6 +397,8 @@ const collections: {
       'wardrobe.create_outfit',
       'wardrobe.add_outfit_garment',
       'wardrobe.remove_outfit_garment',
+      'wardrobe.plan_outfit',
+      'wardrobe.create_outfit_from_day',
     ],
     fold: (rows: Link[], e: QueueEntry) => applyPendingLinks(rows, [e]),
   },
@@ -505,8 +516,32 @@ const collections: {
   {
     key: plannedKey,
     // The server orders the pane by its clock: fetched again after.
-    fns: ['wardrobe.add_planned', 'wardrobe.remove_planned', 'wardrobe.clear_planned'],
+    fns: [
+      'wardrobe.add_planned',
+      'wardrobe.remove_planned',
+      'wardrobe.clear_planned',
+      'wardrobe.plan_outfit',
+    ],
     fold: (rows: Planned[], e: QueueEntry) => applyPendingPlanned(rows, [e]),
+  },
+  {
+    key: wornGarmentsKey,
+    // The server takes each day's snapshot, and an outfit's change reaches
+    // days to come (ADR-0066 7): folded in as the device sees it, then fetched again.
+    fns: [
+      'wardrobe.plan_outfit',
+      'wardrobe.plan_garment',
+      'wardrobe.remove_day_garment',
+      'wardrobe.create_outfit_from_day',
+      'wardrobe.add_outfit_garment',
+      'wardrobe.remove_outfit_garment',
+    ],
+    fold: (rows: WornGarment[], e: QueueEntry) =>
+      applyPendingWornGarments(rows, [e], (outfit) =>
+        (queryClient.getQueryData<Link[]>(linksKey) ?? [])
+          .filter((l) => l.from_item === outfit && l.link_type === 'includes')
+          .map((l) => l.to_item),
+      ),
   },
   {
     key: wardrobeSettingsKey,
@@ -746,6 +781,11 @@ export const {
   addPlanned,
   removePlanned,
   clearPlanned,
+  planOutfit,
+  planGarment,
+  moveWorn,
+  removeDayGarment,
+  createOutfitFromDay,
 } = wardrobeWrites(queue)
 
 export const {
@@ -895,8 +935,10 @@ export {
   useWardrobe,
   type EntryUses,
   type GarmentView,
+  type DayEntry,
   type OutfitView,
   type WardrobeData,
+  type Worn,
 } from './wardrobe-hooks'
 export {
   ORDERED_LISTS,
@@ -944,4 +986,11 @@ export async function calendarAction(
   }
   return answer
 }
-export { searchPlaces, placeLabel, splitPlace, type PlaceFound } from './weather'
+export {
+  searchPlaces,
+  placeLabel,
+  splitPlace,
+  useForecast,
+  type DayForecast,
+  type PlaceFound,
+} from './weather'
