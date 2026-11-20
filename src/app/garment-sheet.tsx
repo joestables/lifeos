@@ -54,17 +54,28 @@ interface Draft {
   ownName: string
 }
 
-/** My colours close to a photo's estimate, or a new one of it (WRD-006 2–3). */
+/** A list entry's name as the server compares them: case and spacing aside. */
+const nameKey = (s: string) => s.trim().toLowerCase().replace(/\s+/g, ' ')
+
+/** My colour of this name, if I have one: a new colour of the same name would be refused. */
+const colourNamed = (colours: readonly WardrobeEntry[], name: string) =>
+  colours.find((c) => nameKey(c.name) === nameKey(name))
+
+/**
+ * My colours close to a photo's estimate, or a new one of it (WRD-006 2–3).
+ * A new one named as one of mine already is ("Brown") is mine instead,
+ * however far its shade (Joe, 20 November: a second "Brown" was refused,
+ * and the garment with it).
+ */
 function suggestion(photo: TakenPhoto | null, colours: readonly WardrobeEntry[]) {
   if (!photo) return { offered: [] as WardrobeEntry[], fresh: undefined }
   const mine = colours.filter((c): c is WardrobeEntry & { hex: string } => c.hex !== null)
   const { offered, newColour } = suggestColours(photo.estimate.lab, mine)
-  return {
-    offered,
-    fresh: newColour
-      ? { kind: 'new' as const, hex: photo.estimate.hex, name: nameColour(photo.estimate.lab) }
-      : undefined,
-  }
+  if (!newColour) return { offered, fresh: undefined }
+  const name = nameColour(photo.estimate.lab)
+  const named = colourNamed(colours, name)
+  if (named) return { offered: [named], fresh: undefined }
+  return { offered, fresh: { kind: 'new' as const, hex: photo.estimate.hex, name } }
 }
 
 /** The part of a brand's name typed, in bold (WRD-008 1). */
@@ -284,9 +295,11 @@ export function GarmentSheetDialog({
 
   const save = () => {
     if (needed || !draft.colour || !draft.category || !draft.size || !draft.brand) return
+    // A new colour named as one of mine is mine (the server refuses a second).
     const colour =
       draft.colour.kind === 'new'
-        ? saveEntry('colour', draft.colour.name, { hex: draft.colour.hex })
+        ? (colourNamed(lists.colour, draft.colour.name)?.id ??
+          saveEntry('colour', draft.colour.name, { hex: draft.colour.hex }))
         : draft.colour.id
     let id: string
     if (garment) {

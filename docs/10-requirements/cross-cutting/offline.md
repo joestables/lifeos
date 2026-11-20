@@ -81,6 +81,10 @@ Acceptance criteria
    the screen and last few actions — never the Item's content.
 2. Given I've seen that a change wasn't saved, then I can clear it, and the
    Item shows what was saved.
+3. Given the server refuses a write on purpose (its function raising
+   "nothing to change"), then it is rejected at once, though the server
+   answers as if it had failed: retried, it would hold up every change
+   behind it (Joe, 20 November).
 
 ### OFF-005 — Read what I've already loaded
 

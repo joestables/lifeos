@@ -5,10 +5,15 @@ import { Button } from '@/components/ui/button'
 import { toast } from '@/components/ui/sonner'
 import { clampCrop, CENTRED, keepSquare, type Crop } from '@/lib/garment-photo'
 import type { Estimate } from '@lifeos/wardrobe'
+import { cn } from '@/lib/utils'
 
-/** A garment's photo as taken and squared (WRD-005 2), with its colour read (WRD-006 1). */
+/**
+ * A garment's photo as taken and squared (WRD-005 2), with its colour read
+ * (WRD-006 1): `url` a small preview at once, `blob` the photo kept, being
+ * made while the sheet is filled in.
+ */
 export interface TakenPhoto {
-  blob: Blob
+  blob: Promise<Blob>
   width: number
   height: number
   url: string
@@ -40,6 +45,9 @@ async function pictureOf(source: Blob | HTMLVideoElement): Promise<ImageBitmap> 
     whole.close()
   }
 }
+
+/** A transparent pixel: the camera's video has no poster to show. */
+const BLANK = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
 
 type Torch = MediaTrackCapabilities & { torch?: boolean }
 
@@ -169,7 +177,13 @@ export function GarmentPhotoStep({
     setBusy(true)
     try {
       const kept = await keepSquare(picture, crop)
-      onTaken({ ...kept, url: URL.createObjectURL(kept.blob) })
+      onTaken({
+        blob: kept.photo,
+        width: kept.width,
+        height: kept.height,
+        estimate: kept.estimate,
+        url: URL.createObjectURL(kept.preview),
+      })
     } catch {
       toast('This photo can’t be read')
     } finally {
@@ -234,7 +248,10 @@ export function GarmentPhotoStep({
           playsInline
           muted
           aria-label="Camera"
-          className="absolute inset-0 size-full object-cover"
+          // Android's WebView draws a large grey play button on a video with
+          // no frame yet: a blank poster, and the video shown once it plays.
+          poster={BLANK}
+          className={cn('absolute inset-0 size-full object-cover', !ready && 'opacity-0')}
         />
       )}
       {choose}

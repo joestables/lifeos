@@ -367,7 +367,9 @@ Acceptance criteria
 3. Given none of my colours is close, then a new colour of the estimate is
    offered first and selected, with a suggested name (WRD-007 2); I keep
    it, change its colour or name, or choose one of mine instead (Joe, 18
-   November).
+   November). Its suggested name already one of mine ("Brown"), mine is
+   selected instead, and a new colour named as one of mine is saved as mine:
+   names are never made twice (Joe, 20 November).
 4. Given no photo, then no colour is suggested, and I choose from mine or
    make one by its swatch alone (a colour picker without the photo).
 5. Given unit tests, then photos of known garments on known backgrounds

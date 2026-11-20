@@ -298,6 +298,42 @@ test.describe('Wardrobe', () => {
     await expect.poll(() => db.wardrobe.colours!.find((c) => c.name === 'Teal')?.hex).toMatch(/^#/)
   })
 
+  test('WRD-006 3: a new colour named as one of mine is mine, never a second', async ({
+    page,
+    isMobile,
+  }) => {
+    await fakeCamera(page, '#2f6f73')
+    const rows = structuredClone(WARDROBE)
+    // A "teal" of mine, far from the photo's shade (Joe, 20 November: a second "Brown").
+    rows.wardrobe!.colours!.push({ id: 'k-teal', name: 'teal', hex: '#d4a017' })
+    const db = await start(page, rows)
+    await newGarment(page, isMobile)
+    if (!isMobile) await page.getByRole('button', { name: 'Camera' }).click()
+    await page.getByRole('button', { name: 'Take photo' }).click()
+    await page.getByRole('button', { name: 'Use photo' }).click()
+    const sheet = page.getByRole('dialog', { name: 'New garment' })
+    await expect(sheet).not.toContainText('None of yours is close')
+    await expect(
+      sheet
+        .getByRole('group', { name: 'Colour' })
+        .getByRole('button', { name: /teal/, pressed: true }),
+    ).toBeVisible()
+    await sheet
+      .getByRole('group', { name: 'Category' })
+      .getByRole('button', { name: 'T-shirt' })
+      .click()
+    await sheet
+      .getByRole('group', { name: 'Size' })
+      .getByRole('button', { name: 'M', exact: true })
+      .click()
+    await sheet.getByRole('group', { name: 'Brand' }).getByRole('button', { name: 'Arket' }).click()
+    await sheet.getByRole('button', { name: 'Save' }).click()
+    await expect.poll(() => db.wardrobe.garment!.some((g) => g.colour_id === 'k-teal')).toBe(true)
+    expect(
+      db.wardrobe.colours!.filter((c) => String(c.name).toLowerCase() === 'teal'),
+    ).toHaveLength(1)
+  })
+
   test('WRD-005 7, WRD-008: brand searched and made, a fit and tag inline; closing asks first', async ({
     page,
     isMobile,

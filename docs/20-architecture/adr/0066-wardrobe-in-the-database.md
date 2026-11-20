@@ -182,3 +182,6 @@ square is drawn at 1200px and made WebP once (a second time, lower, only
 if it is over ADR-0052's 250 KB), its colour read from the same canvas: on
 Joe's phone the shutter had taken 20 seconds and Use photo 10, each file
 made costing seconds.
+Use photo no longer waits for it: the colour is read and a small preview
+made at once, and the photo is made while the sheet is filled in, held
+once it is ready (Joe, 20 November, the second time).

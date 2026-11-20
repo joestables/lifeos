@@ -2,6 +2,27 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#104](https://github.com/joestables/lifeos/pull/104) — Stage 6: a garment's changes not saved, and the camera faster
+
+Branch `claude/vigilant-thompson-k8bkzm` · 2026-11-20 · Stage 6, step 11
+
+**What it did**
+- **"3 changes not saved"**: the photo's colour was named "Brown", one of
+  Joe's colours already, so the new colour was refused, and the garment,
+  its day and its move with it; the move, refused with PostgREST's 500,
+  was retried, holding up every change behind it. A refusal a database
+  function raises on purpose (the P0 class) is no longer retried
+  ([OFF-004](../10-requirements/cross-cutting/offline.md#off-004--a-write-that-cant-be-saved-is-not-lost-silently) 3);
+  a new colour named as one of mine is mine (WRD-006 3); a refused
+  garment's held photo is dropped.
+- **The camera faster**: Use photo opens the sheet at once, with a small
+  preview; the photo is made while the sheet is filled in.
+- **No play button** as the camera opens: the video is hidden until it plays.
+
+**Verified**
+- `npm run check`, `npm run build`; the Wardrobe walks (new: a new colour
+  named as one of mine) and the browser tests.
+
 ## [#103](https://github.com/joestables/lifeos/pull/103) — Stage 6: Joe's first use, a bug hunt and a UI review
 
 Branch `claude/vigilant-thompson-k8bkzm` · 2026-11-20 · Stage 6, step 11

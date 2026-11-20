@@ -238,3 +238,14 @@ describe('a write sent twice (OFF-004)', () => {
     expect(alreadyApplied({ code: '42501', message: pkey })).toBe(false)
   })
 })
+
+describe('a refusal answered as a server fault (OFF-004)', () => {
+  it("is refused, not retried, when the database's own function raised it", async () => {
+    const { refusedOnPurpose } = await import('./errors')
+    // "Nothing planned to move": PostgREST answers P0002 with a 500.
+    expect(refusedOnPurpose({ code: 'P0002' })).toBe(true)
+    expect(refusedOnPurpose({ code: 'P0001' })).toBe(true)
+    expect(refusedOnPurpose({ code: '57014' })).toBe(false)
+    expect(refusedOnPurpose({})).toBe(false)
+  })
+})
