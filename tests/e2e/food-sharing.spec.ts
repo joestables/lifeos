@@ -100,7 +100,7 @@ test.describe('Food shared through a Household', () => {
   })
 
   test('MPL-002 2: a new Meal goes where my default says', async ({ page }) => {
-    const db = await start(page, '/meal-plan', HOME)
+    const db = await start(page, '/recipes?tab=week', HOME)
     await addMeal(page, '2026-10-18:lunch')
     await page.getByRole('button', { name: 'Type a meal' }).click()
     await page.getByRole('textbox', { name: 'Meal' }).fill('Sunday roast')
@@ -113,7 +113,7 @@ test.describe('Food shared through a Household', () => {
   test('MPL-001 5, HSH-003 1: the week shows all my Meals, one Household’s, or Personal', async ({
     page,
   }) => {
-    await start(page, '/meal-plan')
+    await start(page, '/recipes?tab=week')
     // All: a Personal Meal has a lock beside Home's.
     await expect(cards(page, '2026-10-14:dinner')).toHaveText(/Out: Wagamama/)
     await expect(cards(page, '2026-10-15:dinner').getByLabel('Personal')).toBeVisible()
@@ -135,7 +135,7 @@ test.describe('Food shared through a Household', () => {
   })
 
   test('MPL-003 1, HSH-003 2: a Meal made Home’s takes its leftovers with it', async ({ page }) => {
-    const db = await start(page, '/meal-plan')
+    const db = await start(page, '/recipes?tab=week')
     await cards(page, '2026-10-15:dinner').getByRole('button', { name: 'Katsu curry' }).click()
     const dialog = page.getByRole('dialog')
     await dialog.getByRole('combobox', { name: 'For' }).click()
@@ -146,7 +146,7 @@ test.describe('Food shared through a Household', () => {
   })
 
   test('HSH-003 2: someone else’s Meal can’t be moved to another Space', async ({ page }) => {
-    await start(page, '/meal-plan')
+    await start(page, '/recipes?tab=week')
     await cards(page, '2026-10-14:dinner').getByRole('button', { name: 'Out: Wagamama' }).click()
     await expect(page.getByRole('dialog').getByText('Out: Wagamama').first()).toBeVisible()
     await expect(page.getByRole('combobox', { name: 'For' })).toHaveCount(0)
@@ -190,7 +190,7 @@ test.describe('Food shared through a Household', () => {
   })
 
   test('MPL-002 1: the picker says whose a member’s Recipe is', async ({ page }) => {
-    await start(page, '/meal-plan')
+    await start(page, '/recipes?tab=week')
     await addMeal(page, '2026-10-18:dinner')
     await page.getByRole('dialog').getByRole('searchbox', { name: 'Search recipes' }).fill('ramen')
     await expect(page.getByRole('button', { name: /Shoyu ramen/ })).toContainText('Japanese · Sam')

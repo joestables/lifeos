@@ -271,19 +271,19 @@ select is(
   'SHP-003 4: any other line clears it in the shop''s own Space'
 );
 
--- A Thought sorted into a Shopping list gets its detail row.
+-- A Thought becomes a List, never a Shopping list (ADR-0069); a food shop
+-- made by hand.
 select core.create_item('00000000-0000-7000-8000-000000000031', 'thought', '{"title": "buy milk, bread"}');
-select core.convert_item('00000000-0000-7000-8000-000000000031', 'shopping_list');
-select shopping.update_list('00000000-0000-7000-8000-000000000031', '{"kind": "list"}');
-select is(
-  (select kind from shopping.shopping_list where item_id = '00000000-0000-7000-8000-000000000031'),
-  'list',
-  'ITM-006 5: a Thought made a Shopping list'
+select throws_ok(
+  $$select core.convert_item('00000000-0000-7000-8000-000000000031', 'shopping_list')$$,
+  '23514', null,
+  'ADR-0069: a Thought no longer becomes a Shopping list'
 );
+select shopping.create_list('00000000-0000-7000-8000-000000000032', '{"title": "Top-up", "kind": "food"}');
 
 -- A Pantry entry deleted leaves its shopping lines as typed.
 select food.add_pantry('00000000-0000-7000-8000-0000000000e5', '{"name": "Tea bags"}');
-select shopping.add_line('00000000-0000-7000-8000-0000000000a4', '00000000-0000-7000-8000-000000000031',
+select shopping.add_line('00000000-0000-7000-8000-0000000000a4', '00000000-0000-7000-8000-000000000032',
   '{"pantry_id": "00000000-0000-7000-8000-0000000000e5"}');
 select food.remove_pantry('00000000-0000-7000-8000-0000000000e5');
 select is(
@@ -295,7 +295,7 @@ select is(
 -- Merging two entries moves shopping lines and keeps each Space's kind.
 select food.add_pantry('00000000-0000-7000-8000-0000000000e6', '{"name": "Whole milk", "aisle": "chilled"}');
 select food.keep_entry('00000000-0000-7000-8000-0000000000f1', '00000000-0000-7000-8000-0000000000e6', 'essential', false);
-select shopping.add_line('00000000-0000-7000-8000-0000000000a5', '00000000-0000-7000-8000-000000000031',
+select shopping.add_line('00000000-0000-7000-8000-0000000000a5', '00000000-0000-7000-8000-000000000032',
   '{"pantry_id": "00000000-0000-7000-8000-0000000000e6"}');
 select food.merge_pantry('00000000-0000-7000-8000-0000000000e4', '00000000-0000-7000-8000-0000000000e6');
 select is(

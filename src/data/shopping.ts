@@ -5,11 +5,9 @@ import { allRows } from './paging'
 
 type Shop = Database['shopping']['Tables']
 
-/** A Shopping list's detail: a food shop or a list (ADR-0050, SHP-001). */
-export type ListDetail = Pick<Shop['shopping_list']['Row'], 'item_id' | 'kind'>
 /**
- * A line on a list (SHP-001): a Meal's (meal_id, written by the database;
- * ADR-0057), one added by hand, or a list's subheading (heading).
+ * A line on a food shop (SHP-001): a Meal's (meal_id, written by the
+ * database; ADR-0057), or one added by hand.
  */
 export type ShopLine = Omit<Shop['lines']['Row'], 'created_at' | 'updated_at'>
 /** A Meal on a food shop (SHP-002). */
@@ -39,27 +37,19 @@ export type ShopLineFields = Partial<
     | 'needed_space_id'
   >
 >
-/** What a new Shopping list is made with (SHP-001 2, SHP-002 1). */
+/** What a new food shop is made with (SHP-001 2, SHP-002 1). */
 export interface ListFields {
   title: string
-  kind: 'food' | 'list'
   do_on?: string | null
   space_id?: string
   meals?: string[]
 }
 
-export const listsKey = ['shopping', 'shopping_list'] as const
 export const shopLinesKey = ['shopping', 'lines'] as const
 export const listMealsKey = ['shopping', 'list_meals'] as const
 export const shopMealsKey = (list: string) => ['shopping', 'meals_of', list] as const
 
 const shopping = () => supabase().schema('shopping')
-
-export async function fetchLists(): Promise<ListDetail[]> {
-  return allRows((from, to) =>
-    shopping().from('shopping_list').select('item_id, kind').order('item_id').range(from, to),
-  )
-}
 
 export async function fetchShopLines(): Promise<ShopLine[]> {
   return allRows((from, to) =>
@@ -97,29 +87,6 @@ export async function fetchShopMeals(list: string): Promise<ShopMeal[]> {
 type Args = Record<string, unknown>
 const args = (e: QueueEntry) => e.args as Args
 const trimmed = (v: unknown) => (typeof v === 'string' && v.trim() ? v.trim() : null)
-
-export function applyPendingLists(
-  rows: readonly ListDetail[],
-  entries: readonly QueueEntry[],
-): ListDetail[] {
-  const byId = new Map(rows.map((r) => [r.item_id, r]))
-  for (const e of entries) {
-    const a = args(e)
-    if (e.fn === 'shopping.create_list') {
-      const id = String(a.p_id)
-      const f = (a.p_fields ?? {}) as Args
-      if (!byId.has(id)) byId.set(id, { item_id: id, kind: String(f.kind ?? 'food') })
-    } else if (e.fn === 'convert_item' && a.p_type === 'shopping_list') {
-      const id = String(a.p_id)
-      if (!byId.has(id)) byId.set(id, { item_id: id, kind: 'food' })
-    } else if (e.fn === 'shopping.update_list') {
-      const row = byId.get(String(a.p_id))
-      const p = (a.p_patch ?? {}) as Args
-      if (row && 'kind' in p) byId.set(row.item_id, { ...row, kind: String(p.kind) })
-    }
-  }
-  return [...byId.values()]
-}
 
 export function applyPendingListMeals(
   rows: readonly ListMeal[],

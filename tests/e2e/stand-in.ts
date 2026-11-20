@@ -43,7 +43,9 @@ export interface Rows {
   recent_views?: { recipe_id: string; viewed_at: string }[]
   /** My Spaces' staples and Essentials (SHP-005); my personal Space is `s`. */
   space_entries?: Record<string, unknown>[]
-  /** The shopping schema (ADR-0057): lists' kinds, a food shop's Meals, and lines. */
+  /** A List's lines (core.list_lines; ADR-0069). */
+  list_lines?: Record<string, unknown>[]
+  /** The shopping schema (ADR-0057): shops' detail rows, a food shop's Meals, and lines. */
   shopping_list?: Record<string, unknown>[]
   list_meals?: Record<string, unknown>[]
   lines?: Record<string, unknown>[]
@@ -267,6 +269,14 @@ export async function standIn(
     pantry: [...(rows.pantry ?? [])],
     space_entries: [...(rows.space_entries ?? [])],
     recent_views: [...(rows.recent_views ?? [])] as { recipe_id: string; viewed_at: string }[],
+    list_lines: (rows.list_lines ?? []).map((l): Record<string, unknown> => ({
+      position: '',
+      heading: null,
+      text: null,
+      checked: false,
+      updated_at: '2026-11-01T09:00:00Z',
+      ...l,
+    })),
     shopping_list: [...(rows.shopping_list ?? [])],
     list_meals: [...(rows.list_meals ?? [])],
     lines: (rows.lines ?? []).map((l): Record<string, unknown> => ({
@@ -1692,6 +1702,40 @@ export async function standIn(
     },
   }
   const write: Record<string, (a: Record<string, unknown>) => unknown> = {
+    // A List's lines (ADR-0069), as core's functions write them.
+    add_list_line: (a) => {
+      if (db.list_lines.some((l) => l.id === a.p_id)) return
+      const f = a.p_fields as Record<string, unknown>
+      const heading = trimmedOrNull(f.heading)
+      db.list_lines.push({
+        id: a.p_id,
+        list_id: a.p_list,
+        position: f.position ?? '',
+        heading,
+        text: heading === null ? trimmedOrNull(f.text) : null,
+        checked: false,
+        updated_at: now(),
+      })
+    },
+    update_list_line: (a) => {
+      const p = a.p_patch as Record<string, unknown>
+      for (const l of db.list_lines.filter((x) => x.id === a.p_id)) {
+        if ('position' in p) l.position = p.position
+        if ('heading' in p && l.heading !== null) l.heading = trimmedOrNull(p.heading) ?? l.heading
+        if ('text' in p && l.heading === null) l.text = trimmedOrNull(p.text) ?? l.text
+        l.updated_at = now()
+      }
+    },
+    remove_list_line: (a) => {
+      db.list_lines = db.list_lines.filter((l) => l.id !== a.p_id)
+    },
+    tick_list_lines: (a) => {
+      for (const l of db.list_lines)
+        if ((a.p_ids as string[]).includes(String(l.id)) && l.heading === null) {
+          l.checked = a.p_checked
+          l.updated_at = now()
+        }
+    },
     // The sender's public key (a made-up one: nothing is really sent).
     vapid_public_key: () =>
       'BEl62iUYgUivxIkv69yViEuiBIa-Ib9-SkvMeAtA3LFgDzkrxZJjSgSnfckjBJuBkr3qBUYIHBQFLXYp5Nksh8U',

@@ -14,6 +14,8 @@ export const APP_STAGE = 4.5
  */
 const BUILT_NOW: readonly string[] = [
   'shopping_list',
+  // Notes' Lists (ADR-0069).
+  'list',
   'exercise',
   'workout_template',
   'workout',
@@ -40,7 +42,7 @@ export interface TypeLook {
   icon: LucideIcon
   mark?: Mark
   /** The page an Item of this Type lives on, and that page's name. */
-  home: '/today' | '/plan' | '/notes' | '/recipes' | '/shopping'
+  home: '/today' | '/plan' | '/notes' | '/recipes'
   homeLabel: string
 }
 
@@ -52,7 +54,8 @@ const HOMES: Record<string, Pick<TypeLook, 'home' | 'homeLabel'>> = {
   reminder: { home: '/plan', homeLabel: 'Plan' },
   recipe: { home: '/recipes', homeLabel: 'Recipes' },
   variation: { home: '/recipes', homeLabel: 'Recipes' },
-  shopping_list: { home: '/shopping', homeLabel: 'Shopping' },
+  list: { home: '/notes', homeLabel: 'Notes' },
+  shopping_list: { home: '/recipes', homeLabel: 'Recipes' },
 }
 
 /** How a Type looks and where it lives (ontology + patterns.md#icons). */
@@ -85,9 +88,10 @@ export function opensAsPage(type: string, isMobile: boolean): boolean {
 
 /**
  * Types that open on a page of their own always: a Recipe (RCP-005), a
- * Variation on its Recipe's, a Shopping list (ITM-006 1).
+ * Variation on its Recipe's, a Shopping list (ITM-006 1) and a List
+ * (NTE-006 2).
  */
-export const RECIPE_TYPES: readonly string[] = ['recipe', 'variation', 'shopping_list']
+export const RECIPE_TYPES: readonly string[] = ['recipe', 'variation', 'shopping_list', 'list']
 
 /** An Item's name: its title, else its first line (NTE-001), else "Untitled". */
 export function itemTitle(item: { title: string; body: string | null }): string {

@@ -28,6 +28,7 @@ import {
   FilterPanel,
   FilterSection,
   ItemRow,
+  PageAction,
   PageHeader,
   RecipeCard,
   RecipeGrid,
@@ -64,7 +65,20 @@ import { IdeaDialog } from '@/app/idea-dialog'
 import { archiveRecipes, deleteRecipes } from '@/app/recipe-actions'
 import { HeadingDialog } from '@/app/recipe-heading'
 import { SearchField } from '@/app/search-field'
-import { queue, setMark, useFood, useFoodSpaces, usePhotoUrls, useSmallCopies } from '@/data'
+import {
+  queue,
+  setMark,
+  useFood,
+  useFoodSpaces,
+  usePhotoUrls,
+  useSettings,
+  useSmallCopies,
+} from '@/data'
+import { WeekTab } from '@/app/meal-week'
+import { NewShopDialog } from '@/app/new-shop'
+import { PantryTab, PendingTab } from '@/app/pantry-tab'
+import { ShopTab } from '@/app/shopping-tabs'
+import { todayIn } from '@lifeos/recurrence'
 import type { RecipeView } from '@/data/food-hooks'
 import { capturedWhen } from '@/lib/dates'
 import { sharedLink } from '@/lib/share'
@@ -88,14 +102,32 @@ import {
 import { useLongPress } from '@/hooks/use-long-press'
 import { MoreMenu } from '@/app/more-menu'
 
-type Tab = 'recipes' | 'ideas'
+type Tab = 'recipes' | 'ideas' | 'week' | 'pantry' | 'shop'
+const OTHER_TABS = ['ideas', 'week', 'pantry', 'shop'] as const
 
-/** The Recipes library and the Ideas list (RCP-001, RCP-002, RCP-004). */
+/**
+ * Recipes (patterns.md#recipes, ADR-0069): the library and the Ideas list
+ * (RCP-001, RCP-002, RCP-004), the Meal plan's week (MPL-001–006), the
+ * Pantry (PAN-001–004; its Pending a page) and the food shops (SHP-001).
+ */
 export const Route = createFileRoute('/_app/recipes/')({
   validateSearch: (
     s: Record<string, unknown>,
-  ): { tab?: 'ideas'; idea?: string; share?: string; name?: string } => ({
-    ...(s.tab === 'ideas' ? { tab: 'ideas' as const } : {}),
+  ): {
+    tab?: Exclude<Tab, 'recipes'>
+    idea?: string
+    share?: string
+    name?: string
+    view?: 'pending'
+    day?: string
+  } => ({
+    ...(OTHER_TABS.includes(s.tab as (typeof OTHER_TABS)[number])
+      ? { tab: s.tab as (typeof OTHER_TABS)[number] }
+      : {}),
+    // The Pantry's Pending, a page of its own (PAN-004 2).
+    ...(s.tab === 'pantry' && s.view === 'pending' ? { view: 'pending' as const } : {}),
+    // The week's day, kept while another tab is open (MPL-001).
+    ...(typeof s.day === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s.day) ? { day: s.day } : {}),
     // An Idea open in its popup (RCP-002, Joe, 20 October).
     ...(typeof s.idea === 'string' ? { idea: s.idea } : {}),
     // A link from the iOS Shortcut, to New idea filled in (RCP-003 4).
@@ -112,7 +144,9 @@ function Recipes() {
   const router = useRouter()
   const location = useLocation()
   const food = useFood(queue)
-  const [making, setMaking] = useState<'recipe' | 'idea' | null>(null)
+  const [making, setMaking] = useState<'recipe' | 'idea' | 'entry' | 'shop' | null>(null)
+  const settings = useSettings(queue)
+  const today = todayIn(settings.timezone)
   // By id, so it opens on the Idea as just kept, not as it was.
   const [draftingId, setDraftingId] = useState<string | null>(null)
   const drafting = draftingId ? food.byId.get(draftingId) : undefined
@@ -186,10 +220,33 @@ function Recipes() {
     />
   )
 
+  // The Pantry's Pending (PAN-004 2): a page of its own, back to the Pantry.
+  const pantryView = (view?: 'pending') =>
+    void navigate({ to: '.', search: (prev) => ({ ...prev, view }) })
+  if (tab === 'pantry' && search.view === 'pending')
+    return (
+      <TypeScope colour="green">
+        <PageHeader title="Pending" back={{ label: 'Pantry', onClick: () => pantryView() }} />
+        <div className="flex flex-col gap-4 px-5 pb-28 sm:px-9 sm:pb-8">
+          <PendingTab />
+        </div>
+      </TypeScope>
+    )
+
+  const library = tab === 'recipes' || tab === 'ideas'
+  // Each tab's main action: none on the week (patterns.md#recipes).
+  const action =
+    tab === 'pantry'
+      ? { label: 'New entry', onClick: () => setMaking('entry') }
+      : tab === 'shop'
+        ? { label: 'New shop', onClick: () => setMaking('shop') }
+        : undefined
+
   return (
     <TypeScope colour="green">
-      <PageHeader title="Recipes" />
-      {!choosing && menu(true)}
+      <PageHeader title="Recipes" action={action} />
+      {library && !choosing && menu(true)}
+      {making === 'shop' && <NewShopDialog onClose={() => setMaking(null)} />}
       {importing && (
         <ImportDialog
           food={food}
@@ -240,7 +297,7 @@ function Recipes() {
           onClose={() => void navigate({ to: '.', search: { tab: 'ideas' }, replace: true })}
         />
       )}
-      {/* Both tabs alike, so the search stays put between them (Joe, 20 October). */}
+      {/* Recipes and Ideas alike, so the search stays put between them (Joe, 20 October). */}
       <div className="flex flex-col gap-5 px-5 pb-28 sm:px-9 sm:pb-8">
         <TabsRow>
           <Tabs
@@ -248,7 +305,10 @@ function Recipes() {
             onValueChange={(value: Tab) =>
               void navigate({
                 to: '.',
-                search: { tab: value === 'ideas' ? 'ideas' : undefined },
+                search: (prev) => ({
+                  ...(value !== 'recipes' && { tab: value }),
+                  ...(prev.day && { day: prev.day }),
+                }),
                 replace: true,
               })
             }
@@ -256,11 +316,35 @@ function Recipes() {
             <TabsList aria-label="View">
               <TabsTrigger value="recipes">Recipes</TabsTrigger>
               <TabsTrigger value="ideas">Ideas</TabsTrigger>
+              <TabsTrigger value="week">Week</TabsTrigger>
+              <TabsTrigger value="pantry">Pantry</TabsTrigger>
+              <TabsTrigger value="shop">Shop</TabsTrigger>
             </TabsList>
           </Tabs>
-          {menu(false)}
+          {library && menu(false)}
+          {action && <PageAction label={action.label} onClick={action.onClick} />}
         </TabsRow>
-        {tab === 'ideas' ? (
+        {tab === 'week' ? (
+          <WeekTab
+            day={search.day ?? today}
+            today={today}
+            onDay={(day) =>
+              void navigate({
+                to: '.',
+                search: (prev) => ({ ...prev, day: day === today ? undefined : day }),
+                replace: true,
+              })
+            }
+          />
+        ) : tab === 'pantry' ? (
+          <PantryTab
+            creating={making === 'entry'}
+            onCreating={(on) => setMaking(on ? 'entry' : null)}
+            onPending={() => pantryView('pending')}
+          />
+        ) : tab === 'shop' ? (
+          <ShopTab />
+        ) : tab === 'ideas' ? (
           <Ideas
             recipes={food.recipes}
             loading={food.isLoading}

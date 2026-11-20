@@ -72,6 +72,7 @@ test('NTE-005 1, 2: Notes and Thoughts tabs; Thoughts not ticked off, newest fir
   await expect(page.getByRole('tablist', { name: 'View' }).getByRole('tab')).toHaveText([
     'Notes',
     'Thoughts',
+    'Lists',
   ])
   await expect(page.locator('[data-slot="item-row"]')).toHaveText([
     /^Ceramics class.*08:12·Family/,

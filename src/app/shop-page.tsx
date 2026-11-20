@@ -3,7 +3,6 @@ import { formatAmount, isUnit, type ParsedLine } from '@lifeos/food'
 import { CheckIcon, PencilIcon, PlusIcon, Trash2Icon, UtensilsIcon, XIcon } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import {
-  AddRow,
   DateField,
   OfferRow,
   PageHeader,
@@ -45,15 +44,14 @@ import {
   useSettings,
   useShopMeals,
   useShopping,
-  type ListLine,
+  type ShopListLine,
   type PantryEntry,
   type ShopLine,
   type ShoppingList,
 } from '@/data'
 import { todayIn } from '@lifeos/recurrence'
 import { dateName } from '@/lib/dates'
-import { itemTitle } from '@/lib/item-types'
-import { nameKey } from '@/lib/pantry'
+import { itemTitle, typeLook } from '@/lib/item-types'
 import { amountOf, extraChoices, mealLabel, shopRows } from '@/lib/shopping'
 import { total } from '@lifeos/food'
 import { CompleteListDialog } from './complete-list'
@@ -64,6 +62,7 @@ import { PantryPicker } from './pantry-picker'
 import { SpaceSelect } from './space-select'
 
 const SLOTS: Record<string, string> = { breakfast: 'Breakfast', lunch: 'Lunch', dinner: 'Dinner' }
+const SHOP = typeLook('shopping_list')
 
 /** A line's amount, as typed first in the field ("2 milk"). */
 const amountFields = (a: ParsedLine) => ({
@@ -126,7 +125,7 @@ function DetailsDialog({ list, onClose }: { list: ShoppingList; onClose: () => v
     <Dialog open onOpenChange={(o) => !o && onClose()}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{list.kind === 'food' ? 'Shop details' : 'List details'}</DialogTitle>
+          <DialogTitle>Shop details</DialogTitle>
         </DialogHeader>
         <form
           className="flex flex-col gap-4"
@@ -207,7 +206,7 @@ function AddMealDialog({ list, onClose }: { list: ShoppingList; onClose: () => v
               className="flex h-10 items-center gap-3 rounded-sm px-1.5 hover:bg-accent"
             >
               <Checkbox
-                colour="yellow"
+                colour={SHOP.colour}
                 checked={picked.has(m.item.id)}
                 onCheckedChange={(on) => {
                   const next = new Set(picked)
@@ -243,14 +242,6 @@ function AddMealDialog({ list, onClose }: { list: ShoppingList; onClose: () => v
     </Dialog>
   )
 }
-
-const lineMenu = (list: string, l: { id: string }) => (
-  <MoreMenu>
-    <DropdownMenuItem variant="destructive" onClick={() => deleteShopLine(list, l.id)}>
-      <Trash2Icon /> Delete
-    </DropdownMenuItem>
-  </MoreMenu>
-)
 
 /** A line's ×: a line I added, or one on the shop because it's needed (Joe, 25 October). */
 const removeButton = (name: string, onClick: () => void) => (
@@ -316,7 +307,8 @@ function FoodShop({ list, onDone }: { list: ShoppingList; onDone: () => void }) 
     for (const l of own)
       if (l.pantry_id === pantry && !l.checked && !l.auto) deleteShopLine(id, l.id)
   }
-  const remove = (l: ListLine) => (l.pantry_id ? takeOff(l.pantry_id) : deleteShopLine(id, l.id))
+  const remove = (l: ShopListLine) =>
+    l.pantry_id ? takeOff(l.pantry_id) : deleteShopLine(id, l.id)
   /** On the shop: marked needed where its Space keeps it, else a line of its own. */
   const putOn = (pantry: string, kind: 'staple' | 'essential', kept: boolean) => {
     if (kept) keepEntry(space, pantry, kind, true)
@@ -420,7 +412,7 @@ function FoodShop({ list, onDone }: { list: ShoppingList; onDone: () => void }) 
                   menu={
                     // Ticked, it's bought: nothing to take off (as on Extra).
                     r.own && !r.checked
-                      ? removeButton(r.name, () => remove(r.own as ListLine))
+                      ? removeButton(r.name, () => remove(r.own as ShopListLine))
                       : undefined
                   }
                 />
@@ -537,87 +529,23 @@ function FoodShop({ list, onDone }: { list: ShoppingList; onDone: () => void }) 
   )
 }
 
-/** A list's page (SHP-001 3): lines under my own subheadings, household items matched. */
-function ListLines({ list, onDone }: { list: ShoppingList; onDone: () => void }) {
-  const food = useFood(queue)
-  const onTick = useTick(list, onDone)
-  const id = list.item.id
-  const sorted = [...list.lines].sort((a, b) => (a.position < b.position ? -1 : 1))
-  // Lines before the first subheading, then each subheading's.
-  const groups: { heading: ShopLine | null; lines: ShopLine[] }[] = [{ heading: null, lines: [] }]
-  for (const l of sorted) {
-    if (l.heading !== null) groups.push({ heading: l, lines: [] })
-    else groups.at(-1)!.lines.push(l)
-  }
-  const household = (text: string) =>
-    [...food.pantry.values()].find(
-      (p) => p.kind === 'household' && nameKey(p.name) === nameKey(text),
-    )
-  const addTo = (i: number, text: string) => {
-    const g = groups[i]!
-    const after = g.lines.at(-1)?.position ?? g.heading?.position ?? null
-    const next = groups[i + 1]?.heading?.position ?? null
-    const p = household(text)
-    addShopLine(id, {
-      position: positionBetween(after, next),
-      ...(p ? { pantry_id: p.id } : { text }),
-    })
-  }
-  const shown = groups.filter((g, i) => g.heading || g.lines.length || groups.length === 1 || i > 0)
-  return (
-    <div className="flex max-w-reading flex-col gap-4">
-      {shown.map((g) => {
-        const i = groups.indexOf(g)
-        const label = g.heading?.heading ?? 'Items'
-        return (
-          <PantryAisle key={g.heading?.id ?? 'top'} label={label} title={g.heading !== null}>
-            {/* A ticked line stays in its place (SHP-001 4; Joe, 26 October). */}
-            {g.lines.map((l) => (
-              <ShoppingLine
-                key={l.id}
-                name={(l.pantry_id && food.pantry.get(l.pantry_id)?.name) || l.text || ''}
-                meta={l.pantry_id ? 'Household' : undefined}
-                checked={l.checked}
-                onCheck={(on) => onTick([l.id], on)}
-                menu={lineMenu(id, l)}
-              />
-            ))}
-            <AddRow
-              placeholder={g.heading ? `Add to ${label}` : 'Add an item'}
-              onAdd={(text) => addTo(i, text)}
-              className="px-3 pb-1.5"
-            />
-          </PantryAisle>
-        )
-      })}
-      <AddRow
-        placeholder="Add a subheading"
-        onAdd={(heading) =>
-          addShopLine(id, { position: positionBetween(lastPosition(list.lines), null), heading })
-        }
-      />
-    </div>
-  )
-}
-
-/** A Shopping list's own page (ITM-006 1): a food shop's or a list's. */
+/** A food shop's own page (ITM-006 1), on Recipes' Shop (ADR-0069). */
 export function ShopPage({ list }: { list: ShoppingList }) {
   const navigate = useNavigate()
   const spaces = useFoodSpaces(queue)
   const [editing, setEditing] = useState(false)
   const [confirming, setConfirming] = useState(false)
   useLiveShopping(list.item.id)
-  const back = () =>
-    void navigate({ to: '/shopping', search: list.kind === 'list' ? { tab: 'lists' } : {} })
+  const back = () => void navigate({ to: '/recipes', search: { tab: 'shop' } })
   const meta = [
     list.item.do_on ? dateName(list.item.do_on) : null,
     spaces.spaces.length > 1 ? (spaces.householdName(list.item.space_id) ?? 'Personal') : null,
     list.item.status === 'done' ? 'Done' : null,
   ].filter(Boolean)
   return (
-    <TypeScope colour="yellow">
+    <TypeScope colour={SHOP.colour}>
       <PageHeader
-        back={{ label: 'Shopping', onClick: back }}
+        back={{ label: 'Shop', onClick: back }}
         title={itemTitle(list.item)}
         trailing={
           <MoreMenu>
@@ -654,11 +582,7 @@ export function ShopPage({ list }: { list: ShoppingList }) {
             {meta.join(' · ')}
           </Text>
         )}
-        {list.kind === 'food' ? (
-          <FoodShop list={list} onDone={back} />
-        ) : (
-          <ListLines list={list} onDone={back} />
-        )}
+        <FoodShop list={list} onDone={back} />
       </div>
       {editing && <DetailsDialog list={list} onClose={() => setEditing(false)} />}
       {confirming && (

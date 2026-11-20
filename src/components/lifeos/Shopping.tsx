@@ -2,14 +2,16 @@ import { PlusIcon } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { Checkbox } from '@/components/ui/checkbox'
 import { cn } from '@/lib/utils'
+import type { TypeColour } from './colours'
 import { Pill } from './PantryRow'
 
 /**
- * A line on a shopping list (SHP-001 4): its Checkbox in Shopping's yellow,
- * its name (weight 600) and, muted under it, what it's for ("Katsu Thu,
- * Curry Sat"); its amount at the end, tabular; then, for a line I added,
- * its × (Joe, 25 October), which a Meal's line doesn't have (SHP-003 2). The whole row ticks it; ticked, the
- * name is struck through and the row fades.
+ * A line on a food shop or a List (SHP-001 4, NTE-006 4): its Checkbox in
+ * its Type's colour (a shop's green, a List's yellow), its name (weight 600)
+ * and, muted under it, what it's for ("Katsu Thu, Curry Sat"); its amount
+ * at the end, tabular; then, for a line I added, its × (Joe, 25 October),
+ * which a Meal's line doesn't have (SHP-003 2), or its "…" menu. The whole
+ * row ticks it; ticked, the name is struck through and the row fades.
  */
 export function ShoppingLine({
   name,
@@ -18,7 +20,10 @@ export function ShoppingLine({
   checked = false,
   onCheck,
   menu,
+  colour = 'green',
 }: {
+  /** Its Type's colour: a food shop's (green) or a List's (yellow). */
+  colour?: Exclude<TypeColour, 'none'>
   name: string
   /** Its total, worked out on the device ("1.2 kg", "Salt 5 g +"). */
   amount?: string
@@ -35,7 +40,7 @@ export function ShoppingLine({
       className="flex min-h-11 items-center gap-1 rounded-control pr-1 hover:bg-accent/50 max-sm:min-h-12"
     >
       <label className="flex min-w-0 flex-1 cursor-pointer items-center gap-3 self-stretch py-1.5 pl-3">
-        <Checkbox colour="yellow" checked={checked} onCheckedChange={(on) => onCheck?.(on)} />
+        <Checkbox colour={colour} checked={checked} onCheckedChange={(on) => onCheck?.(on)} />
         <span className="flex min-w-0 flex-1 flex-col">
           <span
             className={cn(

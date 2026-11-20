@@ -12,12 +12,12 @@ import {
 import { KATSU, KATSU_STD, NOODLES, NOODLES_STD, SHAKSHUKA } from './recipe-rows'
 import { ANN, standIn } from './stand-in'
 
-async function start(page: Page, path = '/meal-plan', { clock = true } = {}) {
+async function start(page: Page, path = '/recipes?tab=week', { clock = true } = {}) {
   // A fixed clock stops the page's timers too, so a press and hold needs the real one.
   if (clock) await page.clock.setFixedTime(NOW)
   const db = await standIn(page, { signedIn: true, rows: mealRows() })
   await page.goto(path)
-  await expect(page.getByRole('heading', { name: /^(Meal plan|Week)$/, level: 1 })).toBeVisible()
+  await expect(page.getByRole('heading', { name: /^(Recipes|Week)$/, level: 1 })).toBeVisible()
   return db
 }
 
@@ -66,7 +66,7 @@ test.describe('The Meal plan', () => {
         ],
       },
     })
-    await page.goto('/meal-plan')
+    await page.goto('/recipes?tab=week')
     await add(page, '2026-10-14:dinner')
     const picker = page.getByRole('dialog')
     const chips = picker.getByRole('group', { name: 'Category' })
@@ -82,7 +82,7 @@ test.describe('The Meal plan', () => {
     // Viewing a Recipe is kept (Joe, 26 October).
     await page.goto(`/recipes/${SHAKSHUKA}`)
     await expect.poll(() => db.recent_views.map((v) => v.recipe_id)).toEqual([SHAKSHUKA])
-    await page.goto('/meal-plan')
+    await page.goto('/recipes?tab=week')
     await add(page, '2026-10-14:dinner')
     const picker = page.getByRole('dialog')
     await expect(picker.getByText('Recently viewed')).toBeVisible()
@@ -226,7 +226,7 @@ test.describe('The Meal plan', () => {
     isMobile,
   }) => {
     test.skip(!isMobile, 'a finger, on a phone')
-    const db = await start(page, '/meal-plan?day=2026-10-15', { clock: false })
+    const db = await start(page, '/recipes?tab=week&day=2026-10-15', { clock: false })
     await slot(page, '2026-10-18').scrollIntoViewIfNeeded()
     const from = (await cards(page, '2026-10-17:dinner').first().boundingBox())!
     const to = (await slot(page, '2026-10-18').boundingBox())!
@@ -310,7 +310,7 @@ test.describe('The Meal plan', () => {
       if (r.url().includes('/storage/v1/object/sign/photos') && r.method() === 'POST')
         signed.push((r.postDataJSON() as { paths: string[] }).paths)
     })
-    await page.goto('/meal-plan')
+    await page.goto('/recipes?tab=week')
     await expect.poll(() => signed.flat()).toContain(small(photo))
     const asked = signed.length
     await add(page, '2026-10-14:dinner')

@@ -2,7 +2,7 @@
 
 **Status:** Provisionally agreed · 2026-10-09
 
-**Amended:** 2026-10-10 by [ADR-0043](0043-colour-by-type.md) (colour by Type, not by Module).
+**Amended:** 2026-10-10 by [ADR-0043](0043-colour-by-type.md) (colour by Type, not by Module); 2026-11-20 by [ADR-0069](0069-lists-and-recipes-tabs.md) (Shopping lists green, Lists yellow).
 
 ## Context
 
@@ -18,8 +18,8 @@ options on 9 October 2026, all built from shadcn/ui
 - **True neutral greys** with an ink primary, and a **faint hairline edge** on
   cards, rows and the drawer.
 - **Colour means Type** ([ADR-0043](0043-colour-by-type.md)): every Type
-  has a colour (Tasks and Events blue; Thoughts, Notes and Shopping lists
-  yellow; Gym and Cardio coral; Recipes green; Wardrobe orange; Goals
+  has a colour (Tasks and Events blue; Thoughts, Notes and Lists
+  yellow; Gym and Cardio coral; Recipes, Meals and Shopping lists green; Wardrobe orange; Goals
   purple). A page takes the colour of its Types, where it becomes shadcn's
   primary and ring; Inbox and Plan are neutral. Red and green keep their
   usual meanings everywhere.

@@ -508,7 +508,12 @@ function AllLines() {
       {AISLES.map(({ aisle, lines }) => (
         <PantryAisle key={aisle} label={aisle}>
           {lines.map((l) => (
-            <ShoppingLine key={l.name} {...l} menu={l.extra ? lineMenu : undefined} />
+            <ShoppingLine
+              key={l.name}
+              colour="yellow"
+              {...l}
+              menu={l.extra ? lineMenu : undefined}
+            />
           ))}
         </PantryAisle>
       ))}

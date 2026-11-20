@@ -8,11 +8,14 @@ Households themselves are core: [spaces and sharing](../cross-cutting/spaces-and
 Everything is *proposed* until Joe agrees it. Recipes themselves are in
 [recipes](recipes.md).*
 
-**In one line:** **Meal plan** is where the week's meals are planned, with
-the **Pantry** of ingredients and household items; **Shopping** holds every
-shopping list, made by hand or from the meal plan
+**In one line:** the **Meal plan** is where the week's meals are planned,
+with the **Pantry** of ingredients and household items, and **Shopping**
+holds the food shops, made by hand or from the meal plan: Recipes' **Week**,
+**Pantry** and **Shop** tabs, beside its Recipes and Ideas
 ([ADR-0026](../../20-architecture/adr/0026-navigation-drawer.md),
-Provisionally agreed).
+[ADR-0069](../../20-architecture/adr/0069-lists-and-recipes-tabs.md),
+Provisionally agreed). Lists that aren't food are Notes' Lists
+([notes](../views/notes.md#nte-006--a-list)).
 
 ## Decisions
 
@@ -55,7 +58,7 @@ Provisionally agreed).
 
 ### The Pantry
 
-- **The Meal plan's Pantry tab** holds ingredients and household items ("bin
+- **Recipes' Pantry tab** holds ingredients and household items ("bin
   bags", "kitchen roll"), shown apart (Joe, 18 October). Ingredients are
   offered in recipes and shopping lists; household items only in shopping
   lists. Both are one catalogue underneath.
@@ -68,7 +71,7 @@ Provisionally agreed).
   aisle is **Household**, after Frozen, and only household items use it (Joe,
   18 October).
 - **Staples and Essentials are each Space's lists, kept in the Pantry**
-  (Joe, 25 October; on Shopping → Food from 24 October until then): a
+  (Joe, 25 October; on Shopping's Food from 24 October until then): a
   Household picker, All · Staples · Essentials, and on every entry a
   Staple and an Essential toggle, one or the other. Each
   Household has one of each, and so do I for Personal. **Staples** are
@@ -82,19 +85,19 @@ Provisionally agreed).
 
 ### Shopping
 
-- **Shopping has three tabs** (Joe, 24 October): **Food**, food shops; **Other**, shopping that isn't food
-  (clothes, DIY, Boots, a birthday; *Lists* until Joe renamed it, 26
-  October); and **Online**, items watched for their
-  price, which comes later
-  ([roadmap](../../roadmap.md#later-opportunities)). Lists that aren't
-  shopping (packing, DIY jobs) are Notes with a checklist.
-- **A Shopping list** is one Type, a food shop or a list
+- **Shopping is Recipes' Shop tab** (Joe, 20 November; a page of its own,
+  with Food and Other tabs, until then): the food shops. Shopping that
+  isn't food (clothes, DIY, Boots, a birthday) is a **List**, on Notes
+  ([ADR-0069](../../20-architecture/adr/0069-lists-and-recipes-tabs.md)).
+  **Online**, items watched for their price, comes later
+  ([roadmap](../../roadmap.md#later-opportunities)).
+- **A Shopping list** is a food shop
   ([ADR-0050](../../20-architecture/adr/0050-shopping-list.md),
-  Provisionally agreed). Either may have a date (then it's on Week) or none.
-  A food shop's lines are grouped by aisle, Pantry entries (ingredients and
-  household items) or typed, those without an entry under **Other**, last.
-  A list's are typed, or the Pantry's household items, under my own
-  subheadings.
+  [ADR-0069](../../20-architecture/adr/0069-lists-and-recipes-tabs.md),
+  Provisionally agreed), green with Recipes and Meals. It may have a date
+  (then it's on Week) or none. Its lines are grouped by aisle, Pantry
+  entries (ingredients and household items) or typed, those without an
+  entry under **Other**, last.
 - **A food shop is linked to Meals**, any number (Joe, 24 October). Every
   ingredient of each comes onto it: its Recipe's, scaled to the Meal's
   servings, and its own, from an import or added by hand (MPL-006). When a
@@ -103,7 +106,7 @@ Provisionally agreed).
   open food shop at most (Joe, 24 October).
 - **A new food shop** (Joe, 24 October) is made two ways. On the Meal plan,
   **Select** chooses Meals, then **Add to shop** makes a new shop of them,
-  dated the day of the first. On Shopping → Food, **New shop** opens with
+  dated the day of the first. On Recipes' Shop, **New shop** opens with
   the plan's Meals from today, those on no open shop, each toggled on or
   off. Meals are added or taken off later from the shop. A shop's date can
   be dragged on Week (Joe, 18 October).
@@ -143,8 +146,9 @@ Provisionally agreed).
   lists, and the staples and Essentials feeding them, update live
   ([principles](../../00-foundation/principles.md), 9).
 - **Done:** ticking the last line offers **Done**; **Complete list** is in a
-  list's menu at any time, asking first when lines are unticked. A done
-  list leaves the lists, with Undo (Joe, 24 October).
+  shop's menu at any time, asking first when lines are unticked. A done
+  shop leaves Shop, with Undo, and Search still finds it; there is no
+  "Done shops" (Joe, 24 October; 20 November).
 - **No repeating lists** (Joe, 24 October): Essentials do that job.
 - **Totals:** units of one kind add up (500 g + 1 kg = 1.5 kg; ml, l, tsp,
   tbsp together); weight and volume sit side by side; a range counts as its
@@ -153,7 +157,7 @@ Provisionally agreed).
 
 ## What the pages show
 
-**Meal plan.** Two tabs. **Week**: Monday to Sunday — columns on a computer,
+**Recipes' Week and Pantry.** **Week**: Monday to Sunday — columns on a computer,
 days stacked on a phone — each day's Breakfast, Lunch and Dinner with their
 Meals (photo, name, servings; leftovers marked); ‹ Today › and a date, as on
 Week; a filter for Personal, each Household or all; Select, to choose
@@ -162,11 +166,10 @@ Essentials picked from it (All · Staples · Essentials), ingredients by
 aisle or sorted by use or A–Z, then household items, with a search; Pending
 a press away.
 
-**Shopping.** Tabs **Food**, **Other** and, later, **Online**. Food: the
-food shops, dated ones by date, then undated, done ones a press away;
-each shop opening to All · Meals · Extra, with ticking, adding and Done.
-Other: the other lists, the same way, by my subheadings, with no done ones
-(Joe, 26 October).
+**Recipes' Shop.** The open food shops, dated ones by date, then undated,
+each opening to All · Meals · Extra, with ticking, adding and Done; Online
+later, in its own place. Lists that aren't food are Notes' Lists
+([notes](../views/notes.md#what-the-page-shows)).
 
 ## Requirements
 
@@ -179,7 +182,7 @@ what we eat.
 Priority: Must · Status: built
 
 Acceptance criteria
-1. Given Meal plan on a computer, then this week shows as Week's week does,
+1. Given Recipes' Week on a computer, then this week shows as Week's week does,
    Monday first, each day with Breakfast, Lunch and Dinner and their Meals:
    photo, name, servings, and the Variation when the Recipe has more than
    one.
@@ -287,7 +290,7 @@ useful as my recipes grow.
 Priority: Must · Status: built
 
 Acceptance criteria
-1. Given Meal plan → Pantry, then ingredients show under their aisles, in
+1. Given Recipes' Pantry, then ingredients show under their aisles, in
    aisle order, with how many Recipes use each, then household items apart;
    a search narrows them. I sort them By aisle, Recently used (by the
    latest Recipe, Meal or shop with it), Most popular (by how many Recipes
@@ -310,7 +313,7 @@ Acceptance criteria
 ### PAN-002 — Staples and out of stock
 
 Replaced by [SHP-005](#shp-005--staples-and-essentials) (Joe, 24 October):
-staples and out of stock moved from the Pantry to Shopping → Food. Built in
+staples and out of stock moved from the Pantry to Shopping's Food. Built in
 Stage 4 (marking staples and out of stock in the Pantry, the Space's
 staples those of where my new Meals go); removed with Stage 4b's step 5.
 On 25 October they came back to the Pantry, as SHP-005's lists.
@@ -355,22 +358,20 @@ what to buy.
 Priority: Must · Status: built (3 but reordering, which is to come)
 
 Acceptance criteria
-1. Given Shopping, then Food shows my food shops and Other my other lists:
-   dated ones by date, then undated; done shops a press away (Other keeps
-   no done lists; Joe, 26 October). Online comes later.
-2. Given New shop or New list, then I name it, and may give it a date
-   (no time or place; Joe, 24 October) and, for a shop, its Space; a dated
-   one shows on Week. New shop also offers the
+1. Given Recipes' Shop, then my open food shops show, dated ones by date,
+   then undated; a done one doesn't (Joe, 20 November). Online comes
+   later.
+2. Given New shop, then I name it, and may give it a date (no time or
+   place; Joe, 24 October) and its Space; a dated one shows on Week. New shop also offers the
    plan's Meals from today, those on no open shop, each toggled on or off
    (SHP-002).
-3. Given a food shop, then its lines are grouped by aisle, Other last; given
-   a list, then I add subheadings and lines under them, and reorder both.
-4. Given any list, then I tick lines as I go, a ticked line staying where
+3. Given a food shop, then its lines are grouped by aisle, Other last. (A
+   list's subheadings are a List's now: NTE-006 3.)
+4. Given a shop, then I tick lines as I go, a ticked line staying where
    it is (Joe, 26 October).
 5. Given I tick the last line, then Done is offered; given Complete list in
-   its menu or its row's on Shopping, then it asks first if lines are
-   unticked. A done list leaves
-   the lists, with Undo.
+   its menu or its row's on Shop, then it asks first if lines are
+   unticked. A done shop leaves Shop, with Undo; Search still finds it.
 6. Given a food shop, then I choose its Space, Personal or one of my
    Households; it starts as the Household of its first Household Meal.
 
@@ -381,7 +382,7 @@ that** I buy exactly what they need.
 Priority: Must · Status: built
 
 Acceptance criteria
-1. Given the Meal plan, when I choose Select (the week's PageAction; a
+1. Given Recipes' Week, when I choose Select (the week's PageAction; a
    long press stays for dragging on a phone), tap Meals and press Add to
    shop in the SelectionBar, then a new food shop is made of them, dated the
    day of the first, and opens at once. A Meal that can't be chosen (eaten,
@@ -421,22 +422,20 @@ Acceptance criteria
 4. Given a line added from a Space's needed, when I tick it, then its out
    of stock or Required is cleared there; given any other line out of stock
    or Required in the shop's own Space, then there.
-5. Given a Thought on Notes' Thoughts ("buy milk, bread, eggs"), then Shopping list
-   is offered only when a line names a Pantry ingredient (Joe, 25 October);
-   when I sort it into one, then a new food shop is made with milk, bread
-   and eggs as its lines, split at the commas, "buy" dropped. Or they're
-   added to an open food shop I pick (Joe, 24 October).
+5. Removed (Joe, 20 November): a Thought no longer becomes a food shop or
+   adds its lines to one; it becomes a List (NTE-007 4,
+   [ADR-0069](../../20-architecture/adr/0069-lists-and-recipes-tabs.md)).
 
 ### SHP-004 — Shopping together
 
-**As** Joe, **I want** a list we share to update for both of us at once,
-**so that** we don't buy things twice.
+**As** Joe, **I want** a shop we share to update for both of us at once,
+**so that** we don't buy things twice. (A List's is NTE-008.)
 Priority: Should · Status: built (2 verified against the walks' stand-in; with two people on the real database when Joe uses it, step 10)
 
 Acceptance criteria
-1. Given a list in a Household, then every member sees all of it, its
+1. Given a shop in a Household, then every member sees all of it, its
    Personal Meals' lines too.
-2. Given a shared list, when one of us ticks or adds a line, then the other
+2. Given a shared shop, when one of us ticks or adds a line, then the other
    sees it within a second or two.
 3. Given no signal in the shop, then ticks are kept and sent when it
    returns, a Meal's line ticked before its Meal was sent too (Joe, 26
@@ -453,7 +452,7 @@ Acceptance criteria
 1. Given the Pantry, then I choose whose (Personal or a Household) and
    show All, Staples or Essentials; any member makes an entry a staple or
    an Essential with its toggle, one or the other, or takes it off (Joe,
-   25 October; on Shopping → Food until then).
+   25 October; on Shopping's Food until then).
 2. Given a staple, then I mark it out of stock, or not; given an Essential,
    then I mark it Required, or not, from its pill beside the toggles.
 3. Given either list, then it is never ticked or done; what's needed in it

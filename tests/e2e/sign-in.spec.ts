@@ -26,13 +26,12 @@ test('ACC-001: signed in, I land in the app with the navigation drawer', async (
     'Notes',
     'Gym',
     'Recipes',
-    'Meal plan',
-    'Shopping',
     'Wardrobe',
   ])
-  // Not built yet: under Later, not links (Joe, 15 November).
-  for (const later of ['Cardio', 'Goals', 'Finance'])
-    await expect(pages.getByText(later, { exact: true })).toBeVisible()
+  // The Meal plan and Shopping are Recipes' tabs; a page not built yet isn't
+  // in the drawer at all (ADR-0069).
+  for (const gone of ['Meal plan', 'Shopping', 'Later', 'Cardio', 'Goals', 'Finance'])
+    await expect(pages.getByText(gone, { exact: true })).toHaveCount(0)
   await expect(page.getByText(ANN.name).filter({ visible: true })).toBeVisible()
   await pages.getByRole('link', { name: 'Plan', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'Plan', level: 1 })).toBeVisible()

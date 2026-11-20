@@ -11,8 +11,8 @@ const PIXEL =
 async function start(page: Page, rows: Rows = mealRows(), ai: Rows['ai'] = {}) {
   await page.clock.setFixedTime(NOW)
   const db = await standIn(page, { signedIn: true, rows, ai })
-  await page.goto('/meal-plan')
-  await expect(page.getByRole('heading', { name: 'Meal plan', level: 1 })).toBeVisible()
+  await page.goto('/recipes?tab=week')
+  await expect(page.getByRole('heading', { name: 'Recipes', level: 1 })).toBeVisible()
   return db
 }
 

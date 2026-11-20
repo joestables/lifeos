@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { LightbulbIcon, StickyNoteIcon, TagIcon } from 'lucide-react'
-import { useMemo } from 'react'
+import { LightbulbIcon, ListChecksIcon, StickyNoteIcon, TagIcon } from 'lucide-react'
+import { useMemo, useState } from 'react'
 import {
   EmptyState,
   LabelChips,
@@ -17,20 +17,29 @@ import { useNewNote, useOpenItem } from '@/app/item-navigation'
 import { useLabelFilter, validateLabels, type LabelsSearch } from '@/app/label-filter'
 import { useMine } from '@/app/mine'
 import { useOpenCapture } from '@/app/open-capture'
+import { NewListDialog } from '@/app/list-dialogs'
 import { ThoughtRow } from '@/app/thought-row'
-import { queue, useItems, useLabels, useMarks, type Item } from '@/data'
+import { queue, useItems, useLabels, useLists, useLiveLists, useMarks, type Item } from '@/data'
 import { itemTitle } from '@/lib/item-types'
 
-type Tab = 'notes' | 'thoughts'
+type Tab = 'notes' | 'thoughts' | 'lists'
 
-/** My Notes, pinned first, and my Thoughts to sort, narrowed to the Labels I choose (views/notes.md). */
+/**
+ * My Notes, pinned first, my Thoughts to sort and my Lists, narrowed to the
+ * Labels I choose (views/notes.md).
+ */
 export const Route = createFileRoute('/_app/notes')({
-  validateSearch: (search: Record<string, unknown>): { tab?: 'thoughts' } & LabelsSearch => ({
-    ...(search.tab === 'thoughts' ? { tab: 'thoughts' as const } : {}),
+  validateSearch: (
+    search: Record<string, unknown>,
+  ): { tab?: 'thoughts' | 'lists' } & LabelsSearch => ({
+    ...(search.tab === 'thoughts' || search.tab === 'lists' ? { tab: search.tab } : {}),
     ...validateLabels(search),
   }),
   component: Notes,
 })
+
+/** A List's lines to show on its card: its first unticked ones (NTE-007 2). */
+const LIST_CARD_LINES = 8
 
 const newestFirst = (a: Item, b: Item) => b.updated_at.localeCompare(a.updated_at)
 
@@ -46,6 +55,8 @@ function Notes() {
   const { items, isLoading } = useItems(queue)
   const marks = useMarks(queue)
   const { labels, itemLabels } = useLabels(queue)
+  const lists = useLists(queue)
+  const [makingList, setMakingList] = useState(false)
 
   const notes = useMemo(() => items.filter((i) => i.type === 'note'), [items])
   const labelsOf = useMemo(() => {
@@ -75,6 +86,26 @@ function Notes() {
   const pinned = shown.filter((n) => marks.has(n.id)).sort(newestFirst)
   const others = shown.filter((n) => !marks.has(n.id)).sort(newestFirst)
 
+  // My Lists not done, the most recently changed first, a line's change too (NTE-007 1).
+  const openLists = lists.lists
+    .filter((l) => l.item.status === 'active' && l.item.archived_at === null && mine(l.item))
+    .sort((a, b) => b.changedAt.localeCompare(a.changedAt))
+  const shownLists = openLists.filter((l) => filter.shows(l.item.id))
+  const listsPinned = shownLists.filter((l) => marks.has(l.item.id))
+  const listsOthers = shownLists.filter((l) => !marks.has(l.item.id))
+  const checklistOf = useMemo(() => {
+    const of = new Map<string, string[]>()
+    for (const l of lists.lists)
+      of.set(
+        l.item.id,
+        l.toTick
+          .filter((line) => !line.checked)
+          .slice(0, LIST_CARD_LINES)
+          .map((line) => line.text ?? ''),
+      )
+    return of
+  }, [lists.lists])
+
   const grid = (list: Item[]) => (
     <NoteGrid>
       {list.map((n) => (
@@ -82,18 +113,42 @@ function Notes() {
           key={n.id}
           title={itemTitle(n)}
           body={n.body}
+          checklist={n.type === 'list' ? (checklistOf.get(n.id) ?? []) : undefined}
           labels={(labelsOf.get(n.id) ?? []).map((l) => l.name)}
           onOpen={() => open(n)}
         />
       ))}
     </NoteGrid>
   )
+  /** Pinned, then Others, each a grid; with nothing pinned, no headings (NTE-003). */
+  const sections = (pins: Item[], rest: Item[]) => (
+    <>
+      {pins.length > 0 && (
+        <section>
+          <SectionLabel>Pinned</SectionLabel>
+          {grid(pins)}
+        </section>
+      )}
+      {rest.length > 0 &&
+        (pins.length > 0 ? (
+          <section>
+            <SectionLabel>Others</SectionLabel>
+            {grid(rest)}
+          </section>
+        ) : (
+          grid(rest)
+        ))}
+    </>
+  )
 
-  // Each tab's main action: New note, or New thought, which opens "New" (NTE-005 4).
+  // Each tab's main action: New note, New thought, which opens "New"
+  // (NTE-005 4), or New list (NTE-007 1).
   const action =
     tab === 'notes'
       ? { label: 'New note', onClick: newNote }
-      : { label: 'New thought', onClick: () => openCapture() }
+      : tab === 'lists'
+        ? { label: 'New list', onClick: () => setMakingList(true) }
+        : { label: 'New thought', onClick: () => openCapture() }
 
   return (
     <TypeScope colour="yellow">
@@ -114,6 +169,7 @@ function Notes() {
               <TabsList aria-label="View">
                 <TabsTrigger value="notes">Notes</TabsTrigger>
                 <TabsTrigger value="thoughts">Thoughts</TabsTrigger>
+                <TabsTrigger value="lists">Lists</TabsTrigger>
               </TabsList>
             </Tabs>
             <PageAction label={action.label} onClick={action.onClick} />
@@ -130,21 +186,21 @@ function Notes() {
             {notes.length > 0 && shown.length === 0 && (
               <EmptyState icon={TagIcon} title={filter.nothing('notes')} />
             )}
-            {pinned.length > 0 && (
-              <section>
-                <SectionLabel>Pinned</SectionLabel>
-                {grid(pinned)}
-              </section>
+            {sections(pinned, others)}
+          </>
+        ) : tab === 'lists' ? (
+          <>
+            <LiveLists />
+            {!lists.isLoading && openLists.length === 0 && (
+              <EmptyState icon={ListChecksIcon} title="No lists yet" action={action} />
             )}
-            {others.length > 0 &&
-              (pinned.length > 0 ? (
-                <section>
-                  <SectionLabel>Others</SectionLabel>
-                  {grid(others)}
-                </section>
-              ) : (
-                grid(others)
-              ))}
+            {openLists.length > 0 && shownLists.length === 0 && (
+              <EmptyState icon={TagIcon} title={filter.nothing('lists')} />
+            )}
+            {sections(
+              listsPinned.map((l) => l.item),
+              listsOthers.map((l) => l.item),
+            )}
           </>
         ) : (
           <>
@@ -167,6 +223,13 @@ function Notes() {
           </>
         )}
       </div>
+      {makingList && <NewListDialog onClose={() => setMakingList(false)} />}
     </TypeScope>
   )
+}
+
+/** Shared Lists' lines kept live while the tab is open (NTE-008 2). */
+function LiveLists() {
+  useLiveLists()
+  return null
 }

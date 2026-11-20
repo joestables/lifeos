@@ -20,12 +20,13 @@ Plan](today-reminders-plan.md), are at the end.*
 - **A bare date fills do-on** when a line becomes a Task (sorting a Thought,
   CAP-003); a deadline must be said ("due fri", "by fri")
   ([ADR-0022](../../20-architecture/adr/0022-repeating-items.md), Provisionally agreed).
-- **Sorting a Thought:** convert it in place into a Note, Task, Shopping list or other
+- **Sorting a Thought:** convert it in place into a Note, Task, List or other
   Capturable Type, or delete it (archive, with undo)
   ([ADR-0037](../../20-architecture/adr/0037-thoughts.md), Provisionally
   agreed). From Stage 4 a Thought can become a Recipe Idea, any link in it
-  kept as a source, or a Shopping list, split at its commas
-  ([ITM-006](items.md#itm-006--food-items)).
+  kept as a source ([ITM-006](items.md#itm-006--food-items)); from 20
+  November a List, never a food shop
+  ([ADR-0069](../../20-architecture/adr/0069-lists-and-recipes-tabs.md)).
 - **Capture makes no food:** no Recipe, Meal or Shopping list, and it
   matches nothing against the Pantry; that happens when a Thought is
   sorted.

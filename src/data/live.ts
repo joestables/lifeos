@@ -2,9 +2,11 @@ import type { RealtimeChannel } from '@supabase/supabase-js'
 import { useEffect } from 'react'
 import { spaceEntriesKey } from './food'
 import { itemsKey } from './items'
+import { listLinesKey, type ListLine } from './lists'
 import { queryClient } from './queryClient'
-import { listMealsKey, listsKey, shopLinesKey, type ListDetail, type ShopLine } from './shopping'
+import { listMealsKey, shopLinesKey, type ShopLine } from './shopping'
 import { supabase } from './supabase'
+import type { ItemRow } from './types'
 
 export type LiveTable = 'lines' | 'list_meals' | 'shopping_list'
 
@@ -16,27 +18,28 @@ const listColumn = (table: LiveTable) => (table === 'shopping_list' ? 'item_id' 
 /**
  * What a change on a shopping table refreshes (ADR-0057): the table's own
  * query; a tick also clears out of stock or Required, and a Meal's lines come
- * and go with its Meals; a list's own row comes with its Item.
+ * and go with its Meals; a shop's own row comes with its Item, so a shop
+ * someone else makes shows.
  */
 export function liveKeys(table: LiveTable): (readonly unknown[])[] {
   if (table === 'lines') return [shopLinesKey, spaceEntriesKey]
   if (table === 'list_meals') return [listMealsKey, shopLinesKey, ['shopping', 'meals_of']]
-  return [listsKey, itemsKey]
+  return [itemsKey]
 }
 
 /**
  * Whether a delete concerns me. Realtime sends every delete on a table, with
  * only its key and without checking who may read it, so one is acted on only
- * when it names a line or a list on this device.
+ * when it names a line or a shop on this device (`shops`: their ids).
  */
 export function deleteIsMine(
   table: LiveTable,
   old: Record<string, unknown>,
   lines: readonly Pick<ShopLine, 'id'>[],
-  lists: readonly Pick<ListDetail, 'item_id'>[],
+  shops: readonly string[],
 ): boolean {
   if (table === 'lines') return lines.some((l) => l.id === old.id)
-  return lists.some((l) => l.item_id === old[listColumn(table)])
+  return shops.includes(String(old[listColumn(table)]))
 }
 
 /**
@@ -74,8 +77,10 @@ export function useLiveShopping(list?: string) {
         )
       channel.on('postgres_changes', { event: 'DELETE', schema: 'shopping', table }, (change) => {
         const lines = queryClient.getQueryData<ShopLine[]>(shopLinesKey) ?? []
-        const lists = queryClient.getQueryData<ListDetail[]>(listsKey) ?? []
-        if (deleteIsMine(table, change.old as Record<string, unknown>, lines, lists))
+        const shops = (queryClient.getQueryData<ItemRow[]>(itemsKey) ?? [])
+          .filter((i) => i.type === 'shopping_list')
+          .map((i) => i.id)
+        if (deleteIsMine(table, change.old as Record<string, unknown>, lines, shops))
           refresh(liveKeys(table))
       })
     }
@@ -87,6 +92,48 @@ export function useLiveShopping(list?: string) {
     )
     channel.subscribe((status) => {
       if (status === 'SUBSCRIBED') refresh([...TABLES.flatMap(liveKeys), spaceEntriesKey])
+    })
+    return () => {
+      clearTimeout(timer)
+      void client.removeChannel(channel)
+    }
+  }, [list])
+}
+
+/**
+ * Live Lists (NTE-008 2): while Notes' Lists or a List is open, a change
+ * another device makes to a List's lines arrives through Supabase Realtime,
+ * and its lines are fetched again, unsent writes staying laid over them.
+ * Realtime sends every delete with its key alone, so a delete is acted on
+ * only when it names a line on this device. On a List's page only its
+ * lines' changes are sent.
+ */
+export function useLiveLists(list?: string) {
+  useEffect(() => {
+    const client = supabase()
+    let timer: ReturnType<typeof setTimeout> | undefined
+    const refresh = () => {
+      clearTimeout(timer)
+      timer = setTimeout(() => void queryClient.invalidateQueries({ queryKey: listLinesKey }), 250)
+    }
+    const channel: RealtimeChannel = client.channel(list ? `list:${list}` : 'lists')
+    const filter = list ? `list_id=eq.${list}` : undefined
+    for (const event of ['INSERT', 'UPDATE'] as const)
+      channel.on(
+        'postgres_changes',
+        { event, schema: 'core', table: 'list_lines', ...(filter && { filter }) },
+        refresh,
+      )
+    channel.on(
+      'postgres_changes',
+      { event: 'DELETE', schema: 'core', table: 'list_lines' },
+      (c) => {
+        const lines = queryClient.getQueryData<ListLine[]>(listLinesKey) ?? []
+        if (lines.some((l) => l.id === (c.old as { id?: unknown }).id)) refresh()
+      },
+    )
+    channel.subscribe((status) => {
+      if (status === 'SUBSCRIBED') refresh()
     })
     return () => {
       clearTimeout(timer)

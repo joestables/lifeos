@@ -7,6 +7,7 @@ import {
   useFood,
   useItems,
   useLabels,
+  useLists,
   useOnline,
   useShopping,
   useWardrobe,
@@ -53,6 +54,7 @@ export function useSearch(query: string): {
   const { labels, itemLabels } = useLabels(queue)
   const food = useFood(queue)
   const shopping = useShopping(queue)
+  const lists = useLists(queue)
   const wardrobe = useWardrobe(queue)
   const words = useMemo(() => searchWords(settled), [settled])
   const server = useQuery({
@@ -81,11 +83,11 @@ export function useSearch(query: string): {
         i.type !== 'variation' &&
         i.type !== 'outfit_worn',
     )
-    // Recipes by tag or ingredient, and Shopping lists by a line (SRC-003),
-    // which the server's search doesn't hold.
+    // Recipes by tag or ingredient, and food shops and Lists by a line
+    // (SRC-003), which the server's search doesn't hold.
     const lineWords = words.map((w) => w.toLowerCase())
     const lineName = (l: {
-      pantry_id: string | null
+      pantry_id?: string | null
       text: string | null
       heading: string | null
     }) =>
@@ -101,9 +103,13 @@ export function useSearch(query: string): {
         .filter((r) => !ids.has(r.item.id))
         .filter((r) => matches(r, settled, food.pantry))
         .map((r) => r.item)
-      const lists = shopping.lists
+      const byLine = [...shopping.lists, ...lists.lists]
         .filter((l) => !ids.has(l.item.id) && l.item.archived_at === null)
-        .filter((l) => l.lines.some((x) => lineWords.every((w) => lineName(x).includes(w))))
+        .filter((l) =>
+          (l.lines as Parameters<typeof lineName>[0][]).some((x) =>
+            lineWords.every((w) => lineName(x).includes(w)),
+          ),
+        )
         .map((l) => l.item)
       // A garment by what Wardrobe's search matches, titled as Wardrobe has it.
       const titles = new Map(wardrobe.garments.map((g) => [g.item.id, g.title]))
@@ -115,7 +121,7 @@ export function useSearch(query: string): {
           (o) => !ids.has(o.item.id) && lineWords.every((w) => o.name.toLowerCase().includes(w)),
         )
         .map((o) => o.item)
-      return [...found, ...recipes, ...lists, ...garments, ...outfits]
+      return [...found, ...recipes, ...byLine, ...garments, ...outfits]
         .map((i) => (titles.get(i.id) && !i.title ? { ...i, title: titles.get(i.id)! } : i))
         .slice(0, SHOWN)
     }
@@ -151,6 +157,7 @@ export function useSearch(query: string): {
     food.recipes,
     food.pantry,
     shopping.lists,
+    lists.lists,
     wardrobe.garments,
     wardrobe.outfits,
   ])

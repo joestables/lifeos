@@ -34,6 +34,7 @@ import { Route as AppWardrobeRouteImport } from './routes/_app/wardrobe'
 import { Route as AppWeekRouteImport } from './routes/_app/week'
 import { Route as AppGymIndexRouteImport } from './routes/_app/gym.index'
 import { Route as AppItemIdRouteImport } from './routes/_app/item.$id'
+import { Route as AppListsIdRouteImport } from './routes/_app/lists.$id'
 import { Route as AppRecipesIndexRouteImport } from './routes/_app/recipes.index'
 import { Route as AppRecipesIdRouteImport } from './routes/_app/recipes.$id'
 import { Route as AppRecipesImportRouteImport } from './routes/_app/recipes.import'
@@ -182,6 +183,11 @@ const AppItemIdRoute = AppItemIdRouteImport.update({
   path: '/item/$id',
   getParentRoute: () => AppRoute,
 } as any)
+const AppListsIdRoute = AppListsIdRouteImport.update({
+  id: '/lists/$id',
+  path: '/lists/$id',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppRecipesIndexRoute = AppRecipesIndexRouteImport.update({
   id: '/recipes/',
   path: '/recipes/',
@@ -325,6 +331,7 @@ export interface FileRoutesByFullPath {
   '/wardrobe': typeof AppWardrobeRoute
   '/week': typeof AppWeekRoute
   '/item/$id': typeof AppItemIdRoute
+  '/lists/$id': typeof AppListsIdRoute
   '/recipes/$id': typeof AppRecipesIdRoute
   '/recipes/import': typeof AppRecipesImportRoute
   '/settings/archived-exercises': typeof AppSettingsArchivedExercisesRoute
@@ -374,6 +381,7 @@ export interface FileRoutesByTo {
   '/wardrobe': typeof AppWardrobeRoute
   '/week': typeof AppWeekRoute
   '/item/$id': typeof AppItemIdRoute
+  '/lists/$id': typeof AppListsIdRoute
   '/recipes/$id': typeof AppRecipesIdRoute
   '/recipes/import': typeof AppRecipesImportRoute
   '/settings/archived-exercises': typeof AppSettingsArchivedExercisesRoute
@@ -425,6 +433,7 @@ export interface FileRoutesById {
   '/_app/wardrobe': typeof AppWardrobeRoute
   '/_app/week': typeof AppWeekRoute
   '/_app/item/$id': typeof AppItemIdRoute
+  '/_app/lists/$id': typeof AppListsIdRoute
   '/_app/recipes/$id': typeof AppRecipesIdRoute
   '/_app/recipes/import': typeof AppRecipesImportRoute
   '/_app/settings/archived-exercises': typeof AppSettingsArchivedExercisesRoute
@@ -476,6 +485,7 @@ export interface FileRouteTypes {
     | '/wardrobe'
     | '/week'
     | '/item/$id'
+    | '/lists/$id'
     | '/recipes/$id'
     | '/recipes/import'
     | '/settings/archived-exercises'
@@ -525,6 +535,7 @@ export interface FileRouteTypes {
     | '/wardrobe'
     | '/week'
     | '/item/$id'
+    | '/lists/$id'
     | '/recipes/$id'
     | '/recipes/import'
     | '/settings/archived-exercises'
@@ -575,6 +586,7 @@ export interface FileRouteTypes {
     | '/_app/wardrobe'
     | '/_app/week'
     | '/_app/item/$id'
+    | '/_app/lists/$id'
     | '/_app/recipes/$id'
     | '/_app/recipes/import'
     | '/_app/settings/archived-exercises'
@@ -794,6 +806,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppItemIdRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/lists/$id': {
+      id: '/_app/lists/$id'
+      path: '/lists/$id'
+      fullPath: '/lists/$id'
+      preLoaderRoute: typeof AppListsIdRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/recipes/': {
       id: '/_app/recipes/'
       path: '/recipes'
@@ -970,6 +989,7 @@ interface AppRouteChildren {
   AppWardrobeRoute: typeof AppWardrobeRoute
   AppWeekRoute: typeof AppWeekRoute
   AppItemIdRoute: typeof AppItemIdRoute
+  AppListsIdRoute: typeof AppListsIdRoute
   AppRecipesIdRoute: typeof AppRecipesIdRoute
   AppRecipesImportRoute: typeof AppRecipesImportRoute
   AppSettingsArchivedExercisesRoute: typeof AppSettingsArchivedExercisesRoute
@@ -1008,6 +1028,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppWardrobeRoute: AppWardrobeRoute,
   AppWeekRoute: AppWeekRoute,
   AppItemIdRoute: AppItemIdRoute,
+  AppListsIdRoute: AppListsIdRoute,
   AppRecipesIdRoute: AppRecipesIdRoute,
   AppRecipesImportRoute: AppRecipesImportRoute,
   AppSettingsArchivedExercisesRoute: AppSettingsArchivedExercisesRoute,

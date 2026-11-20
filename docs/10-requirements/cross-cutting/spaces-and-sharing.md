@@ -144,7 +144,7 @@ Acceptance criteria
 
 **As** Joe, **I want** to be in more than one Household, **so that** I can
 share different things with different people.
-Priority: Should · Status: built (1 for Meals and Week's cards; 2 for Meals, a shopping list's with Shopping, Stage 4b)
+Priority: Should · Status: built (1 for Meals and Week's cards; 2 for Meals, a shopping list's with Shopping, Stage 4b, and a List's)
 
 Acceptance criteria
 1. Given I'm in two Households, then everything shared in each is shown to

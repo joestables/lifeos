@@ -2,12 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { applyPending } from './overlay'
 import { deleteIsMine, liveKeys } from './live'
 import type { QueueEntry } from './queue/store'
-import {
-  applyPendingListMeals,
-  applyPendingLists,
-  applyPendingShopLines,
-  type ShopLine,
-} from './shopping'
+import { applyPendingListMeals, applyPendingShopLines, type ShopLine } from './shopping'
 
 const entry = (fn: string, args: Record<string, unknown>): QueueEntry =>
   ({ id: fn, fn, args, itemIds: [], createdAt: 0, attempts: 0, state: 'pending' }) as QueueEntry
@@ -30,23 +25,13 @@ const line = (id: string, more: Partial<ShopLine> = {}): ShopLine => ({
   ...more,
 })
 
-describe('SHP-001: a list shows at once, offline too', () => {
-  it('a new food shop with its Meals, and a Thought made a list', () => {
+describe('SHP-001: a shop shows at once, offline too', () => {
+  it('a new food shop with its Meals', () => {
     const made = entry('shopping.create_list', {
       p_id: 'l',
       p_fields: { title: 'Big shop', kind: 'food', meals: ['m1', 'm2'] },
     })
-    expect(applyPendingLists([], [made])).toEqual([{ item_id: 'l', kind: 'food' }])
     expect(applyPendingListMeals([], [made]).map((m) => m.meal_id)).toEqual(['m1', 'm2'])
-    expect(
-      applyPendingLists(
-        [],
-        [
-          entry('convert_item', { p_id: 't', p_type: 'shopping_list' }),
-          entry('shopping.update_list', { p_id: 't', p_patch: { kind: 'list' } }),
-        ],
-      ),
-    ).toEqual([{ item_id: 't', kind: 'list' }])
   })
 
   it('SHP-002 4: a Meal added and taken off', () => {
@@ -105,18 +90,18 @@ describe('SHP-004 2: another device’s change refreshes what it touches', () =>
     expect(liveKeys('shopping_list')).toContainEqual(['items'])
   })
 
-  it('a delete counts only when it names a line or list on this device', () => {
+  it('a delete counts only when it names a line or shop on this device', () => {
     const lines = [line('a')]
-    const lists = [{ item_id: 'l' }]
-    expect(deleteIsMine('lines', { id: 'a' }, lines, lists)).toBe(true)
-    expect(deleteIsMine('lines', { id: 'someone else’s' }, lines, lists)).toBe(false)
-    expect(deleteIsMine('list_meals', { list_id: 'l', meal_id: 'm' }, lines, lists)).toBe(true)
-    expect(deleteIsMine('list_meals', { list_id: 'x', meal_id: 'm' }, lines, lists)).toBe(false)
-    expect(deleteIsMine('shopping_list', { item_id: 'l' }, lines, lists)).toBe(true)
+    const shops = ['l']
+    expect(deleteIsMine('lines', { id: 'a' }, lines, shops)).toBe(true)
+    expect(deleteIsMine('lines', { id: 'someone else’s' }, lines, shops)).toBe(false)
+    expect(deleteIsMine('list_meals', { list_id: 'l', meal_id: 'm' }, lines, shops)).toBe(true)
+    expect(deleteIsMine('list_meals', { list_id: 'x', meal_id: 'm' }, lines, shops)).toBe(false)
+    expect(deleteIsMine('shopping_list', { item_id: 'l' }, lines, shops)).toBe(true)
   })
 })
 
-describe('SHP-001 2: a new list shows at once, so its page opens on it', () => {
+describe('SHP-001 2: a new shop shows at once, so its page opens on it', () => {
   it('makes the Item before the server answers (Joe, 26 October)', () => {
     const made = entry('shopping.create_list', {
       p_id: 'l',

@@ -202,9 +202,7 @@ export function PantryTab({
           when: m.item.do_on!,
           lines: [...m.lines, ...((m.variation && variationLines.get(m.variation)) || [])],
         })),
-      lists
-        .filter((l) => l.kind === 'food')
-        .map((l) => ({ when: l.item.do_on ?? l.item.created_at, lines: l.lines })),
+      lists.map((l) => ({ when: l.item.do_on ?? l.item.created_at, lines: l.lines })),
     )
   }, [food.recipes, meals, lists])
 

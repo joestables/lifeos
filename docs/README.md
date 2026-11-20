@@ -8,7 +8,9 @@ Stages 0 (requirements and architecture), 1 (foundation), 2 (replacing
 Google Tasks), 3 (Plan, Events and Google Calendar) and 4 (Recipes and the
 Meal plan) are done. **Stage 4b**, Shopping, has started: its
 [plan](50-progress/plans/stage-4b.md) is written, and its specs come first
-([roadmap](roadmap.md#where-we-are)). **Stage 5**, Gym, has started
+([roadmap](roadmap.md#where-we-are)); on 20 November the Meal plan and
+Shopping became tabs of Recipes, and Shopping's other lists Notes' Lists
+(ADR-0069). **Stage 5**, Gym, has started
 alongside it: its [plan](50-progress/plans/stage-5.md) is written, its
 spec and design agreed, its schema in the database and its calculations
 in `packages/fitness`; its settings, exercise library, templates, workouts, recovery and
@@ -193,6 +195,7 @@ Consequences**, to a page.
 | [0066](20-architecture/adr/0066-wardrobe-in-the-database.md) | Wardrobe in the database | Provisionally agreed |
 | [0067](20-architecture/adr/0067-garment-colours.md) | Garment colours | Provisionally agreed |
 | [0068](20-architecture/adr/0068-weather.md) | Weather | Provisionally agreed |
+| [0069](20-architecture/adr/0069-lists-and-recipes-tabs.md) | Lists on Notes; the Meal plan and Shopping as Recipes' tabs | Provisionally agreed |
 
 ## Sources
 

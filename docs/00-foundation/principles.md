@@ -62,8 +62,8 @@ unless marked.*
    - The core is built from four real Types (Thought, Note, Task, Event), not
      from a general ontology designed in advance.
 9. **Live updates where two people share a thing.** Shared Shopping lists
-   use Supabase Realtime, so two people in Tesco see each other's ticks at
-   once. Elsewhere, data refreshes on focus.
+   and Lists use Supabase Realtime, so two people in Tesco see each other's
+   ticks at once. Elsewhere, data refreshes on focus.
 10. **Search** is Postgres full-text search over titles, bodies and labels
     from Stage 2; **vector search (pgvector)** later, for "find things like
     this" and for AI.

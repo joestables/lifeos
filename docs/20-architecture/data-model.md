@@ -76,7 +76,8 @@ core.items     id (UUIDv7, made on the device), type, title, body, space_id,
                shopping.shopping_list(item_id, kind)
 
 child rows     belong to one Item and are not Items themselves:
-               workout_sets, variation_lines, shopping lines …
+               workout_sets, variation_lines, shopping lines, a List's
+               core.list_lines …
 
 core.series    type, space, owner, the repeat rule (an RRULE), mode
                (schedule | after completion), starts_on, timezone, template
@@ -194,13 +195,14 @@ these, so the database enforces them.
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | core | **Thought** (raw, unsorted; waits on Notes' Thoughts until sorted or ticked off) | — | ✓ | — | — | Personal | active · done | yellow | ✓ | — | 2 |
 | core | **Note** | — | — | — | ✓ | Personal | active | yellow | ✓ | pinned | 2 |
+| core | **List** (a name and its lines, ticked as I go; no date) | — | ✓ | ✓ | ✓ | Personal, or a Household chosen for it | active · done — done when I complete it, off Notes' Lists | yellow | ✓ | pinned | 4b |
 | core | **Task** | ✓ do-on / due | ✓ | ✓ | ✓ | Personal, or a Household chosen in its popup (HSH-005) | idea "Someday" · active · done · cancelled — a missed repeat: "Skipped" | blue | — | starred | 2 |
 | core | **Event** (a place; not captured, but a Thought can become one) | ✓ start / end | — | ✓ | ✓ | Personal, or a Household chosen in its popup, from Google Calendar too (HSH-005) | active · cancelled | blue | — | — | 3 |
 | core | **Reminder** (a title, its Alerts and a Repeat; never done) | ✓ do-on | — | — | ✓ | Personal | active | blue | — | — | 7b |
 | food | **Recipe** (the dish) | — | — | ✓ | ✓ | Its author's Personal, seen read-only by their Households ([ADR-0051](adr/0051-who-sees-food.md)) | idea "Idea" · active "Draft" · done "Complete" · cancelled "Archived" — the highest of its Variations', worked out | green | — | favourited | 4 |
 | food | **Variation** (a way of making it) | — | — | ✓ | — | Its own author's: the Recipe's, or a Household member's added to it (ADR-0051) | idea "Idea" · active "Draft" · done "Complete" · cancelled "Archived" — set by hand; never back to Idea once it has ingredients or a method | green | — | — | 4 |
 | food | **Meal** (from a Variation, typed, or leftovers of another) | ✓ do-on / slot | ✓ "eaten" | ✓ | — | Household when in one, else Personal | active "Planned" · done "Eaten" · cancelled — ticking it eaten logs no cook | green | — | — | 4 |
-| shopping | **Shopping list** (a food shop or a list; a date is optional) | ✓ do-on | ✓ | ✓ | ✓ | Household when in one, else Personal; a food shop the Space chosen for it | active · done · cancelled | yellow | — | — | 4b |
+| shopping | **Shopping list** (a food shop; a date is optional) | ✓ do-on | ✓ | ✓ | — | The Space chosen for it: Household when in one, else Personal | active · done · cancelled | green | — | — | 4b |
 | fitness | **Exercise** | — | — | — | — | Personal | active · cancelled "Archived" — archived when I no longer do it | coral | — | — | 5 |
 | fitness | **Workout template** | — | — | — | — | Personal | active | coral | — | — | 5 |
 | fitness | **Workout** | ✓ do-on | ✓ "complete" | — | — | Personal | active "Planned" · done "Complete" — "In progress" is its stage; "Skipped" when planned and its day has passed, worked out | coral | — | — | 5 |
@@ -218,12 +220,13 @@ these, so the database enforces them.
 | goals | **Goal** | — (deadline in `goal`; not on Plan) | ✓ | ✓ | ✓ | Personal | idea · active · done "Achieved" · cancelled "Abandoned" | purple | — | — | 5 |
 | finance | **Account** | — | — | ✓ | — | Personal | active · cancelled "Closed" | Stage 9 | — | — | 9 |
 
-Shopping list: [ADR-0050](adr/0050-shopping-list.md) (Provisionally agreed), superseding ADR-0010's List and Shop.
+Shopping list: [ADR-0050](adr/0050-shopping-list.md) (Provisionally agreed), superseding ADR-0010's List and Shop; a food shop since [ADR-0069](adr/0069-lists-and-recipes-tabs.md), which made List a core Type of its own.
 Recipe and Variation: [ADR-0011](adr/0011-recipe-and-variation.md) (Provisionally agreed).
 Ingredient lines and the Pantry: [ADR-0012](adr/0012-ingredients-and-shopping-lists.md), [ADR-0051](adr/0051-who-sees-food.md) (Provisionally agreed).
 
 **In-place conversions:** Thought → any Capturable Type (sorting Thoughts);
-Note → any other Capturable Type but a Reminder (a title only); Task, Event and Reminder
+Note → any other Capturable Type but a Reminder (a title only) or a List
+(its lines aren't a Note's text; [ADR-0069](adr/0069-lists-and-recipes-tabs.md)); Task, Event and Reminder
 into each other ([ADR-0065](adr/0065-reminders-alerts-and-the-day.md)). Everything else is "create from" + *became*
 ([ADR-0018](adr/0018-changing-an-items-type.md), Provisionally agreed).
 Thoughts and Notes: [ADR-0037](adr/0037-thoughts.md) (Provisionally agreed).
@@ -243,8 +246,8 @@ more than Labels).
 
 | Module | Detail tables (1:1 with an Item) | Child rows |
 |---|---|---|
-| core | — (Thought, Note, Task, Event and Reminder use `core.items` only; an Event's place is its `place`) | — |
-| shopping | `shopping_list(kind: food · list)` | `list_meals(list_id, meal_id)` (a food shop's Meals; a Meal on one open shop at most); `lines(position, heading?, pantry_id?, text?, qty?, qty_max?, approx, unit?, checked, meal_id?, source_id?, needed_space_id?)` — in the list's own Space; a Meal's lines written by the database as its Meal changes, ticked ones kept, each with the id its list, Meal and source line give it ([ADR-0057](adr/0057-shopping-in-the-database.md)) |
+| core | — (Thought, Note, List, Task, Event and Reminder use `core.items` only; an Event's place is its `place`) | a List's `list_lines(position, heading?, text?, checked)` (a row with a heading is a subheading and nothing else, never ticked; a line is typed, never a Pantry entry) — read and written through its List's Space by `core.add_list_line`, `update_list_line`, `remove_list_line` and `tick_list_lines`, and live through Realtime ([ADR-0069](adr/0069-lists-and-recipes-tabs.md)) |
+| shopping | `shopping_list(kind)` (`food` for every shop since ADR-0069; the column and `shopping.update_list` go once no app sends them) | `list_meals(list_id, meal_id)` (a food shop's Meals; a Meal on one open shop at most); `lines(position, heading?, pantry_id?, text?, qty?, qty_max?, approx, unit?, checked, meal_id?, source_id?, needed_space_id?)` — in the list's own Space; a Meal's lines written by the database as its Meal changes, ticked ones kept, each with the id its list, Meal and source line give it ([ADR-0057](adr/0057-shopping-in-the-database.md)) |
 | food | `recipe(category, cuisine, tags, protein, carbs, default_variation)` (its name is the Item's title; its photo is in `core.attachments`), `variation(servings, prep_min, cook_min, sources, notes, archived_from)` (its name and state are the Item's title and status; `archived_from` keeps its state while its Recipe is archived; its `updated_at` moves when one of its lines or steps is added, changed or removed, for Recently edited, RCP-001 6), `meal(servings, leftovers_of?, source?)` (a typed Meal is one with no *uses* link, named by its title; `source` its recipe link, MPL-006) | `variation_lines(position, heading?, pantry_id?, text?, qty?, qty_max?, approx, unit?)` (a row with a heading is a subheading and nothing else), `meal_lines(position, pantry_id?, text?, qty?, qty_max?, approx, unit?)` (a Meal's own lines, no subheadings, never on leftovers; MPL-006), `variation_steps(position, text)` (an "@" reference to a Recipe kept in the text, and in a Variation's notes, as `@[Name](recipe id)`: shown under the Recipe's name now, plain once it is gone; RCP-008), `cooks(person, cooked_at, verdict?, notes?, servings?, meal_id?, snapshot)`; each person's `values` (kind: category · cuisine · tag · protein · carb; renamed with `food.rename_value`, which renames them on their Recipes, unlogged, and merged with `food.move_value_uses` then `food.remove_value`; a Recipe restored from Recently deleted puts its names back on its author's lists; RCP-018 1); each person's `recent_views(recipe_id, viewed_at)`, the Recipes they opened, the latest view kept (MPL-002 1; read and written only by them, through `food.view_recipe`); `change_notes(activity_id, item_id, note, person_id)`, the words of whoever made a change on what it changed, by the activity entry it starts with (RCP-013; written only through `food.note_change`, by its maker); not Items: the Pantry `pantry(name, kind: ingredient · household, aisle?, default_unit?, added_by)` — one name once, ignoring case; an ingredient has an aisle (fruit_veg · bakery · protein · chilled · cupboard · frozen), a household item none — and each Space's `space_entries(pantry_id, kind: staple · essential, needed)` (needed is out of stock for a staple, Required for an Essential; Stage 4b) ([ADR-0052](adr/0052-food-in-the-database.md)) |
 | fitness | `exercise(equipment_id, current_weight, current_reps, notes?)`, `workout(stage: planned · in_progress · complete, started_at?, ended_at?, how_it_went? (1–5), motivation? (1–3), notes?, discarded)` (one in progress per person, by its `owner_id`; one in progress deleted is ended, `discarded`, and comes back in progress when restored, if no other is), `cardio_activity(kind, distance_m, duration_s, avg_hr)` (Stage 8) | `exercise_muscles(exercise_id, muscle_id, contribution)` (one primary at 1.0, secondary 0.1–0.9), `template_exercises(template_id, exercise_id, position, sets)`, `workout_entries(workout_id, exercise_id, place: backlog · session, planned_sets, begun_at?, done_at?, snapshot)`, `workout_sets(entry_id, position, weight?, reps?, rir?, logged_at)` (all three or none: a quick set); weights `numeric(7,3)` kg; reference data, each person's: `equipment(name, increment)`, `muscle_groups(person?, name, category: push · pull · core · legs, body_part?, default_recovery, position)` (twenty built in with no person, shared and read-only), `muscle_settings(person, muscle_id, recovery_type, frequency_target, stimulus_target)`, `settings(person, preferred_rir, workouts_to_stall, points_per_fatigue_set, t_fast_h, t_normal_h, t_slow_h)`; readiness, stimulus sets and progression worked out by `packages/fitness` (on the device, and on the server when needed), never stored ([ADR-0058](adr/0058-fitness-in-the-database.md), [ADR-0059](adr/0059-recovery-on-the-device.md)) |
 | goals | `goal(kind, measure_key, params, target, unit, period, start_on, deadline)` | — |
@@ -344,6 +347,7 @@ flowchart LR
   subgraph CORE[Core]
     Thought[Thought]
     Note[Note]
+    List[List]
     Task[Task]
     Event[Event]
     Reminder[Reminder]
@@ -368,14 +372,13 @@ flowchart LR
   end
 
   Thought == converts in place ==> Event
+  Thought == converts in place ==> List
   Thought == converts in place ==> Note
   Thought == converts in place ==> Recipe
   Thought == converts in place ==> Reminder
-  Thought == converts in place ==> Shopping_list
   Thought == converts in place ==> Task
   Note == converts in place ==> Event
   Note == converts in place ==> Recipe
-  Note == converts in place ==> Shopping_list
   Note == converts in place ==> Task
   Event -. converts .- Reminder
   Event -. converts .- Task
@@ -399,6 +402,7 @@ flowchart LR
   subgraph CORE[Core]
     Thought
     Note
+    List
     Task
     Event
   end
@@ -429,6 +433,7 @@ flowchart LR
   Thought == converts in place ==> Note
   Thought == converts in place ==> Task
   Thought == converts in place ==> Recipe
+  Thought == converts in place ==> List
   Task -. converts .- Event
 
   Meal -- uses --> Variation
@@ -453,8 +458,8 @@ flowchart LR
 ```
 
 Drawn selectively to stay readable: a Thought also converts to Event,
-Shopping list and Goal (every Capturable Type), and a Note to any other
-Capturable Type but a Reminder; *contributes to* also comes from Shopping lists,
+Reminder and Goal (every Capturable Type), and a Note to any other
+Capturable Type but a Reminder or a List; *contributes to* also comes from Shopping lists,
 Workouts and Cardio; a Shopping list's line can point at an Event as well as
 a Meal; measures also exist for Meals and Tasks. Two link types
 connect any pair of Types and are not drawn: *became* and *relates to*.

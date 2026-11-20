@@ -4,15 +4,10 @@ import {
   ChefHatIcon,
   CloudOffIcon,
   DumbbellIcon,
-  FootprintsIcon,
   ListTodoIcon,
   ShirtIcon,
-  ShoppingCartIcon,
   StickyNoteIcon,
   SunIcon,
-  TargetIcon,
-  UtensilsIcon,
-  WalletIcon,
 } from 'lucide-react'
 import { useEffect, useMemo } from 'react'
 import { AppShell, type DrawerPage } from '@/components/lifeos'
@@ -42,7 +37,10 @@ import { todayIn } from '@lifeos/recurrence'
 import { useAlertTimes } from '@/app/alert-times'
 import { todayList } from '@/lib/today'
 
-/** The drawer's pages, in ADR-0026's order. */
+/**
+ * The drawer's pages, in ADR-0026's order: the Meal plan and Shopping are
+ * Recipes' tabs, and a page joins once its stage builds it (ADR-0069).
+ */
 const PAGES: DrawerPage[] = [
   { to: '/today', label: 'Today', colour: 'none', icon: SunIcon },
   { to: '/week', label: 'Week', colour: 'none', icon: CalendarDaysIcon },
@@ -50,13 +48,7 @@ const PAGES: DrawerPage[] = [
   { to: '/notes', label: 'Notes', colour: 'yellow', icon: StickyNoteIcon },
   { to: '/gym', label: 'Gym', colour: 'coral', icon: DumbbellIcon },
   { to: '/recipes', label: 'Recipes', colour: 'green', icon: ChefHatIcon },
-  { to: '/meal-plan', label: 'Meal plan', colour: 'green', icon: UtensilsIcon },
-  { to: '/shopping', label: 'Shopping', colour: 'yellow', icon: ShoppingCartIcon },
   { to: '/wardrobe', label: 'Wardrobe', colour: 'orange', icon: ShirtIcon },
-  // Not built yet: under "Later" until their stages (Joe, 15 November).
-  { to: '/cardio', label: 'Cardio', colour: 'coral', icon: FootprintsIcon, later: true },
-  { to: '/goals', label: 'Goals', colour: 'purple', icon: TargetIcon, later: true },
-  { to: '/finance', label: 'Finance', colour: 'none', icon: WalletIcon, later: true },
 ]
 
 /**

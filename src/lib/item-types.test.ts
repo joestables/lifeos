@@ -3,23 +3,19 @@ import { convertTargets, itemTitle, offered, opensAsPage, typeLook } from './ite
 
 describe('Types in the app', () => {
   it('ITM-004: offers only conversions into Types the app has yet', () => {
-    // A Thought sorts into a Recipe from Stage 4 (RCP-002 4), a Shopping list
-    // from Stage 4b (offered only when it names a Pantry ingredient, SHP-003 5),
-    // a Reminder from Stage 7b (RMD-006).
+    // A Thought sorts into a Recipe from Stage 4 (RCP-002 4), a List, never a
+    // food shop (ADR-0069), and a Reminder from Stage 7b (RMD-006).
     expect(convertTargets('thought').map((t) => t.key)).toEqual([
       'event',
+      'list',
       'note',
       'recipe',
       'reminder',
-      'shopping_list',
       'task',
     ])
-    expect(convertTargets('note').map((t) => t.key)).toEqual([
-      'event',
-      'recipe',
-      'shopping_list',
-      'task',
-    ])
+    // A Note, with its text, becomes neither a Reminder nor a List.
+    expect(convertTargets('note').map((t) => t.key)).toEqual(['event', 'recipe', 'task'])
+    expect(convertTargets('list').map((t) => t.key)).toEqual([])
     expect(convertTargets('task').map((t) => t.key)).toEqual(['event', 'reminder'])
     expect(convertTargets('event').map((t) => t.key)).toEqual(['reminder', 'task'])
     expect(convertTargets('reminder').map((t) => t.key)).toEqual(['event', 'task'])
@@ -32,10 +28,18 @@ describe('Types in the app', () => {
       true,
       true,
     ])
-    // Stage 4b's, from its step 5; sorting a Thought into one waits for step 8.
-    expect(offered('shopping_list')).toBe(true)
+    // Stage 4b's, from its step 5, and Notes' Lists (ADR-0069).
+    expect([offered('shopping_list'), offered('list')]).toEqual([true, true])
     // Stage 5's, built alongside it: a Workout on Plan's filter and Add (PLN-004, PLN-006).
     expect([offered('workout'), offered('exercise'), offered('goal')]).toEqual([true, true, false])
+  })
+
+  it('ADR-0069: a List lives on Notes, a food shop on Recipes', () => {
+    expect([typeLook('list').home, typeLook('list').colour]).toEqual(['/notes', 'yellow'])
+    expect([typeLook('shopping_list').home, typeLook('shopping_list').colour]).toEqual([
+      '/recipes',
+      'green',
+    ])
   })
 
   it('ITM-001: a Task opens in a popup everywhere; a Note on its own page on a phone', () => {

@@ -70,9 +70,10 @@ TanStack DB collections, whose core is still pre-1.0.
 - A few hundred lines of queue code that LifeOS owns, tested with unit tests
   citing OFF-001–005.
 - Each new action needs a database function, in a migration.
-- No live updates in Stage 1; shared Shopping lists added them in Stage 4b:
-  Supabase Realtime telling the data layer which queries to refresh
-  (`useLiveShopping`, [ADR-0057](0057-shopping-in-the-database.md)).
+- No live updates in Stage 1; shared Shopping lists added them in Stage 4b,
+  and shared Lists with ADR-0069: Supabase Realtime telling the data layer
+  which queries to refresh (`useLiveShopping`,
+  [ADR-0057](0057-shopping-in-the-database.md); `useLiveLists`).
 - If the queue proves not enough, TanStack DB with its offline outbox (or
   PowerSync) replaces it behind the same hooks
   ([ADR-0031](0031-offline-and-concurrent-edits.md)).

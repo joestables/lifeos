@@ -6,7 +6,9 @@
 2026-10-11 by the Stage 2 design agreed with Joe (Settings from your row);
 2026-10-17 by Joe's brief for [Stage 4](../../50-progress/plans/stage-4.md)
 (Recipes, Meal plan and Shopping as three pages; Cardio moves up beside
-Gym, a blank page until Stage 8).
+Gym, a blank page until Stage 8); 2026-11-20 by [ADR-0069](0069-lists-and-recipes-tabs.md)
+(the Meal plan and Shopping become Recipes' tabs; no "Later": a page joins
+once built).
 
 ## Context
 
@@ -23,20 +25,18 @@ A collapsible drawer (no bottom bar) with these pages, in this order:
 | **Inbox** | One feed of what needs you, drawn from everything — not dashboard cards. |
 | **Plan** | The one place to plan meals, outfits, shops, gym, cardio, events and tasks. |
 | **Tasks** | Tasks and their Reminders. |
-| **Notes** | Notes. |
+| **Notes** | Notes, Thoughts to sort, and Lists (ADR-0069). |
 | **Gym** | Workouts and templates. |
-| **Cardio** | Cardio activities. *Under "Later" until Stage 8.* |
-| **Recipes** | The recipe library and saved ideas, with their Variations and cooking. |
-| **Meal plan** | Where meals are planned, and the Pantry of ingredients and household items. |
-| **Shopping** | Food shops (made by hand, or from the meal plan with more added), other shopping lists, and later Online. |
-| **Goals** | Goals, measured from the rest of the app. *Under "Later" until its stage.* |
+| **Cardio** | Cardio activities. *In the drawer once Stage 8 builds it.* |
+| **Recipes** | The recipe library and saved ideas, with their Variations and cooking; and, as its Week, Pantry and Shop tabs, the meal plan, the Pantry of ingredients and household items, and the food shops (ADR-0069). |
+| **Goals** | Goals, measured from the rest of the app. *In the drawer once its stage builds it.* |
 | **Wardrobe** | Garments and outfits. In the drawer since Stage 6 built its page (19 November). |
-| **Finance** | *Later.* |
+| **Finance** | *In the drawer once Stage 9 builds it.* |
 
-- A page joins the drawer when its stage builds it (Meal plan and Shopping
-  with Stage 4, Wardrobe with Stage 6); until then it sits under "Later",
-  named but not a link: Cardio, Goals and Finance (Joe, 15 November: they
-  opened blank pages).
+- A page joins the drawer when its stage builds it (Wardrobe with Stage
+  6); until then it isn't in the drawer at all: Cardio, Goals and Finance
+  (Joe, 20 November; under a "Later" heading, named but not links, from 15
+  November until then).
 - **No Trash page and no Timeline** in the drawer, for now. Deleted Items are
   recovered from Settings ([ADR-0032](0032-delete-means-archive.md)).
 - **Search** is reached from the drawer header and **Settings** from your
