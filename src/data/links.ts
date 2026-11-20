@@ -59,6 +59,14 @@ export function applyPendingLinks(rows: readonly Link[], entries: readonly Queue
       if (variation) out.push({ from_item: meal, to_item: variation, link_type: 'uses' })
       continue
     }
+    // A day's outfit wears it (ADR-0066 7).
+    if (entry.fn === 'wardrobe.plan_outfit' || entry.fn === 'wardrobe.create_outfit_from_day') {
+      const a = entry.args as { p_id?: string; p_worn?: string; p_outfit: string }
+      const worn = String(a.p_id ?? a.p_worn)
+      if (!out.some((l) => l.from_item === worn && l.link_type === 'wears'))
+        out.push({ from_item: worn, to_item: a.p_outfit, link_type: 'wears' })
+      continue
+    }
     // An outfit includes its garments (ADR-0066 6).
     if (entry.fn === 'wardrobe.create_outfit') {
       const a = entry.args as { p_id: string; p_garments: string[] }

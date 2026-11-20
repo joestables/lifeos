@@ -9,11 +9,12 @@ import {
   applyPendingLists,
   applyPendingOutfitCollections,
   applyPendingPlanned,
+  applyPendingWornGarments,
   applyPendingWeatherPlace,
   type GarmentRow,
   type WardrobeLists,
 } from './wardrobe'
-import { placeLabel, splitPlace } from './weather'
+import { placeLabel, readForecast, skyOf, splitPlace } from './weather'
 
 let n = 0
 const entry = (
@@ -291,5 +292,90 @@ describe('outfits, unsent (WRD-014, WRD-017–WRD-019, WRD-021)', () => {
       ),
     ).toEqual(['o1'])
     expect(applyPendingPlanned(added, [entry('wardrobe.clear_planned', {})])).toEqual([])
+  })
+})
+
+describe('days, unsent (WRD-021–WRD-023)', () => {
+  const garmentsOf = (o: string) => (o === 'o1' ? ['g1', 'g2'] : [])
+  it('gives an outfit placed on a day the garments it has now', () => {
+    const out = applyPendingWornGarments(
+      [],
+      [entry('wardrobe.plan_outfit', { p_id: 'w1', p_outfit: 'o1', p_day: '2026-11-20' })],
+      garmentsOf,
+    )
+    expect(out).toEqual([
+      { worn_id: 'w1', garment_id: 'g1' },
+      { worn_id: 'w1', garment_id: 'g2' },
+    ])
+    const [planned] = applyPending(
+      [],
+      [entry('wardrobe.plan_outfit', { p_id: 'w1', p_outfit: 'o1', p_day: '2026-11-20' })],
+    )
+    expect(planned).toMatchObject({ type: 'outfit_worn', do_on: '2026-11-20' })
+  })
+
+  it('takes a garment off one day only, and makes an outfit of single garments', () => {
+    const rows = [
+      { worn_id: 'w1', garment_id: 'g1' },
+      { worn_id: 's1', garment_id: 'g3' },
+      { worn_id: 's2', garment_id: 'g4' },
+    ]
+    const out = applyPendingWornGarments(
+      rows,
+      [
+        entry('wardrobe.remove_day_garment', { p_worn: 'w1', p_garment: 'g1' }),
+        entry('wardrobe.create_outfit_from_day', {
+          p_outfit: 'o9',
+          p_worn: 'w9',
+          p_singles: ['s1', 's2'],
+        }),
+      ],
+      garmentsOf,
+    )
+    expect(out.filter((r) => r.worn_id === 'w1')).toEqual([])
+    expect(out.filter((r) => r.worn_id === 'w9').map((r) => r.garment_id)).toEqual(['g3', 'g4'])
+  })
+
+  it('moves a day entry, and the pane loses an outfit placed', () => {
+    const row = { id: 'w1', type: 'outfit_worn', do_on: '2026-11-20' } as ItemRow
+    expect(
+      applyPending([row], [entry('wardrobe.move_worn', { p_id: 'w1', p_day: '2026-11-21' })])[0]
+        ?.do_on,
+    ).toBe('2026-11-21')
+    expect(
+      applyPendingPlanned(
+        [{ outfit_id: 'o1', position: 'a' }],
+        [entry('wardrobe.plan_outfit', { p_id: 'w1', p_outfit: 'o1', p_day: '2026-11-20' })],
+      ),
+    ).toEqual([])
+  })
+})
+
+describe('the forecast (WRD-025; ADR-0068)', () => {
+  it('maps weather codes to the skies drawn', () => {
+    expect([0, 2, 3, 45, 53, 63, 81, 73, 95].map(skyOf)).toEqual([
+      'sun',
+      'sun-cloud',
+      'cloud',
+      'fog',
+      'drizzle',
+      'rain',
+      'rain',
+      'snow',
+      'thunder',
+    ])
+  })
+
+  it("reads each day, rounded, leaving out a day it can't read", () => {
+    const f = readForecast({
+      daily: {
+        time: ['2026-11-18', '2026-11-19'],
+        weather_code: [61, null],
+        temperature_2m_max: [9.6, 10],
+        temperature_2m_min: [4.4, 5],
+        precipitation_probability_max: [80, 10],
+      },
+    })
+    expect(f.days).toEqual({ '2026-11-18': { sky: 'rain', high: 10, low: 4, rain: 80 } })
   })
 })

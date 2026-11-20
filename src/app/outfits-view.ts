@@ -4,9 +4,11 @@ import type { SortDirection } from '@/lib/sort'
 /** My Outfits, the collection every outfit is in (WRD-018 1). */
 export const MY_OUTFITS = 'my-outfits'
 
-export type OutfitSort = 'added'
+export type OutfitSort = 'added' | 'worn' | 'times'
 export const OUTFIT_SORTS: { value: OutfitSort; label: string; initial: SortDirection }[] = [
   { value: 'added', label: 'Recently added', initial: 'desc' },
+  { value: 'worn', label: 'Last worn', initial: 'desc' },
+  { value: 'times', label: 'Times worn', initial: 'desc' },
 ]
 
 const KEY = 'lifeos.wardrobe.outfits'

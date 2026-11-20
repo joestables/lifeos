@@ -16,12 +16,14 @@ export type GarmentFilter = (typeof GARMENT_FILTERS)[number]
 
 export const FAVOURITES = 'Favourites'
 
-export type GarmentSort = 'added' | 'category' | 'brand' | 'size'
+export type GarmentSort = 'added' | 'category' | 'brand' | 'size' | 'worn' | 'times'
 export const GARMENT_SORTS: { value: GarmentSort; label: string; initial: SortDirection }[] = [
   { value: 'added', label: 'Recently added', initial: 'desc' },
   { value: 'category', label: 'Category', initial: 'asc' },
   { value: 'brand', label: 'Brand', initial: 'asc' },
   { value: 'size', label: 'Size', initial: 'asc' },
+  { value: 'worn', label: 'Last worn', initial: 'desc' },
+  { value: 'times', label: 'Times worn', initial: 'desc' },
 ]
 
 export type GarmentGrouping = 'none' | 'category' | 'brand' | 'size' | 'colour'
@@ -159,6 +161,7 @@ export function shownGarments(
     category: byPlace(catAt, (g) => g.row.category_id),
     size: byPlace(sizeAt, (g) => g.row.size_id),
     brand: (a, b) => (a.brand?.name ?? '').localeCompare(b.brand?.name ?? '') || added(a, b),
+    ...wornSorts(added),
   }
   const initial = GARMENT_SORTS.find((s) => s.value === view.sort)?.initial ?? 'asc'
   return out.sort(directed(compare[view.sort], initial, view.sortDir))
@@ -270,4 +273,17 @@ export function stillNeeded(fields: {
   if (!missing.length) return undefined
   const last = missing.pop()!
   return `Needs a ${missing.length ? `${missing.join(', ')} and ${last}` : last}`
+}
+
+/**
+ * Last worn (latest first; never worn last) and times worn (most first),
+ * for garments and outfits alike (WRD-003 1, WRD-016 4; WRD-024 2).
+ */
+export function wornSorts<T extends { worn: { times: number; last: string | null } }>(
+  then: (a: T, b: T) => number,
+) {
+  return {
+    worn: (a: T, b: T) => (b.worn.last ?? '').localeCompare(a.worn.last ?? '') || then(a, b),
+    times: (a: T, b: T) => b.worn.times - a.worn.times || then(a, b),
+  }
 }

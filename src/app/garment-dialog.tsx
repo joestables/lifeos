@@ -1,4 +1,14 @@
-import { ArchiveIcon, CameraIcon, HeartIcon, PencilIcon, ShirtIcon, Trash2Icon } from 'lucide-react'
+import {
+  ArchiveIcon,
+  CalendarIcon,
+  CameraIcon,
+  HeartIcon,
+  PencilIcon,
+  ShirtIcon,
+  Trash2Icon,
+  XIcon,
+} from 'lucide-react'
+import { useState } from 'react'
 import {
   GarmentFact,
   GarmentPhoto,
@@ -13,7 +23,9 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { DropdownMenuItem } from '@/components/ui/dropdown-menu'
 import { Toggle } from '@/components/ui/toggle'
-import { setMark, usePhotoUrls, type GarmentView, type OutfitView } from '@/data'
+import { setMark, usePhotoUrls, type DayEntry, type GarmentView, type OutfitView } from '@/data'
+import { dayLabel, removeEntry } from './day-actions'
+import { MoveDialog } from './move-dialog'
 import { deleteGarments, retireGarments } from './garment-actions'
 import { MoreMenu } from './more-menu'
 
@@ -44,7 +56,10 @@ export function GarmentDialog({
   onEdit,
   onAddAnother,
   onClose,
+  entry,
 }: {
+  /** Opened from a day, as a single garment there (WRD-022 2–3): moved or taken off it. */
+  entry?: DayEntry
   garment: GarmentView
   photo?: string
   added?: boolean
@@ -56,6 +71,7 @@ export function GarmentDialog({
   onClose: () => void
 }) {
   const g = garment
+  const [moving, setMoving] = useState(false)
   const photos = usePhotoUrls(
     outfits.flatMap((o) => o.garments.map((x) => x.photo?.path)),
     'small',
@@ -81,6 +97,21 @@ export function GarmentDialog({
             <PencilIcon />
           </Button>
           <MoreMenu>
+            {entry && !entry.outfit && (
+              <>
+                <DropdownMenuItem onClick={() => setMoving(true)}>
+                  <CalendarIcon /> Move to another day
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => {
+                    removeEntry(entry)
+                    onClose()
+                  }}
+                >
+                  <XIcon /> Remove from {dayLabel(entry.day)}
+                </DropdownMenuItem>
+              </>
+            )}
             {!g.retired && (
               <DropdownMenuItem
                 onClick={() => {
@@ -143,6 +174,8 @@ export function GarmentDialog({
       </div>
       {!added && (
         <div className="grid grid-cols-3 gap-2">
+          <GarmentStat label="Worn" value={`${g.worn.times}×`} />
+          <GarmentStat label="Last worn" value={g.worn.last ? dayLabel(g.worn.last) : 'Never'} />
           <GarmentStat label="Added" value={addedOn(g.item.created_at)} />
         </div>
       )}
@@ -166,6 +199,15 @@ export function GarmentDialog({
             ))}
           </div>
         </section>
+      )}
+      {moving && entry && (
+        <MoveDialog
+          entry={entry}
+          onClose={() => {
+            setMoving(false)
+            onClose()
+          }}
+        />
       )}
     </ItemDialog>
   )

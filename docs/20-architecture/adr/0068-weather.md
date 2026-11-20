@@ -53,3 +53,11 @@ The place is found by name in Settings → Wardrobe, from Open-Meteo's
 geocoding (`src/data/weather.ts`), eight at most, and stored as its name
 and region ("Manchester, England, United Kingdom") with its coordinates
 to five places. The forecast is step 9's.
+
+Plan step 9 (19 November): `useForecast` asks Open-Meteo's forecast API
+for sixteen days (weather code, high, low, highest chance of rain) in the
+place's own timezone, and keeps the answer with the rest of the device's
+cache: fetched again once an hour old, shown with "Forecast from 14:05"
+once it's out of date, and not shown when more than a day old or when the
+service fails. The weather codes map to the eight skies by WMO group
+(`skyOf`). The walks stand in for Open-Meteo.

@@ -78,6 +78,8 @@ export interface Rows {
    * (settings).
    */
   wardrobe?: Record<string, Record<string, unknown>[]>
+  /** Open-Meteo's daily forecast as it answers (ADR-0068), or a failure. */
+  forecast?: Record<string, unknown[]> | 'fail'
   /** Open-Meteo's geocoding (ADR-0068): the places found for a name, by the name typed. */
   places?: Record<string, Record<string, unknown>[]>
   /** Households (HSH-001–004): their Spaces, members (with names), and invitations. */
@@ -376,6 +378,7 @@ export async function standIn(
         'outfit_collections',
         'settings',
         'planned_outfits',
+        'worn_garments',
       ].map((t) => [t, (rows.wardrobe?.[t] ?? []).map((r) => ({ ...r }))]),
     ) as Record<string, Record<string, unknown>[]>,
     /** Storage's `photos` bucket: each file's bytes by its path. */
@@ -1592,6 +1595,95 @@ export async function standIn(
     clear_planned: () => {
       db.wardrobe.planned_outfits = []
     },
+    plan_outfit: (a) => {
+      if (item(a.p_id)) return
+      const o = item(a.p_outfit)
+      db.items.push(
+        itemRow({
+          id: String(a.p_id),
+          type: 'outfit_worn',
+          title: String(o?.title ?? '').trim() || 'Outfit',
+          do_on: a.p_day,
+          created_at: now(),
+          updated_at: now(),
+        }),
+      )
+      db.links.push({ from_item: String(a.p_id), to_item: String(a.p_outfit), link_type: 'wears' })
+      for (const l of db.links.filter(
+        (x) => x.from_item === a.p_outfit && x.link_type === 'includes',
+      ))
+        if (!item(l.to_item)?.archived_at)
+          db.wardrobe.worn_garments!.push({ worn_id: a.p_id, garment_id: l.to_item })
+      db.wardrobe.planned_outfits = db.wardrobe.planned_outfits!.filter(
+        (p) => p.outfit_id !== a.p_outfit,
+      )
+    },
+    plan_garment: (a) => {
+      if (item(a.p_id)) return
+      db.items.push(
+        itemRow({
+          id: String(a.p_id),
+          type: 'outfit_worn',
+          title: String(item(a.p_garment)?.title ?? ''),
+          do_on: a.p_day,
+          created_at: now(),
+          updated_at: now(),
+        }),
+      )
+      db.wardrobe.worn_garments!.push({ worn_id: a.p_id, garment_id: a.p_garment })
+    },
+    move_worn: (a) => {
+      const i = item(a.p_id)
+      if (i) i.do_on = a.p_day
+    },
+    remove_day_garment: (a) => {
+      db.wardrobe.worn_garments = db.wardrobe.worn_garments!.filter(
+        (w) => !(w.worn_id === a.p_worn && w.garment_id === a.p_garment),
+      )
+      if (!db.wardrobe.worn_garments.some((w) => w.worn_id === a.p_worn)) {
+        const i = item(a.p_worn)
+        if (i) i.archived_at = now()
+      }
+    },
+    create_outfit_from_day: (a) => {
+      if (item(a.p_worn)) return
+      const singles = a.p_singles as string[]
+      const garments = [
+        ...new Set(
+          db.wardrobe
+            .worn_garments!.filter((w) => singles.includes(String(w.worn_id)))
+            .map((w) => String(w.garment_id)),
+        ),
+      ]
+      const made = wardrobeWrite.create_outfit!({
+        p_id: a.p_outfit,
+        p_garments: garments,
+        p_name: a.p_name,
+      })
+      if (made) return made
+      const day = item(singles[0])?.do_on
+      db.items.push(
+        itemRow({
+          id: String(a.p_worn),
+          type: 'outfit_worn',
+          title: String(a.p_name ?? '').trim() || 'Outfit',
+          do_on: day,
+          created_at: now(),
+          updated_at: now(),
+        }),
+      )
+      db.links.push({
+        from_item: String(a.p_worn),
+        to_item: String(a.p_outfit),
+        link_type: 'wears',
+      })
+      for (const g of garments)
+        db.wardrobe.worn_garments!.push({ worn_id: a.p_worn, garment_id: g })
+      for (const s of singles) {
+        const i = item(s)
+        if (i) i.archived_at = now()
+      }
+    },
     retire_garment: (a) => {
       const i = item(a.p_id)
       if (!i) return
@@ -2045,6 +2137,12 @@ export async function standIn(
   // The shops' Meals' lines, as the database would have them already.
   refreshShops()
   const live = await realtime(page)
+  // Open-Meteo's forecast (ADR-0068): sixteen days from the stand-in's today, or what the walk gives.
+  await page.route('https://api.open-meteo.com/**', (route) =>
+    rows.forecast === 'fail'
+      ? route.fulfill({ status: 500, json: {} })
+      : route.fulfill({ json: { daily: rows.forecast ?? {} } }),
+  )
   // Open-Meteo's geocoding (ADR-0068): never the real service.
   await page.route('https://geocoding-api.open-meteo.com/**', (route) => {
     const name = new URL(route.request().url()).searchParams.get('name') ?? ''
