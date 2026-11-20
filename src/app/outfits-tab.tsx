@@ -42,7 +42,6 @@ import {
   addPlanned,
   addToCollections,
   clearPlanned,
-  removeFromCollection,
   removePlanned,
   usePhotoUrls,
   type GarmentView,
@@ -143,14 +142,6 @@ function CollectDialog({
             onClick={() => {
               const ids = outfits.map((o) => o.item.id)
               addToCollections(ids, chosen)
-              toast(`Added ${n}`, {
-                action: {
-                  label: 'Undo',
-                  onClick: () => {
-                    for (const c of chosen) removeFromCollection(ids, c)
-                  },
-                },
-              })
               onDone()
             }}
           >
@@ -180,16 +171,26 @@ export function PlannedPane({
   wardrobe: WardrobeData
   onOpen: (id: string) => void
   /**
-   * On the Week tab (WRD-021 3–5): the Garments search too; on a computer
-   * each line dragged onto a day, on a phone chosen and then a day.
+   * On the Week tab (WRD-021 3–5): each line dragged onto a day (on a
+   * phone, held first, the tray stepping aside), or on a phone tapped and
+   * then a day; on a computer the Garments search too.
    */
   week?: {
     drag: (key: string) => HTMLAttributes<HTMLDivElement>
     picked?: Pick
     onPick: (pick: Pick) => void
+    /** A line is being dragged: the tray steps aside, and closes once it's let go. */
+    dragging?: boolean
   }
 }) {
   const [open, setOpen] = useState(false)
+  // Let go of a line dragged from the tray: the tray stays closed.
+  const [lifted, setLifted] = useState(false)
+  if (week?.dragging && open && !lifted) setLifted(true)
+  if (!week?.dragging && lifted) {
+    setLifted(false)
+    setOpen(false)
+  }
   const [showing, setShowing] = useState<'outfits' | 'garments'>('outfits')
   const [search, setSearch] = useState('')
   const planned = wardrobe.planned
@@ -234,13 +235,13 @@ export function PlannedPane({
         </Text>
       )}
       {planned.map((o) => (
-        <div key={o.item.id} {...(!phone && week?.drag(`outfit:${o.item.id}`))}>
+        <div key={o.item.id} {...week?.drag(`outfit:${o.item.id}`)}>
           <PlannedOutfitLine
             photos={photosOf(o)}
             name={o.name.trim() || undefined}
             meta={
               phone && week
-                ? `${garmentCount(o.garments.length)} · Tap, then a day`
+                ? `${garmentCount(o.garments.length)} · Drag to a day`
                 : garmentCount(o.garments.length)
             }
             picked={week?.picked?.kind === 'outfit' && week.picked.id === o.item.id}
@@ -268,8 +269,9 @@ export function PlannedPane({
       </div>
     </div>
   )
+  // A phone's tray is the planned outfits alone (Joe, 20 November).
   const body = (phone: boolean) =>
-    week ? (
+    week && !phone ? (
       <>
         <Tabs value={showing} onValueChange={(v: 'outfits' | 'garments') => setShowing(v)}>
           <TabsList aria-label="Show">
@@ -298,6 +300,7 @@ export function PlannedPane({
           count={planned.length}
           aside={clear}
           onClose={() => setOpen(false)}
+          away={lifted}
         >
           {body(true)}
         </TrayPanel>
@@ -379,6 +382,7 @@ export function OutfitsTab({
       actions={[
         {
           label: 'Add to Planned outfits',
+          short: 'Add to Planned',
           icon: CalendarPlusIcon,
           onClick: act((os) => planOutfits(os)),
         },
@@ -386,6 +390,7 @@ export function OutfitsTab({
         collection
           ? {
               label: 'Remove from collection',
+              short: 'Remove',
               icon: XIcon,
               onClick: act((os) => takeOutOfCollection(os, collection)),
             }

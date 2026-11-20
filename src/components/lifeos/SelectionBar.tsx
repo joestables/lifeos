@@ -5,6 +5,8 @@ import { cn } from '@/lib/utils'
 
 export interface SelectionAction {
   label: string
+  /** On a phone's half-width button, when the label is long ("Add to Planned"). */
+  short?: string
   icon: LucideIcon
   onClick: () => void
   /** Delete: last, in red. */
@@ -16,8 +18,10 @@ export interface SelectionAction {
  * how many are chosen, in the toolbar's place. On a computer the actions
  * follow in the bar as ghost buttons; on a phone they are separate outline
  * buttons sharing the width of a bar fixed to the foot of the screen
- * (Joe, 20 October), two by two when there are four. Select all, where
- * offered, follows the count.
+ * (Joe, 20 October), two to a row, an odd last one (Delete) across the
+ * whole row, each with its short label where it has one (Joe, 20
+ * November: three in a row overflowed). Select all, where offered,
+ * follows the count.
  */
 export function SelectionBar({
   count,
@@ -67,22 +71,23 @@ export function SelectionBar({
         aria-label="Selected"
         className={cn(
           'fixed inset-x-0 bottom-0 z-40 grid gap-2 bg-card px-4 pt-3 pb-[max(env(safe-area-inset-bottom),0.75rem)] shadow-dialog md:hidden',
-          actions.length === 1
-            ? 'grid-cols-1'
-            : actions.length === 2 || actions.length === 4
-              ? 'grid-cols-2'
-              : 'grid-cols-3',
+          actions.length === 1 ? 'grid-cols-1' : 'grid-cols-2',
         )}
       >
-        {actions.map((a) => (
+        {actions.map((a, i) => (
           <Button
             key={a.label}
             variant="outline"
             disabled={count === 0}
-            className={cn('w-full', a.destructive && 'text-destructive')}
+            aria-label={a.label}
+            className={cn(
+              'w-full min-w-0',
+              a.destructive && 'text-destructive',
+              actions.length % 2 === 1 && i === actions.length - 1 && 'col-span-full',
+            )}
             onClick={a.onClick}
           >
-            <a.icon /> {a.label}
+            <a.icon /> <span className="truncate">{a.short ?? a.label}</span>
           </Button>
         ))}
       </div>

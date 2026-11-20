@@ -725,7 +725,7 @@ function AddFields({ state, brandTyping = false }: { state: AddState; brandTypin
           />
         </SheetField>
       )}
-      <SheetField label="Size" needed={!filled} aside="Used with T-shirt">
+      <SheetField label="Size" aside="Used with T-shirt">
         <ChoiceChips
           single
           aria-label="Size"
@@ -735,7 +735,7 @@ function AddFields({ state, brandTyping = false }: { state: AddState; brandTypin
           add={<AddChip icon={null}>More sizes</AddChip>}
         />
       </SheetField>
-      <SheetField label="Brand" needed={!filled && !brandTyping}>
+      <SheetField label="Brand">
         {brandTyping ? (
           <div className="flex flex-col gap-1.5">
             <Input defaultValue="Ar" aria-label="Brand" />
@@ -841,7 +841,7 @@ function AddSheet({ state, brandTyping = false }: { state: AddState; brandTyping
         <>
           {!ready && (
             <span className="mr-auto self-center text-sm font-semibold text-muted-foreground">
-              {brandTyping ? 'Needs a size' : 'Needs a size and brand'}
+              {brandTyping ? 'Add a size' : 'Add a size and brand'}
             </span>
           )}
           <Button variant="outline">Cancel</Button>
@@ -965,7 +965,7 @@ function DesktopAdd() {
           </div>
           <div className="flex items-center justify-end gap-2 border-t border-hairline px-6 py-4">
             <span className="mr-auto text-sm font-semibold text-muted-foreground">
-              Size and brand needed
+              Size and brand
             </span>
             <Button variant="outline">Cancel</Button>
             <Button disabled>Save</Button>

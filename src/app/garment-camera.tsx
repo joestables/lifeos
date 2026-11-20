@@ -15,20 +15,30 @@ export interface TakenPhoto {
   estimate: Estimate
 }
 
-/** A picture to square: from the camera or a file. */
-interface Picture {
-  bitmap: ImageBitmap
-  url: string
-}
+/** The largest a picture is held while it is squared: more than is kept, so zooming stays sharp. */
+const HELD = 2400
 
-async function pictureOf(blob: Blob): Promise<Picture> {
-  const bitmap = await createImageBitmap(blob, { imageOrientation: 'from-image' })
-  const canvas = document.createElement('canvas')
-  canvas.width = bitmap.width
-  canvas.height = bitmap.height
-  canvas.getContext('2d')!.drawImage(bitmap, 0, 0)
-  const png = await new Promise<Blob | null>((r) => canvas.toBlob(r, 'image/jpeg', 0.9))
-  return { bitmap, url: URL.createObjectURL(png ?? blob) }
+/**
+ * A picture to square, from a file or the camera's frame as it is now:
+ * read straight into memory, never made a file first, so it shows at
+ * once (Joe, 20 November: the shutter took 20 seconds encoding twice).
+ */
+async function pictureOf(source: Blob | HTMLVideoElement): Promise<ImageBitmap> {
+  const whole =
+    source instanceof Blob
+      ? await createImageBitmap(source, { imageOrientation: 'from-image' })
+      : await createImageBitmap(source)
+  const k = HELD / Math.max(whole.width, whole.height)
+  if (k >= 1) return whole
+  try {
+    return await createImageBitmap(whole, {
+      resizeWidth: Math.round(whole.width * k),
+      resizeHeight: Math.round(whole.height * k),
+      resizeQuality: 'high',
+    })
+  } finally {
+    whole.close()
+  }
 }
 
 type Torch = MediaTrackCapabilities & { torch?: boolean }
@@ -93,15 +103,11 @@ function useCamera(on: boolean) {
       .then(() => setTorch(next))
       .catch(() => setTorch(null))
   }
-  /** The frame as it is now, whole. */
-  const shoot = async (): Promise<Blob | null> => {
+  /** The frame as it is now. */
+  const shoot = async (): Promise<ImageBitmap | null> => {
     const v = video.current
     if (!v || !v.videoWidth) return null
-    const canvas = document.createElement('canvas')
-    canvas.width = v.videoWidth
-    canvas.height = v.videoHeight
-    canvas.getContext('2d')!.drawImage(v, 0, 0)
-    return new Promise((r) => canvas.toBlob(r, 'image/jpeg', 0.92))
+    return pictureOf(v)
   }
   return { video, ready: stream !== null && playing, failed, torch, toggleTorch, shoot }
 }
@@ -125,15 +131,16 @@ export function GarmentPhotoStep({
   onSkip: () => void
   onClose: () => void
 }) {
-  const [picture, setPicture] = useState<Picture | null>(null)
+  const [picture, setPicture] = useState<ImageBitmap | null>(null)
   const [crop, setCrop] = useState<Crop>(CENTRED)
   const [busy, setBusy] = useState(false)
   const { video, ready, failed, torch, toggleTorch, shoot } = useCamera(!picture && !file)
   const input = useRef<HTMLInputElement>(null)
 
-  const square = async (blob: Blob) => {
+  const square = async (source: Blob | Promise<ImageBitmap | null>) => {
     try {
-      const p = await pictureOf(blob)
+      const p = source instanceof Blob ? await pictureOf(source) : await source
+      if (!p) return
       setCrop(CENTRED)
       setPicture(p)
     } catch {
@@ -155,13 +162,13 @@ export function GarmentPhotoStep({
       alive = false
     }
   }, [file])
-  useEffect(() => () => picture?.bitmap.close(), [picture])
+  useEffect(() => () => picture?.close(), [picture])
 
   const use = async () => {
     if (!picture) return
     setBusy(true)
     try {
-      const kept = await keepSquare(picture.bitmap, crop)
+      const kept = await keepSquare(picture, crop)
       onTaken({ ...kept, url: URL.createObjectURL(kept.blob) })
     } catch {
       toast('This photo can’t be read')
@@ -188,11 +195,11 @@ export function GarmentPhotoStep({
   if (picture)
     return (
       <PhotoCrop
-        src={picture.url}
-        width={picture.bitmap.width}
-        height={picture.bitmap.height}
+        src={picture}
+        width={picture.width}
+        height={picture.height}
         crop={crop}
-        onCrop={(c) => setCrop(clampCrop(picture.bitmap.width, picture.bitmap.height, c))}
+        onCrop={(c) => setCrop(clampCrop(picture.width, picture.height, c))}
         onRetake={() => {
           if (file) return onClose()
           setPicture(null)
@@ -208,11 +215,7 @@ export function GarmentPhotoStep({
       busy={!ready}
       onClose={onClose}
       onSkip={onSkip}
-      onShoot={() =>
-        void shoot().then((blob) => {
-          if (blob) void square(blob)
-        })
-      }
+      onShoot={() => void square(shoot())}
       {...(torch !== null && { flash: { on: torch, onToggle: toggleTorch } })}
     >
       {failed ? (

@@ -2,6 +2,34 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#103](https://github.com/joestables/lifeos/pull/103) — Stage 6: Joe's first use, a bug hunt and a UI review
+
+Branch `claude/vigilant-thompson-k8bkzm` · 2026-11-20 · Stage 6, step 11
+
+**What it did**
+- **The camera made fast**: the frame squared from memory and the photo
+  made WebP once at 1200px (the shutter had taken 20 seconds, Use photo
+  10, on Joe's phone); the camera's and crop's headers no longer cropped
+  under the status bar.
+- **The sheet**: no "Needed" marks; the footer says "Add a size and brand".
+- **Outfits and the Week, as Joe asked**: the phone's selection bar two to
+  a row; no toasts for planning; an outfit held in the phone's Planned
+  outfits tray and dragged onto a day (the tray its outfits only); a
+  day's outfit tinted only as wide as it is; Return to Planned outfits in
+  a day's outfit's "…", without Add to Planned outfits or its garments
+  listed twice.
+- **The bug hunt and review**: nothing of Stage 6's in the production
+  logs, advisors or data; a day's popup closes once its last garment is
+  taken off; the Wardrobe tab's search no longer squeezed to its icon; the
+  tray's overlapping photos opaque.
+- **New in the design system:** DragGhost; TrayPanel's `away`;
+  DayGarmentRow's `end`; SelectionAction's `short`.
+
+**Verified**
+- `npm run check`, `npm run build`; the Wardrobe walks (new: dragging from
+  the tray on a phone, Return to Planned outfits) and the browser tests;
+  dark and light screenshots at both widths.
+
 ## [#102](https://github.com/joestables/lifeos/pull/102) — Stage 6: the wardrobe everywhere
 
 Branch `claude/vigilant-thompson-k8bkzm` · 2026-11-20 · Stage 6, step 10

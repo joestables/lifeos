@@ -31,7 +31,7 @@ import {
   type WardrobeData,
   type WardrobeEntry,
 } from '@/data'
-import { dayLabel, removeEntry, wornSays } from './day-actions'
+import { dayLabel, removeEntry, returnToPlanned, wornSays } from './day-actions'
 import { MoveDialog } from './move-dialog'
 import { matchesSearch } from '@/lib/wardrobe'
 import { garmentFace } from './garment-face'
@@ -101,6 +101,14 @@ export function OutfitDialog({
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() => {
+                    returnToPlanned(entry)
+                    onClose()
+                  }}
+                >
+                  <CalendarPlusIcon /> Return to Planned outfits
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => {
                     removeEntry(entry)
                     onClose()
                   }}
@@ -144,48 +152,45 @@ export function OutfitDialog({
           {wornSays(outfit.worn)}
         </Text>
       </div>
-      {entry && (
-        <section className="flex flex-col gap-1.5">
-          <SectionLabel count={entry.garments.length}>{dayLabel(entry.day)}</SectionLabel>
-          {entry.garments.map((g) => (
-            <GarmentLine
-              key={g.item.id}
-              garment={garmentFace(g, photoOf(g.photo?.path))}
-              muted={g.retired}
-              end={
-                <RemoveButton
-                  label={`Take ${g.title} off ${dayLabel(entry.day)}`}
-                  onClick={() => removeDayGarment(entry.item.id, g.item.id)}
-                />
-              }
-            />
-          ))}
-        </section>
-      )}
+      {/* From a day, the day's own garments, each taken off it (WRD-022 2–3); else the outfit's. */}
       <div className="flex flex-col gap-5 sm:flex-row">
         <OutfitPicture
-          photos={outfit.garments.map((g) => photoOf(g.photo?.path))}
+          photos={(entry ?? outfit).garments.map((g) => photoOf(g.photo?.path))}
           className="w-full shrink-0 rounded-lg sm:w-56"
         />
         <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-          {outfit.garments.map((g) => (
+          {entry && (
+            <SectionLabel count={entry.garments.length}>{dayLabel(entry.day)}</SectionLabel>
+          )}
+          {(entry ?? outfit).garments.map((g) => (
             <GarmentLine
               key={g.item.id}
               garment={garmentFace(g, photoOf(g.photo?.path))}
               muted={g.retired}
               onOpen={() => onOpenGarment(g.item.id)}
+              end={
+                entry && (
+                  <RemoveButton
+                    label={`Take ${g.title} off ${dayLabel(entry.day)}`}
+                    onClick={() => removeDayGarment(entry.item.id, g.item.id)}
+                  />
+                )
+              }
             />
           ))}
         </div>
       </div>
-      <Button
-        variant="outline"
-        className="self-start"
-        disabled={outfit.planned}
-        onClick={() => planOutfits([outfit])}
-      >
-        <CalendarPlusIcon /> {outfit.planned ? 'In Planned outfits' : 'Add to Planned outfits'}
-      </Button>
+      {/* On a day it's planned already: back to the pane is in its "…" (Joe, 20 November). */}
+      {!entry && (
+        <Button
+          variant="outline"
+          className="self-start"
+          disabled={outfit.planned}
+          onClick={() => planOutfits([outfit])}
+        >
+          <CalendarPlusIcon /> {outfit.planned ? 'In Planned outfits' : 'Add to Planned outfits'}
+        </Button>
+      )}
       {moving && entry && (
         <MoveDialog
           entry={entry}

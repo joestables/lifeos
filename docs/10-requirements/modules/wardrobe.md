@@ -181,9 +181,11 @@ November). Claude's suggestion for keeping it quick:
   Outfits and Week tabs (Joe, 18 November). A placed outfit
   leaves the pane (suggested); it can be placed again from the Outfits tab.
   The pane also has a **Garments** search (suggested), so single garments
-  are dragged onto days the same way. On a phone, the pane is the same
-  tray as the builder's, and an outfit or garment is placed by choosing it
-  and then a day, as dragging across stacked days is awkward (suggested).
+  are dragged onto days the same way, on a computer. On a phone, the pane
+  is the same tray as the builder's, its planned outfits only, each held
+  and dragged onto a day, the tray stepping aside (Joe, 20 November), or
+  tapped and then a day. Planning is quiet: what's placed, moved or
+  returned shows where it went, so no toast says so (Joe, 20 November).
 - **Create outfit** on a day with two or more single garments makes an
   outfit of them, into My Outfits, and they join into one group (Joe, 18
   November).
@@ -555,7 +557,11 @@ Acceptance criteria
 2. Given Edit, then I add and remove garments (with the picker of WRD-015),
    rename it and change its collections. Days already gone keep what they
    had (ADR-0013).
-3. Given Add to Planned Outfits, then it goes to the Planned Outfits pane (WRD-021).
+3. Given Add to Planned Outfits, then it goes to the Planned Outfits pane (WRD-021),
+   quietly, the button then saying "In Planned outfits". Given it opened
+   from a day, then there's no such button: its "…" has Return to Planned
+   outfits, taking it off the day and back into the pane (Joe, 20
+   November).
 4. Given "…" in My Outfits, then Delete, with Undo; its garments stay
    (Joe, 18 November). Given "…" in my own collection, then Remove from
    this collection, and no Delete (Joe, 18 November).
@@ -590,8 +596,8 @@ Acceptance criteria
 3. Given one of my collections, then Remove from collection, Add to
    collection and Add to Planned Outfits; no Delete (Joe, 18 November).
 4. Given Add to Planned Outfits, then they go to the Planned Outfits pane,
-   beside them on the Outfits tab and on the Week tab, saying so with Undo
-   (Joe, 18 November; Undo in Open plan's place, as the pane is in view).
+   beside them on the Outfits tab and on the Week tab, quietly, as the pane
+   is in view (Joe, 20 November).
 
 ### Week
 
@@ -626,13 +632,17 @@ Acceptance criteria
 2. Given the Outfits tab or the Week tab, then the pane is on the right on
    a computer, and the tray on a phone, the same on both tabs (Joe, 18
    November).
-3. Given a computer, when I drag an outfit onto a day on the Week tab, then it is planned
-   for that day and leaves the pane, with Undo (leaving suggested).
-4. Given the pane's Garments search, then I find a garment and drag it onto
-   a day the same way, as a single garment (suggested).
-5. Given a phone, on the Week tab, I choose an outfit or garment in the
-   tray, then press a day (each day showing "Place here"),
-   and it is planned there (suggested).
+3. Given the Week tab, when I drag an outfit onto a day, then it is
+   planned for that day and leaves the pane (leaving suggested); on a
+   phone I hold it in the tray first, the tray steps aside, its picture
+   follows my finger, the day under it is marked and the page scrolls at
+   its top and foot (Joe, 20 November).
+4. Given the pane's Garments search on a computer, then I find a garment
+   and drag it onto a day the same way, as a single garment (suggested).
+   A phone's tray has the planned outfits only (Joe, 20 November).
+5. Given a phone, on the Week tab, I tap an outfit in the tray instead,
+   then press a day (each day showing "Place here"), and it is planned
+   there (suggested).
 
 ### WRD-022 — A day's outfits and garments
 
@@ -643,8 +653,8 @@ Priority: Must · Status: verified (`wardrobe-week.spec.ts`)
 Acceptance criteria
 1. Given a day's "+", then I add an outfit or a single garment from a
    picker with search (suggested).
-2. Given a planned outfit or single garment, when I drag it to another day,
-   then it moves, with Undo (on a phone, Move to… a day; suggested).
+2. Given a planned outfit or single garment, when I drag it to another day
+   (on a phone, held first, or Move to… a day), then it moves (suggested).
 3. Given a planned outfit or garment, then Remove takes it off the day,
    with Undo.
 4. Given a garment of a planned outfit, then Remove from this day takes it
@@ -661,7 +671,7 @@ Priority: Should · Status: agreed; 1 verified (`wardrobe-week.spec.ts`); 2 (cho
 Acceptance criteria
 1. Given a day with two or more single garments, then Create outfit makes
    an outfit of them in My Outfits, and on the day they join into its group
-   (Joe, 18 November); WRD-014 5's check applies.
+   (Joe, 18 November), quietly; WRD-014 5's check applies.
 2. Given Select on that day (suggested), then I choose which of its single
    garments go into the outfit.
 

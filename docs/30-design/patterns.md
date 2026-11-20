@@ -924,7 +924,7 @@ November, on the [Wardrobe design canvas](https://claude.ai/artifact/6b8SnjL1sUC
   Category, Size (the sizes used with the category; "More sizes"), Brand
   (recent brands, "Search brands" opening an Input with Suggestions and
   "Add "…""), Fit and Tags, each optional with "+ Fit", "+ Tag". The footer
-  says what's needed ("Needs a size and brand") until Save turns on. On a
+  says what's needed ("Add a size and brand") until Save turns on. On a
   computer the photo stands in a muted column on the left of a Dialog.
   "+ Fit" and "+ Tag" turn into a small Input with an outline `check`; an
   "Own name" `link` opens an optional field under Tags. Closing it with
@@ -972,15 +972,21 @@ November, on the [Wardrobe design canvas](https://claude.ai/artifact/6b8SnjL1sUC
   each line dragged onto a day ([Dragging](#dragging)). On a phone the days
   are stacked as the Meal plan's (MealDay), the DayWeather and "+" at the
   end of each day's line, DayOutfits as `row` and single garments in a
-  DayGarmentRow, "Create outfit" a ghost `sm` after them; an outfit or
-  garment is placed by choosing it in the opened tray, then pressing a
-  day's PlaceHere (the PlacingBar saying "Choose a day", with Cancel). A
+  DayGarmentRow, "Create outfit" a ghost `sm` at the row's end; an outfit or
+  outfit is held in the opened tray (its planned outfits only, no Tabs)
+  and dragged onto a day, the TrayPanel `away`, a DragGhost under the
+  finger, the day marked as a Meal plan's and the page scrolling at its
+  top and foot; or tapped, then a day's PlaceHere pressed (the PlacingBar
+  saying "Choose a day", with Cancel). A
   day's "+" opens "Add to Wed 18 Nov", a Dialog of Outfits and Garments
   (Tabs), searched, chosen with a tap. A day's outfit opens its popup with
-  that day's garments under the day's SectionLabel, each with a RemoveButton,
-  and "Move to another day" (a Calendar Dialog, "Move to") and "Remove from
-  Wed 18 Nov" in its "…"; a single garment opens its popup with the same
-  two. Placing, moving and removing each say so in a toast with Undo. With
+  that day's garments under the day's SectionLabel beside its picture, each
+  with a RemoveButton (no other list of its garments, and no "Add to
+  Planned outfits"), and "Move to another day" (a Calendar Dialog, "Move
+  to"), "Return to Planned outfits" and "Remove from Wed 18 Nov" in its
+  "…"; a single garment opens its popup with Move and Remove. Placing,
+  moving and returning are quiet; removing from a day says so in a toast
+  with Undo (Joe, 20 November). With
   no place set, an Alert above the week, "No weather yet", with an outline
   "Set location"; a forecast over an hour old and offline says "Forecast
   from 14:05" muted. A garment's popup's tiles are Worn ("3×"), Last worn

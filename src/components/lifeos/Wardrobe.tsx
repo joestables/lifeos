@@ -24,7 +24,9 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 import {
+  useEffect,
   useRef,
+  type CSSProperties,
   type KeyboardEvent,
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
@@ -433,17 +435,15 @@ export function AddChip({
 }
 
 /**
- * A field of the add sheet (WRD-005): its name, 13px bold, with what is
- * still needed in muted text at its end ("Needed"), then its control.
+ * A field of the add sheet (WRD-005): its name, 13px bold, a muted note at
+ * its end ("Optional"), then its control.
  */
 export function SheetField({
   label,
-  needed = false,
   aside,
   children,
 }: {
   label: string
-  needed?: boolean
   /** At the label's end: "Optional", "3 suggested". */
   aside?: ReactNode
   children: ReactNode
@@ -452,7 +452,6 @@ export function SheetField({
     <section aria-label={label} className="flex flex-col gap-2.5">
       <div className="flex items-baseline gap-2">
         <h3 className="text-sm font-bold">{label}</h3>
-        {needed && <span className="text-xs font-semibold text-tc-text">Needed</span>}
         {aside && <span className="ml-auto text-xs text-muted-foreground">{aside}</span>}
       </div>
       {children}
@@ -732,11 +731,16 @@ export function Tray({
             </span>
           ) : (
             shown.map((p, i) => (
-              <GarmentPhoto
+              // On the bar's own colour: a tint over a tint showed where they overlap.
+              <span
                 key={i}
-                src={p}
-                className={cn('size-11 rounded-md ring-2 ring-popover', i > 0 && '-ml-4')}
-              />
+                className={cn(
+                  'relative rounded-md bg-popover ring-2 ring-popover',
+                  i > 0 && '-ml-4',
+                )}
+              >
+                <GarmentPhoto src={p} className="size-11 rounded-md" />
+              </span>
             ))
           )}
         </span>
@@ -773,6 +777,7 @@ export function TrayPanel({
   footer,
   children,
   onClose,
+  away = false,
 }: {
   title: string
   count?: number
@@ -781,15 +786,27 @@ export function TrayPanel({
   children: ReactNode
   /** Back to the tray: the overlay, the grabber, or Escape. */
   onClose?: () => void
+  /**
+   * Out of the way while a line from it is dragged onto a day: hidden but
+   * kept, so the finger's touch goes on (WRD-021 3).
+   */
+  away?: boolean
 }) {
   return (
     <>
-      <div aria-hidden className="fixed inset-0 z-30 bg-overlay md:hidden" onClick={onClose} />
+      <div
+        aria-hidden
+        className={cn('fixed inset-0 z-30 bg-overlay md:hidden', away && 'invisible')}
+        onClick={onClose}
+      />
       <section
         role="dialog"
         aria-label={title}
         onKeyDown={(e) => e.key === 'Escape' && onClose?.()}
-        className="fixed inset-x-0 bottom-0 z-40 flex max-h-[85svh] flex-col rounded-t-xl bg-card pb-[env(safe-area-inset-bottom)] shadow-dialog md:hidden"
+        className={cn(
+          'fixed inset-x-0 bottom-0 z-40 flex max-h-[85svh] flex-col rounded-t-xl bg-card pb-[env(safe-area-inset-bottom)] shadow-dialog md:hidden',
+          away && 'invisible',
+        )}
       >
         <button
           type="button"
@@ -949,7 +966,7 @@ export function DayOutfit({
         data-slot="day-outfit"
         data-picked={picked || undefined}
         className={cn(
-          'flex min-w-0 flex-col gap-2 rounded-row bg-[color-mix(in_oklch,var(--tc)_var(--tile-mix),transparent)] p-2 data-picked:ring-2 data-picked:ring-ring',
+          'flex w-fit max-w-full min-w-0 flex-col gap-2 rounded-row bg-[color-mix(in_oklch,var(--tc)_var(--tile-mix),transparent)] p-2 data-picked:ring-2 data-picked:ring-ring',
           past && 'opacity-60',
           dragging && 'z-10 shadow-pop',
         )}
@@ -1123,7 +1140,7 @@ export function CameraView({
       aria-label="Camera"
       className="dark fixed inset-0 z-50 flex flex-col bg-background text-foreground"
     >
-      <div className="flex h-16 shrink-0 items-center justify-between px-3 pt-[env(safe-area-inset-top)]">
+      <div className="box-content flex h-16 shrink-0 items-center justify-between px-3 pt-[env(safe-area-inset-top)]">
         <Button variant="ghost" size="icon" aria-label="Close" onClick={onClose}>
           <XIcon />
         </Button>
@@ -1153,7 +1170,7 @@ export function CameraView({
           </div>
         </div>
       </div>
-      <div className="flex h-36 shrink-0 items-center justify-between px-8 pb-[env(safe-area-inset-bottom)]">
+      <div className="box-content flex h-36 shrink-0 items-center justify-between px-8 pb-[env(safe-area-inset-bottom)]">
         <span className="grid size-12 place-items-center overflow-hidden rounded-md bg-muted">
           {last ? (
             <StoredPicture src={last} alt="Last photo" className="size-full object-cover" />
@@ -1178,6 +1195,27 @@ export function CameraView({
   )
 }
 
+/** A frame drawn as it is, at its own size: no file made, so it shows at once. */
+function FrameCanvas({
+  frame,
+  className,
+  style,
+}: {
+  frame: ImageBitmap
+  className?: string
+  style?: CSSProperties
+}) {
+  const ref = useRef<HTMLCanvasElement>(null)
+  useEffect(() => {
+    const c = ref.current
+    if (!c) return
+    c.width = frame.width
+    c.height = frame.height
+    c.getContext('2d')?.drawImage(frame, 0, 0)
+  }, [frame])
+  return <canvas ref={ref} aria-hidden className={className} style={style} />
+}
+
 /**
  * The photo's square (WRD-005 2): always dark, as the camera; the picture
  * under a square window, the rest dimmed, dragged to move and pinched, or
@@ -1194,7 +1232,8 @@ export function PhotoCrop({
   onUse,
   busy = false,
 }: {
-  src: string
+  /** The picture: a link, or a frame as taken, drawn without being made a file first. */
+  src: string | ImageBitmap
   width: number
   height: number
   crop: { x: number; y: number; zoom: number }
@@ -1227,7 +1266,7 @@ export function PhotoCrop({
       aria-label="Crop the photo"
       className="dark fixed inset-0 z-50 flex flex-col bg-background text-foreground"
     >
-      <div className="flex h-16 shrink-0 items-center justify-center px-3 pt-[env(safe-area-inset-top)]">
+      <div className="box-content flex h-16 shrink-0 items-center justify-center px-3 pt-[env(safe-area-inset-top)]">
         <span className="text-sm font-semibold">Move and zoom</span>
       </div>
       <div className="grid min-h-0 flex-1 place-items-center overflow-hidden">
@@ -1256,14 +1295,32 @@ export function PhotoCrop({
           onPointerCancel={(e) => pointers.current.delete(e.pointerId)}
           onWheel={(e) => onCrop({ ...crop, zoom: crop.zoom * (e.deltaY < 0 ? 1.08 : 1 / 1.08) })}
         >
-          <img
-            src={src}
-            alt=""
-            draggable={false}
-            className="pointer-events-none absolute max-w-none -z-10"
-            // The picture under the window: computed from the crop.
-            style={{ left: `${left}%`, top: `${top}%`, width: `${drawnW}%`, height: `${drawnH}%` }}
-          />
+          {typeof src === 'string' ? (
+            <img
+              src={src}
+              alt=""
+              draggable={false}
+              className="pointer-events-none absolute max-w-none -z-10"
+              // The picture under the window: computed from the crop.
+              style={{
+                left: `${left}%`,
+                top: `${top}%`,
+                width: `${drawnW}%`,
+                height: `${drawnH}%`,
+              }}
+            />
+          ) : (
+            <FrameCanvas
+              frame={src}
+              className="pointer-events-none absolute -z-10"
+              style={{
+                left: `${left}%`,
+                top: `${top}%`,
+                width: `${drawnW}%`,
+                height: `${drawnH}%`,
+              }}
+            />
+          )}
           {(
             [
               '-top-1 -left-1 border-t-4 border-l-4 rounded-tl-xl',
@@ -1276,7 +1333,7 @@ export function PhotoCrop({
           ))}
         </div>
       </div>
-      <div className="flex h-28 shrink-0 items-center justify-between gap-3 px-6 pb-[env(safe-area-inset-bottom)]">
+      <div className="box-content flex h-28 shrink-0 items-center justify-between gap-3 px-6 pb-[env(safe-area-inset-bottom)]">
         <Button variant="ghost" onClick={onRetake}>
           <CameraIcon /> Retake
         </Button>
@@ -1540,6 +1597,29 @@ export function PlaceHere({ day, onClick }: { day: string; onClick: () => void }
 }
 
 /**
+ * What's being dragged onto a day on a phone (WRD-021 3): its picture,
+ * small, lifted just above the finger so the day under it shows.
+ */
+export function DragGhost({
+  point,
+  photos,
+}: {
+  point: { x: number; y: number }
+  photos: (string | undefined)[]
+}) {
+  return (
+    <div
+      aria-hidden
+      data-slot="drag-ghost"
+      className="pointer-events-none fixed z-50 w-16 -translate-x-1/2 -translate-y-[calc(100%+16px)] overflow-hidden rounded-md shadow-pop ring-2 ring-tc"
+      style={{ left: point.x, top: point.y }}
+    >
+      <OutfitPicture photos={photos} />
+    </div>
+  )
+}
+
+/**
  * The tray while placing (WRD-021 5): what was chosen, small, "Choose a
  * day" and what it is, and Cancel.
  */
@@ -1572,6 +1652,18 @@ export function PlacingBar({
 }
 
 /** A day's single garments in a row of 56px tiles (a phone's day, WRD-020 3). */
-export function DayGarmentRow({ children }: { children: ReactNode }) {
-  return <div className="flex min-w-0 flex-wrap items-center gap-2 [&>*]:size-14">{children}</div>
+export function DayGarmentRow({
+  children,
+  end,
+}: {
+  children: ReactNode
+  /** At the row's end: "Create outfit", beside the garments it makes one of. */
+  end?: ReactNode
+}) {
+  return (
+    <div className="flex min-w-0 items-center gap-2">
+      <div className="flex min-w-0 flex-wrap items-center gap-2 [&>*]:size-14">{children}</div>
+      {end && <div className="ml-auto shrink-0">{end}</div>}
+    </div>
+  )
 }

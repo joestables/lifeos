@@ -7,48 +7,39 @@ import {
   planOutfit,
   restoreItem,
   type DayEntry,
-  type WardrobeData,
   type Worn,
 } from '@/data'
 import { fromIsoDay, shortDate } from '@/lib/dates'
-import { garmentCount, outfitName } from './outfit-actions'
+import { garmentCount } from './outfit-actions'
 import type { Pick } from './outfits-tab'
 
 /** "Wed 18 Nov". */
 export const dayLabel = (day: string) => shortDate(fromIsoDay(day))
 
-/** Placed on a day, with Undo (WRD-021 3): an outfit goes back into the pane. */
-export function place(pick: Pick, day: string, wardrobe: WardrobeData) {
-  if (pick.kind === 'outfit') {
-    const o = wardrobe.outfits.find((x) => x.item.id === pick.id)
-    const wasPlanned = o?.planned ?? false
-    const id = planOutfit(pick.id, day)
-    toast(`Planned ${o ? `"${outfitName(o)}"` : 'outfit'} for ${dayLabel(day)}`, {
-      action: {
-        label: 'Undo',
-        onClick: () => {
-          archiveItem(id)
-          if (wasPlanned) addPlanned([pick.id])
-        },
-      },
-    })
-  } else {
-    const g = wardrobe.garments.find((x) => x.item.id === pick.id)
-    const id = planGarment(pick.id, day)
-    toast(`Planned ${g ? `"${g.title}"` : 'garment'} for ${dayLabel(day)}`, {
-      action: { label: 'Undo', onClick: () => archiveItem(id) },
-    })
-  }
+/**
+ * Placed on a day (WRD-021 3): an outfit leaves the pane. Quietly: it shows
+ * where it went, and is taken off or moved there (Joe, 20 November: the
+ * toasts cluttered planning).
+ */
+export function place(pick: Pick, day: string) {
+  if (pick.kind === 'outfit') planOutfit(pick.id, day)
+  else planGarment(pick.id, day)
 }
 
-/** Moved to another day, with Undo (WRD-022 2). */
+/** Moved to another day (WRD-022 2), quietly. */
 export function moveEntry(entry: DayEntry, day: string) {
   if (day === entry.day) return
-  const from = entry.day
   moveWorn(entry.item.id, day)
-  toast(`Moved to ${dayLabel(day)}`, {
-    action: { label: 'Undo', onClick: () => moveWorn(entry.item.id, from) },
-  })
+}
+
+/**
+ * Taken off its day and back into the Planned outfits pane (WRD-022 4),
+ * to be placed on another, quietly.
+ */
+export function returnToPlanned(entry: DayEntry) {
+  if (!entry.outfit) return
+  archiveItem(entry.item.id)
+  addPlanned([entry.outfit.item.id])
 }
 
 /** Taken off its day, with Undo (WRD-022 3). */

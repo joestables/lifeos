@@ -10,9 +10,15 @@ const SLOP = 8
  * so a swipe still scrolls. The slot under the pointer is whatever carries
  * `data-drop` ("2026-10-15:dinner"); let go there, `onDrop` gets it.
  */
-export function useMealDrag(onDrop: (meal: string, drop: string) => void) {
+export function useMealDrag(
+  onDrop: (meal: string, drop: string) => void,
+  /** Scroll the page while the pointer is near its top or foot (the Wardrobe's Week on a phone). */
+  { autoScroll = false }: { autoScroll?: boolean } = {},
+) {
   const [dragging, setDragging] = useState<string | null>(null)
   const [over, setOver] = useState<string | null>(null)
+  /** Where the pointer is while dragging: for a picture that follows it. */
+  const [point, setPoint] = useState<{ x: number; y: number } | null>(null)
   const latest = useRef(onDrop)
   useEffect(() => {
     latest.current = onDrop
@@ -27,6 +33,24 @@ export function useMealDrag(onDrop: (meal: string, drop: string) => void) {
     const y0 = e.clientY
     let active = false
     let target: string | null = null
+    let last = { x: x0, y: y0 }
+    let frame = 0
+    // Near the top or foot of the screen, the page scrolls under the pointer.
+    const EDGE = 72
+    const scroll = () => {
+      const dy =
+        last.y < EDGE
+          ? -(EDGE - last.y) / 4
+          : last.y > innerHeight - EDGE
+            ? (last.y - innerHeight + EDGE) / 4
+            : 0
+      if (dy) {
+        window.scrollBy(0, dy)
+        target = at(last.x, last.y)
+        setOver(target)
+      }
+      frame = requestAnimationFrame(scroll)
+    }
     const hold = touch ? window.setTimeout(() => begin(), HOLD_MS) : undefined
 
     function begin() {
@@ -36,7 +60,9 @@ export function useMealDrag(onDrop: (meal: string, drop: string) => void) {
       holdDrag(true)
       dragged.current = true
       setDragging(meal)
+      setPoint(last)
       navigator.vibrate?.(10)
+      if (autoScroll) frame = requestAnimationFrame(scroll)
     }
     const at = (x: number, y: number) =>
       (document.elementFromPoint(x, y)?.closest('[data-drop]') as HTMLElement | null)?.dataset
@@ -49,6 +75,8 @@ export function useMealDrag(onDrop: (meal: string, drop: string) => void) {
         if (touch) return end()
         begin()
       }
+      last = { x, y }
+      setPoint(last)
       target = at(x, y)
       setOver(target)
     }
@@ -70,6 +98,7 @@ export function useMealDrag(onDrop: (meal: string, drop: string) => void) {
       if (active) holdDrag(false)
       active = false
       window.clearTimeout(hold)
+      cancelAnimationFrame(frame)
       document.documentElement.style.overscrollBehavior = ''
       document.removeEventListener('pointermove', mouseMove)
       document.removeEventListener('pointerup', up)
@@ -79,6 +108,7 @@ export function useMealDrag(onDrop: (meal: string, drop: string) => void) {
       document.removeEventListener('touchcancel', end)
       setDragging(null)
       setOver(null)
+      setPoint(null)
       window.setTimeout(() => (dragged.current = false))
     }
     if (touch) {
@@ -95,6 +125,7 @@ export function useMealDrag(onDrop: (meal: string, drop: string) => void) {
   return {
     dragging,
     over,
+    point,
     /** Spread on a Meal's card. */
     handle: (meal: string) => ({
       onPointerDown: start(meal),

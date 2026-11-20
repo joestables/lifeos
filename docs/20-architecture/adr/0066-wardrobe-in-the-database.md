@@ -175,3 +175,10 @@ and the Today widget share it; its name comes from the day's entries
 (`core_private.today_cards`, migration `stage6_widget_clothes`). A
 garment, an outfit or a day's Outfit worn opened from Search or its link
 opens on Wardrobe's tabs, not in an Item popup.
+
+Plan step 11 (20 November): **a garment's photo is made once**. The
+camera's frame is held in memory as it is squared (no file made), and the
+square is drawn at 1200px and made WebP once (a second time, lower, only
+if it is over ADR-0052's 250 KB), its colour read from the same canvas: on
+Joe's phone the shutter had taken 20 seconds and Use photo 10, each file
+made costing seconds.

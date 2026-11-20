@@ -1,5 +1,5 @@
 import { createFileRoute, useLocation, useNavigate, useRouter } from '@tanstack/react-router'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { PageAction, PageHeader, TabsRow, TypeScope } from '@/components/lifeos'
 import { toast } from '@/components/ui/sonner'
 import { GarmentDialog } from '@/app/garment-dialog'
@@ -107,6 +107,14 @@ function Wardrobe() {
     if (location.state.itemOpened) router.history.back()
     else void navigate({ to: '.', search: base, replace: true })
   }
+  // A popup opened from a day whose clothes have all been taken off it: closed.
+  const entry = entryOf(search.on)
+  const entryGone = !!search.on && !wardrobe.isLoading && !entry
+  useEffect(() => {
+    if (entryGone) void navigate({ to: '.', search: base, replace: true })
+    // Once, when the day's entry goes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [entryGone])
   const editing = adding?.editing
     ? wardrobe.garments.find((g) => g.item.id === adding.editing)
     : undefined
@@ -176,14 +184,14 @@ function Wardrobe() {
           />
         )}
       </div>
-      {openOutfit && !outfitEditor && (
+      {openOutfit && !outfitEditor && !entryGone && (
         <OutfitDialog
           key={openOutfit.item.id}
           outfit={openOutfit}
           wardrobe={wardrobe}
           collection={viewing}
           onClose={hide}
-          entry={entryOf(search.on)}
+          entry={entry}
           onEdit={() => setOutfitEditor({ editing: openOutfit.item.id })}
           onOpenGarment={(id) =>
             void navigate({ to: '.', search: { ...base, garment: id }, replace: true })
@@ -211,7 +219,7 @@ function Wardrobe() {
           }}
         />
       )}
-      {open && !adding && (
+      {open && !adding && !entryGone && (
         <GarmentDialog
           key={open.item.id}
           garment={open}
@@ -219,7 +227,7 @@ function Wardrobe() {
           added={added === open.item.id}
           outfits={outfitsOf(open.item.id)}
           onOpenOutfit={(id) => showOutfit(id)}
-          entry={entryOf(search.on)}
+          entry={entry}
           onClose={hide}
           onEdit={() =>
             setAdding({ editing: open.item.id, camera: false, photo: null, fromSheet: false })

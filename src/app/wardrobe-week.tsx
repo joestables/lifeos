@@ -8,6 +8,7 @@ import {
   DayGarmentRow,
   DayOutfit,
   DayWeather,
+  DragGhost,
   GarmentLine,
   MealDay,
   PlaceHere,
@@ -32,6 +33,7 @@ import {
   type WardrobeData,
 } from '@/data'
 import { useIsMobile } from '@/hooks/use-mobile'
+import { cn } from '@/lib/utils'
 import { useMealDrag } from '@/hooks/use-meal-drag'
 import { fromIsoDay, shortDate } from '@/lib/dates'
 import { weekOf, weekTitle } from '@/lib/plan'
@@ -55,8 +57,8 @@ function createFromDay(singles: DayEntry[], wardrobe: WardrobeData, open: (id: s
     })
     return
   }
-  const { outfit } = createOutfitFromDay(singles.map((e) => e.item.id))
-  toast('Outfit made', { action: { label: 'Open', onClick: () => open(outfit) } })
+  // Quietly: the day shows it made, as an outfit.
+  createOutfitFromDay(singles.map((e) => e.item.id))
 }
 
 /** A day's "+" (WRD-022 1): an outfit or a single garment, from a search. */
@@ -87,7 +89,7 @@ export function AddClothesDialog({
   )
   const photoOf = (g: GarmentView) => (g.photo ? photos.get(g.photo.path) : undefined)
   const choose = (pick: Pick) => {
-    place(pick, day, wardrobe)
+    place(pick, day)
     onClose()
   }
   return (
@@ -199,19 +201,34 @@ export function WardrobeWeek({
     [
       ...entries.flatMap((e) => e.garments.map((g) => g.photo?.path)),
       ...(pickedOutfit?.garments.map((g) => g.photo?.path) ?? []),
+      ...wardrobe.planned.flatMap((o) => o.garments.map((g) => g.photo?.path)),
       pickedGarment?.photo?.path,
     ],
     'small',
   )
   const photoOf = (g: GarmentView) => (g.photo ? photos.get(g.photo.path) : undefined)
-  const drag = useMealDrag((key, drop) => {
-    const [kind, id] = key.split(':')
-    if (!id) return
-    if (kind === 'worn') {
-      const entry = entries.find((e) => e.item.id === id)
-      if (entry) moveEntry(entry, drop)
-    } else place({ kind: kind as Pick['kind'], id }, drop, wardrobe)
-  })
+  const drag = useMealDrag(
+    (key, drop) => {
+      const [kind, id] = key.split(':')
+      if (!id) return
+      if (kind === 'worn') {
+        const entry = entries.find((e) => e.item.id === id)
+        if (entry) moveEntry(entry, drop)
+      } else place({ kind: kind as Pick['kind'], id }, drop)
+    },
+    { autoScroll: isMobile },
+  )
+  // What's being dragged, for the picture under a phone's finger.
+  const draggedPhotos = (() => {
+    const [kind, id] = drag.dragging?.split(':') ?? []
+    if (kind === 'outfit')
+      return wardrobe.outfits.find((o) => o.item.id === id)?.garments.map(photoOf) ?? []
+    if (kind === 'garment') {
+      const g = wardrobe.garments.find((x) => x.item.id === id)
+      return g ? [photoOf(g)] : []
+    }
+    return entries.find((e) => e.item.id === id)?.garments.map(photoOf) ?? []
+  })()
 
   // A phone opens on today (WRD-020 1).
   const days = useRef<HTMLDivElement>(null)
@@ -228,9 +245,13 @@ export function WardrobeWeek({
       key={e.item.id}
       type="button"
       aria-label={`${e.item.title || 'Outfit'}, ${dayLabel(e.day)}`}
-      className="min-w-0 rounded-control text-left outline-none focus-visible:ring-3 focus-visible:ring-ring-soft"
+      className={cn(
+        'min-w-0 rounded-control text-left outline-none focus-visible:ring-3 focus-visible:ring-ring-soft',
+        // On a phone the outfit's tint wraps it alone (Joe, 20 November).
+        layout === 'row' && 'max-w-full self-start',
+      )}
       onClick={() => e.outfit && onOpenOutfit(e.outfit.item.id, e)}
-      {...(!isMobile && drag.handle(`worn:${e.item.id}`))}
+      {...drag.handle(`worn:${e.item.id}`)}
     >
       <DayOutfit
         name={e.outfit ? outfitName(e.outfit) : e.item.title || 'Outfit'}
@@ -250,7 +271,7 @@ export function WardrobeWeek({
         className="min-w-0 rounded-sm outline-none focus-visible:ring-3 focus-visible:ring-ring-soft data-past:opacity-60"
         data-past={e.past || undefined}
         onClick={() => onOpenGarment(g.item.id, e)}
-        {...(!isMobile && drag.handle(`worn:${e.item.id}`))}
+        {...drag.handle(`worn:${e.item.id}`)}
       >
         <DayGarment garment={garmentFace(g, photoOf(g))} alone />
       </button>
@@ -261,7 +282,6 @@ export function WardrobeWeek({
       <Button
         variant="ghost"
         size="sm"
-        className="ml-auto"
         onClick={() => createFromDay(singles, wardrobe, onOpenOutfit)}
       >
         <PlusIcon /> Create outfit
@@ -328,6 +348,8 @@ export function WardrobeWeek({
                   name={shortDate(date).slice(0, 3)}
                   date={`${date.getDate()} ${month.format(date)}`}
                   today={d === today}
+                  drop={d}
+                  dropping={drag.over === d}
                   action={
                     <>
                       {w && <DayWeather forecast={w} />}
@@ -344,14 +366,15 @@ export function WardrobeWeek({
                 >
                   {list.filter((e) => e.outfit).map((e) => outfitTile(e, 'row'))}
                   {singles.length > 0 && (
-                    <DayGarmentRow>{singles.flatMap(garmentTile)}</DayGarmentRow>
+                    <DayGarmentRow end={createButton(singles, true)}>
+                      {singles.flatMap(garmentTile)}
+                    </DayGarmentRow>
                   )}
-                  {createButton(singles, true)}
                   {picked && (
                     <PlaceHere
                       day={dayLabel(d)}
                       onClick={() => {
-                        place(picked, d, wardrobe)
+                        place(picked, d)
                         setPicked(undefined)
                       }}
                     />
@@ -429,9 +452,17 @@ export function WardrobeWeek({
           <PlannedPane
             wardrobe={wardrobe}
             onOpen={(id) => onOpenOutfit(id)}
-            week={{ drag: () => ({}), picked, onPick: setPicked }}
+            week={{
+              drag: (key) => drag.handle(key),
+              picked,
+              onPick: setPicked,
+              dragging: drag.dragging !== null,
+            }}
           />
         ))}
+      {isMobile && drag.dragging && drag.point && (
+        <DragGhost point={drag.point} photos={draggedPhotos} />
+      )}
       {adding && (
         <AddClothesDialog day={adding} wardrobe={wardrobe} onClose={() => setAdding(null)} />
       )}

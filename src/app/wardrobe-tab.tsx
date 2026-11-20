@@ -356,7 +356,13 @@ export function WardrobeTab({
           )}
         >
           <div className={cn('flex items-center gap-2', !building && 'lg:contents')}>
-            <SearchField label="Search clothes" value={view.search} onChange={setSearch} />
+            {/* Never squeezed to its icon: in a crowded row it takes a line of its own. */}
+            <SearchField
+              label="Search clothes"
+              value={view.search}
+              onChange={setSearch}
+              className="lg:min-w-56"
+            />
             <Button
               variant="outline"
               size="sm"
