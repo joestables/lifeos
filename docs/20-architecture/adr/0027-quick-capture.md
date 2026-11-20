@@ -2,7 +2,7 @@
 
 **Status:** Provisionally agreed · 2026-10-09
 
-**Amended:** 2026-10-09 by [ADR-0037](0037-thoughts.md) (Thoughts); 2026-10-10 by Joe, writing the Stage 2 specs (capture opens over any screen; Android's shortcut and share move to [ADR-0028](0028-capture-from-outside-the-app.md)); 2026-10-14 by Joe, writing the Stage 3 specs (capture makes no Events). 2026-11-09 by [ADR-0065](0065-reminders-alerts-and-the-day.md) ("New" is one line making a Thought, or a Reminder when it has a time; no switch to Task; Stage 7b, as it is built).
+**Amended:** 2026-10-09 by [ADR-0037](0037-thoughts.md) (Thoughts); 2026-10-10 by Joe, writing the Stage 2 specs (capture opens over any screen; Android's shortcut and share move to [ADR-0028](0028-capture-from-outside-the-app.md)); 2026-10-14 by Joe, writing the Stage 3 specs (capture makes no Events). 2026-11-09 by [ADR-0065](0065-reminders-alerts-and-the-day.md) ("New" is one line making a Thought, or a Reminder when it has a time; no switch to Task; Stage 7b, as it is built); 2026-11-20 by [ADR-0069](0069-lists-and-recipes-tabs.md) (a Thought becomes a List, not a Shopping list).
 
 ## Context
 
@@ -29,7 +29,7 @@ share-to-LifeOS come with capture from outside the app
   `packages/capture`, so the capture address can use it too), so capture
   works with no signal. An LLM may improve guesses later, but capture never
   depends on one.
-- **Sorting a Thought:** convert it in place into a Note, Task, Shopping list or any
+- **Sorting a Thought:** convert it in place into a Note, Task, List or any
   other Capturable Type (one swipe for the common ones), or delete it
   (archived, with undo) ([ADR-0037](0037-thoughts.md)).
 

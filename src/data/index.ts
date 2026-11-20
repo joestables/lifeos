@@ -91,16 +91,15 @@ import {
 import { fitnessWrites, templateWrites, workoutWrites } from './fitness-writes'
 import {
   applyPendingListMeals,
-  applyPendingLists,
   applyPendingShopLines,
   listMealsKey,
-  listsKey,
   shopLinesKey,
-  type ListDetail,
   type ListMeal,
   type ShopLine,
 } from './shopping'
 import { shoppingWrites } from './shopping-writes'
+import { applyPendingListLines, listLinesKey, type ListLine } from './lists'
+import { listWrites } from './list-writes'
 import { applyPendingPhotos, photosKey, photoWrites, type Photo } from './photos'
 import { queryClient } from './queryClient'
 import { applyPendingAlerts, alertsKey, type Alert } from './alerts'
@@ -341,11 +340,6 @@ const collections: {
     fold: (rows: RecentView[], e: QueueEntry) => applyPendingViews(rows, [e]),
   },
   {
-    key: listsKey,
-    fns: ['shopping.create_list', 'shopping.update_list', 'convert_item'],
-    fold: (rows: ListDetail[], e: QueueEntry) => applyPendingLists(rows, [e]),
-  },
-  {
     key: listMealsKey,
     fns: ['shopping.create_list', 'shopping.add_meals', 'shopping.remove_meal'],
     fold: (rows: ListMeal[], e: QueueEntry) => applyPendingListMeals(rows, [e]),
@@ -377,6 +371,11 @@ const collections: {
       'restore_item',
     ],
     fold: (rows: ShopLine[], e: QueueEntry) => applyPendingShopLines(rows, [e]),
+  },
+  {
+    key: listLinesKey,
+    fns: ['add_list_line', 'update_list_line', 'remove_list_line', 'tick_list_lines'],
+    fold: (rows: ListLine[], e: QueueEntry) => applyPendingListLines(rows, [e]),
   },
   {
     key: valuesKey,
@@ -735,7 +734,6 @@ export const {
 
 export const {
   createList,
-  updateList,
   addMeals,
   removeMeal,
   addShopLine,
@@ -743,6 +741,8 @@ export const {
   deleteShopLine,
   tick,
 } = shoppingWrites(queue)
+
+export const { addListLine, updateListLine, removeListLine, tickListLines } = listWrites(queue)
 
 export const { setPhoto, removePhoto, holdPhoto } = photoWrites(queue)
 
@@ -886,11 +886,13 @@ export {
   autoLineId,
   useShopMeals,
   useShopping,
-  type ListLine,
+  type ShopListLine,
   type ShoppingData,
   type ShoppingList,
 } from './shopping-hooks'
-export { deleteIsMine, liveKeys, useLiveShopping } from './live'
+export { deleteIsMine, liveKeys, useLiveLists, useLiveShopping } from './live'
+export { useLists, type ListView, type ListsData } from './list-hooks'
+export type { ListLine, ListLineFields } from './lists'
 export type { ListFields, ShopLine, ShopLineFields, ShopMeal } from './shopping'
 export {
   useHouseholds,

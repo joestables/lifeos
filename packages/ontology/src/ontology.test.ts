@@ -53,14 +53,17 @@ describe('ontology', () => {
   it('converts in place as ADR-0018 says', () => {
     expect(convertsTo(typeByKey('thought')!)).toEqual([
       'event',
+      'list',
       'note',
       'recipe',
       'reminder',
-      'shopping_list',
       'task',
     ])
-    // A Reminder is a title only: a Note, with its text, doesn't become one.
-    expect(convertsTo(typeByKey('note')!)).toEqual(['event', 'recipe', 'shopping_list', 'task'])
+    // A Reminder is a title only and a List its lines: a Note, with its text,
+    // becomes neither (RMD-006, ADR-0069). A food shop isn't Capturable.
+    expect(convertsTo(typeByKey('note')!)).toEqual(['event', 'recipe', 'task'])
+    expect(convertsTo(typeByKey('list')!)).toEqual([])
+    expect(convertsTo(typeByKey('shopping_list')!)).toEqual([])
     expect(convertsTo(typeByKey('task')!)).toEqual(['event', 'reminder'])
     expect(convertsTo(typeByKey('event')!)).toEqual(['reminder', 'task'])
     // RMD-006: a Reminder to and from a Task and an Event.
@@ -79,13 +82,17 @@ describe('ontology', () => {
     expect(look('recipe')).toEqual(['green', false, 'favourited', undefined, false])
     expect(look('variation')).toEqual(['green', false, undefined, undefined, false])
     expect(look('meal')).toEqual(['green', false, undefined, undefined, false])
-    expect(look('shopping_list')).toEqual(['yellow', false, undefined, undefined, false])
+    // A food shop is green with the Recipes it's on (ADR-0069); a List
+    // yellow with Notes, pinned and labelled as a Note is.
+    expect(look('shopping_list')).toEqual(['green', false, undefined, undefined, false])
+    expect(look('list')).toEqual(['yellow', true, 'pinned', undefined, false])
   })
 
   it('builds each Type in its roadmap stage (data-model.md#types)', () => {
     expect(TYPES.map((t) => [t.key, t.stage])).toEqual([
       ['thought', 2],
       ['note', 2],
+      ['list', 4.5],
       ['task', 2],
       ['event', 3],
       ['reminder', 7.5],
@@ -155,6 +162,16 @@ describe('ontology', () => {
     expect(r.defaultSpace).toBe('personal')
     expect(r.timeFields).toEqual(['do_on'])
     expect(r.colour).toBe('blue')
+  })
+
+  it('makes a List undated, Shareable and done when completed (ADR-0069)', () => {
+    const l = typeByKey('list')!
+    expect(l.module).toBe('core')
+    expect(l.traits).toEqual(['completable', 'shareable', 'capturable'])
+    expect(l.statuses).toEqual(['active', 'done'])
+    expect(l.timeFields).toEqual([])
+    expect(l.defaultSpace).toBe('personal')
+    expect(l.alerts).toBe(false)
   })
 
   it('has no idea status on Notes (ADR-0037)', () => {

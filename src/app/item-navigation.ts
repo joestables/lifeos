@@ -39,6 +39,8 @@ export function useOpenItem() {
       void navigate({ to: '/gym/exercises/$id', params: { id: item.id } })
     } else if (item.type === 'shopping_list') {
       void navigate({ to: '/shopping/$id', params: { id: item.id } })
+    } else if (item.type === 'list') {
+      void navigate({ to: '/lists/$id', params: { id: item.id } })
     } else if (opensAsPage(item.type, isMobile) || RECIPE_TYPES.includes(item.type)) {
       void navigate({ to: '/item/$id', params: { id: item.id } })
     } else {

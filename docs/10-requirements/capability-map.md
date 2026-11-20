@@ -28,12 +28,13 @@ Owner: **core**, a **Module** (`shopping`, `food`, `fitness`, `goals`,
 | Events, repeating Events, Tasks for an Event | core | Week, Plan | 3 | [events](cross-cutting/events.md) |
 | Google Calendar: incoming only or two-way per calendar; a shared Event in every member's calendar | Integration | Settings | 3 | [integrations](cross-cutting/integrations.md#google-calendar) |
 | Recipes, Variations, ideas, cook log | `food` | Recipes | 4 | [recipes](modules/recipes.md) |
-| Meal planning; the Pantry | `food` | Meal plan (Meals on Week and Today too) | 4 | [meals](modules/meals.md) |
+| Meal planning; the Pantry | `food` | Recipes' Week and Pantry (Meals on Week and Today too) | 4 | [meals](modules/meals.md) |
 | Shared AI service; food preferences | core | — | 4 | — |
 | Households: create, invite by email, accept, owner and members, several per person; sharing on | core | Settings | 4 | [spaces-and-sharing](cross-cutting/spaces-and-sharing.md) |
-| Shopping lists: food shops and other lists, Essentials, live updates | `shopping` | Shopping | 4b | [meals](modules/meals.md#shopping) |
-| Ingredients to shopping lists | `food`, `shopping` | Meal plan, Shopping | 4b | [meals](modules/meals.md#shopping) |
-| Online: items watched for price drops, with alerts | `shopping` | Shopping | Later | [roadmap](../roadmap.md#later-opportunities) |
+| Food shops, Essentials, live updates | `shopping` | Recipes' Shop | 4b | [meals](modules/meals.md#shopping) |
+| Ingredients to shopping lists | `food`, `shopping` | Recipes' Week and Shop | 4b | [meals](modules/meals.md#shopping) |
+| Lists: named, ticked, shared, live; no date | core | Notes' Lists | 4b | [notes](views/notes.md#nte-006--a-list) |
+| Online: items watched for price drops, with alerts | `shopping` | Recipes' Shop | Later | [roadmap](../roadmap.md#later-opportunities) |
 | Gym: exercises, templates, workouts, the recovery engine, progression | `fitness` | Gym | 5 | [gym](modules/gym.md) |
 | Goals and the measures registry | `goals` | Goals | 5 | — |
 | Wardrobe and outfits | `wardrobe` | Wardrobe | 6 | — |
@@ -44,7 +45,7 @@ Owner: **core**, a **Module** (`shopping`, `food`, `fitness`, `goals`,
 | Capture as one smart line: Thoughts and Reminders, times understood | core | Capture Screen | 7b | [capture](cross-cutting/capture.md#new-002--one-smart-line) |
 | A home-screen widget on Android: Today's Plan | core | Android home screen | 7 | [the Android app](cross-cutting/android.md#wid-002--todays-plan-on-the-home-screen) |
 | Health Connect | Integration | — | 8 | [integrations](cross-cutting/integrations.md) |
-| Cardio, with Oura and Health Connect (a blank page in the drawer until then) | `fitness`, Integration | Cardio | 8 | — |
+| Cardio, with Oura and Health Connect (in the drawer once built) | `fitness`, Integration | Cardio | 8 | — |
 | Finance | `finance` | Finance | 9 | — |
 | Capture from outside the app: capture address, Siri, email, Android shortcut and share; a Thought widget (deferred) | core | Settings (address) | 10 | [capture](cross-cutting/capture.md#deferred-to-stage-10) |
 | Export of everything you can see, as JSON | core | — | — | — |

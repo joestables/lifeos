@@ -4,11 +4,10 @@ import { CHICKEN, PANKO, id } from './recipe-rows'
 import { ANN, itemRow, standIn, type Rows } from './stand-in'
 
 const SHOP = id(80)
-const LIST = id(81)
 const MILK = id(82)
 const SALT = id(83)
 
-/** The Meals' rows with a shop holding Katsu curry, a Pantry with milk and salt, and a list. */
+/** The Meals' rows with a shop holding Katsu curry, and a Pantry with milk and salt. */
 function shopRows(): Rows {
   const base = mealRows()
   return {
@@ -16,12 +15,8 @@ function shopRows(): Rows {
     items: [
       ...(base.items ?? []),
       itemRow({ id: SHOP, type: 'shopping_list', title: 'Big shop', do_on: '2026-10-17' }),
-      itemRow({ id: LIST, type: 'shopping_list', title: 'Screwfix' }),
     ],
-    shopping_list: [
-      { item_id: SHOP, kind: 'food' },
-      { item_id: LIST, kind: 'list' },
-    ],
+    shopping_list: [{ item_id: SHOP, kind: 'food' }],
     list_meals: [{ list_id: SHOP, meal_id: KATSU_MEAL }],
     pantry: [
       ...(base.pantry ?? []),
@@ -50,7 +45,7 @@ function shopRows(): Rows {
   }
 }
 
-async function start(page: Page, path = '/shopping', rows: Rows = shopRows()) {
+async function start(page: Page, path = '/recipes?tab=shop', rows: Rows = shopRows()) {
   await page.clock.setFixedTime(NOW)
   const db = await standIn(page, { signedIn: true, rows })
   await page.goto(path)
@@ -68,8 +63,10 @@ test.describe('Shopping', () => {
   }) => {
     const db = await start(page, '/today', mealRows())
     if (isMobile) await page.getByRole('button', { name: 'Menu' }).click()
-    await page.getByRole('link', { name: 'Shopping' }).click()
-    await expect(page.getByRole('heading', { name: 'Shopping', level: 1 })).toBeVisible()
+    // The shops are Recipes' Shop tab (ADR-0069).
+    await page.getByRole('link', { name: 'Recipes' }).click()
+    await page.getByRole('tab', { name: 'Shop' }).click()
+    await expect(page).toHaveURL(/\/recipes\?tab=shop$/)
     await expect(page.getByText('No shops')).toBeVisible()
     await page.getByRole('button', { name: 'New shop' }).first().click()
     const dialog = page.getByRole('dialog', { name: 'New shop' })
@@ -91,7 +88,7 @@ test.describe('Shopping', () => {
     page,
   }) => {
     const base = mealRows()
-    await start(page, '/shopping', {
+    await start(page, '/recipes?tab=shop', {
       ...base,
       items: (base.items ?? []).map((i) => (i.id === DISHOOM ? { ...i, status: 'done' } : i)),
     })
@@ -183,7 +180,7 @@ test.describe('Shopping', () => {
     ).toContainText('0 of 4')
   })
 
-  test('SHP-001 4, 5: ticked to the last line, Done; done shops a press away', async ({ page }) => {
+  test('SHP-001 4, 5: ticked to the last line, Done, and off the Shop tab', async ({ page }) => {
     const db = await start(page, `/shopping/${SHOP}`)
     await line(page, 'Chicken thighs').getByRole('checkbox').click()
     await expect(line(aisle(page, 'Protein'), 'Chicken thighs').getByRole('checkbox')).toBeChecked()
@@ -192,12 +189,11 @@ test.describe('Shopping', () => {
     // Panko, a staple, is checked on Extra: the last line is Honey.
     await line(page, 'Honey').getByRole('checkbox').click()
     await page.getByRole('button', { name: 'Done' }).click()
-    await expect(page.getByRole('heading', { name: 'Shopping', level: 1 })).toBeVisible()
+    await expect(page).toHaveURL(/\/recipes\?tab=shop$/)
     await expect.poll(() => db.items.find((i) => i.id === SHOP)?.status).toBe('done')
-    await page.getByRole('button', { name: 'Done shops' }).click()
-    await expect(
-      page.locator('[data-slot="item-row"]').filter({ hasText: 'Big shop' }),
-    ).toBeVisible()
+    // A done shop leaves the tab, with no Done shops to show it again (ADR-0069).
+    await expect(page.getByText('No shops')).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Done shops' })).toHaveCount(0)
   })
 
   test('SHP-001 5: Complete list asks first while lines are unticked', async ({ page }) => {
@@ -210,9 +206,7 @@ test.describe('Shopping', () => {
     await expect.poll(() => db.items.find((i) => i.id === SHOP)?.status).toBe('done')
   })
 
-  test('SHP-001 5: Complete list from a shop’s row, asking first; Other has no done lists', async ({
-    page,
-  }) => {
+  test('SHP-001 5: Complete list from a shop’s row, asking first', async ({ page }) => {
     const db = await start(page)
     await page
       .locator('[data-slot="item-row"]')
@@ -222,10 +216,11 @@ test.describe('Shopping', () => {
     await page.getByRole('menuitem', { name: 'Complete list' }).click()
     await page.getByRole('alertdialog').getByRole('button', { name: 'Complete' }).click()
     await expect.poll(() => db.items.find((i) => i.id === SHOP)?.status).toBe('done')
-    // The Lists tab is Other now, and keeps no done lists (Joe, 26 October).
-    await page.getByRole('tab', { name: 'Other' }).click()
-    await expect(page.getByText('Screwfix')).toBeVisible()
-    await expect(page.getByRole('button', { name: /Done lists/ })).toHaveCount(0)
+    await expect(
+      page.locator('[data-slot="item-row"]').filter({ hasText: 'Big shop' }),
+    ).toHaveCount(0)
+    // Shopping's Other went to Notes' Lists: no tab here (ADR-0069).
+    await expect(page.getByRole('tab', { name: 'Other' })).toHaveCount(0)
   })
 
   test('SHP-001 4: a ticked line stays where it is', async ({ page }) => {
@@ -238,22 +233,24 @@ test.describe('Shopping', () => {
     expect(await names.allTextContents()).toEqual(before)
   })
 
-  test('Edit details opens without the keyboard; New list opens on its name', async ({ page }) => {
+  test('Edit details opens without the keyboard; New shop opens on its name', async ({ page }) => {
     await start(page, `/shopping/${SHOP}`)
     await page.getByRole('button', { name: 'More' }).first().click()
     await page.getByRole('menuitem', { name: 'Edit details…' }).click()
     await expect(page.getByRole('dialog', { name: 'Shop details' })).toBeVisible()
     await expect(page.getByLabel('Name')).not.toBeFocused()
     await page.keyboard.press('Escape')
-    await page.goto('/shopping?tab=lists')
-    await page.getByRole('button', { name: 'New list' }).first().click()
-    await expect(page.getByRole('dialog', { name: 'New list' }).getByLabel('Name')).toBeFocused()
+    // Back to Recipes' Shop, where New shop starts on its name.
+    await page.getByRole('button', { name: 'Shop', exact: true }).click()
+    await expect(page).toHaveURL(/\/recipes\?tab=shop$/)
+    await page.getByRole('button', { name: 'New shop' }).first().click()
+    await expect(page.getByRole('dialog', { name: 'New shop' }).getByLabel('Name')).toBeFocused()
   })
 
   test('SHP-005: staples and Essentials kept in the Pantry, out of stock and Required', async ({
     page,
   }) => {
-    const db = await start(page, '/meal-plan?tab=pantry')
+    const db = await start(page, '/recipes?tab=pantry')
     const row = (name: string) => page.locator('[data-slot="pantry-row"]').filter({ hasText: name })
     await expect(row('Salt').getByRole('button', { name: 'Salt out of stock' })).toHaveAttribute(
       'aria-pressed',
@@ -293,26 +290,10 @@ test.describe('Shopping', () => {
     await expect
       .poll(() => db.space_entries.find((e) => e.pantry_id === MILK))
       .toMatchObject({ kind: 'essential', needed: true })
-    // Shopping → Food holds only the shops now.
-    await page.goto('/shopping')
+    // Recipes → Shop holds only the shops.
+    await page.goto('/recipes?tab=shop')
     await expect(page.getByText('Big shop')).toBeVisible()
     await expect(page.getByRole('group', { name: 'Staples' })).toHaveCount(0)
-  })
-
-  test('SHP-001 3: a list by my own subheadings, ticked as I go', async ({ page }) => {
-    const db = await start(page, '/shopping?tab=lists')
-    await page.getByText('Screwfix').click()
-    await expect(page.getByRole('heading', { name: 'Screwfix', level: 1 })).toBeVisible()
-    await page.getByRole('textbox', { name: 'Add a subheading' }).fill('Bathroom')
-    await page.keyboard.press('Enter')
-    const bathroom = aisle(page, 'Bathroom')
-    await bathroom.getByRole('textbox', { name: 'Add to Bathroom' }).fill('Silicone sealant')
-    await page.keyboard.press('Enter')
-    await line(bathroom, 'Silicone sealant').getByRole('checkbox').click()
-    await expect
-      .poll(() => db.lines.find((l) => l.text === 'Silicone sealant'))
-      .toMatchObject({ list_id: LIST, checked: true })
-    expect(db.lines.find((l) => l.heading === 'Bathroom')).toBeTruthy()
   })
 
   test('ITM-006 3: a shop deleted, with Undo', async ({ page }) => {
@@ -346,21 +327,21 @@ test.describe('Shopping', () => {
     await expect.poll(() => db.items.find((i) => i.title === 'Top-up')?.do_on).toBe('2026-10-16')
   })
 
-  test('SRC-003 2: Search finds a list by name or by a line on it', async ({ page, isMobile }) => {
+  test('SRC-003 2: Search finds a shop by name or by a line on it', async ({ page, isMobile }) => {
     await start(page, '/today')
     if (isMobile) await page.getByRole('button', { name: 'Menu' }).click()
     await page.getByRole('button', { name: 'Search', exact: true }).click()
     const input = page.getByRole('combobox', { name: 'Search' })
     const list = page.getByRole('listbox', { name: 'Search' })
-    await input.fill('screwfix')
-    await expect(list.getByRole('option', { name: /Screwfix/ })).toBeVisible()
+    await input.fill('big shop')
+    await expect(list.getByRole('option', { name: /Big shop/ })).toBeVisible()
     await input.fill('chicken')
     await list.getByRole('option', { name: /Big shop/ }).click()
     await expect(page.getByRole('heading', { name: 'Big shop', level: 1 })).toBeVisible()
   })
 
   test('SHP-002 1: Meals chosen on the Meal plan made a shop', async ({ page }) => {
-    const db = await start(page, '/meal-plan?day=2026-10-15', mealRows())
+    const db = await start(page, '/recipes?tab=week&day=2026-10-15', mealRows())
     await page.getByRole('button', { name: 'Select' }).click()
     // Leftovers have no lines of their own: not offered.
     await expect(page.getByRole('checkbox', { name: /Leftovers/ })).toHaveCount(0)
@@ -377,7 +358,7 @@ test.describe('Shopping', () => {
   test('SHP-002 4; MPL-003 4: a Meal on a shop isn’t chosen again, and rescaled, the shop follows', async ({
     page,
   }) => {
-    const db = await start(page, '/meal-plan?day=2026-10-15')
+    const db = await start(page, '/recipes?tab=week&day=2026-10-15')
     await page.getByRole('button', { name: 'Select' }).click()
     await expect(page.getByRole('checkbox', { name: 'Katsu curry' })).toHaveCount(0)
     // Faded, saying why (Joe, 26 October).
@@ -500,76 +481,18 @@ test.describe('Shopping', () => {
       .toBe(true)
   })
 
-  test('ITM-006 5; SHP-003 5: a Thought naming a Pantry ingredient sorted into a food shop', async ({
-    page,
-  }) => {
+  test('ADR-0069: a Thought becomes a List, never a food shop', async ({ page }) => {
     const base = mealRows()
-    const thought = id(91)
-    const db = await start(page, '/notes?tab=thoughts', {
+    await start(page, '/notes?tab=thoughts', {
       ...base,
-      items: [
-        ...(base.items ?? []),
-        itemRow({ id: thought, type: 'thought', title: 'buy milk, bread and 2 chicken thighs' }),
-        itemRow({ id: id(92), type: 'thought', title: 'call mum' }),
-      ],
-      pantry: [
-        ...(base.pantry ?? []),
-        {
-          id: MILK,
-          name: 'Milk',
-          kind: 'ingredient',
-          aisle: 'chilled',
-          default_unit: null,
-          added_by: ANN.id,
-        },
-      ],
+      items: [...(base.items ?? []), itemRow({ id: id(91), type: 'thought', title: 'buy milk' })],
     })
-    const row = (title: string) => page.locator('[data-slot="item-row"]').filter({ hasText: title })
-    // Not food: Shopping list isn't offered.
-    await row('call mum').getByRole('button', { name: 'More' }).click()
-    await expect(page.getByRole('menuitem', { name: 'Task' })).toBeVisible()
-    await expect(page.getByRole('menuitem', { name: 'Shopping list' })).toHaveCount(0)
-    await page.keyboard.press('Escape')
-    // With no open shop, it becomes one at once.
-    await row('buy milk').getByRole('button', { name: 'More' }).click()
-    await page.getByRole('menuitem', { name: 'Shopping list' }).click()
-    const toast = page
-      .locator('[data-sonner-toast]')
-      .filter({ hasText: 'Converted into a Shopping list' })
-    await toast.getByRole('button', { name: 'Open' }).click()
-    await expect(page.getByRole('heading', { name: 'Food shop', level: 1 })).toBeVisible()
-    await expect(line(aisle(page, 'Chilled'), 'Milk')).toBeVisible()
-    await expect(line(aisle(page, 'Other'), 'Bread')).toBeVisible()
-    await expect(line(aisle(page, 'Protein'), 'Chicken thighs')).toContainText('2')
-    await expect
-      .poll(() => db.items.find((i) => i.id === thought))
-      .toMatchObject({ type: 'shopping_list', title: 'Food shop' })
-  })
-
-  test('SHP-003 5: a Thought’s lines added to an open shop instead', async ({ page }) => {
-    const base = shopRows()
-    const thought = id(93)
-    const db = await start(page, '/notes?tab=thoughts', {
-      ...base,
-      items: [...(base.items ?? []), itemRow({ id: thought, type: 'thought', title: 'Buy milk' })],
-    })
-    // From the Thought opened, as from its row.
     await page
       .locator('[data-slot="item-row"]')
-      .filter({ hasText: 'Buy milk' })
-      .getByRole('button', { name: /^Buy milk/ })
+      .filter({ hasText: 'buy milk' })
+      .getByRole('button', { name: 'More' })
       .click()
-    await page.getByRole('dialog').getByRole('button', { name: 'More' }).click()
-    await page.getByRole('menuitem', { name: 'Shopping list' }).click()
-    const ask = page.getByRole('dialog', { name: 'Shopping list' })
-    await expect(ask).toContainText('Milk')
-    await ask.getByRole('combobox', { name: 'Add to' }).click()
-    await page.getByRole('option', { name: 'Big shop' }).click()
-    await ask.getByRole('button', { name: 'Add' }).click()
-    await expect(page.getByText('Added to "Big shop"')).toBeVisible()
-    await expect
-      .poll(() => db.lines.find((l) => l.pantry_id === MILK))
-      .toMatchObject({ list_id: SHOP, meal_id: null })
-    await expect.poll(() => db.items.find((i) => i.id === thought)?.archived_at).toBeTruthy()
+    await expect(page.getByRole('menuitem', { name: 'List' })).toBeVisible()
+    await expect(page.getByRole('menuitem', { name: 'Shopping list' })).toHaveCount(0)
   })
 })

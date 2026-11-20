@@ -57,7 +57,7 @@ decisions known so far.*
     search paints in 25–50 ms and a heart in 80 ms.
 - Capture must be faster than Google Tasks or setting a phone alarm
   ([vision](../00-foundation/vision.md)).
-- Shared Shopping lists update live; elsewhere, data refreshes on focus.
+- Shared Shopping lists and Lists update live; elsewhere, data refreshes on focus.
 
 ## Offline
 

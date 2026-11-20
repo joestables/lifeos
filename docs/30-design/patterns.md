@@ -7,7 +7,7 @@
 
 ```
 AppShell
-├── Drawer (Sidebar)          brand · Search · pages · Later · sync status · you
+├── Drawer (Sidebar)          brand · Search · pages · sync status · you
 └── Page
     ├── PageHeader            title · Capture (right, on a computer)
     └── Content               36px sides, 20px between sections, in a ScrollArea
@@ -29,30 +29,30 @@ AppShell
 - Content never fills edge to edge without the 36px page padding.
 - **One reading width for rows** (Joe, 24 October): a page or tab whose
   content is a column of rows or Cards — Today, Plan, Notes' Thoughts, Ideas, Settings,
-  the Pantry, Week's day, Shopping's Food and Other, a list — is 696px wide
+  the Pantry, Week's day, Recipes' Shop, a List — is 696px wide
   at most, the same on every one of them (Joe, 15 November; `max-w-reading`,
   or `max-w-3xl` on the box that also carries the page's 36px padding),
   left-aligned. Grids and weeks (the library,
-  Notes, the Meal plan's week, Week's week) and a food shop's aisles take
+  Notes and its Lists, Recipes' Week, Week's week) and a food shop's aisles take
   the page's width.
 
 ## The drawer
 
-- Order and pages are fixed by [ADR-0026](../20-architecture/adr/0026-navigation-drawer.md).
-  A page not built yet sits under "Later" and isn't a link: Cardio, Goals
-  and Finance, until their stages (Joe, 15 November); Wardrobe left it with
-  Stage 6.
+- Order and pages are fixed by [ADR-0026](../20-architecture/adr/0026-navigation-drawer.md):
+  Today, Week, Plan, Notes, Gym, Recipes and Wardrobe. The Meal plan and
+  Shopping are Recipes' tabs, and a page not built yet (Cardio, Goals,
+  Finance) isn't in the drawer until its stage builds it (Joe, 20 November;
+  [ADR-0069](../20-architecture/adr/0069-lists-and-recipes-tabs.md)).
 - shadcn's standard Sidebar: full height, attached to the left edge, a
   hairline between it and the page.
 - Each page's icon is in its Type colour; Today's and Week's are grey.
 - The current page is filled `--sidebar-accent`, with text in `--foreground`
   at weight 700, on every page; the others are 600.
-- Counts are 12px, muted, tabular, on the right. "Later" pages sit at 50%
-  opacity.
+- Counts are 12px, muted, tabular, on the right.
 - Each page's icon: Today `sun`, Week `calendar-days`, Plan
-  `list-todo`, Notes `sticky-note`, Gym `dumbbell`, Cardio
-  `footprints`, Recipes `chef-hat`, Meal plan `utensils`, Shopping
-  `shopping-cart`, Goals `target`, Wardrobe `shirt`, Finance `wallet`.
+  `list-todo`, Notes `sticky-note`, Gym `dumbbell`, Recipes `chef-hat`,
+  Wardrobe `shirt`; once built, Cardio `footprints`, Goals `target` and
+  Finance `wallet`.
 - The header holds the brand (the app icon at 24px, then "LifeOS" at 16px
   weight 750) and, on its right, Search: a muted ghost `search` button, with
   "Search /" in a Tooltip on a computer, 44px in a phone's drawer. Capture
@@ -171,14 +171,9 @@ used the same way on every screen.
 - **Convert to** lists only the Types this Type converts into that the app
   has yet; a toast says what it became ("Converted into a Task", "Converted
   into an Event"), with Undo. A Thought's row offers Task and Note as its
-  own buttons; Event is in its "…" menu. Shopping list is offered only to a
-  Thought or Note naming a Pantry ingredient; with an open food shop it
-  opens a small Dialog, "Shopping list": the lines it will add, muted and
-  separated by " · ", then "Add to" (a Select of "A new food shop", then
-  the open food shops), Cancel and Convert (Add for an open shop). With
-  none it converts at once. Either way the toast ("Converted into a
-  Shopping list", 'Added to "Big shop"') offers Open rather than Undo; a
-  Thought added to a shop goes to Recently deleted.
+  own buttons; Event is in its "…" menu, and so is List, a Thought's only:
+  "Converted into a List", with Undo. Nothing converts into a Shopping
+  list (ADR-0069).
 - **Delete** closes the Item and says so in a toast with Undo ("Deleted
   "Renew insurance""); the Item waits in Recently deleted.
 
@@ -235,10 +230,10 @@ Command in [components](components.md). Neutral, as it mixes Types.
 [NTE-001–005](../10-requirements/views/notes.md#requirements); NoteCard,
 NoteEditor and LabelPicker in [components](components.md).
 
-- Under the title, a TabsRow: the Tabs Notes and Thoughts, then the tab's
-  PageAction ("New note", "New thought") on a computer; 12px under them,
-  LabelChips: every Label I have, A–Z; choosing one or more narrows either
-  tab to what has any of them, until they are unchosen.
+- Under the title, a TabsRow: the Tabs Notes, Thoughts and Lists, then the
+  tab's PageAction ("New note", "New thought", "New list") on a computer;
+  12px under them, LabelChips: every Label I have, A–Z; choosing one or
+  more narrows any tab to what has any of them, until they are unchosen.
 - **Thoughts** (Stage 7b, NTE-005): a column of ItemRows, the reading width,
   newest first: the yellow Checkbox, the title, "08:12 · Family"; on hover
   outline `sm` Reminder, Task and Note, each with its Type's icon in its
@@ -256,6 +251,28 @@ NoteEditor and LabelPicker in [components](components.md).
   behind.
 - No Notes: an empty state, "No notes yet"; none with the Labels chosen,
   "No notes labelled Home" (or "with these labels").
+- **Lists** ([NTE-006–008](../10-requirements/views/notes.md#nte-006--a-list);
+  ADR-0069): "Pinned", then "Others", as Notes, each a NoteCard of its name,
+  its first unticked lines (8 at most) with empty boxes, and its Labels; the
+  most recently changed first, a line's change too. None: "No lists yet"
+  (`list-checks`), with New list; none with the Labels chosen, "No lists
+  labelled Home". **New list** is a Dialog: Name, then For (a Select of
+  Personal and my Households, Personal to start; only with a Household);
+  Cancel and Create, waiting for a name; made, the List's page opens.
+- **A List's page:** yellow; a BackLink to Lists, its name (`text-h1`) with
+  Pin and its "…" menu (Edit details…, Complete list — Not done once done —
+  and Delete) at the title's end; a muted line of who it's for (with a
+  Household) and "Done"; its Labels (Badges and a ghost "Add"); then, at the
+  reading width, its lines before any subheading as an untitled
+  PantryAisle Card (shown only with lines, or with no subheadings: "Add an
+  item"), each subheading as a PantryAisle Card of its ShoppingLines
+  (yellow, each with a "…" menu: Delete), each Card ending in an AddRow
+  ("Add to Clothes"); then an AddRow "Add a subheading". A ticked line stays
+  in its place. **Edit details…** is New list's Dialog, "List details",
+  Save. **Ticking the last line** asks in an AlertDialog, "Complete
+  Garden?", "Everything's ticked", Complete and Not yet; **Complete list**
+  with lines unticked asks the same, "2 items aren't ticked", Complete and
+  Cancel. Completed, it goes back to Lists, with a toast and Undo.
 
 ## Tasks
 
@@ -486,9 +503,12 @@ StepEditor. Agreed with Joe on 18 October on the
 (private to Joe), after three passes.
 
 - Recipes is green (TypeScope); so are its Dialogs and its FilterDialog.
-  Tabs: **Recipes** and **Ideas**; on both, the PageAction is "New", a
-  DropdownMenu of New recipe, New idea and Import (`sparkles`; Joe, 23
-  October), and on a phone the Fab opens the same menu. **New recipe** is
+  Tabs: **Recipes**, **Ideas**, **Week**, **Pantry** and **Shop**
+  (`?tab=week|pantry|shop`; ADR-0069), the last three as in [Meal
+  plan](#meal-plan) and [Shopping](#shopping). On Recipes and Ideas the
+  PageAction is "New", a DropdownMenu of New recipe, New idea and Import
+  (`sparkles`; Joe, 23 October), and on a phone the Fab opens the same menu;
+  Week has none, Pantry "New entry" and Shop "New shop". **New recipe** is
   the Edit heading Dialog titled "New recipe", with Cancel and Save; Save
   makes a Draft and opens its Variation to fill, and Done there shows the
   new Recipe. A name a Recipe I can see has is refused under the field, and
@@ -648,7 +668,8 @@ StepEditor. Agreed with Joe on 18 October on the
 MealCard, MealSlot, AddMealButton, MealWeek, MealDay and PantryRow in
 [components](components.md). Agreed with the Recipes screens.
 
-- Green (TypeScope). Tabs: **Week** and **Pantry** (`?tab=pantry`); the
+- Recipes' **Week** and **Pantry** tabs (`?tab=week`, `?tab=pantry`; a
+  page of their own, the Meal plan, until 20 November): green; the
   PageAction none on the week, "New entry" on the Pantry. The week's
   toolbar has a ghost `sm` "Select" (`list-checks`) after Show, as the
   library's (Stage 4b): it puts a SelectionBar in the toolbar's place with
@@ -718,7 +739,7 @@ MealCard, MealSlot, AddMealButton, MealWeek, MealDay and PantryRow in
   "+" → Meal opens a Dialog, "Add a meal · Thu 15 Oct": a ToggleGroup of
   Breakfast, Lunch and Dinner (Dinner to start), then the Popover's search
   and list in its place. "+" → Shopping list opens New shop dated that day
-  ([Shopping](#shopping)).
+  ([Recipes' Shop](#shopping)).
 - **The Pantry** ([PAN-001](../10-requirements/modules/meals.md#pan-001--the-pantry),
   [SHP-005](../10-requirements/modules/meals.md#shp-005--staples-and-essentials);
   Joe, 25 October): on one row whose staples and Essentials (a 160px `sm`
@@ -736,8 +757,8 @@ MealCard, MealSlot, AddMealButton, MealWeek, MealDay and PantryRow in
   one taken off there leaves, in a toast with Undo. Nothing matching: an
   EmptyState ("Nothing in the Pantry", "No staples yet", "No essentials
   yet" or "Nothing matches"). View, Space and sort are kept on the device.
-- **Pending** is a page of its own (PageHeader "Pending", back to the
-  Pantry): "Kept as typed" (a SectionLabel) with an outline `sm` "Add
+- **Pending** is a page of its own (`?tab=pantry&view=pending`; PageHeader
+  "Pending", back to the Pantry): "Kept as typed" (a SectionLabel) with an outline `sm` "Add
   all", then a Card of CardRows, each the name, how many Recipes, and an
   outline `sm` "Add" opening Add to the Pantry; none, an EmptyState
   ("Nothing pending").
@@ -759,10 +780,6 @@ MealCard, MealSlot, AddMealButton, MealWeek, MealDay and PantryRow in
   is used, Recipes first ("Used in Katsu curry and 2 more"), or says "Used
   in a deleted recipe" when only a deleted one does. A past Meal's line
   keeps the name, as typed.
-- **Until the week is built** (plan step 7), the page is the Pantry alone:
-  the title, then the Pantry, with no Tabs; on a computer its PageAction,
-  "New entry", ends the row of search and ToggleGroup.
-
 ## Shopping
 
 [SHP-001–005](../10-requirements/modules/meals.md#shp-001--shopping-lists);
@@ -771,24 +788,26 @@ ShoppingLine, OfferRow, PantryAisle and ItemRow in
 [Stage 4b design canvas](https://claude.ai/artifact/KZyE2VPa3jTsVZ4mjxanGk)
 (24 October), with New shop's Date and For only, and the reading width.
 
-- Yellow (TypeScope), as Notes and Thoughts. Tabs: **Food** and **Other**
-  (`?tab=lists`; named Lists until 26 October); Online waits for a later
-  stage. The PageAction is "New shop" on Food, "New list" on Other. Both tabs are at the reading width.
-- **Food:** "Shops" (a SectionLabel) and an ItemRow per open shop: a yellow
+- Recipes' **Shop** tab (`?tab=shop`; a page of its own, Shopping, with
+  Food and Other tabs, until 20 November; ADR-0069): green, with Recipes and
+  Meals; Online waits for a later stage. The PageAction is "New shop". At
+  the reading width.
+- "Shops" (a SectionLabel) and an ItemRow per open shop: a green
   `shopping-cart` TypeTile, its name, and a meta line of its date, how many
   Meals, its Space when not where my new Meals go, and "2 of 27" ticked;
   its "…" menu Complete list (asking first while lines are unticked) and
-  Delete; then a `link` "Done shops". **Other** is the same rows, with no
-  done lists (Joe, 26 October). Staples and Essentials are kept in the
-  Pantry ([Meal plan](#meal-plan); Joe, 25 October).
+  Delete. A done shop leaves the tab, with no "Done shops" (Joe, 20
+  November); Search finds it. None open: "No shops". Staples and Essentials
+  are kept in the Pantry ([Meal plan](#meal-plan); Joe, 25 October).
+  Shopping's Other lists are Notes' [Lists](#notes).
 - **New shop** is a Dialog: Name, then Date and For side by side (For a
   Select of Personal and my Households, the Household of the
   first Household Meal chosen to start), then "Meals": the plan's Meals from
-  today, under each day (12px bold muted), a 40px row each with a yellow
+  today, under each day (12px bold muted), a 40px row each with a green
   Checkbox, the Meal's name and, muted at its end, its slot and "Personal"
   or "On Top-up" (disabled, faded: a Meal on another open shop). Cancel and
-  Create. New list asks Name and Date only.
-- **A shop's page:** a BackLink to Shopping, its name (`text-h1`) with its
+  Create.
+- **A shop's page** (`/shopping/<id>`): green; a BackLink to Shop, its name (`text-h1`) with its
   "…" menu (Edit details…, Complete list — Not done once done — and
   Delete) at the title's end; a
   muted line of its date and Space; Tabs **All · Meals · Extra**, each with
@@ -816,11 +835,8 @@ ShoppingLine, OfferRow, PantryAisle and ItemRow in
 - **Finishing:** ticking the last line shows a toast, "Everything's ticked",
   with Done. Complete list in the menu, with lines unticked, asks first in
   an AlertDialog: "Complete Big shop?", "4 lines aren't ticked", Complete
-  and Cancel. Done or completed, the shop leaves the list, with Undo.
-- **A list's page:** as a shop's, with no Tabs: its subheadings as
-  PantryAisle Cards, each ending in an AddRow ("Add to Garden"; a list with
-  none yet has one untitled Card, "Add an item"), a ticked line staying in
-  its place; then an AddRow "Add a subheading"; at the reading width.
+  and Cancel. Done or completed, the shop leaves Shop, with Undo, and the
+  page goes back to Shop. A List's page is in [Notes](#notes).
 - **Saved as an idea** (a share from another app; RCP-003): a page with no
   drawer, green, centred about a fifth of the way down: a large `check`
   TypeTile (`chef-hat` when saved before), "Saved as an idea" or "Already
@@ -1094,7 +1110,7 @@ Two kinds, the same everywhere (Joe, 2 November):
 Lucide only, at 16px with a 1.75 stroke (12 or 14px small, 22px large).
 Grey by default; a Type colour only in tiles, checkboxes, the drawer and
 pressed Toggles. Each Type always uses the same icon: Thought `lightbulb`, Note
-`file-text`, Task `square-check-big`, Event `calendar`, Shopping list `shopping-cart`,
+`file-text`, List `list-checks`, Task `square-check-big`, Event `calendar`, Shopping list `shopping-cart`,
 Meal `utensils`, Recipe `chef-hat`, Workout and Exercise `dumbbell`
 (Joe, 3 November), Workout template `clipboard-list`, Cardio activity
 `footprints`, Goal `target`, Outfit and Garment `shirt`. Marks: star (Task),

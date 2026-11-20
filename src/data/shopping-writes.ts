@@ -9,16 +9,16 @@ import type { WriteQueue } from './queue/queue'
  */
 export function shoppingWrites(queue: WriteQueue) {
   return {
-    /** A new food shop or list, a food shop with its Meals (SHP-001 2, SHP-002 1). */
+    /** A new food shop, with its Meals (SHP-001 2, SHP-002 1). */
     createList(fields: ListFields, id = newId()): string {
-      const { kind, meals, do_on, space_id, title } = fields
+      const { meals, do_on, space_id, title } = fields
       queue.enqueue(
         'shopping.create_list',
         {
           p_id: id,
           p_fields: {
             title,
-            kind,
+            kind: 'food',
             ...(do_on && { do_on }),
             ...(space_id && { space_id }),
             ...(meals?.length && { meals }),
@@ -28,10 +28,6 @@ export function shoppingWrites(queue: WriteQueue) {
       )
       return id
     },
-    /** A list's kind: a Thought made a Shopping list (SHP-003 5). */
-    updateList(id: string, patch: { kind: 'food' | 'list' }): void {
-      queue.enqueue('shopping.update_list', { p_id: id, p_patch: patch }, [id])
-    },
     /** Meals onto a food shop (SHP-002 4); their lines follow. */
     addMeals(list: string, meals: readonly string[]): void {
       queue.enqueue('shopping.add_meals', { p_list: list, p_meals: [...meals] }, [list])
@@ -40,7 +36,7 @@ export function shoppingWrites(queue: WriteQueue) {
     removeMeal(list: string, meal: string): void {
       queue.enqueue('shopping.remove_meal', { p_list: list, p_meal: meal }, [list])
     },
-    /** A line added by hand, or a subheading (SHP-003 1, SHP-001 3). */
+    /** A line added by hand (SHP-003 1). */
     addShopLine(list: string, fields: ShopLineFields, id = newId()): string {
       queue.enqueue('shopping.add_line', { p_id: id, p_list: list, p_fields: fields }, [list])
       return id

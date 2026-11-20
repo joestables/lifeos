@@ -1,7 +1,7 @@
 # ADR-0050: One Shopping list Type, in place of List and Shop
 
 **Status:** Provisionally agreed · 2026-10-17
-**Amended:** 2026-10-24 by Joe's answers for Stage 4b (Shopping's three tabs; a food shop or a list; a food shop linked to Meals and for one Space; staples and Essentials on Shopping; no repeating lists; a date only, no time or place); 2026-10-25, staples and Essentials kept in the Pantry, and what's needed on a shop by itself.
+**Amended:** 2026-10-24 by Joe's answers for Stage 4b (Shopping's three tabs; a food shop or a list; a food shop linked to Meals and for one Space; staples and Essentials on Shopping; no repeating lists; a date only, no time or place); 2026-10-25, staples and Essentials kept in the Pantry, and what's needed on a shop by itself; 2026-11-20 by [ADR-0069](0069-lists-and-recipes-tabs.md): a Shopping list is a food shop, on Recipes' Shop, green and not Capturable; Shopping's other lists are Lists, a core Type, on Notes.
 
 Supersedes [ADR-0010](0010-shop-is-its-own-type.md).
 

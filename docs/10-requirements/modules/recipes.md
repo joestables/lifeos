@@ -7,8 +7,10 @@ Households themselves are core: [spaces and sharing](../cross-cutting/spaces-and
 Everything is *proposed* until Joe agrees it. The Meal plan, the Pantry and
 shopping lists are in [meals](meals.md).*
 
-**In one line:** my recipe library and the ideas I've saved
+**In one line:** my recipe library and the ideas I've saved, with the
+week's Meals, the Pantry and the food shops beside them
 ([ADR-0026](../../20-architecture/adr/0026-navigation-drawer.md),
+[ADR-0069](../../20-architecture/adr/0069-lists-and-recipes-tabs.md),
 Provisionally agreed).
 
 ## Decisions
@@ -144,6 +146,11 @@ Provisionally agreed).
 
 ## What the page shows
 
+Five tabs: **Recipes**, **Ideas**, **Week** (`?tab=week`), **Pantry**
+(`?tab=pantry`) and **Shop** (`?tab=shop`); the last three are in
+[meals](meals.md#what-the-pages-show) (Joe, 20 November; the Meal plan and
+Shopping until then).
+
 **Recipes** tab: Draft and Complete Recipes as cards with a photo (name,
 cuisine, favourite, a Draft mark) at a card size I choose (S, M or L,
 on a computer), with search, sort, group and Select over the grid. On a
@@ -152,7 +159,7 @@ Complete · All) and Category always open, the other filters collapsed
 until opened; on a phone they open from a Filters button (Joe, 18
 October). **Ideas** tab: Ideas as a list (name, source, when
 saved, the start of the note). "New" offers *New recipe*, *New idea* and
-*Import*, on both tabs (Joe, 23 October). A Recipe opens on its own page.
+*Import*, on Recipes and Ideas (Joe, 23 October). A Recipe opens on its own page.
 
 ## Requirements
 

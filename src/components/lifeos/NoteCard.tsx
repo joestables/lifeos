@@ -2,7 +2,7 @@ import { Children, isValidElement, useCallback, useState } from 'react'
 import type * as React from 'react'
 import { CheckIcon } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
-import { previewLines, type Inline } from '@/lib/markdown-preview'
+import { previewLines, type Inline, type PreviewLine } from '@/lib/markdown-preview'
 import { noteCardSize } from '@/lib/note-size'
 import { cn } from '@/lib/utils'
 
@@ -16,23 +16,31 @@ function Runs({ runs }: { runs: Inline[] }) {
 
 /**
  * A Note on the Notes page (components.md): its title, the start of its
- * body as it reads, and its Labels. The whole card opens the Note.
+ * body as it reads, and its Labels. A List's card shows its first unticked
+ * lines in place of a body, each with an empty box (NTE-007 2). The whole
+ * card opens it.
  */
 export function NoteCard({
   title,
   body,
+  checklist,
   labels = [],
   onOpen,
 }: {
   title: string
   /** Markdown (ADR-0046). */
   body: string | null
+  /** A List's lines to tick, in place of a body: shown as written, never read as Markdown. */
+  checklist?: readonly string[]
   labels?: string[]
   onOpen: () => void
 }) {
   // Without a title the first line stands in, so it isn't shown twice.
-  const lines = previewLines(body, 9)
+  const lines: PreviewLine[] = checklist
+    ? checklist.slice(0, 8).map((text) => ({ kind: 'check', done: false, text: [{ text }] }))
+    : previewLines(body, 9)
   const shown =
+    !checklist &&
     lines.length &&
     title ===
       lines[0]!.text

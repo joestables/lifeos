@@ -67,6 +67,27 @@ export const TYPES = [
     stage: 2,
   },
   {
+    // A name and its lines under my own subheadings, ticked as I go
+    // (ADR-0069): on Notes' Lists, no date, done once I complete it. Its
+    // lines are core.list_lines.
+    key: 'list',
+    module: 'core',
+    label: 'List',
+    about: 'a name and its lines, ticked as I go; no date',
+    spaceNote: 'Personal, or a Household chosen for it',
+    statusNote: "done when I complete it, off Notes' Lists",
+    traits: ['completable', 'shareable', 'capturable'],
+    statuses: ['active', 'done'],
+    defaultSpace: 'personal',
+    timeFields: [],
+    colour: 'yellow',
+    labels: true,
+    mark: 'pinned',
+    place: false,
+    alerts: false,
+    stage: 4.5,
+  },
+  {
     key: 'task',
     module: 'core',
     label: 'Task',
@@ -185,18 +206,19 @@ export const TYPES = [
     stage: 4,
   },
   {
-    // A food shop or a list (ADR-0050): a date and nothing more (no time or
-    // place); on Plan when dated, and done when the shop is.
+    // A food shop (ADR-0050, ADR-0069): a date and nothing more (no time or
+    // place); on Plan when dated, and done when the shop is. On Recipes'
+    // Shop, green with them; a Thought no longer becomes one.
     key: 'shopping_list',
     module: 'shopping',
     label: 'Shopping list',
-    about: 'a food shop or a list; a date is optional',
-    spaceNote: 'Household when in one, else Personal; a food shop the Space chosen for it',
-    traits: ['schedulable', 'completable', 'shareable', 'capturable'],
+    about: 'a food shop; a date is optional',
+    spaceNote: 'The Space chosen for it: Household when in one, else Personal',
+    traits: ['schedulable', 'completable', 'shareable'],
     statuses: ['active', 'done', 'cancelled'],
     defaultSpace: 'household',
     timeFields: ['do_on'],
-    colour: 'yellow',
+    colour: 'green',
     labels: false,
     place: false,
     alerts: true,

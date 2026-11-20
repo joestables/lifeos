@@ -11,7 +11,7 @@ act on them.
 | Term | Meaning |
 |---|---|
 | **Item** | Any record that can be linked, scheduled, shared or searched. |
-| **Type** | What kind of Item: Thought, Note, Task, Event, Shopping list, Recipe, Meal, Workout, Outfit… ([data model](../20-architecture/data-model.md#types)). |
+| **Type** | What kind of Item: Thought, Note, List, Task, Event, Shopping list, Recipe, Meal, Workout, Outfit… ([data model](../20-architecture/data-model.md#types)). |
 | **Trait** | A capability a Type has: Schedulable, Completable, Shareable, Capturable. |
 | **Status** | Where an Item is in its life: *idea*, *active*, *done* or *cancelled*. Each Type uses a subset and gives it its own labels (a Task's *idea* is "Someday"). Only Completable Types use *done*, so *done* always means finished. |
 | **Idea** | An Item in the *idea* status. Not a Type. |
@@ -22,8 +22,9 @@ act on them.
 | **Integration** | An outside source feeding Items in: Google Calendar, Oura, Health Connect, later banks. |
 | **Space** | Who can see an Item: **Personal** or **Household**. |
 | **Household** | A group of people who share: its **owner** made it and invites others by email; **members** joined by accepting. A person may be in several ([ADR-0039](../20-architecture/adr/0039-accounts-contacts-households.md)). |
-| **Thought** | A Type: a raw, unsorted capture. What Capture makes from a line with no time (one with a time makes a Reminder). It waits on Notes' Thoughts tab until it is sorted — converted in place into a Note, Task, Shopping list or other Capturable Type — ticked off (*done*), or deleted. |
+| **Thought** | A Type: a raw, unsorted capture. What Capture makes from a line with no time (one with a time makes a Reminder). It waits on Notes' Thoughts tab until it is sorted — converted in place into a Note, Task, List or other Capturable Type — ticked off (*done*), or deleted. |
 | **Note** | A Type: a note, kept, labelled and shown in the Notes View. A Thought can be turned into one, and a Note can be converted into other Types. Personal only. |
+| **List** | A Type: a name and its lines, under my own subheadings, ticked as I go — packing, Screwfix, the garden. On Notes' Lists tab, with no date; pinned and labelled as a Note is, but Shareable: Personal or a Household's. Done once completed ([ADR-0069](../20-architecture/adr/0069-lists-and-recipes-tabs.md)). |
 | **Alert** | A notification attached to an Item at a time, each person's own; an Alarm is an Alert that rings. Called a Reminder until Stage 7b ([ADR-0065](../20-architecture/adr/0065-reminders-alerts-and-the-day.md)). |
 | **Reminder** | A Type (Stage 7b, [RMD-001](../10-requirements/cross-cutting/today-reminders-plan.md#rmd-001--a-reminder)): a title with its Alerts and a Repeat, not Completable, Personal only. Its day is its do-on date and its Alerts hang on it; it is on each day one of them falls ([ADR-0065](../20-architecture/adr/0065-reminders-alerts-and-the-day.md)). |
 
@@ -54,7 +55,7 @@ templates, and starting a session opens the session-logging Screen.
 | **Due** | A deadline (a date). Drives "overdue". |
 | **Slot** | A Meal's fixed time of day: breakfast, lunch, dinner. |
 | **Pantry** | The catalogue of ingredients and household items that recipes and shopping lists point at: one for everyone in LifeOS, each entry changed only by whoever added it ([ADR-0051](../20-architecture/adr/0051-who-sees-food.md)). Staples (long-life goods, marked out of stock when they run out) and Essentials (bought most shops, marked Required when needed) are each Household's lists, marked in the Pantry for the Household chosen there. |
-| **Food shop** | A Shopping list on Shopping's Food tab: linked to Meals, whose ingredients it follows, with more added by hand; grouped by aisle, for one Space ([meals](../10-requirements/modules/meals.md#shopping)). Shopping's other lists (clothes, DIY) are on its Other tab. |
+| **Food shop** | A Shopping list, on Recipes' Shop tab: linked to Meals, whose ingredients it follows, with more added by hand; grouped by aisle, for one Space ([meals](../10-requirements/modules/meals.md#shopping)). Every Shopping list is a food shop; other lists (clothes, DIY) are Lists, on Notes ([ADR-0069](../20-architecture/adr/0069-lists-and-recipes-tabs.md)). |
 | **Rule** | A relationship that is calculated, not stored, e.g. a goal's measure. |
 | **Measure** | Something a goal can track; an SQL function named in code. |
 | **Conversion** | Changing an Item's Type in place; the Item keeps its id, links and history. |

@@ -216,7 +216,7 @@ Acceptance criteria
 4. Given a day's "+", when I choose Meal, then the Meal plan's search adds
    one to that day in the slot I choose
    ([MPL-002](../modules/meals.md#mpl-002--plan-a-meal)); when I choose
-   Shopping list, then a new list opens dated that day.
+   Shopping list, then a new food shop opens dated that day.
 5. Given a computer, when I drag a Meal to another day, then it keeps its
    slot; a Shopping list moves to the new day.
 6. Given a Meal's card, when I open it and tick it eaten, then it is done

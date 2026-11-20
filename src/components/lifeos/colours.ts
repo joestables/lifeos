@@ -6,6 +6,7 @@ import {
   DumbbellIcon,
   FileTextIcon,
   LightbulbIcon,
+  ListChecksIcon,
   ShirtIcon,
   ShoppingCartIcon,
   SquareCheckBigIcon,
@@ -24,6 +25,7 @@ export type TypeColour = (typeof COLOURS)[number]
 export const TYPE_ICONS: Record<string, LucideIcon> = {
   thought: LightbulbIcon,
   note: FileTextIcon,
+  list: ListChecksIcon,
   task: SquareCheckBigIcon,
   event: CalendarIcon,
   reminder: BellRingIcon,

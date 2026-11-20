@@ -251,11 +251,16 @@ const TYPE_SWATCHES: {
   {
     colour: 'yellow',
     name: 'Yellow',
-    types: 'Thoughts, Notes, Lists, Shops',
-    icons: [TYPE_ICONS.thought!, TYPE_ICONS.note!, ShoppingCartIcon],
+    types: 'Thoughts, Notes, Lists',
+    icons: [TYPE_ICONS.thought!, TYPE_ICONS.note!, TYPE_ICONS.list!],
   },
   { colour: 'coral', name: 'Coral', types: 'Gym, Cardio', icons: [DumbbellIcon, FootprintsIcon] },
-  { colour: 'green', name: 'Green', types: 'Recipes, Meals', icons: [ChefHatIcon, UtensilsIcon] },
+  {
+    colour: 'green',
+    name: 'Green',
+    types: 'Recipes, Meals, Shops',
+    icons: [ChefHatIcon, UtensilsIcon, ShoppingCartIcon],
+  },
   { colour: 'orange', name: 'Orange', types: 'Wardrobe', icons: [ShirtIcon] },
   { colour: 'purple', name: 'Purple', types: 'Goals', icons: [TargetIcon] },
 ]
@@ -710,6 +715,13 @@ function DesignSystem() {
                 body={'1. The Wager\n2. Slow Productivity'}
                 onOpen={() => {}}
               />
+              <NoteCard
+                title="Lisbon"
+                body={null}
+                checklist={['Passport', 'Sun cream', 'Swim shorts']}
+                labels={['Travel']}
+                onOpen={() => {}}
+              />
             </NoteGrid>
             <Row>
               <LabelPicker
@@ -728,6 +740,13 @@ function DesignSystem() {
                 onCreate={() => {}}
               />
             </Row>
+            <div className="max-w-reading">
+              <PantryAisle label="Clothes">
+                <ShoppingLine colour="yellow" name="Swim shorts" checked />
+                <ShoppingLine colour="yellow" name="Sandals" />
+                <AddRow placeholder="Add to Clothes" onAdd={() => {}} className="px-3 pb-1.5" />
+              </PantryAisle>
+            </div>
           </TypeScope>
         </Section>
 
@@ -862,7 +881,7 @@ function DesignSystem() {
                 detail="Shoreditch"
               />
               <PlanCard
-                colour="yellow"
+                colour="green"
                 icon={ShoppingCartIcon}
                 type="Shop"
                 title="Tesco"
@@ -1114,7 +1133,7 @@ function DesignSystem() {
         </Section>
 
         <Section title="Shopping">
-          <TypeScope colour="yellow" className="grid max-w-3xl gap-4 sm:grid-cols-2">
+          <TypeScope colour="green" className="grid max-w-3xl gap-4 sm:grid-cols-2">
             <PantryAisle label="Fruit & Veg">
               <ShoppingLine name="Red peppers" amount="3" />
               <ShoppingLine name="Onions" amount="3" checked />

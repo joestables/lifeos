@@ -25,18 +25,19 @@ Stage 2, are at the end.*
   Provisionally agreed). The ontology package decides which conversions
   exist.
 - **Not every Type has every feature.** Each Type declares what it has:
-  - **Labels** — Thoughts and Notes, one shared set per Space; other Types
-    don't use them. Tasks and Events had them until Stage 7b
+  - **Labels** — Thoughts, Notes and Lists, one shared set per Space;
+    other Types don't use them. Tasks and Events had them until Stage 7b
     ([ADR-0014](../../20-architecture/adr/0014-reference-data-and-labels.md),
     amended by [ADR-0065](../../20-architecture/adr/0065-reminders-alerts-and-the-day.md),
     Provisionally agreed).
-  - **A mark, under its own name** — Notes are *pinned*, Tasks *starred*,
+  - **A mark, under its own name** — Notes and Lists are *pinned*, Tasks *starred*,
     Recipes *favourited* (Stage 4, on anyone's Recipe I can see); a Type
     without one has none. Marks are per person
     ([data model](../../20-architecture/data-model.md#types)).
 - **Food Items (Stage 4)**: a Recipe opens on its own page; a Meal in a
-  popup over the page; a Shopping list on its own page. Recipes, Meals and
-  Shopping lists take no Labels. A Recipe's *Archived* state is not
+  popup over the page; a Shopping list (a food shop) on its own page.
+  Recipes, Meals and Shopping lists take no Labels. A **List** (Stage 4b,
+  [notes](../views/notes.md#nte-006--a-list)) opens on its own page too. A Recipe's *Archived* state is not
   deleted: it is kept, out of the way, and listed from Settings; deleting
   goes to Recently deleted ([recipes](../modules/recipes.md)).
 - **Pantry entries aren't Items** ([ADR-0051](../../20-architecture/adr/0051-who-sees-food.md)):
@@ -139,7 +140,7 @@ history shown on it; exporting.
 **As** Joe, **I want** Recipes, Meals and Shopping lists to open, delete,
 recover and convert like everything else, **so that** food works the way
 the rest of LifeOS does.
-Priority: Must · Status: built for Recipes (1 and 4 verified, 2 and 6 built; a link of its own, `/item/…`, opens the Recipe's page, a Variation's on it) and Meals (1 and 3: a Meal opens over the page, and removing it takes its leftovers) and Shopping lists (1, 3, 5 and 6: its own page, `/shopping/…`)
+Priority: Must · Status: built for Recipes (1 and 4 verified, 2 and 6 built; a link of its own, `/item/…`, opens the Recipe's page, a Variation's on it) and Meals (1 and 3: a Meal opens over the page, and removing it takes its leftovers) and Shopping lists (1 and 3: its own page, `/shopping/…`)
 
 Acceptance criteria
 1. Given a Recipe, a Meal or a Shopping list, then it opens as set above,
@@ -151,13 +152,9 @@ Acceptance criteria
    deleted, with Undo; removing a Meal takes its leftovers with it.
 4. Given a Thought, when I make it a Recipe, then it becomes an Idea: its
    text is the name, and any link in it becomes a source.
-5. Given a Thought naming a Pantry ingredient, when I make it a Shopping
-   list, then it becomes a food shop: its text split at the commas into
-   lines ("buy milk, bread, eggs" → Milk, Bread, Eggs), "buy" dropped, each
-   line matched to the Pantry where it can be. A Thought naming none isn't
-   offered Shopping list (Joe, 25 October;
-   [SHP-003](../modules/meals.md#shp-003--extra) 5).
+5. Removed (Joe, 20 November): a Thought no longer becomes a Shopping
+   list; it becomes a List (NTE-007 4,
+   [ADR-0069](../../20-architecture/adr/0069-lists-and-recipes-tabs.md)).
 6. Given a Note, when I make it a Recipe, then it becomes an Idea: its
-   title is the name and its body the notes; made a Shopping list (offered
-   as a Thought's is), each line or checklist item of its body becomes a
-   line.
+   title is the name and its body the notes. A Note isn't made a Shopping
+   list (ADR-0069).

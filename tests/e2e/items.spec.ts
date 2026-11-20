@@ -132,6 +132,7 @@ test('ITM-004: an Item converts only into Types the app has, keeping what it hol
   const menu = page.getByRole('menu')
   await expect(menu.getByRole('menuitem')).toHaveText([
     'Event',
+    'List',
     'Note',
     'Recipe',
     'Reminder',

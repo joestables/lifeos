@@ -2,6 +2,8 @@
 
 **Status:** Provisionally agreed · 2026-10-24 (Joe)
 
+**Amended:** 2026-11-20 by [ADR-0069](0069-lists-and-recipes-tabs.md) (every Shopping list is a food shop; the lists moved to Notes' Lists, in `core.list_lines`; `kind` and `shopping.update_list` to go once nothing sends them; the live channel opens with Recipes' Shop).
+
 ## Context
 
 The Shopping specs ([meals](../../10-requirements/modules/meals.md#shopping),
@@ -38,7 +40,7 @@ There were two ways to hold a Meal's lines:
 
 ## Decision
 
-- **`shopping.shopping_list(item_id, kind)`** (a date only, as `do_on`: no time or place, ADR-0050), `kind` food or list,
+- **`shopping.shopping_list(item_id, kind)`** (a date only, as `do_on`: no time or place, ADR-0050), `kind` food (or list, until ADR-0069),
   a Shopping list being an Item in the `shopping` Module
   ([ADR-0052](0052-food-in-the-database.md)).
 - **`shopping.list_meals(list_id, meal_id)`** links a food shop to its
@@ -157,7 +159,7 @@ There were two ways to hold a Meal's lines:
 ## As built (25 October, plan step 7)
 
 - `useLiveShopping` in the data layer joins one Realtime channel while
-  Shopping is open (every list I can read) or a list's page is (filtered to
+  Recipes' Shop is open (every shop I can read) or a shop's page is (filtered to
   its id), with inserts and updates on `shopping.lines`,
   `shopping.list_meals` and `shopping.shopping_list`.
 - A change refreshes what it touches, a quarter of a second after the last

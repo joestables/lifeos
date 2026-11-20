@@ -2,7 +2,7 @@
 
 **Status:** Provisionally agreed · 2026-10-10
 
-**Amended:** 2026-11-18 by [ADR-0067](0067-garment-colours.md) (a garment's colour Swatch, an exception); 2026-11-20 at Joe's asking (the Wardrobe's weather in the sky's colours, the other: [tokens](../../30-design/tokens.md#colour-weather)).
+**Amended:** 2026-11-18 by [ADR-0067](0067-garment-colours.md) (a garment's colour Swatch, an exception); 2026-11-20 at Joe's asking (the Wardrobe's weather in the sky's colours, the other: [tokens](../../30-design/tokens.md#colour-weather)); 2026-11-20 by [ADR-0069](0069-lists-and-recipes-tabs.md) (a Shopping list green, with Recipes; the List yellow, with Notes).
 
 ## Context
 
@@ -19,9 +19,9 @@ colours of its own.
   | Colour | Types | Pages |
   |---|---|---|
   | **Blue** | Task, Event | Tasks |
-  | **Yellow** | Thought, Note, Shopping list | Notes, Shopping |
+  | **Yellow** | Thought, Note, List | Notes |
   | **Coral** | Exercise, Workout template, Workout, Cardio activity | Gym, Cardio |
-  | **Green** | Recipe, Variation, Meal; the Pantry | Recipes, Meal plan |
+  | **Green** | Recipe, Variation, Meal, Shopping list; the Pantry | Recipes |
   | **Orange** | Garment, Outfit, Outfit worn | Wardrobe |
   | **Purple** | Goal | Goals |
   | *Chosen in Stage 9* | Account | Finance |

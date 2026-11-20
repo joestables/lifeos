@@ -755,6 +755,48 @@ export type Database = {
           },
         ]
       }
+      list_lines: {
+        Row: {
+          checked: boolean
+          created_at: string
+          heading: string | null
+          id: string
+          list_id: string
+          position: string
+          text: string | null
+          updated_at: string
+        }
+        ComputedFields: never
+        Insert: {
+          checked?: boolean
+          created_at?: string
+          heading?: string | null
+          id?: string
+          list_id: string
+          position?: string
+          text?: string | null
+          updated_at?: string
+        }
+        Update: {
+          checked?: boolean
+          created_at?: string
+          heading?: string | null
+          id?: string
+          list_id?: string
+          position?: string
+          text?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'list_lines_list_id_fkey'
+            columns: ['list_id']
+            isOneToOne: false
+            referencedRelation: 'items'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       marks: {
         Row: {
           created_at: string
@@ -1128,6 +1170,25 @@ export type Database = {
         }
       }
       add_label: { Args: { p_item: string; p_label: string }; Returns: undefined }
+      add_list_line: {
+        Args: { p_fields: Json; p_id: string; p_list: string }
+        Returns: {
+          checked: boolean
+          created_at: string
+          heading: string | null
+          id: string
+          list_id: string
+          position: string
+          text: string | null
+          updated_at: string
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'list_lines'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       ai_failed: {
         Args: { p_message: string; p_person: string; p_task: string }
         Returns: undefined
@@ -1548,6 +1609,7 @@ export type Database = {
       remove_default_alert: { Args: { p_item: string }; Returns: undefined }
       remove_device: { Args: { p_id: string }; Returns: undefined }
       remove_label: { Args: { p_item: string; p_label: string }; Returns: undefined }
+      remove_list_line: { Args: { p_id: string }; Returns: undefined }
       remove_member: { Args: { p_person: string; p_space: string }; Returns: undefined }
       remove_photo: { Args: { p_item: string }; Returns: undefined }
       rename_household: {
@@ -1881,6 +1943,7 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      tick_list_lines: { Args: { p_checked: boolean; p_ids: string[] }; Returns: undefined }
       unlink_items: {
         Args: { p_from: string; p_link_type: string; p_to: string }
         Returns: undefined
@@ -1941,6 +2004,25 @@ export type Database = {
         SetofOptions: {
           from: '*'
           to: 'items'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      update_list_line: {
+        Args: { p_id: string; p_patch: Json }
+        Returns: {
+          checked: boolean
+          created_at: string
+          heading: string | null
+          id: string
+          list_id: string
+          position: string
+          text: string | null
+          updated_at: string
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'list_lines'
           isOneToOne: true
           isSetofReturn: false
         }

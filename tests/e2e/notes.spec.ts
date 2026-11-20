@@ -129,8 +129,8 @@ test('NTE-002, NTE-003: Labels from the picker narrow the page; pinned stays fir
   await expect.poll(() => db.item_labels.filter((r) => r.item_id === id(1)).length).toBe(3)
   await closeNote(page, isMobile)
 
-  // Every Label, as a pill to choose, under the Notes and Thoughts tabs (NTE-005 1).
-  await expect(page.getByRole('tab')).toHaveText(['Notes', 'Thoughts'])
+  // Every Label, as a pill to choose, under the tabs (NTE-005 1, NTE-007 1).
+  await expect(page.getByRole('tab')).toHaveText(['Notes', 'Thoughts', 'Lists'])
   const chips = page.getByRole('group', { name: 'Filter by label' }).getByRole('button')
   await expect(chips).toHaveText(['Car', 'Home', 'Packing', 'Travel'])
   await chips.filter({ hasText: 'Home' }).click()

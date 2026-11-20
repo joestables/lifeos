@@ -111,7 +111,6 @@ export function WeekTab({
     const household = picked.find((m) => plan.spaces.householdName(m.space))?.space
     const id = createList({
       title: 'Food shop',
-      kind: 'food',
       do_on: picked[0]!.day,
       space_id: household ?? plan.spaces.home ?? personal ?? undefined,
       meals: picked.map((m) => m.id),

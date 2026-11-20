@@ -15,22 +15,22 @@ import { Label } from '@/components/ui/label'
 import { createList, queue, useFoodSpaces, useMeals, useShopping, useSettings } from '@/data'
 import { todayIn } from '@lifeos/recurrence'
 import { dateName } from '@/lib/dates'
+import { typeLook } from '@/lib/item-types'
 import { SpaceSelect } from './space-select'
 
 const SLOTS = { breakfast: 'Breakfast', lunch: 'Lunch', dinner: 'Dinner' } as const
+const SHOP = typeLook('shopping_list')
 
 /**
- * New shop or New list (SHP-001 2, patterns.md#shopping): a name and a
- * date; a shop also its Space and the plan's Meals from today, those on no
- * other open shop, each toggled (SHP-002). Made, it opens. From a day's
- * "+" on Plan, it is dated that day (PLN-008 4).
+ * New shop (SHP-001 2, patterns.md#recipes): a name, a date, its Space and
+ * the plan's Meals from today, those on no other open shop, each toggled
+ * (SHP-002). Made, it opens. From a day's "+" on Plan, it is dated that day
+ * (PLN-008 4).
  */
-export function NewListDialog({
-  kind,
+export function NewShopDialog({
   day: initialDay = null,
   onClose,
 }: {
-  kind: 'food' | 'list'
   day?: string | null
   onClose: () => void
 }) {
@@ -40,7 +40,7 @@ export function NewListDialog({
   const today = todayIn(settings.timezone)
   const { meals } = useMeals(queue)
   const { shopOf, byId } = useShopping(queue)
-  const [title, setTitle] = useState(kind === 'food' ? 'Food shop' : '')
+  const [title, setTitle] = useState('Food shop')
   const [day, setDay] = useState<string | null>(initialDay)
   const [space, setSpace] = useState<string | null>(null)
   const [chosen, setChosen] = useState<ReadonlySet<string> | null>(null)
@@ -71,11 +71,10 @@ export function NewListDialog({
   const days = [...new Set(offered.map((m) => m.item.do_on!))]
 
   const create = () => {
-    const meals = kind === 'food' ? offered.filter((m) => picked.has(m.item.id)) : []
+    const meals = offered.filter((m) => picked.has(m.item.id))
     const id = createList({
-      title: title.trim() || (kind === 'food' ? 'Food shop' : 'List'),
-      kind,
-      do_on: day ?? (kind === 'food' ? (meals[0]?.item.do_on ?? null) : null),
+      title: title.trim() || 'Food shop',
+      do_on: day ?? meals[0]?.item.do_on ?? null,
       ...(forSpace && { space_id: forSpace }),
       meals: meals.map((m) => m.item.id),
     })
@@ -87,7 +86,7 @@ export function NewListDialog({
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{kind === 'food' ? 'New shop' : 'New list'}</DialogTitle>
+          <DialogTitle>New shop</DialogTitle>
         </DialogHeader>
         <form
           className="flex flex-col gap-4"
@@ -110,7 +109,7 @@ export function NewListDialog({
               <Label>Date</Label>
               <DateField value={day} onChange={setDay} />
             </div>
-            {kind === 'food' && spaces.spaces.length > 1 && (
+            {spaces.spaces.length > 1 && (
               <div className="flex min-w-0 flex-col gap-1.5">
                 <Label>For</Label>
                 <SpaceSelect
@@ -124,7 +123,7 @@ export function NewListDialog({
               </div>
             )}
           </div>
-          {kind === 'food' && offered.length > 0 && (
+          {offered.length > 0 && (
             <div className="flex flex-col gap-1.5">
               <Label>Meals</Label>
               <div className="flex flex-col gap-3">
@@ -150,7 +149,7 @@ export function NewListDialog({
                             className="flex h-10 items-center gap-3 rounded-sm px-1.5 hover:bg-accent has-disabled:opacity-50"
                           >
                             <Checkbox
-                              colour="yellow"
+                              colour={SHOP.colour}
                               disabled={!!elsewhere}
                               checked={picked.has(m.item.id)}
                               onCheckedChange={(on) => {

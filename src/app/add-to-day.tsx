@@ -2,7 +2,7 @@ import { useNavigate } from '@tanstack/react-router'
 import { queue, useGym, useWardrobe } from '@/data'
 import { AddMealDialog } from './add-meal'
 import { NewEventDialog } from './event-details'
-import { NewListDialog } from './new-list'
+import { NewShopDialog } from './new-shop'
 import { NewReminderDialog } from './new-reminder'
 import { NewTaskDialog } from './new-task'
 import { NewWorkoutDialog } from './new-workout'
@@ -24,7 +24,7 @@ export function AddToDayDialog({
   if (type === 'reminder') return <NewReminderDialog day={day} onClose={onClose} />
   if (type === 'event') return <NewEventDialog day={day} onClose={onClose} />
   if (type === 'meal') return <AddMealDialog day={day} onClose={onClose} />
-  if (type === 'shopping_list') return <NewListDialog kind="food" day={day} onClose={onClose} />
+  if (type === 'shopping_list') return <NewShopDialog day={day} onClose={onClose} />
   if (type === 'workout') return <PlanWorkout day={day} today={today} onClose={onClose} />
   if (type === 'outfit_worn') return <PlanClothes day={day} onClose={onClose} />
   return null

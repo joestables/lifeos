@@ -5,8 +5,8 @@ import { standIn } from './stand-in'
 
 async function start(page: Page) {
   const db = await standIn(page, { signedIn: true, rows: pantryRows() })
-  await page.goto('/meal-plan?tab=pantry')
-  await expect(page.getByRole('heading', { name: 'Meal plan', level: 1 })).toBeVisible()
+  await page.goto('/recipes?tab=pantry')
+  await expect(page.getByRole('heading', { name: 'Recipes', level: 1 })).toBeVisible()
   return db
 }
 
@@ -31,8 +31,9 @@ test.describe('The Pantry', () => {
     await standIn(page, { signedIn: true, rows: pantryRows() })
     await page.goto('/today')
     if (isMobile) await page.getByRole('button', { name: 'Menu' }).click()
-    await page.getByRole('link', { name: 'Meal plan' }).click()
-    await expect(page.getByRole('heading', { name: 'Meal plan', level: 1 })).toBeVisible()
+    // The Pantry is a tab of Recipes (ADR-0069).
+    await page.getByRole('link', { name: 'Recipes' }).click()
+    await expect(page.getByRole('heading', { name: 'Recipes', level: 1 })).toBeVisible()
     await page.getByRole('tab', { name: 'Pantry' }).click()
 
     await expect(names(page, 'Fruit & Veg')).toHaveText([
@@ -174,7 +175,7 @@ test.describe('The Pantry', () => {
     await expect(page.getByText('Nothing pending')).toBeVisible()
     // Back in the Pantry, under their aisle: the BackLink names the page
     // the browser's Back returns to.
-    await page.getByRole('button', { name: 'Meal plan' }).click()
+    await page.getByRole('button', { name: 'Recipes' }).click()
     await expect(names(page, 'Cupboard')).toHaveText(['Honey', 'Mirin', 'Panko breadcrumbs'])
   })
 

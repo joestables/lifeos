@@ -23,14 +23,11 @@ import type { QueueEntry } from './queue/store'
 import type { WriteQueue } from './queue/queue'
 import {
   applyPendingListMeals,
-  applyPendingLists,
   applyPendingShopLines,
   fetchListMeals,
-  fetchLists,
   fetchShopLines,
   fetchShopMeals,
   listMealsKey,
-  listsKey,
   shopLinesKey,
   shopMealsKey,
   type ShopLine,
@@ -45,23 +42,22 @@ import type { Item } from './types'
  * until it is ticked (then a stored line, ticked) or unmarked (Joe, 25
  * October). Its id is `autoLineId`'s.
  */
-export type ListLine = ShopLine & { auto?: 'staple' | 'essential' }
+export type ShopListLine = ShopLine & { auto?: 'staple' | 'essential' }
 
 /** An open shop's line for a needed entry, until it is stored. */
 export const autoLineId = (list: string, pantry: string) => `auto:${list}:${pantry}`
 
-/** A Shopping list as the pages show it (SHP-001): its Item, kind, Meals and lines. */
+/** A food shop as the pages show it (SHP-001): its Item, Meals and lines. */
 export interface ShoppingList {
   item: Item
-  kind: 'food' | 'list'
-  /** A food shop's Meals (SHP-002). */
+  /** Its Meals (SHP-002). */
   meals: string[]
-  lines: ListLine[]
+  lines: ShopListLine[]
   /**
    * The lines to tick: not its subheadings, nor the staples of its Space a
    * Meal needs, which are checked on Extra instead (SHP-003 3).
    */
-  toBuy: ListLine[]
+  toBuy: ShopListLine[]
 }
 
 export interface ShoppingData {
@@ -85,7 +81,6 @@ export function useShopping(queue: WriteQueue): ShoppingData {
   const queued = useQueueEntries(queue)
   const { items, isLoading } = useItems(queue)
   const links = useLinks(queue)
-  const lists = useQuery({ queryKey: listsKey, queryFn: fetchLists })
   const lines = useQuery({ queryKey: shopLinesKey, queryFn: fetchShopLines })
   const listMeals = useQuery({ queryKey: listMealsKey, queryFn: fetchListMeals })
   const entries = useQuery({ queryKey: spaceEntriesKey, queryFn: fetchSpaceEntries })
@@ -95,7 +90,6 @@ export function useShopping(queue: WriteQueue): ShoppingData {
   const mealLines = useQuery({ queryKey: mealLinesKey, queryFn: fetchMealLines })
 
   return useMemo(() => {
-    const kinds = new Map(applyPendingLists(lists.data ?? [], queued).map((l) => [l.item_id, l]))
     const onList = applyPendingListMeals(listMeals.data ?? [], queued)
     let shopLines = applyPendingShopLines(lines.data ?? [], queued)
 
@@ -173,38 +167,35 @@ export function useShopping(queue: WriteQueue): ShoppingData {
       .filter((i) => i.type === 'shopping_list')
       .map((item) => {
         const stored = linesBy.get(item.id) ?? []
-        const kind = kinds.get(item.id)?.kind === 'list' ? 'list' : 'food'
         // Its Space's needed staples and Essentials, on an open food shop
         // without a line of its own for them (SHP-003 3).
         const own = new Set(
           stored.filter((l) => l.meal_id === null && l.pantry_id).map((l) => l.pantry_id),
         )
-        const auto: ListLine[] =
-          kind === 'food' && open(item)
-            ? kept
-                .filter((e) => e.space_id === item.space_id && e.needed && !own.has(e.pantry_id))
-                .map((e) => ({
-                  id: autoLineId(item.id, e.pantry_id),
-                  list_id: item.id,
-                  position: '',
-                  heading: null,
-                  pantry_id: e.pantry_id,
-                  text: null,
-                  qty: null,
-                  qty_max: null,
-                  approx: false,
-                  unit: null,
-                  checked: false,
-                  meal_id: null,
-                  source_id: null,
-                  needed_space_id: e.space_id,
-                  auto: e.kind === 'staple' ? 'staple' : 'essential',
-                }))
-            : []
-        const mine: ListLine[] = [...stored, ...auto]
+        const auto: ShopListLine[] = open(item)
+          ? kept
+              .filter((e) => e.space_id === item.space_id && e.needed && !own.has(e.pantry_id))
+              .map((e) => ({
+                id: autoLineId(item.id, e.pantry_id),
+                list_id: item.id,
+                position: '',
+                heading: null,
+                pantry_id: e.pantry_id,
+                text: null,
+                qty: null,
+                qty_max: null,
+                approx: false,
+                unit: null,
+                checked: false,
+                meal_id: null,
+                source_id: null,
+                needed_space_id: e.space_id,
+                auto: e.kind === 'staple' ? 'staple' : 'essential',
+              }))
+          : []
+        const mine: ShopListLine[] = [...stored, ...auto]
         return {
           item,
-          kind,
           meals: mealsBy.get(item.id) ?? [],
           lines: mine,
           toBuy: mine.filter(
@@ -222,15 +213,13 @@ export function useShopping(queue: WriteQueue): ShoppingData {
       byId: new Map(out.map((l) => [l.item.id, l])),
       shopOf,
       entries: kept,
-      isLoading: isLoading || lists.isLoading,
+      isLoading,
     }
   }, [
     queued,
     items,
     isLoading,
     links,
-    lists.data,
-    lists.isLoading,
     lines.data,
     listMeals.data,
     entries.data,
