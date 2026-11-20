@@ -206,6 +206,7 @@ test('TDY-004 4: on a phone, "+" adds what Week\'s "+" does, for today', async (
     'Meal',
     'Shopping list',
     'Workout',
+    'Outfit',
   ])
   await page.getByRole('menuitem', { name: 'Reminder' }).click()
   await expect(page.getByRole('dialog', { name: 'New reminder' })).toBeVisible()
