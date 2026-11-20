@@ -126,6 +126,11 @@ used the same way on every screen.
   colour, data rather than meaning, always with its colour's name, and
   colours nothing else ([ADR-0067](../20-architecture/adr/0067-garment-colours.md);
   its component is specified in Stage 6's design step).
+- **And the weather** on the Wardrobe's Week: its icon in the sky's colour
+  (sun warm, rain blue, snow pale, thunder violet; cloud and fog muted) and
+  a 20%-or-more chance of rain in rain's blue, so a day's weather reads at
+  a glance (Joe, 20 November; [tokens](tokens.md#colour-weather)). It
+  always says its sky in words to a screen reader.
 
 ## Opening an Item
 
@@ -906,8 +911,8 @@ November, on the [Wardrobe design canvas](https://claude.ai/artifact/6b8SnjL1sUC
   outfit on the next.
 - **Building an outfit:** "Build outfit" becomes a `secondary` "Done" (`x`),
   Group and S / M / L leave the toolbar, the cards go to S, and the Outfit
-  builder's WardrobePane stands on the right: the outfit's OutfitPicture
-  (3:2), its GarmentLines with a RemoveButton each, Collections as compact
+  builder's WardrobePane stands on the right: the outfit's GarmentLines
+  with a RemoveButton each (no picture of them: Joe, 20 November), Collections as compact
   ChoiceChips (My Outfits always on), an optional Name, "Clear after
   saving" as a Switch, and a full-width primary "Save outfit". On a phone
   the same is a Tray ("Save" at its end), opening to a TrayPanel. While
@@ -963,16 +968,22 @@ November, on the [Wardrobe design canvas](https://claude.ai/artifact/6b8SnjL1sUC
   and Edit outfit are a wide ItemDialog: search, the Category pills, my
   garments as small GarmentCards to add, then Collections and Name; its
   footer says how many garments, then Cancel and Save outfit.
-- **The Week tab:** the PlanToolbar, seven DayColumns, each with its
-  DayWeather under the day's name (two lines; an empty line on a day gone),
-  its DayOutfits (`column`) and single garments' tiles, and, under two or
-  more single garments, an outline `icon-sm` `shirt` "Create outfit" (named
-  in its tooltip; the column is narrow); the Planned Outfits pane on the
-  right, its Outfits and Garments as Tabs (Garments a search of GarmentLines),
-  each line dragged onto a day ([Dragging](#dragging)). On a phone the days
+- **The Week tab:** the PlanToolbar, seven DayColumns, `outfitTall` (as
+  tall as an outfit of three garments, growing only for more), each with
+  its DayWeather under the day's name (two lines; an empty line on a day
+  gone), its DayClothes (`column`): DayOutfits (`column`, tinted as on a
+  phone) and a DayGarmentRow (`column`) of single garments' tiles, as wide
+  as an outfit's, and, under two or more, an outline `icon-sm` `shirt`
+  "Create outfit" (named in its tooltip; the column is narrow); an outfit
+  or garment dragged to another day or, an outfit, back onto the pane, a
+  DragGhost following the pointer (Joe, 20 November); the Planned Outfits pane on the
+  right, its planned outfits alone (Joe, 20 November), each line dragged
+  onto a day ([Dragging](#dragging)). On a phone the days
   are stacked as the Meal plan's (MealDay), the DayWeather and "+" at the
-  end of each day's line, DayOutfits as `row` and single garments in a
-  DayGarmentRow, "Create outfit" a ghost `sm` at the row's end; an outfit or
+  end of each day's line, its DayClothes (`row`): DayOutfits as `row` and
+  single garments in a DayGarmentRow, sharing a line while they fit,
+  "Create outfit" a ghost `sm` at the garments' end; a day's outfit held
+  and dragged to another day or onto the tray; an outfit or
   outfit is held in the opened tray (its planned outfits only, no Tabs)
   and dragged onto a day, the TrayPanel `away`, a DragGhost under the
   finger, the day marked as a Meal plan's and the page scrolling at its

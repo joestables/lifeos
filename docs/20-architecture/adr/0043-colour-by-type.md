@@ -2,7 +2,7 @@
 
 **Status:** Provisionally agreed · 2026-10-10
 
-**Amended:** 2026-11-18 by [ADR-0067](0067-garment-colours.md) (a garment's colour Swatch, the one exception).
+**Amended:** 2026-11-18 by [ADR-0067](0067-garment-colours.md) (a garment's colour Swatch, an exception); 2026-11-20 at Joe's asking (the Wardrobe's weather in the sky's colours, the other: [tokens](../../30-design/tokens.md#colour-weather)).
 
 ## Context
 

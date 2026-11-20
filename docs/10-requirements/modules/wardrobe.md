@@ -180,8 +180,8 @@ November). Claude's suggestion for keeping it quick:
   tab. The pane is the same, and shows the same outfits, on both the
   Outfits and Week tabs (Joe, 18 November). A placed outfit
   leaves the pane (suggested); it can be placed again from the Outfits tab.
-  The pane also has a **Garments** search (suggested), so single garments
-  are dragged onto days the same way, on a computer. On a phone, the pane
+  The pane is the planned outfits alone: a Garments search beside them was
+  no use (Joe, 20 November); a single garment goes on a day with its "+". On a phone, the pane
   is the same tray as the builder's, its planned outfits only, each held
   and dragged onto a day, the tray stepping aside (Joe, 20 November), or
   tapped and then a day. Planning is quiet: what's placed, moved or
@@ -335,7 +335,8 @@ Acceptance criteria
 1. Given New garment on a phone, then the camera opens at once; given a
    computer, then I choose a file or the camera. The photo can be skipped.
 2. Given a photo, then a square crop shows, centred, which I can move and
-   zoom before going on; it is kept reduced in size, with a small copy for
+   zoom before going on; taken with the camera, it starts on just the square
+   the camera's frame showed, 1:1 (Joe, 20 November); it is kept reduced in size, with a small copy for
    cards (as RCP-006 3).
 3. Given the sheet, then the photo is at the top and every field below it
    on one sheet, no steps: Colour (WRD-006), Category, Size, Brand, Fit and
@@ -501,8 +502,9 @@ Acceptance criteria
    18 November); given a phone, then it is a tray along the bottom: the
    chosen garments small, how many and Save, pulled up to show it all
    (suggested).
-3. Given the builder, then it shows the garments chosen, in my categories'
-   order, each with a remove; Collections (My Outfits always, fixed; any of
+3. Given the builder, then it shows the garments chosen as lines, in my
+   categories' order, each with a remove (no picture of them together,
+   which took the room: Joe, 20 November); Collections (My Outfits always, fixed; any of
    mine added); an optional name; Save outfit; Clear; and Clear after
    saving, a switch kept for next time (Joe, 18 November).
 4. Given Save outfit with one or more garments, then the outfit is made in
@@ -615,8 +617,12 @@ Acceptance criteria
    stacked, today's first in view.
 2. Given ‹, ›, Today or a date, then that week shows.
 3. Given each day, then its weather is at its head (WRD-025), then its
-   outfits, each one's garments as their own cards joined into one group,
-   then its single garments (Joe, 18 November).
+   outfits, each one's garments as their own cards in the Type's tint, then
+   its single garments, each tile the size of an outfit's (Joe, 18 and 20
+   November). On a computer every day is as wide as the others and as tall
+   as an outfit of three garments, taller only when it needs to be; on a
+   phone a day's outfits and garments share a line while they fit (Joe, 20
+   November).
 4. Given a day gone, then it is quieter, its garments counted as worn
    (WRD-024).
 
@@ -639,12 +645,15 @@ Acceptance criteria
    phone I hold it in the tray first, the tray steps aside, its picture
    follows my finger, the day under it is marked and the page scrolls at
    its top and foot (Joe, 20 November).
-4. Given the pane's Garments search on a computer, then I find a garment
-   and drag it onto a day the same way, as a single garment (suggested).
-   A phone's tray has the planned outfits only (Joe, 20 November).
+4. Given the pane, then it is the planned outfits only, with no Garments
+   search (Joe, 20 November); a single garment is added with a day's "+"
+   (WRD-022 1).
 5. Given a phone, on the Week tab, I tap an outfit in the tray instead,
    then press a day (each day showing "Place here"), and it is planned
    there (suggested).
+6. Given a day's outfit dragged onto the pane (on a phone, onto the tray),
+   then it leaves the day and is back in the pane, quietly (Joe, 20
+   November).
 
 ### WRD-022 — A day's outfits and garments
 
@@ -656,7 +665,9 @@ Acceptance criteria
 1. Given a day's "+", then I add an outfit or a single garment from a
    picker with search (suggested).
 2. Given a planned outfit or single garment, when I drag it to another day
-   (on a phone, held first, or Move to… a day), then it moves (suggested).
+   (on a phone, held first, or Move to… a day), then it moves, its picture
+   following the pointer as a card on Week does, quietly (suggested; Joe,
+   20 November).
 3. Given a planned outfit or garment, then Remove takes it off the day,
    with Undo.
 4. Given a garment of a planned outfit, then Remove from this day takes it
@@ -702,7 +713,8 @@ Acceptance criteria
 1. Given a location in Settings → Wardrobe, then each day from today to the
    forecast's end (16 days, Open-Meteo; suggested) shows an icon (sun,
    cloud, rain, snow…), its high and low in °C, and the chance of rain
-   when it's 20% or more (suggested).
+   when it's 20% or more (suggested); the icon in the sky's colour and the
+   high bold, so it reads at a glance (Joe, 20 November).
 2. Given a day gone, or past the forecast, then no weather shows.
 3. Given no signal, then the last forecast fetched shows, saying when it's
    from; one older than a day isn't shown (suggested).

@@ -10,7 +10,6 @@ import { useState, type HTMLAttributes } from 'react'
 import {
   ChoiceChips,
   EmptyState,
-  GarmentLine,
   OutfitCard,
   PlannedOutfitLine,
   RecipeGrid,
@@ -53,8 +52,6 @@ import { directed } from '@/lib/sort'
 import { matchesSearch, wornSorts } from '@/lib/wardrobe'
 import { deleteOutfits, garmentCount, planOutfits, takeOutOfCollection } from './outfit-actions'
 import { SearchField } from './search-field'
-import { garmentFace } from './garment-face'
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { MY_OUTFITS, type OutfitSort, OUTFIT_SORTS, type useOutfitsView } from './outfits-view'
 
 const byAdded = (a: OutfitView, b: OutfitView) => b.item.created_at.localeCompare(a.item.created_at)
@@ -181,6 +178,8 @@ export function PlannedPane({
     onPick: (pick: Pick) => void
     /** A line is being dragged: the tray steps aside, and closes once it's let go. */
     dragging?: boolean
+    /** A day's outfit dragged over the pane (or the tray): it goes back into it on letting go. */
+    over?: boolean
   }
 }) {
   const [open, setOpen] = useState(false)
@@ -191,17 +190,9 @@ export function PlannedPane({
     setLifted(false)
     setOpen(false)
   }
-  const [showing, setShowing] = useState<'outfits' | 'garments'>('outfits')
-  const [search, setSearch] = useState('')
   const planned = wardrobe.planned
-  const found = week
-    ? wardrobe.garments.filter((g) => !g.retired && matchesSearch(g, search)).slice(0, 40)
-    : []
   const photos = usePhotoUrls(
-    [
-      ...planned.flatMap((o) => o.garments.map((g) => g.photo?.path)),
-      ...found.map((g) => g.photo?.path),
-    ],
+    planned.flatMap((o) => o.garments.map((g) => g.photo?.path)),
     'small',
   )
   const photoOf = (g: GarmentView) => (g.photo ? photos.get(g.photo.path) : undefined)
@@ -254,36 +245,8 @@ export function PlannedPane({
       ))}
     </div>
   )
-  const garmentsList = (phone: boolean) => (
-    <div className="flex flex-col gap-2">
-      <SearchField label="Search clothes" value={search} onChange={setSearch} />
-      <div className="flex flex-col gap-0.5">
-        {found.map((g) => (
-          <div key={g.item.id} {...(!phone && week?.drag(`garment:${g.item.id}`))}>
-            <GarmentLine
-              garment={garmentFace(g, photoOf(g))}
-              {...(phone && { onOpen: () => pick({ kind: 'garment', id: g.item.id }) })}
-            />
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-  // A phone's tray is the planned outfits alone (Joe, 20 November).
-  const body = (phone: boolean) =>
-    week && !phone ? (
-      <>
-        <Tabs value={showing} onValueChange={(v: 'outfits' | 'garments') => setShowing(v)}>
-          <TabsList aria-label="Show">
-            <TabsTrigger value="outfits">Outfits</TabsTrigger>
-            <TabsTrigger value="garments">Garments</TabsTrigger>
-          </TabsList>
-        </Tabs>
-        {showing === 'outfits' ? lines(phone) : garmentsList(phone)}
-      </>
-    ) : (
-      lines(phone)
-    )
+  // The pane is the planned outfits alone: a Garments search was no use (Joe, 20 November).
+  const body = (phone: boolean) => lines(phone)
   return (
     <>
       <WardrobePane
@@ -291,6 +254,7 @@ export function PlannedPane({
         count={planned.length}
         aside={clear}
         className="max-md:hidden"
+        {...(week && { drop: 'planned', dropping: !!week.over })}
       >
         {body(false)}
       </WardrobePane>
@@ -312,6 +276,7 @@ export function PlannedPane({
             count={planned.length}
             unit="outfit"
             onOpen={() => setOpen(true)}
+            {...(week && { drop: 'planned', dropping: !!week.over })}
           />
         )
       )}

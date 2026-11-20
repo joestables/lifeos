@@ -128,6 +128,7 @@ export {
   ChoiceChips,
   ColourLoupe,
   DayGarment,
+  DayClothes,
   DayGarmentRow,
   DayOutfit,
   DayWeather,

@@ -47,15 +47,22 @@ export function DayColumn({
   dropping = false,
   drop,
   tall = false,
+  outfitTall = false,
 }: Omit<PlanWeekDay, 'key'> & {
   /** In the week: runs to the foot of the page. */
   tall?: boolean
+  /**
+   * The Wardrobe's week: at least as tall as an outfit of three garments,
+   * taller only when its clothes need it (Joe, 20 November).
+   */
+  outfitTall?: boolean
 }) {
   return (
     <div
       role="group"
       aria-label={`${name} ${number}`}
-      className="group/day flex min-w-0 flex-col gap-2"
+      // As wide as every other day, whatever it holds.
+      className="group/day flex min-w-0 flex-1 flex-col gap-2"
     >
       <div className="relative flex h-8 min-w-0 items-center gap-1.5 px-1">
         <span className="text-xs font-bold tracking-[0.06em] text-muted-foreground uppercase">
@@ -82,6 +89,7 @@ export function DayColumn({
         className={cn(
           'flex flex-1 flex-col gap-1.5 rounded-lg p-1.5 transition-colors',
           tall && 'min-h-[calc(100svh-250px)]',
+          outfitTall && 'aspect-[3/8] flex-none',
           today
             ? 'bg-[color-mix(in_oklch,var(--foreground)_5%,transparent)]'
             : 'bg-[color-mix(in_oklch,var(--foreground)_2.5%,transparent)]',

@@ -4,6 +4,7 @@ import { CloudSunIcon, PlusIcon, ShirtIcon } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import {
   DayColumn,
+  DayClothes,
   DayGarment,
   DayGarmentRow,
   DayOutfit,
@@ -41,8 +42,11 @@ import { matchesSearch } from '@/lib/wardrobe'
 import { garmentFace } from './garment-face'
 import { garmentCount, outfitName } from './outfit-actions'
 import { PlannedPane, type Pick } from './outfits-tab'
-import { dayLabel, moveEntry, place } from './day-actions'
+import { dayLabel, moveEntry, place, returnToPlanned } from './day-actions'
 import { SearchField } from './search-field'
+
+/** Where a day's outfit dragged back into Planned outfits lands (WRD-021 6). */
+const PLANNED = 'planned'
 
 const month = new Intl.DateTimeFormat('en-GB', { month: 'short' })
 const clock = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit' })
@@ -213,12 +217,15 @@ export function WardrobeWeek({
       if (!id) return
       if (kind === 'worn') {
         const entry = entries.find((e) => e.item.id === id)
-        if (entry) moveEntry(entry, drop)
-      } else place({ kind: kind as Pick['kind'], id }, drop)
+        if (!entry) return
+        // Back into Planned outfits (WRD-021 6), quietly; a single garment has no place there.
+        if (drop === PLANNED) returnToPlanned(entry)
+        else moveEntry(entry, drop)
+      } else if (drop !== PLANNED) place({ kind: kind as Pick['kind'], id }, drop)
     },
-    { autoScroll: isMobile },
+    { autoScroll: true },
   )
-  // What's being dragged, for the picture under a phone's finger.
+  // What's being dragged, for its picture under the pointer or finger.
   const draggedPhotos = (() => {
     const [kind, id] = drag.dragging?.split(':') ?? []
     if (kind === 'outfit')
@@ -246,9 +253,9 @@ export function WardrobeWeek({
       type="button"
       aria-label={`${e.item.title || 'Outfit'}, ${dayLabel(e.day)}`}
       className={cn(
-        'min-w-0 rounded-control text-left outline-none focus-visible:ring-3 focus-visible:ring-ring-soft',
+        'min-w-0 rounded-row text-left outline-none focus-visible:ring-3 focus-visible:ring-ring-soft',
         // On a phone the outfit's tint wraps it alone (Joe, 20 November).
-        layout === 'row' && 'max-w-full self-start',
+        layout === 'row' && 'max-w-full',
       )}
       onClick={() => e.outfit && onOpenOutfit(e.outfit.item.id, e)}
       {...drag.handle(`worn:${e.item.id}`)}
@@ -364,11 +371,16 @@ export function WardrobeWeek({
                     </>
                   }
                 >
-                  {list.filter((e) => e.outfit).map((e) => outfitTile(e, 'row'))}
-                  {singles.length > 0 && (
-                    <DayGarmentRow end={createButton(singles, true)}>
-                      {singles.flatMap(garmentTile)}
-                    </DayGarmentRow>
+                  {list.length > 0 && (
+                    // On one line while they fit (Joe, 20 November).
+                    <DayClothes layout="row">
+                      {list.filter((e) => e.outfit).map((e) => outfitTile(e, 'row'))}
+                      {singles.length > 0 && (
+                        <DayGarmentRow end={createButton(singles, true)}>
+                          {singles.flatMap(garmentTile)}
+                        </DayGarmentRow>
+                      )}
+                    </DayClothes>
                   )}
                   {picked && (
                     <PlaceHere
@@ -398,7 +410,7 @@ export function WardrobeWeek({
                     name={shortDate(date).slice(0, 3)}
                     number={date.getDate()}
                     today={d === today}
-                    tall
+                    outfitTall
                     dropping={drag.over === d}
                     subhead={w ? <DayWeather forecast={w} stacked /> : null}
                     add={
@@ -412,13 +424,14 @@ export function WardrobeWeek({
                       </Button>
                     }
                   >
-                    {list.filter((e) => e.outfit).map((e) => outfitTile(e, 'column'))}
-                    {singles.length > 0 && (
-                      <div className="flex flex-col gap-1.5 px-3">
-                        {singles.flatMap(garmentTile)}
-                      </div>
-                    )}
-                    {createButton(singles, false)}
+                    <DayClothes layout="column">
+                      {list.filter((e) => e.outfit).map((e) => outfitTile(e, 'column'))}
+                      {singles.length > 0 && (
+                        <DayGarmentRow layout="column" end={createButton(singles, false)}>
+                          {singles.flatMap(garmentTile)}
+                        </DayGarmentRow>
+                      )}
+                    </DayClothes>
                   </DayColumn>
                 </div>
               )
@@ -427,7 +440,12 @@ export function WardrobeWeek({
           <PlannedPane
             wardrobe={wardrobe}
             onOpen={(id) => onOpenOutfit(id)}
-            week={{ drag: (key) => drag.handle(key), picked, onPick: setPicked }}
+            week={{
+              drag: (key) => drag.handle(key),
+              picked,
+              onPick: setPicked,
+              over: drag.over === PLANNED,
+            }}
           />
         </div>
       )}
@@ -456,13 +474,12 @@ export function WardrobeWeek({
               drag: (key) => drag.handle(key),
               picked,
               onPick: setPicked,
-              dragging: drag.dragging !== null,
+              dragging: drag.dragging !== null && !drag.dragging.startsWith('worn:'),
+              over: drag.over === PLANNED,
             }}
           />
         ))}
-      {isMobile && drag.dragging && drag.point && (
-        <DragGhost point={drag.point} photos={draggedPhotos} />
-      )}
+      {drag.dragging && drag.point && <DragGhost point={drag.point} photos={draggedPhotos} />}
       {adding && (
         <AddClothesDialog day={adding} wardrobe={wardrobe} onClose={() => setAdding(null)} />
       )}

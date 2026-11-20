@@ -67,6 +67,21 @@ Proposed; Joe, 3 November: dark's tone 35 chosen, light's suggested).
 | `--body-map-body` | `oklch(0.52 0.018 262)` | `oklch(0.35 0.018 262)` | The BodyMap's body: head, hands, feet, the gaps, and muscles in no group |
 | `--body-map-seam` | `oklch(0.16 0.01 262 / 55%)` | same | The BodyMap's seams between groups |
 
+## Colour: weather
+
+A day's weather on the Wardrobe's Week (WRD-025), coloured as the sky is,
+so it reads at a glance (Joe, 20 November): the one other exception to
+colour meaning Type, beside a garment's Swatch
+([ADR-0043](../20-architecture/adr/0043-colour-by-type.md)). Cloud and fog
+stay muted.
+
+| Token | Light | Dark | Used for |
+|---|---|---|---|
+| `--weather-sun` | `oklch(0.66 0.16 70)` | `oklch(0.85 0.15 85)` | Sunny and sunny spells |
+| `--weather-rain` | `oklch(0.55 0.14 245)` | `oklch(0.74 0.12 240)` | Drizzle and rain, and the chance of rain |
+| `--weather-snow` | `oklch(0.6 0.07 225)` | `oklch(0.86 0.05 225)` | Snow |
+| `--weather-storm` | `oklch(0.52 0.15 295)` | `oklch(0.74 0.12 295)` | Thunder |
+
 ## Colour: Types
 
 *([ADR-0043](../20-architecture/adr/0043-colour-by-type.md), Provisionally

@@ -54,6 +54,10 @@
   --readiness-high: oklch(0.6 0.12 155);
   --body-map-body: oklch(0.52 0.018 262);
   --body-map-seam: oklch(0.16 0.01 262 / 55%);
+  --weather-sun: oklch(0.66 0.16 70);
+  --weather-rain: oklch(0.55 0.14 245);
+  --weather-snow: oklch(0.6 0.07 225);
+  --weather-storm: oklch(0.52 0.15 295);
 
   --t-blue: oklch(0.55 0.14 255);
   --t-blue-text: oklch(0.48 0.14 255);
@@ -123,6 +127,10 @@
   --warning: oklch(0.8 0.14 70);
   --readiness-mid: var(--warning);
   --body-map-body: oklch(0.35 0.018 262);
+  --weather-sun: oklch(0.85 0.15 85);
+  --weather-rain: oklch(0.74 0.12 240);
+  --weather-snow: oklch(0.86 0.05 225);
+  --weather-storm: oklch(0.74 0.12 295);
 
   --t-blue: oklch(0.72 0.12 250);
   --t-blue-text: oklch(0.72 0.12 250);
