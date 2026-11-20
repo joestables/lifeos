@@ -1,5 +1,7 @@
 import { ADD_CHOICES } from '@/app/add-choices'
 import { AddToDayDialog } from '@/app/add-to-day'
+import { moveDay } from '@/app/day-actions'
+import { DayOutfitCard } from '@/app/day-outfits'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { addDays, todayIn } from '@lifeos/recurrence'
 import { AlarmClockIcon } from 'lucide-react'
@@ -145,7 +147,7 @@ function Week() {
   useEffect(() => {
     if (search.add) void navigate({ to: '/week', search: { day: search.day }, replace: true })
   }, [search.add, search.day, navigate])
-  const [drag, setDrag] = useState<{ item: Item; from: string } | null>(null)
+  const [drag, setDrag] = useState<{ item: Item; from: string; group?: Item[] } | null>(null)
   const [over, setOver] = useState<string | null>(null)
   const now = new Date()
 
@@ -163,7 +165,9 @@ function Week() {
     })
 
   const { meals } = useMeals(queue)
-  const move = (item: Item, from: string, to: string) => {
+  const move = (item: Item, from: string, to: string, group?: Item[]) => {
+    // A day's clothes go together (WRD-026 4).
+    if (group) return moveDay(group, from, to)
     const patch = moveTo(item, from, to, settings.timezone)
     if (!patch) return
     const was = Object.fromEntries(
@@ -203,7 +207,16 @@ function Week() {
   const card = (p: Placed, on: string, wide = false) => {
     const look = typeLook(p.item.type)
     const line = cardLine(p, on, settings.timezone, { long: wide, now })
-    const node = (
+    const dragging = drag?.item.id === p.item.id && drag.from === on
+    const node = p.group ? (
+      <DayOutfitCard
+        key={`${p.item.id}-${on}`}
+        day={on}
+        past={on < today}
+        wide={wide}
+        dragging={dragging}
+      />
+    ) : (
       <PlanCard
         key={`${p.item.id}-${on}`}
         colour={look.colour}
@@ -223,7 +236,7 @@ function Week() {
         past={isPast(p.item, now, p) || (p.item.type === 'meal' && on < today)}
         done={p.item.status === 'done'}
         wide={wide}
-        dragging={drag?.item.id === p.item.id && drag.from === on}
+        dragging={dragging}
         onOpen={() => open(p.item)}
       />
     )
@@ -237,7 +250,7 @@ function Week() {
         onDragStart={(e: DragEvent) => {
           e.dataTransfer.effectAllowed = 'move'
           e.dataTransfer.setData('text/plain', p.item.id)
-          setDrag({ item: p.item, from: on })
+          setDrag({ item: p.item, from: on, group: p.group })
         }}
         onDragEnd={() => {
           setDrag(null)
@@ -284,7 +297,7 @@ function Week() {
         },
         onDrop: (e) => {
           e.preventDefault()
-          if (drag) move(drag.item, drag.from, d)
+          if (drag) move(drag.item, drag.from, d, drag.group)
           setDrag(null)
           setOver(null)
         },

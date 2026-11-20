@@ -167,3 +167,11 @@ or when someone else signs in (ACC-003). **The camera** is the page's own
 (`getUserMedia`, the back camera, its torch as the flash where it has
 one); in the Android app the WebView asks for it, so the app declares
 `CAMERA` (not required: a device without one chooses a photo instead).
+
+Plan step 10 (20 November): **one card a day** (decision 14) is grouped
+where Week places Items (`planDays` in `src/lib/plan.ts`), so Today, Week
+and the Today widget share it; its name comes from the day's entries
+(`clothesTitle`), and the server's widget feed names it the same way
+(`core_private.today_cards`, migration `stage6_widget_clothes`). A
+garment, an outfit or a day's Outfit worn opened from Search or its link
+opens on Wardrobe's tabs, not in an Item popup.

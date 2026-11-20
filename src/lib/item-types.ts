@@ -18,7 +18,14 @@ const BUILT_NOW: readonly string[] = [
   'workout_template',
   'workout',
   'reminder',
+  // Stage 6's Wardrobe (plan step 10).
+  'garment',
+  'outfit',
+  'outfit_worn',
 ]
+
+/** A day's outfits are "Outfit" wherever Types are chosen or named (WEK-003 2). */
+const LABELS: Record<string, string> = { outfit_worn: 'Outfit' }
 
 /** Whether the app offers a Type yet: an earlier stage's, or one built in this stage. */
 export function offered(key: string): boolean {
@@ -53,7 +60,7 @@ export function typeLook(key: string): TypeLook {
   const t = typeByKey(key)
   return {
     key,
-    label: t?.label ?? key,
+    label: LABELS[key] ?? t?.label ?? key,
     colour: t?.colour ?? 'yellow',
     icon: TYPE_ICONS[key] ?? FileIcon,
     mark: t?.mark,

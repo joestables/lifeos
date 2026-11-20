@@ -31,6 +31,8 @@ export interface Placed {
   time: string
   /** A Reminder's Alerts on its day (RMD-003 1), soonest first. */
   alerts?: AlertTime[]
+  /** A day's clothes, every Outfit worn on it, as one card (WRD-026 1). */
+  group?: Item[]
 }
 
 /** An Alert as Plan places a Reminder: its day and time, an Alarm or not, and when it fires. */
@@ -121,6 +123,13 @@ export function planDays(
     }
     const p = placeOf(item, timezone)
     if (!p || p.last < from || p.first > to) continue
+    if (item.type === 'outfit_worn') {
+      const day = days.get(p.first)!
+      const clothes = day.find((x) => x.group)
+      if (clothes) clothes.group!.push(item)
+      else day.push({ ...p, group: [item] })
+      continue
+    }
     for (let d = p.first < from ? from : p.first; d <= p.last && d <= to; d = addDays(d, 1))
       days.get(d)!.push(p)
   }

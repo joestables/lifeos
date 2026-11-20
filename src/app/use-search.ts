@@ -9,11 +9,13 @@ import {
   useLabels,
   useOnline,
   useShopping,
+  useWardrobe,
   type Item,
 } from '@/data'
 import { isoDayOf } from '@/lib/dates'
 import { matches } from '@/lib/recipes'
 import { searchItems, searchWords } from '@/lib/search'
+import { matchesSearch } from '@/lib/wardrobe'
 import { currentOccurrences } from '@/lib/series'
 
 const SHOWN = 30
@@ -34,6 +36,8 @@ function useSettled(value: string, ms = 150): string {
  * the device are searched instead (SRC-002). A repeating Task shows once,
  * as its lists show it. Recipes and Ideas are found by name, tag or
  * ingredient on the device too (RCP-016 2); a Variation is found as its Recipe.
+ * Garments are found by what Wardrobe's search matches, and outfits by name
+ * (WRD-027 2); a day's clothes are found as their outfits.
  */
 export function useSearch(query: string): {
   results: Item[]
@@ -49,6 +53,7 @@ export function useSearch(query: string): {
   const { labels, itemLabels } = useLabels(queue)
   const food = useFood(queue)
   const shopping = useShopping(queue)
+  const wardrobe = useWardrobe(queue)
   const words = useMemo(() => searchWords(settled), [settled])
   const server = useQuery({
     queryKey: searchKey(settled),
@@ -71,7 +76,10 @@ export function useSearch(query: string): {
     const of = (id: string) => labelsOf.get(id) ?? []
     const shown = currentOccurrences(items, isoDayOf(new Date())).filter(
       // An archived Recipe is found, marked so (SRC-003 1).
-      (i) => (i.status !== 'cancelled' || i.type === 'recipe') && i.type !== 'variation',
+      (i) =>
+        (i.status !== 'cancelled' || i.type === 'recipe') &&
+        i.type !== 'variation' &&
+        i.type !== 'outfit_worn',
     )
     // Recipes by tag or ingredient, and Shopping lists by a line (SRC-003),
     // which the server's search doesn't hold.
@@ -97,7 +105,19 @@ export function useSearch(query: string): {
         .filter((l) => !ids.has(l.item.id) && l.item.archived_at === null)
         .filter((l) => l.lines.some((x) => lineWords.every((w) => lineName(x).includes(w))))
         .map((l) => l.item)
-      return [...found, ...recipes, ...lists].slice(0, SHOWN)
+      // A garment by what Wardrobe's search matches, titled as Wardrobe has it.
+      const titles = new Map(wardrobe.garments.map((g) => [g.item.id, g.title]))
+      const garments = wardrobe.garments
+        .filter((g) => !g.retired && !ids.has(g.item.id) && matchesSearch(g, settled))
+        .map((g) => g.item)
+      const outfits = wardrobe.outfits
+        .filter(
+          (o) => !ids.has(o.item.id) && lineWords.every((w) => o.name.toLowerCase().includes(w)),
+        )
+        .map((o) => o.item)
+      return [...found, ...recipes, ...lists, ...garments, ...outfits]
+        .map((i) => (titles.get(i.id) && !i.title ? { ...i, title: titles.get(i.id)! } : i))
+        .slice(0, SHOWN)
     }
 
     if (!online || server.isError) {
@@ -131,5 +151,7 @@ export function useSearch(query: string): {
     food.recipes,
     food.pantry,
     shopping.lists,
+    wardrobe.garments,
+    wardrobe.outfits,
   ])
 }

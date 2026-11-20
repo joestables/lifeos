@@ -60,7 +60,7 @@ function createFromDay(singles: DayEntry[], wardrobe: WardrobeData, open: (id: s
 }
 
 /** A day's "+" (WRD-022 1): an outfit or a single garment, from a search. */
-function AddToDayDialog({
+export function AddClothesDialog({
   day,
   wardrobe,
   onClose,
@@ -433,7 +433,7 @@ export function WardrobeWeek({
           />
         ))}
       {adding && (
-        <AddToDayDialog day={adding} wardrobe={wardrobe} onClose={() => setAdding(null)} />
+        <AddClothesDialog day={adding} wardrobe={wardrobe} onClose={() => setAdding(null)} />
       )}
     </div>
   )

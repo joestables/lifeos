@@ -87,4 +87,27 @@ describe('the Today widget (WID-002, TDY-006)', () => {
     expect(ends('Lunch')).toBeNull()
     expect(ends('Dinner')).toBeNull()
   })
+
+  it("WRD-026 1: a day's clothes are one card, named as Today names them", () => {
+    const worn = (id: string) => item(id, { type: 'outfit_worn', do_on: '2026-11-06' })
+    const [today] = widgetDays(
+      [worn('a'), worn('b')],
+      '2026-11-06',
+      TZ,
+      () => [],
+      NOW,
+      (d) => (d === '2026-11-06' ? 'Navy work' : 'Outfit'),
+    )
+    expect(today!.cards).toEqual([
+      {
+        id: 'a',
+        type: 'outfit_worn',
+        colour: 'orange',
+        title: 'Navy work',
+        time: null,
+        done: false,
+        ends: null,
+      },
+    ])
+  })
 })

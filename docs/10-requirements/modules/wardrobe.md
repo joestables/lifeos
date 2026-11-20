@@ -705,7 +705,7 @@ Acceptance criteria
 
 **As** Joe, **I want** one card for the day's clothes on Today and Week,
 **so that** they don't fill the day.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified (`wardrobe-everywhere.spec.ts`); the Today widget shows the same card, named the same (TDY-006)
 
 Acceptance criteria
 1. Given a day with outfits or garments planned, then Today and Week show
@@ -722,7 +722,7 @@ Acceptance criteria
 
 **As** Joe, **I want** my wardrobe there without signal and in Search,
 **so that** I can plan anywhere.
-Priority: Must · Status: agreed
+Priority: Must · Status: verified (`wardrobe-everywhere.spec.ts`); a photo seen before is kept by the app's service worker (ADR-0052)
 
 Acceptance criteria
 1. Given no signal, then every tab opens with the photos I've seen before,

@@ -16,6 +16,7 @@ import { Button } from '@/components/ui/button'
 import { useAlertTimes } from '@/app/alert-times'
 import { ADD_CHOICES } from '@/app/add-choices'
 import { AddToDayDialog } from '@/app/add-to-day'
+import { DayOutfitRow } from '@/app/day-outfits'
 import { useMine } from '@/app/mine'
 import { NotificationsOffer } from '@/app/notifications-offer'
 import { PlacedRow } from '@/app/placed-row'
@@ -53,6 +54,7 @@ function Today() {
   const row = ({ placed, past }: OnToday) => {
     const { item } = placed
     if (item.type === 'task') return task(item)
+    if (placed.group) return <DayOutfitRow key={item.id} day={today} past={past} />
     if (item.type === 'reminder')
       return (
         <ReminderRow
