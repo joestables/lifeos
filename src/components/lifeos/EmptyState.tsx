@@ -23,7 +23,9 @@ export function EmptyState({
   children?: ReactNode
 }) {
   return (
-    <div className="flex flex-col items-center gap-3.5 pt-[18vh]">
+    // At most 160px down: a share of the screen alone grew without end on a
+    // full-page screenshot, the page never settling (design.spec.ts).
+    <div className="flex flex-col items-center gap-3.5 pt-[min(18vh,160px)]">
       <TypeTile colour="none" icon={icon} size="lg" />
       <h2 className="text-h2">{title}</h2>
       {(action || children) && (
