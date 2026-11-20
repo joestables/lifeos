@@ -3,7 +3,6 @@ import { useId, useState } from 'react'
 import {
   ChoiceChips,
   GarmentLine,
-  OutfitPicture,
   RemoveButton,
   Tray,
   TrayPanel,
@@ -52,7 +51,6 @@ function Contents({
   photos,
   onChange,
   onTakeOut,
-  picture,
 }: {
   wardrobe: WardrobeData
   builder: Builder
@@ -60,16 +58,12 @@ function Contents({
   photos: ReadonlyMap<string, string>
   onChange: (patch: Partial<Builder>) => void
   onTakeOut: (id: string) => void
-  /** The picture's shape: 3:2 in the pane, 2:1 in the tray. */
-  picture: 'pane' | 'tray'
 }) {
   const ids = useId()
   const photoOf = (g: GarmentView) => (g.photo ? photos.get(g.photo.path) : undefined)
   return (
     <>
-      {garments.length > 0 && (
-        <OutfitPicture photos={garments.map(photoOf)} shape={picture} className="rounded-lg" />
-      )}
+      {/* Its garments as lines only: a picture of them took the room (Joe, 20 November). */}
       <div className="flex flex-col gap-0.5">
         {garments.map((g) => (
           <GarmentLine
@@ -147,7 +141,7 @@ export function BuilderPane({
     if (id && builder.clearAfter) onClear()
     if (id) setOpen(false)
   }
-  const contents = (picture: 'pane' | 'tray') => (
+  const contents = () => (
     <Contents
       wardrobe={wardrobe}
       builder={builder}
@@ -155,7 +149,6 @@ export function BuilderPane({
       photos={photos}
       onChange={onChange}
       onTakeOut={onTakeOut}
-      picture={picture}
     />
   )
   const clear = (
@@ -177,7 +170,7 @@ export function BuilderPane({
         footer={saveButton}
         className="max-md:hidden"
       >
-        {contents('pane')}
+        {contents()}
       </WardrobePane>
       {open ? (
         <TrayPanel
@@ -187,7 +180,7 @@ export function BuilderPane({
           footer={saveButton}
           onClose={() => setOpen(false)}
         >
-          {contents('tray')}
+          {contents()}
         </TrayPanel>
       ) : (
         <Tray

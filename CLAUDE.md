@@ -79,7 +79,8 @@ screen follows it exactly ([ADR-0038](docs/20-architecture/adr/0038-one-design-s
 - **Colour means Type**, and nothing else: related Types share a colour, a
   page takes its Types' colour, and Today and Week are neutral; red and
   green keep their usual meaning, and amber is a warning, never by colour
-  alone; a garment's colour Swatch is the one exception
+  alone; a garment's colour Swatch and the Wardrobe's weather are the
+  exceptions
   ([ADR-0067](docs/20-architecture/adr/0067-garment-colours.md))
   ([ADR-0043](docs/20-architecture/adr/0043-colour-by-type.md),
   [patterns](docs/30-design/patterns.md#colour-by-type)).

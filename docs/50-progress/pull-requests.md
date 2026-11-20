@@ -2,6 +2,29 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#105](https://github.com/joestables/lifeos/pull/105) — Stage 6: the Week tab reworked, the crop 1:1, the weather at a glance
+
+Branch `claude/vigilant-thompson-k8bkzm` · 2026-11-20 · Stage 6, step 11
+
+**What it did**
+- **The camera's crop** starts on the square the camera's frame showed.
+- **The Outfit builder** is its garments' lines, without their picture;
+  **Planned outfits** is its outfits, without the Garments tab.
+- **The Week tab**: days as wide as each other and as tall as a
+  three-garment outfit; outfits tinted on a computer as on a phone; single
+  garments the size of an outfit's; a phone's day on one line while it
+  fits; a day's outfit dragged to another day or back into Planned outfits,
+  its picture following the pointer, quietly.
+- **The weather** in the sky's colours with the high bold: new tokens
+  `--weather-*`, an exception to ADR-0043 at Joe's asking.
+- **New in the design system:** DayClothes; DayColumn's `outfitTall`;
+  DayGarmentRow's `column`; WardrobePane's and Tray's `drop`.
+
+**Verified**
+- `npm run check`, `npm run build`; the Wardrobe walks (new: dragging
+  between days and back into the pane, on a computer and a phone) and the
+  browser tests; dark and light screenshots at both widths.
+
 ## [#104](https://github.com/joestables/lifeos/pull/104) — Stage 6: a garment's changes not saved, and the camera faster
 
 Branch `claude/vigilant-thompson-k8bkzm` · 2026-11-20 · Stage 6, step 11

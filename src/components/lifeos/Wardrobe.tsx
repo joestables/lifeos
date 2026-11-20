@@ -473,8 +473,8 @@ export function OutfitPicture({
 }: {
   /** In my categories' order. */
   photos: (string | undefined)[]
-  /** Square on a card; 3:2 in the Outfit builder's pane, 2:1 in its tray. */
-  shape?: 'square' | 'pane' | 'tray'
+  /** Square, on a card and in a popup. */
+  shape?: 'square'
   className?: string
 }) {
   const shown = photos.slice(0, 4)
@@ -485,8 +485,6 @@ export function OutfitPicture({
       className={cn(
         'grid gap-0.5 overflow-hidden bg-card',
         shape === 'square' && 'aspect-square',
-        shape === 'pane' && 'aspect-[3/2]',
-        shape === 'tray' && 'aspect-[2/1]',
         shown.length === 1 && 'grid-cols-1',
         shown.length === 2 && 'grid-cols-2',
         shown.length >= 3 && 'grid-cols-2 grid-rows-2',
@@ -587,6 +585,8 @@ export function WardrobePane({
   footer,
   children,
   className,
+  drop,
+  dropping = false,
 }: {
   title: string
   count?: number
@@ -594,13 +594,18 @@ export function WardrobePane({
   footer?: ReactNode
   children: ReactNode
   className?: string
+  /** What's dragged onto it lands here: a day's outfit back into Planned outfits (WRD-021 6). */
+  drop?: string
+  dropping?: boolean
 }) {
   return (
     <aside
       aria-label={title}
       data-slot="wardrobe-pane"
+      data-drop={drop}
       className={cn(
-        'sticky top-4 flex max-h-[calc(100svh-216px)] w-80 shrink-0 flex-col overflow-hidden rounded-lg bg-card shadow-card',
+        'sticky top-4 flex max-h-[calc(100svh-216px)] w-80 shrink-0 flex-col overflow-hidden rounded-lg bg-card shadow-card transition-shadow',
+        dropping && 'ring-2 ring-ring',
         className,
       )}
     >
@@ -703,6 +708,8 @@ export function Tray({
   unit = 'garment',
   action,
   onOpen,
+  drop,
+  dropping = false,
 }: {
   title: string
   photos: (string | undefined)[]
@@ -711,12 +718,19 @@ export function Tray({
   unit?: 'garment' | 'outfit'
   action?: ReactNode
   onOpen?: () => void
+  /** What's dragged onto it lands here: a day's outfit back into Planned outfits (WRD-021 6). */
+  drop?: string
+  dropping?: boolean
 }) {
   const shown = photos.slice(-4)
   return (
     <div
       data-slot="tray"
-      className="fixed inset-x-3 bottom-[calc(12px+env(safe-area-inset-bottom))] z-20 flex h-16 items-center gap-3 rounded-lg bg-popover pr-2.5 pl-2.5 shadow-dialog md:hidden"
+      data-drop={drop}
+      className={cn(
+        'fixed inset-x-3 bottom-[calc(12px+env(safe-area-inset-bottom))] z-20 flex h-16 items-center gap-3 rounded-lg bg-popover pr-2.5 pl-2.5 shadow-dialog md:hidden',
+        dropping && 'ring-2 ring-ring',
+      )}
     >
       <button
         type="button"
@@ -839,15 +853,16 @@ export function TrayPanel({
 /** What the sky does, from Open-Meteo's weather code (ADR-0068 6). */
 export type Sky = 'sun' | 'sun-cloud' | 'cloud' | 'fog' | 'drizzle' | 'rain' | 'snow' | 'thunder'
 
-const SKY: Record<Sky, { icon: LucideIcon; label: string }> = {
-  sun: { icon: SunIcon, label: 'Sunny' },
-  'sun-cloud': { icon: CloudSunIcon, label: 'Sunny spells' },
-  cloud: { icon: CloudIcon, label: 'Cloudy' },
-  fog: { icon: CloudFogIcon, label: 'Fog' },
-  drizzle: { icon: CloudDrizzleIcon, label: 'Drizzle' },
-  rain: { icon: CloudRainIcon, label: 'Rain' },
-  snow: { icon: CloudSnowIcon, label: 'Snow' },
-  thunder: { icon: CloudLightningIcon, label: 'Thunder' },
+/** Each sky's icon, its name, and its colour (tokens.md#colour-weather): sun warm, rain blue. */
+const SKY: Record<Sky, { icon: LucideIcon; label: string; tone: string }> = {
+  sun: { icon: SunIcon, label: 'Sunny', tone: 'text-[var(--weather-sun)]' },
+  'sun-cloud': { icon: CloudSunIcon, label: 'Sunny spells', tone: 'text-[var(--weather-sun)]' },
+  cloud: { icon: CloudIcon, label: 'Cloudy', tone: 'text-muted-foreground' },
+  fog: { icon: CloudFogIcon, label: 'Fog', tone: 'text-muted-foreground' },
+  drizzle: { icon: CloudDrizzleIcon, label: 'Drizzle', tone: 'text-[var(--weather-rain)]' },
+  rain: { icon: CloudRainIcon, label: 'Rain', tone: 'text-[var(--weather-rain)]' },
+  snow: { icon: CloudSnowIcon, label: 'Snow', tone: 'text-[var(--weather-snow)]' },
+  thunder: { icon: CloudLightningIcon, label: 'Thunder', tone: 'text-[var(--weather-storm)]' },
 }
 
 /** A day's forecast (WRD-025). */
@@ -875,9 +890,9 @@ export function DayWeather({
   stacked?: boolean
   className?: string
 }) {
-  const { icon: Icon, label } = SKY[forecast.sky]
+  const { icon: Icon, label, tone } = SKY[forecast.sky]
   const rain = forecast.rain >= 20 && (
-    <span className="inline-flex items-center gap-px text-muted-foreground">
+    <span className="inline-flex items-center gap-px font-bold text-[var(--weather-rain)]">
       <DropletIcon aria-hidden className="size-3" />
       {forecast.rain}%
     </span>
@@ -893,9 +908,9 @@ export function DayWeather({
         className,
       )}
     >
-      <Icon aria-hidden className="size-4 shrink-0 text-muted-foreground" strokeWidth={1.75} />
-      <span className="ml-0.5">{forecast.high}°</span>
-      <span className="text-muted-foreground">{forecast.low}°</span>
+      <Icon aria-hidden className={cn('size-4 shrink-0', tone)} strokeWidth={2.25} />
+      <span className="ml-0.5 font-bold text-foreground">{forecast.high}°</span>
+      <span className="font-medium text-muted-foreground">{forecast.low}°</span>
       {rain && <span className={cn(stacked ? 'basis-full pl-5.5' : 'ml-1')}>{rain}</span>}
     </div>
   )
@@ -932,12 +947,12 @@ export function DayGarment({
 }
 
 /**
- * An outfit on a day (WRD-020 3; Joe, 19 November): its garments, each its
- * own card, joined so they read as one, under its name (or "Outfit") in
- * the Type's text colour. `column`, a computer's narrow day: the garments
- * as square tiles stacked in one shadowed card, a 2px line in the Type's
- * colour down their left through a dot at each. `row`, a phone's day: the
- * Type's tint round them, the tiles in a row at 56px.
+ * An outfit on a day (WRD-020 3): its garments' tiles in the Type's tint,
+ * under its name (or "Outfit") in the Type's text colour, the same on a
+ * computer and a phone (Joe, 20 November). `column`, a computer's narrow
+ * day: the tiles stacked, as wide as the day, as a single garment's are.
+ * `row`, a phone's day: the tiles in a row at 56px, the tint only as wide
+ * as they are.
  */
 export function DayOutfit({
   name,
@@ -954,56 +969,51 @@ export function DayOutfit({
   dragging?: boolean
   picked?: boolean
 }) {
-  const label = (
-    <span className="flex min-w-0 items-center gap-1 text-xs font-bold text-tc-text">
-      <ShirtIcon aria-hidden className="size-3 shrink-0" />
-      <span className="truncate">{name ?? 'Outfit'}</span>
-    </span>
-  )
-  if (layout === 'row')
-    return (
-      <div
-        data-slot="day-outfit"
-        data-picked={picked || undefined}
-        className={cn(
-          'flex w-fit max-w-full min-w-0 flex-col gap-2 rounded-row bg-[color-mix(in_oklch,var(--tc)_var(--tile-mix),transparent)] p-2 data-picked:ring-2 data-picked:ring-ring',
-          past && 'opacity-60',
-          dragging && 'z-10 shadow-pop',
-        )}
-      >
-        <div className="px-0.5">{label}</div>
-        <div className="flex gap-1.5">
-          {garments.map((g) => (
-            <div key={g.id} className="size-14 shrink-0">
-              <DayGarment garment={g} alone />
-            </div>
-          ))}
-        </div>
-      </div>
-    )
+  const row = layout === 'row'
   return (
     <div
       data-slot="day-outfit"
       data-picked={picked || undefined}
       className={cn(
-        'flex min-w-0 flex-col gap-1.5 rounded-control bg-card p-1.5 shadow-card data-picked:ring-2 data-picked:ring-ring',
+        'flex min-w-0 flex-col rounded-row bg-[color-mix(in_oklch,var(--tc)_var(--tile-mix),transparent)] data-picked:ring-2 data-picked:ring-ring',
+        row ? 'w-fit max-w-full gap-2 p-2' : 'gap-1.5 p-1.5',
         past && 'opacity-60',
-        dragging && 'z-10 shadow-pop',
+        dragging && 'z-10 opacity-40',
       )}
     >
-      <div className="px-0.5">{label}</div>
-      <div className="relative flex flex-col gap-1.5 pl-3.5">
-        <span aria-hidden className="absolute top-3 bottom-3 left-[5px] w-0.5 rounded-full bg-tc" />
+      <span className="flex min-w-0 items-center gap-1 px-0.5 text-xs font-bold text-tc-text">
+        <ShirtIcon aria-hidden className="size-3 shrink-0" />
+        <span className="truncate">{name ?? 'Outfit'}</span>
+      </span>
+      <div className={cn('flex gap-1.5', !row && 'flex-col')}>
         {garments.map((g) => (
-          <div key={g.id} className="relative">
-            <span
-              aria-hidden
-              className="absolute top-1/2 -left-[13px] z-10 size-2.5 -translate-y-1/2 rounded-full bg-tc ring-2 ring-card"
-            />
+          <div key={g.id} className={cn(row && 'size-14 shrink-0')}>
             <DayGarment garment={g} />
           </div>
         ))}
       </div>
+    </div>
+  )
+}
+
+/**
+ * A day's clothes (WRD-020 3): on a phone, its outfits and single garments
+ * on one line while they fit, then the next, their tiles' feet level; on a
+ * computer, one under another down the day.
+ */
+export function DayClothes({
+  layout,
+  children,
+}: {
+  layout: 'column' | 'row'
+  children: ReactNode
+}) {
+  return (
+    <div
+      data-slot="day-clothes"
+      className={cn('flex min-w-0 gap-2', layout === 'row' ? 'flex-wrap items-end' : 'flex-col')}
+    >
+      {children}
     </div>
   )
 }
@@ -1651,19 +1661,31 @@ export function PlacingBar({
   )
 }
 
-/** A day's single garments in a row of 56px tiles (a phone's day, WRD-020 3). */
+/**
+ * A day's single garments (WRD-020 3), each tile the size an outfit's are:
+ * on a phone in a row at 56px, level with an outfit's tiles; on a computer
+ * stacked, as wide. `end` at the row's end: "Create outfit".
+ */
 export function DayGarmentRow({
   children,
   end,
+  layout = 'row',
 }: {
   children: ReactNode
-  /** At the row's end: "Create outfit", beside the garments it makes one of. */
   end?: ReactNode
+  layout?: 'column' | 'row'
 }) {
+  if (layout === 'column')
+    return (
+      <div className="flex min-w-0 flex-col gap-1.5 px-1.5">
+        {children}
+        {end && <div className="self-center">{end}</div>}
+      </div>
+    )
   return (
-    <div className="flex min-w-0 items-center gap-2">
-      <div className="flex min-w-0 flex-wrap items-center gap-2 [&>*]:size-14">{children}</div>
-      {end && <div className="ml-auto shrink-0">{end}</div>}
+    <div className="flex min-w-0 items-center gap-2 pb-2">
+      <div className="flex min-w-0 flex-wrap items-center gap-1.5 [&>*]:size-14">{children}</div>
+      {end && <div className="shrink-0">{end}</div>}
     </div>
   )
 }

@@ -164,19 +164,70 @@ test.describe('Week', () => {
     await expect(page.getByRole('button', { name: 'Undo' })).toHaveCount(0)
   })
 
-  test('WRD-021 4: a garment found in the pane dragged onto a day', async ({ page, isMobile }) => {
+  test("WRD-022 2, WRD-021 6: a day's outfit dragged to another day, then back into the pane", async ({
+    page,
+    isMobile,
+  }) => {
     test.skip(isMobile, 'a mouse, on a computer')
     const db = await start(page)
     const pane = page.getByRole('complementary', { name: 'Planned outfits' })
-    await pane.getByRole('tab', { name: 'Garments' }).click()
-    await pane.getByRole('searchbox', { name: 'Search clothes' }).fill('arket')
-    await drag(page, pane.locator('[data-slot="garment-line"]').first(), day(page, false, 'Sat 21'))
-    await expect(day(page, false, 'Sat 21').locator('[data-slot="day-garment"]')).toHaveCount(1)
+    // The pane is the planned outfits alone (Joe, 20 November).
+    await expect(pane.getByRole('tab')).toHaveCount(0)
+    await drag(page, pane.locator('[data-slot="planned-outfit"]'), day(page, false, 'Fri 20'))
+    await expect(day(page, false, 'Fri 20').locator('[data-slot="day-outfit"]')).toHaveCount(1)
+    await drag(
+      page,
+      day(page, false, 'Fri 20').locator('[data-slot="day-outfit"]'),
+      day(page, false, 'Sat 21'),
+    )
+    await expect(day(page, false, 'Sat 21').locator('[data-slot="day-outfit"]')).toContainText(
+      'Work',
+    )
+    await expect(day(page, false, 'Fri 20').locator('[data-slot="day-outfit"]')).toHaveCount(0)
+    await drag(page, day(page, false, 'Sat 21').locator('[data-slot="day-outfit"]'), pane)
+    await expect(day(page, false, 'Sat 21').locator('[data-slot="day-outfit"]')).toHaveCount(0)
+    await expect(pane.locator('[data-slot="planned-outfit"]')).toContainText('Work')
     await expect
-      .poll(() =>
-        db.wardrobe.worn_garments!.some((w) => w.garment_id === 'g-white' && w.worn_id !== 'w-mon'),
-      )
-      .toBe(true)
+      .poll(() => db.wardrobe.planned_outfits!.filter((p) => !p.removed_at).length)
+      .toBe(1)
+    // Quietly: no toast (Joe, 20 November).
+    await expect(page.getByRole('button', { name: 'Undo' })).toHaveCount(0)
+  })
+
+  test("WRD-021 6: on a phone, a day's outfit held and dragged back into the tray", async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(!isMobile, 'a finger, on a phone')
+    const db = await start(page)
+    await page.getByRole('button', { name: 'Add to Sat 21 Nov' }).click()
+    await page
+      .getByRole('dialog', { name: 'Add to Sat 21 Nov' })
+      .getByRole('button', { name: /Work/ })
+      .click()
+    const sat = page.getByRole('region', { name: 'Sat 21 Nov' })
+    await sat.scrollIntoViewIfNeeded()
+    const outfit = sat.getByRole('button', { name: 'Work, Sat 21 Nov' })
+    await outfit.dispatchEvent('pointerdown', { pointerType: 'touch', isPrimary: true, button: 0 })
+    await page.waitForTimeout(500)
+    await page.evaluate(() => {
+      const tray = document
+        .querySelector('[data-slot="tray"][data-drop="planned"]')!
+        .getBoundingClientRect()
+      const touch = new Touch({
+        identifier: 1,
+        target: document.body,
+        clientX: tray.left + tray.width / 2,
+        clientY: tray.top + tray.height / 2,
+      })
+      document.dispatchEvent(new TouchEvent('touchmove', { touches: [touch], cancelable: true }))
+    })
+    await expect(page.locator('[data-slot="drag-ghost"]')).toBeVisible()
+    await page.evaluate(() => document.dispatchEvent(new TouchEvent('touchend')))
+    await expect(sat.locator('[data-slot="day-outfit"]')).toHaveCount(0)
+    await expect
+      .poll(() => db.wardrobe.planned_outfits!.filter((p) => !p.removed_at).length)
+      .toBe(1)
   })
 
   test('WRD-021 5: on a phone, an outfit chosen in the tray, then a day', async ({

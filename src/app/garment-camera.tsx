@@ -46,6 +46,9 @@ async function pictureOf(source: Blob | HTMLVideoElement): Promise<ImageBitmap> 
   }
 }
 
+/** The camera's square frame: this share of the screen's shorter side (CameraView). */
+const FRAME = 0.86
+
 /** A transparent pixel: the camera's video has no poster to show. */
 const BLANK = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
 
@@ -111,11 +114,21 @@ function useCamera(on: boolean) {
       .then(() => setTorch(next))
       .catch(() => setTorch(null))
   }
-  /** The frame as it is now. */
-  const shoot = async (): Promise<ImageBitmap | null> => {
+  /**
+   * The frame as it is now, and the square the camera's frame showed of it
+   * (WRD-005 2): the video fills the screen, cropped at its sides, and the
+   * frame is 86% of the screen's shorter side, so the crop starts on just
+   * what was in it, 1:1 (Joe, 20 November: it started wider).
+   */
+  const shoot = async (): Promise<{ picture: ImageBitmap; crop: Crop } | null> => {
     const v = video.current
     if (!v || !v.videoWidth) return null
-    return pictureOf(v)
+    const picture = await pictureOf(v)
+    const box = v.getBoundingClientRect()
+    const shown = Math.max(box.width / v.videoWidth, box.height / v.videoHeight)
+    const framed = (FRAME * Math.min(box.width, box.height)) / shown
+    const zoom = Math.max(1, Math.min(v.videoWidth, v.videoHeight) / framed)
+    return { picture, crop: { ...CENTRED, zoom } }
   }
   return { video, ready: stream !== null && playing, failed, torch, toggleTorch, shoot }
 }
@@ -145,12 +158,13 @@ export function GarmentPhotoStep({
   const { video, ready, failed, torch, toggleTorch, shoot } = useCamera(!picture && !file)
   const input = useRef<HTMLInputElement>(null)
 
-  const square = async (source: Blob | Promise<ImageBitmap | null>) => {
+  const square = async (source: Blob | Promise<{ picture: ImageBitmap; crop: Crop } | null>) => {
     try {
-      const p = source instanceof Blob ? await pictureOf(source) : await source
-      if (!p) return
-      setCrop(CENTRED)
-      setPicture(p)
+      const taken =
+        source instanceof Blob ? { picture: await pictureOf(source), crop: CENTRED } : await source
+      if (!taken) return
+      setCrop(taken.crop)
+      setPicture(taken.picture)
     } catch {
       toast('This photo can’t be read')
     }
