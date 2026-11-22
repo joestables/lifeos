@@ -123,6 +123,7 @@ export function ExerciseProgress({
             from={p.span.from}
             to={p.span.to}
             lines={lines}
+            step={exercise.equipment ? exercise.equipment.incrementGrams / 1000 : undefined}
             bars={p.bars}
             target={p.target}
             barsLabel={`${p.muscle ?? 'No muscle'} stimulus`}

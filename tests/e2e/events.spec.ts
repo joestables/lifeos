@@ -149,6 +149,7 @@ test('EVT-001 3, EVT-002: an Event changed in its popup; all day kept as dates; 
   await expect(popup.getByRole('textbox', { name: 'Place' })).toHaveValue('The Ivy, Richmond')
 
   await popup.getByRole('textbox', { name: 'Place' }).fill('The Ivy, Kew')
+  await popup.getByRole('button', { name: 'Add notes' }).click()
   await popup.getByRole('textbox', { name: 'Notes' }).fill('Table for six')
   await popup.getByRole('textbox', { name: 'Notes' }).blur()
   await expect

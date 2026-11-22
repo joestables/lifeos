@@ -108,6 +108,9 @@ test('TSK-001, PLA-007: "New task" opens a new Task with all its fields, no Labe
   await expect(dialog.getByRole('button', { name: 'Do on' })).toContainText('Today')
   await expect(dialog.getByRole('button', { name: /^Today 10:00/ })).toBeVisible()
   await dialog.getByRole('textbox', { name: 'Title' }).fill('Renew insurance')
+  // Notes wait behind a quiet "Add notes", just above Space (Joe, 22 November).
+  await dialog.getByRole('button', { name: 'Add notes' }).click()
+  await expect(dialog.getByRole('textbox', { name: 'Notes' })).toBeFocused()
   await dialog.getByRole('textbox', { name: 'Notes' }).fill('Policy 123')
   await expect(dialog.getByText('Labels', { exact: true })).toHaveCount(0)
   await expect(dialog.getByText('Sub-tasks', { exact: true })).toHaveCount(0)
@@ -252,6 +255,7 @@ test("TSK-002, TSK-005, PLA-007: a Task's details, each kept as it is changed; n
   const task = page.getByRole('dialog')
 
   await task.getByRole('textbox', { name: 'Title' }).fill('Renew the car insurance')
+  await task.getByRole('button', { name: 'Add notes' }).click()
   await task.getByRole('textbox', { name: 'Notes' }).fill('Admiral quoted £412')
   await task.getByRole('button', { name: 'Star' }).click()
 

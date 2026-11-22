@@ -485,6 +485,7 @@ export function applyPendingWorkouts(
         ...('notes' in p && {
           notes: typeof p.notes === 'string' && p.notes.trim() ? p.notes.trim() : null,
         }),
+        ...(typeof p.ended_at === 'string' && row.stage === 'complete' && { ended_at: p.ended_at }),
       })
     }
   }

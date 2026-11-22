@@ -2,7 +2,10 @@ import { Slider as SliderPrimitive } from '@base-ui/react/slider'
 import { cn } from '@/lib/utils'
 
 /** 6px track, --primary range, 16px thumb. Durations and amounts. */
-/** One thumb, or one per value for a range (components.md). */
+/**
+ * One thumb, or one per value for a range (components.md). The thumbs stay
+ * within the track at its ends, so nothing around it cuts them in half.
+ */
 function Slider({
   className,
   'aria-label': label,
@@ -17,6 +20,7 @@ function Slider({
     <SliderPrimitive.Root
       data-slot="slider"
       aria-label={label}
+      thumbAlignment="edge"
       className={cn('w-full', className)}
       {...props}
     >

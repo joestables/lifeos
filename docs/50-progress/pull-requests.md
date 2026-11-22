@@ -2,6 +2,48 @@
 
 Newest first. Each entry is added in its own pull request.
 
+## [#107](https://github.com/joestables/lifeos/pull/107) — Joe's nine and a full UI review
+
+Branch `claude/dazzling-thompson-rlm97p` · 2026-11-22 · Stage 6, step 11 (across the app)
+
+**What it did**
+- **Notes in a Task's and an Event's popup** are a quiet "Add notes" just
+  above Space until used, then a one-line Textarea that grows: new
+  NotesField.
+- **A finished workout's end corrected** in its Edit: a "Finished"
+  TimeField; its day and start stay; its duration, the averages and
+  recovery follow (GYM-012 6). Migration `workout_end_time`:
+  `fitness.update_workout` takes `ended_at`, after the start, within a day
+  and not later than now.
+- **The Slider's thumbs** stay within the track (Base UI's
+  `thumbAlignment="edge"`), so a FilterPanel no longer cuts them in half.
+- **Dragging is one thing everywhere:** on a computer the Meal plan and the
+  Wardrobe's Week use the browser's own drag and drop, its picture and
+  cursor, as Week does; a touch still presses and holds. A StoredPicture
+  never drags itself, so an outfit drags by its pictures too.
+- **A phone's Meal plan** puts this week's days before today in one line
+  until opened: new MealEarlier.
+- **The progression chart's weights** step in round multiples of the
+  exercise's increment (2.5, 5, 10…; `axisStep`, unit-tested).
+- **A starred Task's star** sits at the row's end on a computer: ItemRow's
+  hover actions take no room until shown.
+- **All workouts' Dates:** To under From. **Add a meal:** no category
+  chips, only the search and the three viewed last.
+- **From the UI review** (every screen, dark and light, computer and
+  phone, against the stand-in): ItemRow's "·" spaced as every other meta
+  line; PanelFooter ("All workouts") in line with its Card's rows; a
+  Recipe's actions right under its details; GarmentStat's tiles visible on
+  a dark popup; Recovery's "Never trained" without "×0.0 a week".
+
+**Verified**
+- `npm run check`, `npm run build`, `npm run db:test` (new
+  `workout_end_time_test`), the browser tests (a finished workout's end;
+  the Meal plan's earlier days and picker; drags on the Wardrobe's Week and
+  the Meal plan); dark and light screenshots at both widths.
+
+**Left for later**
+- The review's subjective finds, put to Joe for the next pass.
+
 ## [#106](https://github.com/joestables/lifeos/pull/106) — Lists on Notes; the Meal plan and Shopping as Recipes' tabs
 
 Branch `claude/serene-wozniak-kdt98z` · 2026-11-20 · Stage 4b, step 12

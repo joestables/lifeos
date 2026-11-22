@@ -4,11 +4,16 @@ import { holdDrag } from '@/lib/drag-hold'
 const HOLD_MS = 400
 const SLOP = 8
 
+/** A mouse (or pen) drags as the browser does, as on Week; a finger presses and holds. */
+const fine = () => typeof matchMedia === 'function' && matchMedia('(pointer: fine)').matches
+
 /**
- * Dragging a Meal to another slot (patterns.md#meal-plan): with a mouse,
- * once it has moved a little; with a finger, after pressing and holding,
- * so a swipe still scrolls. The slot under the pointer is whatever carries
- * `data-drop` ("2026-10-15:dinner"); let go there, `onDrop` gets it.
+ * Dragging a Meal to another slot (patterns.md#dragging), or a worn outfit
+ * to another day: with a mouse, the browser's own drag and drop, its
+ * picture and cursor as Week's (Joe, 22 November); with a finger, after
+ * pressing and holding, so a swipe still scrolls. The slot under the
+ * pointer is whatever carries `data-drop` ("2026-10-15:dinner"); let go
+ * there, `onDrop` gets it.
  */
 export function useMealDrag(
   onDrop: (meal: string, drop: string) => void,
@@ -28,6 +33,8 @@ export function useMealDrag(
 
   const start = (meal: string) => (e: React.PointerEvent) => {
     if (e.button !== 0) return
+    // A mouse's drag is the browser's: see native below.
+    if (e.pointerType !== 'touch' && fine()) return
     const touch = e.pointerType === 'touch'
     const x0 = e.clientX
     const y0 = e.clientY
@@ -122,12 +129,58 @@ export function useMealDrag(
     }
   }
 
+  // The browser's drag and drop, for a mouse: anything carrying `data-drop`
+  // takes it, shaded while over; elsewhere the browser says it can't.
+  const native = (meal: string) => (e: React.DragEvent) => {
+    e.dataTransfer.effectAllowed = 'move'
+    e.dataTransfer.setData('text/plain', meal)
+    let target: string | null = null
+    const dropOf = (ev: DragEvent) =>
+      ((ev.target as Element | null)?.closest?.('[data-drop]') as HTMLElement | null)?.dataset
+        .drop ?? null
+    const onOver = (ev: DragEvent) => {
+      target = dropOf(ev)
+      setOver(target)
+      if (!target) return
+      ev.preventDefault()
+      if (ev.dataTransfer) ev.dataTransfer.dropEffect = 'move'
+    }
+    const drop = (ev: DragEvent) => {
+      const at = dropOf(ev)
+      if (!at) return
+      ev.preventDefault()
+      latest.current(meal, at)
+      // Moved, the card is drawn afresh where it went: its dragend may never reach the page.
+      end()
+    }
+    let ended = false
+    const end = () => {
+      if (ended) return
+      ended = true
+      cancelAnimationFrame(frame)
+      document.removeEventListener('dragover', onOver)
+      document.removeEventListener('drop', drop)
+      document.removeEventListener('dragend', end)
+      setDragging(null)
+      setOver(null)
+      window.setTimeout(() => (dragged.current = false))
+    }
+    document.addEventListener('dragover', onOver)
+    document.addEventListener('drop', drop)
+    document.addEventListener('dragend', end)
+    dragged.current = true
+    // After the browser has taken its picture, so the picture isn't faded.
+    const frame = requestAnimationFrame(() => setDragging(meal))
+  }
+
   return {
     dragging,
     over,
     point,
     /** Spread on a Meal's card. */
     handle: (meal: string) => ({
+      draggable: fine(),
+      onDragStart: native(meal),
       onPointerDown: start(meal),
       onContextMenu: (e: React.MouseEvent) => e.preventDefault(),
       onClickCapture: (e: React.MouseEvent) => {

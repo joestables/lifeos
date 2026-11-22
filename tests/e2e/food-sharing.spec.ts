@@ -1,5 +1,14 @@
 import { expect, test, type Page } from '@playwright/test'
-import { DISHOOM, KATSU_MEAL, LEFTOVERS, NOW, addMeal, mealCards, mealRows } from './meal-rows'
+import {
+  DISHOOM,
+  KATSU_MEAL,
+  LEFTOVERS,
+  NOW,
+  addMeal,
+  mealCards,
+  mealRows,
+  openEarlier,
+} from './meal-rows'
 import { BIN_BAGS, GARLIC, SAM } from './pantry-rows'
 import { id } from './recipe-rows'
 import { ANN, itemRow, standIn, type Rows } from './stand-in'
@@ -83,6 +92,7 @@ async function start(page: Page, path: string, meals: string | null = null) {
   await page.clock.setFixedTime(NOW)
   const db = await standIn(page, { signedIn: true, rows: rows(meals) })
   await page.goto(path)
+  if (path.includes('tab=week')) await openEarlier(page)
   return db
 }
 

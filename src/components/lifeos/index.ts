@@ -4,6 +4,7 @@ export { ItemPage } from './ItemPage'
 export { ItemRow } from './ItemRow'
 export { PageAction, PageHeader, TabsRow } from './PageHeader'
 export { TitleField } from './TitleField'
+export { NotesField } from './NotesField'
 export { CaptureButton, type CaptureLook } from './CaptureButton'
 export { AddAlertMenu, ChipRow, NewDialog, QuickChip, SavesAs, SmartLine } from './Capture'
 export { PlanCard } from './PlanCard'
@@ -77,7 +78,15 @@ export {
   type IngredientLine,
   type StepPart,
 } from './RecipeParts'
-export { AddMealButton, MealCard, MealDay, MealSlot, MealWeek, type Slot } from './MealPlan'
+export {
+  AddMealButton,
+  MealCard,
+  MealDay,
+  MealEarlier,
+  MealSlot,
+  MealWeek,
+  type Slot,
+} from './MealPlan'
 export { Suggestions, type Suggestion } from './Suggestions'
 export { LINE_UNITS, STEP_FIELD } from './recipe-fields'
 export { BodyMap } from './BodyMap'

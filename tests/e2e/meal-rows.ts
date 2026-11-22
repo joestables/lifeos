@@ -84,7 +84,10 @@ export async function addMeal(page: Page, key: string) {
   const [day, slot] = key.split(':') as [string, string]
   const cell = page.locator(`[data-drop="${key}"]`)
   const dayOf = page.locator(`section[data-drop="${day}"]`)
-  await cell.or(dayOf).first().waitFor()
+  // On a phone, this week's days before today are in one line until opened.
+  const earlier = page.locator('[data-slot="meal-earlier"][aria-expanded="false"]')
+  await cell.or(dayOf).or(earlier).first().waitFor()
+  if (!(await cell.count()) && !(await dayOf.count())) await earlier.click()
   if (await cell.count()) {
     await cell
       .last()
@@ -101,4 +104,11 @@ export async function addMeal(page: Page, key: string) {
     .getByLabel('Slot')
     .getByRole('button', { name: SLOT_NAMES[slot] })
     .click()
+}
+
+/** On a phone, opens this week's days before today, in one line until opened (Joe, 22 November). */
+export async function openEarlier(page: Page) {
+  const earlier = page.locator('[data-slot="meal-earlier"][aria-expanded="false"]')
+  await page.locator('[data-slot="meal-card"], [data-slot="meal-earlier"]').first().waitFor()
+  if (await earlier.count()) await earlier.click()
 }

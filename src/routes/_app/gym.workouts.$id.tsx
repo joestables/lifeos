@@ -38,6 +38,7 @@ import {
   TypeTile,
   WorkoutStatePill,
   Text,
+  TimeField,
 } from '@/components/lifeos'
 import {
   AlertDialog,
@@ -622,9 +623,21 @@ function Review({
           </Text>
         )}
         {editing && (
-          <Button variant="outline" size="sm" className="self-start" onClick={onRate}>
-            <PencilIcon /> How it went
-          </Button>
+          <>
+            {/* Ended late, when it was forgotten: its real end (Joe, 22 November). */}
+            <div className="w-36">
+              <Field label="Finished" htmlFor={`${workout.item.id}-finished`}>
+                <TimeField
+                  id={`${workout.item.id}-finished`}
+                  value={hhmm(workout.endedAt!)}
+                  onChange={(t) => finishAt(workout, t)}
+                />
+              </Field>
+            </div>
+            <Button variant="outline" size="sm" className="self-start" onClick={onRate}>
+              <PencilIcon /> How it went
+            </Button>
+          </>
         )}
       </Card>
       {done.map((e) => {
@@ -733,6 +746,24 @@ function Review({
       )}
     </>
   )
+}
+
+const hhmm = (iso: string) => clock(iso).replace('.', ':')
+
+/**
+ * A finished workout's end, corrected (GYM-012 6): the time chosen on the
+ * day it started, or the next when that is earlier than its start; never
+ * later than now. Its day and start stay.
+ */
+function finishAt(workout: WorkoutView, time: string) {
+  const [h, m] = time.split(':').map(Number)
+  if (h === undefined || m === undefined || !workout.startedAt) return
+  const start = new Date(workout.startedAt)
+  const end = new Date(start)
+  end.setHours(h, m, 0, 0)
+  if (end <= start) end.setDate(end.getDate() + 1)
+  if (end.getTime() > Date.now()) return toast('It can’t finish later than now')
+  updateWorkout(workout.item.id, { endedAt: end.toISOString() })
 }
 
 function RenameDialog({ workout, onClose }: { workout: WorkoutView; onClose: () => void }) {

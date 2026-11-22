@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
-import { itemRow, standIn, type Rows } from './stand-in'
+import { itemRow, pickTime, standIn, type Rows } from './stand-in'
 
 const TODAY = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/London' })
 
@@ -595,6 +595,29 @@ test.describe('workouts', () => {
     await page.getByRole('button', { name: 'Done' }).click()
     await expect(bench.getByText('No sets logged')).toBeVisible()
     await expect(page.getByRole('button', { name: 'Edit set 2' })).toHaveCount(0)
+  })
+
+  test.describe('in London', () => {
+    test.use({ timezoneId: 'Europe/London' })
+    test('GYM-012 6: a finished workout’s end corrected, its day and start kept', async ({
+      page,
+    }) => {
+      const db = await standIn(page, { signedIn: true, rows: HISTORY })
+      await page.goto('/gym/workouts/h-0')
+      await expect(page.getByText('18:00–19:30')).toBeVisible()
+      await page.getByRole('button', { name: 'Workout', exact: true }).click()
+      await page.getByRole('menuitem', { name: 'Edit' }).click()
+      // Ended late, when it was forgotten (Joe, 22 November).
+      await pickTime(page.getByLabel('Finished'), '19:00')
+      await expect
+        .poll(() => db.workout.find((w) => w.item_id === 'h-0')?.ended_at)
+        .toBe(new Date(`${daysAgo(1)}T19:00:00Z`).toISOString())
+      await expect(page.getByText('18:00–19:00')).toBeVisible()
+      await expect(page.getByText('1 h 00')).toBeVisible()
+      expect(db.workout.find((w) => w.item_id === 'h-0')?.started_at).toBe(
+        `${daysAgo(1)}T18:00:00Z`,
+      )
+    })
   })
 
   test('GYM-021 2: Exercises, templates and workouts found in Search', async ({

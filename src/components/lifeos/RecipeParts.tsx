@@ -486,7 +486,8 @@ export function RecipeHeadingLayout({
   actions: ReactNode
 }) {
   return (
-    <div className="grid grid-cols-[minmax(0,44%)_minmax(0,1fr)] items-start gap-x-4 gap-y-4 [grid-template-areas:'photo_details''actions_actions'] md:grid-cols-[18rem_minmax(0,1fr)] md:gap-x-5 md:gap-y-3 md:[grid-template-areas:'photo_details''photo_actions']">
+    // The photo's spare height goes under the actions, not between them and the details.
+    <div className="grid grid-cols-[minmax(0,44%)_minmax(0,1fr)] grid-rows-[auto_1fr] items-start gap-x-4 gap-y-4 [grid-template-areas:'photo_details''actions_actions'] md:grid-cols-[18rem_minmax(0,1fr)] md:gap-x-5 md:gap-y-3 md:[grid-template-areas:'photo_details''photo_actions']">
       <div className="[grid-area:photo]">{photo}</div>
       <div className="flex min-w-0 flex-col gap-2 [grid-area:details] md:gap-3">{details}</div>
       <div className="flex flex-wrap items-center gap-2 [grid-area:actions]">{actions}</div>

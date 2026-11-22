@@ -1303,6 +1303,7 @@ export async function standIn(
       if (typeof p.name === 'string' && p.name.trim()) i.title = p.name.trim()
       if (typeof p.day === 'string' && w.stage === 'planned') i.do_on = p.day
       for (const k of ['how_it_went', 'motivation', 'notes']) if (k in p) w[k] = p[k]
+      if (typeof p.ended_at === 'string' && w.stage === 'complete') w.ended_at = p.ended_at
     },
     start_workout: (a) => {
       const w = db.workout.find((x) => x.item_id === a.p_id)
