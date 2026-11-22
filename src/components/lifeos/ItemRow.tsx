@@ -5,8 +5,9 @@ import { useLasting } from '@/hooks/use-lasting'
 
 /**
  * Any list of Items: tile or checkbox, title and meta, then actions that
- * appear on hover and focus, taking no room until then, and the "…" menu
- * (only the menu on a phone, always showing), which is always last. With onOpen, tapping the row opens
+ * appear on hover and focus on a computer, taking no room until then, and
+ * the "…" menu, unseen until then (only the menu on a phone, always
+ * showing), which is always last. With onOpen, tapping the row opens
  * the Item. Done: greyed and struck through; past: greyed (Joe, 15 November).
  */
 export function ItemRow({
@@ -109,11 +110,23 @@ export function ItemRow({
         )}
       </div>
       {mark && <div className="relative z-10 flex">{mark}</div>}
-      {/* On a computer they take no room until shown, so a mark sits at the row's end, as on a phone (Joe, 22 November). */}
+      {/*
+        On a computer the hover actions take no room until shown, so a mark
+        sits just before the "…", as on a phone (Joe, 22 November); the "…"
+        keeps its place, unseen until hover or focus.
+      */}
       {(actions || menu) && (
-        <div className="relative z-10 flex items-center gap-1 md:hidden md:group-focus-within/row:flex md:group-hover/row:flex md:has-[[data-popup-open]]:flex">
-          {actions && <div className="hidden items-center gap-1 md:flex">{actions}</div>}
-          {menu}
+        <div className="relative z-10 flex items-center gap-1">
+          {actions && (
+            <div className="hidden items-center gap-1 md:group-focus-within/row:flex md:group-hover/row:flex md:group-has-[[data-popup-open]]/row:flex">
+              {actions}
+            </div>
+          )}
+          {menu && (
+            <div className="flex opacity-100 transition-opacity md:opacity-0 md:group-focus-within/row:opacity-100 md:group-hover/row:opacity-100 md:has-[[data-popup-open]]:opacity-100">
+              {menu}
+            </div>
+          )}
         </div>
       )}
       {trailing && <div className="relative z-10 flex">{trailing}</div>}
