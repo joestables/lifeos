@@ -6,6 +6,7 @@ import {
   AddMealButton,
   MealCard,
   MealDay,
+  MealEarlier,
   MealSlot,
   MealWeek,
   PlanToolbar,
@@ -128,6 +129,11 @@ export function WeekTab({
   // A phone opens on today (MPL-001 2).
   const days = useRef<HTMLDivElement>(null)
   const monday = week[0]
+  // This week's days before today, in one line on a phone until opened; a
+  // week gone by shows whole.
+  const earlier = week.filter((d) => d < today).length < 7 ? week.filter((d) => d < today) : []
+  const [openedEarlier, setOpenedEarlier] = useState<string | null>(null)
+  const earlierOpen = openedEarlier === monday
   useEffect(() => {
     if (!isMobile) return
     days.current?.querySelector(`[data-day="${today}"]`)?.scrollIntoView({ block: 'start' })
@@ -248,36 +254,49 @@ export function WeekTab({
       )}
       {isMobile ? (
         <div ref={days} className="flex flex-col gap-3">
-          {week.map((d) => {
-            const date = fromIsoDay(d)
-            return (
-              <div key={d} data-day={d} className="scroll-mt-4">
-                <MealDay
-                  name={shortDate(date).slice(0, 3)}
-                  date={`${date.getDate()} ${month.format(date)}`}
-                  today={d === today}
-                  drop={d}
-                  dropping={drag.over === d}
-                  action={
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      aria-label={`Add a meal on ${shortDate(date)}`}
-                      onClick={() => setPlanning({ day: d })}
-                    >
-                      <PlusIcon />
-                    </Button>
-                  }
-                >
-                  {SLOTS.some((s) => meals.get(`${d}:${s}`)?.length) && (
-                    <div className="grid gap-1.5">
-                      {SLOTS.flatMap((s) => meals.get(`${d}:${s}`) ?? []).map(card)}
-                    </div>
-                  )}
-                </MealDay>
-              </div>
-            )
-          })}
+          {/* The days gone this week, in one line until opened (Joe, 22 November). */}
+          {earlier.length > 0 && (
+            <MealEarlier
+              dates={daysSpan(earlier[0]!, earlier[earlier.length - 1]!)}
+              count={mealCount(
+                earlier.flatMap((d) => SLOTS.flatMap((s) => meals.get(`${d}:${s}`) ?? [])).length,
+              )}
+              open={earlierOpen}
+              onOpenChange={(on) => setOpenedEarlier(on ? monday! : null)}
+            />
+          )}
+          {week
+            .filter((d) => earlierOpen || !earlier.includes(d))
+            .map((d) => {
+              const date = fromIsoDay(d)
+              return (
+                <div key={d} data-day={d} className="scroll-mt-4">
+                  <MealDay
+                    name={shortDate(date).slice(0, 3)}
+                    date={`${date.getDate()} ${month.format(date)}`}
+                    today={d === today}
+                    drop={d}
+                    dropping={drag.over === d}
+                    action={
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        aria-label={`Add a meal on ${shortDate(date)}`}
+                        onClick={() => setPlanning({ day: d })}
+                      >
+                        <PlusIcon />
+                      </Button>
+                    }
+                  >
+                    {SLOTS.some((s) => meals.get(`${d}:${s}`)?.length) && (
+                      <div className="grid gap-1.5">
+                        {SLOTS.flatMap((s) => meals.get(`${d}:${s}`) ?? []).map(card)}
+                      </div>
+                    )}
+                  </MealDay>
+                </div>
+              )
+            })}
         </div>
       ) : (
         <MealWeek
@@ -299,3 +318,14 @@ export function WeekTab({
     </div>
   )
 }
+
+/** "Mon 16 – Wed 18 Nov", or "Mon 30 Nov – Tue 1 Dec" across a month; one day as "Mon 16 Nov". */
+function daysSpan(first: string, last: string): string {
+  const a = fromIsoDay(first)
+  const b = fromIsoDay(last)
+  if (first === last) return shortDate(a)
+  const start = a.getMonth() === b.getMonth() ? shortDate(a).replace(/ \S+$/, '') : shortDate(a)
+  return `${start} – ${shortDate(b)}`
+}
+
+const mealCount = (n: number) => `${n} meal${n === 1 ? '' : 's'}`

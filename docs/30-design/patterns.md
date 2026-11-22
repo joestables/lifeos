@@ -687,7 +687,8 @@ MealCard, MealSlot, AddMealButton, MealWeek, MealDay and PantryRow in
   ("28 Sept – 4 Oct"; Joe, 26 October). Then the MealWeek on a computer,
   the week's seven MealDays down a phone, today's scrolled into view: each
   day its "+" and its Meals as one-line cards saying their slot, no slots
-  named (Joe, 25 and 26 October). A Meal's name is its Recipe's, a typed
+  named (Joe, 25 and 26 October); this week's days before today in one
+  MealEarlier line, closed until opened (Joe, 22 November). A Meal's name is its Recipe's, a typed
   Meal's what was typed; leftovers take the name of the Meal they are of.
 - **Moving:** on a computer a MealCard is dragged to any slot, as on Week;
   on a phone it is pressed and held until it lifts, then dragged to another
@@ -698,11 +699,11 @@ MealCard, MealSlot, AddMealButton, MealWeek, MealDay and PantryRow in
   "and removed its leftovers".
 - **Adding:** a slot's "+" opens a Popover (320px) on a computer; on a
   phone, a day's "+" opens the Dialog Week's "+" → Meal opens, Dinner to
-  start (Joe, 25 October: a Popover over the page let taps through). In it, an `sm` search, my
-  the categories of the Recipes I can plan as LabelChips (none chosen), then "Recently viewed": the
+  start (Joe, 25 October: a Popover over the page let taps through). In it, an `sm` search,
+  then "Recently viewed": the
   three Recipes I opened last ("Planned lately", from my latest Meals,
-  before I've opened any; Joe, 26 October). Searching or choosing a
-  category shows every match instead (Drafts and Completes, A–Z, scrolling
+  before I've opened any; Joe, 26 October); no category chips (Joe, 22
+  November). Searching shows every match instead (Drafts and Completes, A–Z, scrolling
   past 240px). Each is a 40px line with the Recipe's
   small TypeTile, its name and cuisine (and "· Sam") muted; a footer of
   ghost "Type a meal" (`utensils`) and "Leftovers" (`rotate-ccw`). A Recipe
@@ -860,11 +861,12 @@ Agreed with Joe on 1 November 2026, on the
   WorkoutStatePill. Nothing planned: one PanelRow, the most suitable
   template with its readiness. **All workouts** and **All templates** are
   pages of their own: StatTiles over the list, the FilterPanel (with
-  RangeFilters, and Dates as two DateFields) beside it on a wide screen
+  RangeFilters, and Dates as two DateFields, From over To) beside it on a wide screen
   and an outline `sm` Filters button opening it in a FilterDialog where it doesn't
   fit, Pagination under it. A finished workout's Edit puts a pencil on each
-  set, Log set under them and How it went under its figures, with Done in
-  place of its "…".
+  set, Log set under them, and under its figures a "Finished" TimeField
+  (144px; Joe, 22 November) and How it went, with Done in place of its
+  "…".
 - **A workout in progress is designed for a phone**, one column on a
   computer too: the title with "…"; the state pill and facts under it,
   joined by "·" as everywhere; the Session's ExerciseCards, expand button
@@ -887,7 +889,7 @@ Agreed with Joe on 1 November 2026, on the
   a sets stepper; coverage beside them.
 - **Recovery:** overall readiness at `text-display`, the BodyMap and the
   LookAhead slider under it, and every muscle as a PanelRow with its
-  ReadinessRing, last trained and average frequency, sorted with SortMenu.
+  ReadinessRing, last trained and average frequency ("Never trained" alone for one never trained), sorted with SortMenu.
   A muscle, on the map or in the list, opens a Dialog of its readiness,
   when it is fully recovered, its average frequency and its stimulus sets
   this week against its target. With no
@@ -991,8 +993,9 @@ November, on the [Wardrobe design canvas](https://claude.ai/artifact/6b8SnjL1sUC
   phone) and a DayGarmentRow (`column`) of single garments' tiles, as wide
   as an outfit's, and, under two or more, an outline `icon-sm` `shirt`
   "Create outfit" (named in its tooltip; the column is narrow); an outfit
-  or garment dragged to another day or, an outfit, back onto the pane, a
-  DragGhost following the pointer (Joe, 20 November); the Planned Outfits pane on the
+  or garment dragged to another day or, an outfit, back onto the pane, by
+  any part of it, its pictures too, as a card on Week is
+  ([Dragging](#dragging); Joe, 22 November); the Planned Outfits pane on the
   right, its planned outfits alone (Joe, 20 November), each line dragged
   onto a day ([Dragging](#dragging)). On a phone the days
   are stacked as the Meal plan's (MealDay), the DayWeather and "+" at the
@@ -1068,6 +1071,12 @@ Two kinds, the same everywhere (Joe, 2 November):
   dragged fades, and a 2px `--ring` line, rounded, shows in the gap between
   the two cards it will go between (above the first, below the last); no
   line while letting go would leave it where it is.
+- **On a computer, onto a space** is the browser's own drag and drop on
+  Week, the Meal plan and the Wardrobe's Week alike: its picture of the
+  card under the pointer and its cursor, which says where the card can't
+  go. A card drags by any part of it: a picture in it never drags itself
+  (Joe, 22 November). On a phone, a card is pressed and held, then follows
+  the finger as a DragGhost.
 - **Either way:** a drag never selects text, never shows a phone's
   long-press menu, and never scrolls or pulls to refresh the page — the
   browser's or LifeOS's own PullToRefresh: a reorder handle takes its

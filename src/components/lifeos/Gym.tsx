@@ -20,6 +20,7 @@ import { Slider } from '@/components/ui/slider'
 import type { Reorder } from '@/hooks/use-reorder'
 import { REORDER_ROW } from './reorder'
 import { cn } from '@/lib/utils'
+import { axisStep } from './axis-step'
 import { readinessColour } from './readiness'
 
 /* ---------- Layout ---------- */
@@ -122,7 +123,7 @@ export function PanelRow({
 /** "All workouts" at a Card's foot: a ghost button the Card's width with a chevron. */
 export function PanelFooter({ label, onClick }: { label: string; onClick?: () => void }) {
   return (
-    <Button variant="ghost" className="-mx-2 -mb-2 justify-between" onClick={onClick}>
+    <Button variant="ghost" className="-mx-2 -mb-2 justify-between px-2" onClick={onClick}>
       {label}
       <ChevronRightIcon className="text-muted-foreground" />
     </Button>
@@ -1060,8 +1061,11 @@ export function ProgressChart({
   target,
   barsLabel,
   unit = '',
+  step,
   height = 200,
 }: {
+  /** The value's smallest change (an exercise's equipment increment, kg): the axis steps in its multiples. */
+  step?: number
   from: number
   to: number
   lines: ChartLine[]
@@ -1094,9 +1098,7 @@ export function ProgressChart({
   const all = points.map((p) => p.value)
   const lo = Math.min(...all)
   const hi = Math.max(...all)
-  const raw = (hi - lo) / 4 || 1
-  const mag = 10 ** Math.floor(Math.log10(raw))
-  const tick = [1, 2, 2.5, 5, 10].map((m) => m * mag).find((t) => t >= raw) ?? raw
+  const tick = axisStep(hi - lo, step)
   const y0 = Math.floor(lo / tick) * tick
   const y1 = Math.max(Math.ceil(hi / tick) * tick, y0 + tick)
   const ticks: number[] = []
@@ -1109,7 +1111,8 @@ export function ProgressChart({
   const bmax = Math.max(target * 1.4, ...bars.map((b) => b.value), 1)
   const bBase = bh - 6
   const by = (v: number) => bBase - ((bBase - 8) * v) / bmax
-  const fmt = (v: number) => `${Math.round(v * 10) / 10}${unit}`
+  // Three places: a 0.625 kg step says 21.875.
+  const fmt = (v: number) => `${Math.round(v * 1000) / 1000}${unit}`
   const weekW = (plotW * WEEK_MS) / (to - from || 1)
   const every = Math.max(1, Math.ceil(72 / weekW))
   const mid = (b: ChartBar) => x(b.start + WEEK_MS / 2)

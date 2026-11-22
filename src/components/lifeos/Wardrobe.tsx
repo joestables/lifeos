@@ -1580,7 +1580,7 @@ export function GarmentFact({ label, children }: { label: string; children: Reac
 /** A muted tile in a garment's popup: "Added", "2 Oct" (WRD-010 1). */
 export function GarmentStat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex flex-col gap-0.5 rounded-row bg-muted/60 px-3 py-2.5">
+    <div className="flex flex-col gap-0.5 rounded-row bg-accent/60 px-3 py-2.5">
       <span className="text-xs text-muted-foreground">{label}</span>
       <span className="font-bold tabular-nums">{value}</span>
     </div>

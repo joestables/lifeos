@@ -51,6 +51,8 @@ import {
   LogEntry,
   MealCard,
   MealDay,
+  MealEarlier,
+  NotesField,
   MethodSteps,
   KeepToggles,
   OfferRow,
@@ -518,6 +520,10 @@ function DesignSystem() {
             <div className="grid gap-1.5 sm:col-span-2">
               <Label htmlFor="d-notes">Notes</Label>
               <Textarea id="d-notes" placeholder="Anything to remember" />
+            </div>
+            <div className="flex flex-col gap-3 sm:col-span-2">
+              <NotesField value="" onChange={() => {}} />
+              <NotesField value="Bring the receipt" onChange={() => {}} />
             </div>
             <div className="flex items-center gap-2.5">
               <Checkbox id="d-check" defaultChecked />
@@ -1093,6 +1099,12 @@ function DesignSystem() {
         <Section title="Meal plan, Pantry">
           <TypeScope colour="green" className="grid max-w-3xl gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-5">
+              <MealEarlier
+                dates="Mon 12 – Wed 14 Oct"
+                count="2 meals"
+                open={false}
+                onOpenChange={() => {}}
+              />
               <MealDay
                 name="Thu"
                 date="15 Oct"

@@ -14,6 +14,7 @@ import {
   EventTimesField,
   ItemDialog,
   ItemRow,
+  NotesField,
   RepeatField,
   TitleField,
   TypeTile,
@@ -23,7 +24,6 @@ import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { DropdownMenuItem } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
 import { toast } from '@/components/ui/sonner'
 import { TaskLinker } from '@/components/lifeos/TaskLinker'
 import {
@@ -112,7 +112,7 @@ function useTimes(initial: EventTimes, keep: (t: EventTimes) => void) {
 
 /**
  * An Event's Alerts just below its times (Joe, 4 November), then place,
- * repeat, notes, Tasks and its Space last; no Labels (PLA-007,
+ * repeat, Tasks, notes and its Space last (Joe, 22 November); no Labels (PLA-007,
  * components.md#eventdetails).
  */
 function EventFields({
@@ -170,16 +170,8 @@ function EventFields({
           </Field>
         )}
       </div>
-      <Field label="Notes" htmlFor={`${ids}-notes`}>
-        <Textarea
-          id={`${ids}-notes`}
-          value={notes}
-          onChange={(e) => onNotes(e.target.value)}
-          onBlur={onNotesBlur}
-          className="min-h-16"
-        />
-      </Field>
       {tasks}
+      <NotesField value={notes} onChange={onNotes} onBlur={onNotesBlur} />
       {space}
     </div>
   )

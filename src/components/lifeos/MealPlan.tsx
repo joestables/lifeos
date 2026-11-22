@@ -1,4 +1,4 @@
-import { LockIcon, PlusIcon, RotateCcwIcon, UtensilsIcon } from 'lucide-react'
+import { ChevronDownIcon, LockIcon, PlusIcon, RotateCcwIcon, UtensilsIcon } from 'lucide-react'
 import type * as React from 'react'
 import { useState, type ReactNode } from 'react'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -269,6 +269,47 @@ export function MealDay({
       </div>
       {children}
     </section>
+  )
+}
+
+/**
+ * A phone's days before today this week, in one line until opened (Joe, 22
+ * November): their dates and how many Meals they hold, muted, as a
+ * MealDay's line, a chevron where its "+" is; opened, the chevron turns up
+ * and the days follow.
+ */
+export function MealEarlier({
+  dates,
+  count,
+  open,
+  onOpenChange,
+}: {
+  /** "Mon 16 – Wed 18 Nov" */
+  dates: string
+  /** "3 meals" */
+  count: string
+  open: boolean
+  onOpenChange: (open: boolean) => void
+}) {
+  return (
+    <button
+      type="button"
+      data-slot="meal-earlier"
+      aria-expanded={open}
+      onClick={() => onOpenChange(!open)}
+      className="group/earlier flex min-h-9 items-center gap-2 rounded-sm text-left text-muted-foreground outline-none hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring-soft"
+    >
+      <span className="text-base font-bold">{dates}</span>
+      <span className="text-sm tabular-nums">{count}</span>
+      <span className="h-px flex-1 bg-border" />
+      {/* Where a day's "+" is, so the lines end alike. */}
+      <span className="grid size-8 shrink-0 place-items-center">
+        <ChevronDownIcon
+          aria-hidden
+          className={cn('size-4 transition-transform', open && 'rotate-180')}
+        />
+      </span>
+    </button>
   )
 }
 

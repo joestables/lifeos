@@ -231,7 +231,10 @@ export function workoutWrites(queue: WriteQueue) {
       )
       return id
     },
-    /** Its name or, while planned, its day (GYM-007 3); how it went, afterwards (GYM-012 6). */
+    /**
+     * Its name or, while planned, its day (GYM-007 3); how it went and when
+     * it finished, afterwards (GYM-012 6).
+     */
     updateWorkout(
       id: string,
       patch: {
@@ -240,6 +243,8 @@ export function workoutWrites(queue: WriteQueue) {
         howItWent?: number | null
         motivation?: number | null
         notes?: string | null
+        /** A finished workout's end, corrected: an ISO instant. */
+        endedAt?: string
       },
     ): void {
       queue.enqueue(
@@ -252,6 +257,7 @@ export function workoutWrites(queue: WriteQueue) {
             ...(patch.howItWent !== undefined && { how_it_went: patch.howItWent }),
             ...(patch.motivation !== undefined && { motivation: patch.motivation }),
             ...(patch.notes !== undefined && { notes: patch.notes ?? '' }),
+            ...(patch.endedAt !== undefined && { ended_at: patch.endedAt }),
           } as never,
         },
         [id],

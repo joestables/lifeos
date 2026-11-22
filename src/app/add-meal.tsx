@@ -1,8 +1,8 @@
-import { ArrowLeftIcon, ChefHatIcon, PlusIcon, RotateCcwIcon, UtensilsIcon } from 'lucide-react'
+import { ArrowLeftIcon, ChefHatIcon, RotateCcwIcon, UtensilsIcon } from 'lucide-react'
 import { useState } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
-import { LabelChips, PickRow, TypeTile, Text } from '@/components/lifeos'
+import { PickRow, TypeTile, Text } from '@/components/lifeos'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import type { RecipeView } from '@/data/food-hooks'
@@ -14,7 +14,6 @@ import {
   slotName,
   type SlotKey,
 } from '@/lib/meals'
-import { valueChoices } from '@/lib/recipes'
 import { queue, useRecentViews } from '@/data'
 import {
   planLeftovers,
@@ -34,9 +33,9 @@ type Mode =
 const live = (r: RecipeView) => r.variations.filter((v) => v.item.status !== 'cancelled')
 
 /**
- * What a slot's "+" offers (MPL-002, patterns.md#meal-plan): a search and
- * my categories, then the three Recipes I viewed last (Joe, 26 October),
- * every match once I search or choose a category; a Recipe's Variations
+ * What a slot's "+" offers (MPL-002, patterns.md#meal-plan): a search,
+ * then the three Recipes I viewed last (Joe, 26 October), every match once
+ * I search — no categories, which listed every Recipe (Joe, 22 November); a Recipe's Variations
  * when it has more than one; or a Meal typed, or leftovers of an earlier
  * one. `onDone` once a Meal is planned.
  */
@@ -54,11 +53,9 @@ export function MealPicker({
   const { food } = plan
   // Only what a plannable Recipe has: a category of Ideas alone finds none.
   const library = food.recipes.filter((r) => r.state === 'active' || r.state === 'done')
-  const categories = valueChoices([], library, 'category')
   const viewed = useRecentViews(queue)
   const [mode, setMode] = useState<Mode>({ kind: 'recipes' })
   const [search, setSearch] = useState('')
-  const [chosen, setChosen] = useState<ReadonlySet<string>>(new Set())
   const [typed, setTyped] = useState('')
 
   const choose = (r: RecipeView) => {
@@ -183,17 +180,11 @@ export function MealPicker({
   }
 
   const q = search.trim().toLowerCase()
-  const picked = new Set([...chosen].map((c) => c.toLowerCase()))
-  // Searching or narrowing: every match, A–Z. Else the three I viewed last
-  // (Joe, 26 October), or those planned lately before I've viewed any.
-  const looking = q !== '' || chosen.size > 0
+  // Searching: every match, A–Z. Else the three I viewed last (Joe, 26
+  // October), or those planned lately before I've viewed any.
+  const looking = q !== ''
   const shown = library
-    .filter((r) => !q || r.item.title.toLowerCase().includes(q))
-    .filter(
-      (r) =>
-        !picked.size ||
-        (r.heading.category !== null && picked.has(r.heading.category.trim().toLowerCase())),
-    )
+    .filter((r) => r.item.title.toLowerCase().includes(q))
     .sort((a, b) => a.item.title.localeCompare(b.item.title))
   const byId = new Map(library.map((r) => [r.item.id, r]))
   const recent = viewed.map((id) => byId.get(id)).filter((r): r is RecipeView => !!r)
@@ -217,15 +208,6 @@ export function MealPicker({
   return (
     <div className="flex flex-col gap-2.5">
       <SearchField label="Search recipes" value={search} onChange={setSearch} />
-      {categories.length > 0 && (
-        <LabelChips
-          aria-label="Category"
-          icon={PlusIcon}
-          labels={categories.map((c) => ({ id: c, name: c }))}
-          chosen={chosen}
-          onChange={(next) => setChosen(new Set(next))}
-        />
-      )}
       {looking
         ? shown.length > 0 && (
             <div className="flex max-h-60 flex-col overflow-y-auto">{shown.map(row)}</div>

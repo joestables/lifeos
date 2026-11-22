@@ -86,12 +86,15 @@ export function RecoveryTab({ recovery }: { recovery: Recovery }) {
               selected={open === r.muscle.id}
               leading={<ReadinessRing percent={r.readiness} />}
               title={r.name}
-              meta={[
+              // Never trained says so alone, not "×0.0 a week" as well.
+              meta={
                 r.lastTrained === null
-                  ? 'Never trained'
-                  : `Trained ${trainedWhen(r.lastTrained, recovery.now)}`,
-                `×${r.frequency.toFixed(1)} a week`,
-              ]}
+                  ? ['Never trained']
+                  : [
+                      `Trained ${trainedWhen(r.lastTrained, recovery.now)}`,
+                      `×${r.frequency.toFixed(1)} a week`,
+                    ]
+              }
               chevron={false}
               onOpen={() => setOpen(r.muscle.id)}
             />

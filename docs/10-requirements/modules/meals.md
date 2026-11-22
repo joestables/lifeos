@@ -190,6 +190,9 @@ Acceptance criteria
    first in view: each day its "+" and its Meals one line each, in slot
    order, each saying its slot; no slots named apart (Joe, 25 and 26
    October). A week across two months says them short ("28 Sept – 4 Oct").
+   This week's days before today are one line, "Mon 16 – Wed 18 Nov · 3
+   meals", closed until I open it (Joe, 22 November); a week gone by shows
+   every day.
 3. Given ‹, ›, Today or a date, then that week shows.
 4. Given leftovers, then they're marked as leftovers, with the Meal they
    come from.
@@ -205,10 +208,10 @@ planning the week takes minutes.
 Priority: Must · Status: built
 
 Acceptance criteria
-1. Given a slot's "+", then a search opens, with the categories of the Recipes I
-   can plan to narrow it (Dinner, Baking…) and, until I search or choose one, the three Recipes I
-   viewed last (those planned lately before I've viewed any; Joe, 26
-   October);
+1. Given a slot's "+", then a search opens with, until I search, the three
+   Recipes I viewed last (those planned lately before I've viewed any; Joe,
+   26 October), and no categories, which listed every Recipe in a cramped
+   popup (Joe, 22 November);
    choosing one adds a Meal of its default Variation, or offers its
    Variations when it has more than one. On a phone a day's "+" opens it in
    a Dialog, the slot chosen there (Joe, 25 and 26 October).

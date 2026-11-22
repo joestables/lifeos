@@ -10,7 +10,7 @@ import {
   mealRows,
 } from './meal-rows'
 import { KATSU, KATSU_STD, NOODLES, NOODLES_STD, SHAKSHUKA } from './recipe-rows'
-import { ANN, standIn } from './stand-in'
+import { standIn } from './stand-in'
 
 async function start(page: Page, path = '/recipes?tab=week', { clock = true } = {}) {
   // A fixed clock stops the page's timers too, so a press and hold needs the real one.
@@ -47,32 +47,14 @@ test.describe('The Meal plan', () => {
     await expect(cards(page, '2026-10-15:dinner')).toHaveCount(1)
   })
 
-  test('MPL-002 1: categories narrow to the Recipes I can plan', async ({ page }) => {
-    await page.clock.setFixedTime(NOW)
-    const base = mealRows()
-    await standIn(page, {
-      signedIn: true,
-      rows: {
-        ...base,
-        // On my list, but no Recipe I can plan has it.
-        values: [
-          {
-            id: 'v1',
-            person_id: ANN.id,
-            kind: 'category',
-            name: 'Baking',
-            created_at: '2026-10-01',
-          },
-        ],
-      },
-    })
-    await page.goto('/recipes?tab=week')
+  test('MPL-002 1: a search and my last viewed, no categories', async ({ page }) => {
+    await start(page)
     await add(page, '2026-10-14:dinner')
     const picker = page.getByRole('dialog')
-    const chips = picker.getByRole('group', { name: 'Category' })
-    await expect(chips.getByRole('button', { name: /Breakfast/ })).toBeVisible()
-    await expect(chips.getByRole('button', { name: /Baking/ })).toHaveCount(0)
-    await chips.getByRole('button', { name: /Breakfast/ }).click()
+    await expect(picker.getByRole('searchbox', { name: 'Search recipes' })).toBeVisible()
+    // Categories listed every Recipe in a cramped popup (Joe, 22 November).
+    await expect(picker.getByRole('group', { name: 'Category' })).toHaveCount(0)
+    await picker.getByRole('searchbox', { name: 'Search recipes' }).fill('shak')
     await expect(picker.getByRole('button', { name: /Shakshuka/ })).toBeVisible()
     await expect(picker.getByRole('button', { name: /Katsu curry/ })).toHaveCount(0)
   })
@@ -336,6 +318,9 @@ test.describe('The Meal plan', () => {
   }) => {
     test.skip(!isMobile, 'a phone')
     const db = await start(page)
+    // This week's days before today are one line until opened (Joe, 22 November).
+    await expect(page.locator('section[data-drop="2026-10-14"]')).toHaveCount(0)
+    await page.getByRole('button', { name: /^Mon 12 – Wed 14 Oct\s*0 meals/ }).tap()
     // No slots named on a phone's day (Joe, 26 October): its "+", then the slot.
     await expect(slot(page, '2026-10-14').getByText('Lunch')).toHaveCount(0)
     await slot(page, '2026-10-14')

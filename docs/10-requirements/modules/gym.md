@@ -579,7 +579,11 @@ Acceptance criteria
 6. *(Suggested)* Given a finished workout, then Edit lets me correct its
    sets, ratings and notes, or delete it; readiness, stimulus sets and PRs
    follow. An exercise whose last set I delete stays, "No sets logged", so
-   I can log one again (Joe, 2 November).
+   I can log one again (Joe, 2 November). Edit also corrects when it
+   finished, for one ended late: a time on the day it started (the next,
+   when earlier than its start), within a day of its start and not later
+   than now; its day and start stay, and its duration, the averages and
+   recovery follow (Joe, 22 November).
 7. Given Discard on a workout in progress, then it is deleted, with Undo.
 
 ### GYM-013 — Recent and all workouts
@@ -621,7 +625,8 @@ Acceptance criteria
    — a point for each workout at its strongest set's weight, its reps
    ("×8") over the point, and the PR marked; a point's tooltip says the
    workout's date and name and its weight × reps and RIR (Joe, 3
-   November).
+   November). Its weights step in round multiples of its equipment's
+   increment: 2.5, 5 or 10 kg for a 2.5 kg barbell (Joe, 22 November).
 2. Given the chart, then its primary group's weekly stimulus sets show as
    bars under it, on the same weeks, with the weekly target, headed
    "Chest stimulus"; a bar's tooltip says its week, its stimulus sets and

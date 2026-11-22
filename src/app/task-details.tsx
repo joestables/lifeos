@@ -1,11 +1,17 @@
 import { useId, useRef, useState, type ReactNode } from 'react'
-import { DateField, RepeatField, TimeField, TitleField, type Repeat } from '@/components/lifeos'
+import {
+  DateField,
+  NotesField,
+  RepeatField,
+  TimeField,
+  TitleField,
+  type Repeat,
+} from '@/components/lifeos'
 import { LabelPicker } from '@/components/lifeos/LabelPicker'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
 import {
   addLabel,
   createLabel,
@@ -125,8 +131,8 @@ export interface TaskDates {
 
 /**
  * A Task's fields (TSK-002), for a Task kept as it is changed or a new one
- * kept on Save: notes, do-on date and time, due date, repeat and Alerts;
- * no Labels or sub-tasks (PLA-007). A time needs a day, so a time on its
+ * kept on Save: do-on date and time, due date, repeat, Alerts, then
+ * notes, just above its Space; no Labels or sub-tasks (PLA-007). A time needs a day, so a time on its
  * own asks for one.
  */
 export function TaskFields({
@@ -187,15 +193,6 @@ export function TaskFields({
 
   return (
     <div className="flex flex-col gap-4">
-      <Field label="Notes" htmlFor={`${ids}-notes`}>
-        <Textarea
-          id={`${ids}-notes`}
-          value={notes}
-          onChange={(e) => onNotesChange(e.target.value)}
-          onBlur={onNotesBlur}
-          className="min-h-16"
-        />
-      </Field>
       <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
         <Field label="Do on" htmlFor={`${ids}-do`}>
           <DateField
@@ -237,6 +234,7 @@ export function TaskFields({
       </div>
       <Field label="Alerts">{alerts}</Field>
       {forEvent}
+      <NotesField value={notes} onChange={onNotesChange} onBlur={onNotesBlur} />
       {space}
     </div>
   )

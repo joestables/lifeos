@@ -665,9 +665,10 @@ Acceptance criteria
 1. Given a day's "+", then I add an outfit or a single garment from a
    picker with search (suggested).
 2. Given a planned outfit or single garment, when I drag it to another day
-   (on a phone, held first, or Move to… a day), then it moves, its picture
-   following the pointer as a card on Week does, quietly (suggested; Joe,
-   20 November).
+   by any part of it, its pictures too (on a phone, held first, or Move
+   to… a day), then it moves, its picture following the pointer as a card
+   on Week does, with Week's cursor, quietly (suggested; Joe, 20 and 22
+   November).
 3. Given a planned outfit or garment, then Remove takes it off the day,
    with Undo.
 4. Given a garment of a planned outfit, then Remove from this day takes it

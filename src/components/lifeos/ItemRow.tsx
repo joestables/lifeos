@@ -5,8 +5,8 @@ import { useLasting } from '@/hooks/use-lasting'
 
 /**
  * Any list of Items: tile or checkbox, title and meta, then actions that
- * appear on hover and focus and the "…" menu (only the menu on a phone,
- * always showing), which is always last. With onOpen, tapping the row opens
+ * appear on hover and focus, taking no room until then, and the "…" menu
+ * (only the menu on a phone, always showing), which is always last. With onOpen, tapping the row opens
  * the Item. Done: greyed and struck through; past: greyed (Joe, 15 November).
  */
 export function ItemRow({
@@ -97,7 +97,8 @@ export function ItemRow({
           )}
         </div>
         {parts.length > 0 && (
-          <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground tabular-nums">
+          // "·" spaced as a space either side, as every other meta line (PanelRow, PlanCard, MealCard).
+          <div className="flex flex-wrap items-center gap-x-1 gap-y-0.5 text-sm text-muted-foreground tabular-nums">
             {parts.map((part, i) => (
               <Fragment key={i}>
                 {i > 0 && <span aria-hidden>·</span>}
@@ -108,8 +109,9 @@ export function ItemRow({
         )}
       </div>
       {mark && <div className="relative z-10 flex">{mark}</div>}
+      {/* On a computer they take no room until shown, so a mark sits at the row's end, as on a phone (Joe, 22 November). */}
       {(actions || menu) && (
-        <div className="relative z-10 flex items-center gap-1 opacity-100 transition-opacity md:opacity-0 md:group-focus-within/row:opacity-100 md:group-hover/row:opacity-100 md:has-[[data-popup-open]]:opacity-100">
+        <div className="relative z-10 flex items-center gap-1 md:hidden md:group-focus-within/row:flex md:group-hover/row:flex md:has-[[data-popup-open]]:flex">
           {actions && <div className="hidden items-center gap-1 md:flex">{actions}</div>}
           {menu}
         </div>

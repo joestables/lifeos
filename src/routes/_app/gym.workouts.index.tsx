@@ -223,7 +223,8 @@ function WorkoutFilters({
       }
     >
       <FilterSection title="Dates">
-        <div className="grid grid-cols-2 gap-2">
+        {/* One under the other: side by side, the panel cut their dates short (Joe, 22 November). */}
+        <div className="flex flex-col gap-3">
           <div className="flex flex-col gap-1.5">
             <Label htmlFor={`${ids}-from`}>From</Label>
             <DateField
